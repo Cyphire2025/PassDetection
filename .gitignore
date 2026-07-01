@@ -1,0 +1,76 @@
+# ============================================================
+# .gitignore — PassDetection Platform
+# ============================================================
+
+# ── Environment & Secrets ─────────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+*.pem
+*.key
+*.cert
+
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+junit.xml
+
+# ── Node / Next.js ────────────────────────────────────────
+node_modules/
+.next/
+out/
+.vercel/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Docker ────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── IDE ───────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────
+logs/
+*.log
+
+# ── OS ────────────────────────────────────────────────────
+.DS_Store
+*.DS_Store
+desktop.ini
+
+# ── MinIO local data ──────────────────────────────────────
+minio_data/
+
+# ── Alembic compiled ──────────────────────────────────────
+backend/alembic/versions/__pycache__/
+mmypass.jpeg
+nipunpass.jpeg
+ridhima passport.jpeg
+.git.frontend-backup/

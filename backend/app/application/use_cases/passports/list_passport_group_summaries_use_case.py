@@ -1,0 +1,47 @@
+"""
+List Passport Group Summaries Use Case
+=====================================
+"""
+
+from __future__ import annotations
+
+import uuid
+
+from app.application.dtos.passport_dtos import PassportGroupSummaryDTO
+from app.domain.repositories.interfaces import IPassportSubmissionRepository
+
+
+class ListPassportGroupSummariesUseCase:
+    """Lists client groups that contain at least one passport submission."""
+
+    def __init__(self, passport_repo: IPassportSubmissionRepository) -> None:
+        self._passport_repo = passport_repo
+
+    async def execute(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        skip: int = 0,
+        limit: int = 50,
+        created_by_user_id: uuid.UUID | None = None,
+    ) -> list[PassportGroupSummaryDTO]:
+        summaries = await self._passport_repo.list_group_summaries_by_agency(
+            agency_id,
+            skip=skip,
+            limit=limit,
+            created_by_user_id=created_by_user_id,
+        )
+
+        return [
+            PassportGroupSummaryDTO(
+                group_id=summary.group_id,
+                group_name=summary.group_name,
+                group_status=summary.group_status,
+                total_passports=summary.total_passports,
+                pending_review_count=summary.pending_review_count,
+                confirmed_count=summary.confirmed_count,
+                failed_count=summary.failed_count,
+                latest_submission_at=summary.latest_submission_at,
+            )
+            for summary in summaries
+        ]

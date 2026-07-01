@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ──────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --color-brand-50:  #EFF6FF;
+  --color-brand-100: #DBEAFE;
+  --color-brand-500: #3B82F6;
+  --color-brand-600: #2563EB;
+  --color-brand-700: #1D4ED8;
+
+  /* Neutral surface */
+  --color-bg:          #F8FAFC;   /* page background */
+  --color-surface:     #FFFFFF;   /* cards, panels */
+  --color-surface-2:   #F1F5F9;   /* secondary surfaces */
+  --color-border:      #E2E8F0;   /* standard border */
+  --color-border-strong: #CBD5E1; /* stronger border */
+
+  /* Text */
+  --color-text-primary:   #0F172A;  /* headings */
+  --color-text-secondary: #475569;  /* body text */
+  --color-text-muted:     #94A3B8;  /* placeholders, hints */
+
+  /* Status */
+  --color-success:  #16A34A;
+  --color-warning:  #D97706;
+  --color-error:    #DC2626;
+  --color-info:     #2563EB;
+
+  /* Sidebar */
+  --sidebar-width:     240px;
+  --sidebar-collapsed: 64px;
+  --header-height:     60px;
+
+  /* Font */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* ── Base Reset ──────────────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ── Focus (Accessibility) ───────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: var(--color-surface-2); }
+::-webkit-scrollbar-thumb  { background: var(--color-border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-600); }

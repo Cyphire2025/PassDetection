@@ -1,0 +1,72 @@
+/**
+ * React Query Hooks for Upload Links
+ */
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { uploadLinksApi, type CreateUploadLinkRequest, type UploadLinkResponse } from "../api/upload-links.api";
+
+const QUERY_KEYS = {
+  all: ["upload-links"] as const,
+  list: (statusFilter?: UploadLinkResponse["status"]) => ["upload-links", "list", statusFilter ?? "active-workflow"] as const,
+  byToken: (token: string) => ["upload-links", "token", token] as const,
+};
+
+export function useUploadLinks(statusFilter?: UploadLinkResponse["status"]) {
+  return useQuery({
+    queryKey: QUERY_KEYS.list(statusFilter),
+    queryFn: () => uploadLinksApi.list(statusFilter),
+  });
+}
+
+export function useUploadLinkByToken(token: string) {
+  return useQuery({
+    queryKey: QUERY_KEYS.byToken(token),
+    queryFn: () => uploadLinksApi.getByToken(token),
+    enabled: Boolean(token),
+    retry: false, // Don't retry if token is invalid (404)
+  });
+}
+
+export function useCreateUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateUploadLinkRequest) => uploadLinksApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
+
+export function useRevokeUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => uploadLinksApi.revoke(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
+
+export function useDeleteUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => uploadLinksApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
+
+export function useRestoreUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => uploadLinksApi.restore(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
