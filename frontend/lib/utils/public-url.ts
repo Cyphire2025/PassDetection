@@ -1,17 +1,29 @@
 export interface PassportUploadTarget {
-  key: "local" | "lan";
-  label: "Local" | "LAN";
+  key: "public";
+  label: "Public";
   description: string;
   url: string;
 }
 
+const DEFAULT_PUBLIC_APP_URL = "https://pass.cyphire.in";
+
 /**
  * Returns the externally shareable application URL.
- * Configure NEXT_PUBLIC_APP_URL for LAN or production deployments; the
- * browser origin remains a safe fallback for ordinary local development.
+ * Configure NEXT_PUBLIC_APP_URL for production deployments. Localhost and
+ * private LAN origins are intentionally ignored for client-facing links.
  */
 export function getPublicAppUrl(): string {
-  return getLanAppUrl() ?? getBrowserOrigin() ?? "http://localhost";
+  const configuredUrl = normalizeOrigin(process.env.NEXT_PUBLIC_APP_URL);
+  if (configuredUrl && isPublicOrigin(configuredUrl)) {
+    return configuredUrl;
+  }
+
+  const browserOrigin = getBrowserOrigin();
+  if (browserOrigin && isPublicOrigin(browserOrigin)) {
+    return browserOrigin;
+  }
+
+  return DEFAULT_PUBLIC_APP_URL;
 }
 
 export function getLocalAppUrl(): string {
@@ -39,6 +51,14 @@ export function getLanAppUrl(): string | null {
     }
   }
 
+  const configuredLocalDevUrl = normalizeOrigin(process.env.NEXT_PUBLIC_DEV_APP_URL);
+  if (configuredLocalDevUrl) {
+    const configured = new URL(configuredLocalDevUrl);
+    if (!isLocalHostname(configured.hostname)) {
+      return configuredLocalDevUrl;
+    }
+  }
+
   const browserOrigin = getBrowserOrigin();
   if (!browserOrigin) return null;
 
@@ -48,29 +68,14 @@ export function getLanAppUrl(): string | null {
 
 export function getPassportUploadTargets(token: string): PassportUploadTarget[] {
   const path = `/upload/${encodeURIComponent(token)}`;
-  const targets: PassportUploadTarget[] = [
+  return [
     {
-      key: "local",
-      label: "Local",
-      description: "Use on the same laptop or desktop.",
-      url: `${getLocalAppUrl()}${path}`,
+      key: "public",
+      label: "Public",
+      description: "Share this with clients on any phone or browser.",
+      url: `${getPublicAppUrl()}${path}`,
     },
   ];
-
-  const lanOrigin = getLanAppUrl();
-  if (lanOrigin) {
-    const lanUrl = `${lanOrigin}${path}`;
-    if (lanUrl !== targets[0].url) {
-      targets.push({
-        key: "lan",
-        label: "LAN",
-        description: "Use from phones or other devices on the same Wi-Fi.",
-        url: lanUrl,
-      });
-    }
-  }
-
-  return targets;
 }
 
 export function getPassportUploadUrl(token: string): string {
@@ -94,4 +99,29 @@ function buildOrigin(protocol: string, hostname: string, port: string): string {
 
 function isLocalHostname(hostname: string): boolean {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+}
+
+function isPublicOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    return !isLocalHostname(hostname) && !isPrivateNetworkHostname(hostname);
+  } catch {
+    return false;
+  }
+}
+
+function isPrivateNetworkHostname(hostname: string): boolean {
+  if (
+    hostname.endsWith(".local") ||
+    hostname.startsWith("10.") ||
+    hostname.startsWith("192.168.")
+  ) {
+    return true;
+  }
+
+  const match = /^172\.(\d{1,3})\./.exec(hostname);
+  if (!match) return false;
+
+  const secondOctet = Number(match[1]);
+  return secondOctet >= 16 && secondOctet <= 31;
 }

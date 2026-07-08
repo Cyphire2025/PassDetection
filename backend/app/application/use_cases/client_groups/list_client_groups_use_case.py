@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 
-from app.application.dtos.client_group_dtos import ClientGroupOutputDTO
+from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, client_group_output_from_entity
 from app.domain.repositories.interfaces import IClientGroupRepository
 
 
@@ -33,15 +33,6 @@ class ListClientGroupsUseCase:
             created_by_user_id=created_by_user_id,
         )
         return [
-            ClientGroupOutputDTO(
-                id=link.id,
-                name=link.name,
-                token=link.token,
-                agency_id=link.agency_id,
-                status=link.status.value,
-                created_by_user_id=link.created_by_user_id,
-                created_at=link.created_at,
-                closed_at=link.closed_at,
-            )
+            client_group_output_from_entity(link)
             for link in links
         ]

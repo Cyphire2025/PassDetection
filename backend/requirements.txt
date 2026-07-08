@@ -36,8 +36,6 @@ Pillow==10.3.0
 numpy==1.26.4
 
 # ── OCR Engines (pluggable — only what's available will be loaded) ────────────
-easyocr==1.7.1
-paddleocr==2.7.3
 pytesseract==0.3.10
 
 # ── MRZ Parsing ───────────────────────────────────────────────────────────────

@@ -8,7 +8,6 @@ import { usePassportFrameDetection } from "../hooks/use-passport-frame-detection
 import { usePassportBlurDetection } from "../hooks/use-passport-blur-detection";
 import { usePassportLightingDetection } from "../hooks/use-passport-lighting-detection";
 import { usePassportGlareDetection } from "../hooks/use-passport-glare-detection";
-import { getPassportAnalysisBounds } from "../services/passport-analysis-region";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
 
 interface SmartCameraProps {
@@ -18,6 +17,8 @@ interface SmartCameraProps {
 
 export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const guideRef = useRef<HTMLDivElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analysisCanvasRef = useRef<HTMLCanvasElement>(null);
   const blurCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -95,16 +96,21 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           : "Passport detected - image is ready";
 
   useEffect(() => {
-    let currentStream: MediaStream | null = null;
-
     async function startCamera() {
       setIsLoading(true);
       setIsReady(false);
       setCameraError(null);
 
       try {
-        if (currentStream) {
-          currentStream.getTracks().forEach((track) => track.stop());
+        if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+          setCameraError(
+            "This custom passport scanner needs a secure camera session. Open the upload link over HTTPS to use the live detection frame, glare, blur, and lighting checks.",
+          );
+          return;
+        }
+
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
         }
 
         const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -116,16 +122,17 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           audio: false,
         });
 
-        currentStream = mediaStream;
+        streamRef.current = mediaStream;
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
+          await videoRef.current.play().catch(() => undefined);
         }
       } catch (error) {
         console.error("Failed to access camera", error);
         setCameraError(
           error instanceof DOMException && error.name === "NotAllowedError"
             ? "Camera access was blocked. Allow camera permission in your browser and try again."
-            : "The camera could not be started. You can go back and upload a photo instead.",
+            : "The camera could not be started. Open the link over HTTPS or go back and upload a photo instead.",
         );
       } finally {
         setIsLoading(false);
@@ -135,8 +142,9 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
     startCamera();
 
     return () => {
-      if (currentStream) {
-        currentStream.getTracks().forEach((track) => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
       }
     };
   }, [facingMode]);
@@ -162,9 +170,9 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const bounds = getPassportAnalysisBounds(video.videoWidth, video.videoHeight);
-    const cropWidth = Math.max(1, bounds.right - bounds.left);
-    const cropHeight = Math.max(1, bounds.bottom - bounds.top);
+    const crop = getVisibleGuideCrop(video, guideRef.current);
+    const cropWidth = Math.max(1, Math.round(crop.width));
+    const cropHeight = Math.max(1, Math.round(crop.height));
 
     canvas.width = cropWidth;
     canvas.height = cropHeight;
@@ -178,8 +186,8 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
       try {
         context.drawImage(
           video,
-          bounds.left,
-          bounds.top,
+          crop.left,
+          crop.top,
           cropWidth,
           cropHeight,
           0,
@@ -204,6 +212,13 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
     setCapturedFile(null);
     setWasPerspectiveCorrected(false);
     setAutoCaptureCountdown(null);
+    setIsProcessingCapture(false);
+
+    window.requestAnimationFrame(() => {
+      if (!videoRef.current || !streamRef.current) return;
+      videoRef.current.srcObject = streamRef.current;
+      void videoRef.current.play().catch(() => undefined);
+    });
   };
 
   const confirm = () => {
@@ -273,18 +288,15 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
             <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" />
             <h3 className="mb-2 text-lg font-semibold">Camera unavailable</h3>
             <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
-            <Button onClick={onCancel} className="w-full">
-              Upload a file instead
-            </Button>
+            <div className="flex flex-col gap-3">
+              <Button onClick={onCancel} className="w-full">
+                Back
+              </Button>
+              <p className="text-xs text-slate-400">
+                The custom scanner works only when the page is opened from a secure origin.
+              </p>
+            </div>
           </div>
-        ) : capturedImage ? (
-          <Image
-            src={capturedImage}
-            alt="Captured passport"
-            fill
-            unoptimized
-            className="object-contain"
-          />
         ) : (
           <>
             <video
@@ -293,45 +305,58 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
               playsInline
               muted
               onLoadedData={() => setIsReady(true)}
-              className={`h-full w-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
+              className={`h-full w-full object-cover ${capturedImage ? "opacity-0" : "opacity-100"} ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
             />
 
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute left-1/2 top-1/2 h-auto w-[min(88vw,34rem)] -translate-x-1/2 -translate-y-1/2 aspect-[1.42/1] max-h-[56vh]">
-                <div className={`absolute inset-0 rounded-[22px] border-2 transition-colors shadow-[0_0_0_9999px_rgba(2,6,23,0.44)] ${guideToneClass}`}>
-                  <div className="absolute -left-1 -top-1 h-8 w-8 rounded-tl-lg border-l-4 border-t-4 border-blue-500"></div>
-                  <div className="absolute -right-1 -top-1 h-8 w-8 rounded-tr-lg border-r-4 border-t-4 border-blue-500"></div>
-                  <div className="absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-lg border-b-4 border-l-4 border-blue-500"></div>
-                  <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-br-lg border-b-4 border-r-4 border-blue-500"></div>
+            {capturedImage ? (
+              <Image
+                src={capturedImage}
+                alt="Captured passport"
+                fill
+                unoptimized
+                className="object-contain"
+              />
+            ) : (
+              <div className="pointer-events-none absolute inset-0">
+                <div
+                  ref={guideRef}
+                  className="absolute left-1/2 top-1/2 h-auto w-[min(88vw,34rem)] -translate-x-1/2 -translate-y-1/2 aspect-[1.42/1] max-h-[56vh]"
+                >
+                  <div className={`absolute inset-0 rounded-[22px] border-2 transition-colors shadow-[0_0_0_9999px_rgba(2,6,23,0.44)] ${guideToneClass}`}>
+                    <div className="absolute -left-1 -top-1 h-8 w-8 rounded-tl-lg border-l-4 border-t-4 border-blue-500"></div>
+                    <div className="absolute -right-1 -top-1 h-8 w-8 rounded-tr-lg border-r-4 border-t-4 border-blue-500"></div>
+                    <div className="absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-lg border-b-4 border-l-4 border-blue-500"></div>
+                    <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-br-lg border-b-4 border-r-4 border-blue-500"></div>
+                  </div>
+                </div>
+
+                <div
+                  className={`absolute left-1/2 top-5 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
+                >
+                  {guidanceMessage}
+                </div>
+
+                <div className="absolute bottom-28 left-1/2 flex max-w-[94%] -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:bottom-24">
+                  <QualityChip label="Passport" status={isPassportDetected ? "ready" : "pending"} />
+                  <QualityChip
+                    label="Focus"
+                    status={!isPassportDetected || blurStatus === "checking" ? "pending" : isSharp ? "ready" : "warning"}
+                  />
+                  <QualityChip
+                    label="Lighting"
+                    status={!isPassportDetected || lightingStatus === "checking" ? "pending" : lightingStatus === "good" ? "ready" : "warning"}
+                  />
+                  <QualityChip
+                    label="Glare"
+                    status={!isPassportDetected || glareStatus === "checking" ? "pending" : hasGlare ? "warning" : "ready"}
+                  />
+                  <QualityChip
+                    label="Auto"
+                    status={!isPassportDetected ? "pending" : isCaptureReady ? "ready" : "pending"}
+                  />
                 </div>
               </div>
-
-              <div
-                className={`absolute left-1/2 top-5 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
-              >
-                {guidanceMessage}
-              </div>
-
-              <div className="absolute bottom-28 left-1/2 flex max-w-[94%] -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:bottom-24">
-                <QualityChip label="Passport" status={isPassportDetected ? "ready" : "pending"} />
-                <QualityChip
-                  label="Focus"
-                  status={!isPassportDetected || blurStatus === "checking" ? "pending" : isSharp ? "ready" : "warning"}
-                />
-                <QualityChip
-                  label="Lighting"
-                  status={!isPassportDetected || lightingStatus === "checking" ? "pending" : lightingStatus === "good" ? "ready" : "warning"}
-                />
-                <QualityChip
-                  label="Glare"
-                  status={!isPassportDetected || glareStatus === "checking" ? "pending" : hasGlare ? "warning" : "ready"}
-                />
-                <QualityChip
-                  label="Auto"
-                  status={!isPassportDetected ? "pending" : isCaptureReady ? "ready" : "pending"}
-                />
-              </div>
-            </div>
+            )}
           </>
         )}
 
@@ -393,6 +418,58 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
       )}
     </div>
   );
+}
+
+interface CropBounds {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+function getVisibleGuideCrop(video: HTMLVideoElement, guide: HTMLDivElement | null): CropBounds {
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
+
+  if (!guide || videoWidth <= 0 || videoHeight <= 0) {
+    return {
+      left: 0,
+      top: 0,
+      width: videoWidth || 1,
+      height: videoHeight || 1,
+    };
+  }
+
+  const videoRect = video.getBoundingClientRect();
+  const guideRect = guide.getBoundingClientRect();
+  const scale = Math.max(videoRect.width / videoWidth, videoRect.height / videoHeight);
+  const renderedWidth = videoWidth * scale;
+  const renderedHeight = videoHeight * scale;
+  const offsetX = (renderedWidth - videoRect.width) / 2;
+  const offsetY = (renderedHeight - videoRect.height) / 2;
+
+  const crop = {
+    left: (guideRect.left - videoRect.left + offsetX) / scale,
+    top: (guideRect.top - videoRect.top + offsetY) / scale,
+    width: guideRect.width / scale,
+    height: guideRect.height / scale,
+  };
+
+  return clampCrop(crop, videoWidth, videoHeight);
+}
+
+function clampCrop(crop: CropBounds, maxWidth: number, maxHeight: number): CropBounds {
+  const left = Math.max(0, Math.min(maxWidth - 1, crop.left));
+  const top = Math.max(0, Math.min(maxHeight - 1, crop.top));
+  const right = Math.max(left + 1, Math.min(maxWidth, crop.left + crop.width));
+  const bottom = Math.max(top + 1, Math.min(maxHeight, crop.top + crop.height));
+
+  return {
+    left,
+    top,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
 interface QualityChipProps {

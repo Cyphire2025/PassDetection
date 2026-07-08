@@ -7,6 +7,7 @@ Generates agency-ready XLSX files from confirmed passport submissions.
 from __future__ import annotations
 
 import io
+import uuid
 from datetime import datetime
 
 from openpyxl import Workbook
@@ -18,6 +19,10 @@ from app.domain.entities.entities import PassportSubmission
 
 class PassportExcelExporter:
     HEADERS = [
+        "Group",
+        "Destination",
+        "Travel Date",
+        "Return Date",
         "Client Name",
         "Email",
         "Phone",
@@ -35,7 +40,13 @@ class PassportExcelExporter:
         "Reviewed At",
     ]
 
-    def export_group(self, submissions: list[PassportSubmission], *, group_name: str) -> bytes:
+    def export_group(
+        self,
+        submissions: list[PassportSubmission],
+        *,
+        group_name: str,
+        group_details: dict[uuid.UUID, dict[str, str | None]] | None = None,
+    ) -> bytes:
         workbook = Workbook()
         worksheet = workbook.active
         worksheet.title = "Passport Submissions"
@@ -57,8 +68,13 @@ class PassportExcelExporter:
 
         for submission in submissions:
             fields = submission.confirmed_fields or submission.extracted_fields or {}
+            details = (group_details or {}).get(submission.group_id, {})
             worksheet.append(
                 [
+                    details.get("name") or group_name,
+                    details.get("destination"),
+                    details.get("travel_date"),
+                    details.get("return_date"),
                     submission.client_name,
                     submission.client_email,
                     submission.client_phone,
@@ -78,7 +94,7 @@ class PassportExcelExporter:
             )
 
         if submissions:
-            table_ref = f"A{header_row}:O{header_row + len(submissions)}"
+            table_ref = f"A{header_row}:S{header_row + len(submissions)}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
@@ -89,7 +105,7 @@ class PassportExcelExporter:
             )
             worksheet.add_table(table)
 
-        widths = [24, 28, 18, 18, 20, 24, 20, 16, 18, 16, 16, 10, 14, 28, 28]
+        widths = [24, 22, 16, 16, 24, 28, 18, 18, 20, 24, 20, 16, 18, 16, 16, 10, 14, 28, 28]
         for index, width in enumerate(widths, start=1):
             worksheet.column_dimensions[worksheet.cell(row=4, column=index).column_letter].width = width
 

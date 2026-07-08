@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 
 
 @dataclass(frozen=True)
@@ -48,3 +48,8 @@ class PassportGroupSummaryDTO:
     confirmed_count: int
     failed_count: int
     latest_submission_at: datetime
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    package_name: str | None = None
+    notes: str | None = None

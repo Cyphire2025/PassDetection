@@ -36,6 +36,7 @@ OPENAPI_TAGS = [
     {"name": "Dashboard", "description": "Agency dashboard metrics and recent passport activity."},
     {"name": "Upload Links", "description": "Secure client group upload links."},
     {"name": "Passports", "description": "Passport upload, extraction, review, export, and confirmation workflows."},
+    {"name": "Tour Operations", "description": "Coordinator-led tour attendance planning and operations workflows."},
     {"name": "Admin", "description": "Role-gated administrative overview endpoints."},
     {"name": "Analytics", "description": "Processing quality and operational analytics."},
     {"name": "Audit Logs", "description": "Security and operational audit trail."},
@@ -75,8 +76,8 @@ def create_application(settings: Settings | None = None) -> FastAPI:
         title=settings.app_name,
         version=settings.app_version,
         description=(
-            "Enterprise-grade Passport OCR Processing Platform with secure upload links, "
-            "passport extraction, MRZ validation, client review, Excel export, analytics, "
+            "Enterprise-grade Passport MRZ Processing Platform with secure upload links, "
+            "passport MRZ extraction, client review, Excel export, analytics, "
             "audit logging, and agency notifications."
         ),
         contact={"name": "PassDetection Engineering"},

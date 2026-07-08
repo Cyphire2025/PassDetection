@@ -7,7 +7,6 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "../api/auth.api";
 import { ROUTES } from "@/constants/routes";
@@ -15,7 +14,6 @@ import type { LoginFormData } from "../schemas/auth.schemas";
 import type { ApiError } from "@/types";
 
 export function useLogin() {
-  const router     = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
 
   return useMutation({
@@ -27,13 +25,29 @@ export function useLogin() {
 
       // Set a short-lived cookie so Next.js middleware can detect auth
       // Note: In a future hardening step this becomes an httpOnly cookie set by the server
-      document.cookie = `access_token=${session.tokens.access_token}; path=/; SameSite=Strict; Max-Age=1800`;
+      const secureFlag = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = [
+        `access_token=${encodeURIComponent(session.tokens.access_token)}`,
+        "Path=/",
+        "SameSite=Lax",
+        "Max-Age=1800",
+        secureFlag.replace("; ", ""),
+      ].filter(Boolean).join("; ");
 
-      router.push(ROUTES.dashboard.root);
+      const params = new URLSearchParams(window.location.search);
+      const nextPath = getSafeNextPath(params.get("from"));
+      window.location.assign(nextPath);
     },
 
     onError: (error: ApiError) => {
       console.error("Login failed:", error.code, error.message);
     },
   });
+}
+
+function getSafeNextPath(from: string | null) {
+  if (!from || !from.startsWith("/") || from.startsWith("//")) {
+    return ROUTES.dashboard.root;
+  }
+  return from;
 }

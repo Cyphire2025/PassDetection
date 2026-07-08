@@ -16,6 +16,7 @@ from app.domain.entities.entities import PassportSubmission
 from app.domain.exceptions.exceptions import (
     EntityNotFoundError,
     GroupClosedError,
+    PassDetectionError,
 )
 from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
@@ -58,7 +59,9 @@ class SubmitPassportUseCase:
         # 2. Upload image to Object Storage
         ext = mimetypes.guess_extension(content_type) or ".jpg"
         unique_id = uuid.uuid4()
-        s3_key = f"{group.agency_id}/{group.id}/{unique_id}{ext}"
+        # Draft images are isolated from permanent passport storage until the
+        # client explicitly submits the reviewed details.
+        s3_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}{ext}"
         
         await self._storage_repo.upload_file(
             file_content=file_content,
@@ -75,14 +78,52 @@ class SubmitPassportUseCase:
             image_s3_key=s3_key,
         )
 
-        # 4. Save submission and queue extraction outside the HTTP lifecycle.
+        # 4. Save submission and run the MRZ-only extraction inline. Public
+        # uploads should not depend on Celery health for the review screen.
         await self._passport_repo.save(submission)
 
         submission.mark_processing()
         await self._passport_repo.update(submission)
 
         job = None
-        if self._processing_job_repo is not None:
+        if self._extraction_service is not None:
+            try:
+                extraction = await self._extraction_service.extract(
+                    file_content,
+                    filename=validated_filename(filename, s3_key),
+                    content_type=content_type,
+                )
+                submission.mark_review_required(
+                    extracted_fields=extraction.extracted_fields,
+                    confidence=extraction.overall_confidence,
+                    confidence_score=extraction.confidence_score,
+                    mrz_raw=extraction.mrz_raw,
+                )
+                await self._passport_repo.update(submission)
+                logger.info(
+                    "passport_public_upload_extracted_inline",
+                    submission_id=str(submission.id),
+                    group_id=str(group.id),
+                    agency_id=str(group.agency_id),
+                    confidence=extraction.overall_confidence,
+                )
+            except PassDetectionError as exc:
+                submission.mark_failed(exc.message)
+                await self._passport_repo.update(submission)
+                logger.warning(
+                    "passport_public_upload_inline_extraction_failed",
+                    submission_id=str(submission.id),
+                    error=exc.message,
+                )
+            except Exception as exc:
+                submission.mark_failed("Automatic passport extraction failed")
+                await self._passport_repo.update(submission)
+                logger.exception(
+                    "passport_public_upload_inline_extraction_unexpected_failed",
+                    submission_id=str(submission.id),
+                    error=str(exc),
+                )
+        elif self._processing_job_repo is not None:
             job = await self._processing_job_repo.create(
                 submission_id=submission.id,
                 max_attempts=get_settings().processing_job_max_attempts,
@@ -120,3 +161,7 @@ class SubmitPassportUseCase:
             processing_progress=job.progress if job else None,
             processing_stage=job.current_stage if job else None,
         )
+
+
+def validated_filename(filename: str, fallback_key: str) -> str:
+    return filename or fallback_key.rsplit("/", 1)[-1]

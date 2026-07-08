@@ -42,6 +42,11 @@ class ListPassportGroupSummariesUseCase:
                 confirmed_count=summary.confirmed_count,
                 failed_count=summary.failed_count,
                 latest_submission_at=summary.latest_submission_at,
+                destination=summary.destination,
+                travel_date=summary.travel_date,
+                return_date=summary.return_date,
+                package_name=summary.package_name,
+                notes=summary.notes,
             )
             for summary in summaries
         ]

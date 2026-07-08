@@ -10,6 +10,7 @@ import io
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
@@ -20,10 +21,12 @@ from app.application.use_cases.passports.list_passport_group_summaries_use_case 
 from app.application.use_cases.passports.list_passport_submissions_use_case import ListPassportSubmissionsUseCase
 from app.application.use_cases.passports.list_passport_submissions_by_group_use_case import ListPassportSubmissionsByGroupUseCase
 from app.application.use_cases.passports.reextract_passport_submission_use_case import ReextractPassportSubmissionUseCase
+from app.application.use_cases.passports.retry_public_passport_extraction_use_case import RetryPublicPassportExtractionUseCase
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError, PassDetectionError, EntityNotFoundError
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel, PassportSubmissionModel
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
@@ -37,6 +40,8 @@ from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     ConfirmPassportSubmissionRequest,
+    ExportSelectedGroupsRequest,
+    ExportSelectedPassportsRequest,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
 )
@@ -49,6 +54,25 @@ def _owner_scope_for(user: User) -> uuid.UUID | None:
     return user.id if user.role == UserRole.AGENCY_STAFF else None
 
 
+def _submitted_statuses() -> tuple[str, str]:
+    return ("client_submitted", "confirmed")
+
+
+def _apply_manager_visibility(stmt, current_user: User):  # type: ignore[no-untyped-def]
+    if current_user.role != UserRole.AGENCY_STAFF:
+        return stmt
+    return stmt.outerjoin(
+        ManagerGroupAccessModel,
+        (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
+        & (ManagerGroupAccessModel.manager_id == current_user.id),
+    ).where(
+        or_(
+            ClientGroupModel.created_by_user_id == current_user.id,
+            ManagerGroupAccessModel.manager_id == current_user.id,
+        )
+    )
+
+
 async def _ensure_group_owner_scope(
     group_id: uuid.UUID,
     current_user: User,
@@ -58,7 +82,7 @@ async def _ensure_group_owner_scope(
     if not owner_scope:
         return
     group = await group_repo.get_by_id(group_id)
-    if not group or group.created_by_user_id != owner_scope:
+    if not group or not await group_repo.manager_can_access(group_id, owner_scope):
         raise AuthorizationError("You do not have access to this manager's group")
 
 
@@ -105,6 +129,26 @@ async def _response_from_submission(
             }
         )
     return PassportSubmissionResponse.model_validate(payload)
+
+
+def _group_export_details(group) -> dict[str, str | None]:  # type: ignore[no-untyped-def]
+    return {
+        "name": group.name,
+        "destination": group.destination,
+        "travel_date": group.travel_date.isoformat() if group.travel_date else None,
+        "return_date": group.return_date.isoformat() if group.return_date else None,
+        "package_name": group.package_name,
+    }
+
+
+async def _export_group_details(
+    session: AsyncSession,
+    group_ids: list[uuid.UUID],
+) -> dict[uuid.UUID, dict[str, str | None]]:
+    if not group_ids:
+        return {}
+    result = await session.execute(select(ClientGroupModel).where(ClientGroupModel.id.in_(set(group_ids))))
+    return {group.id: _group_export_details(group) for group in result.scalars().all()}
 
 
 async def _dispatch_processing_job(
@@ -177,6 +221,7 @@ def _get_client_submit_passport_use_case(
     return ClientSubmitPassportUseCase(
         passport_repo=PassportSubmissionRepository(session),
         client_group_repo=ClientGroupRepository(session),
+        storage_repo=MinioStorageRepository(),
     )
 
 
@@ -188,6 +233,17 @@ def _get_reextract_passport_use_case(
         storage_repo=MinioStorageRepository(),
         extraction_service=PassportExtractionService(),
         processing_job_repo=PassportProcessingJobRepository(session),
+    )
+
+
+def _get_retry_public_extraction_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> RetryPublicPassportExtractionUseCase:
+    return RetryPublicPassportExtractionUseCase(
+        passport_repo=PassportSubmissionRepository(session),
+        client_group_repo=ClientGroupRepository(session),
+        storage_repo=MinioStorageRepository(),
+        extraction_service=PassportExtractionService(),
     )
 
 
@@ -259,6 +315,81 @@ async def get_upload_passport_status(
     return await _response_from_submission(submission, session=session)
 
 
+@router.post(
+    "/upload/{token}/{submission_id}/scan-again",
+    response_model=PassportSubmissionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Rerun fallback MRZ extraction for a public upload",
+)
+async def scan_again_public_upload(
+    token: str,
+    submission_id: uuid.UUID,
+    use_case: RetryPublicPassportExtractionUseCase = Depends(_get_retry_public_extraction_use_case),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportSubmissionResponse:
+    try:
+        result = await use_case.execute(token=token, submission_id=submission_id)
+        return await _response_from_dto(result, session=session)
+    except EntityNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except PassDetectionError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+
+
+@router.get(
+    "/upload/{token}/{submission_id}/image",
+    status_code=status.HTTP_200_OK,
+    summary="Stream a public upload passport image through the API",
+)
+async def get_public_upload_passport_image(
+    token: str,
+    submission_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    group = await ClientGroupRepository(session).get_by_token(token)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload link was not found")
+
+    submission = await PassportSubmissionRepository(session).get_by_id(submission_id)
+    if not submission or submission.group_id != group.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport submission was not found")
+
+    content = await MinioStorageRepository().get_file(submission.image_s3_key)
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type="image/jpeg",
+        headers={
+            "Cache-Control": "private, max-age=300",
+            "Content-Disposition": 'inline; filename="passport.jpg"',
+        },
+    )
+
+
+@router.delete(
+    "/upload/{token}/{submission_id}",
+    status_code=status.HTTP_200_OK,
+    summary="Discard an unsubmitted public passport draft",
+)
+async def discard_public_upload(
+    token: str,
+    submission_id: uuid.UUID,
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, bool]:
+    group = await ClientGroupRepository(session).get_by_token(token)
+    submission_repo = PassportSubmissionRepository(session)
+    submission = await submission_repo.get_by_id(submission_id)
+    if not group or not submission or submission.group_id != group.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport draft was not found")
+    if submission.status.value in {"client_submitted", "confirmed"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded")
+
+    await MinioStorageRepository().delete_files(
+        [key for key in (submission.image_s3_key, submission.thumbnail_s3_key) if key]
+    )
+    await submission_repo.delete(submission.id)
+    return {"discarded": True}
+
+
 @router.get(
     "/groups",
     response_model=list[PassportGroupSummaryResponse],
@@ -296,9 +427,12 @@ async def list_passports_by_group(
     skip: int = 0,
     limit: int = 100,
     search: str | None = None,
+    include_deleted: bool = False,
 ) -> list[PassportSubmissionResponse]:
     if not current_user.agency_id:
         return []
+    if include_deleted and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only super admins can view old data")
 
     result = await use_case.execute(
         agency_id=current_user.agency_id,
@@ -306,7 +440,8 @@ async def list_passports_by_group(
         skip=skip,
         limit=limit,
         search=search,
-        created_by_user_id=_owner_scope_for(current_user),
+        created_by_user_id=None if include_deleted else _owner_scope_for(current_user),
+        include_deleted_group=include_deleted,
     )
     return [PassportSubmissionResponse.model_validate(item) for item in result]
 
@@ -358,7 +493,7 @@ async def export_passports_by_group(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
     if not current_user.can_access_agency(group.agency_id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this group")
-    if current_user.role == UserRole.AGENCY_STAFF and group.created_by_user_id != current_user.id:
+    if current_user.role == UserRole.AGENCY_STAFF and not await group_repo.manager_can_access(group_id, current_user.id):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this manager's group")
 
     passport_repo = PassportSubmissionRepository(session)
@@ -369,7 +504,11 @@ async def export_passports_by_group(
         exclude_archived_groups=True,
         created_by_user_id=_owner_scope_for(current_user),
     )
-    content = PassportExcelExporter().export_group(submissions, group_name=group.name)
+    content = PassportExcelExporter().export_group(
+        submissions,
+        group_name=group.name,
+        group_details={group.id: _group_export_details(group)},
+    )
 
     await AuditLogRepository(session).record(
         action="passport_group_exported",
@@ -386,6 +525,88 @@ async def export_passports_by_group(
         io.BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post(
+    "/export.xlsx",
+    status_code=status.HTTP_200_OK,
+    summary="Export selected passport submissions to Excel",
+)
+async def export_selected_passports(
+    body: ExportSelectedPassportsRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    if not current_user.agency_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+
+    stmt = (
+        select(PassportSubmissionModel)
+        .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+        .where(
+            PassportSubmissionModel.id.in_(body.submission_ids),
+            PassportSubmissionModel.status.in_(_submitted_statuses()),
+        )
+    )
+    if current_user.role != UserRole.SUPER_ADMIN:
+        stmt = stmt.where(PassportSubmissionModel.agency_id == current_user.agency_id)
+    stmt = _apply_manager_visibility(stmt, current_user)
+    result = await session.execute(stmt)
+    submissions = [PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()]
+    if not submissions:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No exportable passport submissions found")
+
+    content = PassportExcelExporter().export_group(
+        submissions,
+        group_name="Selected Passports",
+        group_details=await _export_group_details(session, [submission.group_id for submission in submissions]),
+    )
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="selected-passports.xlsx"'},
+    )
+
+
+@router.post(
+    "/groups/export.xlsx",
+    status_code=status.HTTP_200_OK,
+    summary="Export selected passport groups to Excel",
+)
+async def export_selected_groups(
+    body: ExportSelectedGroupsRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    if not current_user.agency_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+
+    stmt = (
+        select(PassportSubmissionModel)
+        .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+        .where(
+            PassportSubmissionModel.group_id.in_(body.group_ids),
+            PassportSubmissionModel.status.in_(_submitted_statuses()),
+        )
+    )
+    if current_user.role != UserRole.SUPER_ADMIN:
+        stmt = stmt.where(PassportSubmissionModel.agency_id == current_user.agency_id)
+    stmt = _apply_manager_visibility(stmt, current_user)
+    result = await session.execute(stmt)
+    submissions = [PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()]
+    if not submissions:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No exportable passport submissions found")
+
+    content = PassportExcelExporter().export_group(
+        submissions,
+        group_name="Selected Groups",
+        group_details=await _export_group_details(session, body.group_ids),
+    )
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="selected-groups-passports.xlsx"'},
     )
 
 

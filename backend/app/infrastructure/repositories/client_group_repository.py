@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup, GroupStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
-from app.infrastructure.database.models import ClientGroupModel
+from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel
 
 logger = get_logger(__name__)
 
@@ -37,6 +37,14 @@ class ClientGroupRepository(IClientGroupRepository):
             created_by_user_id=model.created_by_user_id,
             created_at=model.created_at,
             closed_at=model.closed_at,
+            destination=model.destination,
+            travel_date=model.travel_date,
+            return_date=model.return_date,
+            package_name=model.package_name,
+            notes=model.notes,
+            deleted_at=model.deleted_at,
+            deleted_passport_count=model.deleted_passport_count,
+            deletion_retained_records=model.deletion_retained_records,
         )
 
     @staticmethod
@@ -50,6 +58,14 @@ class ClientGroupRepository(IClientGroupRepository):
             created_by_user_id=entity.created_by_user_id,
             created_at=entity.created_at,
             closed_at=entity.closed_at,
+            destination=entity.destination,
+            travel_date=entity.travel_date,
+            return_date=entity.return_date,
+            package_name=entity.package_name,
+            notes=entity.notes,
+            deleted_at=entity.deleted_at,
+            deleted_passport_count=entity.deleted_passport_count,
+            deletion_retained_records=entity.deletion_retained_records,
         )
 
     async def get_by_id(self, link_id: uuid.UUID) -> ClientGroup | None:
@@ -65,6 +81,25 @@ class ClientGroupRepository(IClientGroupRepository):
         )
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
+
+    async def manager_can_access(self, group_id: uuid.UUID, manager_id: uuid.UUID) -> bool:
+        result = await self._session.execute(
+            select(ClientGroupModel.id)
+            .outerjoin(
+                ManagerGroupAccessModel,
+                (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
+                & (ManagerGroupAccessModel.manager_id == manager_id),
+            )
+            .where(
+                ClientGroupModel.id == group_id,
+                or_(
+                    ClientGroupModel.created_by_user_id == manager_id,
+                    ManagerGroupAccessModel.manager_id == manager_id,
+                ),
+            )
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
 
     async def save(self, link: ClientGroup) -> ClientGroup:
         model = self._to_model(link)
@@ -86,6 +121,14 @@ class ClientGroupRepository(IClientGroupRepository):
         model.agency_id = link.agency_id
         model.status = link.status.value
         model.closed_at = link.closed_at
+        model.destination = link.destination
+        model.travel_date = link.travel_date
+        model.return_date = link.return_date
+        model.package_name = link.package_name
+        model.notes = link.notes
+        model.deleted_at = link.deleted_at
+        model.deleted_passport_count = link.deleted_passport_count
+        model.deletion_retained_records = link.deletion_retained_records
 
         await self._session.flush()
         return link
@@ -103,9 +146,18 @@ class ClientGroupRepository(IClientGroupRepository):
         if status_filter:
             stmt = stmt.where(ClientGroupModel.status == status_filter)
         else:
-            stmt = stmt.where(ClientGroupModel.status != GroupStatus.ARCHIVED.value)
+            stmt = stmt.where(ClientGroupModel.status.notin_([GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value]))
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = stmt.outerjoin(
+                ManagerGroupAccessModel,
+                (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
+                & (ManagerGroupAccessModel.manager_id == created_by_user_id),
+            ).where(
+                or_(
+                    ClientGroupModel.created_by_user_id == created_by_user_id,
+                    ManagerGroupAccessModel.manager_id == created_by_user_id,
+                )
+            )
         stmt = stmt.order_by(ClientGroupModel.created_at.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
@@ -124,7 +176,16 @@ class ClientGroupRepository(IClientGroupRepository):
             )
         )
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = stmt.outerjoin(
+                ManagerGroupAccessModel,
+                (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
+                & (ManagerGroupAccessModel.manager_id == created_by_user_id),
+            ).where(
+                or_(
+                    ClientGroupModel.created_by_user_id == created_by_user_id,
+                    ManagerGroupAccessModel.manager_id == created_by_user_id,
+                )
+            )
 
         result = await self._session.execute(stmt)
         return result.scalar_one()

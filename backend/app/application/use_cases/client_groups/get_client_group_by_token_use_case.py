@@ -5,13 +5,10 @@ Get Upload Link By Token Use Case
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
-from app.application.dtos.client_group_dtos import ClientGroupOutputDTO
+from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, client_group_output_from_entity
 from app.domain.exceptions.exceptions import (
     EntityNotFoundError,
     GroupClosedError,
-    ClientGroupUsedError,
     ValidationError,
 )
 from app.domain.entities.entities import GroupStatus
@@ -36,13 +33,4 @@ class GetClientGroupByTokenUseCase:
             else:
                 raise ValidationError("Upload link is not active")
 
-        return ClientGroupOutputDTO(
-            id=link.id,
-            name=link.name,
-            token=link.token,
-            agency_id=link.agency_id,
-            status=link.status.value,
-            created_by_user_id=link.created_by_user_id,
-            created_at=link.created_at,
-            closed_at=link.closed_at,
-        )
+        return client_group_output_from_entity(link)

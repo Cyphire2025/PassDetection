@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+import { PwaRegistrar } from "@/components/pwa/pwa-registrar";
 import { QueryProvider } from "@/providers/query-provider";
 
 const inter = Inter({
@@ -11,11 +13,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "PassDetection — Passport OCR Platform",
+    default: "PassDetection - Passport MRZ Platform",
     template: "%s | PassDetection",
   },
   description:
-    "Secure, AI-powered passport processing platform for travel agencies.",
+    "Secure passport MRZ processing platform for travel agencies.",
   robots: { index: false, follow: false },
 };
 
@@ -29,6 +31,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="min-h-screen bg-slate-50 font-sans antialiased" suppressHydrationWarning>
+        <Script
+          id="strip-extension-form-attributes"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.querySelectorAll('[fdprocessedid]').forEach(function(node){node.removeAttribute('fdprocessedid');});",
+          }}
+        />
+        <PwaRegistrar />
         <QueryProvider>{children}</QueryProvider>
       </body>
 

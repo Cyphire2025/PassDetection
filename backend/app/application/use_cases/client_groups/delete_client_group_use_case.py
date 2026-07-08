@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 
-from app.application.dtos.client_group_dtos import ClientGroupOutputDTO
+from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, client_group_output_from_entity
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
 
@@ -37,13 +37,4 @@ class DeleteClientGroupUseCase:
         group.archive()
         await self._client_group_repo.update(group)
 
-        return ClientGroupOutputDTO(
-            id=group.id,
-            name=group.name,
-            token=group.token,
-            agency_id=group.agency_id,
-            status=group.status.value,
-            created_by_user_id=group.created_by_user_id,
-            created_at=group.created_at,
-            closed_at=group.closed_at,
-        )
+        return client_group_output_from_entity(group)

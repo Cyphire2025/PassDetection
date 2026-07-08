@@ -18,10 +18,10 @@ export function usePassportGroups() {
   });
 }
 
-export function usePassportsByGroup(groupId: string, search?: string) {
+export function usePassportsByGroup(groupId: string, search?: string, includeDeleted = false) {
   return useQuery({
-    queryKey: QUERY_KEYS.passports.groupDetail(groupId, { search }),
-    queryFn: () => passportsApi.listByGroup(groupId, search),
+    queryKey: QUERY_KEYS.passports.groupDetail(groupId, { search, includeDeleted }),
+    queryFn: () => passportsApi.listByGroup(groupId, search, includeDeleted),
     enabled: Boolean(groupId),
     refetchInterval: 30_000,
   });
@@ -30,6 +30,18 @@ export function usePassportsByGroup(groupId: string, search?: string) {
 export function useExportPassportGroup() {
   return useMutation({
     mutationFn: (groupId: string) => passportsApi.exportGroup(groupId),
+  });
+}
+
+export function useExportSelectedPassports() {
+  return useMutation({
+    mutationFn: (submissionIds: string[]) => passportsApi.exportSelectedPassports(submissionIds),
+  });
+}
+
+export function useExportSelectedGroups() {
+  return useMutation({
+    mutationFn: (groupIds: string[]) => passportsApi.exportSelectedGroups(groupIds),
   });
 }
 

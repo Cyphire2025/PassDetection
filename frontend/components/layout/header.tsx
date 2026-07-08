@@ -4,11 +4,12 @@
 
 "use client";
 
-import { Bell, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuthStore, selectUser } from "@/stores/auth.store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
 import { Button } from "@/components/ui";
 import { truncate } from "@/lib/utils/format";
+import { GlobalSearch } from "@/features/search/components/global-search";
 
 interface HeaderProps {
   title?: string;
@@ -24,24 +25,19 @@ export function Header({ title }: HeaderProps) {
 
 
   return (
-    <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6">
+    <header className="flex h-[60px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
       {/* Page Title — set per-page via Header prop or left empty */}
       {title && (
         <h1 className="text-sm font-semibold text-slate-900">{title}</h1>
       )}
       {!title && <div />}
 
+      <div className="mx-4 hidden min-w-0 flex-1 justify-center md:flex">
+        <GlobalSearch />
+      </div>
+
       {/* Right actions */}
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Notifications"
-          className="text-slate-500 hover:text-slate-900"
-        >
-          <Bell className="h-4 w-4" aria-hidden="true" />
-        </Button>
-
         {user && (
           <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">

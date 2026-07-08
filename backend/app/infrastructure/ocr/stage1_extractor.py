@@ -1,19 +1,22 @@
-"""Minimal Stage 1 passport extraction components."""
+"""Minimal MRZ extraction components."""
 
 from __future__ import annotations
 
 import asyncio
-import io
-import re
 import time
 from dataclasses import dataclass, field
-from datetime import date
 from typing import Any
 
-from PIL import Image, ImageFilter, ImageOps
+import re
+
+from PIL import ImageOps
 
 from app.core.logging.logger import get_logger
+from app.infrastructure.ocr.correction import ICAOCorrectionEngine
+from app.infrastructure.ocr.detection import MRZRegionDetector
 from app.infrastructure.ocr.mrz import TD3MRZParser
+from app.infrastructure.ocr.mrz_ocr import MRZOCRResult
+from app.infrastructure.ocr.mrz_ocr_base import MRZOCRReader
 from app.infrastructure.ocr.preprocessing import OCRImagePreprocessor
 
 logger = get_logger(__name__)
@@ -29,9 +32,6 @@ CORE_FIELDS = (
     "date_of_expiry",
     "sex",
 )
-
-UNCHECKSUMMED_MRZ_FIELDS = {"surname", "given_names"}
-
 
 @dataclass(frozen=True)
 class StageTiming:
@@ -50,13 +50,12 @@ class MRZStageResult:
     ocr_text: str | None
     warnings: list[str]
     duration_ms: float
-
-
-@dataclass(frozen=True)
-class TargetedOCRResult:
-    fields: dict[str, str]
-    raw_text: dict[str, str]
-    duration_ms: float
+    ocr_confidence: float = 0.0
+    correction_provenance: dict[str, dict[str, str | float]] = field(default_factory=dict)
+    corrected_mrz_text: str | None = None
+    correction_duration_ms: float = 0.0
+    checksum_pass_rate: float = 0.0
+    ocr_attempts: list[dict[str, Any]] = field(default_factory=list)
 
 
 class Stage1MRZExtractor:
@@ -68,16 +67,49 @@ class Stage1MRZExtractor:
         preprocessor: OCRImagePreprocessor,
         parser: TD3MRZParser,
         timeout_seconds: float,
+        detector: MRZRegionDetector | None = None,
+        ocr_reader: MRZOCRReader | None = None,
+        correction_engine: ICAOCorrectionEngine | None = None,
     ) -> None:
         self._preprocessor = preprocessor
         self._parser = parser
         self._timeout_seconds = timeout_seconds
+        self._detector = detector or MRZRegionDetector()
+        if ocr_reader is None:
+            from app.core.config.settings import get_settings
+            from app.infrastructure.ocr.mrz_ocr_factory import build_mrz_ocr_reader
+
+            ocr_reader = build_mrz_ocr_reader(get_settings().mrz)
+        self._ocr_reader = ocr_reader
+        self._correction_engine = correction_engine or ICAOCorrectionEngine()
 
     async def extract(self, image_bytes: bytes) -> MRZStageResult:
         started = time.perf_counter()
-        text = await self._read_mrz_text(image_bytes)
-        sanitized_text = self._sanitize_indian_td3_text(text)
-        parsed = self._parser.parse(sanitized_text) if sanitized_text else None
+        image = await asyncio.to_thread(self._prepare_mrz_crop, image_bytes)
+        try:
+            primary_ocr = await self._read_mrz_text(image, normalize=False)
+            primary = self._build_result(primary_ocr, started=started)
+            invalid_fields = self._invalid_required_fields(primary)
+            if not invalid_fields:
+                return primary
+
+            fallback_ocr = await self._read_mrz_text(image, normalize=True)
+            fallback = self._build_result(fallback_ocr, started=started)
+            return self._merge_fallback_result(
+                primary=primary,
+                fallback=fallback,
+                invalid_fields=invalid_fields,
+                duration_ms=_elapsed_ms(started),
+            )
+        finally:
+            image.close()
+
+    def _build_result(self, ocr_result: MRZOCRResult, *, started: float) -> MRZStageResult:
+        text = ocr_result.text
+        correction = self._correction_engine.correct(text)
+        corrected_text = correction.corrected_mrz
+        parsed = self._parser.parse(corrected_text) if corrected_text else None
+        sanitized_text = None if parsed else self._sanitize_indian_td3_text(text)
         if parsed is None and sanitized_text:
             parsed = self._parser.parse_from_ocr_text(sanitized_text)
         if parsed is None:
@@ -85,58 +117,303 @@ class Stage1MRZExtractor:
         if parsed is None:
             parsed = self._parser.parse(text)
         fields = dict(parsed.fields) if parsed else {}
-        partial_names = self._extract_partial_names(text)
+        self._remove_unproven_fields(fields, correction.provenance_dict())
+        partial_names = self._extract_partial_names(text) or self._extract_partial_names(corrected_text or "")
         for field_name, value in partial_names.items():
-            fields.setdefault(field_name, value)
-        warnings = list(parsed.warnings) if parsed else []
+            if self._field_is_proven(field_name, correction.provenance_dict()):
+                current = fields.get(field_name)
+                if not current or self._should_replace_partial_name(current, value):
+                    fields[field_name] = value
+        warnings = [*correction.warnings, *(parsed.warnings if parsed else [])]
         if partial_names and not parsed:
             warnings.append("MRZ names could not be checksum-validated and require visual verification.")
         return MRZStageResult(
             fields=fields,
-            raw_text=parsed.raw_text if parsed else sanitized_text,
+            raw_text=parsed.raw_text if parsed else corrected_text or sanitized_text,
             ocr_text=text or None,
             warnings=warnings,
             duration_ms=_elapsed_ms(started),
+            ocr_confidence=ocr_result.confidence,
+            correction_provenance=correction.provenance_dict(),
+            corrected_mrz_text=corrected_text,
+            correction_duration_ms=correction.duration_ms,
+            checksum_pass_rate=correction.checksum_pass_rate,
+            ocr_attempts=[
+                {
+                    "normalizer_used": bool(ocr_result.debug.get("normalizer_used")),
+                    "ocr_ms": ocr_result.duration_ms,
+                    "confidence": ocr_result.confidence,
+                    "prepared_size": ocr_result.debug.get("prepared_size"),
+                    "fields_found": sorted(fields.keys()),
+                }
+            ],
         )
 
-    async def _read_mrz_text(self, image_bytes: bytes) -> str:
+    def _merge_fallback_result(
+        self,
+        *,
+        primary: MRZStageResult,
+        fallback: MRZStageResult,
+        invalid_fields: set[str],
+        duration_ms: float,
+    ) -> MRZStageResult:
+        reconciled = self._reconcile_ocr_attempts(primary, fallback, duration_ms=duration_ms)
+        if reconciled is not None:
+            fallback = reconciled
+
+        merged_fields = dict(primary.fields)
+        merged_provenance = dict(primary.correction_provenance)
+        replaced_fields: list[str] = []
+
+        for field_name in invalid_fields:
+            fallback_value = fallback.fields.get(field_name)
+            if not fallback_value or not self._field_is_proven(field_name, fallback.correction_provenance):
+                continue
+            merged_fields[field_name] = fallback_value
+            if field_name in fallback.correction_provenance:
+                merged_provenance[field_name] = fallback.correction_provenance[field_name]
+            replaced_fields.append(field_name)
+
+        for line_field in ("mrz_line_1", "mrz_line_2", "personal_number"):
+            if line_field not in merged_fields and line_field in fallback.fields:
+                merged_fields[line_field] = fallback.fields[line_field]
+                if line_field in fallback.correction_provenance:
+                    merged_provenance[line_field] = fallback.correction_provenance[line_field]
+
+        warnings = [
+            warning for warning in primary.warnings
+            if not any(f":{field_name}:" in warning for field_name in replaced_fields)
+        ]
+        warnings.extend(
+            warning for warning in fallback.warnings
+            if not any(f":{field_name}:" in warning for field_name in replaced_fields)
+            and warning not in warnings
+        )
+
+        raw_text = fallback.raw_text if replaced_fields and fallback.raw_text else primary.raw_text
+        corrected_mrz_text = fallback.corrected_mrz_text if replaced_fields and fallback.corrected_mrz_text else primary.corrected_mrz_text
+        return MRZStageResult(
+            fields=merged_fields,
+            raw_text=raw_text,
+            ocr_text="\n\n--- fallback_normalized_ocr ---\n".join(
+                text for text in [primary.ocr_text, fallback.ocr_text] if text
+            ) or None,
+            warnings=warnings,
+            duration_ms=duration_ms,
+            ocr_confidence=max(primary.ocr_confidence, fallback.ocr_confidence),
+            correction_provenance=merged_provenance,
+            corrected_mrz_text=corrected_mrz_text,
+            correction_duration_ms=primary.correction_duration_ms + fallback.correction_duration_ms,
+            checksum_pass_rate=max(primary.checksum_pass_rate, fallback.checksum_pass_rate),
+            ocr_attempts=[
+                *primary.ocr_attempts,
+                *fallback.ocr_attempts,
+                {
+                    "fallback_replaced_fields": sorted(replaced_fields),
+                    "fallback_considered_fields": sorted(invalid_fields),
+                    "reconciled_attempt_used": reconciled is not None,
+                },
+            ],
+        )
+
+    def _reconcile_ocr_attempts(
+        self,
+        primary: MRZStageResult,
+        fallback: MRZStageResult,
+        *,
+        duration_ms: float,
+    ) -> MRZStageResult | None:
+        candidate_results: list[MRZStageResult] = []
+        evidence_text = self._ocr_evidence_text(primary, fallback)
+        for line1 in self._line1_candidates(primary, fallback):
+            for line2 in self._line2_candidates(primary, fallback):
+                candidate = MRZOCRResult(
+                    text=f"{line1}\n{line2}",
+                    confidence=max(primary.ocr_confidence, fallback.ocr_confidence),
+                    duration_ms=0.0,
+                    debug={
+                        "normalizer_used": True,
+                        "prepared_size": None,
+                        "reconciled_from_attempts": True,
+                    },
+                )
+                result = self._build_result(candidate, started=time.perf_counter())
+                passport_number = result.fields.get("passport_number")
+                if passport_number and passport_number not in evidence_text:
+                    continue
+                if not self._invalid_required_fields(result):
+                    candidate_results.append(result)
+
+        if not candidate_results:
+            return None
+
+        best = sorted(
+            candidate_results,
+            key=lambda result: (
+                -self._passport_shape_score(result.fields.get("passport_number", "")),
+                -result.checksum_pass_rate,
+                -len(result.fields),
+                result.corrected_mrz_text or "",
+            ),
+        )[0]
+        return MRZStageResult(
+            fields=best.fields,
+            raw_text=best.raw_text,
+            ocr_text=best.ocr_text,
+            warnings=best.warnings,
+            duration_ms=duration_ms,
+            ocr_confidence=best.ocr_confidence,
+            correction_provenance=best.correction_provenance,
+            corrected_mrz_text=best.corrected_mrz_text,
+            correction_duration_ms=best.correction_duration_ms,
+            checksum_pass_rate=best.checksum_pass_rate,
+            ocr_attempts=[
+                {
+                    "normalizer_used": True,
+                    "ocr_ms": 0.0,
+                    "confidence": best.ocr_confidence,
+                    "prepared_size": None,
+                    "fields_found": sorted(best.fields.keys()),
+                    "reconciled_from_attempts": True,
+                }
+            ],
+        )
+
+    @staticmethod
+    def _ocr_evidence_text(primary: MRZStageResult, fallback: MRZStageResult) -> str:
+        return re.sub(
+            r"[^A-Z0-9<]",
+            "",
+            "\n".join(text for text in [primary.ocr_text, fallback.ocr_text] if text).upper(),
+        )
+
+    def _line1_candidates(self, primary: MRZStageResult, fallback: MRZStageResult) -> list[str]:
+        candidates: list[str] = []
+        for text in (
+            primary.corrected_mrz_text,
+            fallback.corrected_mrz_text,
+            primary.ocr_text,
+            fallback.ocr_text,
+        ):
+            for line in self._candidate_lines(text or ""):
+                if line.startswith("P"):
+                    candidates.append(line[:44].ljust(44, "<"))
+        return list(dict.fromkeys(candidates))
+
+    def _line2_candidates(self, primary: MRZStageResult, fallback: MRZStageResult) -> list[str]:
+        candidates: list[str] = []
+        for text in (
+            primary.ocr_text,
+            fallback.ocr_text,
+            primary.corrected_mrz_text,
+            fallback.corrected_mrz_text,
+        ):
+            for line in self._candidate_lines(text or ""):
+                if not line.startswith("P") and len(line) >= 20:
+                    candidates.extend(self._line2_length_variants(line))
+        return list(dict.fromkeys(candidates))[:250]
+
+    def _candidate_lines(self, text: str) -> list[str]:
+        lines = [re.sub(r"[^A-Z0-9<]", "", line.upper()) for line in text.splitlines()]
+        return [line for line in lines if len(line) >= 12 and not line.startswith("---")]
+
+    @staticmethod
+    def _line2_length_variants(line: str) -> list[str]:
+        variants: list[str] = []
+        sanitized = line[:80]
+        if len(sanitized) >= 44:
+            variants.extend(sanitized[index:index + 44] for index in range(len(sanitized) - 43))
+        if len(sanitized) > 44:
+            overflow = min(4, len(sanitized) - 44)
+            if overflow == 1:
+                variants.extend(sanitized[:index] + sanitized[index + 1:] for index in range(len(sanitized)))
+        if len(sanitized) == 43:
+            variants = []
+            for index in (0, 9, 10, 13, 21, 28, 42, 43):
+                charset = (
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    if index == 0 and sanitized[:7].isdigit()
+                    else "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<"
+                )
+                for char in charset:
+                    variants.append((sanitized[:index] + char + sanitized[index:])[:44])
+            return [variant[:44].ljust(44, "<") for variant in variants]
+        if len(sanitized) < 44:
+            variants.append(sanitized.ljust(44, "<"))
+        return [variant[:44].ljust(44, "<") for variant in variants]
+
+    def _invalid_required_fields(self, result: MRZStageResult) -> set[str]:
+        invalid: set[str] = set()
+        for field_name in CORE_FIELDS:
+            if not result.fields.get(field_name):
+                invalid.add(field_name)
+            elif not self._field_is_proven(field_name, result.correction_provenance):
+                invalid.add(field_name)
+        return invalid
+
+    @staticmethod
+    def _passport_shape_score(value: str) -> int:
+        return int(
+            len(value) == 8
+            and value[:1].isalpha()
+            and value[1:].isdigit()
+        )
+
+    @staticmethod
+    def _remove_unproven_fields(fields: dict[str, str], provenance: dict[str, dict[str, str | float]]) -> None:
+        for field_name in list(CORE_FIELDS):
+            if not Stage1MRZExtractor._field_is_proven(field_name, provenance):
+                fields.pop(field_name, None)
+
+    @staticmethod
+    def _field_is_proven(field_name: str, provenance: dict[str, dict[str, str | float]]) -> bool:
+        item = provenance.get(field_name)
+        if not item:
+            return True
+        return item.get("checksum_status") not in {"fail", "review_required"}
+
+    async def _read_mrz_text(self, image, *, normalize: bool) -> MRZOCRResult:  # type: ignore[no-untyped-def]
         try:
             import pytesseract  # noqa: F401
         except Exception as exc:
             logger.warning("stage1_mrz_tesseract_unavailable", error=str(exc))
-            return ""
+            return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
 
-        image, config = await asyncio.to_thread(self._prepare_mrz_crop, image_bytes)
         try:
-            return await asyncio.wait_for(
-                asyncio.to_thread(self._image_to_string, image, config),
+            result = await asyncio.wait_for(
+                asyncio.to_thread(self._ocr_reader.read, image, normalize=normalize),
                 timeout=self._timeout_seconds,
             )
+            logger.info(
+                "stage1_mrz_ocr_completed",
+                normalizer_used=normalize,
+                ocr_ms=result.duration_ms,
+                ocr_confidence=result.confidence,
+                prepared_size=result.debug.get("prepared_size"),
+            )
+            return result
         except TimeoutError:
             logger.warning("stage1_mrz_ocr_timeout", timeout_seconds=self._timeout_seconds)
-            return ""
+            return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
         except Exception as exc:
             logger.warning("stage1_mrz_ocr_failed", error=str(exc))
-            return ""
-        finally:
-            image.close()
+            return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
 
     def _prepare_mrz_crop(self, image_bytes: bytes):  # type: ignore[no-untyped-def]
-        with Image.open(io.BytesIO(image_bytes)) as raw_image:
-            base = ImageOps.exif_transpose(raw_image).convert("RGB")
-            base.thumbnail((1800, 1800))
-            gray = ImageOps.autocontrast(ImageOps.grayscale(base))
-            width, height = gray.size
-            crop = gray.crop((0, int(height * 0.55), width, height))
-            prepared = self._preprocessor.upscale(crop, 2)
-        config = "--oem 1 --psm 6"
-        return prepared, config
+        detection = self._detector.detect(image_bytes)
+        if not detection.found or detection.crop is None:
+            reason = detection.failure.reason if detection.failure else "unknown"
+            raise ValueError(f"MRZ region was not detected reliably: {reason}")
 
-    @staticmethod
-    def _image_to_string(image, config: str) -> str:  # type: ignore[no-untyped-def]
-        import pytesseract
-
-        return pytesseract.image_to_string(image, config=config).strip().upper()
+        prepared = ImageOps.autocontrast(detection.crop)
+        logger.info(
+            "mrz_region_detected",
+            bbox=detection.bbox,
+            score=detection.score,
+            candidate_count=detection.candidate_count,
+            detection_ms=detection.elapsed_ms,
+        )
+        return prepared
 
     def _sanitize_indian_td3_text(self, text: str) -> str | None:
         tokens = re.findall(r"[A-Z0-9<]{20,}", (text or "").upper().replace(" ", ""))
@@ -177,6 +454,8 @@ class Stage1MRZExtractor:
                 if surname_raw.endswith(("C", "K")):
                     surname_raw = surname_raw[:-1]
                 given_raw = names[separator + 1:]
+                if given_raw.startswith("K") and len(given_raw) > 2:
+                    given_raw = given_raw[1:]
 
             surname = re.sub(r"[^A-Z]", "", surname_raw)
             given_match = re.match(r"([A-Z]+?)(?:[<K5S]{3,}|$)", given_raw)
@@ -187,6 +466,14 @@ class Stage1MRZExtractor:
                 if len(value) >= 2
             }
         return {}
+
+    @staticmethod
+    def _should_replace_partial_name(current: str, candidate: str) -> bool:
+        noisy_prefixes = ("IND", "NDI", "NDO", "PLIND", "PRIND", "PIND")
+        return (
+            current.startswith(noisy_prefixes)
+            or (candidate in current and current != candidate and len(current) > len(candidate) + 2)
+        )
 
     @staticmethod
     def _normalize_alpha(char: str) -> str:
@@ -222,160 +509,6 @@ class Stage1MRZExtractor:
         if len(left) != len(right):
             return max(len(left), len(right))
         return sum(1 for current, expected in zip(left, right) if current != expected)
-
-
-class Stage1TargetedOCR:
-    """Runs fixed-field OCR only for fields not provided by valid MRZ output."""
-
-    _ROIS = {
-        "passport_number": (0.72, 0.08, 0.99, 0.19),
-        "nationality": (0.50, 0.05, 0.76, 0.19),
-        "surname": (0.32, 0.16, 0.70, 0.30),
-        "given_names": (0.34, 0.32, 0.56, 0.40),
-        "date_of_birth": (0.32, 0.35, 0.55, 0.51),
-        "sex": (0.55, 0.34, 0.68, 0.51),
-        "date_of_expiry": (0.69, 0.60, 0.99, 0.80),
-        "issuing_country": (0.33, 0.05, 0.51, 0.19),
-    }
-
-    def __init__(self, *, preprocessor: OCRImagePreprocessor, timeout_seconds: float) -> None:
-        self._preprocessor = preprocessor
-        self._timeout_seconds = timeout_seconds
-
-    async def extract(self, image_bytes: bytes, target_fields: set[str]) -> TargetedOCRResult:
-        started = time.perf_counter()
-        if not target_fields:
-            return TargetedOCRResult(fields={}, raw_text={}, duration_ms=0.0)
-        try:
-            import pytesseract  # noqa: F401
-        except Exception as exc:
-            logger.warning("stage1_targeted_tesseract_unavailable", error=str(exc))
-            return TargetedOCRResult(fields={}, raw_text={}, duration_ms=_elapsed_ms(started))
-
-        fields: dict[str, str] = {}
-        raw_text: dict[str, str] = {}
-        with Image.open(io.BytesIO(image_bytes)) as raw_image:
-            base = ImageOps.exif_transpose(raw_image).convert("RGB")
-            base.thumbnail((1800, 1800))
-            for field_name in sorted(target_fields):
-                roi = self._ROIS.get(field_name)
-                if roi is None:
-                    continue
-                crop = self._crop(base, roi)
-                text = await self._read_field(field_name, crop)
-                raw_text[field_name] = text
-                value = self._parse_field(field_name, text)
-                if value:
-                    fields[field_name] = value
-        return TargetedOCRResult(fields=fields, raw_text=raw_text, duration_ms=_elapsed_ms(started))
-
-    async def _read_field(self, field_name: str, crop: Image.Image) -> str:
-        config = self._tesseract_config(field_name)
-        prepared = ImageOps.autocontrast(ImageOps.grayscale(crop))
-        prepared = self._preprocessor.upscale(prepared, 4)
-        if field_name == "passport_number":
-            prepared = prepared.filter(ImageFilter.SHARPEN)
-        elif field_name == "given_names":
-            prepared = prepared.point(lambda value: 255 if value > 130 else 0)
-        try:
-            return await asyncio.wait_for(
-                asyncio.to_thread(self._image_to_string, prepared, config),
-                timeout=self._timeout_seconds,
-            )
-        except TimeoutError:
-            logger.warning("stage1_targeted_ocr_timeout", field=field_name, timeout_seconds=self._timeout_seconds)
-            return ""
-        except Exception as exc:
-            logger.warning("stage1_targeted_ocr_failed", field=field_name, error=str(exc))
-            return ""
-        finally:
-            prepared.close()
-            crop.close()
-
-    def _crop(self, image: Image.Image, roi: tuple[float, float, float, float]) -> Image.Image:
-        width, height = image.size
-        left, top, right, bottom = roi
-        return image.crop(
-            (
-                int(width * left),
-                int(height * top),
-                int(width * right),
-                int(height * bottom),
-            )
-        )
-
-    @staticmethod
-    def _image_to_string(image: Image.Image, config: str) -> str:
-        import pytesseract
-
-        return pytesseract.image_to_string(image, config=config).strip().upper()
-
-    @staticmethod
-    def _tesseract_config(field_name: str) -> str:
-        if field_name in {"date_of_birth", "date_of_expiry"}:
-            whitelist = "0123456789/-."
-        elif field_name == "sex":
-            whitelist = "MFX"
-        elif field_name in {"nationality", "issuing_country", "surname", "given_names"}:
-            whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-        else:
-            whitelist = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        page_mode = 11 if field_name == "surname" else 7 if field_name == "given_names" else 6
-        return f"--oem 1 --psm {page_mode} -c tessedit_char_whitelist={whitelist}"
-
-    def _parse_field(self, field_name: str, text: str) -> str | None:
-        normalized = re.sub(r"\s+", " ", text.upper()).strip()
-        if not normalized:
-            return None
-        if field_name == "passport_number":
-            match = re.search(r"[A-Z][0-9][A-Z0-9]{6,7}", normalized.replace(" ", ""))
-            return match.group(0) if match else None
-        if field_name in {"nationality", "issuing_country"}:
-            letters = re.sub(r"[^A-Z]", "", normalized)
-            if any(marker in letters for marker in ("INDIAN", "INDIA", "IND")):
-                return "IND"
-            return letters[:3] if len(letters) >= 3 else None
-        if field_name in {"surname", "given_names"}:
-            candidates = [
-                re.sub(r"[^A-Z]", "", line)
-                for line in text.upper().splitlines()
-            ]
-            candidates = [
-                value for value in candidates
-                if len(value) >= 2 and not any(label in value for label in ("SURNAME", "GIVEN", "DATE", "BIRTH", "SEX"))
-            ]
-            return max(candidates, key=len) if candidates else None
-        if field_name in {"date_of_birth", "date_of_expiry"}:
-            return self._parse_date(normalized, is_expiry=field_name == "date_of_expiry")
-        if field_name == "sex":
-            match = re.search(r"\b[MFX]\b|[MFX]", normalized)
-            return match.group(0)[0] if match else None
-        return normalized
-
-    def _parse_date(self, text: str, *, is_expiry: bool) -> str | None:
-        for match in re.finditer(r"([0-3]?\d)[/\-.]([01]?\d)[/\-.]((?:19|20)?\d{2})", text):
-            day = int(match.group(1))
-            month = int(match.group(2))
-            year = int(match.group(3))
-            if year < 100:
-                year += 2000 if is_expiry or year <= 30 else 1900
-            try:
-                return date(year, month, day).isoformat()
-            except ValueError:
-                continue
-        return None
-
-
-def invalid_or_missing_fields(fields: dict[str, str], validation_issues: list[Any]) -> set[str]:
-    targets = {field for field in CORE_FIELDS if not fields.get(field)}
-    targets.update(
-        issue.field
-        for issue in validation_issues
-        if getattr(issue, "field", None) in CORE_FIELDS
-    )
-    targets.update(UNCHECKSUMMED_MRZ_FIELDS.intersection(fields))
-    return targets
-
 
 def _elapsed_ms(started: float) -> float:
     return round((time.perf_counter() - started) * 1000, 2)

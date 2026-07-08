@@ -9,7 +9,7 @@ INDIAN_TD3_DOCUMENT_PROFILE = {
     "scope": "standard_indian_passports_v1",
 }
 
-PIPELINE_VERSION = "indian-td3-stage1-pipeline-2026-07-01"
-OCR_LOGIC_VERSION = "indian-td3-stage1-ocr-2026-07-01"
+PIPELINE_VERSION = "indian-td3-mrz-detector-pipeline-v2-2026-07-01"
+OCR_LOGIC_VERSION = "indian-td3-standard-first-fallback-reconcile-v13-2026-07-02"
 CONFIDENCE_VERSION = "weighted-signal-v2"
 CACHE_VERSION = "ocr-cache-v2"

@@ -16,8 +16,10 @@ import {
   ChevronRight,
   Shield,
   BarChart3,
-  Bell,
   ClipboardList,
+  Database,
+  CalendarCheck,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useUIStore, selectSidebarCollapsed } from "@/stores/ui.store";
@@ -31,17 +33,27 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
+  activePrefixes?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard },
-  { label: "Passports",    href: ROUTES.dashboard.passports,  icon: FileText },
-  { label: "Upload Links", href: ROUTES.dashboard.uploadLinks, icon: Link2 },
-  { label: "Admin",        href: ROUTES.dashboard.admin,       icon: Shield, roles: ["super_admin", "agency_admin"] },
+  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck, roles: ["agency_coordinator"] },
+  { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  {
+    label: "Tour Ops",
+    href: ROUTES.dashboard.tourOperationsGroupAssignments,
+    icon: CalendarCheck,
+    roles: ["super_admin", "agency_admin", "agency_staff"],
+    activePrefixes: [ROUTES.dashboard.tourOperationsGroupAssignments, "/tour-operations/groups"],
+  },
+  { label: "Manager",      href: ROUTES.dashboard.admin,       icon: Shield, roles: ["super_admin", "agency_admin"] },
   { label: "Analytics",    href: ROUTES.dashboard.analytics,   icon: BarChart3, roles: ["super_admin", "agency_admin"] },
   { label: "Audit Logs",   href: ROUTES.dashboard.auditLogs,   icon: ClipboardList, roles: ["super_admin", "agency_admin"] },
-  { label: "Notifications", href: ROUTES.dashboard.notifications, icon: Bell },
-  { label: "Settings",     href: ROUTES.dashboard.settings,   icon: Settings },
+  { label: "Old Data",     href: ROUTES.dashboard.oldData,     icon: Database, roles: ["super_admin"] },
+  { label: "Settings",     href: ROUTES.dashboard.settings,   icon: Settings, roles: ["super_admin", "agency_admin"] },
 ];
 
 export function Sidebar() {
@@ -76,7 +88,8 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="flex flex-col gap-0.5 px-2" role="list">
           {visibleItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const activePrefixes = item.activePrefixes ?? [item.href];
+            const isActive = activePrefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"));
             const Icon = item.icon;
 
             return (

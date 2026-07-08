@@ -1,17 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, FileText, FolderOpen } from "lucide-react";
+import { Download, Eye, FileText, FolderOpen, Link2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatDateTime } from "@/lib/utils/format";
 import type { PassportGroupSummary } from "@/types/passport.types";
-import { usePassportGroups } from "../hooks/use-passports";
+import { useExportSelectedGroups, usePassportGroups } from "../hooks/use-passports";
 
 export function PassportList() {
   const { data, isLoading, error } = usePassportGroups();
+  const exportSelected = useExportSelectedGroups();
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [reviewFilter, setReviewFilter] = useState("all");
+  const [destinationFilter, setDestinationFilter] = useState("");
+
+  const filteredGroups = useMemo(() => {
+    return (data ?? []).filter((group) => {
+      if (statusFilter !== "all" && group.group_status !== statusFilter) return false;
+      if (reviewFilter === "needs_review" && group.pending_review_count === 0) return false;
+      if (reviewFilter === "has_passports" && group.total_passports === 0) return false;
+      if (reviewFilter === "confirmed_only" && group.confirmed_count !== group.total_passports) return false;
+      const tripText = `${group.destination ?? ""}`.toLowerCase();
+      if (destinationFilter.trim() && !tripText.includes(destinationFilter.trim().toLowerCase())) return false;
+      return true;
+    });
+  }, [data, destinationFilter, reviewFilter, statusFilter]);
+
+  const toggleGroup = (groupId: string) => {
+    setSelectedGroups((current) =>
+      current.includes(groupId) ? current.filter((id) => id !== groupId) : [...current, groupId],
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -19,6 +43,50 @@ export function PassportList() {
         title="Passport Groups"
         description="Open a client group to review the passport submissions uploaded inside it."
       />
+
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value)}
+          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        >
+          <option value="all">All statuses</option>
+          <option value="active">Active</option>
+          <option value="closed">Closed</option>
+          <option value="archived">Archived</option>
+        </select>
+        <select
+          value={reviewFilter}
+          onChange={(event) => setReviewFilter(event.target.value)}
+          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        >
+          <option value="all">All groups</option>
+          <option value="needs_review">Needs review</option>
+          <option value="has_passports">Has passports</option>
+          <option value="confirmed_only">Fully confirmed</option>
+        </select>
+        <Input
+          value={destinationFilter}
+          onChange={(event) => setDestinationFilter(event.target.value)}
+          placeholder="Filter destination"
+          className="h-9 w-64"
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={selectedGroups.length === 0}
+          isLoading={exportSelected.isPending}
+          onClick={() => exportSelected.mutate(selectedGroups)}
+        >
+          <Download className="h-4 w-4" />
+          Export Selected ({selectedGroups.length})
+        </Button>
+        {selectedGroups.length > 0 && (
+          <Button type="button" variant="ghost" onClick={() => setSelectedGroups([])}>
+            Clear selection
+          </Button>
+        )}
+      </div>
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -34,15 +102,28 @@ export function PassportList() {
         </div>
       ) : !data || data.length === 0 ? (
         <EmptyState
+          icon={<Link2 className="h-5 w-5" />}
+          title="Create an upload link"
+          description="Start by creating a group link. Client passport submissions will appear here after they submit verified details."
+          action={{ label: "Create Upload Link", onClick: () => { window.location.href = ROUTES.dashboard.uploadLinks; } }}
+        />
+      ) : filteredGroups.length === 0 ? (
+        <EmptyState
           icon={<FileText className="h-5 w-5" />}
-          title="No passport groups with uploads yet"
-          description="Groups will appear here after clients upload at least one passport."
+          title="No groups match these filters"
+          description="Adjust the status, review, or destination filters to see more passport groups."
+          action={{ label: "Reset Filters", onClick: () => { setStatusFilter("all"); setReviewFilter("all"); setDestinationFilter(""); } }}
         />
       ) : (
         <>
           <div className="grid gap-4 lg:hidden">
-            {data.map((group) => (
-              <PassportGroupMobileCard key={group.group_id} group={group} />
+            {filteredGroups.map((group) => (
+              <PassportGroupMobileCard
+                key={group.group_id}
+                group={group}
+                selected={selectedGroups.includes(group.group_id)}
+                onToggle={() => toggleGroup(group.group_id)}
+              />
             ))}
           </div>
 
@@ -53,6 +134,7 @@ export function PassportList() {
                   <thead>
                     <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
                       <th className="px-6 py-4">Group</th>
+                      <th className="px-6 py-4">Trip</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4">Passports</th>
                       <th className="px-6 py-4">Needs Review</th>
@@ -61,11 +143,32 @@ export function PassportList() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {data.map((group) => (
-                      <tr key={group.group_id} className="hover:bg-slate-50/60">
+                    {filteredGroups.map((group) => (
+                      <tr
+                        key={group.group_id}
+                        className="cursor-pointer hover:bg-slate-50/60"
+                        onClick={() => toggleGroup(group.group_id)}
+                      >
                         <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-900">{group.group_name}</div>
-                          <div className="mt-1 text-xs text-slate-500">{group.confirmed_count} confirmed, {group.failed_count} failed</div>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedGroups.includes(group.group_id)}
+                              onChange={() => toggleGroup(group.group_id)}
+                              onClick={(event) => event.stopPropagation()}
+                              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <div>
+                              <div className="font-semibold text-slate-900">{group.group_name}</div>
+                              <div className="mt-1 text-xs text-slate-500">{group.confirmed_count} confirmed, {group.failed_count} failed</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-slate-800">{group.destination || "Not set"}</div>
+                          <div className="mt-1 text-xs text-slate-500">
+                            {group.travel_date || "No travel date"}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <GroupStatusBadge status={group.group_status} />
@@ -76,7 +179,7 @@ export function PassportList() {
                         </td>
                         <td className="px-6 py-4 text-slate-500">{formatDateTime(group.latest_submission_at)}</td>
                         <td className="px-6 py-4 text-right">
-                          <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never}>
+                          <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} onClick={(event) => event.stopPropagation()}>
                             <Button variant="outline" size="sm" className="gap-2">
                               <Eye className="h-4 w-4" />
                               Open Group
@@ -96,26 +199,44 @@ export function PassportList() {
   );
 }
 
-function PassportGroupMobileCard({ group }: { group: PassportGroupSummary }) {
+function PassportGroupMobileCard({
+  group,
+  selected,
+  onToggle,
+}: {
+  group: PassportGroupSummary;
+  selected: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <Card className="rounded-2xl">
+    <Card className={selected ? "rounded-2xl border-blue-300 bg-blue-50/40" : "rounded-2xl"} onClick={onToggle}>
       <CardContent className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-base font-semibold text-slate-900">{group.group_name}</h3>
-            <p className="mt-1 text-xs text-slate-500">{formatDateTime(group.latest_submission_at)}</p>
+          <div className="flex gap-3">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={onToggle}
+              onClick={(event) => event.stopPropagation()}
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">{group.group_name}</h3>
+              <p className="mt-1 text-xs text-slate-500">{formatDateTime(group.latest_submission_at)}</p>
+            </div>
           </div>
           <GroupStatusBadge status={group.group_status} />
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <InfoPair label="Passports" value={String(group.total_passports)} />
+          <InfoPair label="Destination" value={group.destination || "Not set"} />
           <InfoPair label="Needs Review" value={String(group.pending_review_count)} />
           <InfoPair label="Confirmed" value={String(group.confirmed_count)} />
           <InfoPair label="Failed" value={String(group.failed_count)} />
         </div>
 
-        <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} className="block">
+        <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} className="block" onClick={(event) => event.stopPropagation()}>
           <Button variant="outline" className="w-full gap-2">
             <FolderOpen className="h-4 w-4" />
             Open Group

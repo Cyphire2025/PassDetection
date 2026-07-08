@@ -2,13 +2,14 @@
 
 import { useRef, useState } from "react";
 import { AxiosError } from "axios";
-import Image from "next/image";
 import {
   Loader2,
   AlertCircle,
   CheckCircle2,
   Camera,
+  Upload,
   ChevronRight,
+  ArrowLeft,
   User,
   Mail,
   Phone,
@@ -16,6 +17,7 @@ import {
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { uploadApi } from "../api/upload.api";
@@ -54,6 +56,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [processingProgress, setProcessingProgress] = useState<number | null>(null);
   const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
   const [isPreparingFile, setIsPreparingFile] = useState(false);
+  const [isScanningAgain, setIsScanningAgain] = useState(false);
   const nativeCameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleNameSubmit = (event: React.FormEvent) => {
@@ -75,13 +78,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const openDeviceCamera = () => {
-    const supportsLiveCamera = window.isSecureContext && Boolean(navigator.mediaDevices?.getUserMedia);
-    if (supportsLiveCamera) {
-      setStep("CAMERA");
-      return;
-    }
-
-    nativeCameraInputRef.current?.click();
+    setStep("CAMERA");
   };
 
   const processUpload = async (file: File) => {
@@ -138,11 +135,36 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setReviewFields((current) => ({ ...current, [key]: value }));
   };
 
-  const handleScanAgain = () => {
+  const handleScanAgain = async () => {
+    if (!submission) return;
+    try {
+      setUploadError(null);
+      setIsScanningAgain(true);
+      const refreshed = await uploadApi.scanAgain(token, submission.id);
+      setSubmission(refreshed);
+      setReviewFields((current) => mergeMissingReviewFields(current, refreshed.extracted_fields));
+    } catch (error: unknown) {
+      setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
+    } finally {
+      setIsScanningAgain(false);
+    }
+  };
+
+  const handleBackToUploadMethods = async () => {
+    const draft = submission;
     setSubmission(null);
     setReviewFields({});
     setUploadError(null);
+    setProcessingProgress(null);
+    setProcessingStage("Uploading securely");
     setStep("METHOD_SELECT");
+    if (draft) {
+      try {
+        await uploadApi.discardUpload(token, draft.id);
+      } catch {
+        // The UI can continue; server-side draft cleanup remains isolated from staff views.
+      }
+    }
   };
 
   const handleFinalSubmit = async (event: React.FormEvent) => {
@@ -284,6 +306,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
         <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="space-y-4">
             <div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleBackToUploadMethods}
+                className="mb-4 -ml-2 gap-2 text-slate-600 hover:text-slate-900"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">Verify Passport Details</h1>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Passport information is used for travel bookings and official documents. Please check every field carefully before submitting to avoid delays or corrections later.
@@ -292,14 +324,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
             {submission.image_url ? (
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative min-h-[24rem] w-full">
-                  <Image
-                    src={submission.image_url}
+                <div className="relative w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={API_ENDPOINTS.passports.uploadImage(token, submission.id)}
                     alt="Uploaded passport"
-                    fill
-                    unoptimized
-                    className="object-contain"
+                    className="block h-auto w-full"
                   />
+                  <PassportRoiOverlays fields={submission.extracted_fields} />
                 </div>
               </div>
             ) : (
@@ -329,8 +361,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   <p className="text-sm font-medium text-blue-800">
                     Some fields were not read clearly. You can still correct them manually or scan again with better light.
                   </p>
-                  <Button type="button" variant="secondary" size="sm" onClick={handleScanAgain}>
-                    Scan Again
+                  <Button type="button" variant="secondary" size="sm" onClick={handleScanAgain} disabled={isScanningAgain}>
+                    {isScanningAgain ? "Scanning" : "Scan Again"}
                   </Button>
                 </div>
               </div>
@@ -510,9 +542,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   capture="environment"
                   onChange={handleFileUpload}
                 />
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 sm:p-5">
-                  This secure client link accepts camera capture only.
-                </div>
+
+                <label className="group relative flex w-full cursor-pointer items-start gap-4 rounded-2xl border-2 border-slate-100 bg-white p-4 text-left shadow-sm transition-all hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md sm:p-5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-colors group-hover:bg-blue-600 group-hover:text-white sm:h-12 sm:w-12">
+                    <Upload className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-slate-900 transition-colors group-hover:text-blue-900">Upload File</h4>
+                    <p className="mt-1 text-sm text-slate-500">Choose an existing photo from your gallery</p>
+                  </div>
+                  <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                </label>
               </div>
             </div>
           )}
@@ -532,6 +572,16 @@ function getInitialReviewFields(fields: ExtractedPassportFields | null) {
     current[key] = typeof value === "string" ? value : "";
     return current;
   }, {});
+}
+
+function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {
+  return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {
+    const value = fields?.[key];
+    if (!next[key]?.trim() && typeof value === "string" && value.trim()) {
+      next[key] = value;
+    }
+    return next;
+  }, { ...current });
 }
 
 function hasMissingRequiredFields(fields: Record<string, string>) {
@@ -557,6 +607,59 @@ function stageLabel(stage: string) {
   return stage
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function PassportRoiOverlays({ fields }: { fields: ExtractedPassportFields | null }) {
+  const boxes = roiOverlayBoxes(fields);
+  if (boxes.length === 0) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10">
+      {boxes.map((box) => (
+        <div
+          key={box.field}
+          className="absolute rounded-sm border-2 border-red-500 shadow-[0_0_0_9999px_rgba(239,68,68,0.04)]"
+          style={{
+            left: `${box.left * 100}%`,
+            top: `${box.top * 100}%`,
+            width: `${(box.right - box.left) * 100}%`,
+            height: `${(box.bottom - box.top) * 100}%`,
+          }}
+        >
+          <span className="absolute -top-6 left-0 rounded bg-red-600 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            {toLabel(box.field)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function roiOverlayBoxes(fields: ExtractedPassportFields | null) {
+  const provenance = fields?.field_provenance;
+  if (!provenance) return [];
+
+  return Object.entries(provenance)
+    .map(([field, item]) => {
+      const bbox = item?.debug?.image_relative_bbox;
+      if (!isNormalizedBbox(bbox)) return null;
+      return {
+        field,
+        left: bbox[0],
+        top: bbox[1],
+        right: bbox[2],
+        bottom: bbox[3],
+      };
+    })
+    .filter((box): box is { field: string; left: number; top: number; right: number; bottom: number } => Boolean(box));
+}
+
+function isNormalizedBbox(value: unknown): value is [number, number, number, number] {
+  return Array.isArray(value)
+    && value.length === 4
+    && value.every((item) => typeof item === "number" && item >= 0 && item <= 1)
+    && value[2] > value[0]
+    && value[3] > value[1];
 }
 
 function errorMessage(error: unknown, fallback: string) {

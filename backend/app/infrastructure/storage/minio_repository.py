@@ -94,3 +94,27 @@ class MinioStorageRepository(IObjectStorageRepository):
         except Exception as e:
             logger.error("s3_presign_failed", key=key, error=str(e))
             raise StorageError(f"Failed to generate presigned URL: {str(e)}")
+
+    async def delete_files(self, keys: list[str]) -> int:
+        """Deletes stored objects without blocking the event loop."""
+        unique_keys = [key for key in dict.fromkeys(keys) if key]
+        if not unique_keys:
+            return 0
+
+        deleted_count = 0
+        try:
+            for index in range(0, len(unique_keys), 1000):
+                chunk = unique_keys[index:index + 1000]
+                await asyncio.to_thread(
+                    self._client.delete_objects,
+                    Bucket=self.settings.bucket_name,
+                    Delete={
+                        "Objects": [{"Key": key} for key in chunk],
+                        "Quiet": True,
+                    },
+                )
+                deleted_count += len(chunk)
+            return deleted_count
+        except Exception as e:
+            logger.error("s3_delete_failed", error=str(e), object_count=len(unique_keys))
+            raise StorageError(f"Failed to delete files from storage: {str(e)}")

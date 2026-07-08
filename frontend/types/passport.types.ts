@@ -38,6 +38,15 @@ export interface ExtractedPassportFields {
       severity: "warning" | "error" | string;
     }>;
   };
+  field_provenance?: Record<string, {
+    source?: string;
+    debug?: {
+      image_relative_bbox?: [number, number, number, number];
+      locator?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  }>;
   [key: string]: unknown;  // allow validation metadata and country-specific fields
 }
 
@@ -90,6 +99,11 @@ export interface PassportGroupSummary {
   confirmed_count: number;
   failed_count: number;
   latest_submission_at: string;
+  destination: string | null;
+  travel_date: string | null;
+  return_date: string | null;
+  package_name: string | null;
+  notes: string | null;
 }
 
 export interface UploadLink extends TimestampedEntity {

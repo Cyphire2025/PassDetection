@@ -25,3 +25,4 @@ export type { BadgeProps } from "./badge";
 
 export { Skeleton } from "./skeleton";
 export { Separator } from "./separator";
+export { ConfirmDialog, TextInputDialog } from "./modal";

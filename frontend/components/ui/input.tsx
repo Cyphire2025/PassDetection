@@ -38,6 +38,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
           <input
             ref={ref}
+            suppressHydrationWarning
             id={inputId}
             aria-describedby={[error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined}
             aria-invalid={!!error}

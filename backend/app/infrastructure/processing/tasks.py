@@ -27,6 +27,9 @@ def process_passport_submission(self, *, job_id: str, submission_id: str) -> Non
         countdown = min(30, 2 ** self.request.retries * 5)
         raise self.retry(exc=exc, countdown=countdown) from exc
     except Exception:
-        logger.exception("celery_passport_processing_task_failed", job_id=job_id, submission_id=submission_id)
+        logger.exception(
+            "celery_passport_processing_task_failed job_id=%s submission_id=%s",
+            job_id,
+            submission_id,
+        )
         raise
-

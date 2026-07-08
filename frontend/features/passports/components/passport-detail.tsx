@@ -63,7 +63,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
           title={data.client_name}
           description="Submission details, extraction output, and current processing state."
         />
-        <Link href={ROUTES.dashboard.passports}>
+        <Link href={ROUTES.dashboard.passportGroup(data.group_id) as never}>
           <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Passports
@@ -226,13 +226,16 @@ function ReviewFieldsCard({
         {validation?.issues && validation.issues.length > 0 && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
             <div className="font-medium">Fields needing attention</div>
-            <ul className="mt-2 space-y-1">
-              {validation.issues.map((issue, index) => (
-                <li key={`${issue.field}:${index}`}>
-                  <span className="font-medium">{toLabel(issue.field)}:</span> {issue.message}
-                </li>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {getAttentionFieldLabels(validation.issues).map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-amber-200 bg-white px-2.5 py-1 text-xs font-medium text-amber-800"
+                >
+                  {label}
+                </span>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
@@ -286,4 +289,43 @@ function toLabel(value: string) {
   return value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getAttentionFieldLabels(
+  issues: Array<{ field: string; message: string; severity: string }>,
+) {
+  const labels = new Set<string>();
+  for (const issue of issues) {
+    const text = `${issue.field} ${issue.message}`.toLowerCase();
+    if (text.includes("name") || issue.field === "surname" || issue.field === "given_names") {
+      labels.add("Name");
+      continue;
+    }
+    if (text.includes("passport_number") || text.includes("passport number")) {
+      labels.add("Passport number");
+      continue;
+    }
+    if (text.includes("date_of_birth") || text.includes("birth")) {
+      labels.add("Date of birth");
+      continue;
+    }
+    if (text.includes("date_of_expiry") || text.includes("expiry")) {
+      labels.add("Date of expiry");
+      continue;
+    }
+    if (text.includes("nationality")) {
+      labels.add("Nationality");
+      continue;
+    }
+    if (text.includes("issuing_country") || text.includes("issuing country")) {
+      labels.add("Issuing country");
+      continue;
+    }
+    if (text.includes("sex")) {
+      labels.add("Sex");
+      continue;
+    }
+    labels.add(toLabel(issue.field));
+  }
+  return Array.from(labels);
 }

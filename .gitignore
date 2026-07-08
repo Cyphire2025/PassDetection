@@ -74,3 +74,6 @@ mmypass.jpeg
 nipunpass.jpeg
 ridhima passport.jpeg
 .git.frontend-backup/
+nginx/certs/
+debug/
+backend/debug/

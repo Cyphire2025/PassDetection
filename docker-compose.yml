@@ -177,6 +177,7 @@ services:
       target: runtime
       args:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_DEV_APP_URL: ${NEXT_PUBLIC_DEV_APP_URL}
         NEXT_PUBLIC_API_BASE_URL: ""
     container_name: passdetection-frontend
     restart: unless-stopped
@@ -185,6 +186,7 @@ services:
     environment:
       NEXT_PUBLIC_API_BASE_URL: ""
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_DEV_APP_URL: ${NEXT_PUBLIC_DEV_APP_URL}
     depends_on:
       - backend
     networks:
@@ -202,6 +204,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - backend
       - frontend

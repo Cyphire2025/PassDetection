@@ -5,11 +5,10 @@ Create Upload Link Use Case
 
 from __future__ import annotations
 
-import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+import secrets
 
-from app.application.dtos.client_group_dtos import CreateClientGroupInputDTO, ClientGroupOutputDTO
+from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, CreateClientGroupInputDTO, client_group_output_from_entity
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup
 from app.domain.repositories.interfaces import IClientGroupRepository
@@ -38,6 +37,11 @@ class CreateClientGroupUseCase:
             token=token,
             agency_id=agency_id,
             created_by_user_id=created_by_user_id,
+            destination=dto.destination,
+            travel_date=dto.travel_date,
+            return_date=dto.return_date,
+            package_name=dto.package_name,
+            notes=dto.notes,
         )
 
         # Save to DB
@@ -50,13 +54,4 @@ class CreateClientGroupUseCase:
             group_name=dto.name,
         )
 
-        return ClientGroupOutputDTO(
-            id=link.id,
-            name=link.name,
-            token=link.token,
-            agency_id=link.agency_id,
-            status=link.status.value,
-            created_by_user_id=link.created_by_user_id,
-            created_at=link.created_at,
-            closed_at=link.closed_at,
-        )
+        return client_group_output_from_entity(link)

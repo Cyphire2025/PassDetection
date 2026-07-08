@@ -20,7 +20,7 @@ export default function RootPage() {
         </div>
 
         <h1 className="mb-1 text-2xl font-bold text-slate-900">PassDetection</h1>
-        <p className="mb-8 text-sm text-slate-500">Enterprise Passport OCR Platform</p>
+        <p className="mb-8 text-sm text-slate-500">Enterprise Passport MRZ Platform</p>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm">
           <div className="mb-4 flex items-center gap-2">
@@ -40,7 +40,7 @@ export default function RootPage() {
               "Mobile-first scanner with glare detection",
               "Perspective correction before upload",
               "Hands-free auto capture for stable scans",
-              "Best-effort OCR and MRZ extraction pipeline",
+              "MRZ-only extraction from passport photos and uploads",
               "Review-ready passport list and detail workspace",
               "Editable field review and confirmation flow",
               "Phase 14 next: field-level confidence scoring",

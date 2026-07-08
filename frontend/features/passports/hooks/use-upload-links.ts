@@ -11,10 +11,11 @@ const QUERY_KEYS = {
   byToken: (token: string) => ["upload-links", "token", token] as const,
 };
 
-export function useUploadLinks(statusFilter?: UploadLinkResponse["status"]) {
+export function useUploadLinks(statusFilter?: UploadLinkResponse["status"], enabled = true) {
   return useQuery({
     queryKey: QUERY_KEYS.list(statusFilter),
     queryFn: () => uploadLinksApi.list(statusFilter),
+    enabled,
   });
 }
 
@@ -54,6 +55,29 @@ export function useDeleteUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
+
+export function useUpdateUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...data }: CreateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+    },
+  });
+}
+
+export function usePermanentlyDeleteUploadLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, retainRecords }: { id: string; retainRecords: boolean }) =>
+      uploadLinksApi.permanentDelete(id, retainRecords),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
     },

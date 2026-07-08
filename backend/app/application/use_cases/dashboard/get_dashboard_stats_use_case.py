@@ -62,11 +62,12 @@ class GetDashboardStatsUseCase:
             created_by_user_id=created_by_user_id,
         )
 
-        # Get recent 5 submissions for activity list
+        # Recent Activity should only show passports clients actually submitted after review.
         recent_list = await self._submission_repo.list_by_agency(
             agency_id,
             skip=0,
             limit=5,
+            status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
             exclude_archived_groups=True,
             created_by_user_id=created_by_user_id,
         )

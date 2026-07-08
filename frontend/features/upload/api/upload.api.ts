@@ -31,6 +31,17 @@ export const uploadApi = {
     return response.data;
   },
 
+  scanAgain: async (token: string, submissionId: string): Promise<PassportSubmission> => {
+    const response = await apiClient.post<PassportSubmission>(
+      API_ENDPOINTS.passports.uploadScanAgain(token, submissionId),
+    );
+    return response.data;
+  },
+
+  discardUpload: async (token: string, submissionId: string): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.passports.discardUpload(token, submissionId));
+  },
+
   submitClientReview: async (
     submissionId: string,
     data: {

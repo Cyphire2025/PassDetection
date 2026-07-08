@@ -6,7 +6,7 @@ Passport Presentation Schemas
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -19,6 +19,14 @@ class ClientSubmitPassportRequest(BaseModel):
     client_email: EmailStr
     client_phone: str = Field(..., min_length=7, max_length=32)
     group_token: str = Field(..., min_length=10)
+
+
+class ExportSelectedPassportsRequest(BaseModel):
+    submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=500)
+
+
+class ExportSelectedGroupsRequest(BaseModel):
+    group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
 
 
 class PassportSubmissionResponse(BaseModel):
@@ -59,5 +67,10 @@ class PassportGroupSummaryResponse(BaseModel):
     confirmed_count: int
     failed_count: int
     latest_submission_at: datetime
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    package_name: str | None = None
+    notes: str | None = None
 
     model_config = {"from_attributes": True}

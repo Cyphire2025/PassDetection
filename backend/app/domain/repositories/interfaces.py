@@ -17,7 +17,7 @@ from __future__ import annotations
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 
 from app.domain.entities.entities import Agency, PassportSubmission, ClientGroup, User
 
@@ -32,6 +32,11 @@ class PassportSubmissionGroupSummary:
     confirmed_count: int
     failed_count: int
     latest_submission_at: datetime
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    package_name: str | None = None
+    notes: str | None = None
 
 
 class IUserRepository(ABC):
@@ -125,6 +130,9 @@ class IPassportSubmissionRepository(ABC):
     async def update(self, submission: PassportSubmission) -> PassportSubmission: ...
 
     @abstractmethod
+    async def delete(self, submission_id: uuid.UUID) -> None: ...
+
+    @abstractmethod
     async def list_by_agency(
         self,
         agency_id: uuid.UUID,
@@ -197,5 +205,10 @@ class IObjectStorageRepository(ABC):
     @abstractmethod
     async def get_presigned_url(self, key: str, expires_in_seconds: int = 3600) -> str:
         """Generates a presigned URL for downloading/viewing a file."""
+        ...
+
+    @abstractmethod
+    async def delete_files(self, keys: list[str]) -> int:
+        """Deletes files from object storage and returns the number requested for deletion."""
         ...
 

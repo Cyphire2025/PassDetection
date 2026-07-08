@@ -33,7 +33,10 @@ async def get_analytics_summary(
     days: int = 30,
 ) -> AnalyticsSummaryResponse:
     since = datetime.now(tz=timezone.utc) - timedelta(days=max(1, min(days, 365)))
-    base_filters = [PassportSubmissionModel.created_at >= since]
+    base_filters = [
+        PassportSubmissionModel.created_at >= since,
+        PassportSubmissionModel.status.in_(("client_submitted", "confirmed")),
+    ]
     if current_user.role != UserRole.SUPER_ADMIN:
         if not current_user.agency_id:
             return AnalyticsSummaryResponse(status_counts={}, confidence_buckets={}, submissions_by_day={}, average_confidence=None)

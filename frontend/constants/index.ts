@@ -49,9 +49,14 @@ export const QUERY_KEYS = {
   operations: {
     adminOverview: ["operations", "admin-overview"] as const,
     managers: ["operations", "managers"] as const,
+    adminGroups: ["operations", "admin-groups"] as const,
+    tourOperationsArchitecture: ["operations", "tour-operations", "architecture"] as const,
+    tourCoordinators: ["operations", "tour-operations", "coordinators"] as const,
+    tourGroups: ["operations", "tour-operations", "groups"] as const,
+    tourGroupPassengers: (groupId: string) => ["operations", "tour-operations", "groups", groupId, "passengers"] as const,
+    tourGroupQrCodes: (groupId: string) => ["operations", "tour-operations", "groups", groupId, "qr-codes"] as const,
     analytics: (params?: object) => ["operations", "analytics", params] as const,
     auditLogs: (params?: object) => ["operations", "audit-logs", params] as const,
-    notifications: (params?: object) => ["operations", "notifications", params] as const,
   },
   uploadLinks: {
     all: ["upload-links"] as const,

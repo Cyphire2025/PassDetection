@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import re
 import uuid
+from pathlib import PurePosixPath
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
-from app.domain.repositories.interfaces import IClientGroupRepository, IPassportSubmissionRepository
+from app.domain.repositories.interfaces import IClientGroupRepository, IObjectStorageRepository, IPassportSubmissionRepository
 
 
 class ClientSubmitPassportUseCase:
@@ -21,9 +22,11 @@ class ClientSubmitPassportUseCase:
         self,
         passport_repo: IPassportSubmissionRepository,
         client_group_repo: IClientGroupRepository,
+        storage_repo: IObjectStorageRepository,
     ) -> None:
         self._passport_repo = passport_repo
         self._client_group_repo = client_group_repo
+        self._storage_repo = storage_repo
 
     async def execute(
         self,
@@ -69,12 +72,22 @@ class ClientSubmitPassportUseCase:
         if not clean_fields:
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
 
+        draft_key = submission.image_s3_key
+        if draft_key.startswith("drafts/"):
+            suffix = PurePosixPath(draft_key).suffix or ".jpg"
+            permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}{suffix}"
+            image = await self._storage_repo.get_file(draft_key)
+            await self._storage_repo.upload_file(image, permanent_key, self._content_type(suffix))
+            submission.promote_image(permanent_key)
+
         submission.submit_client_review(
             clean_fields,
             client_email=normalized_email,
             client_phone=normalized_phone,
         )
         await self._passport_repo.update(submission)
+        if draft_key != submission.image_s3_key:
+            await self._storage_repo.delete_files([draft_key])
 
         return PassportSubmissionOutputDTO(
             id=submission.id,
@@ -105,3 +118,7 @@ class ClientSubmitPassportUseCase:
         else:
             digits = re.sub(r"\D", "", normalized)
         return digits if len(digits.replace("+", "")) >= 7 else ""
+
+    @staticmethod
+    def _content_type(suffix: str) -> str:
+        return "image/png" if suffix.lower() == ".png" else "image/jpeg"

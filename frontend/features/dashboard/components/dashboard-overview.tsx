@@ -5,13 +5,14 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Link2, CheckCircle, AlertCircle, Eye } from "lucide-react";
+import { AlertCircle, ArrowRight, CalendarCheck, CheckCircle, Eye, FileText, Link2 } from "lucide-react";
 import { Card, CardContent, Skeleton, Badge, Button } from "@/components/ui";
 import { PageHeader } from "@/components/shared";
 import { useDashboardStats } from "../hooks/use-dashboard-stats";
 import { formatDate } from "@/lib/utils/format";
 import { PASSPORT_STATUS_LABELS, PASSPORT_STATUS_COLORS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 
 interface MetricCardProps {
   label: string;
@@ -25,9 +26,9 @@ interface MetricCardProps {
 function MetricCard({ label, value, icon: Icon, iconBg, iconColor, isLoading }: MetricCardProps) {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent className="p-4 sm:pt-6">
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
             {isLoading ? (
               <Skeleton className="mt-2 h-7 w-16" />
@@ -45,7 +46,43 @@ function MetricCard({ label, value, icon: Icon, iconBg, iconColor, isLoading }: 
 }
 
 export function DashboardOverview() {
-  const { data, isLoading, error } = useDashboardStats();
+  const role = useAuthStore(selectUserRole);
+  const isCoordinator = role === "agency_coordinator";
+  const { data, isLoading, error } = useDashboardStats({ enabled: !isCoordinator });
+
+  if (isCoordinator) {
+    return (
+      <div className="flex min-w-0 flex-col gap-5">
+        <PageHeader
+          title="Dashboard"
+          description="Open your assigned tour groups and start attendance scanning."
+        />
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <CalendarCheck className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-slate-900">My Tour</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  View assigned groups, choose an activity, and scan passenger QR codes.
+                </p>
+              </div>
+            </div>
+
+            <Link href={ROUTES.coordinator as never} className="mt-5 block">
+              <Button className="h-12 w-full justify-center bg-blue-600 text-base font-semibold text-white hover:bg-blue-700">
+                My Tour
+                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const metrics: MetricCardProps[] = [
     {
@@ -83,7 +120,7 @@ export function DashboardOverview() {
   ];
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex min-w-0 flex-col gap-5 sm:gap-7">
       <PageHeader
         title="Dashboard"
         description="Overview of your passport processing activity"
@@ -95,7 +132,7 @@ export function DashboardOverview() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((m) => (
           <MetricCard key={m.label} {...m} />
         ))}

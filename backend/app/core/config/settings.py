@@ -90,41 +90,12 @@ class S3Settings(BaseSettings):
     presigned_url_expiry_seconds: int = 3600
 
 
-class OCRSettings(BaseSettings):
-    """OCR engine selection and tuning."""
+class MRZSettings(BaseSettings):
+    """MRZ strip reader tuning."""
 
-    model_config = SettingsConfigDict(env_prefix="OCR_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="MRZ_", env_file=".env", extra="ignore")
 
-    primary_engine: Literal["paddleocr", "easyocr", "tesseract"] = "tesseract"
-    fallback_engine: Literal["paddleocr", "easyocr", "tesseract"] = "easyocr"
-    confidence_threshold: float = Field(default=0.75, ge=0.0, le=1.0)
-    fast_mode_enabled: bool = True
-    engine_timeout_seconds: float = Field(default=4.0, ge=0.5, le=30.0)
-    run_deep_ensemble: bool = False
-    processing_budget_seconds: float = Field(default=5.0, ge=0.5, le=30.0)
-
-
-class VisionAISettings(BaseSettings):
-    """Provider-backed vision extraction settings."""
-
-    model_config = SettingsConfigDict(env_prefix="VISION_", env_file=".env", extra="ignore")
-
-    enabled: bool = True
-    provider: Literal["openai"] = "openai"
-    model: str = "gpt-5.4-mini"
-    timeout_seconds: float = Field(default=20.0, ge=3.0, le=60.0)
-    min_local_confidence: float = Field(default=0.92, ge=0.0, le=1.0)
-
-
-class GeminiSettings(BaseSettings):
-    """Gemini verifier settings for passport extraction."""
-
-    model_config = SettingsConfigDict(env_prefix="GEMINI_", env_file=".env", extra="ignore")
-
-    enabled: bool = False
-    api_key: str | None = None
-    model: str = "gemini-2.5-flash"
-    timeout: float = Field(default=5.0, ge=1.0, le=60.0)
+    timeout_seconds: float = Field(default=3.0, ge=0.5, le=30.0)
 
 
 class Settings(BaseSettings):
@@ -141,7 +112,7 @@ class Settings(BaseSettings):
     app_secret_key: str = Field(..., description="Must be set via APP_SECRET_KEY")
     app_debug: bool = False
     app_version: str = "1.0.0"
-    app_name: str = "PassDetection OCR Platform"
+    app_name: str = "PassDetection MRZ Platform"
 
     api_v1_prefix: str = "/api/v1"
     backend_port: int = 8000
@@ -200,18 +171,8 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[misc]
     @property
-    def ocr(self) -> OCRSettings:
-        return OCRSettings()
-
-    @computed_field  # type: ignore[misc]
-    @property
-    def vision_ai(self) -> VisionAISettings:
-        return VisionAISettings()
-
-    @computed_field  # type: ignore[misc]
-    @property
-    def gemini(self) -> GeminiSettings:
-        return GeminiSettings()
+    def mrz(self) -> MRZSettings:
+        return MRZSettings()
 
     @property
     def is_production(self) -> bool:

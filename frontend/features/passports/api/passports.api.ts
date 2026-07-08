@@ -13,9 +13,9 @@ export const passportsApi = {
     return data;
   },
 
-  listByGroup: async (groupId: string, search?: string): Promise<PassportSubmission[]> => {
+  listByGroup: async (groupId: string, search?: string, includeDeleted = false): Promise<PassportSubmission[]> => {
     const { data } = await apiClient.get<PassportSubmission[]>(API_ENDPOINTS.passports.groupDetail(groupId), {
-      params: search ? { search } : undefined,
+      params: { ...(search ? { search } : {}), ...(includeDeleted ? { include_deleted: true } : {}) },
     });
     return data;
   },
@@ -41,13 +41,35 @@ export const passportsApi = {
     const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
       responseType: "blob",
     });
-    const url = window.URL.createObjectURL(response.data);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `passport-export-${groupId}.xlsx`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.URL.revokeObjectURL(url);
+    downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
+  },
+
+  exportSelectedPassports: async (submissionIds: string[]): Promise<void> => {
+    const response = await apiClient.post<Blob>(
+      API_ENDPOINTS.passports.selectedExport,
+      { submission_ids: submissionIds },
+      { responseType: "blob" },
+    );
+    downloadBlob(response.data, "selected-passports.xlsx");
+  },
+
+  exportSelectedGroups: async (groupIds: string[]): Promise<void> => {
+    const response = await apiClient.post<Blob>(
+      API_ENDPOINTS.passports.groupsExport,
+      { group_ids: groupIds },
+      { responseType: "blob" },
+    );
+    downloadBlob(response.data, "selected-groups-passports.xlsx");
   },
 };
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+}

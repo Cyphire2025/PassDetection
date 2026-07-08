@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import case, func, or_, select
+from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IPassportSubmissionRepository, PassportSubmissionGroupSummary
-from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
+from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel, PassportSubmissionModel
 
 logger = get_logger(__name__)
 
@@ -121,6 +121,32 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         await self._session.flush()
         return submission
 
+    async def delete(self, submission_id: uuid.UUID) -> None:
+        await self._session.execute(
+            delete(PassportSubmissionModel).where(PassportSubmissionModel.id == submission_id)
+        )
+        await self._session.flush()
+
+    @staticmethod
+    def _submitted_statuses() -> tuple[str, str]:
+        return (
+            PassportProcessingStatus.CLIENT_SUBMITTED.value,
+            PassportProcessingStatus.CONFIRMED.value,
+        )
+
+    @staticmethod
+    def _apply_manager_group_scope(stmt, manager_id: uuid.UUID):  # type: ignore[no-untyped-def]
+        return stmt.outerjoin(
+            ManagerGroupAccessModel,
+            (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
+            & (ManagerGroupAccessModel.manager_id == manager_id),
+        ).where(
+            or_(
+                ClientGroupModel.created_by_user_id == manager_id,
+                ManagerGroupAccessModel.manager_id == manager_id,
+            )
+        )
+
     async def list_by_agency(
         self,
         agency_id: uuid.UUID,
@@ -132,13 +158,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
     ) -> list[PassportSubmission]:
-        stmt = select(PassportSubmissionModel).where(PassportSubmissionModel.agency_id == agency_id)
+        stmt = select(PassportSubmissionModel).where(
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.status.in_(self._submitted_statuses()),
+        )
         if exclude_archived_groups or created_by_user_id:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status != "archived")
+            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         if status_filter:
             stmt = stmt.where(PassportSubmissionModel.status == status_filter)
         stmt = self._apply_search(stmt, search)
@@ -164,12 +193,13 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             .where(
                 PassportSubmissionModel.agency_id == agency_id,
                 PassportSubmissionModel.group_id == group_id,
+                PassportSubmissionModel.status.in_(self._submitted_statuses()),
             )
         )
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status != "archived")
+            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         stmt = self._apply_search(stmt, search)
         stmt = stmt.order_by(PassportSubmissionModel.created_at.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
@@ -205,6 +235,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.id.label("group_id"),
                 ClientGroupModel.name.label("group_name"),
                 ClientGroupModel.status.label("group_status"),
+                ClientGroupModel.destination.label("destination"),
+                ClientGroupModel.travel_date.label("travel_date"),
+                ClientGroupModel.return_date.label("return_date"),
+                ClientGroupModel.package_name.label("package_name"),
+                ClientGroupModel.notes.label("notes"),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value, 1), else_=0)
@@ -219,13 +254,23 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             )
             .join(PassportSubmissionModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
             .where(ClientGroupModel.agency_id == agency_id)
+            .where(PassportSubmissionModel.status.in_(self._submitted_statuses()))
         )
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status != "archived")
+            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         stmt = (
-            stmt.group_by(ClientGroupModel.id, ClientGroupModel.name, ClientGroupModel.status)
+            stmt.group_by(
+                ClientGroupModel.id,
+                ClientGroupModel.name,
+                ClientGroupModel.status,
+                ClientGroupModel.destination,
+                ClientGroupModel.travel_date,
+                ClientGroupModel.return_date,
+                ClientGroupModel.package_name,
+                ClientGroupModel.notes,
+            )
             .order_by(func.max(PassportSubmissionModel.updated_at).desc())
             .offset(skip)
             .limit(limit)
@@ -241,6 +286,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 confirmed_count=int(row.confirmed_count or 0),
                 failed_count=int(row.failed_count or 0),
                 latest_submission_at=row.latest_submission_at,
+                destination=row.destination,
+                travel_date=row.travel_date,
+                return_date=row.return_date,
+                package_name=row.package_name,
+                notes=row.notes,
             )
             for row in result.all()
         ]
@@ -273,15 +323,28 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
     ) -> int:
-        stmt = select(func.count()).select_from(PassportSubmissionModel).where(PassportSubmissionModel.agency_id == agency_id)
+        stmt = select(func.count()).select_from(PassportSubmissionModel).where(
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.status.in_(self._submitted_statuses()),
+        )
         if exclude_archived_groups or created_by_user_id:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status != "archived")
+            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
-            stmt = stmt.where(ClientGroupModel.created_by_user_id == created_by_user_id)
+            stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         if status_filter:
             stmt = stmt.where(PassportSubmissionModel.status == status_filter)
 
         result = await self._session.execute(stmt)
-        return result.scalar_one()
+        total = int(result.scalar_one())
+        if not status_filter and not exclude_archived_groups and created_by_user_id is None:
+            historical_result = await self._session.execute(
+                select(func.coalesce(func.sum(ClientGroupModel.deleted_passport_count), 0)).where(
+                    ClientGroupModel.agency_id == agency_id,
+                    ClientGroupModel.status == "deleted",
+                    ClientGroupModel.deletion_retained_records.is_(False),
+                )
+            )
+            total += int(historical_result.scalar_one() or 0)
+        return total

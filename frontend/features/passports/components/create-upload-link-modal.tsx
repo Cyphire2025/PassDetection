@@ -33,6 +33,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     resolver: zodResolver(createUploadLinkSchema),
     defaultValues: {
       name: "",
+      destination: "",
+      travel_date: "",
+      return_date: "",
+      notes: "",
     },
   });
 
@@ -40,7 +44,13 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
 
   const onSubmit = async (data: CreateUploadLinkFormData) => {
     try {
-      const result = await createUploadLink(data);
+      const result = await createUploadLink({
+        ...data,
+        destination: data.destination || null,
+        travel_date: data.travel_date || null,
+        return_date: data.return_date || null,
+        notes: data.notes || null,
+      });
       setGeneratedTargets(getPassportUploadTargets(result.token));
     } catch (error) {
       console.error("Failed to create link", error);
@@ -66,7 +76,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-800">
             {hasGeneratedTargets ? "Links Generated" : "Create Upload Link"}
@@ -79,11 +89,11 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
           {hasGeneratedTargets ? (
             <div className="space-y-6">
               <div className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
-                Success. Two client link variants are ready for sharing.
+                Success. The public client link is ready for sharing.
               </div>
 
               <div className="space-y-4">
@@ -134,10 +144,34 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 )}
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Destination</label>
+                  <Input placeholder="e.g. Dubai" {...register("destination")} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Travel Date</label>
+                  <Input type="date" {...register("travel_date")} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Return Date</label>
+                  <Input type="date" {...register("return_date")} />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Notes</label>
+                <textarea
+                  {...register("notes")}
+                  rows={3}
+                  placeholder="Internal notes for this group"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 This will generate:
-                <div className="mt-2">1. Local link for the same laptop or desktop</div>
-                <div className="mt-1">2. LAN link for other devices on the same Wi-Fi</div>
+                <div className="mt-2">1. Public link on pass.cyphire.in for clients on phones or browsers</div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

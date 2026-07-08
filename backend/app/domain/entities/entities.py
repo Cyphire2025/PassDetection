@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from enum import Enum
 
 
@@ -34,6 +34,7 @@ class UserRole(str, Enum):
     SUPER_ADMIN = "super_admin"
     AGENCY_ADMIN = "agency_admin"
     AGENCY_STAFF = "agency_staff"
+    AGENCY_COORDINATOR = "agency_coordinator"
 
 
 class PassportProcessingStatus(str, Enum):
@@ -52,6 +53,21 @@ class GroupStatus(str, Enum):
     ACTIVE = "active"
     CLOSED = "closed"
     ARCHIVED = "archived"
+    DELETED = "deleted"
+
+
+class AttendanceSessionStatus(str, Enum):
+    """Lifecycle states for tour attendance sessions."""
+    DRAFT = "draft"
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class AttendanceScanSource(str, Enum):
+    """Source used to record an attendance scan."""
+    ONLINE = "online"
+    OFFLINE = "offline"
 
 
 # ── User Entity ───────────────────────────────────────────────────────────────
@@ -123,6 +139,101 @@ class User:
         }
 
 
+# ── Tour Operations Entities ─────────────────────────────────────────────────
+
+@dataclass
+class PassengerQRToken:
+    """
+    Opaque QR token mapped to a passenger submission.
+
+    The raw token is never represented here; persistence stores only a hash so
+    leaked database rows cannot be used as scannable passenger QR codes.
+    """
+
+    id: uuid.UUID
+    agency_id: uuid.UUID
+    passenger_id: uuid.UUID
+    token_hash: str
+    token_version: int
+    is_active: bool = True
+    created_by_user_id: uuid.UUID | None = None
+    created_at: datetime = field(default_factory=_utcnow)
+    updated_at: datetime = field(default_factory=_utcnow)
+    revoked_at: datetime | None = None
+
+    def revoke(self) -> None:
+        self.is_active = False
+        self.revoked_at = _utcnow()
+        self.updated_at = _utcnow()
+
+
+@dataclass
+class CoordinatorAssignment:
+    """Assignment of one passenger to a coordinator for one group."""
+
+    id: uuid.UUID
+    agency_id: uuid.UUID
+    group_id: uuid.UUID
+    passenger_id: uuid.UUID
+    coordinator_user_id: uuid.UUID
+    assigned_by_user_id: uuid.UUID | None
+    active: bool = True
+    assigned_at: datetime = field(default_factory=_utcnow)
+    unassigned_at: datetime | None = None
+
+    def unassign(self) -> None:
+        self.active = False
+        self.unassigned_at = _utcnow()
+
+
+@dataclass
+class AttendanceSession:
+    """A generic tour checkpoint such as Airport Arrival or Hotel Check-In."""
+
+    id: uuid.UUID
+    agency_id: uuid.UUID
+    group_id: uuid.UUID
+    name: str
+    status: AttendanceSessionStatus
+    created_by_user_id: uuid.UUID
+    created_at: datetime = field(default_factory=_utcnow)
+    updated_at: datetime = field(default_factory=_utcnow)
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    cancelled_at: datetime | None = None
+
+    def start(self) -> None:
+        self.status = AttendanceSessionStatus.ACTIVE
+        self.started_at = _utcnow()
+        self.updated_at = _utcnow()
+
+    def complete(self) -> None:
+        self.status = AttendanceSessionStatus.COMPLETED
+        self.completed_at = _utcnow()
+        self.updated_at = _utcnow()
+
+    def cancel(self) -> None:
+        self.status = AttendanceSessionStatus.CANCELLED
+        self.cancelled_at = _utcnow()
+        self.updated_at = _utcnow()
+
+
+@dataclass
+class AttendanceRecord:
+    """One idempotent passenger check-in for a session."""
+
+    id: uuid.UUID
+    agency_id: uuid.UUID
+    session_id: uuid.UUID
+    passenger_id: uuid.UUID
+    coordinator_user_id: uuid.UUID
+    scanned_at: datetime
+    sync_source: AttendanceScanSource
+    client_event_id: str
+    device_id: str | None = None
+    created_at: datetime = field(default_factory=_utcnow)
+
+
 # ── Agency Entity ─────────────────────────────────────────────────────────────
 
 @dataclass
@@ -169,9 +280,17 @@ class ClientGroup:
     token: str
     agency_id: uuid.UUID
     status: GroupStatus
-    created_by_user_id: uuid.UUID
+    created_by_user_id: uuid.UUID | None
     created_at: datetime = field(default_factory=_utcnow)
     closed_at: datetime | None = None
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    package_name: str | None = None
+    notes: str | None = None
+    deleted_at: datetime | None = None
+    deleted_passport_count: int = 0
+    deletion_retained_records: bool = False
 
     @classmethod
     def create(
@@ -180,6 +299,11 @@ class ClientGroup:
         token: str,
         agency_id: uuid.UUID,
         created_by_user_id: uuid.UUID,
+        destination: str | None = None,
+        travel_date: date | None = None,
+        return_date: date | None = None,
+        package_name: str | None = None,
+        notes: str | None = None,
     ) -> "ClientGroup":
         return cls(
             id=_new_uuid(),
@@ -188,6 +312,11 @@ class ClientGroup:
             agency_id=agency_id,
             status=GroupStatus.ACTIVE,
             created_by_user_id=created_by_user_id,
+            destination=destination.strip() if destination else None,
+            travel_date=travel_date,
+            return_date=return_date,
+            package_name=package_name.strip() if package_name else None,
+            notes=notes.strip() if notes else None,
         )
 
     def is_active(self) -> bool:
@@ -205,9 +334,20 @@ class ClientGroup:
         self.closed_at = self.closed_at or _utcnow()
 
     def restore(self) -> None:
-        """Restore an archived group to active workflows."""
+        """Restore an archived or retained deleted group to active workflows."""
         self.status = GroupStatus.ACTIVE
         self.closed_at = None
+        self.deleted_at = None
+        self.deleted_passport_count = 0
+        self.deletion_retained_records = False
+
+    def mark_deleted(self, *, passport_count: int, retain_records: bool) -> None:
+        """Hide a group from workflows while preserving deletion audit metadata."""
+        self.status = GroupStatus.DELETED
+        self.closed_at = self.closed_at or _utcnow()
+        self.deleted_at = _utcnow()
+        self.deleted_passport_count = passport_count
+        self.deletion_retained_records = retain_records
 
 
 # ── Passport Submission Entity ────────────────────────────────────────────────
@@ -305,6 +445,10 @@ class PassportSubmission:
         self.client_phone = client_phone.strip()
         self.confirmed_fields = confirmed_fields
         self.client_reviewed_at = _utcnow()
+        self.updated_at = _utcnow()
+
+    def promote_image(self, permanent_key: str) -> None:
+        self.image_s3_key = permanent_key
         self.updated_at = _utcnow()
 
     def mark_failed(self, reason: str) -> None:
