@@ -1,4 +1,4 @@
-const CACHE_NAME = "passdetection-tour-ops-v2";
+const CACHE_NAME = "passdetection-tour-ops-v4";
 const CORE_ASSETS = [
   "/coordinator",
   "/tour-scanner",
@@ -29,12 +29,31 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/api/")) return;
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        if (cached) return cached;
+        const response = await fetch(event.request);
+        if (response.ok) await cache.put(event.request, response.clone());
+        return response;
+      }),
+    );
+    return;
+  }
+  if (url.pathname.startsWith("/_next/")) return;
+  if (url.pathname === "/favicon.ico" || url.pathname.includes(".")) return;
+
+  const isNavigation = event.request.mode === "navigate" || event.request.destination === "document";
+  if (!isNavigation) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
         return response;
       })
       .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/coordinator"))),

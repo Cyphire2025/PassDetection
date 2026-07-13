@@ -16,4 +16,5 @@ export function writeOfflineSnapshot<T>(key: string, value: T) {
 export const offlineSnapshotKeys = {
   myGroups: "passdetection-tour-ops-my-groups",
   myPassengers: (groupId: string) => `passdetection-tour-ops-my-passengers:${groupId}`,
+  mySessions: (groupId: string) => `passdetection-tour-ops-my-sessions:${groupId}`,
 };

@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.dtos.client_group_dtos import CreateClientGroupInputDTO
 from app.application.use_cases.client_groups.create_client_group_use_case import CreateClientGroupUseCase
 from app.application.use_cases.client_groups.delete_client_group_use_case import DeleteClientGroupUseCase
@@ -25,12 +26,14 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     ManagerGroupAccessModel,
     NotificationModel,
+    PassengerQRTokenModel,
     PassportProcessingJobModel,
     PassportSubmissionModel,
 )
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_expires_at_for_group
 from app.presentation.api.v1.schemas.client_group_schemas import CreateClientGroupRequest, ClientGroupResponse, UpdateClientGroupRequest
 from app.presentation.dependencies.auth import get_current_active_user
 
@@ -92,6 +95,7 @@ async def create_client_group(
         travel_date=request.travel_date,
         return_date=request.return_date,
         package_name=request.package_name,
+        departure_cities=request.departure_cities,
         notes=request.notes,
     )
 
@@ -127,6 +131,7 @@ async def list_client_groups(
         limit=limit,
         status_filter=status_filter,
         created_by_user_id=None if status_filter == "deleted" else _owner_scope_for(current_user),
+        visible_to_user=None if status_filter == "deleted" else current_user,
     )
     return [ClientGroupResponse.model_validate(r) for r in results]
 
@@ -160,6 +165,7 @@ async def revoke_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
     use_case: RevokeClientGroupUseCase = Depends(_get_revoke_use_case),
+    session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
         raise HTTPException(
@@ -167,7 +173,11 @@ async def revoke_client_group(
             detail="Insufficient permissions"
         )
 
+    group = await ClientGroupRepository(session).get_by_id(link_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
     try:
+        await AuthorizationPolicy(session).require_manage_group(current_user, group)
         result = await use_case.execute(
             link_id=link_id,
             agency_id=current_user.agency_id,
@@ -201,18 +211,32 @@ async def update_client_group(
     group = await repo.get_by_id(link_id)
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
-    if group.agency_id != current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this group")
-    if current_user.role == UserRole.AGENCY_STAFF and group.created_by_user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the group owner can rename this group")
+    try:
+        await AuthorizationPolicy(session).require_manage_group(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
     group.name = request.name.strip()
     group.destination = request.destination.strip() if request.destination else None
     group.travel_date = request.travel_date
     group.return_date = request.return_date
     group.package_name = request.package_name.strip() if request.package_name else None
+    group.departure_cities = request.departure_cities
     group.notes = request.notes.strip() if request.notes else None
     await repo.update(group)
+    passenger_ids_result = await session.execute(
+        select(PassportSubmissionModel.id).where(PassportSubmissionModel.group_id == group.id)
+    )
+    passenger_ids = list(passenger_ids_result.scalars().all())
+    if passenger_ids:
+        await session.execute(
+            update(PassengerQRTokenModel)
+            .where(
+                PassengerQRTokenModel.passenger_id.in_(passenger_ids),
+                PassengerQRTokenModel.revoked_at.is_(None),
+            )
+            .values(expires_at=qr_expires_at_for_group(group))
+        )
     await AuditLogRepository(session).record(
         action="client_group_renamed",
         entity_type="client_group",
@@ -235,11 +259,16 @@ async def delete_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
     use_case: DeleteClientGroupUseCase = Depends(_get_delete_use_case),
+    session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
+    group = await ClientGroupRepository(session).get_by_id(link_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
     try:
+        await AuthorizationPolicy(session).require_delete_data(current_user, group)
         result = await use_case.execute(
             group_id=link_id,
             agency_id=current_user.agency_id,
@@ -272,10 +301,10 @@ async def permanently_delete_client_group(
     group = await repo.get_by_id(link_id)
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
-    if group.agency_id != current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this group")
-    if current_user.role == UserRole.AGENCY_STAFF:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can permanently delete archived groups")
+    try:
+        await AuthorizationPolicy(session).require_delete_data(current_user, group, permanent=True)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
     if group.status.value != "archived":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Archive the group before permanent deletion")
 
@@ -353,11 +382,16 @@ async def restore_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
     use_case: RestoreClientGroupUseCase = Depends(_get_restore_use_case),
+    session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
+    group = await ClientGroupRepository(session).get_by_id(link_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
     try:
+        await AuthorizationPolicy(session).require_manage_group(current_user, group)
         result = await use_case.execute(
             group_id=link_id,
             agency_id=current_user.agency_id,

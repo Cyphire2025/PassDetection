@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, UserCheck } from "lucide-react";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
@@ -46,12 +46,17 @@ export function getTourGroupTotals(groups: TourGroup[]) {
   );
 }
 
-export function filterTourPassengers(passengers: TourPassenger[], query: string) {
+export function filterTourPassengers(passengers: TourPassenger[], query: string, departureCity = "all") {
   const normalized = query.trim().toLowerCase();
-  if (!normalized) return passengers;
+  const cityFiltered = departureCity === "all"
+    ? passengers
+    : departureCity === "__unset"
+      ? passengers.filter((passenger) => !passenger.departure_city)
+      : passengers.filter((passenger) => passenger.departure_city === departureCity);
+  if (!normalized) return cityFiltered;
 
-  return passengers.filter((passenger) =>
-    [passenger.client_name, passenger.client_email, passenger.client_phone, passenger.coordinator_name]
+  return cityFiltered.filter((passenger) =>
+    [passenger.client_name, passenger.client_email, passenger.client_phone, passenger.departure_city, passenger.coordinator_name, passenger.family_group_label, passenger.family_relation, passenger.family_head_name]
       .filter(Boolean)
       .some((value) => value?.toLowerCase().includes(normalized)),
   );
@@ -195,49 +200,116 @@ export function PassengerSelectionTable({
   selectedIds: string[];
   onToggle: (passengerId: string) => void;
 }) {
+  const groupedPassengers = groupTourPassengers(passengers);
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200">
-      <table className="w-full min-w-[760px] text-left text-sm">
+      <table className="w-full min-w-[900px] text-left text-sm">
         <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
           <tr>
             <th className="w-12 px-4 py-3">Select</th>
             <th className="px-4 py-3">Passenger</th>
+            <th className="px-4 py-3">Departure City</th>
             <th className="px-4 py-3">Contact</th>
             <th className="px-4 py-3">Coordinator</th>
             <th className="px-4 py-3">Status</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {passengers.map((passenger) => {
-            const selected = selectedIds.includes(passenger.id);
-            return (
-              <tr
-                key={passenger.id}
-                className={cn("cursor-pointer hover:bg-slate-50", selected && "bg-blue-50 hover:bg-blue-50")}
-                onClick={() => onToggle(passenger.id)}
-              >
-                <td className="px-4 py-3">
-                  <span className={cn("flex h-5 w-5 items-center justify-center rounded border", selected ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 bg-white")}>
-                    {selected && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-medium text-slate-900">{passenger.client_name}</td>
-                <td className="px-4 py-3 text-slate-600">
-                  {[passenger.client_email, passenger.client_phone].filter(Boolean).join(" | ") || "No contact"}
-                </td>
-                <td className="px-4 py-3">
-                  <Badge variant={passenger.coordinator_id ? "secondary" : "outline"}>
-                    {passenger.coordinator_name ?? "Unassigned"}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 text-slate-600">{passenger.status.replaceAll("_", " ")}</td>
-              </tr>
-            );
-          })}
+          {groupedPassengers.map((group) => (
+            group.familyGroupId ? (
+              <Fragment key={group.key}>
+                <tr className="border-y border-blue-100 bg-blue-50/60">
+                  <td className="px-4 py-2" />
+                  <td colSpan={5} className="px-4 py-2">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="font-bold text-blue-900">{group.label}</span>
+                      <span className="rounded-full bg-white px-2 py-0.5 font-semibold text-blue-700">{group.passengers.length} passengers</span>
+                      <span className="text-blue-700">{group.passengers.map((passenger) => passenger.client_name).join(", ")}</span>
+                    </div>
+                  </td>
+                </tr>
+                {group.passengers.map((passenger) => (
+                  <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIds.includes(passenger.id)} onToggle={onToggle} isGrouped />
+                ))}
+              </Fragment>
+            ) : (
+              group.passengers.map((passenger) => (
+                <PassengerSelectionRow key={passenger.id} passenger={passenger} selected={selectedIds.includes(passenger.id)} onToggle={onToggle} />
+              ))
+            )
+          ))}
         </tbody>
       </table>
     </div>
   );
+}
+
+function PassengerSelectionRow({
+  passenger,
+  selected,
+  onToggle,
+  isGrouped = false,
+}: {
+  passenger: TourPassenger;
+  selected: boolean;
+  onToggle: (passengerId: string) => void;
+  isGrouped?: boolean;
+}) {
+  return (
+    <tr
+      className={cn("cursor-pointer hover:bg-slate-50", selected && "bg-blue-50 hover:bg-blue-50", isGrouped && "bg-blue-50/20")}
+      onClick={() => onToggle(passenger.id)}
+    >
+      <td className="px-4 py-3">
+        <span className={cn("flex h-5 w-5 items-center justify-center rounded border", selected ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 bg-white")}>
+          {selected && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
+        </span>
+      </td>
+      <td className="px-4 py-3 font-medium text-slate-900">
+        {passenger.client_name}
+        {passenger.family_group_label && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+              {(passenger.family_size ?? 1) === 2 ? "Couple" : "Family"}
+            </span>
+            {passenger.family_relation && <span className="text-xs font-normal text-slate-500">{passenger.family_relation}</span>}
+          </div>
+        )}
+      </td>
+      <td className="px-4 py-3 text-slate-600">{passenger.departure_city ?? "Not set"}</td>
+      <td className="px-4 py-3 text-slate-600">
+        {[passenger.client_email, passenger.client_phone].filter(Boolean).join(" | ") || "No contact"}
+      </td>
+      <td className="px-4 py-3">
+        <Badge variant={passenger.coordinator_id ? "secondary" : "outline"}>
+          {passenger.coordinator_name ?? "Unassigned"}
+        </Badge>
+      </td>
+      <td className="px-4 py-3 text-slate-600">{passenger.status.replaceAll("_", " ")}</td>
+    </tr>
+  );
+}
+
+function groupTourPassengers(passengers: TourPassenger[]) {
+  const groups = new Map<string, { key: string; familyGroupId: string | null; label: string; passengers: TourPassenger[] }>();
+  for (const passenger of passengers) {
+    const key = passenger.family_group_id ? `family:${passenger.family_group_id}` : `single:${passenger.id}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.passengers.push(passenger);
+    } else {
+      groups.set(key, {
+        key,
+        familyGroupId: passenger.family_group_id ?? null,
+        label: passenger.family_group_label ?? passenger.client_name,
+        passengers: [passenger],
+      });
+    }
+  }
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    passengers: group.passengers.sort((a, b) => (a.family_member_index ?? 999) - (b.family_member_index ?? 999) || a.client_name.localeCompare(b.client_name)),
+  }));
 }
 
 function useCloseOnOutsideClick(onClose: () => void) {

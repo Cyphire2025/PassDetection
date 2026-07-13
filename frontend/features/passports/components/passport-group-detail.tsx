@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Pencil, RotateCcw, Search, UploadCloud } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
@@ -15,6 +15,7 @@ import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
   useExportSelectedPassports,
+  useImportPassportGroup,
   usePassportGroups,
   usePassportsByGroup,
   useReextractPassportSubmission,
@@ -49,18 +50,23 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     travel_date: deletedGroup.travel_date,
     return_date: deletedGroup.return_date,
     package_name: deletedGroup.package_name,
+    departure_cities: deletedGroup.departure_cities ?? [],
     notes: deletedGroup.notes,
   } : undefined);
   const reextractMutation = useReextractPassportSubmission();
   const exportMutation = useExportPassportGroup();
+  const importMutation = useImportPassportGroup(groupId);
   const exportSelected = useExportSelectedPassports();
   const updateGroup = useUpdateUploadLink();
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
   const [isEditingTrip, setIsEditingTrip] = useState(false);
   const [tripForm, setTripForm] = useState({
     name: "",
     destination: "",
     travel_date: "",
     return_date: "",
+    departure_cities: [] as string[],
     notes: "",
   });
 
@@ -94,6 +100,37 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           description="Review the passport submissions uploaded through this group link."
         />
         <div className="flex flex-wrap gap-2">
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              setImportMessage(null);
+              importMutation.mutate(file, {
+                onSuccess: (result) => {
+                  setSelectedPassports([]);
+                  setImportMessage(`Imported ${result.imported_count} passenger${result.imported_count === 1 ? "" : "s"}.`);
+                },
+                onError: (error) => {
+                  const message = error instanceof Error ? error.message : "Import failed";
+                  setImportMessage(message);
+                },
+              });
+            }}
+          />
+          <Button
+            variant="secondary"
+            className="gap-2"
+            disabled={importMutation.isPending}
+            onClick={() => importInputRef.current?.click()}
+          >
+            <UploadCloud className="h-4 w-4" />
+            {importMutation.isPending ? "Importing" : "Import Excel"}
+          </Button>
           <Button
             variant="secondary"
             className="gap-2"
@@ -135,6 +172,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     destination: groupDetails.destination ?? "",
                     travel_date: groupDetails.travel_date ?? "",
                     return_date: groupDetails.return_date ?? "",
+                    departure_cities: groupDetails.departure_cities ?? [],
                     notes: groupDetails.notes ?? "",
                   });
                   setIsEditingTrip(true);
@@ -148,12 +186,19 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
               <InfoPair label="Travel Date" value={groupDetails.travel_date || "Not set"} />
               <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
+              <InfoPair label="Departure Cities" value={(groupDetails.departure_cities ?? []).join(", ") || "Not set"} />
               <div className="sm:col-span-2">
                 <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
               </div>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {importMessage && (
+        <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          {importMessage}
+        </div>
       )}
 
       {expiryAlerts.length > 0 && (
@@ -378,6 +423,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 destination: tripForm.destination || null,
                 travel_date: tripForm.travel_date || null,
                 return_date: tripForm.return_date || null,
+                departure_cities: normalizeCities(tripForm.departure_cities),
                 notes: tripForm.notes || null,
               },
               { onSuccess: () => setIsEditingTrip(false) },
@@ -518,6 +564,7 @@ function TripDetailsDialog({
     destination: string;
     travel_date: string;
     return_date: string;
+    departure_cities: string[];
     notes: string;
   };
   isLoading: boolean;
@@ -526,13 +573,24 @@ function TripDetailsDialog({
     destination: string;
     travel_date: string;
     return_date: string;
+    departure_cities: string[];
     notes: string;
   }) => void;
   onClose: () => void;
   onSave: () => void;
 }) {
+  const [cityInput, setCityInput] = useState("");
   const updateField = (key: keyof typeof form, value: string) => {
     onChange({ ...form, [key]: value });
+  };
+  const addCity = () => {
+    const nextCity = normalizeCity(cityInput);
+    if (!nextCity) return;
+    onChange({ ...form, departure_cities: normalizeCities([...form.departure_cities, nextCity]) });
+    setCityInput("");
+  };
+  const removeCity = (city: string) => {
+    onChange({ ...form, departure_cities: form.departure_cities.filter((item) => item !== city) });
   };
 
   return (
@@ -560,6 +618,40 @@ function TripDetailsDialog({
             <Input type="date" value={form.return_date} onChange={(event) => updateField("return_date", event.target.value)} />
           </label>
           <label className="space-y-2 sm:col-span-2">
+            <span className="text-sm font-medium text-slate-700">Departure Cities</span>
+            <div className="flex gap-2">
+              <Input
+                value={cityInput}
+                onChange={(event) => setCityInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addCity();
+                  }
+                }}
+                placeholder="e.g. Delhi, Chennai, Mumbai"
+              />
+              <Button type="button" variant="secondary" onClick={addCity}>
+                Add
+              </Button>
+            </div>
+            {form.departure_cities.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {form.departure_cities.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => removeCity(city)}
+                    className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
+                  >
+                    {city}
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </label>
+          <label className="space-y-2 sm:col-span-2">
             <span className="text-sm font-medium text-slate-700">Notes</span>
             <textarea
               value={form.notes}
@@ -580,4 +672,22 @@ function TripDetailsDialog({
       </div>
     </div>
   );
+}
+
+function normalizeCity(value: string) {
+  return value.trim().replace(/\s+/g, " ").slice(0, 120);
+}
+
+function normalizeCities(values: string[]) {
+  const seen = new Set<string>();
+  const cities: string[] = [];
+  for (const value of values) {
+    const city = normalizeCity(value);
+    if (!city) continue;
+    const key = city.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cities.push(city);
+  }
+  return cities;
 }

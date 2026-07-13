@@ -16,9 +16,18 @@ class ConfirmPassportSubmissionRequest(BaseModel):
 
 class ClientSubmitPassportRequest(BaseModel):
     confirmed_fields: dict[str, str] = Field(..., min_length=1)
-    client_email: EmailStr
-    client_phone: str = Field(..., min_length=7, max_length=32)
+    client_email: EmailStr | None = None
+    client_phone: str | None = Field(default=None, min_length=7, max_length=32)
+    departure_city: str | None = Field(default=None, max_length=120)
     group_token: str = Field(..., min_length=10)
+    submission_mode: str = Field(default="single", pattern="^(single|family)$")
+    family_group_id: uuid.UUID | None = None
+    family_member_index: int | None = Field(default=None, ge=0, le=100)
+    family_relation: str | None = Field(default=None, max_length=80)
+    family_gender: str | None = Field(default=None, max_length=40)
+    family_head_name: str | None = Field(default=None, max_length=255)
+    family_head_email: EmailStr | None = None
+    family_head_phone: str | None = Field(default=None, min_length=7, max_length=32)
 
 
 class ExportSelectedPassportsRequest(BaseModel):
@@ -29,6 +38,19 @@ class ExportSelectedGroupsRequest(BaseModel):
     group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
 
 
+class ImportPassportGroupResponse(BaseModel):
+    imported_count: int
+    skipped_count: int
+
+
+class PassengerQrStatusResponse(BaseModel):
+    status: str
+    token_version: int | None = None
+    created_at: datetime | None = None
+    expires_at: datetime | None = None
+    revoked_at: datetime | None = None
+
+
 class PassportSubmissionResponse(BaseModel):
     id: uuid.UUID
     group_id: uuid.UUID
@@ -36,6 +58,16 @@ class PassportSubmissionResponse(BaseModel):
     client_name: str
     client_email: str | None = None
     client_phone: str | None = None
+    departure_city: str | None = None
+    submission_mode: str = "single"
+    family_group_id: uuid.UUID | None = None
+    family_member_index: int | None = None
+    family_relation: str | None = None
+    family_gender: str | None = None
+    family_head_name: str | None = None
+    family_head_email: str | None = None
+    family_head_phone: str | None = None
+    family_broadcast_to_member: bool = False
     image_s3_key: str
     thumbnail_s3_key: str | None = None
     status: str
@@ -54,6 +86,7 @@ class PassportSubmissionResponse(BaseModel):
     processing_job_status: str | None = None
     processing_progress: float | None = None
     processing_stage: str | None = None
+    qr_status: PassengerQrStatusResponse | None = None
 
     model_config = {"from_attributes": True}
 
@@ -71,6 +104,7 @@ class PassportGroupSummaryResponse(BaseModel):
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] = Field(default_factory=list)
     notes: str | None = None
 
     model_config = {"from_attributes": True}

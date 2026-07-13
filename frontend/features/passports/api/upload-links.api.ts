@@ -13,6 +13,7 @@ export interface CreateUploadLinkRequest {
   travel_date?: string | null;
   return_date?: string | null;
   package_name?: string | null;
+  departure_cities?: string[];
   notes?: string | null;
 }
 
@@ -29,6 +30,7 @@ export interface UploadLinkResponse {
   travel_date: string | null;
   return_date: string | null;
   package_name: string | null;
+  departure_cities: string[];
   notes: string | null;
   deleted_at: string | null;
   deleted_passport_count: number;

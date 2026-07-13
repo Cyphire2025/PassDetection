@@ -68,21 +68,30 @@ async def get_admin_overview(
     agency_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [AgencyModel.id == current_user.agency_id]
     user_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [UserModel.agency_id == current_user.agency_id]
     group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
-    passport_filter = [PassportSubmissionModel.status.in_(("client_submitted", "confirmed"))]
+    passport_scope_filter = []
     if current_user.role != UserRole.SUPER_ADMIN:
-        passport_filter.append(PassportSubmissionModel.agency_id == current_user.agency_id)
+        passport_scope_filter.append(PassportSubmissionModel.agency_id == current_user.agency_id)
 
     agencies = await _count(session, select(func.count()).select_from(AgencyModel).where(*agency_filter))
     users = await _count(session, select(func.count()).select_from(UserModel).where(*user_filter))
     groups = await _count(session, select(func.count()).select_from(ClientGroupModel).where(*group_filter))
-    passports = await _count(session, select(func.count()).select_from(PassportSubmissionModel).where(*passport_filter))
+    passports = await _count(
+        session,
+        select(func.count()).select_from(PassportSubmissionModel).where(
+            *passport_scope_filter,
+            PassportSubmissionModel.status.in_((
+                PassportProcessingStatus.CLIENT_SUBMITTED.value,
+                PassportProcessingStatus.CONFIRMED.value,
+            )),
+        ),
+    )
     pending = await _count(
         session,
         select(func.count()).select_from(PassportSubmissionModel).join(
             ClientGroupModel,
             PassportSubmissionModel.group_id == ClientGroupModel.id,
         ).where(
-            *passport_filter,
+            *passport_scope_filter,
             PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value,
             ClientGroupModel.status.notin_(["archived", "deleted"]),
         ),
@@ -93,7 +102,7 @@ async def get_admin_overview(
             ClientGroupModel,
             PassportSubmissionModel.group_id == ClientGroupModel.id,
         ).where(
-            *passport_filter,
+            *passport_scope_filter,
             PassportSubmissionModel.status == PassportProcessingStatus.CLIENT_SUBMITTED.value,
             ClientGroupModel.status.notin_(["archived", "deleted"]),
         ),
@@ -104,7 +113,7 @@ async def get_admin_overview(
             ClientGroupModel,
             PassportSubmissionModel.group_id == ClientGroupModel.id,
         ).where(
-            *passport_filter,
+            *passport_scope_filter,
             PassportSubmissionModel.status == PassportProcessingStatus.FAILED.value,
             ClientGroupModel.status.notin_(["archived", "deleted"]),
         ),

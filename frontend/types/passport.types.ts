@@ -72,6 +72,16 @@ export interface PassportSubmission extends TimestampedEntity {
   client_name: string;
   client_email: string | null;
   client_phone: string | null;
+  departure_city: string | null;
+  submission_mode?: "single" | "family" | string;
+  family_group_id?: string | null;
+  family_member_index?: number | null;
+  family_relation?: string | null;
+  family_gender?: string | null;
+  family_head_name?: string | null;
+  family_head_email?: string | null;
+  family_head_phone?: string | null;
+  family_broadcast_to_member?: boolean;
   image_s3_key: string;
   image_url?: string | null;
   thumbnail_s3_key: string | null;
@@ -88,6 +98,13 @@ export interface PassportSubmission extends TimestampedEntity {
   processing_job_status?: string | null;
   processing_progress?: number | null;
   processing_stage?: string | null;
+  qr_status?: {
+    status: "not_generated" | "active" | "inactive" | "expired" | "revoked" | string;
+    token_version: number | null;
+    created_at: string | null;
+    expires_at: string | null;
+    revoked_at: string | null;
+  } | null;
 }
 
 export interface PassportGroupSummary {
@@ -103,6 +120,7 @@ export interface PassportGroupSummary {
   travel_date: string | null;
   return_date: string | null;
   package_name: string | null;
+  departure_cities: string[];
   notes: string | null;
 }
 

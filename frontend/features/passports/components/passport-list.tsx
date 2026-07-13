@@ -24,7 +24,7 @@ export function PassportList() {
       if (statusFilter !== "all" && group.group_status !== statusFilter) return false;
       if (reviewFilter === "needs_review" && group.pending_review_count === 0) return false;
       if (reviewFilter === "has_passports" && group.total_passports === 0) return false;
-      if (reviewFilter === "confirmed_only" && group.confirmed_count !== group.total_passports) return false;
+      if (reviewFilter === "confirmed_only" && (group.total_passports === 0 || group.confirmed_count !== group.total_passports)) return false;
       const tripText = `${group.destination ?? ""}`.toLowerCase();
       if (destinationFilter.trim() && !tripText.includes(destinationFilter.trim().toLowerCase())) return false;
       return true;
@@ -177,7 +177,9 @@ export function PassportList() {
                         <td className="px-6 py-4">
                           <span className="font-medium text-slate-800">{group.pending_review_count}</span>
                         </td>
-                        <td className="px-6 py-4 text-slate-500">{formatDateTime(group.latest_submission_at)}</td>
+                        <td className="px-6 py-4 text-slate-500">
+                          {group.total_passports > 0 ? formatDateTime(group.latest_submission_at) : "No uploads yet"}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} onClick={(event) => event.stopPropagation()}>
                             <Button variant="outline" size="sm" className="gap-2">
@@ -222,7 +224,9 @@ function PassportGroupMobileCard({
             />
             <div>
               <h3 className="text-base font-semibold text-slate-900">{group.group_name}</h3>
-              <p className="mt-1 text-xs text-slate-500">{formatDateTime(group.latest_submission_at)}</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {group.total_passports > 0 ? formatDateTime(group.latest_submission_at) : "No uploads yet"}
+              </p>
             </div>
           </div>
           <GroupStatusBadge status={group.group_status} />

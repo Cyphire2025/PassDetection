@@ -18,6 +18,16 @@ class PassportSubmissionOutputDTO:
     client_name: str
     client_email: str | None
     client_phone: str | None
+    departure_city: str | None
+    submission_mode: str
+    family_group_id: uuid.UUID | None
+    family_member_index: int | None
+    family_relation: str | None
+    family_gender: str | None
+    family_head_name: str | None
+    family_head_email: str | None
+    family_head_phone: str | None
+    family_broadcast_to_member: bool
     image_s3_key: str
     status: str
     created_at: datetime
@@ -52,4 +62,5 @@ class PassportGroupSummaryDTO:
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] | None = None
     notes: str | None = None

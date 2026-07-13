@@ -7,35 +7,39 @@ Coordinator account and group-assignment operations.
 from __future__ import annotations
 
 import uuid
-from hashlib import sha256
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func, select, update
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import and_, func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.security.password import hash_password
 from app.domain.entities.entities import PassportProcessingStatus, User, UserRole
+from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
     ClientGroupModel,
     CoordinatorAssignmentModel,
     CoordinatorGroupAssignmentModel,
-    ManagerGroupAccessModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
+    AssignedPassengerDetailResponse,
     AssignedPassengerResponse,
     AssignGroupCoordinatorsRequest,
     AssignGroupPassengersRequest,
     AttendanceScanRequest,
     AttendanceScanResponse,
+    AttendancePassengerStatus,
+    AttendanceSessionDetailsResponse,
     AttendanceSessionResponse,
     AttendanceCoordinatorSummary,
     AttendanceMissingPassenger,
@@ -45,11 +49,24 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     CreateCoordinatorRequest,
     GroupAttendanceOverviewResponse,
     GroupCoordinatorAssignmentResponse,
-    GroupPassengerQrCodeResponse,
     GroupPassengerQrCodesResponse,
+    PassengerQrTokenResponse,
+    SetPassengerQrActiveRequest,
+    SetPassengerQrExpirationRequest,
     TourOperationsArchitectureResponse,
     TourOperationsGroupResponse,
     TourOperationsPhaseResponse,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    get_qr_passenger as _get_qr_passenger,
+    group_passenger_qr_codes as _group_passenger_qr_codes,
+    issue_passenger_qr as _issue_passenger_qr,
+    latest_passenger_qr as _latest_passenger_qr,
+    qr_hash as _qr_hash,
+    qr_payload as _qr_payload,
+    qr_status as _qr_status,
+    qr_token_response as _qr_token_response,
+    record_qr_audit as _record_qr_audit,
 )
 from app.presentation.dependencies.auth import require_role
 
@@ -70,7 +87,7 @@ SUBMITTED_PASSENGER_STATUSES = (
     PassportProcessingStatus.CLIENT_SUBMITTED.value,
     PassportProcessingStatus.CONFIRMED.value,
 )
-ACTIVE_ATTENDANCE_STATUSES = ("draft", "active")
+SCANNABLE_ATTENDANCE_STATUSES = ("active", "completed")
 
 
 def _require_agency(current_user: User) -> uuid.UUID:
@@ -267,6 +284,7 @@ async def list_coordinators(
 )
 async def create_coordinator(
     body: CreateCoordinatorRequest,
+    request: Request,
     current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> CoordinatorResponse:
@@ -286,6 +304,16 @@ async def create_coordinator(
     )
     session.add(coordinator)
     await session.flush()
+    await AuditLogRepository(session).record(
+        action="account.created",
+        entity_type="user_account",
+        agency_id=coordinator.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        entity_id=str(coordinator.id),
+        ip_address=request.client.host if request.client else None,
+        metadata={"target_role": coordinator.role, "target_email": coordinator.email},
+    )
     return (await _coordinator_responses(session, [coordinator]))[0]
 
 
@@ -304,14 +332,9 @@ async def list_tour_operation_groups(
         ClientGroupModel.agency_id == agency_id,
         ClientGroupModel.status != "deleted",
     ]
-    if current_user.role == UserRole.AGENCY_STAFF:
-        filters.append(_manager_group_visibility_filter(current_user))
 
-    groups_result = await session.execute(
-        select(ClientGroupModel)
-        .where(*filters)
-        .order_by(ClientGroupModel.created_at.desc())
-    )
+    stmt = AuthorizationPolicy.apply_group_visibility_scope(select(ClientGroupModel).where(*filters), current_user)
+    groups_result = await session.execute(stmt.order_by(ClientGroupModel.created_at.desc()))
     return await _group_responses(session, list(groups_result.scalars().all()))
 
 
@@ -414,7 +437,7 @@ async def list_group_passengers(
     "/groups/{group_id}/qr-codes",
     response_model=GroupPassengerQrCodesResponse,
     status_code=status.HTTP_200_OK,
-    summary="Generate printable QR payloads for submitted passengers in an office-managed group",
+    summary="List QR lifecycle status for submitted passengers in an office-managed group",
 )
 async def get_group_passenger_qr_codes(
     group_id: uuid.UUID,
@@ -423,7 +446,197 @@ async def get_group_passenger_qr_codes(
 ) -> GroupPassengerQrCodesResponse:
     agency_id = _require_agency(current_user)
     group = await _get_manageable_group(session, agency_id, group_id, current_user)
-    return await _group_passenger_qr_codes(session, agency_id, group, current_user.id)
+    return await _group_passenger_qr_codes(session, agency_id, group)
+
+
+@router.post(
+    "/groups/{group_id}/passengers/{passenger_id}/qr",
+    response_model=PassengerQrTokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Generate a secure attendance QR token and reveal it once",
+)
+async def generate_passenger_qr(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassengerQrTokenResponse:
+    agency_id = _require_agency(current_user)
+    group = await _get_manageable_group(session, agency_id, group_id, current_user)
+    await _get_qr_passenger(session, agency_id, group_id, passenger_id)
+    token, payload = await _issue_passenger_qr(
+        session, agency_id, passenger_id, current_user.id, group=group, regenerate=False
+    )
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.generated",
+        passenger_id=passenger_id,
+        metadata={"group_id": str(group_id), "token_version": token.token_version},
+    )
+    return _qr_token_response(token, payload)
+
+
+@router.post(
+    "/groups/{group_id}/passengers/{passenger_id}/qr/regenerate",
+    response_model=PassengerQrTokenResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Revoke the current attendance QR and reveal a random replacement once",
+)
+async def regenerate_passenger_qr(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassengerQrTokenResponse:
+    agency_id = _require_agency(current_user)
+    group = await _get_manageable_group(session, agency_id, group_id, current_user)
+    await _get_qr_passenger(session, agency_id, group_id, passenger_id)
+    token, payload = await _issue_passenger_qr(
+        session, agency_id, passenger_id, current_user.id, group=group, regenerate=True
+    )
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.regenerated",
+        passenger_id=passenger_id,
+        metadata={"group_id": str(group_id), "token_version": token.token_version},
+    )
+    return _qr_token_response(token, payload)
+
+
+@router.post(
+    "/groups/{group_id}/passengers/{passenger_id}/qr/revoke",
+    response_model=PassengerQrTokenResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Permanently revoke a passenger attendance QR",
+)
+async def revoke_passenger_qr(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    request: Request,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassengerQrTokenResponse:
+    agency_id = _require_agency(current_user)
+    await _get_manageable_group(session, agency_id, group_id, current_user)
+    await _get_qr_passenger(session, agency_id, group_id, passenger_id)
+    token = await _latest_passenger_qr(session, passenger_id, lock=True)
+    if not token:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+    if token.revoked_at is None:
+        now = datetime.now(tz=timezone.utc)
+        token.is_active = False
+        token.revoked_at = now
+        token.updated_at = now
+        await session.flush()
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.revoked",
+        passenger_id=passenger_id,
+        metadata={"group_id": str(group_id), "token_version": token.token_version},
+    )
+    return _qr_token_response(token)
+
+
+@router.patch(
+    "/groups/{group_id}/passengers/{passenger_id}/qr/active",
+    response_model=PassengerQrTokenResponse,
+    summary="Mark the latest passenger QR active or inactive",
+)
+async def set_passenger_qr_active(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    body: SetPassengerQrActiveRequest,
+    request: Request,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassengerQrTokenResponse:
+    agency_id = _require_agency(current_user)
+    await _get_manageable_group(session, agency_id, group_id, current_user)
+    await _get_qr_passenger(session, agency_id, group_id, passenger_id)
+    token = await _latest_passenger_qr(session, passenger_id, lock=True)
+    if not token:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+    now = datetime.now(tz=timezone.utc)
+    if body.is_active and (token.revoked_at is not None or token.expires_at <= now):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Revoked or expired QR tokens cannot be activated; regenerate the QR instead",
+        )
+    if body.is_active:
+        await session.execute(
+            update(PassengerQRTokenModel)
+            .where(
+                PassengerQRTokenModel.passenger_id == passenger_id,
+                PassengerQRTokenModel.id != token.id,
+                PassengerQRTokenModel.is_active.is_(True),
+            )
+            .values(is_active=False, updated_at=now)
+        )
+    token.is_active = body.is_active
+    token.updated_at = now
+    await session.flush()
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.activated" if body.is_active else "qr.deactivated",
+        passenger_id=passenger_id,
+        metadata={"group_id": str(group_id), "token_version": token.token_version},
+    )
+    return _qr_token_response(token)
+
+
+@router.patch(
+    "/groups/{group_id}/passengers/{passenger_id}/qr/expiration",
+    response_model=PassengerQrTokenResponse,
+    summary="Change or immediately expire the latest passenger QR",
+)
+async def set_passenger_qr_expiration(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    body: SetPassengerQrExpirationRequest,
+    request: Request,
+    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassengerQrTokenResponse:
+    agency_id = _require_agency(current_user)
+    await _get_manageable_group(session, agency_id, group_id, current_user)
+    await _get_qr_passenger(session, agency_id, group_id, passenger_id)
+    token = await _latest_passenger_qr(session, passenger_id, lock=True)
+    if not token:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
+    if token.revoked_at is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Revoked QR tokens cannot be changed")
+    expires_at = body.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    now = datetime.now(tz=timezone.utc)
+    token.expires_at = expires_at
+    if expires_at <= now:
+        token.is_active = False
+    token.updated_at = now
+    await session.flush()
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.expired" if expires_at <= now else "qr.expiration_changed",
+        passenger_id=passenger_id,
+        metadata={
+            "group_id": str(group_id),
+            "token_version": token.token_version,
+            "expires_at": expires_at.isoformat(),
+        },
+    )
+    return _qr_token_response(token)
 
 
 @router.put(
@@ -542,7 +755,7 @@ async def list_my_group_passengers(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[AssignedPassengerResponse]:
     agency_id = _require_agency(current_user)
-    await _get_group(session, agency_id, group_id)
+    await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
     result = await session.execute(
         select(PassportSubmissionModel)
         .join(
@@ -557,19 +770,91 @@ async def list_my_group_passengers(
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
+    passengers = list(result.scalars().all())
+    family_sizes = _family_sizes(passengers)
     return [
         AssignedPassengerResponse(
             id=passenger.id,
             client_name=passenger.client_name,
             client_email=passenger.client_email,
             client_phone=passenger.client_phone,
+            departure_city=passenger.departure_city,
+            submission_mode=passenger.submission_mode,
+            family_group_id=passenger.family_group_id,
+            family_group_label=_family_group_label(passenger, family_sizes),
+            family_member_index=passenger.family_member_index,
+            family_relation=passenger.family_relation,
+            family_gender=passenger.family_gender,
+            family_size=_family_size(passenger, family_sizes),
+            family_head_name=passenger.family_head_name,
             status=passenger.status,
             coordinator_id=current_user.id,
             coordinator_name=current_user.full_name,
-            qr_payload=await _ensure_passenger_qr_payload(session, agency_id, passenger.id, current_user.id),
         )
-        for passenger in result.scalars().all()
+        for passenger in passengers
     ]
+
+
+@router.get(
+    "/coordinator/groups/{group_id}/passengers/{passenger_id}",
+    response_model=AssignedPassengerDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get one assigned passenger detail for the current coordinator",
+)
+async def get_my_group_passenger_detail(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
+    session: AsyncSession = Depends(get_db_session),
+) -> AssignedPassengerDetailResponse:
+    agency_id = _require_agency(current_user)
+    await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
+    result = await session.execute(
+        select(PassportSubmissionModel)
+        .join(
+            CoordinatorAssignmentModel,
+            CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id,
+        )
+        .where(
+            PassportSubmissionModel.id == passenger_id,
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            CoordinatorAssignmentModel.agency_id == agency_id,
+            CoordinatorAssignmentModel.group_id == group_id,
+            CoordinatorAssignmentModel.coordinator_user_id == current_user.id,
+            CoordinatorAssignmentModel.active.is_(True),
+        )
+    )
+    passenger = result.scalar_one_or_none()
+    if not passenger:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not assigned to this coordinator")
+    family_sizes = {passenger.family_group_id: 1} if passenger.family_group_id else {}
+    return AssignedPassengerDetailResponse(
+        id=passenger.id,
+        client_name=passenger.client_name,
+        client_email=passenger.client_email,
+        client_phone=passenger.client_phone,
+        departure_city=passenger.departure_city,
+        submission_mode=passenger.submission_mode,
+        family_group_id=passenger.family_group_id,
+        family_group_label=_family_group_label(passenger, family_sizes),
+        family_member_index=passenger.family_member_index,
+        family_relation=passenger.family_relation,
+        family_gender=passenger.family_gender,
+        family_size=_family_size(passenger, family_sizes),
+        family_head_name=passenger.family_head_name,
+        status=passenger.status,
+        coordinator_id=current_user.id,
+        coordinator_name=current_user.full_name,
+        qr_payload=None,
+        created_at=passenger.created_at,
+        updated_at=passenger.updated_at,
+        client_reviewed_at=passenger.client_reviewed_at,
+        confirmed_at=passenger.confirmed_at,
+        passport_fields=passenger.confirmed_fields or passenger.extracted_fields or {},
+        overall_confidence=passenger.overall_confidence,
+    )
 
 
 @router.post(
@@ -630,6 +915,22 @@ async def list_my_attendance_sessions(
     ]
 
 
+@router.get(
+    "/coordinator/sessions/{session_id}/details",
+    response_model=AttendanceSessionDetailsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get missing and scanned passengers for a coordinator attendance activity",
+)
+async def get_my_attendance_session_details(
+    session_id: uuid.UUID,
+    current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
+    session: AsyncSession = Depends(get_db_session),
+) -> AttendanceSessionDetailsResponse:
+    agency_id = _require_agency(current_user)
+    attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
+    return await _attendance_session_details_response(session, attendance_session, current_user.id)
+
+
 @router.post(
     "/coordinator/sessions/{session_id}/scan",
     response_model=AttendanceScanResponse,
@@ -639,22 +940,42 @@ async def list_my_attendance_sessions(
 async def record_my_attendance_scan(
     session_id: uuid.UUID,
     body: AttendanceScanRequest,
+    request: Request,
     current_user: User = Depends(require_role([UserRole.AGENCY_COORDINATOR])),
     session: AsyncSession = Depends(get_db_session),
 ) -> AttendanceScanResponse:
     agency_id = _require_agency(current_user)
     attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
-    if attendance_session.status not in ACTIVE_ATTENDANCE_STATUSES:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Attendance activity is not active")
+    if attendance_session.status not in SCANNABLE_ATTENDANCE_STATUSES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Attendance activity cannot be scanned")
 
-    passenger = await _resolve_scannable_passenger(
+    passenger, qr_token, rejection_reason = await _resolve_scannable_passenger(
         session=session,
         agency_id=agency_id,
         group_id=attendance_session.group_id,
         coordinator_id=current_user.id,
         qr_payload=body.qr_payload,
     )
+    if passenger and not await AuthorizationPolicy(session).can_scan_passenger(
+        current_user, attendance_session, passenger
+    ):
+        passenger = None
+        rejection_reason = "authorization_policy"
     if not passenger:
+        if qr_token is not None:
+            await _record_qr_audit(
+                session,
+                current_user,
+                request,
+                action="qr.scanned",
+                passenger_id=qr_token.passenger_id,
+                metadata={
+                    "attendance_session_id": str(session_id),
+                    "group_id": str(attendance_session.group_id),
+                    "result": "rejected",
+                    "reason": rejection_reason or "not_authorized",
+                },
+            )
         response = await _attendance_scan_response(
             session=session,
             attendance_session=attendance_session,
@@ -683,6 +1004,18 @@ async def record_my_attendance_scan(
     )
     inserted_id = insert_result.scalar_one_or_none()
     if inserted_id is None:
+        await _record_qr_audit(
+            session,
+            current_user,
+            request,
+            action="qr.scanned",
+            passenger_id=passenger.id,
+            metadata={
+                "attendance_session_id": str(session_id),
+                "group_id": str(attendance_session.group_id),
+                "result": "duplicate",
+            },
+        )
         return await _attendance_scan_response(
             session=session,
             attendance_session=attendance_session,
@@ -693,6 +1026,19 @@ async def record_my_attendance_scan(
             message="This passenger is already counted for this activity.",
         )
 
+    await _record_qr_audit(
+        session,
+        current_user,
+        request,
+        action="qr.scanned",
+        passenger_id=passenger.id,
+        metadata={
+            "attendance_session_id": str(session_id),
+            "group_id": str(attendance_session.group_id),
+            "attendance_record_id": str(inserted_id),
+            "result": "counted",
+        },
+    )
     return await _attendance_scan_response(
         session=session,
         attendance_session=attendance_session,
@@ -757,25 +1103,21 @@ async def _get_manageable_group(
     group_id: uuid.UUID,
     current_user: User,
 ) -> ClientGroupModel:
-    filters = [
-        ClientGroupModel.id == group_id,
-        ClientGroupModel.agency_id == agency_id,
-        ClientGroupModel.status != "deleted",
-    ]
-    if current_user.role == UserRole.AGENCY_STAFF:
-        filters.append(_manager_group_visibility_filter(current_user))
-
-    result = await session.execute(select(ClientGroupModel).where(*filters))
+    result = await session.execute(
+        select(ClientGroupModel).where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == agency_id,
+            ClientGroupModel.status != "deleted",
+        )
+    )
     group = result.scalar_one_or_none()
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not found")
+    try:
+        await AuthorizationPolicy(session).require_assign_coordinator(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
     return group
-
-
-def _manager_group_visibility_filter(current_user: User):  # type: ignore[no-untyped-def]
-    return (ClientGroupModel.created_by_user_id == current_user.id) | ClientGroupModel.id.in_(
-        select(ManagerGroupAccessModel.group_id).where(ManagerGroupAccessModel.manager_id == current_user.id)
-    )
 
 
 async def _ensure_group_assigned_to_coordinator(
@@ -784,15 +1126,7 @@ async def _ensure_group_assigned_to_coordinator(
     group_id: uuid.UUID,
     coordinator_id: uuid.UUID,
 ) -> None:
-    result = await session.execute(
-        select(CoordinatorGroupAssignmentModel.id).where(
-            CoordinatorGroupAssignmentModel.agency_id == agency_id,
-            CoordinatorGroupAssignmentModel.group_id == group_id,
-            CoordinatorGroupAssignmentModel.coordinator_user_id == coordinator_id,
-            CoordinatorGroupAssignmentModel.active.is_(True),
-        )
-    )
-    if not result.scalar_one_or_none():
+    if not await AuthorizationPolicy(session).coordinator_has_group(coordinator_id, group_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group was not assigned to this coordinator")
 
 
@@ -855,6 +1189,68 @@ async def _attendance_scan_response(
     )
 
 
+async def _attendance_session_details_response(
+    session: AsyncSession,
+    attendance_session: AttendanceSessionModel,
+    coordinator_id: uuid.UUID,
+) -> AttendanceSessionDetailsResponse:
+    counts = await _attendance_counts(session, attendance_session.id, attendance_session.group_id, coordinator_id)
+    passengers_result = await session.execute(
+        select(PassportSubmissionModel, AttendanceRecordModel.scanned_at)
+        .join(
+            CoordinatorAssignmentModel,
+            and_(
+                CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id,
+                CoordinatorAssignmentModel.group_id == attendance_session.group_id,
+                CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
+                CoordinatorAssignmentModel.active.is_(True),
+            ),
+        )
+        .outerjoin(
+            AttendanceRecordModel,
+            and_(
+                AttendanceRecordModel.session_id == attendance_session.id,
+                AttendanceRecordModel.passenger_id == PassportSubmissionModel.id,
+                AttendanceRecordModel.coordinator_user_id == coordinator_id,
+            ),
+        )
+        .where(
+            PassportSubmissionModel.agency_id == attendance_session.agency_id,
+            PassportSubmissionModel.group_id == attendance_session.group_id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+        )
+        .order_by(PassportSubmissionModel.client_name.asc())
+    )
+    passenger_statuses = [
+        AttendancePassengerStatus(
+            passenger_id=passenger.id,
+            client_name=passenger.client_name,
+            client_email=passenger.client_email,
+            client_phone=passenger.client_phone,
+            departure_city=passenger.departure_city,
+            scanned=scanned_at is not None,
+            scanned_at=scanned_at,
+        )
+        for passenger, scanned_at in passengers_result.all()
+    ]
+    scanned_passengers = [passenger for passenger in passenger_statuses if passenger.scanned]
+    missing_passengers = [passenger for passenger in passenger_statuses if not passenger.scanned]
+    return AttendanceSessionDetailsResponse(
+        id=attendance_session.id,
+        group_id=attendance_session.group_id,
+        name=attendance_session.name,
+        status=attendance_session.status,
+        created_at=attendance_session.created_at,
+        started_at=attendance_session.started_at,
+        completed_at=attendance_session.completed_at,
+        scanned_count=counts["scanned"],
+        assigned_count=counts["assigned"],
+        missing_passengers=missing_passengers,
+        scanned_passengers=scanned_passengers,
+        passengers=passenger_statuses,
+    )
+
+
 async def _attendance_counts(
     session: AsyncSession,
     session_id: uuid.UUID,
@@ -880,63 +1276,49 @@ async def _attendance_counts(
     }
 
 
-async def _ensure_passenger_qr_payload(
-    session: AsyncSession,
-    agency_id: uuid.UUID,
-    passenger_id: uuid.UUID,
-    created_by_user_id: uuid.UUID | None,
-) -> str:
-    payload = _qr_payload(agency_id, passenger_id)
-    token_hash = _qr_hash(payload)
-    result = await session.execute(
-        select(PassengerQRTokenModel.id).where(
-            PassengerQRTokenModel.passenger_id == passenger_id,
-            PassengerQRTokenModel.token_hash == token_hash,
-            PassengerQRTokenModel.is_active.is_(True),
-        )
-    )
-    if not result.scalar_one_or_none():
-        session.add(
-            PassengerQRTokenModel(
-                agency_id=agency_id,
-                passenger_id=passenger_id,
-                token_hash=token_hash,
-                token_version=1,
-                is_active=True,
-                created_by_user_id=created_by_user_id,
-                created_at=datetime.now(tz=timezone.utc),
-                updated_at=datetime.now(tz=timezone.utc),
-            )
-        )
-        await session.flush()
-    return payload
-
-
 async def _resolve_scannable_passenger(
     session: AsyncSession,
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
     coordinator_id: uuid.UUID,
     qr_payload: str,
-) -> PassportSubmissionModel | None:
+) -> tuple[PassportSubmissionModel | None, PassengerQRTokenModel | None, str | None]:
+    now = datetime.now(tz=timezone.utc)
     token_hash = _qr_hash(qr_payload.strip())
     result = await session.execute(
-        select(PassportSubmissionModel)
+        select(PassportSubmissionModel, PassengerQRTokenModel)
         .join(PassengerQRTokenModel, PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id)
-        .join(CoordinatorAssignmentModel, CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id)
         .where(
             PassengerQRTokenModel.agency_id == agency_id,
             PassengerQRTokenModel.token_hash == token_hash,
-            PassengerQRTokenModel.is_active.is_(True),
-            PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+        )
+    )
+    resolved = result.first()
+    if not resolved:
+        return None, None, "unknown_token"
+    passenger, token = resolved
+    if token.revoked_at is not None:
+        return None, token, "revoked"
+    if token.expires_at <= now:
+        return None, token, "expired"
+    if not token.is_active:
+        return None, token, "inactive"
+    if passenger.group_id != group_id:
+        return None, token, "wrong_group"
+
+    assignment_result = await session.execute(
+        select(CoordinatorAssignmentModel.id).where(
             CoordinatorAssignmentModel.agency_id == agency_id,
             CoordinatorAssignmentModel.group_id == group_id,
+            CoordinatorAssignmentModel.passenger_id == passenger.id,
             CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
             CoordinatorAssignmentModel.active.is_(True),
         )
     )
-    return result.scalars().first()
+    if not assignment_result.scalar_one_or_none():
+        return None, token, "wrong_coordinator"
+    return passenger, token, None
 
 
 async def _group_attendance_overview(
@@ -998,6 +1380,7 @@ async def _group_attendance_overview(
             PassportSubmissionModel.client_name,
             PassportSubmissionModel.client_email,
             PassportSubmissionModel.client_phone,
+            PassportSubmissionModel.departure_city,
         )
         .join(UserModel, UserModel.id == CoordinatorAssignmentModel.coordinator_user_id)
         .join(PassportSubmissionModel, PassportSubmissionModel.id == CoordinatorAssignmentModel.passenger_id)
@@ -1036,6 +1419,7 @@ async def _group_attendance_overview(
                 client_name=row.client_name,
                 client_email=row.client_email,
                 client_phone=row.client_phone,
+                departure_city=row.departure_city,
                 coordinator_id=row.coordinator_user_id,
                 coordinator_name=row.coordinator_name,
             )
@@ -1058,71 +1442,6 @@ async def _group_attendance_overview(
         )
 
     return GroupAttendanceOverviewResponse(group_id=group.id, group_name=group.name, sessions=summaries)
-
-
-async def _group_passenger_qr_codes(
-    session: AsyncSession,
-    agency_id: uuid.UUID,
-    group: ClientGroupModel,
-    created_by_user_id: uuid.UUID,
-) -> GroupPassengerQrCodesResponse:
-    assignment_subquery = (
-        select(
-            CoordinatorAssignmentModel.passenger_id.label("passenger_id"),
-            CoordinatorAssignmentModel.coordinator_user_id.label("coordinator_id"),
-        )
-        .where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group.id,
-            CoordinatorAssignmentModel.active.is_(True),
-        )
-        .subquery()
-    )
-    result = await session.execute(
-        select(
-            PassportSubmissionModel,
-            UserModel.id.label("coordinator_id"),
-            UserModel.full_name.label("coordinator_name"),
-        )
-        .outerjoin(assignment_subquery, assignment_subquery.c.passenger_id == PassportSubmissionModel.id)
-        .outerjoin(UserModel, UserModel.id == assignment_subquery.c.coordinator_id)
-        .where(
-            PassportSubmissionModel.agency_id == agency_id,
-            PassportSubmissionModel.group_id == group.id,
-            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
-        )
-        .order_by(PassportSubmissionModel.client_name.asc())
-    )
-
-    passengers: list[GroupPassengerQrCodeResponse] = []
-    for passenger, coordinator_id, coordinator_name in result.all():
-        passengers.append(
-            GroupPassengerQrCodeResponse(
-                passenger_id=passenger.id,
-                client_name=passenger.client_name,
-                client_email=passenger.client_email,
-                client_phone=passenger.client_phone,
-                coordinator_id=coordinator_id,
-                coordinator_name=coordinator_name,
-                qr_payload=await _ensure_passenger_qr_payload(session, agency_id, passenger.id, created_by_user_id),
-            )
-        )
-
-    return GroupPassengerQrCodesResponse(
-        group_id=group.id,
-        group_name=group.name,
-        generated_at=datetime.now(tz=timezone.utc),
-        passengers=passengers,
-    )
-
-
-def _qr_payload(agency_id: uuid.UUID, passenger_id: uuid.UUID) -> str:
-    token = uuid.uuid5(uuid.NAMESPACE_URL, f"passdetection:attendance:{agency_id}:{passenger_id}:v1")
-    return f"pdatt:{token}"
-
-
-def _qr_hash(payload: str) -> str:
-    return sha256(payload.encode("utf-8")).hexdigest()
 
 
 async def _coordinator_responses(session: AsyncSession, coordinators: list[UserModel]) -> list[CoordinatorResponse]:
@@ -1240,6 +1559,7 @@ async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]
             status=group.status,
             destination=group.destination,
             travel_date=group.travel_date.isoformat() if group.travel_date else None,
+            departure_cities=list(group.departure_cities or []),
             passenger_count=passenger_counts.get(group.id, 0),
             assigned_passengers_count=assigned_counts.get(group.id, 0),
             unassigned_passengers_count=max(0, passenger_counts.get(group.id, 0) - assigned_counts.get(group.id, 0)),
@@ -1281,15 +1601,48 @@ async def _group_passenger_responses(
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
+    rows = result.all()
+    family_sizes = _family_sizes([row[0] for row in rows])
     return [
         AssignedPassengerResponse(
             id=passenger.id,
             client_name=passenger.client_name,
             client_email=passenger.client_email,
             client_phone=passenger.client_phone,
+            departure_city=passenger.departure_city,
+            submission_mode=passenger.submission_mode,
+            family_group_id=passenger.family_group_id,
+            family_group_label=_family_group_label(passenger, family_sizes),
+            family_member_index=passenger.family_member_index,
+            family_relation=passenger.family_relation,
+            family_gender=passenger.family_gender,
+            family_size=_family_size(passenger, family_sizes),
+            family_head_name=passenger.family_head_name,
             status=passenger.status,
             coordinator_id=coordinator_id,
             coordinator_name=coordinator_name,
         )
-        for passenger, coordinator_id, coordinator_name in result.all()
+        for passenger, coordinator_id, coordinator_name in rows
     ]
+
+
+def _family_sizes(passengers: list[PassportSubmissionModel]) -> dict[uuid.UUID, int]:
+    sizes: dict[uuid.UUID, int] = defaultdict(int)
+    for passenger in passengers:
+        if passenger.family_group_id:
+            sizes[passenger.family_group_id] += 1
+    return dict(sizes)
+
+
+def _family_size(passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUID, int]) -> int:
+    if not passenger.family_group_id:
+        return 1
+    return max(1, family_sizes.get(passenger.family_group_id, 1))
+
+
+def _family_group_label(passenger: PassportSubmissionModel, family_sizes: dict[uuid.UUID, int]) -> str | None:
+    if passenger.submission_mode != "family" or not passenger.family_group_id:
+        return None
+    family_size = _family_size(passenger, family_sizes)
+    kind = "Couple" if family_size == 2 else "Family"
+    return f"{passenger.family_head_name or passenger.client_name} {kind} ({family_size})"

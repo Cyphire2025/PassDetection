@@ -34,8 +34,17 @@ class ClientSubmitPassportUseCase:
         *,
         group_token: str,
         confirmed_fields: dict[str, str],
-        client_email: str,
-        client_phone: str,
+        client_email: str | None,
+        client_phone: str | None,
+        departure_city: str | None = None,
+        submission_mode: str = "single",
+        family_group_id: uuid.UUID | None = None,
+        family_member_index: int | None = None,
+        family_relation: str | None = None,
+        family_gender: str | None = None,
+        family_head_name: str | None = None,
+        family_head_email: str | None = None,
+        family_head_phone: str | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
@@ -48,12 +57,42 @@ class ClientSubmitPassportUseCase:
         if submission.group_id != group.id:
             raise ValidationError("This passport submission does not belong to this upload link.")
 
-        normalized_email = client_email.lower().strip()
-        normalized_phone = self._normalize_phone(client_phone)
-        if not normalized_phone:
-            raise ValidationError("Enter a valid phone number.", field="client_phone")
+        normalized_mode = "family" if submission_mode == "family" else "single"
+        normalized_email = client_email.lower().strip() if client_email and client_email.strip() else None
+        normalized_phone = self._normalize_phone(client_phone) if client_phone and client_phone.strip() else None
+        normalized_head_email = family_head_email.lower().strip() if family_head_email and family_head_email.strip() else None
+        normalized_head_phone = self._normalize_phone(family_head_phone) if family_head_phone and family_head_phone.strip() else None
 
-        if await self._passport_repo.exists_contact_in_group(
+        if normalized_mode == "single":
+            if not normalized_email:
+                raise ValidationError("Enter a valid email address.", field="client_email")
+            if not normalized_phone:
+                raise ValidationError("Enter a valid phone number.", field="client_phone")
+            normalized_head_name = None
+            normalized_head_email = None
+            normalized_head_phone = None
+            family_group_id = None
+            family_member_index = None
+            normalized_relation = None
+            normalized_gender = None
+        else:
+            if not family_group_id:
+                raise ValidationError("Family group id is required.", field="family_group_id")
+            normalized_head_name = " ".join((family_head_name or "").strip().split())
+            if len(normalized_head_name) < 2:
+                raise ValidationError("Head of family name is required.", field="family_head_name")
+            if not normalized_head_email:
+                raise ValidationError("Head of family email is required.", field="family_head_email")
+            if not normalized_head_phone:
+                raise ValidationError("Head of family phone number is required.", field="family_head_phone")
+            if client_phone and not normalized_phone:
+                raise ValidationError("Enter a valid family member phone number.", field="client_phone")
+            normalized_relation = " ".join((family_relation or "").strip().split())[:80] or None
+            normalized_gender = " ".join((family_gender or "").strip().split())[:40] or None
+
+        normalized_departure_city = self._normalize_departure_city(departure_city, group.departure_cities)
+
+        if normalized_mode == "single" and (normalized_email or normalized_phone) and await self._passport_repo.exists_contact_in_group(
             group.id,
             client_email=normalized_email,
             client_phone=normalized_phone,
@@ -84,6 +123,16 @@ class ClientSubmitPassportUseCase:
             clean_fields,
             client_email=normalized_email,
             client_phone=normalized_phone,
+            departure_city=normalized_departure_city,
+            submission_mode=normalized_mode,
+            family_group_id=family_group_id,
+            family_member_index=family_member_index,
+            family_relation=normalized_relation,
+            family_gender=normalized_gender,
+            family_head_name=normalized_head_name,
+            family_head_email=normalized_head_email,
+            family_head_phone=normalized_head_phone,
+            family_broadcast_to_member=bool(normalized_email or normalized_phone),
         )
         await self._passport_repo.update(submission)
         if draft_key != submission.image_s3_key:
@@ -96,6 +145,16 @@ class ClientSubmitPassportUseCase:
             client_name=submission.client_name,
             client_email=submission.client_email,
             client_phone=submission.client_phone,
+            departure_city=submission.departure_city,
+            submission_mode=submission.submission_mode,
+            family_group_id=submission.family_group_id,
+            family_member_index=submission.family_member_index,
+            family_relation=submission.family_relation,
+            family_gender=submission.family_gender,
+            family_head_name=submission.family_head_name,
+            family_head_email=submission.family_head_email,
+            family_head_phone=submission.family_head_phone,
+            family_broadcast_to_member=submission.family_broadcast_to_member,
             image_s3_key=submission.image_s3_key,
             thumbnail_s3_key=submission.thumbnail_s3_key,
             status=submission.status.value,
@@ -111,13 +170,29 @@ class ClientSubmitPassportUseCase:
             confirmed_at=submission.confirmed_at,
         )
 
-    def _normalize_phone(self, value: str) -> str:
+    def _normalize_phone(self, value: str | None) -> str:
+        if not value:
+            return ""
         normalized = re.sub(r"[^\d+]", "", value.strip())
         if normalized.startswith("+"):
             digits = "+" + re.sub(r"\D", "", normalized[1:])
         else:
             digits = re.sub(r"\D", "", normalized)
         return digits if len(digits.replace("+", "")) >= 7 else ""
+
+    @staticmethod
+    def _normalize_departure_city(value: str | None, allowed_cities: list[str]) -> str | None:
+        cities = [" ".join(city.strip().split()) for city in allowed_cities if city and city.strip()]
+        if not cities:
+            return " ".join(value.strip().split())[:120] if value and value.strip() else None
+        selected = " ".join(value.strip().split()) if value else ""
+        if not selected:
+            raise ValidationError("Select your departure city.", field="departure_city")
+        city_by_key = {city.casefold(): city for city in cities}
+        matched = city_by_key.get(selected.casefold())
+        if not matched:
+            raise ValidationError("Select a valid departure city for this group.", field="departure_city")
+        return matched
 
     @staticmethod
     def _content_type(suffix: str) -> str:

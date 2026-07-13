@@ -25,8 +25,17 @@ export function TourGroupPassengerAssignmentPage({ groupId }: { groupId: string 
   const assignPassengers = useAssignTourGroupPassengers();
   const [selectedPassengerIds, setSelectedPassengerIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
+  const [departureCityFilter, setDepartureCityFilter] = useState("all");
   const group = groups.find((item) => item.id === groupId) ?? null;
-  const filteredPassengers = useMemo(() => filterTourPassengers(passengers, query), [passengers, query]);
+  const departureCityOptions = useMemo(() => {
+    const configured = group?.departure_cities ?? [];
+    const submitted = passengers.map((passenger) => passenger.departure_city).filter((city): city is string => Boolean(city));
+    return Array.from(new Set([...configured, ...submitted]));
+  }, [group?.departure_cities, passengers]);
+  const filteredPassengers = useMemo(
+    () => filterTourPassengers(passengers, query, departureCityFilter),
+    [departureCityFilter, passengers, query],
+  );
 
   const togglePassenger = (passengerId: string) => {
     setSelectedPassengerIds((current) =>
@@ -105,10 +114,28 @@ export function TourGroupPassengerAssignmentPage({ groupId }: { groupId: string 
             />
           </div>
 
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="relative md:w-96">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="grid gap-3 md:grid-cols-[minmax(220px,1fr)_220px] xl:w-[640px]">
+            <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
               <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search passengers" className="pl-9" />
+            </div>
+            <select
+              value={departureCityFilter}
+              onChange={(event) => {
+                setDepartureCityFilter(event.target.value);
+                setSelectedPassengerIds([]);
+              }}
+              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="all">All departure cities</option>
+              {departureCityOptions.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+              <option value="__unset">No city selected</option>
+            </select>
             </div>
             <div className="flex items-center gap-2">
               <Button

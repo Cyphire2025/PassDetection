@@ -77,6 +77,10 @@ export function LoginForm() {
           Sign in
         </Button>
       </form>
+
+      <p className="mt-5 text-center text-xs text-slate-500">
+        Contact your manager or super-admin if your access needs to be reset.
+      </p>
     </div>
   );
 }

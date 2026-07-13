@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { ShieldCheck, Trash2, UserPlus, Users, X } from "lucide-react";
+import { Plus, ShieldCheck, UserPlus, Users, X } from "lucide-react";
 import { PageHeader } from "@/components/shared";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
@@ -14,6 +14,7 @@ import {
   useManagers,
 } from "@/features/operations/hooks/use-operations";
 import type { ManagerAccount, ManagerGroupAccess } from "@/features/operations/api/operations.api";
+import { ManagedAccountControls } from "@/features/operations/components/managed-account-controls";
 
 export default function AdminPage() {
   const { data: managers = [], isLoading, error } = useManagers();
@@ -25,20 +26,22 @@ export default function AdminPage() {
   const deleteManager = useDeleteManager();
   const [form, setForm] = useState({ full_name: "", email: "", password: "" });
   const [formError, setFormError] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [managerDeleteTarget, setManagerDeleteTarget] = useState<ManagerAccount | null>(null);
   const [deleteOwnedData, setDeleteOwnedData] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
-    if (form.password.length < 8) {
-      setFormError("Password must be at least 8 characters.");
+    if (form.password.length < 10 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
+      setFormError("Use at least 10 characters with uppercase, lowercase, and a number.");
       return;
     }
 
     try {
       await createManager.mutateAsync(form);
       setForm({ full_name: "", email: "", password: "" });
+      setShowCreateDialog(false);
     } catch {
       setFormError("Could not create manager. Check whether the email already exists.");
     }
@@ -49,6 +52,12 @@ export default function AdminPage() {
       <PageHeader
         title="Admin"
         description="Create manager accounts and control who can work on group submissions."
+        actions={(
+          <Button type="button" onClick={() => setShowCreateDialog(true)}>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Create Manager
+          </Button>
+        )}
       />
 
       {error && (
@@ -57,61 +66,20 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <Card>
-          <CardContent className="space-y-5 p-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                <UserPlus className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">Create Manager</h2>
-                <p className="text-sm text-slate-500">Managers can create groups and work on assigned groups.</p>
-              </div>
-            </div>
-
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <Input
-                label="Full name"
-                value={form.full_name}
-                onChange={(event) => setForm((current) => ({ ...current, full_name: event.target.value }))}
-                required
-              />
-              <Input
-                label="Email"
-                type="email"
-                value={form.email}
-                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                required
-              />
-              <Input
-                label="Temporary password"
-                type="password"
-                value={form.password}
-                onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-                required
-              />
-              {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
-              <Button type="submit" className="w-full" disabled={createManager.isPending}>
-                {createManager.isPending ? "Creating Manager" : "Create Manager"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6">
         <Card className="min-w-0">
           <CardContent className="p-0">
-            <div className="flex items-center justify-between border-b border-slate-200 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-6 py-5">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 ring-1 ring-slate-200">
                   <Users className="h-5 w-5" />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <h2 className="text-base font-semibold text-slate-900">Managers</h2>
-                  <p className="text-sm text-slate-500">Managers automatically keep access to groups they create.</p>
+                  <p className="mt-0.5 text-sm text-slate-500">Managers automatically keep access to groups they create.</p>
                 </div>
               </div>
-              <Badge variant="secondary">{managers.length}</Badge>
+              <Badge variant="secondary" className="px-3 py-1">{managers.length} total</Badge>
             </div>
 
             {isLoading ? (
@@ -123,23 +91,33 @@ export default function AdminPage() {
             ) : managers.length === 0 ? (
               <div className="px-5 py-10 text-sm text-slate-500">No managers created yet.</div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[1080px] text-left text-sm">
-                  <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <div className="overflow-x-auto overflow-y-visible">
+                <table className="w-full min-w-[980px] table-fixed text-left text-sm">
+                  <colgroup>
+                    <col className="w-[24%]" />
+                    <col className="w-[31%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[9%]" />
+                    <col className="w-[8%]" />
+                  </colgroup>
+                  <thead className="border-b border-slate-200 bg-slate-50/80 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
-                      <th className="w-[16%] px-5 py-3">Name</th>
-                      <th className="w-[25%] px-5 py-3">Email</th>
-                      <th className="w-[30%] px-5 py-3">Access</th>
-                      <th className="w-[12%] px-5 py-3">Created</th>
-                      <th className="w-[11%] px-5 py-3">Last Login</th>
-                      <th className="w-[6%] px-5 py-3 text-right">Action</th>
+                      <th className="px-6 py-3.5">Manager</th>
+                      <th className="px-5 py-3.5">Access</th>
+                      <th className="px-5 py-3.5">Created</th>
+                      <th className="px-5 py-3.5">Last login</th>
+                      <th className="px-5 py-3.5">Status</th>
+                      <th className="px-6 py-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {managers.map((manager) => (
                       <tr key={manager.id} className="hover:bg-slate-50/70">
-                        <td className="px-5 py-4 font-medium text-slate-900">{manager.full_name}</td>
-                        <td className="px-5 py-4 text-slate-600">{manager.email}</td>
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-slate-900">{manager.full_name}</div>
+                          <div className="mt-1 truncate text-xs text-slate-500">{manager.email}</div>
+                        </td>
                         <td className="px-5 py-4">
                           <ManagerAccessControl
                             manager={manager}
@@ -163,22 +141,25 @@ export default function AdminPage() {
                         <td className="whitespace-nowrap px-5 py-4 text-slate-600">
                           {manager.last_login_at ? formatDateTime(manager.last_login_at) : "Never"}
                         </td>
-                        <td className="px-5 py-4 text-right">
-                          {canDeleteManagers && (
-                            <Button
-                              type="button"
-                              variant="danger"
-                              size="sm"
-                              disabled={deleteManager.isPending}
-                              onClick={() => {
+                        <td className="px-5 py-4">
+                          <Badge variant={manager.is_active ? "success" : "outline"} dot>
+                            {manager.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <ManagedAccountControls
+                              accountId={manager.id}
+                              accountName={manager.full_name}
+                              isActive={manager.is_active}
+                              deleteLabel="Delete manager"
+                              deleteDisabled={!canDeleteManagers || deleteManager.isPending}
+                              onDelete={canDeleteManagers ? () => {
                                 setDeleteOwnedData(false);
                                 setManagerDeleteTarget(manager);
-                              }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Delete
-                            </Button>
-                          )}
+                              } : undefined}
+                            />
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -204,6 +185,96 @@ export default function AdminPage() {
           );
         }}
       />
+
+      {showCreateDialog && (
+        <CreateManagerDialog
+          form={form}
+          formError={formError}
+          isLoading={createManager.isPending}
+          onClose={() => {
+            setShowCreateDialog(false);
+            setFormError(null);
+          }}
+          onFormChange={setForm}
+          onSubmit={handleSubmit}
+        />
+      )}
+    </div>
+  );
+}
+
+function CreateManagerDialog({
+  form,
+  formError,
+  isLoading,
+  onClose,
+  onFormChange,
+  onSubmit,
+}: {
+  form: { full_name: string; email: string; password: string };
+  formError: string | null;
+  isLoading: boolean;
+  onClose: () => void;
+  onFormChange: React.Dispatch<React.SetStateAction<{ full_name: string; email: string; password: string }>>;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <Card className="w-full max-w-lg overflow-hidden shadow-2xl">
+        <CardContent className="space-y-5 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                <UserPlus className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <h2 className="text-base font-semibold text-slate-900">Create Manager</h2>
+                <p className="mt-0.5 text-sm leading-5 text-slate-500">Managers can create groups and work on assigned groups.</p>
+              </div>
+            </div>
+            <button type="button" className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={onClose}>
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+            </button>
+          </div>
+
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <Input
+              label="Full name"
+              placeholder="Example: Rahul Mehta"
+              value={form.full_name}
+              onChange={(event) => onFormChange((current) => ({ ...current, full_name: event.target.value }))}
+              required
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="manager@company.com"
+              value={form.email}
+              onChange={(event) => onFormChange((current) => ({ ...current, email: event.target.value }))}
+              required
+            />
+            <Input
+              label="Temporary password"
+              type="password"
+              placeholder="Minimum 10 characters"
+              value={form.password}
+              onChange={(event) => onFormChange((current) => ({ ...current, password: event.target.value }))}
+              required
+            />
+            <p className="text-xs leading-5 text-slate-500">
+              Password must include uppercase, lowercase, and a number. It can be reset later by an admin.
+            </p>
+            {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
+            <div className="flex justify-end gap-3 pt-1">
+              <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Cancel</Button>
+              <Button type="submit" isLoading={isLoading}>
+                Create Manager
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import case, delete, func, or_, select
+from sqlalchemy import and_, case, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission
+from app.application.security.authorization_policy import AuthorizationPolicy
+from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission, User
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IPassportSubmissionRepository, PassportSubmissionGroupSummary
 from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel, PassportSubmissionModel
@@ -35,6 +36,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             client_name=model.client_name,
             client_email=model.client_email,
             client_phone=model.client_phone,
+            departure_city=model.departure_city,
+            submission_mode=model.submission_mode,
+            family_group_id=model.family_group_id,
+            family_member_index=model.family_member_index,
+            family_relation=model.family_relation,
+            family_gender=model.family_gender,
+            family_head_name=model.family_head_name,
+            family_head_email=model.family_head_email,
+            family_head_phone=model.family_head_phone,
+            family_broadcast_to_member=model.family_broadcast_to_member,
             image_s3_key=model.image_s3_key,
             thumbnail_s3_key=model.thumbnail_s3_key,
             status=PassportProcessingStatus(model.status),
@@ -59,6 +70,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             client_name=entity.client_name,
             client_email=entity.client_email,
             client_phone=entity.client_phone,
+            departure_city=entity.departure_city,
+            submission_mode=entity.submission_mode,
+            family_group_id=entity.family_group_id,
+            family_member_index=entity.family_member_index,
+            family_relation=entity.family_relation,
+            family_gender=entity.family_gender,
+            family_head_name=entity.family_head_name,
+            family_head_email=entity.family_head_email,
+            family_head_phone=entity.family_head_phone,
+            family_broadcast_to_member=entity.family_broadcast_to_member,
             image_s3_key=entity.image_s3_key,
             thumbnail_s3_key=entity.thumbnail_s3_key,
             status=entity.status.value,
@@ -105,6 +126,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.client_name = submission.client_name
         model.client_email = submission.client_email
         model.client_phone = submission.client_phone
+        model.departure_city = submission.departure_city
+        model.submission_mode = submission.submission_mode
+        model.family_group_id = submission.family_group_id
+        model.family_member_index = submission.family_member_index
+        model.family_relation = submission.family_relation
+        model.family_gender = submission.family_gender
+        model.family_head_name = submission.family_head_name
+        model.family_head_email = submission.family_head_email
+        model.family_head_phone = submission.family_head_phone
+        model.family_broadcast_to_member = submission.family_broadcast_to_member
         model.image_s3_key = submission.image_s3_key
         model.thumbnail_s3_key = submission.thumbnail_s3_key
         model.status = submission.status.value
@@ -157,17 +188,20 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmission]:
         stmt = select(PassportSubmissionModel).where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.status.in_(self._submitted_statuses()),
         )
-        if exclude_archived_groups or created_by_user_id:
+        if exclude_archived_groups or created_by_user_id or visible_to_user:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
         if exclude_archived_groups:
             stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         if status_filter:
             stmt = stmt.where(PassportSubmissionModel.status == status_filter)
         stmt = self._apply_search(stmt, search)
@@ -186,6 +220,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmission]:
         stmt = (
             select(PassportSubmissionModel)
@@ -200,6 +235,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         stmt = self._apply_search(stmt, search)
         stmt = stmt.order_by(PassportSubmissionModel.created_at.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
@@ -214,6 +251,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 func.lower(PassportSubmissionModel.client_name).like(query),
                 func.lower(PassportSubmissionModel.client_email).like(query),
                 func.lower(PassportSubmissionModel.client_phone).like(query),
+                func.lower(PassportSubmissionModel.departure_city).like(query),
                 func.lower(PassportSubmissionModel.extracted_fields["passport_number"].astext).like(query),
                 func.lower(PassportSubmissionModel.confirmed_fields["passport_number"].astext).like(query),
                 func.lower(PassportSubmissionModel.extracted_fields["surname"].astext).like(query),
@@ -229,6 +267,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         limit: int = 50,
         exclude_archived_groups: bool = True,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmissionGroupSummary]:
         stmt = (
             select(
@@ -240,6 +279,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.return_date.label("return_date"),
                 ClientGroupModel.package_name.label("package_name"),
                 ClientGroupModel.notes.label("notes"),
+                ClientGroupModel.departure_cities.label("departure_cities"),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value, 1), else_=0)
@@ -250,16 +290,25 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.FAILED.value, 1), else_=0)
                 ).label("failed_count"),
-                func.max(PassportSubmissionModel.updated_at).label("latest_submission_at"),
+                func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).label(
+                    "latest_submission_at"
+                ),
             )
-            .join(PassportSubmissionModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
+            .outerjoin(
+                PassportSubmissionModel,
+                and_(
+                    PassportSubmissionModel.group_id == ClientGroupModel.id,
+                    PassportSubmissionModel.status.in_(self._submitted_statuses()),
+                ),
+            )
             .where(ClientGroupModel.agency_id == agency_id)
-            .where(PassportSubmissionModel.status.in_(self._submitted_statuses()))
         )
         if exclude_archived_groups:
             stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
         stmt = (
             stmt.group_by(
                 ClientGroupModel.id,
@@ -270,8 +319,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.return_date,
                 ClientGroupModel.package_name,
                 ClientGroupModel.notes,
+                ClientGroupModel.departure_cities,
+                ClientGroupModel.created_at,
             )
-            .order_by(func.max(PassportSubmissionModel.updated_at).desc())
+            .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
             .offset(skip)
             .limit(limit)
         )
@@ -290,6 +341,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 travel_date=row.travel_date,
                 return_date=row.return_date,
                 package_name=row.package_name,
+                departure_cities=list(row.departure_cities or []),
                 notes=row.notes,
             )
             for row in result.all()
@@ -299,16 +351,20 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         self,
         group_id: uuid.UUID,
         *,
-        client_email: str,
-        client_phone: str,
+        client_email: str | None,
+        client_phone: str | None,
         exclude_submission_id: uuid.UUID | None = None,
     ) -> bool:
+        contact_filters = []
+        if client_email:
+            contact_filters.append(PassportSubmissionModel.client_email == client_email)
+        if client_phone:
+            contact_filters.append(PassportSubmissionModel.client_phone == client_phone)
+        if not contact_filters:
+            return False
         stmt = select(PassportSubmissionModel.id).where(
             PassportSubmissionModel.group_id == group_id,
-            or_(
-                PassportSubmissionModel.client_email == client_email,
-                PassportSubmissionModel.client_phone == client_phone,
-            ),
+            or_(*contact_filters),
         )
         if exclude_submission_id:
             stmt = stmt.where(PassportSubmissionModel.id != exclude_submission_id)
@@ -322,23 +378,26 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         status_filter: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> int:
         stmt = select(func.count()).select_from(PassportSubmissionModel).where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.status.in_(self._submitted_statuses()),
         )
-        if exclude_archived_groups or created_by_user_id:
+        if exclude_archived_groups or created_by_user_id or visible_to_user:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
         if exclude_archived_groups:
             stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         if status_filter:
             stmt = stmt.where(PassportSubmissionModel.status == status_filter)
 
         result = await self._session.execute(stmt)
         total = int(result.scalar_one())
-        if not status_filter and not exclude_archived_groups and created_by_user_id is None:
+        if not status_filter and not exclude_archived_groups and created_by_user_id is None and visible_to_user is None:
             historical_result = await self._session.execute(
                 select(func.coalesce(func.sum(ClientGroupModel.deleted_passport_count), 0)).where(
                     ClientGroupModel.agency_id == agency_id,

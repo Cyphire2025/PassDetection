@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle2, RotateCcw, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
@@ -93,6 +93,35 @@ export function PassportDetail({ id }: PassportDetailProps) {
         </Card>
 
         <div className="flex flex-col gap-6">
+          <Card className="rounded-3xl">
+            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                  <QrCode className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Attendance QR status</h3>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <Badge variant={qrStatusVariant(data.qr_status?.status)} dot>
+                      {formatQrStatus(data.qr_status?.status ?? "not_generated")}
+                    </Badge>
+                    {data.qr_status?.token_version && (
+                      <span className="text-xs text-slate-500">Version {data.qr_status.token_version}</span>
+                    )}
+                  </div>
+                  {data.qr_status?.expires_at && (
+                    <p className="mt-1.5 text-xs text-slate-500">
+                      Expires {formatDateTime(data.qr_status.expires_at)}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <Link href={ROUTES.dashboard.tourOperationsGroupQrCodes(data.group_id) as never}>
+                <Button variant="secondary" className="w-full sm:w-auto">Manage QR</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
           <ReviewFieldsCard
             key={`${data.id}:${data.updated_at}`}
             passport={data}
@@ -119,6 +148,17 @@ export function PassportDetail({ id }: PassportDetailProps) {
       </div>
     </div>
   );
+}
+
+function formatQrStatus(status: string) {
+  return status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function qrStatusVariant(status?: string): "default" | "success" | "warning" | "destructive" | "outline" {
+  if (status === "active") return "success";
+  if (status === "inactive" || status === "expired") return "warning";
+  if (status === "revoked") return "destructive";
+  return "outline";
 }
 
 function needsReextraction(passport: {

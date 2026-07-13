@@ -11,7 +11,7 @@ import uuid
 
 from app.application.dtos.dashboard_dtos import DashboardStatsDTO, RecentSubmissionDTO
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportProcessingStatus
+from app.domain.entities.entities import PassportProcessingStatus, User
 from app.domain.repositories.interfaces import IPassportSubmissionRepository, IClientGroupRepository
 
 logger = get_logger(__name__)
@@ -33,11 +33,13 @@ class GetDashboardStatsUseCase:
         agency_id: uuid.UUID,
         *,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> DashboardStatsDTO:
         # Get count of total submissions
         total_passports = await self._submission_repo.count_by_agency(
             agency_id,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         # Get count of pending review submissions
@@ -46,6 +48,7 @@ class GetDashboardStatsUseCase:
             status_filter=PassportProcessingStatus.REVIEW_REQUIRED.value,
             exclude_archived_groups=True,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         # Get count of confirmed submissions
@@ -54,12 +57,14 @@ class GetDashboardStatsUseCase:
             status_filter=PassportProcessingStatus.CONFIRMED.value,
             exclude_archived_groups=True,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         # Get count of active upload links
         active_links = await self._client_group_repo.count_active_by_agency(
             agency_id,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         # Recent Activity should only show passports clients actually submitted after review.
@@ -70,6 +75,7 @@ class GetDashboardStatsUseCase:
             status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
             exclude_archived_groups=True,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         recent_submissions = [

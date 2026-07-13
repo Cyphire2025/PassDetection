@@ -34,7 +34,7 @@ The attendance page polls every 10 seconds so office users can watch progress wh
 
 ## QR Model
 
-Passenger QR payloads are deterministic per agency/passenger and validated by server-side hash matching against active passenger QR token rows. The raw QR payload is not stored in the database.
+Passenger QR payloads are cryptographically random, URL-safe bearer tokens and are validated by server-side hash matching against active, unexpired passenger QR token rows. The raw QR payload is revealed only when generated or regenerated and is never stored in the database.
 
 ## Still Out Of Scope
 

@@ -5,14 +5,16 @@ Passport Routes — /api/v1/passports
 
 from __future__ import annotations
 
-import uuid
 import io
+import uuid
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.use_cases.passports.confirm_passport_submission_use_case import ConfirmPassportSubmissionUseCase
 from app.application.use_cases.passports.client_submit_passport_use_case import ClientSubmitPassportUseCase
@@ -26,8 +28,9 @@ from app.application.use_cases.passports.submit_passport_use_case import SubmitP
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError, PassDetectionError, EntityNotFoundError
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel, PassportSubmissionModel
+from app.infrastructure.database.models import ClientGroupModel, PassengerQRTokenModel, PassportSubmissionModel
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
+from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
@@ -37,11 +40,13 @@ from app.infrastructure.repositories.client_group_repository import ClientGroupR
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.repositories.notification_repository import NotificationRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import ensure_passenger_qr
 from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     ConfirmPassportSubmissionRequest,
     ExportSelectedGroupsRequest,
     ExportSelectedPassportsRequest,
+    ImportPassportGroupResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
 )
@@ -59,31 +64,7 @@ def _submitted_statuses() -> tuple[str, str]:
 
 
 def _apply_manager_visibility(stmt, current_user: User):  # type: ignore[no-untyped-def]
-    if current_user.role != UserRole.AGENCY_STAFF:
-        return stmt
-    return stmt.outerjoin(
-        ManagerGroupAccessModel,
-        (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
-        & (ManagerGroupAccessModel.manager_id == current_user.id),
-    ).where(
-        or_(
-            ClientGroupModel.created_by_user_id == current_user.id,
-            ManagerGroupAccessModel.manager_id == current_user.id,
-        )
-    )
-
-
-async def _ensure_group_owner_scope(
-    group_id: uuid.UUID,
-    current_user: User,
-    group_repo: ClientGroupRepository,
-) -> None:
-    owner_scope = _owner_scope_for(current_user)
-    if not owner_scope:
-        return
-    group = await group_repo.get_by_id(group_id)
-    if not group or not await group_repo.manager_can_access(group_id, owner_scope):
-        raise AuthorizationError("You do not have access to this manager's group")
+    return AuthorizationPolicy.apply_passport_visibility_scope(stmt, current_user)
 
 
 async def _response_from_dto(
@@ -92,7 +73,11 @@ async def _response_from_dto(
     session: AsyncSession,
 ) -> PassportSubmissionResponse:
     image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
-    payload = {**result.__dict__, "image_url": image_url}
+    payload = {
+        **result.__dict__,
+        "image_url": image_url,
+        "qr_status": await _passport_qr_status(session, result.id),
+    }
     if not payload.get("processing_job_id"):
         job = await PassportProcessingJobRepository(session).latest_for_submission(result.id)
         if job:
@@ -117,6 +102,7 @@ async def _response_from_submission(
         **submission.__dict__,
         "status": submission.status.value,
         "image_url": image_url,
+        "qr_status": await _passport_qr_status(session, submission.id),
     }
     job = await PassportProcessingJobRepository(session).latest_for_submission(submission.id)
     if job:
@@ -129,6 +115,55 @@ async def _response_from_submission(
             }
         )
     return PassportSubmissionResponse.model_validate(payload)
+
+
+async def _passport_qr_status(session: AsyncSession, passenger_id: uuid.UUID) -> dict[str, object | None]:
+    result = await session.execute(
+        select(PassengerQRTokenModel)
+        .where(PassengerQRTokenModel.passenger_id == passenger_id)
+        .order_by(PassengerQRTokenModel.token_version.desc(), PassengerQRTokenModel.created_at.desc())
+        .limit(1)
+    )
+    token = result.scalar_one_or_none()
+    if token is None:
+        return {"status": "not_generated"}
+    now = datetime.now(tz=timezone.utc)
+    if token.revoked_at is not None:
+        token_status = "revoked"
+    elif token.expires_at <= now:
+        token_status = "expired"
+    else:
+        token_status = "active" if token.is_active else "inactive"
+    return {
+        "status": token_status,
+        "token_version": token.token_version,
+        "created_at": token.created_at,
+        "expires_at": token.expires_at,
+        "revoked_at": token.revoked_at,
+    }
+
+
+async def _ensure_submission_qr(
+    session: AsyncSession,
+    submission_id: uuid.UUID,
+    created_by_user_id: uuid.UUID | None = None,
+) -> None:
+    result = await session.execute(
+        select(PassportSubmissionModel, ClientGroupModel)
+        .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
+        .where(PassportSubmissionModel.id == submission_id)
+    )
+    row = result.first()
+    if not row:
+        return
+    submission, group = row
+    await ensure_passenger_qr(
+        session,
+        submission.agency_id,
+        group,
+        submission.id,
+        created_by_user_id=created_by_user_id,
+    )
 
 
 def _group_export_details(group) -> dict[str, str | None]:  # type: ignore[no-untyped-def]
@@ -410,6 +445,7 @@ async def list_passport_groups(
         skip=skip,
         limit=limit,
         created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
     )
     return [PassportGroupSummaryResponse.model_validate(item) for item in result]
 
@@ -442,6 +478,7 @@ async def list_passports_by_group(
         search=search,
         created_by_user_id=None if include_deleted else _owner_scope_for(current_user),
         include_deleted_group=include_deleted,
+        visible_to_user=None if include_deleted else current_user,
     )
     return [PassportSubmissionResponse.model_validate(item) for item in result]
 
@@ -470,6 +507,7 @@ async def list_passports(
         status_filter=status_filter,
         search=search,
         created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
     )
     return [PassportSubmissionResponse.model_validate(item) for item in result]
 
@@ -491,10 +529,10 @@ async def export_passports_by_group(
     group = await group_repo.get_by_id(group_id)
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
-    if not current_user.can_access_agency(group.agency_id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this group")
-    if current_user.role == UserRole.AGENCY_STAFF and not await group_repo.manager_can_access(group_id, current_user.id):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have access to this manager's group")
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
     passport_repo = PassportSubmissionRepository(session)
     submissions = await passport_repo.list_by_group(
@@ -503,6 +541,7 @@ async def export_passports_by_group(
         limit=5000,
         exclude_archived_groups=True,
         created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
     )
     content = PassportExcelExporter().export_group(
         submissions,
@@ -529,6 +568,82 @@ async def export_passports_by_group(
 
 
 @router.post(
+    "/groups/{group_id}/import.xlsx",
+    response_model=ImportPassportGroupResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Import passport submissions into a client group from Excel",
+)
+async def import_passports_by_group(
+    group_id: uuid.UUID,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> ImportPassportGroupResponse:
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+
+    group_repo = ClientGroupRepository(session)
+    group = await group_repo.get_by_id(group_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+
+    if not file.filename or not file.filename.lower().endswith((".xlsx", ".xlsm")):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Please upload an .xlsx Excel file")
+
+    try:
+        content = await file.read()
+        rows = PassportExcelImporter().import_rows(content)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to read the Excel file")
+
+    now = datetime.now(tz=timezone.utc)
+    models: list[PassportSubmissionModel] = []
+    for row in rows:
+        submission_id = uuid.uuid4()
+        models.append(
+            PassportSubmissionModel(
+                id=submission_id,
+                group_id=group.id,
+                agency_id=group.agency_id,
+                client_name=row.client_name,
+                client_email=row.client_email,
+                client_phone=row.client_phone,
+                departure_city=row.departure_city,
+                image_s3_key=f"excel-imports/{group.id}/{submission_id}.placeholder",
+                status="client_submitted",
+                confirmed_fields=row.confirmed_fields or None,
+                extracted_fields=row.confirmed_fields or None,
+                overall_confidence=1.0 if row.confirmed_fields else None,
+                confidence_score={"source": "excel_import", "row_number": row.row_number},
+                client_reviewed_at=now,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+    if models:
+        session.add_all(models)
+        await AuditLogRepository(session).record(
+            action="passport_group_imported",
+            entity_type="client_group",
+            entity_id=str(group_id),
+            agency_id=group.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={"imported_count": len(models), "filename": file.filename},
+        )
+        await session.commit()
+
+    return ImportPassportGroupResponse(imported_count=len(models), skipped_count=max(len(rows) - len(models), 0))
+
+
+@router.post(
     "/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export selected passport submissions to Excel",
@@ -538,7 +653,7 @@ async def export_selected_passports(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
-    if not current_user.agency_id:
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
     stmt = (
@@ -549,8 +664,6 @@ async def export_selected_passports(
             PassportSubmissionModel.status.in_(_submitted_statuses()),
         )
     )
-    if current_user.role != UserRole.SUPER_ADMIN:
-        stmt = stmt.where(PassportSubmissionModel.agency_id == current_user.agency_id)
     stmt = _apply_manager_visibility(stmt, current_user)
     result = await session.execute(stmt)
     submissions = [PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()]
@@ -579,7 +692,7 @@ async def export_selected_groups(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
-    if not current_user.agency_id:
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
     stmt = (
@@ -590,8 +703,6 @@ async def export_selected_groups(
             PassportSubmissionModel.status.in_(_submitted_statuses()),
         )
     )
-    if current_user.role != UserRole.SUPER_ADMIN:
-        stmt = stmt.where(PassportSubmissionModel.agency_id == current_user.agency_id)
     stmt = _apply_manager_visibility(stmt, current_user)
     result = await session.execute(stmt)
     submissions = [PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()]
@@ -624,12 +735,16 @@ async def get_passport(
 ) -> PassportSubmissionResponse:
     try:
         result = await use_case.execute(submission_id)
-        if not current_user.can_access_agency(result.agency_id):
-            raise AuthorizationError("You do not have access to this passport submission")
-        await _ensure_group_owner_scope(result.group_id, current_user, ClientGroupRepository(session))
+        await AuthorizationPolicy(session).require_view_passport(current_user, result)
 
         image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
-        return PassportSubmissionResponse.model_validate({**result.__dict__, "image_url": image_url})
+        return PassportSubmissionResponse.model_validate(
+            {
+                **result.__dict__,
+                "image_url": image_url,
+                "qr_status": await _passport_qr_status(session, result.id),
+            }
+        )
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except AuthorizationError as e:
@@ -653,16 +768,31 @@ async def client_submit_passport(
             submission_id,
             group_token=body.group_token,
             confirmed_fields=body.confirmed_fields,
-            client_email=str(body.client_email),
+            client_email=str(body.client_email) if body.client_email else None,
             client_phone=body.client_phone,
+            departure_city=body.departure_city,
+            submission_mode=body.submission_mode,
+            family_group_id=body.family_group_id,
+            family_member_index=body.family_member_index,
+            family_relation=body.family_relation,
+            family_gender=body.family_gender,
+            family_head_name=body.family_head_name,
+            family_head_email=str(body.family_head_email) if body.family_head_email else None,
+            family_head_phone=body.family_head_phone,
         )
         await AuditLogRepository(session).record(
             action="client_passport_submitted",
             entity_type="passport_submission",
             entity_id=str(result.id),
             agency_id=result.agency_id,
-            actor_email=str(body.client_email),
-            metadata={"group_id": str(result.group_id), "client_phone": body.client_phone},
+            actor_email=str(body.client_email or body.family_head_email or ""),
+            metadata={
+                "group_id": str(result.group_id),
+                "client_phone": body.client_phone,
+                "departure_city": result.departure_city,
+                "submission_mode": result.submission_mode,
+                "family_group_id": str(result.family_group_id) if result.family_group_id else None,
+            },
         )
         await NotificationRepository(session).create(
             agency_id=result.agency_id,
@@ -672,6 +802,7 @@ async def client_submit_passport(
             entity_type="passport_submission",
             entity_id=str(result.id),
         )
+        await _ensure_submission_qr(session, result.id)
         return PassportSubmissionResponse.model_validate(result)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
@@ -695,9 +826,7 @@ async def reextract_passport(
 ) -> PassportSubmissionResponse:
     try:
         existing = await get_use_case.execute(submission_id)
-        if not current_user.can_access_agency(existing.agency_id):
-            raise AuthorizationError("You do not have access to this passport submission")
-        await _ensure_group_owner_scope(existing.group_id, current_user, ClientGroupRepository(session))
+        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)
 
         result = await reextract_use_case.execute(submission_id)
         await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)
@@ -732,9 +861,7 @@ async def cancel_passport_processing(
 ) -> PassportSubmissionResponse:
     try:
         existing = await get_use_case.execute(submission_id)
-        if not current_user.can_access_agency(existing.agency_id):
-            raise AuthorizationError("You do not have access to this passport submission")
-        await _ensure_group_owner_scope(existing.group_id, current_user, ClientGroupRepository(session))
+        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)
 
         job_repo = PassportProcessingJobRepository(session)
         job = await job_repo.latest_for_submission(submission_id)
@@ -777,9 +904,7 @@ async def confirm_passport(
 ) -> PassportSubmissionResponse:
     try:
         existing = await get_use_case.execute(submission_id)
-        if not current_user.can_access_agency(existing.agency_id):
-            raise AuthorizationError("You do not have access to this passport submission")
-        await _ensure_group_owner_scope(existing.group_id, current_user, ClientGroupRepository(session))
+        await AuthorizationPolicy(session).require_confirm_passport(current_user, existing)
 
         result = await confirm_use_case.execute(
             submission_id,
@@ -793,6 +918,7 @@ async def confirm_passport(
             user_id=current_user.id,
             actor_email=current_user.email,
         )
+        await _ensure_submission_qr(session, result.id, current_user.id)
         image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
         return PassportSubmissionResponse.model_validate({**result.__dict__, "image_url": image_url})
     except EntityNotFoundError as e:

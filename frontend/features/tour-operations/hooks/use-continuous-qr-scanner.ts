@@ -11,10 +11,11 @@ export interface QrScanResult {
 
 export type ScannerStatus = "idle" | "starting" | "scanning" | "error";
 
-const ATTENDANCE_QR_PATTERN = /^pdatt:[0-9a-fA-F-]{36}$/;
+/** Passenger QR codes are shared by attendance and hotel check-in. */
+export const PASSENGER_QR_PATTERN = /^pdatt:[A-Za-z0-9_-]{43}$/;
 const SAME_PAYLOAD_SUPPRESSION_MS = 1200;
 
-export function useContinuousQrScanner() {
+export function useContinuousQrScanner({ payloadPattern = PASSENGER_QR_PATTERN }: { payloadPattern?: RegExp } = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsRef = useRef<IScannerControls | null>(null);
   const lastScanRef = useRef<{ text: string; at: number } | null>(null);
@@ -53,7 +54,7 @@ export function useContinuousQrScanner() {
     }
 
     const text = result.getText().trim();
-    if (!ATTENDANCE_QR_PATTERN.test(text)) return;
+    if (!payloadPattern.test(text)) return;
 
     const now = Date.now();
     const previous = lastScanRef.current;
@@ -73,7 +74,7 @@ export function useContinuousQrScanner() {
     setLatestScan(scan);
     setScanHistory((history) => [scan, ...history].slice(0, 8));
     navigator.vibrate?.(60);
-  }, []);
+  }, [payloadPattern]);
 
   const startScanner = useCallback(async () => {
     if (!videoRef.current) return;

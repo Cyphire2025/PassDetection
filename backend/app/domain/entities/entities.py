@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from enum import Enum
 
 
@@ -25,6 +25,21 @@ def _utcnow() -> datetime:
 
 def _new_uuid() -> uuid.UUID:
     return uuid.uuid4()
+
+
+def _normalize_departure_cities(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    cities: list[str] = []
+    for value in values:
+        city = " ".join(str(value).strip().split())
+        if not city:
+            continue
+        key = city.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        cities.append(city[:120])
+    return cities
 
 
 # ── Enumerations ──────────────────────────────────────────────────────────────
@@ -155,6 +170,7 @@ class PassengerQRToken:
     passenger_id: uuid.UUID
     token_hash: str
     token_version: int
+    expires_at: datetime = field(default_factory=lambda: _utcnow() + timedelta(days=365))
     is_active: bool = True
     created_by_user_id: uuid.UUID | None = None
     created_at: datetime = field(default_factory=_utcnow)
@@ -165,6 +181,23 @@ class PassengerQRToken:
         self.is_active = False
         self.revoked_at = _utcnow()
         self.updated_at = _utcnow()
+
+    def deactivate(self) -> None:
+        self.is_active = False
+        self.updated_at = _utcnow()
+
+    def activate(self) -> None:
+        now = _utcnow()
+        if self.revoked_at is not None or self.expires_at <= now:
+            raise ValueError("Revoked or expired QR tokens cannot be activated")
+        self.is_active = True
+        self.updated_at = now
+
+    def expire(self) -> None:
+        now = _utcnow()
+        self.is_active = False
+        self.expires_at = now
+        self.updated_at = now
 
 
 @dataclass
@@ -287,6 +320,7 @@ class ClientGroup:
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -303,6 +337,7 @@ class ClientGroup:
         travel_date: date | None = None,
         return_date: date | None = None,
         package_name: str | None = None,
+        departure_cities: list[str] | None = None,
         notes: str | None = None,
     ) -> "ClientGroup":
         return cls(
@@ -316,6 +351,7 @@ class ClientGroup:
             travel_date=travel_date,
             return_date=return_date,
             package_name=package_name.strip() if package_name else None,
+            departure_cities=_normalize_departure_cities(departure_cities or []),
             notes=notes.strip() if notes else None,
         )
 
@@ -368,6 +404,16 @@ class PassportSubmission:
     client_name: str
     client_email: str | None
     client_phone: str | None
+    departure_city: str | None
+    submission_mode: str
+    family_group_id: uuid.UUID | None
+    family_member_index: int | None
+    family_relation: str | None
+    family_gender: str | None
+    family_head_name: str | None
+    family_head_email: str | None
+    family_head_phone: str | None
+    family_broadcast_to_member: bool
     image_s3_key: str                          # Key in S3 bucket
     thumbnail_s3_key: str | None
     status: PassportProcessingStatus
@@ -398,6 +444,16 @@ class PassportSubmission:
             client_name=client_name.strip(),
             client_email=client_email.lower().strip() if client_email else None,
             client_phone=None,
+            departure_city=None,
+            submission_mode="single",
+            family_group_id=None,
+            family_member_index=None,
+            family_relation=None,
+            family_gender=None,
+            family_head_name=None,
+            family_head_email=None,
+            family_head_phone=None,
+            family_broadcast_to_member=False,
             image_s3_key=image_s3_key,
             thumbnail_s3_key=None,
             status=PassportProcessingStatus.UPLOADED,
@@ -439,10 +495,30 @@ class PassportSubmission:
         *,
         client_email: str,
         client_phone: str,
+        departure_city: str | None = None,
+        submission_mode: str = "single",
+        family_group_id: uuid.UUID | None = None,
+        family_member_index: int | None = None,
+        family_relation: str | None = None,
+        family_gender: str | None = None,
+        family_head_name: str | None = None,
+        family_head_email: str | None = None,
+        family_head_phone: str | None = None,
+        family_broadcast_to_member: bool = False,
     ) -> None:
         self.status = PassportProcessingStatus.CLIENT_SUBMITTED
-        self.client_email = client_email.lower().strip()
-        self.client_phone = client_phone.strip()
+        self.client_email = client_email.lower().strip() if client_email else None
+        self.client_phone = client_phone.strip() if client_phone else None
+        self.departure_city = departure_city.strip() if departure_city else None
+        self.submission_mode = submission_mode
+        self.family_group_id = family_group_id
+        self.family_member_index = family_member_index
+        self.family_relation = family_relation.strip() if family_relation else None
+        self.family_gender = family_gender.strip() if family_gender else None
+        self.family_head_name = family_head_name.strip() if family_head_name else None
+        self.family_head_email = family_head_email.lower().strip() if family_head_email else None
+        self.family_head_phone = family_head_phone.strip() if family_head_phone else None
+        self.family_broadcast_to_member = family_broadcast_to_member
         self.confirmed_fields = confirmed_fields
         self.client_reviewed_at = _utcnow()
         self.updated_at = _utcnow()

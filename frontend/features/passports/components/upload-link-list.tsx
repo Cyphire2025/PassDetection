@@ -175,7 +175,16 @@ export function UploadLinkList() {
             return;
           }
           renameLink(
-            { id: renameTarget.id, name: nextName },
+            {
+              id: renameTarget.id,
+              name: nextName,
+              destination: renameTarget.destination,
+              travel_date: renameTarget.travel_date,
+              return_date: renameTarget.return_date,
+              package_name: renameTarget.package_name,
+              departure_cities: renameTarget.departure_cities,
+              notes: renameTarget.notes,
+            },
             { onSuccess: () => setRenameTarget(null) },
           );
         }}

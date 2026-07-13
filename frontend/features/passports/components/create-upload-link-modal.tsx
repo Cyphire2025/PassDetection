@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Copy, Check } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,12 +22,15 @@ interface CreateUploadLinkModalProps {
 export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModalProps) {
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
+  const [cityInput, setCityInput] = useState("");
   const { mutateAsync: createUploadLink, isPending } = useCreateUploadLink();
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    control,
     formState: { errors },
   } = useForm<CreateUploadLinkFormData>({
     resolver: zodResolver(createUploadLinkSchema),
@@ -36,9 +39,11 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       destination: "",
       travel_date: "",
       return_date: "",
+      departure_cities: [],
       notes: "",
     },
   });
+  const departureCities = useWatch({ control, name: "departure_cities" }) ?? [];
 
   if (!isOpen) return null;
 
@@ -49,6 +54,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         destination: data.destination || null,
         travel_date: data.travel_date || null,
         return_date: data.return_date || null,
+        departure_cities: normalizeCities(data.departure_cities ?? []),
         notes: data.notes || null,
       });
       setGeneratedTargets(getPassportUploadTargets(result.token));
@@ -61,7 +67,24 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     reset();
     setGeneratedTargets([]);
     setCopiedTargetKey(null);
+    setCityInput("");
     onClose();
+  };
+
+  const addCity = () => {
+    const nextCity = normalizeCity(cityInput);
+    if (!nextCity) return;
+    const nextCities = normalizeCities([...departureCities, nextCity]);
+    setValue("departure_cities", nextCities, { shouldDirty: true, shouldValidate: true });
+    setCityInput("");
+  };
+
+  const removeCity = (city: string) => {
+    setValue(
+      "departure_cities",
+      departureCities.filter((item) => item !== city),
+      { shouldDirty: true, shouldValidate: true },
+    );
   };
 
   const copyTarget = async (target: PassportUploadTarget) => {
@@ -169,6 +192,44 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
               </div>
 
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Departure Cities</label>
+                <div className="flex gap-2">
+                  <Input
+                    value={cityInput}
+                    onChange={(event) => setCityInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addCity();
+                      }
+                    }}
+                    placeholder="e.g. Delhi, Chennai, Mumbai"
+                  />
+                  <Button type="button" variant="secondary" onClick={addCity}>
+                    Add
+                  </Button>
+                </div>
+                {departureCities.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {departureCities.map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => removeCity(city)}
+                        className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
+                      >
+                        {city}
+                        <X className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-slate-500">
+                  Clients will choose one of these cities while submitting their passport.
+                </p>
+              </div>
+
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 This will generate:
                 <div className="mt-2">1. Public link on pass.cyphire.in for clients on phones or browsers</div>
@@ -188,4 +249,22 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       </div>
     </div>
   );
+}
+
+function normalizeCity(value: string) {
+  return value.trim().replace(/\s+/g, " ").slice(0, 120);
+}
+
+function normalizeCities(values: string[]) {
+  const seen = new Set<string>();
+  const cities: string[] = [];
+  for (const value of values) {
+    const city = normalizeCity(value);
+    if (!city) continue;
+    const key = city.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cities.push(city);
+  }
+  return cities;
 }

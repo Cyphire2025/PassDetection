@@ -18,13 +18,8 @@ export interface User extends TimestampedEntity {
   last_login_at: string | null;
 }
 
-export interface AuthTokens {
-  access_token: string;
-  refresh_token: string;
-  token_type: "bearer";
-}
-
 export interface AuthSession {
   user: User;
-  tokens: AuthTokens;
+  token_type: "bearer";
+  access_token_expires_at: string | null;
 }

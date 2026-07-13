@@ -1,72 +1,49 @@
 /**
- * Auth Store — Zustand
- * ====================
- * Manages authentication state globally.
- *
- * Responsibilities:
- *   - Store the current user and tokens
- *   - Persist access token to localStorage
- *   - Provide login / logout actions
- *
- * Used by the API client interceptor to inject auth headers.
- * Server Components read session from cookies (Phase 2).
+ * Auth Store
+ * ==========
+ * Holds only in-memory user state. Access and refresh tokens are stored in
+ * backend-issued httpOnly cookies and are not readable by JavaScript.
  */
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
-import type { User, AuthTokens } from "@/types";
+import type { User } from "@/types";
 
 interface AuthState {
   user: User | null;
-  tokens: AuthTokens | null;
   isAuthenticated: boolean;
+  hasHydrated: boolean;
 }
 
 interface AuthActions {
-  setSession: (user: User, tokens: AuthTokens) => void;
+  setSession: (user: User) => void;
   clearSession: () => void;
+  markHydrated: () => void;
   updateUser: (user: Partial<User>) => void;
 }
 
 const initialState: AuthState = {
   user: null,
-  tokens: null,
   isAuthenticated: false,
+  hasHydrated: false,
 };
 
-export const useAuthStore = create<AuthState & AuthActions>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
+export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
+  ...initialState,
 
-      setSession: (user, tokens) =>
-        set({ user, tokens, isAuthenticated: true }),
+  setSession: (user) => set({ user, isAuthenticated: true, hasHydrated: true }),
 
-      clearSession: () => set(initialState),
+  clearSession: () => set({ ...initialState, hasHydrated: true }),
 
-      updateUser: (partial) => {
-        const current = get().user;
-        if (!current) return;
-        set({ user: { ...current, ...partial } });
-      },
-    }),
-    {
-      name: "passdetection-auth",
-      storage: createJSONStorage(() => localStorage),
-      // Only persist user identity — tokens are managed server-side in Phase 2
-      partialize: (state) => ({
-        user: state.user,
-        tokens: state.tokens,
-        isAuthenticated: state.isAuthenticated,
-      }),
-    }
-  )
-);
+  markHydrated: () => set({ hasHydrated: true }),
 
-// ── Selectors (avoid inline selectors in components) ──────────────────────────
+  updateUser: (partial) => {
+    const current = get().user;
+    if (!current) return;
+    set({ user: { ...current, ...partial } });
+  },
+}));
 
 export const selectUser = (state: AuthState & AuthActions) => state.user;
-export const selectIsAuthenticated = (state: AuthState & AuthActions) =>
-  state.isAuthenticated;
-export const selectUserRole = (state: AuthState & AuthActions) =>
-  state.user?.role ?? null;
+export const selectIsAuthenticated = (state: AuthState & AuthActions) => state.isAuthenticated;
+export const selectHasHydrated = (state: AuthState & AuthActions) => state.hasHydrated;
+export const selectUserRole = (state: AuthState & AuthActions) => state.user?.role ?? null;

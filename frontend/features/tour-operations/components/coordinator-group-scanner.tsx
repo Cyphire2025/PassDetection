@@ -105,13 +105,13 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const isScanning = status === "scanning";
 
   useEffect(() => {
-    if (!isCoordinator || !sessionId || isCompleting || autoStartedRef.current || session?.status === "completed") return;
+    if (!isCoordinator || !sessionId || isCompleting || autoStartedRef.current) return;
     autoStartedRef.current = true;
     const timer = window.setTimeout(() => {
       void startScanner();
     }, 150);
     return () => window.clearTimeout(timer);
-  }, [isCompleting, isCoordinator, session?.status, sessionId, startScanner]);
+  }, [isCompleting, isCoordinator, sessionId, startScanner]);
 
   const completeSession = () => {
     if (!sessionId || isCompleting) return;
@@ -167,7 +167,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       <div className="mx-auto flex h-[100svh] w-full max-w-md flex-col overflow-hidden">
         <header className="shrink-0 bg-slate-950 px-4 pb-2 pt-[max(0.65rem,env(safe-area-inset-top))]">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <Link href="/coordinator" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white">
+            <Link href={`/coordinator/groups/${groupId}` as never} className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white">
               <ArrowLeft className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Back</span>
             </Link>
@@ -241,15 +241,30 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
               </button>
             </div>
 
-            <Button
-              type="button"
-              disabled={!sessionId || isCompleting || session?.status === "completed"}
-              isLoading={isCompleting || completeMutation.isPending}
-              onClick={completeSession}
-              className="h-12 w-full text-base"
-            >
-              Complete
-            </Button>
+            {session?.status === "completed" ? (
+              <Button
+                type="button"
+                onClick={async () => {
+                  stopScanner();
+                  await syncNow();
+                  await queryClient.invalidateQueries({ queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId), "sessions"] });
+                  router.replace(`/coordinator/groups/${groupId}` as never);
+                }}
+                className="h-12 w-full text-base"
+              >
+                Done
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                disabled={!sessionId || isCompleting}
+                isLoading={isCompleting || completeMutation.isPending}
+                onClick={completeSession}
+                className="h-12 w-full text-base"
+              >
+                Complete
+              </Button>
+            )}
           </section>
         </main>
       </div>

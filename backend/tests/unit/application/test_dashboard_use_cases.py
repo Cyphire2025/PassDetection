@@ -24,6 +24,7 @@ def _make_submission(status: PassportProcessingStatus) -> PassportSubmission:
         client_name="John Doe",
         client_email="john@doe.com",
         client_phone=None,
+        departure_city=None,
         image_s3_key="uploads/img.jpg",
         thumbnail_s3_key=None,
         status=status,

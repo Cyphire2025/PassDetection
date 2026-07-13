@@ -26,6 +26,7 @@ class PassportExcelExporter:
         "Client Name",
         "Email",
         "Phone",
+        "Departure City",
         "Status",
         "Surname",
         "Given Names",
@@ -78,6 +79,7 @@ class PassportExcelExporter:
                     submission.client_name,
                     submission.client_email,
                     submission.client_phone,
+                    submission.departure_city,
                     submission.status.value,
                     fields.get("surname"),
                     fields.get("given_names"),
@@ -94,7 +96,7 @@ class PassportExcelExporter:
             )
 
         if submissions:
-            table_ref = f"A{header_row}:S{header_row + len(submissions)}"
+            table_ref = f"A{header_row}:T{header_row + len(submissions)}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
@@ -105,7 +107,7 @@ class PassportExcelExporter:
             )
             worksheet.add_table(table)
 
-        widths = [24, 22, 16, 16, 24, 28, 18, 18, 20, 24, 20, 16, 18, 16, 16, 10, 14, 28, 28]
+        widths = [24, 22, 16, 16, 24, 28, 18, 18, 18, 20, 24, 20, 16, 18, 16, 16, 10, 14, 28, 28]
         for index, width in enumerate(widths, start=1):
             worksheet.column_dimensions[worksheet.cell(row=4, column=index).column_letter].width = width
 

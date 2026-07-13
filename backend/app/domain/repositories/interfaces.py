@@ -36,6 +36,7 @@ class PassportSubmissionGroupSummary:
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] | None = None
     notes: str | None = None
 
 
@@ -106,6 +107,7 @@ class IClientGroupRepository(ABC):
         limit: int = 50,
         status_filter: str | None = None,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[ClientGroup]: ...
 
     @abstractmethod
@@ -114,6 +116,7 @@ class IClientGroupRepository(ABC):
         agency_id: uuid.UUID,
         *,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> int: ...
 
 
@@ -143,6 +146,7 @@ class IPassportSubmissionRepository(ABC):
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmission]: ...
 
     @abstractmethod
@@ -156,6 +160,7 @@ class IPassportSubmissionRepository(ABC):
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmission]: ...
 
     @abstractmethod
@@ -167,6 +172,7 @@ class IPassportSubmissionRepository(ABC):
         limit: int = 50,
         exclude_archived_groups: bool = True,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmissionGroupSummary]: ...
 
     @abstractmethod
@@ -174,8 +180,8 @@ class IPassportSubmissionRepository(ABC):
         self,
         group_id: uuid.UUID,
         *,
-        client_email: str,
-        client_phone: str,
+        client_email: str | None,
+        client_phone: str | None,
         exclude_submission_id: uuid.UUID | None = None,
     ) -> bool: ...
 
@@ -187,6 +193,7 @@ class IPassportSubmissionRepository(ABC):
         status_filter: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> int: ...
 
 class IObjectStorageRepository(ABC):

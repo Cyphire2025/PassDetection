@@ -12,7 +12,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import ClientGroup, GroupStatus
+from app.application.security.authorization_policy import AuthorizationPolicy
+from app.domain.entities.entities import ClientGroup, GroupStatus, User
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
 from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel
@@ -41,6 +42,7 @@ class ClientGroupRepository(IClientGroupRepository):
             travel_date=model.travel_date,
             return_date=model.return_date,
             package_name=model.package_name,
+            departure_cities=list(model.departure_cities or []),
             notes=model.notes,
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
@@ -62,6 +64,7 @@ class ClientGroupRepository(IClientGroupRepository):
             travel_date=entity.travel_date,
             return_date=entity.return_date,
             package_name=entity.package_name,
+            departure_cities=entity.departure_cities,
             notes=entity.notes,
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
@@ -125,6 +128,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.travel_date = link.travel_date
         model.return_date = link.return_date
         model.package_name = link.package_name
+        model.departure_cities = link.departure_cities
         model.notes = link.notes
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count
@@ -141,6 +145,7 @@ class ClientGroupRepository(IClientGroupRepository):
         limit: int = 50,
         status_filter: str | None = None,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[ClientGroup]:
         stmt = select(ClientGroupModel).where(ClientGroupModel.agency_id == agency_id)
         if status_filter:
@@ -158,6 +163,8 @@ class ClientGroupRepository(IClientGroupRepository):
                     ManagerGroupAccessModel.manager_id == created_by_user_id,
                 )
             )
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
         stmt = stmt.order_by(ClientGroupModel.created_at.desc()).offset(skip).limit(limit)
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
@@ -167,6 +174,7 @@ class ClientGroupRepository(IClientGroupRepository):
         agency_id: uuid.UUID,
         *,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> int:
         from sqlalchemy import func
         stmt = (
@@ -186,6 +194,8 @@ class ClientGroupRepository(IClientGroupRepository):
                     ManagerGroupAccessModel.manager_id == created_by_user_id,
                 )
             )
+        if visible_to_user:
+            stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
 
         result = await self._session.execute(stmt)
         return result.scalar_one()

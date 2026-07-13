@@ -17,6 +17,7 @@ class CreateClientGroupInputDTO:
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] | None = None
     notes: str | None = None
 
 
@@ -34,6 +35,7 @@ class ClientGroupOutputDTO:
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] | None = None
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -54,6 +56,7 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         travel_date=link.travel_date,
         return_date=link.return_date,
         package_name=link.package_name,
+        departure_cities=link.departure_cities,
         notes=link.notes,
         deleted_at=link.deleted_at,
         deleted_passport_count=link.deleted_passport_count,

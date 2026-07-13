@@ -51,6 +51,7 @@ async def get_dashboard_stats(
     result = await use_case.execute(
         agency_id=current_user.agency_id,
         created_by_user_id=current_user.id if current_user.role == UserRole.AGENCY_STAFF else None,
+        visible_to_user=current_user,
     )
     return DashboardStatsResponse(
         total_passports=result.total_passports,

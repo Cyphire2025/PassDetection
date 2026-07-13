@@ -3,34 +3,49 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
-import { ArrowLeft, Printer, QrCode } from "lucide-react";
+import { ArrowLeft, Ban, Clock3, Power, Printer, QrCode, RefreshCw, ShieldCheck } from "lucide-react";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { PageHeader } from "@/components/shared/page-header";
 import { ROUTES } from "@/constants/routes";
-import { useGroupQrCodes } from "../hooks/use-operations";
+import { useGroupQrCodes, usePassengerQrLifecycle } from "../hooks/use-operations";
 import type { GroupPassengerQrCode } from "../api/operations.api";
 
 type QrImageMap = Record<string, string>;
 
 export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
   const { data, isLoading, error } = useGroupQrCodes(groupId);
+  const qrLifecycle = usePassengerQrLifecycle(groupId);
   const [qrImages, setQrImages] = useState<QrImageMap>({});
+  const [generatedPayloads, setGeneratedPayloads] = useState<Record<string, string>>({});
+  const [pendingPassengerId, setPendingPassengerId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const passengers = useMemo(() => data?.passengers ?? [], [data?.passengers]);
+  const visiblePayloads = useMemo(
+    () => ({
+      ...Object.fromEntries(
+        (data?.passengers ?? [])
+          .filter((passenger) => passenger.qr_payload)
+          .map((passenger) => [passenger.passenger_id, passenger.qr_payload as string]),
+      ),
+      ...generatedPayloads,
+    }),
+    [data?.passengers, generatedPayloads],
+  );
 
   useEffect(() => {
     let cancelled = false;
 
     async function generateQrImages() {
-      if (passengers.length === 0) {
+      const revealed = Object.entries(visiblePayloads);
+      if (revealed.length === 0) {
         setQrImages({});
         return;
       }
 
       const entries = await Promise.all(
-        passengers.map(async (passenger) => [
-          passenger.passenger_id,
-          await QRCode.toDataURL(passenger.qr_payload, {
+        revealed.map(async ([passengerId, payload]) => [
+          passengerId,
+          await QRCode.toDataURL(payload, {
             errorCorrectionLevel: "M",
             margin: 2,
             scale: 7,
@@ -51,7 +66,54 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [passengers]);
+  }, [visiblePayloads]);
+
+  const revealToken = async (passengerId: string, regenerate: boolean) => {
+    if (regenerate && !window.confirm("Regenerate this QR? The previous printed code will stop working immediately.")) return;
+    setPendingPassengerId(passengerId);
+    setActionError(null);
+    try {
+      const result = await (regenerate
+        ? qrLifecycle.regenerate.mutateAsync(passengerId)
+        : qrLifecycle.generate.mutateAsync(passengerId));
+      if (result.qr_payload) {
+        setGeneratedPayloads((current) => ({ ...current, [passengerId]: result.qr_payload as string }));
+      }
+    } catch {
+      setActionError("The QR action could not be completed. Refresh and try again.");
+    } finally {
+      setPendingPassengerId(null);
+    }
+  };
+
+  const updateLifecycle = async (passengerId: string, action: "revoke" | "expire" | "activate" | "deactivate") => {
+    const warnings = {
+      revoke: "Revoke this QR permanently? The passenger will need a newly generated code.",
+      expire: "Expire this QR now? It will stop scanning immediately.",
+      activate: "Activate this QR again? Any existing printed copy will become scannable.",
+      deactivate: "Deactivate this QR? It can be activated again later.",
+    };
+    if (!window.confirm(warnings[action])) return;
+    setPendingPassengerId(passengerId);
+    setActionError(null);
+    try {
+      if (action === "revoke") await qrLifecycle.revoke.mutateAsync(passengerId);
+      if (action === "expire") await qrLifecycle.expire.mutateAsync(passengerId);
+      if (action === "activate") await qrLifecycle.setActive.mutateAsync({ passengerId, isActive: true });
+      if (action === "deactivate") await qrLifecycle.setActive.mutateAsync({ passengerId, isActive: false });
+      if (action === "revoke" || action === "expire") {
+        setGeneratedPayloads((current) => {
+          const next = { ...current };
+          delete next[passengerId];
+          return next;
+        });
+      }
+    } catch {
+      setActionError("The QR status could not be updated. Refresh and try again.");
+    } finally {
+      setPendingPassengerId(null);
+    }
+  };
 
   return (
     <div className="space-y-6 print:space-y-4">
@@ -66,7 +128,7 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
                 variant="secondary"
                 leftIcon={<Printer className="h-4 w-4" aria-hidden="true" />}
                 onClick={() => window.print()}
-                disabled={!data || data.passengers.length === 0}
+                disabled={Object.keys(qrImages).length === 0}
               >
                 Print
               </Button>
@@ -87,6 +149,16 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
           QR codes could not be loaded.
         </div>
       )}
+
+      {actionError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 print:hidden">
+          {actionError}
+        </div>
+      )}
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 print:hidden">
+        Generated QR cards stay visible here for office users. Use Regenerate only when the printed code must be replaced.
+      </div>
 
       <Card className="print:border-0 print:shadow-none">
         <CardContent className="p-0 print:p-0">
@@ -130,6 +202,11 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
                   key={passenger.passenger_id}
                   passenger={passenger}
                   imageUrl={qrImages[passenger.passenger_id]}
+                  payload={visiblePayloads[passenger.passenger_id]}
+                  isPending={pendingPassengerId === passenger.passenger_id}
+                  onGenerate={() => void revealToken(passenger.passenger_id, false)}
+                  onRegenerate={() => void revealToken(passenger.passenger_id, true)}
+                  onLifecycle={(action) => void updateLifecycle(passenger.passenger_id, action)}
                 />
               ))}
             </div>
@@ -143,10 +220,21 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
 function PassengerQrCard({
   passenger,
   imageUrl,
+  payload,
+  isPending,
+  onGenerate,
+  onRegenerate,
+  onLifecycle,
 }: {
   passenger: GroupPassengerQrCode;
   imageUrl?: string;
+  payload?: string;
+  isPending: boolean;
+  onGenerate: () => void;
+  onRegenerate: () => void;
+  onLifecycle: (action: "revoke" | "expire" | "activate" | "deactivate") => void;
 }) {
+  const hasToken = passenger.qr_status !== "not_generated";
   return (
     <article className="break-inside-avoid rounded-xl border border-slate-200 bg-white p-4 shadow-sm print:rounded-none print:border-slate-300 print:shadow-none">
       <div className="flex gap-4">
@@ -155,7 +243,12 @@ function PassengerQrCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageUrl} alt={`${passenger.client_name} attendance QR`} className="h-full w-full" />
           ) : (
-            <QrCode className="h-10 w-10 text-slate-300" aria-hidden="true" />
+            <div className="px-2 text-center print:hidden">
+              <ShieldCheck className="mx-auto h-9 w-9 text-slate-300" aria-hidden="true" />
+              <p className="mt-2 text-[11px] leading-4 text-slate-400">
+                {hasToken ? "Regenerate to restore display" : "Generate to reveal"}
+              </p>
+            </div>
           )}
         </div>
 
@@ -169,11 +262,66 @@ function PassengerQrCard({
               {passenger.coordinator_name ?? "No coordinator"}
             </Badge>
           </div>
-          <p className="mt-3 break-all font-mono text-[10px] leading-4 text-slate-400 print:text-slate-500">
-            {passenger.qr_payload}
-          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Badge variant={statusVariant(passenger.qr_status)} dot>{formatQrStatus(passenger.qr_status)}</Badge>
+            {passenger.qr_token_version && <Badge variant="outline">v{passenger.qr_token_version}</Badge>}
+          </div>
+          {passenger.qr_expires_at && (
+            <p className="mt-2 text-[11px] text-slate-500">
+              Expires {new Date(passenger.qr_expires_at).toLocaleDateString()}
+            </p>
+          )}
+          {payload && (
+            <p className="mt-3 break-all font-mono text-[10px] leading-4 text-slate-400 print:text-slate-500">
+              {payload}
+            </p>
+          )}
         </div>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 print:hidden">
+        {!hasToken ? (
+          <Button type="button" className="col-span-2 gap-2" disabled={isPending} onClick={onGenerate}>
+            <QrCode className="h-4 w-4" /> {isPending ? "Generating" : "Generate QR Code"}
+          </Button>
+        ) : (
+          <>
+            <Button type="button" className="col-span-2 gap-2" disabled={isPending} onClick={onRegenerate}>
+              <RefreshCw className="h-4 w-4" /> {isPending ? "Updating" : "Regenerate QR Code"}
+            </Button>
+            {passenger.qr_status === "active" && (
+              <Button type="button" variant="secondary" disabled={isPending} onClick={() => onLifecycle("deactivate")}>
+                <Power className="mr-1.5 h-4 w-4" /> Deactivate
+              </Button>
+            )}
+            {passenger.qr_status === "inactive" && (
+              <Button type="button" variant="secondary" disabled={isPending} onClick={() => onLifecycle("activate")}>
+                <Power className="mr-1.5 h-4 w-4" /> Activate
+              </Button>
+            )}
+            {(passenger.qr_status === "active" || passenger.qr_status === "inactive") && (
+              <Button type="button" variant="outline" disabled={isPending} onClick={() => onLifecycle("expire")}>
+                <Clock3 className="mr-1.5 h-4 w-4" /> Expire now
+              </Button>
+            )}
+            {passenger.qr_status !== "revoked" && (
+              <Button type="button" variant="danger" className="col-span-2" disabled={isPending} onClick={() => onLifecycle("revoke")}>
+                <Ban className="mr-1.5 h-4 w-4" /> Revoke permanently
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </article>
   );
+}
+
+function formatQrStatus(status: string) {
+  return status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function statusVariant(status: string): "default" | "success" | "warning" | "destructive" | "outline" {
+  if (status === "active") return "success";
+  if (status === "inactive" || status === "expired") return "warning";
+  if (status === "revoked") return "destructive";
+  return "outline";
 }

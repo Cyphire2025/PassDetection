@@ -133,6 +133,7 @@ class ClientGroupModel(Base):
     travel_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     return_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     package_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    departure_cities: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_passport_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -237,6 +238,16 @@ class PassportSubmissionModel(Base):
     client_name: Mapped[str] = mapped_column(String(255), nullable=False)
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     client_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    departure_city: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    submission_mode: Mapped[str] = mapped_column(String(20), nullable=False, default="single", server_default="single")
+    family_group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    family_member_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    family_relation: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    family_gender: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    family_head_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    family_head_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    family_head_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    family_broadcast_to_member: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     image_s3_key: Mapped[str] = mapped_column(String(512), nullable=False)
     thumbnail_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     status: Mapped[str] = mapped_column(
@@ -263,6 +274,226 @@ class PassportSubmissionModel(Base):
     group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
 
 
+class DocumentDistributionBatchModel(Base):
+    __tablename__ = "document_distribution_batches"
+    __table_args__ = (
+        Index("ix_document_batches_group_type_created", "group_id", "document_type", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="draft", index=True)
+    uploaded_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    rejected_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    matched_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    saved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class DistributedDocumentModel(Base):
+    __tablename__ = "distributed_documents"
+    __table_args__ = (
+        Index("ix_distributed_documents_batch_passenger", "batch_id", "passenger_id"),
+        Index("ix_distributed_documents_group_type", "group_id", "document_type"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    batch_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_distribution_batches.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    passenger_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(120), nullable=False, default="application/pdf")
+    detected_type: Mapped[str] = mapped_column(String(32), nullable=False, default="unknown")
+    match_status: Mapped[str] = mapped_column(String(40), nullable=False, default="needs_review", index=True)
+    match_confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    match_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    extracted_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    extracted_passport_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    extracted_reference: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class DocumentRenameBatchModel(Base):
+    __tablename__ = "document_rename_batches"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    title: Mapped[str] = mapped_column(String(160), nullable=False, default="Rename Batch")
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="completed", index=True)
+    total_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    visa_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    ticket_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    unknown_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class DocumentRenameItemModel(Base):
+    __tablename__ = "document_rename_items"
+    __table_args__ = (
+        Index("ix_document_rename_items_batch_created", "batch_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    batch_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_rename_batches.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    renamed_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(120), nullable=False, default="application/pdf")
+    detected_type: Mapped[str] = mapped_column(String(32), nullable=False, default="unknown", index=True)
+    extracted_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    extracted_passport_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    extracted_reference: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, default="renamed", index=True)
+    reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class RoomingHotelModel(Base):
+    __tablename__ = "rooming_hotels"
+    __table_args__ = (
+        Index("ix_rooming_hotels_group_created", "group_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    hotel_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    city: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    check_in_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    check_out_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class RoomingRoomModel(Base):
+    __tablename__ = "rooming_rooms"
+    __table_args__ = (
+        UniqueConstraint("hotel_id", "room_number", name="uq_rooming_rooms_hotel_number"),
+        Index("ix_rooming_rooms_hotel_number", "hotel_id", "room_number"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    hotel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    room_number: Mapped[str] = mapped_column(String(32), nullable=False)
+    room_type: Mapped[str] = mapped_column(String(16), nullable=False, default="twin")
+    capacity: Mapped[int] = mapped_column(Integer, nullable=False, default=2)
+    allocation_tag: Mapped[str] = mapped_column(String(16), nullable=False, default="mixed")
+    roommate_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_saved: Mapped[bool] = mapped_column(default=False, nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class RoomingPassengerPreferenceModel(Base):
+    __tablename__ = "rooming_passenger_preferences"
+    __table_args__ = (
+        UniqueConstraint("hotel_id", "passenger_id", name="uq_rooming_preferences_hotel_passenger"),
+        Index("ix_rooming_preferences_hotel_passenger", "hotel_id", "passenger_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    hotel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    passenger_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    allocation_tag: Mapped[str] = mapped_column(String(16), nullable=False, default="unspecified")
+    special_requests: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    roommate_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class RoomingAssignmentModel(Base):
+    __tablename__ = "rooming_assignments"
+    __table_args__ = (
+        UniqueConstraint("hotel_id", "passenger_id", name="uq_rooming_assignments_hotel_passenger"),
+        UniqueConstraint("room_id", "passenger_id", name="uq_rooming_assignments_room_passenger"),
+        Index("ix_rooming_assignments_room_position", "room_id", "position"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    hotel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("rooming_rooms.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    passenger_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    position: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
+class RoomingCheckinModel(Base):
+    __tablename__ = "rooming_checkins"
+    __table_args__ = (
+        UniqueConstraint("hotel_id", "passenger_id", name="uq_rooming_checkins_hotel_passenger"),
+        Index("ix_rooming_checkins_hotel_status", "hotel_id", "checked_in", "key_issued", "welcome_letter_issued"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True)
+    hotel_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True)
+    room_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("rooming_rooms.id", ondelete="CASCADE"), nullable=False, index=True)
+    passenger_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True)
+    checked_in: Mapped[bool] = mapped_column(default=False, nullable=False)
+    checked_in_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    key_issued: Mapped[bool] = mapped_column(default=False, nullable=False)
+    key_issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    welcome_letter_issued: Mapped[bool] = mapped_column(default=False, nullable=False)
+    welcome_letter_issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
 class PassengerQRTokenModel(Base):
     __tablename__ = "passenger_qr_tokens"
     __table_args__ = (
@@ -285,12 +516,14 @@ class PassengerQRTokenModel(Base):
         UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    qr_payload: Mapped[str | None] = mapped_column(String(64), nullable=True)
     token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
 

@@ -11,7 +11,7 @@ Phase 7 adds the office-side QR distribution workflow for attendance scanning.
 
 ## Security Model
 
-QR payloads do not expose passport or passenger details. Each payload is a deterministic opaque token with an active hash stored in `passenger_qr_tokens`.
+QR payloads do not expose passport or passenger details. Each payload contains a cryptographically random opaque token; only its hash is stored in `passenger_qr_tokens`. A token can be regenerated, revoked, expired, or marked inactive, and its raw value is shown only once.
 
 Office users can generate cards only for groups they manage. Managers are restricted to groups they created or were explicitly assigned.
 

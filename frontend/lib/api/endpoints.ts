@@ -26,10 +26,9 @@ export const API_ENDPOINTS = {
   auth: {
     login: "/api/v1/auth/login",
     logout: "/api/v1/auth/logout",
+    logoutAll: "/api/v1/auth/logout-all",
     refresh: "/api/v1/auth/refresh",
     me: "/api/v1/auth/me",
-    forgotPassword: "/api/v1/auth/forgot-password",
-    resetPassword: "/api/v1/auth/reset-password",
   },
 
   agencies: {
@@ -59,6 +58,7 @@ export const API_ENDPOINTS = {
     groupsExport: "/api/v1/passports/groups/export.xlsx",
     groupDetail: (groupId: string) => `/api/v1/passports/groups/${groupId}`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
+    groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
@@ -72,6 +72,26 @@ export const API_ENDPOINTS = {
     cancelProcessing: (id: string) => `/api/v1/passports/${id}/cancel-processing`,
   },
 
+  documents: {
+    groups: "/api/v1/document-distribution/groups",
+    review: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}`,
+    verify: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/verify`,
+    upload: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/upload`,
+    reupload: (groupId: string, documentType: string, passengerId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/passengers/${passengerId}/reupload`,
+    deleteDocuments: (groupId: string, documentType: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/documents/delete`,
+    saveBatch: (batchId: string) => `/api/v1/document-distribution/batches/${batchId}/save`,
+  },
+
+  documentRename: {
+    batches: "/api/v1/document-rename/batches",
+    bulkDelete: "/api/v1/document-rename/batches/bulk-delete",
+    batch: (batchId: string) => `/api/v1/document-rename/batches/${batchId}`,
+    itemDownload: (itemId: string) => `/api/v1/document-rename/items/${itemId}/download`,
+    zipDownload: (batchId: string) => `/api/v1/document-rename/batches/${batchId}/download.zip`,
+  },
+
   tourOperations: {
     architecture: "/api/v1/tour-operations/architecture",
     coordinators: "/api/v1/tour-operations/coordinators",
@@ -81,11 +101,40 @@ export const API_ENDPOINTS = {
     assignGroupPassengers: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/passengers/assign`,
     groupAttendance: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance`,
     groupQrCodes: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/qr-codes`,
+    passengerQr: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr`,
+    passengerQrRegenerate: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr/regenerate`,
+    passengerQrRevoke: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr/revoke`,
+    passengerQrActive: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr/active`,
+    passengerQrExpiration: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr/expiration`,
     myGroups: "/api/v1/tour-operations/coordinator/groups",
     myGroupPassengers: (groupId: string) => `/api/v1/tour-operations/coordinator/groups/${groupId}/passengers`,
+    myGroupPassenger: (groupId: string, passengerId: string) =>
+      `/api/v1/tour-operations/coordinator/groups/${groupId}/passengers/${passengerId}`,
     myGroupSessions: (groupId: string) => `/api/v1/tour-operations/coordinator/groups/${groupId}/sessions`,
+    mySessionDetails: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/details`,
     mySessionScan: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/scan`,
     mySessionComplete: (sessionId: string) => `/api/v1/tour-operations/coordinator/sessions/${sessionId}/complete`,
+  },
+
+  rooming: {
+    group: (groupId: string) => `/api/v1/rooming/groups/${groupId}`,
+    hotels: (groupId: string) => `/api/v1/rooming/groups/${groupId}/hotels`,
+    hotel: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}`,
+    generateRooms: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/rooms/generate`,
+    hotelExport: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/export.xlsx`,
+    checkins: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins`,
+    checkinScan: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins/scan`,
+    checkinExport: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins/export.xlsx`,
+    checkin: (checkinId: string) => `/api/v1/rooming/check-ins/${checkinId}`,
+    room: (roomId: string) => `/api/v1/rooming/rooms/${roomId}`,
+    roomOrder: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/rooms/order`,
+    allocation: (hotelId: string, passengerId: string) =>
+      `/api/v1/rooming/hotels/${hotelId}/passengers/${passengerId}/allocation`,
   },
 
   admin: {
@@ -94,6 +143,11 @@ export const API_ENDPOINTS = {
     manager: (managerId: string) => `/api/v1/admin/managers/${managerId}`,
     groups: "/api/v1/admin/groups",
     managerGroups: (managerId: string) => `/api/v1/admin/managers/${managerId}/groups`,
+    accounts: "/api/v1/admin/accounts",
+    account: (accountId: string) => `/api/v1/admin/accounts/${accountId}`,
+    accountPassword: (accountId: string) => `/api/v1/admin/accounts/${accountId}/reset-password`,
+    accountSessions: (accountId: string) => `/api/v1/admin/accounts/${accountId}/revoke-sessions`,
+    accountStatus: (accountId: string) => `/api/v1/admin/accounts/${accountId}/status`,
     settings: "/api/v1/admin/settings",
     passportData: "/api/v1/admin/passport-data",
   },

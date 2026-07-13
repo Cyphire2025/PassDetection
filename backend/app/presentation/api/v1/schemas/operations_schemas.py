@@ -10,8 +10,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
-from pydantic import EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class AuditLogResponse(BaseModel):
@@ -90,7 +89,15 @@ class UpdatePlatformSettingsRequest(BaseModel):
 class CreateManagerRequest(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=255)
     email: EmailStr
-    password: str = Field(..., min_length=8, max_length=128)
+    password: str = Field(..., min_length=10, max_length=128)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        from app.core.security.password import validate_password_strength
+
+        validate_password_strength(value)
+        return value
 
 
 class DeleteManagerRequest(BaseModel):
@@ -118,7 +125,7 @@ class ManagerGroupAccessResponse(BaseModel):
 class ManagerResponse(BaseModel):
     id: uuid.UUID
     full_name: str
-    email: EmailStr
+    email: str
     role: str
     agency_id: uuid.UUID | None
     is_active: bool
@@ -130,6 +137,40 @@ class ManagerResponse(BaseModel):
 
 class AssignManagerGroupsRequest(BaseModel):
     group_ids: list[uuid.UUID] = Field(default_factory=list)
+
+
+class ManagedAccountResponse(BaseModel):
+    id: uuid.UUID
+    full_name: str
+    email: str
+    role: str
+    agency_id: uuid.UUID | None
+    agency_name: str | None = None
+    is_active: bool
+    created_at: datetime
+    last_login_at: datetime | None = None
+
+
+class ResetManagedAccountPasswordRequest(BaseModel):
+    password: str = Field(..., min_length=10, max_length=128)
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        from app.core.security.password import validate_password_strength
+
+        validate_password_strength(value)
+        return value
+
+
+class SetManagedAccountStatusRequest(BaseModel):
+    is_active: bool
+
+
+class DeleteManagedAccountResponse(BaseModel):
+    account_id: uuid.UUID
+    result: str
+    preserved_history: bool
 
 
 class AnalyticsSummaryResponse(BaseModel):

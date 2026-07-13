@@ -8,6 +8,7 @@ from __future__ import annotations
 import uuid
 
 from app.application.dtos.passport_dtos import PassportGroupSummaryDTO
+from app.domain.entities.entities import User
 from app.domain.repositories.interfaces import IPassportSubmissionRepository
 
 
@@ -24,12 +25,14 @@ class ListPassportGroupSummariesUseCase:
         skip: int = 0,
         limit: int = 50,
         created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
     ) -> list[PassportGroupSummaryDTO]:
         summaries = await self._passport_repo.list_group_summaries_by_agency(
             agency_id,
             skip=skip,
             limit=limit,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         return [
@@ -46,6 +49,7 @@ class ListPassportGroupSummariesUseCase:
                 travel_date=summary.travel_date,
                 return_date=summary.return_date,
                 package_name=summary.package_name,
+                departure_cities=list(summary.departure_cities or []),
                 notes=summary.notes,
             )
             for summary in summaries

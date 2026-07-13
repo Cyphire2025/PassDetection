@@ -41,6 +41,7 @@ class CreateClientGroupUseCase:
             travel_date=dto.travel_date,
             return_date=dto.return_date,
             package_name=dto.package_name,
+            departure_cities=dto.departure_cities,
             notes=dto.notes,
         )
 

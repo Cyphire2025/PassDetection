@@ -20,19 +20,7 @@ export function useLogin() {
     mutationFn: (data: LoginFormData) => authApi.login(data),
 
     onSuccess: (session) => {
-      // Store in Zustand (persisted to localStorage)
-      setSession(session.user, session.tokens);
-
-      // Set a short-lived cookie so Next.js middleware can detect auth
-      // Note: In a future hardening step this becomes an httpOnly cookie set by the server
-      const secureFlag = window.location.protocol === "https:" ? "; Secure" : "";
-      document.cookie = [
-        `access_token=${encodeURIComponent(session.tokens.access_token)}`,
-        "Path=/",
-        "SameSite=Lax",
-        "Max-Age=1800",
-        secureFlag.replace("; ", ""),
-      ].filter(Boolean).join("; ");
+      setSession(session.user);
 
       const params = new URLSearchParams(window.location.search);
       const nextPath = getSafeNextPath(params.get("from"));

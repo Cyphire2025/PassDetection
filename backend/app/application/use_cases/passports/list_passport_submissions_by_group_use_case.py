@@ -8,6 +8,7 @@ from __future__ import annotations
 import uuid
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
+from app.domain.entities.entities import User
 from app.domain.repositories.interfaces import IPassportSubmissionRepository
 
 
@@ -27,6 +28,7 @@ class ListPassportSubmissionsByGroupUseCase:
         search: str | None = None,
         created_by_user_id: uuid.UUID | None = None,
         include_deleted_group: bool = False,
+        visible_to_user: User | None = None,
     ) -> list[PassportSubmissionOutputDTO]:
         submissions = await self._passport_repo.list_by_group(
             agency_id,
@@ -36,6 +38,7 @@ class ListPassportSubmissionsByGroupUseCase:
             search=search,
             exclude_archived_groups=not include_deleted_group,
             created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
         )
 
         return [
@@ -46,6 +49,16 @@ class ListPassportSubmissionsByGroupUseCase:
                 client_name=submission.client_name,
                 client_email=submission.client_email,
                 client_phone=submission.client_phone,
+                departure_city=submission.departure_city,
+            submission_mode=submission.submission_mode,
+            family_group_id=submission.family_group_id,
+            family_member_index=submission.family_member_index,
+            family_relation=submission.family_relation,
+            family_gender=submission.family_gender,
+            family_head_name=submission.family_head_name,
+            family_head_email=submission.family_head_email,
+            family_head_phone=submission.family_head_phone,
+            family_broadcast_to_member=submission.family_broadcast_to_member,
                 image_s3_key=submission.image_s3_key,
                 thumbnail_s3_key=submission.thumbnail_s3_key,
                 status=submission.status.value,

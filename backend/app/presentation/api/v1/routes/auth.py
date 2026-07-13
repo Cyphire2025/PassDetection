@@ -12,13 +12,14 @@ All business logic lives in use cases — routes only:
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.auth_dtos import LoginInputDTO, RefreshTokenInputDTO
 from app.application.use_cases.auth.get_me_use_case import GetMeUseCase
 from app.application.use_cases.auth.login_use_case import LoginUseCase
+from app.application.use_cases.auth.logout_all_use_case import LogoutAllUseCase
 from app.application.use_cases.auth.logout_use_case import LogoutUseCase
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
 from app.domain.entities.entities import User
@@ -32,6 +33,8 @@ from app.presentation.api.v1.schemas.auth_schemas import (
     UserResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_cookies
+from app.core.config.settings import get_settings
 
 router = APIRouter()
 
@@ -65,6 +68,14 @@ def _get_logout_use_case(
     )
 
 
+def _get_logout_all_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> LogoutAllUseCase:
+    return LogoutAllUseCase(
+        refresh_token_repository=RefreshTokenRepository(session),
+    )
+
+
 def _get_me_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> GetMeUseCase:
@@ -87,6 +98,7 @@ def _get_me_use_case(
 )
 async def login(
     request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     use_case: LoginUseCase = Depends(_get_login_use_case),
 ) -> AuthResponse:
@@ -101,10 +113,9 @@ async def login(
         dto=LoginInputDTO(email=form_data.username, password=form_data.password),
         client_ip=client_ip,
     )
+    set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(
         user=UserResponse.model_validate(result.user.__dict__),
-        access_token=result.access_token,
-        refresh_token=result.refresh_token,
         token_type=result.token_type,
         access_token_expires_at=result.access_token_expires_at,
     )
@@ -118,18 +129,22 @@ async def login(
 )
 async def refresh_token(
     request: Request,
-    body: RefreshTokenRequest,
+    response: Response,
+    body: RefreshTokenRequest | None = None,
     use_case: RefreshTokenUseCase = Depends(_get_refresh_use_case),
 ) -> AuthResponse:
     client_ip = request.client.host if request.client else None
+    refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
+    refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
+    if not refresh_value:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
     result = await use_case.execute(
-        dto=RefreshTokenInputDTO(refresh_token=body.refresh_token),
+        dto=RefreshTokenInputDTO(refresh_token=refresh_value),
         client_ip=client_ip,
     )
+    set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(
         user=UserResponse.model_validate(result.user.__dict__),
-        access_token=result.access_token,
-        refresh_token=result.refresh_token,
         token_type=result.token_type,
         access_token_expires_at=result.access_token_expires_at,
     )
@@ -142,13 +157,35 @@ async def refresh_token(
     summary="Invalidate refresh token",
 )
 async def logout(
-    body: LogoutRequest,
+    request: Request,
+    response: Response,
+    body: LogoutRequest | None = None,
     use_case: LogoutUseCase = Depends(_get_logout_use_case),
-    _current_user: User = Depends(get_current_active_user),
 ) -> Response:
-    await use_case.execute(refresh_token=body.refresh_token)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
+    refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
+    if refresh_value:
+        await use_case.execute(refresh_token=refresh_value)
+    clear_auth_cookies(response)
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response
 
+
+@router.post(
+    "/logout-all",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    summary="Invalidate all refresh sessions for the current user",
+)
+async def logout_all(
+    response: Response,
+    current_user: User = Depends(get_current_active_user),
+    use_case: LogoutAllUseCase = Depends(_get_logout_all_use_case),
+) -> Response:
+    await use_case.execute(current_user.id)
+    clear_auth_cookies(response)
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response
 
 
 @router.get(

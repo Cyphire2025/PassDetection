@@ -4,7 +4,7 @@
 
 This phase optimizes the existing attendance flow without changing the main user journey.
 
-- QR scan payloads are validated as `pdatt:{uuid}` before backend processing.
+- QR scan payloads are validated as `pdatt:{43-character URL-safe random token}` before backend processing.
 - Successful scan writes use database conflict handling instead of a separate duplicate lookup.
 - Duplicate scan races are handled by attendance record uniqueness constraints.
 - The scanner ignores non-attendance QR codes before updating scan state.

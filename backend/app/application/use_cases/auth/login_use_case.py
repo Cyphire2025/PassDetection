@@ -21,6 +21,7 @@ from app.core.security.jwt import create_access_token, create_refresh_token
 from app.core.security.password import verify_password
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.domain.repositories.interfaces import IUserRepository
+from app.infrastructure.security.login_attempt_limiter import LoginAttemptLimiter
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 
 logger = get_logger(__name__)
@@ -40,9 +41,11 @@ class LoginUseCase:
         self,
         user_repository: IUserRepository,
         refresh_token_repository: RefreshTokenRepository,
+        login_attempt_limiter: LoginAttemptLimiter | None = None,
     ) -> None:
         self._user_repo  = user_repository
         self._token_repo = refresh_token_repository
+        self._limiter = login_attempt_limiter or LoginAttemptLimiter()
 
     async def execute(
         self,
@@ -55,21 +58,28 @@ class LoginUseCase:
         Raises:
             AuthenticationError: If credentials are invalid or account is inactive.
         """
+        await self._limiter.check_allowed(email=dto.email, ip_address=client_ip)
+
         # 1. Fetch user
         user = await self._user_repo.get_by_email(dto.email)
         if not user:
             # Use the same error message to prevent user enumeration
+            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         # 2. Verify password
         if not verify_password(dto.password, user.hashed_password):
             logger.warning("login_failed_bad_password", email=dto.email)
+            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         # 3. Check active
         if not user.is_active:
             logger.warning("login_failed_inactive", user_id=str(user.id))
+            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Your account has been deactivated")
+
+        await self._limiter.record_success(email=dto.email, ip_address=client_ip)
 
         # 4. Record login
         user.record_login()

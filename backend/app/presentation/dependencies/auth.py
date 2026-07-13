@@ -29,6 +29,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.jwt import decode_access_token
+from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.domain.repositories.interfaces import IUserRepository
@@ -50,6 +51,7 @@ def get_user_repository(
 # ── Token Extraction ──────────────────────────────────────────────────────────
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     user_repo: IUserRepository = Depends(get_user_repository),
 ) -> User:
@@ -59,10 +61,11 @@ async def get_current_user(
     Raises:
         AuthenticationError: If token is missing, invalid, or user not found.
     """
-    if not credentials:
+    token = credentials.credentials if credentials else request.cookies.get(get_settings().jwt.access_cookie_name)
+    if not token:
         raise AuthenticationError("Authorization header missing")
 
-    payload = decode_access_token(credentials.credentials)
+    payload = decode_access_token(token)
 
     try:
         user_id = uuid.UUID(payload["sub"])

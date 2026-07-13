@@ -33,6 +33,18 @@ export function useExportPassportGroup() {
   });
 }
 
+export function useImportPassportGroup(groupId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file: File) => passportsApi.importGroup(groupId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
 export function useExportSelectedPassports() {
   return useMutation({
     mutationFn: (submissionIds: string[]) => passportsApi.exportSelectedPassports(submissionIds),

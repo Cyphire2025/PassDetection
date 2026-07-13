@@ -62,6 +62,47 @@ export function useAssignManagerGroups() {
   });
 }
 
+const MANAGED_ACCOUNTS_QUERY_KEY = ["operations", "managed-accounts"] as const;
+
+export function useManagedAccounts() {
+  return useQuery({
+    queryKey: MANAGED_ACCOUNTS_QUERY_KEY,
+    queryFn: operationsApi.managedAccounts,
+    retry: false,
+  });
+}
+
+export function useManagedAccountActions() {
+  const queryClient = useQueryClient();
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: MANAGED_ACCOUNTS_QUERY_KEY });
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourCoordinators });
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.managers });
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroups });
+  };
+
+  return {
+    resetPassword: useMutation({
+      mutationFn: ({ accountId, password }: { accountId: string; password: string }) =>
+        operationsApi.resetManagedAccountPassword(accountId, password),
+      onSuccess: refresh,
+    }),
+    revokeSessions: useMutation({
+      mutationFn: (accountId: string) => operationsApi.revokeManagedAccountSessions(accountId),
+      onSuccess: refresh,
+    }),
+    setStatus: useMutation({
+      mutationFn: ({ accountId, isActive }: { accountId: string; isActive: boolean }) =>
+        operationsApi.setManagedAccountStatus(accountId, isActive),
+      onSuccess: refresh,
+    }),
+    deleteAccount: useMutation({
+      mutationFn: (accountId: string) => operationsApi.deleteManagedAccount(accountId),
+      onSuccess: refresh,
+    }),
+  };
+}
+
 export function useAnalyticsSummary(days = 30) {
   return useQuery({
     queryKey: QUERY_KEYS.operations.analytics({ days }),
@@ -109,6 +150,81 @@ export function useTourGroups() {
     queryFn: operationsApi.tourGroups,
     retry: false,
   });
+}
+
+const roomingWorkspaceKey = (groupId: string) => ["operations", "rooming", groupId] as const;
+
+export function useRoomingWorkspace(groupId: string) {
+  return useQuery({
+    queryKey: roomingWorkspaceKey(groupId),
+    queryFn: () => operationsApi.roomingWorkspace(groupId),
+    retry: false,
+  });
+}
+
+export function useRoomingActions(groupId: string) {
+  const queryClient = useQueryClient();
+  const refresh = () => queryClient.invalidateQueries({ queryKey: roomingWorkspaceKey(groupId) });
+
+  return {
+    createHotel: useMutation({
+      mutationFn: (body: { hotel_name: string; city?: string; check_in_date?: string; check_out_date?: string }) =>
+        operationsApi.createRoomingHotel(groupId, body),
+      onSuccess: refresh,
+    }),
+    updateHotel: useMutation({
+      mutationFn: ({ hotelId, ...body }: {
+        hotelId: string;
+        hotel_name: string;
+        city?: string;
+        check_in_date?: string;
+        check_out_date?: string;
+        room_count?: number;
+      }) => operationsApi.updateRoomingHotel(hotelId, body),
+      onSuccess: refresh,
+    }),
+    generateRooms: useMutation({
+      mutationFn: ({ hotelId, ...body }: {
+        hotelId: string;
+        room_type: "single" | "twin" | "triple";
+        count: number;
+        starting_number?: number;
+        allocation_tag: "mixed" | "male" | "female" | "family" | "couple" | "vip";
+      }) => operationsApi.generateRoomingRooms(hotelId, body),
+      onSuccess: refresh,
+    }),
+    allocatePassenger: useMutation({
+      mutationFn: ({ hotelId, passengerId, ...body }: {
+        hotelId: string;
+        passengerId: string;
+        room_id: string | null;
+        allocation_tag: "unspecified" | "male" | "female" | "family" | "couple";
+        special_requests: Array<"smoking" | "wheelchair" | "vip" | "late_arrival">;
+        roommate_notes?: string | null;
+      }) => operationsApi.updateRoomingAllocation(hotelId, passengerId, body),
+      onSuccess: refresh,
+    }),
+    deleteRoom: useMutation({
+      mutationFn: operationsApi.deleteRoomingRoom,
+      onSuccess: refresh,
+    }),
+    updateRoom: useMutation({
+      mutationFn: ({ roomId, ...body }: {
+        roomId: string;
+        room_number: string;
+        room_type: "single" | "twin" | "triple";
+        allocation_tag: "mixed" | "male" | "female" | "family" | "couple" | "vip";
+        roommate_notes?: string | null;
+        is_saved: boolean;
+      }) => operationsApi.updateRoomingRoom(roomId, body),
+      onSuccess: refresh,
+    }),
+    orderRooms: useMutation({
+      mutationFn: ({ hotelId, roomIds }: { hotelId: string; roomIds: string[] }) =>
+        operationsApi.updateRoomingRoomOrder(hotelId, roomIds),
+      onSuccess: refresh,
+    }),
+  };
 }
 
 export function useAssignTourGroupCoordinators() {
@@ -172,6 +288,15 @@ export function useMyTourGroupPassengers(groupId: string | null, enabled = true)
   });
 }
 
+export function useMyTourGroupPassenger(groupId: string | null, passengerId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId ?? "none"), "mine", passengerId ?? "none"],
+    queryFn: () => operationsApi.myTourGroupPassenger(groupId as string, passengerId as string),
+    enabled: enabled && Boolean(groupId) && Boolean(passengerId),
+    retry: false,
+  });
+}
+
 export function useCreateMyAttendanceSession() {
   const queryClient = useQueryClient();
 
@@ -189,6 +314,15 @@ export function useMyAttendanceSessions(groupId: string | null, enabled = true) 
     queryKey: [...QUERY_KEYS.operations.tourGroupPassengers(groupId ?? "none"), "sessions"],
     queryFn: () => operationsApi.myAttendanceSessions(groupId as string),
     enabled: enabled && Boolean(groupId),
+    retry: false,
+  });
+}
+
+export function useMyAttendanceSessionDetails(sessionId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ["operations", "tour-operations", "coordinator", "sessions", sessionId ?? "none", "details"],
+    queryFn: () => operationsApi.myAttendanceSessionDetails(sessionId as string),
+    enabled: enabled && Boolean(sessionId),
     retry: false,
   });
 }
@@ -225,4 +359,38 @@ export function useGroupQrCodes(groupId: string) {
     queryFn: () => operationsApi.groupQrCodes(groupId),
     retry: false,
   });
+}
+
+export function usePassengerQrLifecycle(groupId: string) {
+  const queryClient = useQueryClient();
+  const refresh = () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroupQrCodes(groupId) });
+  const refreshPassenger = (passengerId: string) => {
+    void refresh();
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.detail(passengerId) });
+  };
+
+  return {
+    generate: useMutation({
+      mutationFn: (passengerId: string) => operationsApi.generatePassengerQr(groupId, passengerId),
+      onSuccess: (_data, passengerId) => refreshPassenger(passengerId),
+    }),
+    regenerate: useMutation({
+      mutationFn: (passengerId: string) => operationsApi.regeneratePassengerQr(groupId, passengerId),
+      onSuccess: (_data, passengerId) => refreshPassenger(passengerId),
+    }),
+    revoke: useMutation({
+      mutationFn: (passengerId: string) => operationsApi.revokePassengerQr(groupId, passengerId),
+      onSuccess: (_data, passengerId) => refreshPassenger(passengerId),
+    }),
+    setActive: useMutation({
+      mutationFn: ({ passengerId, isActive }: { passengerId: string; isActive: boolean }) =>
+        operationsApi.setPassengerQrActive(groupId, passengerId, isActive),
+      onSuccess: (_data, variables) => refreshPassenger(variables.passengerId),
+    }),
+    expire: useMutation({
+      mutationFn: (passengerId: string) =>
+        operationsApi.setPassengerQrExpiration(groupId, passengerId, new Date().toISOString()),
+      onSuccess: (_data, passengerId) => refreshPassenger(passengerId),
+    }),
+  };
 }

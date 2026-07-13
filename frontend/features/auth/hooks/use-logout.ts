@@ -1,7 +1,7 @@
 /**
- * useLogout — Logout mutation hook
- * ==================================
- * Calls the backend /auth/logout, clears local session, redirects to login.
+ * useLogout
+ * =========
+ * Revokes the backend httpOnly cookie session and clears local UI state.
  */
 
 "use client";
@@ -13,24 +13,19 @@ import { useAuthStore } from "@/stores/auth.store";
 import { ROUTES } from "@/constants/routes";
 
 export function useLogout() {
-  const router        = useRouter();
-  const clearSession  = useAuthStore((s) => s.clearSession);
-  const tokens        = useAuthStore((s) => s.tokens);
+  const router = useRouter();
+  const clearSession = useAuthStore((s) => s.clearSession);
 
   return useMutation({
     mutationFn: async () => {
-      if (tokens?.refresh_token) {
-        try {
-          await authApi.logout(tokens.refresh_token);
-        } catch {
-          // Best-effort — clear locally even if server call fails
-        }
+      try {
+        await authApi.logout();
+      } catch {
+        // Best-effort: clear locally even if the server call fails.
       }
     },
     onSettled: () => {
       clearSession();
-      // Remove the auth cookie
-      document.cookie = "access_token=; Max-Age=0; path=/";
       router.push(ROUTES.auth.login);
     },
   });

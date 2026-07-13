@@ -2,6 +2,11 @@ import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { PassportGroupSummary, PassportSubmission } from "@/types/passport.types";
 
+export interface PassportImportResult {
+  imported_count: number;
+  skipped_count: number;
+}
+
 export const passportsApi = {
   listGroups: async (): Promise<PassportGroupSummary[]> => {
     const { data } = await apiClient.get<PassportGroupSummary[]>(API_ENDPOINTS.passports.groups);
@@ -42,6 +47,15 @@ export const passportsApi = {
       responseType: "blob",
     });
     downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
+  },
+
+  importGroup: async (groupId: string, file: File): Promise<PassportImportResult> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await apiClient.post<PassportImportResult>(API_ENDPOINTS.passports.groupImport(groupId), formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
   },
 
   exportSelectedPassports: async (submissionIds: string[]): Promise<void> => {

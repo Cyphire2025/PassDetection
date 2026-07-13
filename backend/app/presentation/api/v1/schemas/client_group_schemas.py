@@ -7,7 +7,24 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def _normalize_departure_cities(values: list[str] | None) -> list[str]:
+    if not values:
+        return []
+    seen: set[str] = set()
+    cities: list[str] = []
+    for value in values:
+        city = " ".join(str(value).strip().split())
+        if not city:
+            continue
+        key = city.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        cities.append(city[:120])
+    return cities
 
 
 class CreateClientGroupRequest(BaseModel):
@@ -16,7 +33,13 @@ class CreateClientGroupRequest(BaseModel):
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = Field(default=None, max_length=255)
+    departure_cities: list[str] = Field(default_factory=list, max_length=50)
     notes: str | None = Field(default=None, max_length=2000)
+
+    @field_validator("departure_cities", mode="before")
+    @classmethod
+    def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
+        return _normalize_departure_cities(value)
 
 
 class UpdateClientGroupRequest(BaseModel):
@@ -25,7 +48,13 @@ class UpdateClientGroupRequest(BaseModel):
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = Field(default=None, max_length=255)
+    departure_cities: list[str] = Field(default_factory=list, max_length=50)
     notes: str | None = Field(default=None, max_length=2000)
+
+    @field_validator("departure_cities", mode="before")
+    @classmethod
+    def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
+        return _normalize_departure_cities(value)
 
 
 class ClientGroupResponse(BaseModel):
@@ -41,6 +70,7 @@ class ClientGroupResponse(BaseModel):
     travel_date: date | None = None
     return_date: date | None = None
     package_name: str | None = None
+    departure_cities: list[str] = Field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0

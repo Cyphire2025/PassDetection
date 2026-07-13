@@ -5,7 +5,7 @@
  * Redirects unauthenticated users away from protected routes.
  *
  * Protected routes: anything under /dashboard, /passports, /upload-links, /settings
- * Public routes:    /login, /forgot-password, /upload/[token]
+ * Public routes:    /login, /upload/[token]
  */
 
 import { type NextRequest, NextResponse } from "next/server";
@@ -17,7 +17,7 @@ const PROTECTED_PREFIXES = [
   "/settings",
 ];
 
-const AUTH_ROUTES = ["/login", "/forgot-password"];
+const AUTH_ROUTES = ["/login"];
 
 export function proxy(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;

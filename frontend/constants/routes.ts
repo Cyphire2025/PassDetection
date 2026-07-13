@@ -16,7 +16,6 @@ export const ROUTES = {
 
   auth: {
     login: "/login",
-    forgotPassword: "/forgot-password",
   },
 
   dashboard: {
@@ -25,6 +24,10 @@ export const ROUTES = {
     passportGroup: (groupId: string) => `/passports/groups/${groupId}`,
     passportDetail: (id: string) => `/passports/${id}`,
     uploadLinks: "/upload-links",
+    documents: "/documents",
+    documentRename: "/documents/rename",
+    documentDistribution: "/documents/distribution",
+    documentGroup: (groupId: string) => `/documents/distribution/${groupId}`,
     tourOperations: "/tour-operations",
     tourOperationsCoordinators: "/tour-operations/coordinators",
     tourOperationsGroupAssignments: "/tour-operations/group-assignments",
@@ -32,6 +35,8 @@ export const ROUTES = {
     tourOperationsGroupAttendance: (groupId: string) => `/tour-operations/groups/${groupId}/attendance`,
     tourOperationsGroupQrCodes: (groupId: string) => `/tour-operations/groups/${groupId}/qr-codes`,
     tourOperationsScannerProof: "/tour-operations/scanner-proof",
+    rooming: "/rooming",
+    roomingGroup: (groupId: string) => `/rooming/${groupId}`,
     admin: "/admin",
     analytics: "/analytics",
     auditLogs: "/audit-logs",
