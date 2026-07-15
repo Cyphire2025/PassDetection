@@ -28,6 +28,7 @@ from app.application.use_cases.passports.submit_passport_use_case import SubmitP
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError, PassDetectionError, EntityNotFoundError
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.ai import GeminiPassportVerificationService
 from app.infrastructure.database.models import ClientGroupModel, PassengerQRTokenModel, PassportSubmissionModel
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
@@ -246,6 +247,7 @@ def _get_submit_passport_use_case(
         storage_repo=MinioStorageRepository(),
         extraction_service=PassportExtractionService(),
         processing_job_repo=PassportProcessingJobRepository(session),
+        verification_service=GeminiPassportVerificationService(),
     )
 
 
@@ -308,6 +310,7 @@ def _get_retry_public_extraction_use_case(
         client_group_repo=ClientGroupRepository(session),
         storage_repo=MinioStorageRepository(),
         extraction_service=PassportExtractionService(),
+        verification_service=GeminiPassportVerificationService(),
     )
 
 
@@ -322,14 +325,14 @@ async def upload_passport(
     background_tasks: BackgroundTasks,
     client_name: str = Form(...),
     file: UploadFile = File(...),
-    passport_photo_file: UploadFile | None = File(None),
+    passport_photo_file: UploadFile = File(..., description="Required processed VISA selfie with a white background"),
     passport_back_file: UploadFile | None = File(None),
     use_case: SubmitPassportUseCase = Depends(_get_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     # 1. Read and validate file content using magic bytes + actual decoder.
     validated = await _validated_upload_file(file, label="passport front")
-    validated_photo = await _validated_upload_file(passport_photo_file, label="passport photo") if passport_photo_file else None
+    validated_photo = await _validated_upload_file(passport_photo_file, label="VISA selfie photo")
     validated_back = await _validated_upload_file(passport_back_file, label="passport back") if passport_back_file else None
 
     # 2. Execute use case
@@ -340,7 +343,7 @@ async def upload_passport(
             content_type=validated.content_type,
             filename=validated.filename,
             client_name=client_name,
-            passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename) if validated_photo else None,
+            passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename),
             passport_back=(validated_back.content, validated_back.content_type, validated_back.filename) if validated_back else None,
         )
         await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)

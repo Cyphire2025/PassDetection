@@ -25,6 +25,7 @@ import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-u
 import { uploadApi } from "../api/upload.api";
 import { normalizePassportFile } from "../services/passport-perspective-correction";
 import { SmartCamera } from "./smart-camera";
+import { VisaSelfieCamera } from "./visa-selfie-camera";
 
 interface UploadFlowProps {
   token: string;
@@ -36,6 +37,7 @@ type Step =
   | "NAME_INPUT"
   | "FAMILY_SETUP"
   | "METHOD_SELECT"
+  | "SELFIE_CAMERA"
   | "CAMERA"
   | "UPLOADING"
   | "REVIEW"
@@ -52,10 +54,10 @@ interface FamilyMember {
   phone: string;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
+  visaSelfie: File | null;
 }
 
 interface PassportDocumentBundle {
-  photo: File | null;
   front: File | null;
   back: File | null;
 }
@@ -100,9 +102,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
   const [isPreparingFile, setIsPreparingFile] = useState(false);
   const [isScanningAgain, setIsScanningAgain] = useState(false);
-  const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>({ photo: null, front: null, back: null });
+  const [visaSelfie, setVisaSelfie] = useState<File | null>(null);
+  const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>({ front: null, back: null });
   const departureCities = group?.departure_cities ?? [];
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
+  const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
+
+  const selectFamilyMember = (index: number) => {
+    setActiveFamilyIndex(index);
+    setDocumentBundle({ front: null, back: null });
+    setUploadError(null);
+  };
 
   const chooseMode = (mode: FlowMode) => {
     setFlowMode(mode);
@@ -165,34 +175,64 @@ export function UploadFlow({ token }: UploadFlowProps) {
     if (!headEmail.trim() && familyMembers[0]?.email.trim()) setHeadEmail(familyMembers[0].email.trim());
     if (!headPhone.trim() && familyMembers[0]?.phone.trim()) setHeadPhone(familyMembers[0].phone.trim());
     setUploadError(null);
-    setActiveFamilyIndex(familyMembers.findIndex((member) => !member.submission) === -1 ? 0 : familyMembers.findIndex((member) => !member.submission));
+    selectFamilyMember(familyMembers.findIndex((member) => !member.submission) === -1 ? 0 : familyMembers.findIndex((member) => !member.submission));
     setStep("METHOD_SELECT");
   };
 
   const handleBundleUpload = async () => {
+    if (!activeVisaSelfie) {
+      setUploadError("Take the required VISA selfie before uploading the passport.");
+      return;
+    }
     if (!documentBundle.front) {
       setUploadError("Upload the passport front page before continuing.");
       return;
     }
-    await processUpload(documentBundle.front, documentBundle.photo, documentBundle.back);
+    await processUpload(documentBundle.front, activeVisaSelfie, documentBundle.back);
   };
 
   const handleCameraCapture = async (file: File) => {
-    await processUpload(file);
+    if (!activeVisaSelfie) {
+      setUploadError("Take the required VISA selfie before scanning the passport.");
+      setStep("METHOD_SELECT");
+      return;
+    }
+    await processUpload(file, activeVisaSelfie);
   };
 
-  const processUpload = async (file: File, passportPhotoFile?: File | null, passportBackFile?: File | null) => {
+  const handleSelfieCapture = (file: File) => {
+    setUploadError(null);
+    if (flowMode === "family") {
+      setFamilyMembers((current) => current.map((member, index) => (
+        index === activeFamilyIndex ? { ...member, visaSelfie: file } : member
+      )));
+    } else {
+      setVisaSelfie(file);
+    }
+    setStep("METHOD_SELECT");
+  };
+
+  const processUpload = async (file: File, passportPhotoFile: File, passportBackFile?: File | null) => {
     const uploadName = flowMode === "family" ? activeFamilyMember?.name : clientName;
     if (!uploadName || uploadName.trim().length < 2) {
       setUploadError("Enter the passenger name before uploading.");
       return;
     }
+    const stageTimers: number[] = [];
     try {
       setUploadError(null);
       setIsPreparingFile(true);
       const normalized = await normalizePassportFile(file);
       setIsPreparingFile(false);
+      setProcessingProgress(null);
+      setProcessingStage("Extracting passport details from the passport image.");
       setStep("UPLOADING");
+      stageTimers.push(window.setTimeout(() => {
+        setProcessingStage("Verifying the extracted passport details against the image.");
+      }, 3_000));
+      stageTimers.push(window.setTimeout(() => {
+        setProcessingStage("This is taking a little longer due to higher traffic. Please keep this page open while verification completes.");
+      }, 15_000));
       const result = await uploadPassport({
         token,
         client_name: uploadName.trim(),
@@ -201,16 +241,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
         passportBackFile,
       });
       const completed = isExtractionComplete(result) ? result : await waitForExtraction(result);
-      setDocumentBundle({ photo: null, front: null, back: null });
+      setDocumentBundle({ front: null, back: null });
 
       if (flowMode === "family") {
         const fields = getInitialReviewFields(completed.extracted_fields);
         setFamilyMembers((current) => current.map((member, index) => (
-          index === activeFamilyIndex ? { ...member, submission: completed, reviewFields: fields } : member
+          index === activeFamilyIndex ? { ...member, submission: completed, reviewFields: fields, visaSelfie: null } : member
         )));
         const nextIndex = familyMembers.findIndex((member, index) => index !== activeFamilyIndex && !member.submission);
         if (nextIndex >= 0) {
-          setActiveFamilyIndex(nextIndex);
+          selectFamilyMember(nextIndex);
           setStep("METHOD_SELECT");
         } else {
           setStep("FAMILY_REVIEW");
@@ -219,6 +259,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       }
 
       setSubmission(completed);
+      setVisaSelfie(null);
       setReviewFields(getInitialReviewFields(completed.extracted_fields));
       setStep("REVIEW");
     } catch (error: unknown) {
@@ -227,6 +268,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setProcessingStage("Uploading securely");
       setUploadError(errorMessage(error, "Failed to upload file. Please try again."));
       setStep("METHOD_SELECT");
+    } finally {
+      stageTimers.forEach((timer) => window.clearTimeout(timer));
     }
   };
 
@@ -400,6 +443,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
     return <SmartCamera onCapture={handleCameraCapture} onCancel={() => setStep("METHOD_SELECT")} />;
   }
 
+  if (step === "SELFIE_CAMERA") {
+    return <VisaSelfieCamera onCapture={handleSelfieCapture} onCancel={() => setStep("METHOD_SELECT")} />;
+  }
+
   if (isPreparingFile) {
     return <ProcessingScreen title="Preparing Passport Image" description="Straightening the capture and optimizing it before secure upload." />;
   }
@@ -408,7 +455,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     return (
       <ProcessingScreen
         title="Processing Passport"
-        description={`${processingStage}. Reading the passport details so you can verify them before final submission.`}
+        description={processingStage}
         progress={processingProgress}
       />
     );
@@ -486,7 +533,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveFamilyIndex(index);
+                    selectFamilyMember(index);
                     setStep("METHOD_SELECT");
                   }}
                   className="inline-flex h-9 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-semibold text-blue-700"
@@ -500,7 +547,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     <div className="relative w-full">
                       {member.submission.passport_photo_url && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={member.submission.passport_photo_url} alt={`${member.name} passport photo`} className="block h-auto w-full border-b border-slate-200" />
+                        <img src={member.submission.passport_photo_url} alt={`${member.name} VISA selfie photo`} className="block h-auto w-full border-b border-slate-200" />
                       )}
                       <div className="relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -664,7 +711,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                           <button
                             key={member.localId}
                             type="button"
-                            onClick={() => setActiveFamilyIndex(index)}
+                            onClick={() => selectFamilyMember(index)}
                             className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition ${
                               isActive ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white hover:border-blue-200"
                             }`}
@@ -695,8 +742,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
                       <p className="mt-1 text-sm text-slate-500">Choose how you want to upload this member&apos;s passport.</p>
                     </div>
                     <div className="space-y-4">
-                      <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Take a Photo" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
-                      <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
+                      <VisaSelfieChoice
+                        file={activeVisaSelfie}
+                        onClick={() => setStep("SELFIE_CAMERA")}
+                      />
+                      <PassportUploadSection selfieReady={Boolean(activeVisaSelfie)}>
+                        <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
+                        <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
+                      </PassportUploadSection>
                     </div>
                   </section>
                 </div>
@@ -711,8 +764,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     </button>
                   </div>
                   <div className="space-y-4">
-                    <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Take a Photo" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
-                    <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
+                    <VisaSelfieChoice file={activeVisaSelfie} onClick={() => setStep("SELFIE_CAMERA")} />
+                    <PassportUploadSection selfieReady={Boolean(activeVisaSelfie)}>
+                      <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
+                      <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
+                    </PassportUploadSection>
                   </div>
                 </>
               )}
@@ -735,6 +791,7 @@ function createFamilyMember(index: number): FamilyMember {
     phone: "",
     submission: null,
     reviewFields: {},
+    visaSelfie: null,
   };
 }
 
@@ -769,6 +826,47 @@ function ChoiceCard({ icon, title, description, onClick }: { icon: ReactNode; ti
   );
 }
 
+function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () => void }) {
+  return (
+    <div className="relative">
+      <ChoiceCard
+        icon={file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
+        title={file ? "VISA selfie ready" : "Take Selfie Photo"}
+        description={file
+          ? "White-background selfie prepared. Tap to retake it."
+          : "Required for VISA processing. We will frame your face and replace the background with white."}
+        onClick={onClick}
+      />
+      <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>
+        {file ? "Completed" : "Required"}
+      </span>
+    </div>
+  );
+}
+
+function PassportUploadSection({ selfieReady, children }: { selfieReady: boolean; children: ReactNode }) {
+  return (
+    <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open={selfieReady}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 marker:hidden sm:p-5">
+        <div>
+          <h4 className="text-base font-bold text-slate-900">Passport</h4>
+          <p className="mt-1 text-sm text-slate-500">Scan the front page or upload passport files.</p>
+        </div>
+        <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
+      </summary>
+      <div className="border-t border-slate-100 p-4 pt-4 sm:p-5">
+        {selfieReady ? (
+          <div className="space-y-4">{children}</div>
+        ) : (
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-medium leading-6 text-blue-800">
+            Complete the required VISA selfie first to unlock passport scanning and file upload.
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function PassportDocumentBundlePanel({
   bundle,
   onChange,
@@ -790,11 +888,10 @@ function PassportDocumentBundlePanel({
         </div>
         <div className="min-w-0">
           <h4 className="text-base font-bold text-slate-900">Upload Files</h4>
-          <p className="mt-1 text-sm leading-5 text-slate-500">Add passport photo, front page, and back page.</p>
+          <p className="mt-1 text-sm leading-5 text-slate-500">Add the passport front page and optional back page.</p>
         </div>
       </div>
       <div className="grid gap-3">
-        <PassportDocumentFileInput label="Passport-size photo" file={bundle.photo} onChange={(file) => update("photo", file)} />
         <PassportDocumentFileInput label="Passport front page" file={bundle.front} onChange={(file) => update("front", file)} required />
         <PassportDocumentFileInput label="Passport back page" file={bundle.back} onChange={(file) => update("back", file)} />
       </div>
@@ -958,7 +1055,7 @@ function ReviewLayout({
               {photoImage && (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photoImage} alt="Uploaded passport-size photo" className="block h-auto w-full" />
+                  <img src={photoImage} alt="Uploaded VISA selfie photo" className="block h-auto w-full" />
                 </div>
               )}
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -1055,9 +1152,17 @@ function getInitialReviewFields(fields: ExtractedPassportFields | null) {
 }
 
 function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {
+  const verification = fields?.ai_verification;
+  const correctedFields = new Set(
+    verification && Array.isArray(verification.corrected_fields)
+      ? verification.corrected_fields.filter((field): field is string => typeof field === "string")
+      : [],
+  );
   return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {
     const value = fields?.[key];
-    if (!next[key]?.trim() && typeof value === "string" && value.trim()) next[key] = value;
+    if (typeof value === "string" && value.trim() && (correctedFields.has(key) || !next[key]?.trim())) {
+      next[key] = value;
+    }
     return next;
   }, { ...current });
 }
@@ -1088,7 +1193,17 @@ function sleep(delayMs: number) {
 }
 
 function stageLabel(stage: string) {
-  return stage.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  const labels: Record<string, string> = {
+    queued: "Your passport verification is queued and will begin shortly.",
+    retry_queued: "Your verification is queued safely while we handle higher traffic.",
+    starting: "Starting secure passport processing.",
+    downloading_image: "Preparing the passport image for extraction.",
+    extracting_passport_fields: "Extracting passport details from the passport image.",
+    verifying_passport_fields: "Verifying the extracted passport details against the image.",
+    saving_extraction_result: "Preparing the verified details for your review.",
+    completed: "Passport details are ready for review.",
+  };
+  return labels[stage] ?? stage.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function PassportRoiOverlays({ fields }: { fields: ExtractedPassportFields | null }) {

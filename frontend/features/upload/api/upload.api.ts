@@ -11,13 +11,13 @@ export const uploadApi = {
     token: string,
     client_name: string,
     file: File,
-    passportPhotoFile?: File | null,
+    passportPhotoFile: File,
     passportBackFile?: File | null,
   ): Promise<PassportSubmission> => {
     const formData = new FormData();
     formData.append("client_name", client_name);
     formData.append("file", file);
-    if (passportPhotoFile) formData.append("passport_photo_file", passportPhotoFile);
+    formData.append("passport_photo_file", passportPhotoFile);
     if (passportBackFile) formData.append("passport_back_file", passportBackFile);
 
     const response = await apiClient.post(

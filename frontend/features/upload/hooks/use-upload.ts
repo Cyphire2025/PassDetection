@@ -13,7 +13,7 @@ export function useUploadPassport() {
       token: string;
       client_name: string;
       file: File;
-      passportPhotoFile?: File | null;
+      passportPhotoFile: File;
       passportBackFile?: File | null;
     }) => uploadApi.uploadPassport(token, client_name, file, passportPhotoFile, passportBackFile),
   });

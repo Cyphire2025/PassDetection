@@ -14,7 +14,7 @@ import json
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, computed_field, field_validator
+from pydantic import Field, SecretStr, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -155,6 +155,12 @@ class Settings(BaseSettings):
     malware_scanner_port: int = Field(default=3310, ge=1, le=65535)
     malware_scanner_timeout_seconds: float = Field(default=2.0, ge=0.2, le=10.0)
     ocr_cache_ttl_seconds: int = Field(default=3600, ge=0)
+    google_api_key: SecretStr | None = Field(default=None, repr=False)
+    gemini_verification_enabled: bool = True
+    gemini_model: str = "gemini-3.5-flash"
+    gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
+    gemini_max_output_tokens: int = Field(default=512, ge=128, le=1024)
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_api_version: str = "v25.0"

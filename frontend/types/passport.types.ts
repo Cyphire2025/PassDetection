@@ -47,6 +47,14 @@ export interface ExtractedPassportFields {
     };
     [key: string]: unknown;
   }>;
+  ai_verification?: {
+    status?: string;
+    model?: string;
+    provider_status?: string | null;
+    corrected_fields?: string[];
+    filled_fields?: string[];
+    duration_ms?: number;
+  };
   [key: string]: unknown;  // allow validation metadata and country-specific fields
 }
 

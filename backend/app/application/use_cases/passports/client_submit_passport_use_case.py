@@ -56,6 +56,11 @@ class ClientSubmitPassportUseCase:
 
         if submission.group_id != group.id:
             raise ValidationError("This passport submission does not belong to this upload link.")
+        if not submission.passport_photo_s3_key:
+            raise ValidationError(
+                "A processed VISA selfie photo is required before final submission.",
+                field="passport_photo_file",
+            )
 
         normalized_mode = "family" if submission_mode == "family" else "single"
         normalized_email = client_email.lower().strip() if client_email and client_email.strip() else None

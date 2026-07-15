@@ -10,6 +10,8 @@ import mimetypes
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.interfaces.passport_extraction import IPassportExtractionService
+from app.application.interfaces.passport_verification import IPassportVerificationService
+from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportSubmission
@@ -17,6 +19,7 @@ from app.domain.exceptions.exceptions import (
     EntityNotFoundError,
     GroupClosedError,
     PassDetectionError,
+    ValidationError,
 )
 from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
@@ -40,6 +43,7 @@ class SubmitPassportUseCase:
         extraction_service: IPassportExtractionService | None = None,
         processing_job_repo: PassportProcessingJobRepository | None = None,
         back_extraction_service: PassportBackPageExtractionService | None = None,
+        verification_service: IPassportVerificationService | None = None,
     ) -> None:
         self._client_group_repo = client_group_repo
         self._passport_repo = passport_repo
@@ -47,6 +51,7 @@ class SubmitPassportUseCase:
         self._extraction_service = extraction_service
         self._processing_job_repo = processing_job_repo
         self._back_extraction_service = back_extraction_service or PassportBackPageExtractionService()
+        self._verification_service = verification_service
 
     async def execute(
         self,
@@ -58,6 +63,12 @@ class SubmitPassportUseCase:
         passport_photo: tuple[bytes, str, str] | None = None,
         passport_back: tuple[bytes, str, str] | None = None,
     ) -> PassportSubmissionOutputDTO:
+        if passport_photo is None:
+            raise ValidationError(
+                "A processed VISA selfie photo is required before the passport can be uploaded.",
+                field="passport_photo_file",
+            )
+
         # 1. Validate the link
         group = await self._client_group_repo.get_by_token(token)
         if not group:
@@ -118,7 +129,12 @@ class SubmitPassportUseCase:
                     filename=validated_filename(filename, s3_key),
                     content_type=content_type,
                 )
-                extracted_fields = dict(extraction.extracted_fields)
+                extracted_fields = await verify_passport_fields(
+                    self._verification_service,
+                    image_content=file_content,
+                    content_type=content_type,
+                    extracted_fields=extraction.extracted_fields,
+                )
                 if passport_back:
                     back_result = await self._back_extraction_service.extract(passport_back[0])
                     if back_result.fields.get("raw_text"):

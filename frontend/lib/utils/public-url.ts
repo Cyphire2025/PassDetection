@@ -8,19 +8,19 @@ export interface PassportUploadTarget {
 const DEFAULT_PUBLIC_APP_URL = "https://pass.cyphire.in";
 
 /**
- * Returns the externally shareable application URL.
- * Configure NEXT_PUBLIC_APP_URL for production deployments. Localhost and
- * private LAN origins are intentionally ignored for client-facing links.
+ * Returns the application's current public URL. In the browser, the active
+ * origin is authoritative: this keeps local links on localhost and deployed
+ * links on the domain that served the application.
  */
 export function getPublicAppUrl(): string {
+  const browserOrigin = getBrowserOrigin();
+  if (browserOrigin) {
+    return browserOrigin;
+  }
+
   const configuredUrl = normalizeOrigin(process.env.NEXT_PUBLIC_APP_URL);
   if (configuredUrl && isPublicOrigin(configuredUrl)) {
     return configuredUrl;
-  }
-
-  const browserOrigin = getBrowserOrigin();
-  if (browserOrigin && isPublicOrigin(browserOrigin)) {
-    return browserOrigin;
   }
 
   return DEFAULT_PUBLIC_APP_URL;

@@ -6,6 +6,8 @@ import uuid
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.interfaces.passport_extraction import IPassportExtractionService
+from app.application.interfaces.passport_verification import IPassportVerificationService
+from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import IClientGroupRepository, IObjectStorageRepository, IPassportSubmissionRepository
@@ -21,11 +23,13 @@ class RetryPublicPassportExtractionUseCase:
         client_group_repo: IClientGroupRepository,
         storage_repo: IObjectStorageRepository,
         extraction_service: IPassportExtractionService,
+        verification_service: IPassportVerificationService | None = None,
     ) -> None:
         self._passport_repo = passport_repo
         self._client_group_repo = client_group_repo
         self._storage_repo = storage_repo
         self._extraction_service = extraction_service
+        self._verification_service = verification_service
 
     async def execute(self, *, token: str, submission_id: uuid.UUID) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(token)
@@ -44,10 +48,16 @@ class RetryPublicPassportExtractionUseCase:
             filename=submission.image_s3_key.rsplit("/", 1)[-1],
             content_type="image/jpeg",
         )
+        verified_fields = await verify_passport_fields(
+            self._verification_service,
+            image_content=image,
+            content_type="image/jpeg",
+            extracted_fields=extraction.extracted_fields,
+        )
 
         merged_fields = self._merge_missing_fields(
             current=submission.extracted_fields or {},
-            refreshed=extraction.extracted_fields,
+            refreshed=verified_fields,
         )
         submission.mark_review_required(
             extracted_fields=merged_fields,
@@ -61,6 +71,16 @@ class RetryPublicPassportExtractionUseCase:
     @staticmethod
     def _merge_missing_fields(*, current: dict, refreshed: dict) -> dict:
         merged = dict(current)
+        verification = refreshed.get("ai_verification")
+        corrected_fields = {
+            field
+            for field in (
+                verification.get("corrected_fields", [])
+                if isinstance(verification, dict)
+                else []
+            )
+            if isinstance(field, str)
+        }
         validation_keys = {
             "field_validation",
             "extraction_sources",
@@ -68,9 +88,12 @@ class RetryPublicPassportExtractionUseCase:
             "corrected_mrz_text",
             "field_provenance",
             "processing_note",
+            "ai_verification",
         }
         for key, value in refreshed.items():
             if key in validation_keys:
+                merged[key] = value
+            elif key in corrected_fields and value:
                 merged[key] = value
             elif value and not merged.get(key):
                 merged[key] = value

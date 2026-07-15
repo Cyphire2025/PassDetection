@@ -232,7 +232,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 This will generate:
-                <div className="mt-2">1. Public link on pass.cyphire.in for clients on phones or browsers</div>
+                <div className="mt-2">1. An upload link for clients on phones or browsers</div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

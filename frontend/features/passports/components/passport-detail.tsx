@@ -74,7 +74,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="overflow-hidden rounded-3xl">
           <CardContent className="space-y-5 p-4">
-            <PassportImagePreview label="Passport-size photo" url={data.passport_photo_url} clientName={data.client_name} />
+            <PassportImagePreview label="VISA selfie photo" url={data.passport_photo_url} clientName={data.client_name} />
             <PassportImagePreview label="Passport front" url={data.image_url} clientName={data.client_name} />
             <PassportImagePreview label="Passport back" url={data.passport_back_url} clientName={data.client_name} />
           </CardContent>
