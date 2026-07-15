@@ -35,12 +35,18 @@ TICKET_TERMS = (
     "e-ticket",
     "itinerary",
     "pnr",
+    "booking no",
+    "booking confirmed",
     "booking reference",
+    "guest details",
     "flight",
+    "flight summary",
     "airline",
     "departure",
     "arrival",
     "boarding",
+    "checked baggage",
+    "carry-on baggage",
 )
 
 PASSPORT_TERMS = ("passport", "nationality", "place of birth", "date of expiry")
@@ -130,6 +136,41 @@ class DocumentMatcher:
         if best_score >= 0.82:
             return MatchResult(best_passenger.id, min(best_score, 0.96), "matched", best_reason)
         return MatchResult(best_passenger.id, best_score, "needs_review", best_reason)
+
+    def match_all(self, document: ClassifiedDocument, passengers: list[PassportSubmission]) -> list[MatchResult]:
+        """Return every passenger that appears in a combined document."""
+        haystack = self._normalize(f"{document.original_filename} {document.text}")
+        matches: list[MatchResult] = []
+        for passenger in passengers:
+            fields = passenger.confirmed_fields or passenger.extracted_fields or {}
+            passport_number = str(fields.get("passport_number") or "").strip()
+            if passport_number and self._normalize(passport_number) in haystack:
+                matches.append(MatchResult(passenger.id, 0.98, "matched", "Passport number matched in combined document"))
+                continue
+
+            best_score = 0.0
+            best_reason = "No passenger match found"
+            for name in self._candidate_names(passenger):
+                normalized_name = self._normalize(name)
+                if not normalized_name:
+                    continue
+                name_tokens = [token for token in normalized_name.split() if len(token) > 1]
+                token_hits = sum(1 for token in name_tokens if token in haystack)
+                token_score = token_hits / max(len(name_tokens), 1)
+                score = token_score * 0.86
+                if normalized_name in haystack:
+                    score = max(score, 0.94)
+                if score > best_score:
+                    best_score = score
+                    best_reason = f"Name found in combined document: {name}"
+
+            if best_score >= 0.82:
+                matches.append(MatchResult(passenger.id, min(best_score, 0.96), "matched", best_reason))
+            elif best_score >= 0.62:
+                matches.append(MatchResult(passenger.id, best_score, "needs_review", best_reason))
+        if matches:
+            return sorted(matches, key=lambda match: (-match.confidence, str(match.passenger_id)))
+        return [self.match(document, passengers)]
 
     def mark_duplicates(self, matches: list[MatchResult]) -> list[MatchResult]:
         best_by_passenger: dict[uuid.UUID, int] = {}

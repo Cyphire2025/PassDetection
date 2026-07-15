@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { AxiosError, isAxiosError } from "axios";
 import {
@@ -54,6 +54,12 @@ interface FamilyMember {
   reviewFields: Record<string, string>;
 }
 
+interface PassportDocumentBundle {
+  photo: File | null;
+  front: File | null;
+  back: File | null;
+}
+
 const REVIEW_FIELDS = [
   "surname",
   "given_names",
@@ -94,7 +100,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
   const [isPreparingFile, setIsPreparingFile] = useState(false);
   const [isScanningAgain, setIsScanningAgain] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>({ photo: null, front: null, back: null });
   const departureCities = group?.departure_cities ?? [];
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
 
@@ -163,17 +169,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep("METHOD_SELECT");
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files?.[0]) return;
-    await processUpload(event.target.files[0]);
-    event.target.value = "";
+  const handleBundleUpload = async () => {
+    if (!documentBundle.front) {
+      setUploadError("Upload the passport front page before continuing.");
+      return;
+    }
+    await processUpload(documentBundle.front, documentBundle.photo, documentBundle.back);
   };
 
   const handleCameraCapture = async (file: File) => {
     await processUpload(file);
   };
 
-  const processUpload = async (file: File) => {
+  const processUpload = async (file: File, passportPhotoFile?: File | null, passportBackFile?: File | null) => {
     const uploadName = flowMode === "family" ? activeFamilyMember?.name : clientName;
     if (!uploadName || uploadName.trim().length < 2) {
       setUploadError("Enter the passenger name before uploading.");
@@ -185,8 +193,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
       const normalized = await normalizePassportFile(file);
       setIsPreparingFile(false);
       setStep("UPLOADING");
-      const result = await uploadPassport({ token, client_name: uploadName.trim(), file: normalized.file });
+      const result = await uploadPassport({
+        token,
+        client_name: uploadName.trim(),
+        file: normalized.file,
+        passportPhotoFile,
+        passportBackFile,
+      });
       const completed = isExtractionComplete(result) ? result : await waitForExtraction(result);
+      setDocumentBundle({ photo: null, front: null, back: null });
 
       if (flowMode === "family") {
         const fields = getInitialReviewFields(completed.extracted_fields);
@@ -409,6 +424,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
         title="Verify Passport Details"
         description="Please check every field carefully before submitting."
         image={submission.image_url ? API_ENDPOINTS.passports.uploadImage(token, submission.id) : null}
+        photoImage={submission.passport_photo_url ?? null}
+        backImage={submission.passport_back_url ?? null}
         fields={submission.extracted_fields}
         onBack={handleBackToUploadMethods}
       >
@@ -481,13 +498,23 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                   {member.submission ? (
                     <div className="relative w-full">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={API_ENDPOINTS.passports.uploadImage(token, member.submission.id)}
-                        alt={`${member.name} passport`}
-                        className="block h-auto w-full"
-                      />
-                      <PassportRoiOverlays fields={member.submission.extracted_fields} />
+                      {member.submission.passport_photo_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={member.submission.passport_photo_url} alt={`${member.name} passport photo`} className="block h-auto w-full border-b border-slate-200" />
+                      )}
+                      <div className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={API_ENDPOINTS.passports.uploadImage(token, member.submission.id)}
+                          alt={`${member.name} passport front`}
+                          className="block h-auto w-full"
+                        />
+                        <PassportRoiOverlays fields={member.submission.extracted_fields} />
+                      </div>
+                      {member.submission.passport_back_url && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={member.submission.passport_back_url} alt={`${member.name} passport back`} className="block h-auto w-full border-t border-slate-200" />
+                      )}
                     </div>
                   ) : (
                     <div className="flex min-h-72 items-center justify-center text-sm text-slate-400">Passport preview unavailable</div>
@@ -669,8 +696,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     </div>
                     <div className="space-y-4">
                       <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Take a Photo" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
-                      <UploadFileButton onClick={() => fileInputRef.current?.click()} />
-                      <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                      <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
                     </div>
                   </section>
                 </div>
@@ -686,8 +712,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   </div>
                   <div className="space-y-4">
                     <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Take a Photo" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
-                    <UploadFileButton onClick={() => fileInputRef.current?.click()} />
-                    <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                    <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
                   </div>
                 </>
               )}
@@ -744,21 +769,67 @@ function ChoiceCard({ icon, title, description, onClick }: { icon: ReactNode; ti
   );
 }
 
-function UploadFileButton({ onClick }: { onClick: () => void }) {
+function PassportDocumentBundlePanel({
+  bundle,
+  onChange,
+  onUpload,
+}: {
+  bundle: PassportDocumentBundle;
+  onChange: (bundle: PassportDocumentBundle) => void;
+  onUpload: () => void;
+}) {
+  const update = (key: keyof PassportDocumentBundle, file: File | null) => {
+    onChange({ ...bundle, [key]: file });
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex w-full items-start gap-3 rounded-2xl border-2 border-slate-100 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.99] hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md sm:gap-4 sm:p-5"
-    >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition-colors group-hover:bg-blue-600 group-hover:text-white sm:h-12 sm:w-12">
-        <Upload className="h-6 w-6" />
+    <div className="rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4 flex items-start gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
+          <Upload className="h-6 w-6" />
+        </div>
+        <div className="min-w-0">
+          <h4 className="text-base font-bold text-slate-900">Upload Files</h4>
+          <p className="mt-1 text-sm leading-5 text-slate-500">Add passport photo, front page, and back page.</p>
+        </div>
       </div>
-      <div className="min-w-0">
-        <h4 className="text-base font-bold text-slate-900 transition-colors group-hover:text-blue-900">Upload File</h4>
-        <p className="mt-1 text-sm leading-5 text-slate-500">Choose an existing photo from your gallery.</p>
+      <div className="grid gap-3">
+        <PassportDocumentFileInput label="Passport-size photo" file={bundle.photo} onChange={(file) => update("photo", file)} />
+        <PassportDocumentFileInput label="Passport front page" file={bundle.front} onChange={(file) => update("front", file)} required />
+        <PassportDocumentFileInput label="Passport back page" file={bundle.back} onChange={(file) => update("back", file)} />
       </div>
-    </button>
+      <Button type="button" className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700" onClick={onUpload}>
+        Upload selected files
+      </Button>
+    </div>
+  );
+}
+
+function PassportDocumentFileInput({
+  label,
+  file,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  file: File | null;
+  onChange: (file: File | null) => void;
+  required?: boolean;
+}) {
+  return (
+    <label className="block rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <span className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold text-slate-700">
+        <span>{label}</span>
+        {required && <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Required</span>}
+      </span>
+      <input
+        type="file"
+        accept="image/*"
+        className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700"
+        onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+      />
+      {file && <span className="mt-2 block truncate text-xs font-medium text-emerald-700">{file.name}</span>}
+    </label>
   );
 }
 
@@ -851,7 +922,25 @@ function DepartureCitySelect({ value, cities, onChange, className = "" }: { valu
   );
 }
 
-function ReviewLayout({ title, description, image, fields, onBack, children }: { title: string; description: string; image: string | null; fields: ExtractedPassportFields | null; onBack: () => void; children: ReactNode }) {
+function ReviewLayout({
+  title,
+  description,
+  image,
+  photoImage,
+  backImage,
+  fields,
+  onBack,
+  children,
+}: {
+  title: string;
+  description: string;
+  image: string | null;
+  photoImage?: string | null;
+  backImage?: string | null;
+  fields: ExtractedPassportFields | null;
+  onBack: () => void;
+  children: ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 font-sans sm:py-10">
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
@@ -865,12 +954,26 @@ function ReviewLayout({ title, description, image, fields, onBack, children }: {
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </div>
           {image ? (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="relative w-full">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt="Uploaded passport" className="block h-auto w-full" />
-                <PassportRoiOverlays fields={fields} />
+            <div className="space-y-4">
+              {photoImage && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={photoImage} alt="Uploaded passport-size photo" className="block h-auto w-full" />
+                </div>
+              )}
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="relative w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image} alt="Uploaded passport front" className="block h-auto w-full" />
+                  <PassportRoiOverlays fields={fields} />
+                </div>
               </div>
+              {backImage && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={backImage} alt="Uploaded passport back" className="block h-auto w-full" />
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex h-80 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400">Passport preview unavailable</div>

@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import type React from "react";
 import { CalendarClock, Mail, Plus, User, UserPlus, UsersRound, X } from "lucide-react";
-import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
 import { PageHeader } from "@/components/shared/page-header";
 import {
   useCreateTourCoordinator,
@@ -216,9 +216,8 @@ function CreateCoordinatorDialog({
               onChange={(event) => onFormChange((current) => ({ ...current, email: event.target.value }))}
               required
             />
-            <Input
+            <PasswordInput
               label="Temporary password"
-              type="password"
               placeholder="Minimum 10 characters"
               value={form.password}
               onChange={(event) => onFormChange((current) => ({ ...current, password: event.target.value }))}

@@ -73,22 +73,10 @@ export function PassportDetail({ id }: PassportDetailProps) {
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="overflow-hidden rounded-3xl">
-          <CardContent className="p-0">
-            {data.image_url ? (
-              <div className="relative aspect-[4/3] min-h-[24rem] bg-slate-100">
-                <Image
-                  src={data.image_url}
-                  alt={`Passport submission from ${data.client_name}`}
-                  fill
-                  unoptimized
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div className="flex min-h-[24rem] items-center justify-center bg-slate-50 text-slate-400">
-                Preview unavailable
-              </div>
-            )}
+          <CardContent className="space-y-5 p-4">
+            <PassportImagePreview label="Passport-size photo" url={data.passport_photo_url} clientName={data.client_name} />
+            <PassportImagePreview label="Passport front" url={data.image_url} clientName={data.client_name} />
+            <PassportImagePreview label="Passport back" url={data.passport_back_url} clientName={data.client_name} />
           </CardContent>
         </Card>
 
@@ -150,6 +138,23 @@ export function PassportDetail({ id }: PassportDetailProps) {
   );
 }
 
+function PassportImagePreview({ label, url, clientName }: { label: string; url?: string | null; clientName: string }) {
+  return (
+    <section>
+      <h3 className="mb-2 text-sm font-semibold text-slate-700">{label}</h3>
+      {url ? (
+        <div className="relative aspect-[4/3] min-h-[15rem] overflow-hidden rounded-xl bg-slate-100">
+          <Image src={url} alt={`${label} for ${clientName}`} fill unoptimized className="object-contain" />
+        </div>
+      ) : (
+        <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-sm text-slate-400">
+          Not uploaded
+        </div>
+      )}
+    </section>
+  );
+}
+
 function formatQrStatus(status: string) {
   return status.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
 }
@@ -162,10 +167,12 @@ function qrStatusVariant(status?: string): "default" | "success" | "warning" | "
 }
 
 function needsReextraction(passport: {
+  image_s3_key?: string | null;
   status: string;
   extracted_fields: ExtractedPassportFields | null;
   overall_confidence: number | null;
 }) {
+  if (!passport.image_s3_key || passport.image_s3_key.startsWith("excel-imports/")) return false;
   return (
     passport.status === "failed" ||
     !getStringField(passport.extracted_fields ?? {}, "passport_number") ||

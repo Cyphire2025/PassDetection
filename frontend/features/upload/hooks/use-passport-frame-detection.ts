@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { detectPassportFrame } from "../services/passport-frame-detector";
 
-const ANALYSIS_INTERVAL_MS = 400;
-const REQUIRED_STABLE_FRAMES = 3;
+const ANALYSIS_INTERVAL_MS = 180;
+// A document must remain fully inside the guide for ~0.72 seconds before the
+// camera can advertise it as capture-ready. This avoids a false auto-click
+// while a hand, table edge, or partially-visible document crosses the guide.
+const REQUIRED_STABLE_FRAMES = 4;
 
 interface UsePassportFrameDetectionOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
@@ -28,7 +31,8 @@ export function usePassportFrameDetection({
     const interval = window.setInterval(() => {
       if (!videoRef.current || !canvasRef.current) return;
       const result = detectPassportFrame(videoRef.current, canvasRef.current);
-      stableFramesRef.current = result.isDetected
+      const reliablyDetected = result.isDetected && result.confidence >= 0.64;
+      stableFramesRef.current = reliablyDetected
         ? Math.min(REQUIRED_STABLE_FRAMES, stableFramesRef.current + 1)
         : Math.max(0, stableFramesRef.current - 1);
       setIsDetected(stableFramesRef.current >= REQUIRED_STABLE_FRAMES);

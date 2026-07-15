@@ -10,6 +10,7 @@ export type { ButtonProps } from "./button";
 
 export { Input } from "./input";
 export type { InputProps } from "./input";
+export { PasswordInput } from "./password-input";
 
 export {
   Card,

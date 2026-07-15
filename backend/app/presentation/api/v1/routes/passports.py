@@ -31,7 +31,9 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.database.models import ClientGroupModel, PassengerQRTokenModel, PassportSubmissionModel
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
+from app.infrastructure.imports.passport_document_importer import PassportDocumentFile, PassportDocumentImporter, RejectedPassportDocument
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
+from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -47,6 +49,9 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedGroupsRequest,
     ExportSelectedPassportsRequest,
     ImportPassportGroupResponse,
+    PassportDocumentImportItem,
+    PassportDocumentImportPreviewResponse,
+    PassportDocumentImportSaveResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
 )
@@ -72,10 +77,13 @@ async def _response_from_dto(
     *,
     session: AsyncSession,
 ) -> PassportSubmissionResponse:
-    image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
+    storage = MinioStorageRepository()
+    image_url = await storage.get_presigned_url(result.image_s3_key)
     payload = {
         **result.__dict__,
         "image_url": image_url,
+        "passport_photo_url": await storage.get_presigned_url(result.passport_photo_s3_key) if result.passport_photo_s3_key else None,
+        "passport_back_url": await storage.get_presigned_url(result.passport_back_s3_key) if result.passport_back_s3_key else None,
         "qr_status": await _passport_qr_status(session, result.id),
     }
     if not payload.get("processing_job_id"):
@@ -97,11 +105,14 @@ async def _response_from_submission(
     *,
     session: AsyncSession,
 ) -> PassportSubmissionResponse:  # type: ignore[no-untyped-def]
-    image_url = await MinioStorageRepository().get_presigned_url(submission.image_s3_key)
+    storage = MinioStorageRepository()
+    image_url = await storage.get_presigned_url(submission.image_s3_key)
     payload = {
         **submission.__dict__,
         "status": submission.status.value,
         "image_url": image_url,
+        "passport_photo_url": await storage.get_presigned_url(submission.passport_photo_s3_key) if submission.passport_photo_s3_key else None,
+        "passport_back_url": await storage.get_presigned_url(submission.passport_back_s3_key) if submission.passport_back_s3_key else None,
         "qr_status": await _passport_qr_status(session, submission.id),
     }
     job = await PassportProcessingJobRepository(session).latest_for_submission(submission.id)
@@ -208,6 +219,24 @@ async def _dispatch_processing_job(
         await session.commit()
 
 
+async def _validated_upload_file(file: UploadFile, *, label: str):
+    try:
+        content = await file.read()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to read {label} file content",
+        )
+    try:
+        return UploadValidator().validate(
+            content=content,
+            filename=file.filename,
+            declared_content_type=file.content_type,
+        )
+    except PassDetectionError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message)
+
+
 def _get_submit_passport_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> SubmitPassportUseCase:
@@ -293,23 +322,15 @@ async def upload_passport(
     background_tasks: BackgroundTasks,
     client_name: str = Form(...),
     file: UploadFile = File(...),
+    passport_photo_file: UploadFile | None = File(None),
+    passport_back_file: UploadFile | None = File(None),
     use_case: SubmitPassportUseCase = Depends(_get_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
-    
     # 1. Read and validate file content using magic bytes + actual decoder.
-    try:
-        content = await file.read()
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to read file content",
-        )
-    validated = UploadValidator().validate(
-        content=content,
-        filename=file.filename,
-        declared_content_type=file.content_type,
-    )
+    validated = await _validated_upload_file(file, label="passport front")
+    validated_photo = await _validated_upload_file(passport_photo_file, label="passport photo") if passport_photo_file else None
+    validated_back = await _validated_upload_file(passport_back_file, label="passport back") if passport_back_file else None
 
     # 2. Execute use case
     try:
@@ -319,6 +340,8 @@ async def upload_passport(
             content_type=validated.content_type,
             filename=validated.filename,
             client_name=client_name,
+            passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename) if validated_photo else None,
+            passport_back=(validated_back.content, validated_back.content_type, validated_back.filename) if validated_back else None,
         )
         await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)
         return await _response_from_dto(result, session=session)
@@ -419,7 +442,14 @@ async def discard_public_upload(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded")
 
     await MinioStorageRepository().delete_files(
-        [key for key in (submission.image_s3_key, submission.thumbnail_s3_key) if key]
+        [
+            key for key in (
+                submission.image_s3_key,
+                submission.thumbnail_s3_key,
+                submission.passport_photo_s3_key,
+                submission.passport_back_s3_key,
+            ) if key
+        ]
     )
     await submission_repo.delete(submission.id)
     return {"discarded": True}
@@ -602,9 +632,51 @@ async def import_passports_by_group(
     except Exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to read the Excel file")
 
+    result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group.id))
+    existing_submissions = list(result.scalars().all())
+    existing_by_staff_code = {
+        code: submission
+        for submission in existing_submissions
+        if (code := _staff_code_for_submission(submission))
+    }
+    existing_by_identity = {
+        _excel_identity_key(submission.client_name, submission.client_email, submission.client_phone): submission
+        for submission in existing_submissions
+    }
+
     now = datetime.now(tz=timezone.utc)
     models: list[PassportSubmissionModel] = []
+    updated_count = 0
+    seen_import_keys: set[str] = set()
     for row in rows:
+        row_staff_code = str((row.staff_metadata or {}).get("staff_code") or row.confirmed_fields.get("staff_code") or "").strip().upper()
+        row_identity = _excel_identity_key(row.client_name, row.client_email, row.client_phone)
+        import_key = row_staff_code or row_identity
+        if import_key in seen_import_keys:
+            continue
+        seen_import_keys.add(import_key)
+
+        existing = existing_by_staff_code.get(row_staff_code) if row_staff_code else existing_by_identity.get(row_identity)
+        if existing:
+            existing.client_name = row.client_name
+            existing.client_email = row.client_email
+            existing.client_phone = row.client_phone
+            existing.departure_city = row.departure_city
+            existing.staff_metadata = row.staff_metadata or existing.staff_metadata
+            existing.confirmed_fields = _merge_excel_fields(existing.confirmed_fields, row.confirmed_fields)
+            existing.extracted_fields = _merge_excel_fields(existing.extracted_fields, row.confirmed_fields)
+            existing.confidence_score = {
+                **(existing.confidence_score or {}),
+                "source": "excel_import",
+                "row_number": row.row_number,
+                "source_sheet": row.worksheet_name,
+                "updated_from_excel": True,
+            }
+            existing.overall_confidence = existing.overall_confidence if existing.overall_confidence is not None else (1.0 if row.confirmed_fields else None)
+            existing.updated_at = now
+            updated_count += 1
+            continue
+
         submission_id = uuid.uuid4()
         models.append(
             PassportSubmissionModel(
@@ -619,8 +691,9 @@ async def import_passports_by_group(
                 status="client_submitted",
                 confirmed_fields=row.confirmed_fields or None,
                 extracted_fields=row.confirmed_fields or None,
+                staff_metadata=row.staff_metadata or None,
                 overall_confidence=1.0 if row.confirmed_fields else None,
-                confidence_score={"source": "excel_import", "row_number": row.row_number},
+                confidence_score={"source": "excel_import", "row_number": row.row_number, "source_sheet": row.worksheet_name},
                 client_reviewed_at=now,
                 created_at=now,
                 updated_at=now,
@@ -629,6 +702,7 @@ async def import_passports_by_group(
 
     if models:
         session.add_all(models)
+    if models or updated_count:
         await AuditLogRepository(session).record(
             action="passport_group_imported",
             entity_type="client_group",
@@ -636,11 +710,328 @@ async def import_passports_by_group(
             agency_id=group.agency_id,
             user_id=current_user.id,
             actor_email=current_user.email,
-            metadata={"imported_count": len(models), "filename": file.filename},
+            metadata={"imported_count": len(models), "updated_count": updated_count, "filename": file.filename},
         )
         await session.commit()
 
-    return ImportPassportGroupResponse(imported_count=len(models), skipped_count=max(len(rows) - len(models), 0))
+    return ImportPassportGroupResponse(
+        imported_count=len(models),
+        updated_count=updated_count,
+        skipped_count=max(len(rows) - len(models) - updated_count, 0),
+    )
+
+
+def _excel_identity_key(name: str | None, email: str | None, phone: str | None) -> str:
+    parts = [name or "", email or "", phone or ""]
+    return "|".join(part.strip().casefold() for part in parts)
+
+
+def _merge_excel_fields(existing: dict | None, imported: dict) -> dict | None:
+    if not existing:
+        return imported or None
+    merged = dict(existing)
+    for key, value in imported.items():
+        if value not in (None, ""):
+            merged[key] = value
+    return merged
+
+
+def _staff_code_for_submission(submission: PassportSubmissionModel) -> str | None:
+    metadata = getattr(submission, "staff_metadata", None) or {}
+    fields = submission.confirmed_fields or submission.extracted_fields or {}
+    value = metadata.get("staff_code") or fields.get("staff_code")
+    return str(value).strip().upper() if value else None
+
+
+def _merge_back_extraction(fields: dict | None, back_fields: dict[str, object]) -> dict:
+    merged = dict(fields or {})
+    if back_fields.get("raw_text"):
+        merged["passport_back"] = back_fields
+    return merged
+
+
+async def _authorized_passport_document_group(
+    group_id: uuid.UUID, current_user: User, session: AsyncSession
+) -> ClientGroupModel:
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+    return group
+
+
+async def _passport_document_preview(
+    *, group_id: uuid.UUID, files: list[UploadFile], session: AsyncSession
+) -> tuple[PassportDocumentImportPreviewResponse, list[PassportDocumentFile]]:
+    result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group_id))
+    submissions = list(result.scalars().all())
+    by_staff_code = {code: submission for submission in submissions if (code := _staff_code_for_submission(submission))}
+    payloads: list[tuple[str, bytes, str | None]] = []
+    for file in files:
+        try:
+            payloads.append((file.filename or "upload", await file.read(), file.content_type))
+        except Exception:
+            payloads.append((file.filename or "upload", b"", file.content_type))
+    accepted, rejected = PassportDocumentImporter().collect(payloads, allowed_staff_codes=set(by_staff_code))
+    response_accepted: list[PassportDocumentImportItem] = []
+    matched: list[PassportDocumentFile] = []
+    seen: set[tuple[uuid.UUID, str]] = set()
+    for item in accepted:
+        submission = by_staff_code.get(item.staff_code)
+        if not submission:
+            rejected.append(RejectedPassportDocument(item.filename, "Staff code was not found in this group"))
+            continue
+        key = (submission.id, item.document_type)
+        if key in seen:
+            rejected.append(RejectedPassportDocument(item.filename, "Duplicate document type for this passenger"))
+            continue
+        seen.add(key)
+        matched.append(item)
+        response_accepted.append(PassportDocumentImportItem(
+            filename=item.filename, staff_code=item.staff_code, document_type=item.document_type,
+            passenger_id=submission.id, passenger_name=submission.client_name, accepted=True,
+        ))
+    response_rejected = [PassportDocumentImportItem(filename=item.filename, accepted=False, reason=item.reason) for item in rejected]
+    return PassportDocumentImportPreviewResponse(
+        group_id=group_id,
+        total_count=len(response_accepted) + len(response_rejected),
+        accepted_count=len(response_accepted), rejected_count=len(response_rejected),
+        accepted_documents=response_accepted, rejected_documents=response_rejected,
+    ), matched
+
+
+@router.post("/groups/{group_id}/import-passports/preview", response_model=PassportDocumentImportPreviewResponse)
+async def preview_passport_documents_by_group(
+    group_id: uuid.UUID,
+    files: list[UploadFile] = File(...),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportDocumentImportPreviewResponse:
+    await _authorized_passport_document_group(group_id, current_user, session)
+    if not files:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Choose one or more images or ZIP archives")
+    preview, _ = await _passport_document_preview(group_id=group_id, files=files, session=session)
+    return preview
+
+
+@router.post("/groups/{group_id}/import-passports/save", response_model=PassportDocumentImportSaveResponse)
+async def save_passport_documents_by_group(
+    group_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    files: list[UploadFile] = File(...),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportDocumentImportSaveResponse:
+    group = await _authorized_passport_document_group(group_id, current_user, session)
+    if not any((file.filename or "").lower().endswith(".zip") for file in files):
+        return await _save_loose_passport_documents_by_group(
+            group=group,
+            group_id=group_id,
+            files=files,
+            current_user=current_user,
+            session=session,
+            background_tasks=background_tasks,
+        )
+
+    preview, matched = await _passport_document_preview(group_id=group_id, files=files, session=session)
+    if not matched:
+        return PassportDocumentImportSaveResponse(**preview.model_dump(), saved_count=0)
+
+    result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group_id))
+    by_staff_code = {code: submission for submission in result.scalars().all() if (code := _staff_code_for_submission(submission))}
+    storage = MinioStorageRepository()
+    uploaded_keys: list[str] = []
+    replaced_keys: list[str] = []
+    try:
+        for item in matched:
+            submission = by_staff_code[item.staff_code]
+            attr = {"front": "image_s3_key", "photo": "passport_photo_s3_key", "back": "passport_back_s3_key"}[item.document_type]
+            old_key = getattr(submission, attr, None)
+            suffix = item.upload.filename.rsplit(".", 1)[-1]
+            key = f"passport-bulk/{group.agency_id}/{group.id}/{submission.id}/{item.document_type}.{suffix}"
+            await storage.upload_file(item.upload.content, key, item.upload.content_type)
+            uploaded_keys.append(key)
+            setattr(submission, attr, key)
+            if item.document_type == "back":
+                back_result = await PassportBackPageExtractionService().extract(item.upload.content)
+                merged_fields = _merge_back_extraction(submission.extracted_fields, back_result.fields)
+                submission.extracted_fields = merged_fields
+                if submission.confirmed_fields is None:
+                    submission.confirmed_fields = merged_fields
+            if old_key and not old_key.startswith("excel-imports/") and old_key != key:
+                replaced_keys.append(old_key)
+        await AuditLogRepository(session).record(
+            action="passport_documents_bulk_imported", entity_type="client_group", entity_id=str(group_id),
+            agency_id=group.agency_id, user_id=current_user.id, actor_email=current_user.email,
+            metadata={"saved_count": len(matched), "rejected_count": preview.rejected_count},
+        )
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        await storage.delete_files(uploaded_keys)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not save passport documents; no imported files were retained")
+    if replaced_keys:
+        await storage.delete_files(replaced_keys)
+    # OCR is only useful once the complete staff bundle is present. It enriches
+    # blanks through PassportSubmission.mark_review_required without replacing
+    # values imported from Excel.
+    ocr_targets = []
+    required_fields = ("passport_number", "surname", "given_names", "date_of_birth", "date_of_expiry")
+    for submission in {by_staff_code[item.staff_code].id: by_staff_code[item.staff_code] for item in matched}.values():
+        fields = submission.confirmed_fields or submission.extracted_fields or {}
+        has_all_images = bool(submission.image_s3_key) and bool(getattr(submission, "passport_photo_s3_key", None)) and bool(getattr(submission, "passport_back_s3_key", None))
+        if has_all_images and any(not str(fields.get(field, "")).strip() for field in required_fields):
+            ocr_targets.append(submission.id)
+    if ocr_targets:
+        reextract = ReextractPassportSubmissionUseCase(
+            passport_repo=PassportSubmissionRepository(session),
+            processing_job_repo=PassportProcessingJobRepository(session),
+        )
+        jobs = [await reextract.execute(submission_id) for submission_id in ocr_targets]
+        await session.commit()
+        for job in jobs:
+            if job.processing_job_id:
+                PassportProcessingDispatcher().dispatch(
+                    job_id=job.processing_job_id, submission_id=job.id, background_tasks=background_tasks,
+                )
+    return PassportDocumentImportSaveResponse(**preview.model_dump(), saved_count=len(matched))
+
+
+async def _save_loose_passport_documents_by_group(
+    *,
+    group: ClientGroupModel,
+    group_id: uuid.UUID,
+    files: list[UploadFile],
+    current_user: User,
+    session: AsyncSession,
+    background_tasks: BackgroundTasks,
+) -> PassportDocumentImportSaveResponse:
+    result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.group_id == group_id))
+    by_staff_code = {code: submission for submission in result.scalars().all() if (code := _staff_code_for_submission(submission))}
+    importer = PassportDocumentImporter()
+    storage = MinioStorageRepository()
+    uploaded_keys: list[str] = []
+    replaced_keys: list[str] = []
+    accepted_documents: list[PassportDocumentImportItem] = []
+    rejected_documents: list[PassportDocumentImportItem] = []
+    seen: set[tuple[uuid.UUID, str]] = set()
+    touched_submissions: dict[uuid.UUID, PassportSubmissionModel] = {}
+
+    try:
+        for file in files:
+            filename = file.filename or "upload"
+            accepted, rejected = importer.collect(
+                [(filename, await file.read(), file.content_type)],
+                allowed_staff_codes=set(by_staff_code),
+            )
+            rejected_documents.extend(PassportDocumentImportItem(filename=item.filename, accepted=False, reason=item.reason) for item in rejected)
+            for item in accepted:
+                submission = by_staff_code.get(item.staff_code)
+                if not submission:
+                    rejected_documents.append(PassportDocumentImportItem(filename=item.filename, accepted=False, reason="Staff code was not found in this group"))
+                    continue
+                duplicate_key = (submission.id, item.document_type)
+                if duplicate_key in seen:
+                    rejected_documents.append(PassportDocumentImportItem(filename=item.filename, accepted=False, reason="Duplicate document type for this passenger"))
+                    continue
+                seen.add(duplicate_key)
+
+                attr = {"front": "image_s3_key", "photo": "passport_photo_s3_key", "back": "passport_back_s3_key"}[item.document_type]
+                old_key = getattr(submission, attr, None)
+                suffix = item.upload.filename.rsplit(".", 1)[-1]
+                key = f"passport-bulk/{group.agency_id}/{group.id}/{submission.id}/{item.document_type}.{suffix}"
+                await storage.upload_file(item.upload.content, key, item.upload.content_type)
+                uploaded_keys.append(key)
+                setattr(submission, attr, key)
+                if item.document_type == "back":
+                    back_result = await PassportBackPageExtractionService().extract(item.upload.content)
+                    merged_fields = _merge_back_extraction(submission.extracted_fields, back_result.fields)
+                    submission.extracted_fields = merged_fields
+                    if submission.confirmed_fields is None:
+                        submission.confirmed_fields = merged_fields
+                submission.updated_at = datetime.now(tz=timezone.utc)
+                touched_submissions[submission.id] = submission
+                accepted_documents.append(PassportDocumentImportItem(
+                    filename=item.filename,
+                    staff_code=item.staff_code,
+                    document_type=item.document_type,
+                    passenger_id=submission.id,
+                    passenger_name=submission.client_name,
+                    accepted=True,
+                ))
+                if old_key and not old_key.startswith("excel-imports/") and old_key != key:
+                    replaced_keys.append(old_key)
+
+        if accepted_documents:
+            await AuditLogRepository(session).record(
+                action="passport_documents_bulk_imported",
+                entity_type="client_group",
+                entity_id=str(group_id),
+                agency_id=group.agency_id,
+                user_id=current_user.id,
+                actor_email=current_user.email,
+                metadata={"saved_count": len(accepted_documents), "rejected_count": len(rejected_documents), "streamed": True},
+            )
+            await session.commit()
+        else:
+            await session.rollback()
+    except Exception:
+        await session.rollback()
+        await storage.delete_files(uploaded_keys)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not save passport documents; no imported files were retained")
+
+    if replaced_keys:
+        await storage.delete_files(replaced_keys)
+
+    await _queue_ocr_for_complete_staff_bundles(
+        submissions=list(touched_submissions.values()),
+        session=session,
+        background_tasks=background_tasks,
+    )
+    return PassportDocumentImportSaveResponse(
+        group_id=group_id,
+        total_count=len(accepted_documents) + len(rejected_documents),
+        accepted_count=len(accepted_documents),
+        rejected_count=len(rejected_documents),
+        accepted_documents=accepted_documents,
+        rejected_documents=rejected_documents,
+        saved_count=len(accepted_documents),
+    )
+
+
+async def _queue_ocr_for_complete_staff_bundles(
+    *,
+    submissions: list[PassportSubmissionModel],
+    session: AsyncSession,
+    background_tasks: BackgroundTasks,
+) -> None:
+    required_fields = ("passport_number", "surname", "given_names", "date_of_birth", "date_of_expiry")
+    ocr_targets = []
+    for submission in submissions:
+        fields = submission.confirmed_fields or submission.extracted_fields or {}
+        has_all_images = bool(submission.image_s3_key) and bool(getattr(submission, "passport_photo_s3_key", None)) and bool(getattr(submission, "passport_back_s3_key", None))
+        if has_all_images and any(not str(fields.get(field, "")).strip() for field in required_fields):
+            ocr_targets.append(submission.id)
+    if not ocr_targets:
+        return
+    reextract = ReextractPassportSubmissionUseCase(
+        passport_repo=PassportSubmissionRepository(session),
+        processing_job_repo=PassportProcessingJobRepository(session),
+    )
+    jobs = [await reextract.execute(submission_id) for submission_id in ocr_targets]
+    await session.commit()
+    for job in jobs:
+        if job.processing_job_id:
+            PassportProcessingDispatcher().dispatch(
+                job_id=job.processing_job_id,
+                submission_id=job.id,
+                background_tasks=background_tasks,
+            )
 
 
 @router.post(
@@ -737,11 +1128,14 @@ async def get_passport(
         result = await use_case.execute(submission_id)
         await AuthorizationPolicy(session).require_view_passport(current_user, result)
 
-        image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
+        storage = MinioStorageRepository()
+        image_url = await storage.get_presigned_url(result.image_s3_key)
         return PassportSubmissionResponse.model_validate(
             {
                 **result.__dict__,
                 "image_url": image_url,
+                "passport_photo_url": await storage.get_presigned_url(result.passport_photo_s3_key) if result.passport_photo_s3_key else None,
+                "passport_back_url": await storage.get_presigned_url(result.passport_back_s3_key) if result.passport_back_s3_key else None,
                 "qr_status": await _passport_qr_status(session, result.id),
             }
         )
@@ -919,8 +1313,13 @@ async def confirm_passport(
             actor_email=current_user.email,
         )
         await _ensure_submission_qr(session, result.id, current_user.id)
-        image_url = await MinioStorageRepository().get_presigned_url(result.image_s3_key)
-        return PassportSubmissionResponse.model_validate({**result.__dict__, "image_url": image_url})
+        storage = MinioStorageRepository()
+        image_url = await storage.get_presigned_url(result.image_s3_key)
+        return PassportSubmissionResponse.model_validate({
+            **result.__dict__, "image_url": image_url,
+            "passport_photo_url": await storage.get_presigned_url(result.passport_photo_s3_key) if result.passport_photo_s3_key else None,
+            "passport_back_url": await storage.get_presigned_url(result.passport_back_s3_key) if result.passport_back_s3_key else None,
+        })
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except AuthorizationError as e:

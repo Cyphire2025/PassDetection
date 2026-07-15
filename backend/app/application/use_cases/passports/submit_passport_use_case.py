@@ -24,6 +24,7 @@ from app.domain.repositories.interfaces import (
     IClientGroupRepository,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
+from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 
 logger = get_logger(__name__)
 
@@ -38,15 +39,24 @@ class SubmitPassportUseCase:
         storage_repo: IObjectStorageRepository,
         extraction_service: IPassportExtractionService | None = None,
         processing_job_repo: PassportProcessingJobRepository | None = None,
+        back_extraction_service: PassportBackPageExtractionService | None = None,
     ) -> None:
         self._client_group_repo = client_group_repo
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
         self._extraction_service = extraction_service
         self._processing_job_repo = processing_job_repo
+        self._back_extraction_service = back_extraction_service or PassportBackPageExtractionService()
 
     async def execute(
-        self, token: str, file_content: bytes, content_type: str, filename: str, client_name: str
+        self,
+        token: str,
+        file_content: bytes,
+        content_type: str,
+        filename: str,
+        client_name: str,
+        passport_photo: tuple[bytes, str, str] | None = None,
+        passport_back: tuple[bytes, str, str] | None = None,
     ) -> PassportSubmissionOutputDTO:
         # 1. Validate the link
         group = await self._client_group_repo.get_by_token(token)
@@ -77,6 +87,21 @@ class SubmitPassportUseCase:
             client_email=None,
             image_s3_key=s3_key,
         )
+        for document_type, upload in (("photo", passport_photo), ("back", passport_back)):
+            if not upload:
+                continue
+            upload_content, upload_content_type, _upload_filename = upload
+            upload_ext = mimetypes.guess_extension(upload_content_type) or ".jpg"
+            upload_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}-{document_type}{upload_ext}"
+            await self._storage_repo.upload_file(
+                file_content=upload_content,
+                file_name=upload_key,
+                content_type=upload_content_type,
+            )
+            if document_type == "photo":
+                submission.promote_passport_photo(upload_key)
+            else:
+                submission.promote_passport_back(upload_key)
 
         # 4. Save submission and run the MRZ-only extraction inline. Public
         # uploads should not depend on Celery health for the review screen.
@@ -93,8 +118,13 @@ class SubmitPassportUseCase:
                     filename=validated_filename(filename, s3_key),
                     content_type=content_type,
                 )
+                extracted_fields = dict(extraction.extracted_fields)
+                if passport_back:
+                    back_result = await self._back_extraction_service.extract(passport_back[0])
+                    if back_result.fields.get("raw_text"):
+                        extracted_fields["passport_back"] = back_result.fields
                 submission.mark_review_required(
-                    extracted_fields=extraction.extracted_fields,
+                    extracted_fields=extracted_fields,
                     confidence=extraction.overall_confidence,
                     confidence_score=extraction.confidence_score,
                     mrz_raw=extraction.mrz_raw,
@@ -155,6 +185,8 @@ class SubmitPassportUseCase:
             family_broadcast_to_member=submission.family_broadcast_to_member,
             image_s3_key=submission.image_s3_key,
             thumbnail_s3_key=submission.thumbnail_s3_key,
+            passport_photo_s3_key=submission.passport_photo_s3_key,
+            passport_back_s3_key=submission.passport_back_s3_key,
             status=submission.status.value,
             created_at=submission.created_at,
             updated_at=submission.updated_at,

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog, TextInputDialog } from "@/components/ui";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { UploadLinkResponse } from "../api/upload-links.api";
 import {
   useDeleteUploadLink,
@@ -20,6 +21,8 @@ import {
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 
 export function UploadLinkList() {
+  const role = useAuthStore(selectUserRole);
+  const canPermanentlyDelete = role !== "agency_staff";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedLinkKey, setCopiedLinkKey] = useState<string | null>(null);
   const [copyError, setCopyError] = useState<string | null>(null);
@@ -141,6 +144,7 @@ export function UploadLinkList() {
             onPermanentDelete={(id) => {
               setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
             }}
+            canPermanentlyDelete={canPermanentlyDelete}
             isMutating={isRestoring || isRenaming || isPermanentlyDeleting}
             compact
           />
@@ -221,6 +225,7 @@ type UploadLinkTableProps = {
   onRestore?: (id: string) => void;
   onRename?: (link: UploadLinkResponse) => void;
   onPermanentDelete?: (id: string) => void;
+  canPermanentlyDelete?: boolean;
   isMutating?: boolean;
   compact?: boolean;
 };
@@ -234,6 +239,7 @@ function UploadLinkTable({
   onRestore,
   onRename,
   onPermanentDelete,
+  canPermanentlyDelete = true,
   isMutating = false,
   compact = false,
 }: UploadLinkTableProps) {
@@ -303,7 +309,7 @@ function UploadLinkTable({
                         <RotateCcw className="h-3.5 w-3.5" /> Restore
                       </Button>
                     )}
-                    {link.status === "archived" && onPermanentDelete && (
+                    {canPermanentlyDelete && link.status === "archived" && onPermanentDelete && (
                       <Button type="button" variant="danger" size="sm" onClick={() => onPermanentDelete(link.id)} disabled={isMutating}>
                         <Trash2 className="h-3.5 w-3.5" /> Delete
                       </Button>

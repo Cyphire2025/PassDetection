@@ -111,6 +111,7 @@ class ClientSubmitPassportUseCase:
         if not clean_fields:
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
 
+        draft_keys: list[str] = []
         draft_key = submission.image_s3_key
         if draft_key.startswith("drafts/"):
             suffix = PurePosixPath(draft_key).suffix or ".jpg"
@@ -118,6 +119,20 @@ class ClientSubmitPassportUseCase:
             image = await self._storage_repo.get_file(draft_key)
             await self._storage_repo.upload_file(image, permanent_key, self._content_type(suffix))
             submission.promote_image(permanent_key)
+            draft_keys.append(draft_key)
+
+        for document_type, current_key, promote in (
+            ("photo", submission.passport_photo_s3_key, submission.promote_passport_photo),
+            ("back", submission.passport_back_s3_key, submission.promote_passport_back),
+        ):
+            if not current_key or not current_key.startswith("drafts/"):
+                continue
+            suffix = PurePosixPath(current_key).suffix or ".jpg"
+            permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}-{document_type}{suffix}"
+            image = await self._storage_repo.get_file(current_key)
+            await self._storage_repo.upload_file(image, permanent_key, self._content_type(suffix))
+            promote(permanent_key)
+            draft_keys.append(current_key)
 
         submission.submit_client_review(
             clean_fields,
@@ -135,8 +150,8 @@ class ClientSubmitPassportUseCase:
             family_broadcast_to_member=bool(normalized_email or normalized_phone),
         )
         await self._passport_repo.update(submission)
-        if draft_key != submission.image_s3_key:
-            await self._storage_repo.delete_files([draft_key])
+        if draft_keys:
+            await self._storage_repo.delete_files(draft_keys)
 
         return PassportSubmissionOutputDTO(
             id=submission.id,
@@ -157,6 +172,8 @@ class ClientSubmitPassportUseCase:
             family_broadcast_to_member=submission.family_broadcast_to_member,
             image_s3_key=submission.image_s3_key,
             thumbnail_s3_key=submission.thumbnail_s3_key,
+            passport_photo_s3_key=submission.passport_photo_s3_key,
+            passport_back_s3_key=submission.passport_back_s3_key,
             status=submission.status.value,
             created_at=submission.created_at,
             updated_at=submission.updated_at,
@@ -196,4 +213,9 @@ class ClientSubmitPassportUseCase:
 
     @staticmethod
     def _content_type(suffix: str) -> str:
-        return "image/png" if suffix.lower() == ".png" else "image/jpeg"
+        suffix = suffix.lower()
+        if suffix == ".png":
+            return "image/png"
+        if suffix == ".webp":
+            return "image/webp"
+        return "image/jpeg"

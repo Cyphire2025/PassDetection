@@ -22,6 +22,8 @@ export interface VerifiedDistributedDocument {
   reason: string;
   matched_passenger_id: string | null;
   matched_passenger_name: string | null;
+  matched_passenger_ids: string[];
+  matched_passenger_names: string[];
   match_confidence: number;
   match_status: string | null;
   match_reason: string | null;

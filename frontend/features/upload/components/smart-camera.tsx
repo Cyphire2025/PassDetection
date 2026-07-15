@@ -31,7 +31,6 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
   const [isReady, setIsReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isProcessingCapture, setIsProcessingCapture] = useState(false);
-  const [wasPerspectiveCorrected, setWasPerspectiveCorrected] = useState(false);
   const [autoCaptureCountdown, setAutoCaptureCountdown] = useState<number | null>(null);
   const autoCaptureTimeoutRef = useRef<number | null>(null);
   const autoCaptureIntervalRef = useRef<number | null>(null);
@@ -74,7 +73,7 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
       : "bg-black/55 text-white/90";
 
   const guidanceMessage = isProcessingCapture
-    ? "Aligning passport edges"
+    ? "Saving the original camera image"
     : autoCaptureCountdown !== null && autoCaptureCountdown > 0
       ? `Hold steady - capturing in ${autoCaptureCountdown}`
     : !isPassportDetected
@@ -170,7 +169,10 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const crop = getVisibleGuideCrop(video, guideRef.current);
+    // Keep minimal context around every side of the guide.  This is
+    // intentional: the source photo remains Visa-ready and is never edge-fit
+    // or perspective-warped after capture.
+    const crop = addCaptureMargin(getVisibleGuideCrop(video, guideRef.current), video.videoWidth, video.videoHeight);
     const cropWidth = Math.max(1, Math.round(crop.width));
     const cropHeight = Math.max(1, Math.round(crop.height));
 
@@ -199,7 +201,6 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
         const normalized = await normalizePassportCanvasCapture(canvas);
         setCapturedFile(normalized.file);
         setCapturedImage(normalized.previewDataUrl);
-        setWasPerspectiveCorrected(normalized.corrected);
       } finally {
         setIsProcessingCapture(false);
       }
@@ -210,7 +211,6 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
     clearAutoCaptureTimers();
     setCapturedImage(null);
     setCapturedFile(null);
-    setWasPerspectiveCorrected(false);
     setAutoCaptureCountdown(null);
     setIsProcessingCapture(false);
 
@@ -371,11 +371,6 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
         <div className="flex min-h-28 items-center justify-center gap-8 bg-slate-950/85 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:min-h-32 sm:gap-10 sm:px-6 sm:py-6">
           {capturedImage ? (
             <div className="mx-auto flex w-full max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              {wasPerspectiveCorrected && (
-                <div className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-center text-xs font-medium text-emerald-100 sm:hidden">
-                  Edges aligned automatically
-                </div>
-              )}
               <Button
                 variant="outline"
                 size="lg"
@@ -470,6 +465,21 @@ function clampCrop(crop: CropBounds, maxWidth: number, maxHeight: number): CropB
     width: right - left,
     height: bottom - top,
   };
+}
+
+function addCaptureMargin(crop: CropBounds, maxWidth: number, maxHeight: number): CropBounds {
+  const horizontalMargin = crop.width * 0.02;
+  const verticalMargin = crop.height * 0.02;
+  return clampCrop(
+    {
+      left: crop.left - horizontalMargin,
+      top: crop.top - verticalMargin,
+      width: crop.width + horizontalMargin * 2,
+      height: crop.height + verticalMargin * 2,
+    },
+    maxWidth,
+    maxHeight,
+  );
 }
 
 interface QualityChipProps {

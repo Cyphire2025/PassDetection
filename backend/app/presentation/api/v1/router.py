@@ -23,6 +23,7 @@ from app.presentation.api.v1.routes.passports import router as passport_router
 from app.presentation.api.v1.routes.rooming import router as rooming_router
 from app.presentation.api.v1.routes.search import router as search_router
 from app.presentation.api.v1.routes.tour_operations import router as tour_operations_router
+from app.presentation.api.v1.routes.whatsapp import router as whatsapp_router
 
 api_v1_router = APIRouter()
 
@@ -41,3 +42,4 @@ api_v1_router.include_router(admin_accounts_router, prefix="/admin/accounts", ta
 api_v1_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 api_v1_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["Audit Logs"])
 api_v1_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_v1_router.include_router(whatsapp_router, prefix="/whatsapp", tags=["WhatsApp"])

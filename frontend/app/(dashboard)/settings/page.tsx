@@ -12,7 +12,9 @@ import { formatDateTime } from "@/lib/utils/format";
 const ROLE_LABELS: Record<string, string> = {
   super_admin: "Super Admin",
   agency_admin: "Agency Admin",
-  agency_staff: "Manager",
+  agency_manager: "Manager",
+  agency_staff: "Staff",
+  agency_coordinator: "Coordinator",
 };
 
 type PurgePassportDataResponse = {

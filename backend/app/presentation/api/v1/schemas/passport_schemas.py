@@ -40,7 +40,31 @@ class ExportSelectedGroupsRequest(BaseModel):
 
 class ImportPassportGroupResponse(BaseModel):
     imported_count: int
+    updated_count: int = 0
     skipped_count: int
+
+
+class PassportDocumentImportItem(BaseModel):
+    filename: str
+    staff_code: str | None = None
+    document_type: str | None = None
+    passenger_id: uuid.UUID | None = None
+    passenger_name: str | None = None
+    accepted: bool
+    reason: str | None = None
+
+
+class PassportDocumentImportPreviewResponse(BaseModel):
+    group_id: uuid.UUID
+    total_count: int
+    accepted_count: int
+    rejected_count: int
+    accepted_documents: list[PassportDocumentImportItem] = Field(default_factory=list)
+    rejected_documents: list[PassportDocumentImportItem] = Field(default_factory=list)
+
+
+class PassportDocumentImportSaveResponse(PassportDocumentImportPreviewResponse):
+    saved_count: int
 
 
 class PassengerQrStatusResponse(BaseModel):
@@ -70,6 +94,9 @@ class PassportSubmissionResponse(BaseModel):
     family_broadcast_to_member: bool = False
     image_s3_key: str
     thumbnail_s3_key: str | None = None
+    passport_photo_s3_key: str | None = None
+    passport_back_s3_key: str | None = None
+    staff_metadata: dict[str, str] | None = None
     status: str
     created_at: datetime
     updated_at: datetime
@@ -80,6 +107,8 @@ class PassportSubmissionResponse(BaseModel):
     mrz_raw: str | None = None
     error_message: str | None = None
     image_url: str | None = None
+    passport_photo_url: str | None = None
+    passport_back_url: str | None = None
     client_reviewed_at: datetime | None = None
     confirmed_at: datetime | None = None
     processing_job_id: uuid.UUID | None = None

@@ -61,6 +61,8 @@ class ListPassportSubmissionsByGroupUseCase:
             family_broadcast_to_member=submission.family_broadcast_to_member,
                 image_s3_key=submission.image_s3_key,
                 thumbnail_s3_key=submission.thumbnail_s3_key,
+                passport_photo_s3_key=submission.passport_photo_s3_key,
+                passport_back_s3_key=submission.passport_back_s3_key,
                 status=submission.status.value,
                 created_at=submission.created_at,
                 updated_at=submission.updated_at,

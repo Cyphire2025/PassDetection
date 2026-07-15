@@ -3,8 +3,19 @@ import { uploadApi } from "../api/upload.api";
 
 export function useUploadPassport() {
   return useMutation({
-    mutationFn: ({ token, client_name, file }: { token: string; client_name: string; file: File }) =>
-      uploadApi.uploadPassport(token, client_name, file),
+    mutationFn: ({
+      token,
+      client_name,
+      file,
+      passportPhotoFile,
+      passportBackFile,
+    }: {
+      token: string;
+      client_name: string;
+      file: File;
+      passportPhotoFile?: File | null;
+      passportBackFile?: File | null;
+    }) => uploadApi.uploadPassport(token, client_name, file, passportPhotoFile, passportBackFile),
   });
 }
 

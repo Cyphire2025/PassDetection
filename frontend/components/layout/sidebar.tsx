@@ -20,8 +20,10 @@ import {
   Database,
   CalendarCheck,
   UserCheck,
+  UserCog,
   BedDouble,
   SendToBack,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useUIStore, selectSidebarCollapsed } from "@/stores/ui.store";
@@ -39,21 +41,23 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  { label: "Dashboard",    href: ROUTES.dashboard.root,       icon: LayoutDashboard, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck, roles: ["agency_coordinator"] },
-  { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText, roles: ["super_admin", "agency_admin", "agency_staff"] },
-  { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2, roles: ["super_admin", "agency_admin", "agency_staff"] },
-  { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack, roles: ["super_admin", "agency_admin", "agency_staff"] },
-  { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_staff"] },
-  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, roles: ["super_admin", "agency_admin", "agency_staff"] },
+  { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "WhatsApp",     href: ROUTES.dashboard.whatsapp,    icon: MessageCircle, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_manager"] },
+  { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
   {
     label: "Tour Ops",
     href: ROUTES.dashboard.tourOperationsGroupAssignments,
     icon: CalendarCheck,
-    roles: ["super_admin", "agency_admin", "agency_staff"],
+    roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"],
     activePrefixes: [ROUTES.dashboard.tourOperationsGroupAssignments, "/tour-operations/groups"],
   },
   { label: "Manager",      href: ROUTES.dashboard.admin,       icon: Shield, roles: ["super_admin", "agency_admin"] },
+  { label: "Staff",        href: ROUTES.dashboard.staff,       icon: UserCog, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "Analytics",    href: ROUTES.dashboard.analytics,   icon: BarChart3, roles: ["super_admin", "agency_admin"] },
   { label: "Audit Logs",   href: ROUTES.dashboard.auditLogs,   icon: ClipboardList, roles: ["super_admin", "agency_admin"] },
   { label: "Old Data",     href: ROUTES.dashboard.oldData,     icon: Database, roles: ["super_admin"] },

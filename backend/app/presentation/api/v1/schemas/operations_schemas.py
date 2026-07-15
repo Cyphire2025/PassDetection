@@ -100,6 +100,10 @@ class CreateManagerRequest(BaseModel):
         return value
 
 
+class CreateStaffRequest(CreateManagerRequest):
+    pass
+
+
 class DeleteManagerRequest(BaseModel):
     delete_owned_data: bool = False
 

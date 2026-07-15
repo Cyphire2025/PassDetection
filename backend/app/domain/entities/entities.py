@@ -48,6 +48,7 @@ class UserRole(str, Enum):
     """Roles controlling access throughout the platform."""
     SUPER_ADMIN = "super_admin"
     AGENCY_ADMIN = "agency_admin"
+    AGENCY_MANAGER = "agency_manager"
     AGENCY_STAFF = "agency_staff"
     AGENCY_COORDINATOR = "agency_coordinator"
 
@@ -150,6 +151,7 @@ class User:
             return True
         return self.agency_id == agency_id and self.role in {
             UserRole.AGENCY_ADMIN,
+            UserRole.AGENCY_MANAGER,
             UserRole.AGENCY_STAFF,
         }
 
@@ -416,6 +418,9 @@ class PassportSubmission:
     family_broadcast_to_member: bool
     image_s3_key: str                          # Key in S3 bucket
     thumbnail_s3_key: str | None
+    passport_photo_s3_key: str | None
+    passport_back_s3_key: str | None
+    staff_metadata: dict | None
     status: PassportProcessingStatus
     extracted_fields: dict | None              # Raw extraction result
     confirmed_fields: dict | None              # Client-reviewed final data
@@ -456,6 +461,9 @@ class PassportSubmission:
             family_broadcast_to_member=False,
             image_s3_key=image_s3_key,
             thumbnail_s3_key=None,
+            passport_photo_s3_key=None,
+            passport_back_s3_key=None,
+            staff_metadata=None,
             status=PassportProcessingStatus.UPLOADED,
             extracted_fields=None,
             confirmed_fields=None,
@@ -476,8 +484,24 @@ class PassportSubmission:
         confidence_score: dict | None = None,
         mrz_raw: str | None = None,
     ) -> None:
-        self.status = PassportProcessingStatus.REVIEW_REQUIRED
+        # Excel imports are an authoritative source. OCR can enrich blank
+        # imported fields but must never replace them (or make an imported row
+        # disappear from normal group views while it is being reprocessed).
+        preserve_submitted_status = self.status in {
+            PassportProcessingStatus.CLIENT_SUBMITTED,
+            PassportProcessingStatus.CONFIRMED,
+        }
+        if not preserve_submitted_status:
+            self.status = PassportProcessingStatus.REVIEW_REQUIRED
         self.extracted_fields = extracted_fields
+        if self.confirmed_fields is not None:
+            merged_fields = dict(self.confirmed_fields)
+            for key, value in extracted_fields.items():
+                if key in {"field_validation", "field_provenance"}:
+                    continue
+                if not merged_fields.get(key) and value not in (None, ""):
+                    merged_fields[key] = value
+            self.confirmed_fields = merged_fields
         self.overall_confidence = confidence
         self.confidence_score = confidence_score
         self.mrz_raw = mrz_raw
@@ -525,6 +549,14 @@ class PassportSubmission:
 
     def promote_image(self, permanent_key: str) -> None:
         self.image_s3_key = permanent_key
+        self.updated_at = _utcnow()
+
+    def promote_passport_photo(self, permanent_key: str) -> None:
+        self.passport_photo_s3_key = permanent_key
+        self.updated_at = _utcnow()
+
+    def promote_passport_back(self, permanent_key: str) -> None:
+        self.passport_back_s3_key = permanent_key
         self.updated_at = _utcnow()
 
     def mark_failed(self, reason: str) -> None:

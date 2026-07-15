@@ -33,6 +33,8 @@ class PassportSubmissionOutputDTO:
     created_at: datetime
     updated_at: datetime
     thumbnail_s3_key: str | None = None
+    passport_photo_s3_key: str | None = None
+    passport_back_s3_key: str | None = None
     extracted_fields: dict | None = None
     confirmed_fields: dict | None = None
     overall_confidence: float | None = None

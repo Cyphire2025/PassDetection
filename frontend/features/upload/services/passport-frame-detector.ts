@@ -8,7 +8,7 @@ export interface FrameDetectionResult {
 
 const SAMPLE_WIDTH = 320;
 const SAMPLE_HEIGHT = 200;
-const EDGE_THRESHOLD = 42;
+const EDGE_THRESHOLD = 30;
 
 /**
  * Detects whether a document-shaped boundary is visible near the capture guide.
@@ -35,10 +35,38 @@ export function detectPassportFrame(
     gray[pixel] = Math.round(data[index] * 0.299 + data[index + 1] * 0.587 + data[index + 2] * 0.114);
   }
 
-  // The guide occupies the central 72% x 64% of the preview. A passport is
-  // considered present when strong gradients appear on at least three sides.
   const { left, right, top, bottom } = getPassportAnalysisBounds(SAMPLE_WIDTH, SAMPLE_HEIGHT);
-  const band = 8;
+  const guideHeight = bottom - top;
+  const band = 10;
+
+  const guideStats = (() => {
+    let samples = 0;
+    let brightPixels = 0;
+    let gradientPixels = 0;
+    let darkMrzPixels = 0;
+    let guideSum = 0;
+    const mrzTop = top + Math.round(guideHeight * 0.68);
+    for (let y = top; y <= bottom; y += 2) {
+      for (let x = left; x <= right; x += 2) {
+        const offset = y * SAMPLE_WIDTH + x;
+        const value = gray[offset];
+        guideSum += value;
+        if (value > 88) brightPixels += 1;
+        const gradient = Math.abs(gray[offset + 1] - gray[offset - 1])
+          + Math.abs(gray[offset + SAMPLE_WIDTH] - gray[offset - SAMPLE_WIDTH]);
+        if (gradient > EDGE_THRESHOLD) gradientPixels += 1;
+        if (y >= mrzTop && value < 118 && gradient > 18) darkMrzPixels += 1;
+        samples += 1;
+      }
+    }
+
+    return {
+      brightness: guideSum / Math.max(1, samples) / 255,
+      brightRatio: brightPixels / Math.max(1, samples),
+      textureRatio: gradientPixels / Math.max(1, samples),
+      mrzTextureRatio: darkMrzPixels / Math.max(1, samples),
+    };
+  })();
 
   const verticalScore = (center: number) => {
     let edges = 0;
@@ -66,8 +94,28 @@ export function detectPassportFrame(
     return edges / samples;
   };
 
-  const scores = [verticalScore(left), verticalScore(right), horizontalScore(top), horizontalScore(bottom)];
-  const visibleEdges = scores.filter((score) => score >= 0.035).length;
-  const confidence = Math.min(1, scores.reduce((sum, score) => sum + score, 0) / 0.22);
-  return { isDetected: visibleEdges >= 3, confidence, visibleEdges };
+  const boundaryScores = [verticalScore(left), verticalScore(right), horizontalScore(top), horizontalScore(bottom)];
+  const visibleEdges = boundaryScores.filter((score) => score >= 0.026).length;
+  const boundaryConfidence = Math.min(1, boundaryScores.reduce((sum, score) => sum + score, 0) / 0.12);
+  const fillConfidence = Math.min(1, guideStats.brightRatio / 0.7);
+  const textConfidence = Math.min(1, guideStats.textureRatio / 0.12);
+  const mrzConfidence = Math.min(1, guideStats.mrzTextureRatio / 0.022);
+  const exposureConfidence = guideStats.brightness > 0.32 && guideStats.brightness < 0.9 ? 1 : 0.5;
+  const confidence = Math.min(
+    1,
+    (fillConfidence * 0.34)
+      + (textConfidence * 0.28)
+      + (mrzConfidence * 0.26)
+      + (boundaryConfidence * 0.07)
+      + (exposureConfidence * 0.05),
+  );
+
+  return {
+    isDetected: guideStats.brightRatio >= 0.62
+      && guideStats.textureRatio >= 0.08
+      && guideStats.mrzTextureRatio >= 0.014
+      && confidence >= 0.68,
+    confidence,
+    visibleEdges,
+  };
 }

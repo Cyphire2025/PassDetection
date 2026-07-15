@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.infrastructure.ocr.correction import ICAOCorrectionEngine
-from app.infrastructure.ocr.detection import MRZRegionDetector
+from app.infrastructure.ocr.detection import MRZDetectionFailure, MRZDetectionResult, MRZRegionDetector
 from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
 from app.infrastructure.ocr.mrz import TD3MRZParser
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
@@ -94,6 +94,31 @@ class TD3MRZParserTests(unittest.TestCase):
         self.assertIsNotNone(sanitized)
         assert sanitized is not None
         self.assertTrue(sanitized.startswith("P<INDVASHISTHA<<SANTOSH"))
+
+    def test_stage1_uses_lower_page_fallback_when_cv_mrz_detection_is_uncertain(self) -> None:
+        class _UnavailableDetector:
+            def detect(self, _content: bytes) -> MRZDetectionResult:
+                return MRZDetectionResult(
+                    crop=None,
+                    bbox=None,
+                    score=0.0,
+                    elapsed_ms=1.0,
+                    candidate_count=0,
+                    failure=MRZDetectionFailure("no_mrz_candidate"),
+                )
+
+        source = io.BytesIO()
+        Image.new("RGB", (1000, 700), "white").save(source, format="JPEG")
+        extractor = Stage1MRZExtractor(
+            preprocessor=OCRImagePreprocessor(),
+            parser=TD3MRZParser(),
+            timeout_seconds=1.0,
+            detector=_UnavailableDetector(),  # type: ignore[arg-type]
+        )
+
+        crop = extractor._prepare_mrz_crop(source.getvalue())  # noqa: SLF001
+
+        self.assertEqual(crop.size, (1000, 308))
 
 
 class MRZRegionDetectorTests(unittest.TestCase):
