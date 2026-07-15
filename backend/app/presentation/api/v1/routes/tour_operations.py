@@ -103,6 +103,18 @@ def _require_agency(current_user: User) -> uuid.UUID:
     return current_user.agency_id
 
 
+def _agency_scope(current_user: User) -> uuid.UUID | None:
+    """Return the agency scope for office list views.
+
+    Super admins are intentionally allowed to have no agency. They should still
+    be able to open empty/new production dashboards without every agency-scoped
+    overview endpoint failing with 400.
+    """
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return current_user.agency_id
+    return _require_agency(current_user)
+
+
 @router.get(
     "/architecture",
     response_model=TourOperationsArchitectureResponse,
@@ -276,13 +288,15 @@ async def list_coordinators(
     current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[CoordinatorResponse]:
-    agency_id = _require_agency(current_user)
+    agency_id = _agency_scope(current_user)
+    filters = [
+        UserModel.role == UserRole.AGENCY_COORDINATOR.value,
+    ]
+    if agency_id is not None:
+        filters.append(UserModel.agency_id == agency_id)
     result = await session.execute(
         select(UserModel)
-        .where(
-            UserModel.agency_id == agency_id,
-            UserModel.role == UserRole.AGENCY_COORDINATOR.value,
-        )
+        .where(*filters)
         .order_by(UserModel.created_at.desc())
     )
     coordinators = list(result.scalars().all())
@@ -340,11 +354,12 @@ async def list_tour_operation_groups(
     current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[TourOperationsGroupResponse]:
-    agency_id = _require_agency(current_user)
+    agency_id = _agency_scope(current_user)
     filters = [
-        ClientGroupModel.agency_id == agency_id,
         ClientGroupModel.status != "deleted",
     ]
+    if agency_id is not None:
+        filters.append(ClientGroupModel.agency_id == agency_id)
 
     stmt = AuthorizationPolicy.apply_group_visibility_scope(select(ClientGroupModel).where(*filters), current_user)
     groups_result = await session.execute(stmt.order_by(ClientGroupModel.created_at.desc()))
