@@ -52,6 +52,12 @@ export const API_ENDPOINTS = {
     permanentDelete: (id: string) => `/api/v1/upload-links/${id}/permanent`,
   },
 
+  whatsapp: {
+    groups: "/api/v1/whatsapp/groups",
+    group: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}`,
+    send: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/send`,
+  },
+
   passports: {
     root: "/api/v1/passports",
     groups: "/api/v1/passports/groups",
@@ -59,6 +65,8 @@ export const API_ENDPOINTS = {
     groupDetail: (groupId: string) => `/api/v1/passports/groups/${groupId}`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
+    passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
+    passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
@@ -141,9 +149,12 @@ export const API_ENDPOINTS = {
     overview: "/api/v1/admin/overview",
     managers: "/api/v1/admin/managers",
     manager: (managerId: string) => `/api/v1/admin/managers/${managerId}`,
+    staffAccess: "/api/v1/admin/staff",
+    staffGroups: (staffId: string) => `/api/v1/admin/staff/${staffId}/groups`,
     groups: "/api/v1/admin/groups",
     managerGroups: (managerId: string) => `/api/v1/admin/managers/${managerId}/groups`,
     accounts: "/api/v1/admin/accounts",
+    staff: "/api/v1/admin/accounts/staff",
     account: (accountId: string) => `/api/v1/admin/accounts/${accountId}`,
     accountPassword: (accountId: string) => `/api/v1/admin/accounts/${accountId}/reset-password`,
     accountSessions: (accountId: string) => `/api/v1/admin/accounts/${accountId}/revoke-sessions`,

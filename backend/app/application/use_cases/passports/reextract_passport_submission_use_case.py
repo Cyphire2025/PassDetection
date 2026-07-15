@@ -11,7 +11,7 @@ from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.interfaces.passport_extraction import IPassportExtractionService
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.domain.exceptions.exceptions import EntityNotFoundError
+from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import IObjectStorageRepository, IPassportSubmissionRepository
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 
@@ -37,6 +37,8 @@ class ReextractPassportSubmissionUseCase:
         submission = await self._passport_repo.get_by_id(submission_id)
         if not submission:
             raise EntityNotFoundError("PassportSubmission", submission_id)
+        if not submission.image_s3_key or submission.image_s3_key.startswith("excel-imports/"):
+            raise ValidationError("Upload a passport front image before running re-extraction.", field="image_s3_key")
 
         submission.mark_processing()
         await self._passport_repo.update(submission)
@@ -77,6 +79,8 @@ class ReextractPassportSubmissionUseCase:
             family_broadcast_to_member=submission.family_broadcast_to_member,
             image_s3_key=submission.image_s3_key,
             thumbnail_s3_key=submission.thumbnail_s3_key,
+            passport_photo_s3_key=submission.passport_photo_s3_key,
+            passport_back_s3_key=submission.passport_back_s3_key,
             status=submission.status.value,
             created_at=submission.created_at,
             updated_at=submission.updated_at,

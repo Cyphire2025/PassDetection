@@ -1,28 +1,24 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Plus, ShieldCheck, UserPlus, Users, X } from "lucide-react";
+import { Plus, UserPlus, Users, X } from "lucide-react";
 import { PageHeader } from "@/components/shared";
-import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils/format";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
-  useAdminGroups,
-  useAssignManagerGroups,
   useCreateManager,
   useDeleteManager,
   useManagers,
 } from "@/features/operations/hooks/use-operations";
-import type { ManagerAccount, ManagerGroupAccess } from "@/features/operations/api/operations.api";
+import type { ManagerAccount } from "@/features/operations/api/operations.api";
 import { ManagedAccountControls } from "@/features/operations/components/managed-account-controls";
 
 export default function AdminPage() {
   const { data: managers = [], isLoading, error } = useManagers();
-  const { data: groups = [] } = useAdminGroups();
   const role = useAuthStore(selectUserRole);
   const canDeleteManagers = role === "super_admin";
   const createManager = useCreateManager();
-  const assignManagerGroups = useAssignManagerGroups();
   const deleteManager = useDeleteManager();
   const [form, setForm] = useState({ full_name: "", email: "", password: "" });
   const [formError, setFormError] = useState<string | null>(null);
@@ -51,7 +47,7 @@ export default function AdminPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Admin"
-        description="Create manager accounts and control who can work on group submissions."
+        description="Create manager accounts for operational access across groups."
         actions={(
           <Button type="button" onClick={() => setShowCreateDialog(true)}>
             <Plus className="h-4 w-4" aria-hidden="true" />
@@ -76,7 +72,7 @@ export default function AdminPage() {
                 </span>
                 <div className="min-w-0">
                   <h2 className="text-base font-semibold text-slate-900">Managers</h2>
-                  <p className="mt-0.5 text-sm text-slate-500">Managers automatically keep access to groups they create.</p>
+                  <p className="mt-0.5 text-sm text-slate-500">Managers can access operational modules across all agency groups.</p>
                 </div>
               </div>
               <Badge variant="secondary" className="px-3 py-1">{managers.length} total</Badge>
@@ -94,17 +90,15 @@ export default function AdminPage() {
               <div className="overflow-x-auto overflow-y-visible">
                 <table className="w-full min-w-[980px] table-fixed text-left text-sm">
                   <colgroup>
-                    <col className="w-[24%]" />
-                    <col className="w-[31%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[9%]" />
-                    <col className="w-[8%]" />
+                    <col className="w-[36%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[12%]" />
                   </colgroup>
                   <thead className="border-b border-slate-200 bg-slate-50/80 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                       <th className="px-6 py-3.5">Manager</th>
-                      <th className="px-5 py-3.5">Access</th>
                       <th className="px-5 py-3.5">Created</th>
                       <th className="px-5 py-3.5">Last login</th>
                       <th className="px-5 py-3.5">Status</th>
@@ -117,25 +111,6 @@ export default function AdminPage() {
                         <td className="px-6 py-4">
                           <div className="font-semibold text-slate-900">{manager.full_name}</div>
                           <div className="mt-1 truncate text-xs text-slate-500">{manager.email}</div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <ManagerAccessControl
-                            manager={manager}
-                            groups={groups}
-                            disabled={assignManagerGroups.isPending}
-                            onAssign={(groupId) => {
-                              const assignedIds = manager.assigned_groups.map((group) => group.id);
-                              assignManagerGroups.mutate({ managerId: manager.id, groupIds: [...assignedIds, groupId] });
-                            }}
-                            onRemove={(groupId) => {
-                              assignManagerGroups.mutate({
-                                managerId: manager.id,
-                                groupIds: manager.assigned_groups
-                                  .map((group) => group.id)
-                                  .filter((assignedId) => assignedId !== groupId),
-                              });
-                            }}
-                          />
                         </td>
                         <td className="whitespace-nowrap px-5 py-4 text-slate-600">{formatDateTime(manager.created_at)}</td>
                         <td className="whitespace-nowrap px-5 py-4 text-slate-600">
@@ -254,9 +229,8 @@ function CreateManagerDialog({
               onChange={(event) => onFormChange((current) => ({ ...current, email: event.target.value }))}
               required
             />
-            <Input
+            <PasswordInput
               label="Temporary password"
-              type="password"
               placeholder="Minimum 10 characters"
               value={form.password}
               onChange={(event) => onFormChange((current) => ({ ...current, password: event.target.value }))}
@@ -332,67 +306,6 @@ function DeleteManagerDialog({
           </Button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ManagerAccessControl({
-  manager,
-  groups,
-  disabled,
-  onAssign,
-  onRemove,
-}: {
-  manager: ManagerAccount;
-  groups: ManagerGroupAccess[];
-  disabled: boolean;
-  onAssign: (groupId: string) => void;
-  onRemove: (groupId: string) => void;
-}) {
-  const createdIds = new Set(manager.created_groups.map((group) => group.id));
-  const assignedIds = new Set(manager.assigned_groups.map((group) => group.id));
-  const assignableGroups = groups.filter((group) => !createdIds.has(group.id) && !assignedIds.has(group.id));
-
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          Own groups ({manager.created_groups.length})
-        </span>
-        {manager.assigned_groups.map((group) => (
-          <span
-            key={group.id}
-            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700"
-          >
-            {group.name}
-            <button
-              type="button"
-              className="rounded-full text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
-              aria-label={`Remove ${group.name} access`}
-              disabled={disabled}
-              onClick={() => onRemove(group.id)}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        ))}
-      </div>
-      <select
-        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
-        disabled={disabled || assignableGroups.length === 0}
-        value=""
-        onChange={(event) => {
-          if (event.target.value) onAssign(event.target.value);
-        }}
-      >
-        <option value="">{assignableGroups.length ? "Assign another group" : "No more groups to assign"}</option>
-        {assignableGroups.map((group) => (
-          <option key={group.id} value={group.id}>
-            {group.name}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

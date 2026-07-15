@@ -1,4 +1,4 @@
-const CACHE_NAME = "passdetection-tour-ops-v4";
+const CACHE_NAME = "passdetection-tour-ops-v5";
 const CORE_ASSETS = [
   "/coordinator",
   "/tour-scanner",
@@ -29,18 +29,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/api/")) return;
-  if (url.pathname.startsWith("/_next/static/")) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        const cached = await cache.match(event.request);
-        if (cached) return cached;
-        const response = await fetch(event.request);
-        if (response.ok) await cache.put(event.request, response.clone());
-        return response;
-      }),
-    );
-    return;
-  }
+  if (url.pathname.startsWith("/_next/static/")) return;
   if (url.pathname.startsWith("/_next/")) return;
   if (url.pathname === "/favicon.ico" || url.pathname.includes(".")) return;
 

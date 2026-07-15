@@ -73,7 +73,7 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
-        if user.role == UserRole.AGENCY_ADMIN:
+        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return True
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, group.id)
@@ -86,10 +86,10 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
-        if user.role == UserRole.AGENCY_ADMIN:
+        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return True
         if user.role == UserRole.AGENCY_STAFF:
-            return group.created_by_user_id == user.id
+            return await self.manager_can_access_group(user.id, group.id)
         return False
 
     async def can_view_passport(self, user: User, passport: Any) -> bool:
@@ -97,7 +97,7 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or passport.agency_id != user.agency_id:
             return False
-        if user.role == UserRole.AGENCY_ADMIN:
+        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return True
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, passport.group_id)
@@ -106,10 +106,10 @@ class AuthorizationPolicy:
         return False
 
     async def can_confirm_passport(self, user: User, passport: Any) -> bool:
-        return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_STAFF} and await self.can_view_passport(user, passport)
+        return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF} and await self.can_view_passport(user, passport)
 
     async def can_assign_coordinator(self, user: User, group: Any) -> bool:
-        if user.role not in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_STAFF}:
+        if user.role not in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF}:
             return False
         if user.role == UserRole.AGENCY_STAFF:
             return await self.can_view_group(user, group)
@@ -125,7 +125,7 @@ class AuthorizationPolicy:
         return await self.coordinator_has_passenger(user.id, session.group_id, passenger.id)
 
     async def can_export_data(self, user: User, group: Any) -> bool:
-        return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_STAFF} and await self.can_view_group(user, group)
+        return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF} and await self.can_view_group(user, group)
 
     async def can_delete_data(self, user: User, group: Any, *, permanent: bool = False) -> bool:
         if user.role == UserRole.SUPER_ADMIN:
@@ -133,11 +133,11 @@ class AuthorizationPolicy:
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
         if permanent:
-            return user.role == UserRole.AGENCY_ADMIN
-        if user.role == UserRole.AGENCY_ADMIN:
+            return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}
+        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return True
         if user.role == UserRole.AGENCY_STAFF:
-            return group.created_by_user_id == user.id
+            return await self.manager_can_access_group(user.id, group.id)
         return False
 
     async def require_view_group(self, user: User, group: Any) -> None:

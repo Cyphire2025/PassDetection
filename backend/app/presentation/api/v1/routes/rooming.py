@@ -52,7 +52,7 @@ from app.presentation.dependencies.auth import require_role
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_hash
 
 router = APIRouter()
-ROOMING_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_STAFF]
+ROOMING_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
 CHECKIN_ROLES = [*ROOMING_ROLES, UserRole.AGENCY_COORDINATOR]
 ROOMING_PASSENGER_STATUSES = ("client_submitted", "confirmed")
 
@@ -361,6 +361,18 @@ async def update_passenger_allocation(
         room = room_result.scalar_one_or_none()
         if not room:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room was not found for this hotel")
+        effective_passenger_tag = body.allocation_tag
+        if effective_passenger_tag == "unspecified":
+            effective_passenger_tag = _default_rooming_tag(passenger, _family_size(passenger, None))
+        if not _passenger_matches_room_allocation(
+            effective_passenger_tag,
+            body.special_requests,
+            room.allocation_tag,
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Passenger does not match this room's {room.allocation_tag} allocation",
+            )
         if assignment is None or assignment.room_id != room.id:
             occupancy = await _room_occupancy(session, room.id)
             if occupancy >= room.capacity:
@@ -757,6 +769,18 @@ def _default_rooming_tag(passenger: PassportSubmissionModel, family_size: int) -
     if sex in {"f", "female"}:
         return "female"
     return "unspecified"
+
+
+def _passenger_matches_room_allocation(
+    passenger_tag: str,
+    special_requests: list[str],
+    room_tag: str,
+) -> bool:
+    if room_tag == "mixed":
+        return True
+    if room_tag == "vip":
+        return "vip" in special_requests
+    return passenger_tag == room_tag
 
 
 def _family_group_label(passenger: PassportSubmissionModel, family_size: int) -> str | None:

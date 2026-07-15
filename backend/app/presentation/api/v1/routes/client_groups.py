@@ -181,7 +181,7 @@ async def revoke_client_group(
         result = await use_case.execute(
             link_id=link_id,
             agency_id=current_user.agency_id,
-            created_by_user_id=_owner_scope_for(current_user),
+            created_by_user_id=None,
         )
         return ClientGroupResponse.model_validate(result)
     except EntityNotFoundError as e:
@@ -272,7 +272,7 @@ async def delete_client_group(
         result = await use_case.execute(
             group_id=link_id,
             agency_id=current_user.agency_id,
-            created_by_user_id=_owner_scope_for(current_user),
+            created_by_user_id=None,
         )
         return ClientGroupResponse.model_validate(result)
     except EntityNotFoundError as e:
@@ -395,7 +395,7 @@ async def restore_client_group(
         result = await use_case.execute(
             group_id=link_id,
             agency_id=current_user.agency_id,
-            created_by_user_id=_owner_scope_for(current_user),
+            created_by_user_id=None,
             allow_deleted_restore=current_user.role == UserRole.SUPER_ADMIN,
         )
         return ClientGroupResponse.model_validate(result)

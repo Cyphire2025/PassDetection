@@ -4,8 +4,46 @@ import type { PassportGroupSummary, PassportSubmission } from "@/types/passport.
 
 export interface PassportImportResult {
   imported_count: number;
+  updated_count: number;
   skipped_count: number;
 }
+
+export interface PassportDocumentImportItem {
+  filename: string;
+  staff_code?: string | null;
+  document_type?: "photo" | "front" | "back" | null;
+  passenger_id?: string | null;
+  passenger_name?: string | null;
+  accepted: boolean;
+  reason?: string | null;
+}
+
+export interface PassportDocumentImportPreview {
+  group_id: string;
+  total_count: number;
+  accepted_count: number;
+  rejected_count: number;
+  accepted_documents: PassportDocumentImportItem[];
+  rejected_documents: PassportDocumentImportItem[];
+}
+
+export interface PassportDocumentImportProgress {
+  phase: "preparing" | "uploading" | "checking" | "saving";
+  loaded: number;
+  total: number;
+}
+
+export interface PassportDocumentImportRequest {
+  files: File[];
+  onProgress?: (progress: PassportDocumentImportProgress) => void;
+}
+
+export interface PassportDocumentImportChunkRequest extends PassportDocumentImportRequest {
+  maxChunkBytes?: number;
+  maxChunkFiles?: number;
+}
+
+export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
 
 export const passportsApi = {
   listGroups: async (): Promise<PassportGroupSummary[]> => {
@@ -58,6 +96,75 @@ export const passportsApi = {
     return data;
   },
 
+  previewPassportDocuments: async (groupId: string, request: PassportDocumentImportRequest): Promise<PassportDocumentImportPreview> => {
+    const formData = new FormData();
+    request.files.forEach((file) => formData.append("files", file));
+    const { data } = await apiClient.post<PassportDocumentImportPreview>(API_ENDPOINTS.passports.passportDocumentPreview(groupId), formData, {
+      headers: { "Content-Type": "multipart/form-data" }, timeout: 120_000,
+      onUploadProgress: (event) => {
+        request.onProgress?.({
+          phase: event.total && event.loaded < event.total ? "uploading" : "checking",
+          loaded: event.loaded,
+          total: event.total ?? request.files.reduce((sum, file) => sum + file.size, 0),
+        });
+      },
+    });
+    return data;
+  },
+
+  savePassportDocuments: async (groupId: string, request: PassportDocumentImportRequest): Promise<PassportDocumentImportSaveResult> => {
+    const formData = new FormData();
+    request.files.forEach((file) => formData.append("files", file));
+    const { data } = await apiClient.post<PassportDocumentImportSaveResult>(API_ENDPOINTS.passports.passportDocumentSave(groupId), formData, {
+      headers: { "Content-Type": "multipart/form-data" }, timeout: 180_000,
+      onUploadProgress: (event) => {
+        request.onProgress?.({
+          phase: event.total && event.loaded < event.total ? "uploading" : "saving",
+          loaded: event.loaded,
+          total: event.total ?? request.files.reduce((sum, file) => sum + file.size, 0),
+        });
+      },
+    });
+    return data;
+  },
+
+  savePassportDocumentsInChunks: async (groupId: string, request: PassportDocumentImportChunkRequest): Promise<PassportDocumentImportSaveResult> => {
+    const chunks = chunkFilesForUpload(request.files, request.maxChunkBytes ?? 15 * 1024 * 1024, request.maxChunkFiles ?? 50);
+    const totalBytes = request.files.reduce((sum, file) => sum + file.size, 0);
+    let completedBytes = 0;
+    const aggregate: PassportDocumentImportSaveResult = {
+      group_id: groupId,
+      total_count: 0,
+      accepted_count: 0,
+      rejected_count: 0,
+      saved_count: 0,
+      accepted_documents: [],
+      rejected_documents: [],
+    };
+
+    for (const chunk of chunks) {
+      const chunkBytes = chunk.reduce((sum, file) => sum + file.size, 0);
+      const result = await passportsApi.savePassportDocuments(groupId, {
+        files: chunk,
+        onProgress: (progress) => {
+          const loaded = completedBytes + Math.min(progress.loaded, chunkBytes);
+          request.onProgress?.({ phase: progress.phase, loaded, total: totalBytes });
+        },
+      });
+      completedBytes += chunkBytes;
+      request.onProgress?.({ phase: "saving", loaded: completedBytes, total: totalBytes });
+
+      aggregate.total_count += result.total_count;
+      aggregate.accepted_count += result.accepted_count;
+      aggregate.rejected_count += result.rejected_count;
+      aggregate.saved_count += result.saved_count;
+      aggregate.accepted_documents.push(...result.accepted_documents);
+      aggregate.rejected_documents.push(...result.rejected_documents);
+    }
+
+    return aggregate;
+  },
+
   exportSelectedPassports: async (submissionIds: string[]): Promise<void> => {
     const response = await apiClient.post<Blob>(
       API_ENDPOINTS.passports.selectedExport,
@@ -76,6 +183,27 @@ export const passportsApi = {
     downloadBlob(response.data, "selected-groups-passports.xlsx");
   },
 };
+
+function chunkFilesForUpload(files: File[], maxBytes: number, maxFiles: number) {
+  const chunks: File[][] = [];
+  let current: File[] = [];
+  let currentBytes = 0;
+
+  for (const file of files) {
+    const wouldExceedBytes = current.length > 0 && currentBytes + file.size > maxBytes;
+    const wouldExceedCount = current.length >= maxFiles;
+    if (wouldExceedBytes || wouldExceedCount) {
+      chunks.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(file);
+    currentBytes += file.size;
+  }
+
+  if (current.length > 0) chunks.push(current);
+  return chunks;
+}
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = window.URL.createObjectURL(blob);

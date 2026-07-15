@@ -38,6 +38,13 @@ def _ensure_allowed(current_user: User) -> uuid.UUID:
     return current_user.agency_id
 
 
+def _batch_filters(current_user: User, agency_id: uuid.UUID) -> list:
+    filters = [DocumentRenameBatchModel.agency_id == agency_id]
+    if current_user.role == UserRole.AGENCY_STAFF:
+        filters.append(DocumentRenameBatchModel.created_by_user_id == current_user.id)
+    return filters
+
+
 def _document_label(detected_type: str) -> str:
     if detected_type == "visa":
         return "VISA"
@@ -134,7 +141,7 @@ async def list_rename_batches(
     agency_id = _ensure_allowed(current_user)
     result = await session.execute(
         select(DocumentRenameBatchModel)
-        .where(DocumentRenameBatchModel.agency_id == agency_id)
+        .where(*_batch_filters(current_user, agency_id))
         .order_by(DocumentRenameBatchModel.created_at.desc())
         .limit(100)
     )
@@ -152,7 +159,7 @@ async def delete_rename_batches(
     batch_result = await session.execute(
         select(DocumentRenameBatchModel).where(
             DocumentRenameBatchModel.id.in_(batch_ids),
-            DocumentRenameBatchModel.agency_id == agency_id,
+            *_batch_filters(current_user, agency_id),
         )
     )
     batches = list(batch_result.scalars().all())
@@ -204,7 +211,7 @@ async def get_rename_batch(
     batch_result = await session.execute(
         select(DocumentRenameBatchModel).where(
             DocumentRenameBatchModel.id == batch_id,
-            DocumentRenameBatchModel.agency_id == agency_id,
+            *_batch_filters(current_user, agency_id),
         )
     )
     batch = batch_result.scalar_one_or_none()
@@ -313,9 +320,12 @@ async def download_renamed_document(
 ) -> Response:
     agency_id = _ensure_allowed(current_user)
     result = await session.execute(
-        select(DocumentRenameItemModel).where(
+        select(DocumentRenameItemModel)
+        .join(DocumentRenameBatchModel, DocumentRenameBatchModel.id == DocumentRenameItemModel.batch_id)
+        .where(
             DocumentRenameItemModel.id == item_id,
             DocumentRenameItemModel.agency_id == agency_id,
+            *_batch_filters(current_user, agency_id),
         )
     )
     item = result.scalar_one_or_none()
@@ -340,7 +350,7 @@ async def download_renamed_zip(
     batch_result = await session.execute(
         select(DocumentRenameBatchModel).where(
             DocumentRenameBatchModel.id == batch_id,
-            DocumentRenameBatchModel.agency_id == agency_id,
+            *_batch_filters(current_user, agency_id),
         )
     )
     batch = batch_result.scalar_one_or_none()

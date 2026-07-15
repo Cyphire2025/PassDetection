@@ -84,7 +84,12 @@ export interface PassportSubmission extends TimestampedEntity {
   family_broadcast_to_member?: boolean;
   image_s3_key: string;
   image_url?: string | null;
+  passport_photo_s3_key?: string | null;
+  passport_back_s3_key?: string | null;
+  passport_photo_url?: string | null;
+  passport_back_url?: string | null;
   thumbnail_s3_key: string | null;
+  staff_metadata?: Record<string, string> | null;
   status: PassportStatus;
   extracted_fields: ExtractedPassportFields | null;
   confirmed_fields: ExtractedPassportFields | null;

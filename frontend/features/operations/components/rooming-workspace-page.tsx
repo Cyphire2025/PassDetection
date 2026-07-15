@@ -49,6 +49,25 @@ const REQUESTS: Array<{ value: RoomingSpecialRequest; label: string }> = [
   { value: "late_arrival", label: "Late arrival" },
 ];
 
+function canAllocatePassengerToRoom(passenger: RoomingPassenger, room: RoomingRoom) {
+  if (room.allocation_tag === "mixed") return true;
+  if (room.allocation_tag === "vip") return passenger.special_requests.includes("vip");
+  return effectivePassengerAllocationTag(passenger) === room.allocation_tag;
+}
+
+function effectivePassengerAllocationTag(passenger: RoomingPassenger) {
+  if (passenger.allocation_tag !== "unspecified") return passenger.allocation_tag;
+  const gender = (passenger.family_gender ?? passenger.passport_sex ?? "").trim().toLowerCase();
+  if (gender === "m" || gender === "male") return "male";
+  if (gender === "f" || gender === "female") return "female";
+  return "unspecified";
+}
+
+function roomAllocationMessage(room: RoomingRoom) {
+  const label = ROOM_TAGS.find((tag) => tag.value === room.allocation_tag)?.label ?? room.allocation_tag;
+  return `Only ${label.toLowerCase()} passengers can be allocated to this room.`;
+}
+
 export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
   const { data, isLoading, error } = useRoomingWorkspace(groupId);
   const actions = useRoomingActions(groupId);
@@ -151,6 +170,7 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                   rooms={activeHotel.rooms}
                   pending={actions.allocatePassenger.isPending || actions.deleteRoom.isPending || actions.updateRoom.isPending}
                   onDropPassenger={(passenger, roomId) => void allocate(passenger, roomId)}
+                  onRejectDrop={setActionError}
                   onOpenPassenger={setSelectedPassenger}
                   onDeleteRoom={(room) => {
                     if (window.confirm(`Delete room ${room.room_number}? It must be empty.`)) actions.deleteRoom.mutate(room.id);
@@ -269,7 +289,7 @@ function groupRoomingPassengers(passengers: RoomingPassenger[]) {
   }));
 }
 
-function RoomBoard({ rooms, pending, onDropPassenger, onOpenPassenger, onDeleteRoom, onBulkDeleteRooms, onEditRoom, onSaveRoom, onReorder }: { rooms: RoomingRoom[]; pending: boolean; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDeleteRoom: (room: RoomingRoom) => void; onBulkDeleteRooms: (rooms: RoomingRoom[]) => Promise<void>; onEditRoom: (room: RoomingRoom) => void; onSaveRoom: (room: RoomingRoom) => void; onReorder: (roomIds: string[]) => void }) {
+function RoomBoard({ rooms, pending, onDropPassenger, onRejectDrop, onOpenPassenger, onDeleteRoom, onBulkDeleteRooms, onEditRoom, onSaveRoom, onReorder }: { rooms: RoomingRoom[]; pending: boolean; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onRejectDrop: (message: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDeleteRoom: (room: RoomingRoom) => void; onBulkDeleteRooms: (rooms: RoomingRoom[]) => Promise<void>; onEditRoom: (room: RoomingRoom) => void; onSaveRoom: (room: RoomingRoom) => void; onReorder: (roomIds: string[]) => void }) {
   const [selectedRoomIds, setSelectedRoomIds] = useState<string[]>([]);
   if (rooms.length === 0) return <Card><CardContent className="p-12 text-center"><BedDouble className="mx-auto h-9 w-9 text-slate-300" /><h2 className="mt-3 font-semibold text-slate-900">No rooms generated</h2><p className="mt-1 text-sm text-slate-500">Generate single, twin, or triple rooms to start allocation.</p></CardContent></Card>;
   const unsavedRooms = rooms.filter((room) => !room.is_saved);
@@ -282,10 +302,10 @@ function RoomBoard({ rooms, pending, onDropPassenger, onOpenPassenger, onDeleteR
     await onBulkDeleteRooms(selectedRooms);
     clearSelection();
   };
-  return <div className="space-y-7">{selectedRooms.length > 0 && <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"><span className="font-medium text-slate-700">{selectedRooms.length} room{selectedRooms.length === 1 ? "" : "s"} selected</span><div className="flex items-center gap-2"><Button type="button" size="sm" variant="secondary" onClick={selectAllRooms} disabled={pending || selectedRoomIds.length === rooms.length}>Select all</Button><Button type="button" size="sm" variant="secondary" onClick={clearSelection} disabled={pending}>Clear</Button><Button type="button" size="sm" variant="danger" onClick={() => void bulkDelete()} disabled={pending}>Delete selected</Button></div></div>}<RoomSection title="Rooms to save" description="Unsaved rooms stay at the top. Drag a room card to change its order." rooms={unsavedRooms} allRooms={rooms} pending={pending} selectionMode={selectedRoomIds.length > 0} selectedRoomIds={selectedRoomIds} onToggleRoomSelection={toggleRoomSelection} onDropPassenger={onDropPassenger} onOpenPassenger={onOpenPassenger} onDeleteRoom={onDeleteRoom} onEditRoom={onEditRoom} onSaveRoom={onSaveRoom} onReorder={onReorder} /><RoomSection title="Saved rooms" description="Saved room cards are kept below the active allocation work." rooms={savedRooms} allRooms={rooms} pending={pending} selectionMode={selectedRoomIds.length > 0} selectedRoomIds={selectedRoomIds} onToggleRoomSelection={toggleRoomSelection} onDropPassenger={onDropPassenger} onOpenPassenger={onOpenPassenger} onDeleteRoom={onDeleteRoom} onEditRoom={onEditRoom} onSaveRoom={onSaveRoom} onReorder={onReorder} /></div>;
+  return <div className="space-y-7">{selectedRooms.length > 0 && <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm"><span className="font-medium text-slate-700">{selectedRooms.length} room{selectedRooms.length === 1 ? "" : "s"} selected</span><div className="flex items-center gap-2"><Button type="button" size="sm" variant="secondary" onClick={selectAllRooms} disabled={pending || selectedRoomIds.length === rooms.length}>Select all</Button><Button type="button" size="sm" variant="secondary" onClick={clearSelection} disabled={pending}>Clear</Button><Button type="button" size="sm" variant="danger" onClick={() => void bulkDelete()} disabled={pending}>Delete selected</Button></div></div>}<RoomSection title="Rooms to save" description="Unsaved rooms stay at the top. Drag a room card to change its order." rooms={unsavedRooms} allRooms={rooms} pending={pending} selectionMode={selectedRoomIds.length > 0} selectedRoomIds={selectedRoomIds} onToggleRoomSelection={toggleRoomSelection} onDropPassenger={onDropPassenger} onRejectDrop={onRejectDrop} onOpenPassenger={onOpenPassenger} onDeleteRoom={onDeleteRoom} onEditRoom={onEditRoom} onSaveRoom={onSaveRoom} onReorder={onReorder} /><RoomSection title="Saved rooms" description="Saved room cards are kept below the active allocation work." rooms={savedRooms} allRooms={rooms} pending={pending} selectionMode={selectedRoomIds.length > 0} selectedRoomIds={selectedRoomIds} onToggleRoomSelection={toggleRoomSelection} onDropPassenger={onDropPassenger} onRejectDrop={onRejectDrop} onOpenPassenger={onOpenPassenger} onDeleteRoom={onDeleteRoom} onEditRoom={onEditRoom} onSaveRoom={onSaveRoom} onReorder={onReorder} /></div>;
 }
 
-function RoomSection({ title, description, rooms, allRooms, pending, selectionMode, selectedRoomIds, onToggleRoomSelection, onDropPassenger, onOpenPassenger, onDeleteRoom, onEditRoom, onSaveRoom, onReorder }: { title: string; description: string; rooms: RoomingRoom[]; allRooms: RoomingRoom[]; pending: boolean; selectionMode: boolean; selectedRoomIds: string[]; onToggleRoomSelection: (room: RoomingRoom) => void; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDeleteRoom: (room: RoomingRoom) => void; onEditRoom: (room: RoomingRoom) => void; onSaveRoom: (room: RoomingRoom) => void; onReorder: (roomIds: string[]) => void }) {
+function RoomSection({ title, description, rooms, allRooms, pending, selectionMode, selectedRoomIds, onToggleRoomSelection, onDropPassenger, onRejectDrop, onOpenPassenger, onDeleteRoom, onEditRoom, onSaveRoom, onReorder }: { title: string; description: string; rooms: RoomingRoom[]; allRooms: RoomingRoom[]; pending: boolean; selectionMode: boolean; selectedRoomIds: string[]; onToggleRoomSelection: (room: RoomingRoom) => void; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onRejectDrop: (message: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDeleteRoom: (room: RoomingRoom) => void; onEditRoom: (room: RoomingRoom) => void; onSaveRoom: (room: RoomingRoom) => void; onReorder: (roomIds: string[]) => void }) {
   const [draggedRoomId, setDraggedRoomId] = useState<string | null>(null);
   const moveRoom = (targetRoomId: string) => {
     if (!draggedRoomId || draggedRoomId === targetRoomId) return;
@@ -298,10 +318,10 @@ function RoomSection({ title, description, rooms, allRooms, pending, selectionMo
     const otherRooms = allRooms.filter((room) => room.is_saved !== source.is_saved);
     onReorder([...(!source.is_saved ? moved : otherRooms), ...(source.is_saved ? moved : otherRooms)].map((room) => room.id));
   };
-  return <section><div className="mb-3"><h2 className="font-semibold text-slate-900">{title} <span className="text-sm font-medium text-slate-400">({rooms.length})</span></h2><p className="mt-1 text-sm text-slate-500">{description}</p></div>{rooms.length === 0 ? <div className="rounded-lg border border-dashed border-slate-200 bg-white px-4 py-6 text-sm text-slate-500">No rooms in this section.</div> : <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{rooms.map((room) => <RoomCard key={room.id} room={room} pending={pending} selectionMode={selectionMode} selected={selectedRoomIds.includes(room.id)} onToggleSelected={() => onToggleRoomSelection(room)} onDropPassenger={onDropPassenger} onOpenPassenger={onOpenPassenger} onDelete={() => onDeleteRoom(room)} onEdit={() => onEditRoom(room)} onSave={() => onSaveRoom(room)} onDragStart={() => setDraggedRoomId(room.id)} onDragEnd={() => setDraggedRoomId(null)} onDropRoom={() => moveRoom(room.id)} />)}</div>}</section>;
+  return <section><div className="mb-3"><h2 className="font-semibold text-slate-900">{title} <span className="text-sm font-medium text-slate-400">({rooms.length})</span></h2><p className="mt-1 text-sm text-slate-500">{description}</p></div>{rooms.length === 0 ? <div className="rounded-lg border border-dashed border-slate-200 bg-white px-4 py-6 text-sm text-slate-500">No rooms in this section.</div> : <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">{rooms.map((room) => <RoomCard key={room.id} room={room} pending={pending} selectionMode={selectionMode} selected={selectedRoomIds.includes(room.id)} onToggleSelected={() => onToggleRoomSelection(room)} onDropPassenger={onDropPassenger} onRejectDrop={onRejectDrop} onOpenPassenger={onOpenPassenger} onDelete={() => onDeleteRoom(room)} onEdit={() => onEditRoom(room)} onSave={() => onSaveRoom(room)} onDragStart={() => setDraggedRoomId(room.id)} onDragEnd={() => setDraggedRoomId(null)} onDropRoom={() => moveRoom(room.id)} />)}</div>}</section>;
 }
 
-function RoomCard({ room, pending, selectionMode, selected, onToggleSelected, onDropPassenger, onOpenPassenger, onDelete, onEdit, onSave, onDragStart, onDragEnd, onDropRoom }: { room: RoomingRoom; pending: boolean; selectionMode: boolean; selected: boolean; onToggleSelected: () => void; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDelete: () => void; onEdit: () => void; onSave: () => void; onDragStart: () => void; onDragEnd: () => void; onDropRoom: () => void }) {
+function RoomCard({ room, pending, selectionMode, selected, onToggleSelected, onDropPassenger, onRejectDrop, onOpenPassenger, onDelete, onEdit, onSave, onDragStart, onDragEnd, onDropRoom }: { room: RoomingRoom; pending: boolean; selectionMode: boolean; selected: boolean; onToggleSelected: () => void; onDropPassenger: (passenger: RoomingPassenger, roomId: string) => void; onRejectDrop: (message: string) => void; onOpenPassenger: (passenger: RoomingPassenger) => void; onDelete: () => void; onEdit: () => void; onSave: () => void; onDragStart: () => void; onDragEnd: () => void; onDropRoom: () => void }) {
   const [dragging, setDragging] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -329,7 +349,13 @@ function RoomCard({ room, pending, selectionMode, selected, onToggleSelected, on
     event.preventDefault();
     setDragging(false);
     const raw = event.dataTransfer.getData("application/rooming-passenger");
-    if (raw && !isFull) onDropPassenger(JSON.parse(raw) as RoomingPassenger, room.id);
+    if (!raw || isFull) return;
+    const passenger = JSON.parse(raw) as RoomingPassenger;
+    if (!canAllocatePassengerToRoom(passenger, room)) {
+      onRejectDrop(roomAllocationMessage(room));
+      return;
+    }
+    onDropPassenger(passenger, room.id);
   };
   const toggleFromCard = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!selectionMode) return;
@@ -353,7 +379,7 @@ function RoomCard({ room, pending, selectionMode, selected, onToggleSelected, on
         </div>
         <div className="min-h-40 space-y-2 p-3" onDragOver={(event) => { event.preventDefault(); if (!isFull) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
           {room.occupants.map((passenger) => <PassengerCard key={passenger.passenger_id} passenger={passenger} onOpen={() => onOpenPassenger(passenger)} />)}
-          {!isFull && <div className="rounded-md border border-dashed border-slate-200 px-3 py-2 text-center text-xs text-slate-400">Drop passenger here</div>}
+          {!isFull && <div className="rounded-md border border-dashed border-slate-200 px-3 py-2 text-center text-xs text-slate-400" title={room.allocation_tag === "mixed" ? undefined : roomAllocationMessage(room)}>Drop passenger here</div>}
         </div>
         {room.roommate_notes && <div className="border-t border-slate-100 px-4 py-3 text-xs text-slate-500"><span className="font-medium text-slate-700">Room notes:</span> {room.roommate_notes}</div>}
       </CardContent>

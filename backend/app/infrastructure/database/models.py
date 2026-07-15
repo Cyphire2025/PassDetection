@@ -62,6 +62,7 @@ class UserModel(Base):
         Enum(
             "super_admin",
             "agency_admin",
+            "agency_manager",
             "agency_staff",
             "agency_coordinator",
             name="user_role_enum",
@@ -164,6 +165,67 @@ class ManagerGroupAccessModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
 
+class WhatsAppBroadcastGroupModel(Base):
+    __tablename__ = "whatsapp_broadcast_groups"
+    __table_args__ = (
+        Index("ix_whatsapp_broadcast_groups_agency_created", "agency_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class WhatsAppBroadcastRecipientModel(Base):
+    __tablename__ = "whatsapp_broadcast_recipients"
+    __table_args__ = (
+        UniqueConstraint("broadcast_group_id", "normalized_phone_number", name="uq_whatsapp_recipient_group_phone"),
+        Index("ix_whatsapp_recipients_group_created", "broadcast_group_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
+    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
+class WhatsAppMessageLogModel(Base):
+    __tablename__ = "whatsapp_message_logs"
+    __table_args__ = (
+        Index("ix_whatsapp_message_logs_group_created", "broadcast_group_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    recipient_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    message_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
 class CoordinatorAssignmentModel(Base):
     __tablename__ = "coordinator_assignments"
     __table_args__ = (
@@ -250,6 +312,11 @@ class PassportSubmissionModel(Base):
     family_broadcast_to_member: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     image_s3_key: Mapped[str] = mapped_column(String(512), nullable=False)
     thumbnail_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # Excel-derived organisational attributes (staff code, zone, designation,
+    # etc.) are kept separately from passport OCR fields.
+    staff_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    passport_back_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     status: Mapped[str] = mapped_column(
         Enum(
             "pending_upload", "uploaded", "processing",

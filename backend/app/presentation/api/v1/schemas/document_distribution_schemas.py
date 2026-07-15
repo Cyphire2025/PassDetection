@@ -30,6 +30,8 @@ class VerifiedDocumentResponse(BaseModel):
     reason: str
     matched_passenger_id: uuid.UUID | None = None
     matched_passenger_name: str | None = None
+    matched_passenger_ids: list[uuid.UUID] = Field(default_factory=list)
+    matched_passenger_names: list[str] = Field(default_factory=list)
     match_confidence: float = 0.0
     match_status: str | None = None
     match_reason: str | None = None

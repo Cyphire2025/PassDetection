@@ -255,19 +255,31 @@ async def verify_documents(
         content = await file.read()
         filename = file.filename or "document.pdf"
         classification = matcher.classify(filename=filename, content=content, expected_type=document_type)
-        match = matcher.match(classification, passengers) if classification.accepted else None
-        matched_passenger = next((passenger for passenger in passengers if match and passenger.id == match.passenger_id), None)
+        matches = matcher.match_all(classification, passengers) if classification.accepted else []
+        matched_passengers = [
+            passenger
+            for passenger in passengers
+            if any(match.passenger_id == passenger.id for match in matches if match.passenger_id)
+        ]
+        primary_match = matches[0] if matches else None
+        primary_passenger = matched_passengers[0] if matched_passengers else None
         verified.append(
             VerifiedDocumentResponse(
                 filename=filename,
                 detected_type=classification.detected_type,
                 accepted=classification.accepted,
                 reason=classification.reason,
-                matched_passenger_id=match.passenger_id if match else None,
-                matched_passenger_name=matched_passenger.client_name if matched_passenger else None,
-                match_confidence=match.confidence if match else 0.0,
-                match_status=match.status if match else None,
-                match_reason=match.reason if match else None,
+                matched_passenger_id=primary_match.passenger_id if primary_match else None,
+                matched_passenger_name=primary_passenger.client_name if primary_passenger else None,
+                matched_passenger_ids=[match.passenger_id for match in matches if match.passenger_id],
+                matched_passenger_names=[passenger.client_name for passenger in matched_passengers],
+                match_confidence=primary_match.confidence if primary_match else 0.0,
+                match_status=primary_match.status if primary_match else None,
+                match_reason=(
+                    f"Matched {len(matched_passengers)} passengers in one PDF"
+                    if len(matched_passengers) > 1
+                    else primary_match.reason if primary_match else None
+                ),
             )
         )
 
@@ -330,35 +342,48 @@ async def upload_documents(
     session.add(batch)
     await session.flush()
 
-    matches = matcher.mark_duplicates([matcher.match(document, passengers) for document in classified])
+    document_matches = [matcher.match_all(document, passengers) for document in classified]
+    flat_matches = [match for matches in document_matches for match in matches]
+    deduped_flat_matches = matcher.mark_duplicates(flat_matches)
+    deduped_document_matches: list[list] = []
+    cursor = 0
+    for matches in document_matches:
+        deduped_document_matches.append(deduped_flat_matches[cursor: cursor + len(matches)])
+        cursor += len(matches)
+
     storage = MinioStorageRepository()
     documents: list[DistributedDocumentModel] = []
-    for (file, content), document, match in zip(file_payloads, classified, matches):
-        document_id = uuid.uuid4()
-        key = f"document-distribution/{group.id}/{batch.id}/{document_id}-{_safe_filename(file.filename or 'document.pdf')}"
+    for (file, content), document, matches in zip(file_payloads, classified, deduped_document_matches):
+        storage_document_id = uuid.uuid4()
+        key = f"document-distribution/{group.id}/{batch.id}/{storage_document_id}-{_safe_filename(file.filename or 'document.pdf')}"
         await storage.upload_file(content, key, file.content_type or "application/pdf")
-        model = DistributedDocumentModel(
-            id=document_id,
-            batch_id=batch.id,
-            agency_id=group.agency_id,
-            group_id=group.id,
-            passenger_id=match.passenger_id,
-            document_type=document_type,
-            original_filename=file.filename or "document.pdf",
-            storage_key=key,
-            content_type=file.content_type or "application/pdf",
-            detected_type=document.detected_type,
-            match_status=match.status,
-            match_confidence=match.confidence,
-            match_reason=match.reason,
-            extracted_name=document.extracted_name,
-            extracted_passport_number=document.extracted_passport_number,
-            extracted_reference=document.extracted_reference,
-            created_at=now,
-            updated_at=now,
-        )
-        documents.append(model)
-        session.add(model)
+        for match in matches:
+            model = DistributedDocumentModel(
+                id=uuid.uuid4(),
+                batch_id=batch.id,
+                agency_id=group.agency_id,
+                group_id=group.id,
+                passenger_id=match.passenger_id,
+                document_type=document_type,
+                original_filename=file.filename or "document.pdf",
+                storage_key=key,
+                content_type=file.content_type or "application/pdf",
+                detected_type=document.detected_type,
+                match_status=match.status,
+                match_confidence=match.confidence,
+                match_reason=(
+                    f"Shared PDF matched {len(matches)} passenger{'' if len(matches) == 1 else 's'}"
+                    if len(matches) > 1 and match.status == "matched"
+                    else match.reason
+                ),
+                extracted_name=document.extracted_name,
+                extracted_passport_number=document.extracted_passport_number,
+                extracted_reference=document.extracted_reference,
+                created_at=now,
+                updated_at=now,
+            )
+            documents.append(model)
+            session.add(model)
 
     batch.uploaded_count = len(documents)
     batch.matched_count = sum(1 for document in documents if document.match_status == "matched")
@@ -552,7 +577,16 @@ async def delete_distribution_documents(
     if not documents_to_delete:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No matching documents were found")
 
-    await MinioStorageRepository().delete_files([document.storage_key for document in documents_to_delete])
+    candidate_storage_keys = list({document.storage_key for document in documents_to_delete})
+    remaining_key_result = await session.execute(
+        select(DistributedDocumentModel.storage_key).where(
+            DistributedDocumentModel.storage_key.in_(candidate_storage_keys),
+            DistributedDocumentModel.id.notin_([document.id for document in documents_to_delete]),
+        )
+    )
+    still_used_storage_keys = set(remaining_key_result.scalars().all())
+    delete_storage_keys = [key for key in candidate_storage_keys if key not in still_used_storage_keys]
+    await MinioStorageRepository().delete_files(delete_storage_keys)
     for document in documents_to_delete:
         await session.delete(document)
     await session.flush()
@@ -580,6 +614,7 @@ async def delete_distribution_documents(
             "group_id": str(group_id),
             "document_type": document_type,
             "deleted_count": len(documents_to_delete),
+            "deleted_storage_objects": len(delete_storage_keys),
         },
     )
     await session.commit()

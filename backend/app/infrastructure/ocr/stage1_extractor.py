@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import time
 from dataclasses import dataclass, field
 from typing import Any
 
 import re
 
-from PIL import ImageOps
+from PIL import Image, ImageOps
 
 from app.core.logging.logger import get_logger
 from app.infrastructure.ocr.correction import ICAOCorrectionEngine
@@ -403,7 +404,20 @@ class Stage1MRZExtractor:
         detection = self._detector.detect(image_bytes)
         if not detection.found or detection.crop is None:
             reason = detection.failure.reason if detection.failure else "unknown"
-            raise ValueError(f"MRZ region was not detected reliably: {reason}")
+            # Camera captures often include a little useful margin, glare, or
+            # shallow perspective.  Detection uncertainty must not turn into a
+            # hard extraction failure: OCR can still recover a TD3 MRZ from a
+            # bounded lower-page crop.  This does not rotate, warp, or alter
+            # the stored visa image.
+            with Image.open(io.BytesIO(image_bytes)) as raw_image:
+                page = ImageOps.exif_transpose(raw_image).convert("L")
+                page.thumbnail((1800, 1800))
+                width, height = page.size
+                if width < 240 or height < 160:
+                    raise ValueError(f"MRZ region was not detected reliably: {reason}")
+                fallback = page.crop((0, int(height * 0.56), width, height))
+            logger.info("mrz_region_detection_fallback", reason=reason, image_size=(width, height))
+            return ImageOps.autocontrast(fallback)
 
         prepared = ImageOps.autocontrast(detection.crop)
         logger.info(

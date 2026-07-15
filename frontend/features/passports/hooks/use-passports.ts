@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
 import { passportsApi } from "../api/passports.api";
+import type { PassportDocumentImportChunkRequest, PassportDocumentImportRequest } from "../api/passports.api";
 
 export function usePassports() {
   return useQuery({
@@ -40,6 +41,22 @@ export function useImportPassportGroup(groupId: string) {
     mutationFn: (file: File) => passportsApi.importGroup(groupId, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
+export function usePreviewPassportDocuments(groupId: string) {
+  return useMutation({ mutationFn: (request: PassportDocumentImportRequest) => passportsApi.previewPassportDocuments(groupId, request) });
+}
+
+export function useSavePassportDocuments(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: PassportDocumentImportChunkRequest) => passportsApi.savePassportDocumentsInChunks(groupId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.groupDetail(groupId, {}) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
     },
   });

@@ -452,7 +452,7 @@ function VerificationPanel({ verification }: { verification: DocumentVerificatio
                       <div className="min-w-0">
                         <div className="truncate font-medium text-slate-900">{file.filename}</div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {file.matched_passenger_name ? `Matched ${file.matched_passenger_name}` : file.match_reason || "Accepted"}
+                          <VerificationMatchText file={file} />
                         </div>
                       </div>
                       <Badge variant="success">{file.detected_type}</Badge>
@@ -492,6 +492,20 @@ function VerificationPanel({ verification }: { verification: DocumentVerificatio
       </div>
     </div>
   );
+}
+
+function VerificationMatchText({ file }: { file: DocumentVerificationResult["files"][number] }) {
+  const names = file.matched_passenger_names ?? [];
+  if (names.length > 1) {
+    return (
+      <>
+        Matched {names.length} passengers: {names.slice(0, 4).join(", ")}
+        {names.length > 4 ? `, +${names.length - 4} more` : ""}
+      </>
+    );
+  }
+  if (file.matched_passenger_name) return <>Matched {file.matched_passenger_name}</>;
+  return <>{file.match_reason || "Accepted"}</>;
 }
 
 function DocumentRowActionMenu({

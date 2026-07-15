@@ -53,7 +53,7 @@ async def test_agency_admin_is_limited_to_own_tenant() -> None:
 async def test_manager_can_view_owned_and_assigned_groups_only() -> None:
     policy = AuthorizationPolicy(AsyncMock())
     agency_id = uuid.uuid4()
-    manager = _user(UserRole.AGENCY_STAFF, agency_id)
+    manager = _user(UserRole.AGENCY_MANAGER, agency_id)
     owned_group = _group(agency_id, created_by_user_id=manager.id)
     assigned_group = _group(agency_id, created_by_user_id=uuid.uuid4())
     unrelated_group = _group(agency_id, created_by_user_id=uuid.uuid4())
@@ -73,7 +73,7 @@ async def test_manager_can_view_owned_and_assigned_groups_only() -> None:
 async def test_manager_can_manage_only_owned_groups() -> None:
     policy = AuthorizationPolicy(AsyncMock())
     agency_id = uuid.uuid4()
-    manager = _user(UserRole.AGENCY_STAFF, agency_id)
+    manager = _user(UserRole.AGENCY_MANAGER, agency_id)
 
     assert await policy.can_manage_group(manager, _group(agency_id, created_by_user_id=manager.id)) is True
     assert await policy.can_manage_group(manager, _group(agency_id, created_by_user_id=uuid.uuid4())) is False
@@ -120,7 +120,7 @@ async def test_delete_policy_separates_archive_from_permanent_delete() -> None:
     policy = AuthorizationPolicy(AsyncMock())
     agency_id = uuid.uuid4()
     admin = _user(UserRole.AGENCY_ADMIN, agency_id)
-    manager = _user(UserRole.AGENCY_STAFF, agency_id)
+    manager = _user(UserRole.AGENCY_MANAGER, agency_id)
     group = _group(agency_id, created_by_user_id=manager.id)
 
     assert await policy.can_delete_data(admin, group) is True

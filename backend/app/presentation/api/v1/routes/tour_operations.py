@@ -75,13 +75,20 @@ router = APIRouter()
 TOUR_OPERATION_ROLES = [
     UserRole.SUPER_ADMIN,
     UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
     UserRole.AGENCY_STAFF,
     UserRole.AGENCY_COORDINATOR,
 ]
 COORDINATOR_MANAGEMENT_ROLES = [
     UserRole.SUPER_ADMIN,
     UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
     UserRole.AGENCY_STAFF,
+]
+COORDINATOR_ACCOUNT_ROLES = [
+    UserRole.SUPER_ADMIN,
+    UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
 ]
 SUBMITTED_PASSENGER_STATUSES = (
     PassportProcessingStatus.CLIENT_SUBMITTED.value,
@@ -129,11 +136,17 @@ async def get_tour_operations_architecture(
                 "session_monitoring",
                 "attendance_history",
             ],
-            "agency_staff": [
+            "agency_manager": [
                 "coordinator_management",
                 "passenger_assignment",
                 "session_monitoring",
                 "attendance_history",
+            ],
+            "agency_staff": [
+                "assigned_groups",
+                "rooming_lists",
+                "document_distribution",
+                "document_rename_own_batches",
             ],
             "super_admin": [
                 "all_agency_operations",
@@ -285,7 +298,7 @@ async def list_coordinators(
 async def create_coordinator(
     body: CreateCoordinatorRequest,
     request: Request,
-    current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
+    current_user: User = Depends(require_role(COORDINATOR_ACCOUNT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> CoordinatorResponse:
     agency_id = _require_agency(current_user)

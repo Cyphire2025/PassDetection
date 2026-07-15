@@ -3,7 +3,7 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { KeyRound, LogOut, MoreHorizontal, Power, Trash2, X } from "lucide-react";
-import { Button, Input } from "@/components/ui";
+import { Button, PasswordInput } from "@/components/ui";
 import { useManagedAccountActions } from "../hooks/use-operations";
 
 export function ManagedAccountControls({
@@ -143,7 +143,7 @@ export function ManagedAccountControls({
                     setShowActions(false);
                     if (onDelete) {
                       onDelete();
-                    } else if (window.confirm(`Remove ${accountName}'s coordinator account? Attendance history will be preserved.`)) {
+                    } else if (window.confirm(`Remove ${accountName}'s account? Related operational history will be preserved where required.`)) {
                       actions.deleteAccount.mutate(accountId);
                     }
                   }}
@@ -167,9 +167,8 @@ export function ManagedAccountControls({
               </button>
             </div>
             <div className="mt-5 space-y-4">
-              <Input
+              <PasswordInput
                 label="New password"
-                type="password"
                 autoComplete="new-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}

@@ -10,6 +10,7 @@ from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import PassDetectionError
 from app.domain.repositories.interfaces import IObjectStorageRepository, IPassportSubmissionRepository
+from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
@@ -28,12 +29,14 @@ class ProcessPassportSubmissionJobUseCase:
         storage_repo: IObjectStorageRepository,
         extraction_service: IPassportExtractionService,
         job_repo: PassportProcessingJobRepository,
+        back_extraction_service: PassportBackPageExtractionService | None = None,
         allow_retry: bool = True,
     ) -> None:
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
         self._extraction_service = extraction_service
         self._job_repo = job_repo
+        self._back_extraction_service = back_extraction_service or PassportBackPageExtractionService()
         self._allow_retry = allow_retry
 
     async def execute(self, *, submission_id: uuid.UUID, job_id: uuid.UUID) -> None:
@@ -67,8 +70,14 @@ class ProcessPassportSubmissionJobUseCase:
                 return
 
             await self._job_repo.update_progress(job_id, progress=0.85, stage="saving_extraction_result")
+            extracted_fields = dict(extraction.extracted_fields)
+            if submission.passport_back_s3_key:
+                back_content = await self._storage_repo.get_file(submission.passport_back_s3_key)
+                back_result = await self._back_extraction_service.extract(back_content)
+                if back_result.fields.get("raw_text"):
+                    extracted_fields["passport_back"] = back_result.fields
             submission.mark_review_required(
-                extracted_fields=extraction.extracted_fields,
+                extracted_fields=extracted_fields,
                 confidence=extraction.overall_confidence,
                 confidence_score=extraction.confidence_score,
                 mrz_raw=extraction.mrz_raw,

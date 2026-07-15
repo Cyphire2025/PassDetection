@@ -48,6 +48,15 @@ DEFAULT_PLATFORM_SETTINGS = PlatformSettingsResponse().model_dump(exclude={"upda
 
 def _manager_scope(current_user: User) -> list:
     if current_user.role == UserRole.SUPER_ADMIN:
+        return [UserModel.role == UserRole.AGENCY_MANAGER.value]
+    return [
+        UserModel.role == UserRole.AGENCY_MANAGER.value,
+        UserModel.agency_id == current_user.agency_id,
+    ]
+
+
+def _staff_scope(current_user: User) -> list:
+    if current_user.role == UserRole.SUPER_ADMIN:
         return [UserModel.role == UserRole.AGENCY_STAFF.value]
     return [
         UserModel.role == UserRole.AGENCY_STAFF.value,
@@ -221,7 +230,7 @@ async def create_manager(
         email=str(body.email).lower().strip(),
         hashed_password=hash_password(body.password),
         full_name=body.full_name.strip(),
-        role=UserRole.AGENCY_STAFF.value,
+        role=UserRole.AGENCY_MANAGER.value,
         agency_id=current_user.agency_id,
         is_active=True,
     )
@@ -294,10 +303,10 @@ async def update_platform_settings(
     "/groups",
     response_model=list[ManagerGroupAccessResponse],
     status_code=status.HTTP_200_OK,
-    summary="List groups available for manager access assignment",
+    summary="List groups available for account access assignment",
 )
 async def list_admin_groups(
-    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagerGroupAccessResponse]:
     filters = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
@@ -307,6 +316,68 @@ async def list_admin_groups(
         .order_by(ClientGroupModel.created_at.desc())
     )
     return [_group_response(group) for group in result.scalars().all()]
+
+
+@router.get(
+    "/staff",
+    response_model=list[ManagerResponse],
+    status_code=status.HTTP_200_OK,
+    summary="List staff accounts with group access",
+)
+async def list_staff_for_access(
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ManagerResponse]:
+    result = await session.execute(
+        select(UserModel).where(*_staff_scope(current_user)).order_by(UserModel.created_at.desc())
+    )
+    return [await _manager_response(session, staff) for staff in result.scalars().all()]
+
+
+@router.put(
+    "/staff/{staff_id}/groups",
+    response_model=ManagerResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Replace a staff member's assigned group access",
+)
+async def assign_staff_groups(
+    staff_id: uuid.UUID,
+    body: AssignManagerGroupsRequest,
+    current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
+    session: AsyncSession = Depends(get_db_session),
+) -> ManagerResponse:
+    staff_result = await session.execute(select(UserModel).where(UserModel.id == staff_id, *_staff_scope(current_user)))
+    staff = staff_result.scalar_one_or_none()
+    if not staff:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Staff account was not found")
+    if not staff.agency_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Staff account is not assigned to an agency")
+
+    group_ids = list(dict.fromkeys(body.group_ids))
+    if group_ids:
+        groups_result = await session.execute(
+            select(ClientGroupModel).where(
+                ClientGroupModel.id.in_(group_ids),
+                ClientGroupModel.agency_id == staff.agency_id,
+            )
+        )
+        valid_groups = list(groups_result.scalars().all())
+        valid_group_ids = {group.id for group in valid_groups}
+        if valid_group_ids != set(group_ids):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more groups are not assignable to this staff member")
+        group_ids = [group_id for group_id in group_ids if not any(group.id == group_id and group.created_by_user_id == staff.id for group in valid_groups)]
+
+    await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.manager_id == staff.id))
+    for group_id in group_ids:
+        session.add(
+            ManagerGroupAccessModel(
+                manager_id=staff.id,
+                group_id=group_id,
+                agency_id=staff.agency_id,
+            )
+        )
+    await session.flush()
+    return await _manager_response(session, staff)
 
 
 @router.put(

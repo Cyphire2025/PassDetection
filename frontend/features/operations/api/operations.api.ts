@@ -15,7 +15,7 @@ export interface ManagerAccount {
   id: string;
   full_name: string;
   email: string;
-  role: "agency_staff";
+  role: "agency_manager";
   agency_id: string | null;
   is_active: boolean;
   created_at: string;
@@ -35,12 +35,25 @@ export interface ManagedAccount {
   id: string;
   full_name: string;
   email: string;
-  role: "agency_staff" | "agency_coordinator";
+  role: "agency_manager" | "agency_staff" | "agency_coordinator";
   agency_id: string | null;
   agency_name: string | null;
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+}
+
+export interface StaffAccount {
+  id: string;
+  full_name: string;
+  email: string;
+  role: "agency_staff";
+  agency_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  last_login_at: string | null;
+  created_groups: ManagerGroupAccess[];
+  assigned_groups: ManagerGroupAccess[];
 }
 
 export interface DeleteManagedAccountResponse {
@@ -54,6 +67,8 @@ export interface CreateManagerRequest {
   email: string;
   password: string;
 }
+
+export type CreateStaffRequest = CreateManagerRequest;
 
 export interface DeleteManagerResponse {
   deleted_manager_id: string;
@@ -388,6 +403,16 @@ export const operationsApi = {
     return data;
   },
 
+  createStaff: async (body: CreateStaffRequest): Promise<ManagedAccount> => {
+    const { data } = await apiClient.post<ManagedAccount>(API_ENDPOINTS.admin.staff, body);
+    return data;
+  },
+
+  staffAccessAccounts: async (): Promise<StaffAccount[]> => {
+    const { data } = await apiClient.get<StaffAccount[]>(API_ENDPOINTS.admin.staffAccess);
+    return data;
+  },
+
   deleteManager: async (managerId: string, deleteOwnedData: boolean): Promise<DeleteManagerResponse> => {
     const { data } = await apiClient.delete<DeleteManagerResponse>(API_ENDPOINTS.admin.manager(managerId), {
       data: { delete_owned_data: deleteOwnedData },
@@ -407,8 +432,20 @@ export const operationsApi = {
     return data;
   },
 
+  assignStaffGroups: async (staffId: string, groupIds: string[]): Promise<StaffAccount> => {
+    const { data } = await apiClient.put<StaffAccount>(API_ENDPOINTS.admin.staffGroups(staffId), {
+      group_ids: groupIds,
+    });
+    return data;
+  },
+
   managedAccounts: async (): Promise<ManagedAccount[]> => {
     const { data } = await apiClient.get<ManagedAccount[]>(API_ENDPOINTS.admin.accounts);
+    return data;
+  },
+
+  staffAccounts: async (): Promise<ManagedAccount[]> => {
+    const { data } = await apiClient.get<ManagedAccount[]>(API_ENDPOINTS.admin.staff);
     return data;
   },
 

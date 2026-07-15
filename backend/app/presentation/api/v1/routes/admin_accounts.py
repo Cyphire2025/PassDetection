@@ -23,6 +23,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.presentation.api.v1.schemas.operations_schemas import (
+    CreateStaffRequest,
     DeleteManagedAccountResponse,
     ManagedAccountResponse,
     ResetManagedAccountPasswordRequest,
@@ -31,8 +32,10 @@ from app.presentation.api.v1.schemas.operations_schemas import (
 from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
-ACCOUNT_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_STAFF]
-MANAGED_ROLES = (UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
+ACCOUNT_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
+STAFF_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
+MANAGED_ROLES = (UserRole.AGENCY_MANAGER.value, UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
+LISTED_ACCOUNT_ROLES = (UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
 
 
 @router.get("", response_model=list[ManagedAccountResponse], summary="List accounts within the caller's management scope")
@@ -40,8 +43,15 @@ async def list_managed_accounts(
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagedAccountResponse]:
-    filters = [UserModel.role.in_(MANAGED_ROLES)]
-    if current_user.role != UserRole.SUPER_ADMIN:
+    filters = [UserModel.role.in_(LISTED_ACCOUNT_ROLES)]
+    if current_user.role == UserRole.AGENCY_ADMIN:
+        filters.extend(
+            [
+                UserModel.role.in_((UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)),
+                UserModel.agency_id == current_user.agency_id,
+            ]
+        )
+    elif current_user.role == UserRole.AGENCY_MANAGER:
         filters.extend(
             [
                 UserModel.role == UserRole.AGENCY_COORDINATOR.value,
@@ -55,6 +65,63 @@ async def list_managed_accounts(
         .order_by(UserModel.role.asc(), UserModel.created_at.desc())
     )
     return [_account_response(account, agency_name) for account, agency_name in result.all()]
+
+
+@router.get("/staff", response_model=list[ManagedAccountResponse], summary="List staff accounts")
+async def list_staff_accounts(
+    current_user: User = Depends(require_role(STAFF_ADMIN_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ManagedAccountResponse]:
+    filters = [UserModel.role == UserRole.AGENCY_STAFF.value]
+    if current_user.role != UserRole.SUPER_ADMIN:
+        filters.append(UserModel.agency_id == current_user.agency_id)
+    result = await session.execute(
+        select(UserModel, AgencyModel.name.label("agency_name"))
+        .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .where(*filters)
+        .order_by(UserModel.created_at.desc())
+    )
+    return [_account_response(account, agency_name) for account, agency_name in result.all()]
+
+
+@router.post(
+    "/staff",
+    response_model=ManagedAccountResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a staff account",
+)
+async def create_staff_account(
+    body: CreateStaffRequest,
+    request: Request,
+    current_user: User = Depends(require_role(STAFF_ADMIN_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> ManagedAccountResponse:
+    if not current_user.agency_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Assign the admin to an agency before creating staff")
+
+    email = str(body.email).lower().strip()
+    existing = await session.execute(select(UserModel).where(UserModel.email == email))
+    if existing.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists")
+
+    staff = UserModel(
+        email=email,
+        hashed_password=hash_password(body.password),
+        full_name=body.full_name.strip(),
+        role=UserRole.AGENCY_STAFF.value,
+        agency_id=current_user.agency_id,
+        is_active=True,
+    )
+    session.add(staff)
+    await session.flush()
+    await _audit_account_action(session, current_user, request, staff, "staff.created")
+
+    agency_name = None
+    if staff.agency_id:
+        agency_name = (
+            await session.execute(select(AgencyModel.name).where(AgencyModel.id == staff.agency_id))
+        ).scalar_one_or_none()
+    return _account_response(staff, agency_name)
 
 
 @router.post(
@@ -137,31 +204,33 @@ async def delete_managed_coordinator(
     session: AsyncSession = Depends(get_db_session),
 ) -> DeleteManagedAccountResponse:
     account, _ = await _get_manageable_account(session, current_user, account_id)
-    if account.role != UserRole.AGENCY_COORDINATOR.value:
+    if account.role == UserRole.AGENCY_MANAGER.value:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Manager accounts must be removed from the manager administration screen",
         )
 
-    history_count = int(
-        (
-            await session.execute(
-                select(func.count())
-                .select_from(AttendanceRecordModel)
-                .where(AttendanceRecordModel.coordinator_user_id == account.id)
-            )
-        ).scalar_one()
-    )
-    session_count = int(
-        (
-            await session.execute(
-                select(func.count())
-                .select_from(AttendanceSessionModel)
-                .where(AttendanceSessionModel.created_by_user_id == account.id)
-            )
-        ).scalar_one()
-    )
-    preserves_history = history_count > 0 or session_count > 0
+    preserves_history = False
+    if account.role == UserRole.AGENCY_COORDINATOR.value:
+        history_count = int(
+            (
+                await session.execute(
+                    select(func.count())
+                    .select_from(AttendanceRecordModel)
+                    .where(AttendanceRecordModel.coordinator_user_id == account.id)
+                )
+            ).scalar_one()
+        )
+        session_count = int(
+            (
+                await session.execute(
+                    select(func.count())
+                    .select_from(AttendanceSessionModel)
+                    .where(AttendanceSessionModel.created_by_user_id == account.id)
+                )
+            ).scalar_one()
+        )
+        preserves_history = history_count > 0 or session_count > 0
 
     await RefreshTokenRepository(session).revoke_all_for_user(account.id)
     await _deactivate_coordinator_assignments(session, account)
@@ -205,9 +274,21 @@ async def _get_manageable_account(
     account, agency_name = row
     if current_user.role == UserRole.SUPER_ADMIN:
         return account, agency_name
-    if account.role != UserRole.AGENCY_COORDINATOR.value or account.agency_id != current_user.agency_id:
+    if account.agency_id != current_user.agency_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope")
-    return account, agency_name
+    if current_user.role == UserRole.AGENCY_ADMIN and account.role in {
+        UserRole.AGENCY_STAFF.value,
+        UserRole.AGENCY_COORDINATOR.value,
+    }:
+        return account, agency_name
+    if current_user.role == UserRole.AGENCY_MANAGER and account.role == UserRole.AGENCY_COORDINATOR.value:
+        return account, agency_name
+    if current_user.role == UserRole.AGENCY_MANAGER and account.id == current_user.id:
+        return account, agency_name
+    if current_user.role == UserRole.AGENCY_ADMIN and account.role == UserRole.AGENCY_MANAGER.value:
+        return account, agency_name
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope")
 
 
 async def _deactivate_coordinator_assignments(session: AsyncSession, account: UserModel) -> None:

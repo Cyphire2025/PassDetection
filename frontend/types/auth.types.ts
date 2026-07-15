@@ -6,7 +6,7 @@
 
 import type { TimestampedEntity } from "./api.types";
 
-export type UserRole = "super_admin" | "agency_admin" | "agency_staff" | "agency_coordinator";
+export type UserRole = "super_admin" | "agency_admin" | "agency_manager" | "agency_staff" | "agency_coordinator";
 
 export interface User extends TimestampedEntity {
   id: string;

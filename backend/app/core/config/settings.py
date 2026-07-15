@@ -155,6 +155,14 @@ class Settings(BaseSettings):
     malware_scanner_port: int = Field(default=3310, ge=1, le=65535)
     malware_scanner_timeout_seconds: float = Field(default=2.0, ge=0.2, le=10.0)
     ocr_cache_ttl_seconds: int = Field(default=3600, ge=0)
+    whatsapp_access_token: str | None = None
+    whatsapp_phone_number_id: str | None = None
+    whatsapp_api_version: str = "v25.0"
+    whatsapp_template_language: str = "en_US"
+    whatsapp_welcome_template_name: str = "global_connect_welcome_v1"
+    whatsapp_passport_link_template_name: str = "global_connect_passport_link_v1"
+    whatsapp_webhook_verify_token: str | None = None
+    whatsapp_app_secret: str | None = None
 
     @computed_field  # type: ignore[misc]
     @property

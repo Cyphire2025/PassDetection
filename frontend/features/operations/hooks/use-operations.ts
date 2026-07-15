@@ -63,6 +63,8 @@ export function useAssignManagerGroups() {
 }
 
 const MANAGED_ACCOUNTS_QUERY_KEY = ["operations", "managed-accounts"] as const;
+const STAFF_ACCOUNTS_QUERY_KEY = ["operations", "staff-accounts"] as const;
+const STAFF_ACCESS_QUERY_KEY = ["operations", "staff-access"] as const;
 
 export function useManagedAccounts() {
   return useQuery({
@@ -72,10 +74,54 @@ export function useManagedAccounts() {
   });
 }
 
+export function useStaffAccounts() {
+  return useQuery({
+    queryKey: STAFF_ACCOUNTS_QUERY_KEY,
+    queryFn: operationsApi.staffAccounts,
+    retry: false,
+  });
+}
+
+export function useStaffAccessAccounts() {
+  return useQuery({
+    queryKey: STAFF_ACCESS_QUERY_KEY,
+    queryFn: operationsApi.staffAccessAccounts,
+  });
+}
+
+export function useCreateStaff() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: operationsApi.createStaff,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MANAGED_ACCOUNTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: STAFF_ACCOUNTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: STAFF_ACCESS_QUERY_KEY });
+    },
+  });
+}
+
+export function useAssignStaffGroups() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ staffId, groupIds }: { staffId: string; groupIds: string[] }) =>
+      operationsApi.assignStaffGroups(staffId, groupIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: STAFF_ACCESS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.adminGroups });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
 export function useManagedAccountActions() {
   const queryClient = useQueryClient();
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: MANAGED_ACCOUNTS_QUERY_KEY });
+    void queryClient.invalidateQueries({ queryKey: STAFF_ACCOUNTS_QUERY_KEY });
+    void queryClient.invalidateQueries({ queryKey: STAFF_ACCESS_QUERY_KEY });
     void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourCoordinators });
     void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.managers });
     void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroups });

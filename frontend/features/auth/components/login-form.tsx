@@ -6,15 +6,13 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { useState } from "react";
-import { Button, Input } from "@/components/ui";
+import { Mail, Lock } from "lucide-react";
+import { Button, Input, PasswordInput } from "@/components/ui";
 import { loginSchema, type LoginFormData } from "../schemas/auth.schemas";
 import { useLogin } from "../hooks/use-login";
 import type { ApiError } from "@/types";
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false);
   const { mutate: login, isPending, error } = useLogin();
   const apiError = error as ApiError | null;
 
@@ -49,28 +47,15 @@ export function LoginForm() {
           leftAddon={<Mail className="h-4 w-4" aria-hidden="true" />}
         />
 
-        <Input
+        <PasswordInput
           {...register("password")}
           id="login-password"
-          type={showPassword ? "text" : "password"}
           label="Password"
           placeholder="••••••••"
           autoComplete="current-password"
           required
           error={errors.password?.message}
           leftAddon={<Lock className="h-4 w-4" aria-hidden="true" />}
-          rightAddon={
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="text-slate-400 hover:text-slate-600 transition-colors"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword
-                ? <EyeOff className="h-4 w-4" aria-hidden="true" />
-                : <Eye    className="h-4 w-4" aria-hidden="true" />}
-            </button>
-          }
         />
 
         <Button type="submit" isLoading={isPending} className="mt-1 w-full" id="login-submit">

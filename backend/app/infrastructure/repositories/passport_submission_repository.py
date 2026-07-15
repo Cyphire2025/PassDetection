@@ -48,6 +48,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             family_broadcast_to_member=model.family_broadcast_to_member,
             image_s3_key=model.image_s3_key,
             thumbnail_s3_key=model.thumbnail_s3_key,
+            passport_photo_s3_key=model.passport_photo_s3_key,
+            passport_back_s3_key=model.passport_back_s3_key,
+            staff_metadata=model.staff_metadata,
             status=PassportProcessingStatus(model.status),
             extracted_fields=model.extracted_fields,
             confirmed_fields=model.confirmed_fields,
@@ -82,6 +85,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             family_broadcast_to_member=entity.family_broadcast_to_member,
             image_s3_key=entity.image_s3_key,
             thumbnail_s3_key=entity.thumbnail_s3_key,
+            passport_photo_s3_key=entity.passport_photo_s3_key,
+            passport_back_s3_key=entity.passport_back_s3_key,
+            staff_metadata=entity.staff_metadata,
             status=entity.status.value,
             extracted_fields=entity.extracted_fields,
             confirmed_fields=entity.confirmed_fields,
@@ -138,6 +144,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.family_broadcast_to_member = submission.family_broadcast_to_member
         model.image_s3_key = submission.image_s3_key
         model.thumbnail_s3_key = submission.thumbnail_s3_key
+        model.passport_photo_s3_key = submission.passport_photo_s3_key
+        model.passport_back_s3_key = submission.passport_back_s3_key
+        model.staff_metadata = submission.staff_metadata
         model.status = submission.status.value
         model.extracted_fields = submission.extracted_fields
         model.confirmed_fields = submission.confirmed_fields
