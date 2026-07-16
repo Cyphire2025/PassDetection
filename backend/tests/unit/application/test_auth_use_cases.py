@@ -40,8 +40,9 @@ class TestLoginUseCase:
     def _make_use_case(self, user: User | None = None):
         user_repo  = AsyncMock()
         token_repo = AsyncMock()
+        login_limiter = AsyncMock()
         user_repo.get_by_email.return_value = user
-        return LoginUseCase(user_repo, token_repo), user_repo, token_repo
+        return LoginUseCase(user_repo, token_repo, login_limiter), user_repo, token_repo
 
     @pytest.mark.asyncio
     async def test_login_success(self) -> None:

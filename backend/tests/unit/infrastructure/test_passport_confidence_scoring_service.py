@@ -15,7 +15,7 @@ from app.infrastructure.validation.passport_confidence_scoring_service import (
 
 
 class TestPassportConfidenceScoringService:
-    def test_high_confidence_when_required_fields_and_mrz_are_present(self) -> None:
+    def test_medium_confidence_without_image_quality_evidence(self) -> None:
         scorer = PassportConfidenceScoringService()
         result = scorer.score(
             extracted_fields={
@@ -35,9 +35,9 @@ class TestPassportConfidenceScoringService:
             validation=PassportFieldValidationResult(status="valid", issues=[]),
         )
 
-        assert result.level == "high"
+        assert result.level == "medium"
         assert result.requires_manual_review is False
-        assert result.overall >= 0.9
+        assert result.overall >= 0.75
         assert result.to_dict()["signals"][0]["name"] == "field_completeness"
 
     def test_low_confidence_when_required_fields_are_missing(self) -> None:
