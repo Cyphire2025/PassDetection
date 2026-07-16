@@ -42,6 +42,11 @@ class CreateClientGroupUseCase:
             return_date=dto.return_date,
             package_name=dto.package_name,
             departure_cities=dto.departure_cities,
+            base_city_enabled=dto.base_city_enabled,
+            nearest_international_airport_enabled=dto.nearest_international_airport_enabled,
+            staff_code_enabled=dto.staff_code_enabled,
+            meal_preference_enabled=dto.meal_preference_enabled,
+            require_selfie=dto.require_selfie,
             notes=dto.notes,
         )
 

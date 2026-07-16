@@ -37,6 +37,9 @@ class ClientSubmitPassportUseCase:
         client_email: str | None,
         client_phone: str | None,
         departure_city: str | None = None,
+        base_city: str | None = None,
+        staff_code: str | None = None,
+        meal_preference: str | None = None,
         submission_mode: str = "single",
         family_group_id: uuid.UUID | None = None,
         family_member_index: int | None = None,
@@ -56,12 +59,12 @@ class ClientSubmitPassportUseCase:
 
         if submission.group_id != group.id:
             raise ValidationError("This passport submission does not belong to this upload link.")
-        if not submission.passport_photo_s3_key:
-            raise ValidationError(
-                "A processed VISA selfie photo is required before final submission.",
-                field="passport_photo_file",
-            )
-
+        if not submission.image_s3_key or submission.image_s3_key.startswith("excel-imports/"):
+            raise ValidationError("Passport front image is required.", field="file")
+        if not submission.passport_back_s3_key:
+            raise ValidationError("Passport back image is required.", field="passport_back_file")
+        if group.require_selfie and not submission.passport_photo_s3_key:
+            raise ValidationError("VISA selfie photo is required for this group.", field="passport_photo_file")
         normalized_mode = "family" if submission_mode == "family" else "single"
         normalized_email = client_email.lower().strip() if client_email and client_email.strip() else None
         normalized_phone = self._normalize_phone(client_phone) if client_phone and client_phone.strip() else None
@@ -95,7 +98,30 @@ class ClientSubmitPassportUseCase:
             normalized_relation = " ".join((family_relation or "").strip().split())[:80] or None
             normalized_gender = " ".join((family_gender or "").strip().split())[:40] or None
 
-        normalized_departure_city = self._normalize_departure_city(departure_city, group.departure_cities)
+        airport_enabled = group.nearest_international_airport_enabled or bool(group.departure_cities)
+        normalized_departure_city = self._normalize_departure_city(
+            departure_city,
+            group.departure_cities,
+            enabled=airport_enabled,
+        )
+        normalized_base_city = self._normalize_configured_text(
+            base_city,
+            enabled=group.base_city_enabled,
+            field="base_city",
+            label="base city",
+            max_length=120,
+        )
+        normalized_staff_code = self._normalize_configured_text(
+            staff_code,
+            enabled=group.staff_code_enabled,
+            field="staff_code",
+            label="staff code",
+            max_length=80,
+        )
+        normalized_meal_preference = self._normalize_meal_preference(
+            meal_preference,
+            enabled=group.meal_preference_enabled,
+        )
 
         if normalized_mode == "single" and (normalized_email or normalized_phone) and await self._passport_repo.exists_contact_in_group(
             group.id,
@@ -111,10 +137,18 @@ class ClientSubmitPassportUseCase:
         clean_fields = {
             key: value.strip()
             for key, value in confirmed_fields.items()
-            if isinstance(value, str) and value.strip()
+            if key not in {"base_city", "staff_code", "meal_preference"}
+            and isinstance(value, str)
+            and value.strip()
         }
         if not clean_fields:
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
+        if normalized_base_city:
+            clean_fields["base_city"] = normalized_base_city
+        if normalized_staff_code:
+            clean_fields["staff_code"] = normalized_staff_code
+        if normalized_meal_preference:
+            clean_fields["meal_preference"] = normalized_meal_preference
 
         draft_keys: list[str] = []
         draft_key = submission.image_s3_key
@@ -203,17 +237,54 @@ class ClientSubmitPassportUseCase:
         return digits if len(digits.replace("+", "")) >= 7 else ""
 
     @staticmethod
-    def _normalize_departure_city(value: str | None, allowed_cities: list[str]) -> str | None:
+    def _normalize_departure_city(
+        value: str | None,
+        allowed_cities: list[str],
+        *,
+        enabled: bool,
+    ) -> str | None:
+        if not enabled:
+            return None
         cities = [" ".join(city.strip().split()) for city in allowed_cities if city and city.strip()]
         if not cities:
-            return " ".join(value.strip().split())[:120] if value and value.strip() else None
+            raise ValidationError(
+                "No nearest international airports are configured for this group.",
+                field="departure_city",
+            )
         selected = " ".join(value.strip().split()) if value else ""
         if not selected:
-            raise ValidationError("Select your departure city.", field="departure_city")
+            raise ValidationError("Select your nearest international airport.", field="departure_city")
         city_by_key = {city.casefold(): city for city in cities}
         matched = city_by_key.get(selected.casefold())
         if not matched:
-            raise ValidationError("Select a valid departure city for this group.", field="departure_city")
+            raise ValidationError("Select a valid nearest international airport for this group.", field="departure_city")
+        return matched
+
+    @staticmethod
+    def _normalize_configured_text(
+        value: str | None,
+        *,
+        enabled: bool,
+        field: str,
+        label: str,
+        max_length: int,
+    ) -> str | None:
+        if not enabled:
+            return None
+        normalized = " ".join(value.strip().split())[:max_length] if value and value.strip() else ""
+        if not normalized:
+            raise ValidationError(f"Enter your {label}.", field=field)
+        return normalized
+
+    @staticmethod
+    def _normalize_meal_preference(value: str | None, *, enabled: bool) -> str | None:
+        if not enabled:
+            return None
+        normalized = " ".join(value.strip().split()).casefold() if value else ""
+        meals = {"veg": "Veg", "non veg": "Non Veg", "jain": "Jain"}
+        matched = meals.get(normalized)
+        if not matched:
+            raise ValidationError("Select Veg, Non Veg, or Jain.", field="meal_preference")
         return matched
 
     @staticmethod

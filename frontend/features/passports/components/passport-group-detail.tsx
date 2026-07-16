@@ -14,6 +14,7 @@ import type { ExtractedPassportFields, PassportSubmission } from "@/types/passpo
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
+  useExportPassportGroupImages,
   useExportSelectedPassports,
   useImportPassportGroup,
   usePassportGroups,
@@ -58,10 +59,16 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     return_date: deletedGroup.return_date,
     package_name: deletedGroup.package_name,
     departure_cities: deletedGroup.departure_cities ?? [],
+    base_city_enabled: deletedGroup.base_city_enabled,
+    nearest_international_airport_enabled: deletedGroup.nearest_international_airport_enabled,
+    staff_code_enabled: deletedGroup.staff_code_enabled,
+    meal_preference_enabled: deletedGroup.meal_preference_enabled,
+    require_selfie: deletedGroup.require_selfie,
     notes: deletedGroup.notes,
   } : undefined);
   const reextractMutation = useReextractPassportSubmission();
   const exportMutation = useExportPassportGroup();
+  const exportImagesMutation = useExportPassportGroupImages();
   const importMutation = useImportPassportGroup(groupId);
   const passportPreviewMutation = usePreviewPassportDocuments(groupId);
   const passportSaveMutation = useSavePassportDocuments(groupId);
@@ -80,6 +87,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     travel_date: "",
     return_date: "",
     departure_cities: [] as string[],
+    base_city_enabled: false,
+    nearest_international_airport_enabled: false,
+    staff_code_enabled: false,
+    meal_preference_enabled: false,
+    require_selfie: false,
     notes: "",
   });
 
@@ -210,6 +222,20 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           <Button
             variant="secondary"
             className="gap-2"
+            disabled={exportImagesMutation.isPending || !data?.length}
+            onClick={() => {
+              setImportMessage(null);
+              exportImagesMutation.mutate(groupId, {
+                onError: (exportError) => setImportMessage(exportError instanceof Error ? exportError.message : "Image download failed"),
+              });
+            }}
+          >
+            <Download className="h-4 w-4" />
+            {exportImagesMutation.isPending ? "Preparing Images" : "Download Passport Images"}
+          </Button>
+          <Button
+            variant="secondary"
+            className="gap-2"
             disabled={importMutation.isPending}
             onClick={() => importInputRef.current?.click()}
           >
@@ -267,6 +293,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     travel_date: groupDetails.travel_date ?? "",
                     return_date: groupDetails.return_date ?? "",
                     departure_cities: groupDetails.departure_cities ?? [],
+                    base_city_enabled: groupDetails.base_city_enabled,
+                    nearest_international_airport_enabled: groupDetails.nearest_international_airport_enabled,
+                    staff_code_enabled: groupDetails.staff_code_enabled,
+                    meal_preference_enabled: groupDetails.meal_preference_enabled,
+                    require_selfie: groupDetails.require_selfie,
                     notes: groupDetails.notes ?? "",
                   });
                   setIsEditingTrip(true);
@@ -280,7 +311,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
               <InfoPair label="Travel Date" value={groupDetails.travel_date || "Not set"} />
               <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
-              <InfoPair label="Departure Cities" value={(groupDetails.departure_cities ?? []).join(", ") || "Not set"} />
+              <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
+              <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
+              <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
+              <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
+              <InfoPair label="VISA Selfie Photo" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
               <div className="sm:col-span-2">
                 <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
               </div>
@@ -598,7 +633,14 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 destination: tripForm.destination || null,
                 travel_date: tripForm.travel_date || null,
                 return_date: tripForm.return_date || null,
-                departure_cities: normalizeCities(tripForm.departure_cities),
+                departure_cities: tripForm.nearest_international_airport_enabled
+                  ? normalizeCities(tripForm.departure_cities)
+                  : [],
+                base_city_enabled: tripForm.base_city_enabled,
+                nearest_international_airport_enabled: tripForm.nearest_international_airport_enabled,
+                staff_code_enabled: tripForm.staff_code_enabled,
+                meal_preference_enabled: tripForm.meal_preference_enabled,
+                require_selfie: tripForm.require_selfie,
                 notes: tripForm.notes || null,
               },
               { onSuccess: () => setIsEditingTrip(false) },
@@ -1035,6 +1077,11 @@ function TripDetailsDialog({
     travel_date: string;
     return_date: string;
     departure_cities: string[];
+    base_city_enabled: boolean;
+    nearest_international_airport_enabled: boolean;
+    staff_code_enabled: boolean;
+    meal_preference_enabled: boolean;
+    require_selfie: boolean;
     notes: string;
   };
   isLoading: boolean;
@@ -1044,6 +1091,11 @@ function TripDetailsDialog({
     travel_date: string;
     return_date: string;
     departure_cities: string[];
+    base_city_enabled: boolean;
+    nearest_international_airport_enabled: boolean;
+    staff_code_enabled: boolean;
+    meal_preference_enabled: boolean;
+    require_selfie: boolean;
     notes: string;
   }) => void;
   onClose: () => void;
@@ -1087,40 +1139,77 @@ function TripDetailsDialog({
             <span className="text-sm font-medium text-slate-700">Return Date</span>
             <Input type="date" value={form.return_date} onChange={(event) => updateField("return_date", event.target.value)} />
           </label>
-          <label className="space-y-2 sm:col-span-2">
-            <span className="text-sm font-medium text-slate-700">Departure Cities</span>
-            <div className="flex gap-2">
-              <Input
-                value={cityInput}
-                onChange={(event) => setCityInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    addCity();
-                  }
-                }}
-                placeholder="e.g. Delhi, Chennai, Mumbai"
-              />
-              <Button type="button" variant="secondary" onClick={addCity}>
-                Add
-              </Button>
-            </div>
-            {form.departure_cities.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {form.departure_cities.map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => removeCity(city)}
-                    className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
-                  >
-                    {city}
-                    <X className="h-3 w-3" aria-hidden="true" />
-                  </button>
-                ))}
+          <GroupOptionToggle
+            label="VISA Selfie Photo"
+            description="Require a passport-size selfie against a plain white wall."
+            checked={form.require_selfie}
+            onChange={(checked) => onChange({ ...form, require_selfie: checked })}
+          />
+          <GroupOptionToggle
+            label="Base City"
+            description="Require each client to enter their city of residence."
+            checked={form.base_city_enabled}
+            onChange={(checked) => onChange({ ...form, base_city_enabled: checked })}
+          />
+          <GroupOptionToggle
+            label="Staff Code"
+            description="Require each client to enter a staff code."
+            checked={form.staff_code_enabled}
+            onChange={(checked) => onChange({ ...form, staff_code_enabled: checked })}
+          />
+          <div className="space-y-3 rounded-xl border border-slate-200 p-4 sm:col-span-2">
+            <GroupOptionToggle
+              label="Nearest International Airport"
+              description="Require clients to select one configured airport."
+              checked={form.nearest_international_airport_enabled}
+              onChange={(checked) => onChange({
+                ...form,
+                nearest_international_airport_enabled: checked,
+                departure_cities: checked ? form.departure_cities : [],
+              })}
+              borderless
+            />
+            {form.nearest_international_airport_enabled && (
+              <div className="space-y-2 border-t border-slate-100 pt-3">
+                <div className="flex gap-2">
+                  <Input
+                    value={cityInput}
+                    onChange={(event) => setCityInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addCity();
+                      }
+                    }}
+                    placeholder="e.g. Delhi, Chennai, Mumbai"
+                  />
+                  <Button type="button" variant="secondary" onClick={addCity}>Add</Button>
+                </div>
+                {form.departure_cities.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {form.departure_cities.map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => removeCity(city)}
+                        className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
+                      >
+                        {city}
+                        <X className="h-3 w-3" aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {form.departure_cities.length === 0 && <p className="text-xs text-amber-700">Add at least one airport.</p>}
               </div>
             )}
-          </label>
+          </div>
+          <GroupOptionToggle
+            label="Meal Preference"
+            description="Require Veg, Non Veg, or Jain selection."
+            checked={form.meal_preference_enabled}
+            onChange={(checked) => onChange({ ...form, meal_preference_enabled: checked })}
+          />
           <label className="space-y-2 sm:col-span-2">
             <span className="text-sm font-medium text-slate-700">Notes</span>
             <textarea
@@ -1135,11 +1224,49 @@ function TripDetailsDialog({
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="button" onClick={onSave} isLoading={isLoading}>
+          <Button
+            type="button"
+            onClick={onSave}
+            isLoading={isLoading}
+            disabled={isLoading || (form.nearest_international_airport_enabled && form.departure_cities.length === 0)}
+          >
             Save Details
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function GroupOptionToggle({
+  label,
+  description,
+  checked,
+  onChange,
+  borderless = false,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  borderless?: boolean;
+}) {
+  return (
+    <div className={borderless ? "flex items-start justify-between gap-3" : "flex items-start justify-between gap-3 rounded-xl border border-slate-200 p-4"}>
+      <div>
+        <p className="text-sm font-semibold text-slate-800">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={`${checked ? "Disable" : "Enable"} ${label}`}
+        onClick={() => onChange(!checked)}
+        className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-blue-600" : "bg-slate-300"}`}
+      >
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "translate-x-5" : "translate-x-0.5"}`} />
+      </button>
     </div>
   );
 }

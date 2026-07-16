@@ -134,6 +134,11 @@ export interface PassportGroupSummary {
   return_date: string | null;
   package_name: string | null;
   departure_cities: string[];
+  base_city_enabled: boolean;
+  nearest_international_airport_enabled: boolean;
+  staff_code_enabled: boolean;
+  meal_preference_enabled: boolean;
+  require_selfie: boolean;
   notes: string | null;
 }
 

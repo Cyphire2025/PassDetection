@@ -63,12 +63,6 @@ class SubmitPassportUseCase:
         passport_photo: tuple[bytes, str, str] | None = None,
         passport_back: tuple[bytes, str, str] | None = None,
     ) -> PassportSubmissionOutputDTO:
-        if passport_photo is None:
-            raise ValidationError(
-                "A processed VISA selfie photo is required before the passport can be uploaded.",
-                field="passport_photo_file",
-            )
-
         # 1. Validate the link
         group = await self._client_group_repo.get_by_token(token)
         if not group:
@@ -76,6 +70,13 @@ class SubmitPassportUseCase:
 
         if not group.is_active():
             raise GroupClosedError()
+
+        if not file_content:
+            raise ValidationError("Passport front image is required.", field="file")
+        if not passport_back or not passport_back[0]:
+            raise ValidationError("Passport back image is required.", field="passport_back_file")
+        if group.require_selfie and (not passport_photo or not passport_photo[0]):
+            raise ValidationError("VISA selfie photo is required for this group.", field="passport_photo_file")
 
         # 2. Upload image to Object Storage
         ext = mimetypes.guess_extension(content_type) or ".jpg"

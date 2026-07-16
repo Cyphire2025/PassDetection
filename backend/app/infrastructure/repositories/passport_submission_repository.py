@@ -289,6 +289,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.package_name.label("package_name"),
                 ClientGroupModel.notes.label("notes"),
                 ClientGroupModel.departure_cities.label("departure_cities"),
+                ClientGroupModel.base_city_enabled.label("base_city_enabled"),
+                ClientGroupModel.nearest_international_airport_enabled.label("nearest_international_airport_enabled"),
+                ClientGroupModel.staff_code_enabled.label("staff_code_enabled"),
+                ClientGroupModel.meal_preference_enabled.label("meal_preference_enabled"),
+                ClientGroupModel.require_selfie.label("require_selfie"),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value, 1), else_=0)
@@ -329,6 +334,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.package_name,
                 ClientGroupModel.notes,
                 ClientGroupModel.departure_cities,
+                ClientGroupModel.base_city_enabled,
+                ClientGroupModel.nearest_international_airport_enabled,
+                ClientGroupModel.staff_code_enabled,
+                ClientGroupModel.meal_preference_enabled,
+                ClientGroupModel.require_selfie,
                 ClientGroupModel.created_at,
             )
             .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
@@ -351,6 +361,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 return_date=row.return_date,
                 package_name=row.package_name,
                 departure_cities=list(row.departure_cities or []),
+                base_city_enabled=row.base_city_enabled,
+                nearest_international_airport_enabled=row.nearest_international_airport_enabled,
+                staff_code_enabled=row.staff_code_enabled,
+                meal_preference_enabled=row.meal_preference_enabled,
+                require_selfie=row.require_selfie,
                 notes=row.notes,
             )
             for row in result.all()

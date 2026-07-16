@@ -55,7 +55,9 @@ export const API_ENDPOINTS = {
   whatsapp: {
     groups: "/api/v1/whatsapp/groups",
     group: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}`,
+    preview: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/preview`,
     send: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/send`,
+    batch: (batchId: string) => `/api/v1/whatsapp/batches/${batchId}`,
   },
 
   passports: {
@@ -64,6 +66,7 @@ export const API_ENDPOINTS = {
     groupsExport: "/api/v1/passports/groups/export.xlsx",
     groupDetail: (groupId: string) => `/api/v1/passports/groups/${groupId}`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
+    groupImageExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export-images`,
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
     passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
     passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,

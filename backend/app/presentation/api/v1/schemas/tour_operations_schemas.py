@@ -72,6 +72,11 @@ class TourOperationsGroupResponse(BaseModel):
     destination: str | None = None
     travel_date: str | None = None
     departure_cities: list[str] = Field(default_factory=list)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     passenger_count: int
     assigned_passengers_count: int
     unassigned_passengers_count: int

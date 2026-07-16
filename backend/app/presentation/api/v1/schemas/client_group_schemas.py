@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 def _normalize_departure_cities(values: list[str] | None) -> list[str]:
@@ -34,12 +34,25 @@ class CreateClientGroupRequest(BaseModel):
     return_date: date | None = None
     package_name: str | None = Field(default=None, max_length=255)
     departure_cities: list[str] = Field(default_factory=list, max_length=50)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
     @classmethod
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
+
+    @model_validator(mode="after")
+    def validate_airport_configuration(self) -> "CreateClientGroupRequest":
+        if self.nearest_international_airport_enabled and not self.departure_cities:
+            raise ValueError("Add at least one nearest international airport when the option is enabled.")
+        if not self.nearest_international_airport_enabled:
+            self.departure_cities = []
+        return self
 
 
 class UpdateClientGroupRequest(BaseModel):
@@ -49,12 +62,25 @@ class UpdateClientGroupRequest(BaseModel):
     return_date: date | None = None
     package_name: str | None = Field(default=None, max_length=255)
     departure_cities: list[str] = Field(default_factory=list, max_length=50)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
     @classmethod
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
+
+    @model_validator(mode="after")
+    def validate_airport_configuration(self) -> "UpdateClientGroupRequest":
+        if self.nearest_international_airport_enabled and not self.departure_cities:
+            raise ValueError("Add at least one nearest international airport when the option is enabled.")
+        if not self.nearest_international_airport_enabled:
+            self.departure_cities = []
+        return self
 
 
 class ClientGroupResponse(BaseModel):
@@ -71,6 +97,11 @@ class ClientGroupResponse(BaseModel):
     return_date: date | None = None
     package_name: str | None = None
     departure_cities: list[str] = Field(default_factory=list)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0

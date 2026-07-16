@@ -323,6 +323,11 @@ class ClientGroup:
     return_date: date | None = None
     package_name: str | None = None
     departure_cities: list[str] = field(default_factory=list)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -340,6 +345,11 @@ class ClientGroup:
         return_date: date | None = None,
         package_name: str | None = None,
         departure_cities: list[str] | None = None,
+        base_city_enabled: bool = False,
+        nearest_international_airport_enabled: bool = False,
+        staff_code_enabled: bool = False,
+        meal_preference_enabled: bool = False,
+        require_selfie: bool = False,
         notes: str | None = None,
     ) -> "ClientGroup":
         return cls(
@@ -353,7 +363,16 @@ class ClientGroup:
             travel_date=travel_date,
             return_date=return_date,
             package_name=package_name.strip() if package_name else None,
-            departure_cities=_normalize_departure_cities(departure_cities or []),
+            departure_cities=(
+                _normalize_departure_cities(departure_cities or [])
+                if nearest_international_airport_enabled
+                else []
+            ),
+            base_city_enabled=base_city_enabled,
+            nearest_international_airport_enabled=nearest_international_airport_enabled,
+            staff_code_enabled=staff_code_enabled,
+            meal_preference_enabled=meal_preference_enabled,
+            require_selfie=require_selfie,
             notes=notes.strip() if notes else None,
         )
 

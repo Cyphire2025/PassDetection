@@ -87,6 +87,13 @@ export const passportsApi = {
     downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
   },
 
+  exportGroupImages: async (groupId: string): Promise<void> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupImageExport(groupId), {
+      responseType: "blob",
+    });
+    downloadBlob(response.data, getAttachmentFilename(response.headers["content-disposition"], `passport-images-${groupId}.zip`));
+  },
+
   importGroup: async (groupId: string, file: File): Promise<PassportImportResult> => {
     const formData = new FormData();
     formData.append("file", file);
@@ -214,4 +221,18 @@ function downloadBlob(blob: Blob, filename: string) {
   anchor.click();
   anchor.remove();
   window.URL.revokeObjectURL(url);
+}
+
+function getAttachmentFilename(contentDisposition: unknown, fallback: string) {
+  if (typeof contentDisposition !== "string") return fallback;
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  const quotedMatch = contentDisposition.match(/filename="([^"]+)"/i);
+  const plainMatch = contentDisposition.match(/filename=([^;]+)/i);
+  const raw = utf8Match?.[1] ?? quotedMatch?.[1] ?? plainMatch?.[1];
+  if (!raw) return fallback;
+  try {
+    return decodeURIComponent(raw.trim()).replace(/[\\/:*?"<>|]/g, "_");
+  } catch {
+    return fallback;
+  }
 }

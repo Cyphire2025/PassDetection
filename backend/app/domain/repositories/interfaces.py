@@ -37,6 +37,11 @@ class PassportSubmissionGroupSummary:
     return_date: date | None = None
     package_name: str | None = None
     departure_cities: list[str] | None = None
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = None
 
 

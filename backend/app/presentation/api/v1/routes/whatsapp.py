@@ -9,23 +9,34 @@ import logging
 import re
 import tempfile
 import uuid
-from datetime import datetime, timezone
+from zipfile import BadZipFile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
-import httpx
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, Request, UploadFile, status
 from fastapi.responses import PlainTextResponse
 from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.message_templates import (
+    WhatsAppMessageType,
+    default_message_content,
+    format_support_contacts,
+    render_message,
+    template_header_parameters,
+    template_parameters,
+)
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
 )
 from app.infrastructure.database.session import get_db_session
@@ -43,6 +54,11 @@ class WhatsAppRecipientInput(BaseModel):
     phone_number: str = Field(min_length=6)
 
 
+class WhatsAppSupportContactInput(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    phone_number: str = Field(min_length=6, max_length=64)
+
+
 class WhatsAppRecipientResponse(BaseModel):
     id: uuid.UUID
     name: str | None
@@ -50,21 +66,48 @@ class WhatsAppRecipientResponse(BaseModel):
     normalized_phone_number: str
 
 
+class WhatsAppSupportContactResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    phone_number: str
+    normalized_phone_number: str
+
+
 class WhatsAppBroadcastGroupResponse(BaseModel):
     id: uuid.UUID
     name: str
+    organizing_company_name: str
     recipient_count: int
+    recipient_opt_in_confirmed: bool
     created_at: datetime
     updated_at: datetime
 
 
 class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
     recipients: list[WhatsAppRecipientResponse]
+    support_contacts: list[WhatsAppSupportContactResponse]
 
 
 class WhatsAppSendRequest(BaseModel):
     message_type: str = Field(pattern="^(welcome|passport_link)$")
     passport_link: str | None = None
+    message_content: str | None = Field(default=None, max_length=600)
+
+
+class WhatsAppPreviewRequest(WhatsAppSendRequest):
+    recipient_id: uuid.UUID | None = None
+
+
+class WhatsAppPreviewResponse(BaseModel):
+    message_type: str
+    template_name: str
+    recipient_id: uuid.UUID
+    recipient_name: str
+    recipient_count: int
+    message_content: str
+    rendered_message: str
+    header_parameter_values: list[str]
+    parameter_values: list[str]
 
 
 class WhatsAppSendResult(BaseModel):
@@ -76,6 +119,8 @@ class WhatsAppSendResult(BaseModel):
 
 
 class WhatsAppSendResponse(BaseModel):
+    batch_id: uuid.UUID | None = None
+    queued: int = 0
     sent: int
     failed: int
     results: list[WhatsAppSendResult]
@@ -172,6 +217,7 @@ async def receive_whatsapp_webhook(
         )
         for log in result.scalars().all():
             log.status = provider_status
+            log.status_updated_at = datetime.now(tz=timezone.utc)
             if error_message:
                 log.error_message = error_message
             processed_statuses += 1
@@ -219,16 +265,77 @@ def _clean_name(value: Any) -> str | None:
     return name[:255] or None
 
 
+def _clean_required_name(value: Any, field_label: str) -> str:
+    cleaned = _clean_name(value)
+    if not cleaned:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"{field_label} is required",
+        )
+    return cleaned
+
+
+def _as_message_type(value: str) -> WhatsAppMessageType:
+    return "welcome" if value == "welcome" else "passport_link"
+
+
+def _resolve_message_content(message_type: WhatsAppMessageType, value: str | None) -> str:
+    if value is None:
+        return default_message_content(message_type)
+    return value.strip()
+
+
+def _resolve_send_message_content(
+    message_type: WhatsAppMessageType,
+    value: str | None,
+) -> str:
+    content = _resolve_message_content(message_type, value)
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Enter the editable message section before sending. "
+                "Meta requires this template field to contain text."
+            ),
+        )
+    return content
+
+
+def _validate_passport_link(value: str | None, *, allow_placeholder: bool = False) -> str:
+    link = (value or "").strip()
+    if not link and allow_placeholder:
+        return "[passport upload link]"
+    parsed = urlparse(link)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Enter a valid passport upload link starting with http:// or https://",
+        )
+    return link
+
+
 def _parse_excel_contacts(upload: UploadFile) -> list[WhatsAppRecipientInput]:
-    suffix = Path(upload.filename or "contacts.xlsx").suffix or ".xlsx"
+    suffix = Path(upload.filename or "contacts.xlsx").suffix.lower() or ".xlsx"
+    if suffix not in {".xlsx", ".xlsm"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload an .xlsx or .xlsm contact file",
+        )
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(upload.file.read())
         tmp_path = Path(tmp.name)
 
     try:
-        workbook = load_workbook(tmp_path, read_only=True, data_only=True)
-        sheet = workbook.active
-        rows = list(sheet.iter_rows(values_only=True))
+        try:
+            workbook = load_workbook(tmp_path, read_only=True, data_only=True)
+            sheet = workbook.active
+            rows = list(sheet.iter_rows(values_only=True))
+            workbook.close()
+        except (BadZipFile, InvalidFileException, OSError, ValueError) as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The uploaded Excel contact file could not be read",
+            ) from exc
     finally:
         tmp_path.unlink(missing_ok=True)
 
@@ -263,70 +370,6 @@ def _parse_excel_contacts(upload: UploadFile) -> list[WhatsAppRecipientInput]:
     return contacts
 
 
-async def _post_whatsapp_message(payload: dict[str, Any]) -> str | None:
-    settings = get_settings()
-    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="WhatsApp is not configured. Set WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID.",
-        )
-
-    url = f"https://graph.facebook.com/{settings.whatsapp_api_version}/{settings.whatsapp_phone_number_id}/messages"
-    headers = {"Authorization": f"Bearer {settings.whatsapp_access_token}"}
-    async with httpx.AsyncClient(timeout=20.0) as client:
-        response = await client.post(url, json=payload, headers=headers)
-    data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
-    if response.status_code >= 400:
-        message = data.get("error", {}).get("message") if isinstance(data, dict) else None
-        raise RuntimeError(message or f"WhatsApp API returned {response.status_code}")
-    messages = data.get("messages") if isinstance(data, dict) else None
-    return messages[0].get("id") if messages and isinstance(messages, list) else None
-
-
-async def _send_whatsapp_text(to_number: str, body: str) -> tuple[str, str | None]:
-    api_to_number = to_number.lstrip("+")
-    provider_id = await _post_whatsapp_message(
-        {
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": api_to_number,
-            "type": "text",
-            "text": {"preview_url": True, "body": body},
-        }
-    )
-    return "submitted", provider_id
-
-
-def _text_parameter(value: str) -> dict[str, str]:
-    return {"type": "text", "text": value}
-
-
-async def _send_whatsapp_template(to_number: str, template_name: str, parameters: list[str] | None = None) -> tuple[str, str | None]:
-    settings = get_settings()
-    api_to_number = to_number.lstrip("+")
-    template: dict[str, Any] = {
-        "name": template_name,
-        "language": {"code": settings.whatsapp_template_language},
-    }
-    if parameters:
-        template["components"] = [
-            {
-                "type": "body",
-                "parameters": [_text_parameter(parameter) for parameter in parameters],
-            }
-        ]
-    provider_id = await _post_whatsapp_message(
-        {
-            "messaging_product": "whatsapp",
-            "recipient_type": "individual",
-            "to": api_to_number,
-            "type": "template",
-            "template": template,
-        }
-    )
-    return "submitted", provider_id
-
-
 def _recipient_response(model: WhatsAppBroadcastRecipientModel) -> WhatsAppRecipientResponse:
     return WhatsAppRecipientResponse(
         id=model.id,
@@ -336,6 +379,32 @@ def _recipient_response(model: WhatsAppBroadcastRecipientModel) -> WhatsAppRecip
     )
 
 
+def _support_contact_response(
+    model: WhatsAppBroadcastSupportContactModel,
+) -> WhatsAppSupportContactResponse:
+    return WhatsAppSupportContactResponse(
+        id=model.id,
+        name=model.name,
+        phone_number=model.phone_number,
+        normalized_phone_number=model.normalized_phone_number,
+    )
+
+
+async def _support_contacts_for_group(
+    session: AsyncSession,
+    group_id: uuid.UUID,
+) -> list[WhatsAppBroadcastSupportContactModel]:
+    result = await session.execute(
+        select(WhatsAppBroadcastSupportContactModel)
+        .where(WhatsAppBroadcastSupportContactModel.broadcast_group_id == group_id)
+        .order_by(
+            WhatsAppBroadcastSupportContactModel.sort_order.asc(),
+            WhatsAppBroadcastSupportContactModel.created_at.asc(),
+        )
+    )
+    return list(result.scalars().all())
+
+
 async def _group_detail(session: AsyncSession, group: WhatsAppBroadcastGroupModel) -> WhatsAppBroadcastGroupDetailResponse:
     recipients_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
@@ -343,14 +412,78 @@ async def _group_detail(session: AsyncSession, group: WhatsAppBroadcastGroupMode
         .order_by(WhatsAppBroadcastRecipientModel.name.asc().nullslast(), WhatsAppBroadcastRecipientModel.created_at.asc())
     )
     recipients = list(recipients_result.scalars().all())
+    support_contacts = await _support_contacts_for_group(session, group.id)
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
         name=group.name,
+        organizing_company_name=group.organizing_company_name,
         recipient_count=len(recipients),
+        recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
         created_at=group.created_at,
         updated_at=group.updated_at,
         recipients=[_recipient_response(recipient) for recipient in recipients],
+        support_contacts=[_support_contact_response(contact) for contact in support_contacts],
     )
+
+
+async def _group_recipients(
+    session: AsyncSession,
+    group_id: uuid.UUID,
+) -> list[WhatsAppBroadcastRecipientModel]:
+    result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id)
+        .order_by(
+            WhatsAppBroadcastRecipientModel.name.asc().nullslast(),
+            WhatsAppBroadcastRecipientModel.created_at.asc(),
+        )
+    )
+    return list(result.scalars().all())
+
+
+def _message_values(
+    *,
+    group: WhatsAppBroadcastGroupModel,
+    recipient: WhatsAppBroadcastRecipientModel,
+    support_contacts: list[WhatsAppBroadcastSupportContactModel],
+    body: WhatsAppSendRequest,
+    preview: bool = False,
+) -> tuple[WhatsAppMessageType, str, str, str, list[str], list[str]]:
+    message_type = _as_message_type(body.message_type)
+    message_content = _resolve_message_content(message_type, body.message_content)
+    passport_link = (
+        _validate_passport_link(body.passport_link, allow_placeholder=preview)
+        if message_type == "passport_link"
+        else None
+    )
+    recipient_name = _clean_name(recipient.name) or "Guest"
+    company_name = _clean_name(group.organizing_company_name) or "your organisation"
+    support_block = format_support_contacts(
+        [(contact.name, contact.phone_number) for contact in support_contacts]
+    )
+    rendered = render_message(
+        message_type=message_type,
+        recipient_name=recipient_name,
+        group_name=group.name,
+        organizing_company_name=company_name,
+        support_contacts=support_block,
+        message_content=message_content,
+        passport_link=passport_link,
+    )
+    header_parameters = template_header_parameters(
+        message_type=message_type,
+        recipient_name=recipient_name,
+    )
+    parameters = template_parameters(
+        message_type=message_type,
+        recipient_name=recipient_name,
+        group_name=group.name,
+        organizing_company_name=company_name,
+        support_contacts=support_block,
+        message_content=message_content,
+        passport_link=passport_link,
+    )
+    return message_type, message_content, recipient_name, rendered, header_parameters, parameters
 
 
 @router.get("/groups", response_model=list[WhatsAppBroadcastGroupResponse])
@@ -375,7 +508,9 @@ async def list_broadcast_groups(
         WhatsAppBroadcastGroupResponse(
             id=group.id,
             name=group.name,
+            organizing_company_name=group.organizing_company_name,
             recipient_count=count,
+            recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
             created_at=group.created_at,
             updated_at=group.updated_at,
         )
@@ -398,10 +533,76 @@ async def get_broadcast_group(
     return await _group_detail(session, group)
 
 
+@router.post("/groups/{group_id}/preview", response_model=WhatsAppPreviewResponse)
+async def preview_broadcast_message(
+    group_id: uuid.UUID,
+    body: WhatsAppPreviewRequest,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppPreviewResponse:
+    result = await session.execute(
+        select(WhatsAppBroadcastGroupModel).where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+    )
+    group = result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    recipients = await _group_recipients(session, group.id)
+    if not recipients:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This WhatsApp list has no recipients",
+        )
+    recipient = recipients[0]
+    if body.recipient_id:
+        selected = next((item for item in recipients if item.id == body.recipient_id), None)
+        if not selected:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Preview recipient not found in this WhatsApp list",
+            )
+        recipient = selected
+
+    support_contacts = await _support_contacts_for_group(session, group.id)
+    message_type, message_content, recipient_name, rendered, header_parameters, parameters = _message_values(
+        group=group,
+        recipient=recipient,
+        support_contacts=support_contacts,
+        body=body,
+        preview=True,
+    )
+    settings = get_settings()
+    template_name = (
+        settings.whatsapp_welcome_template_name
+        if message_type == "welcome"
+        else settings.whatsapp_passport_link_template_name
+    )
+    return WhatsAppPreviewResponse(
+        message_type=message_type,
+        template_name=template_name,
+        recipient_id=recipient.id,
+        recipient_name=recipient_name,
+        recipient_count=len(recipients),
+        message_content=message_content,
+        rendered_message=rendered,
+        header_parameter_values=header_parameters,
+        parameter_values=parameters,
+    )
+
+
 @router.post("/groups", response_model=WhatsAppBroadcastGroupDetailResponse, status_code=status.HTTP_201_CREATED)
 async def create_broadcast_group(
     name: str = Form(...),
+    organizing_company_name: str = Form(...),
     contacts_json: str = Form("[]"),
+    support_contacts_json: str = Form("[]"),
+    recipient_opt_in_confirmed: bool = Form(...),
     contacts_file: UploadFile | None = File(None),
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
@@ -411,11 +612,43 @@ async def create_broadcast_group(
     group_name = name.strip()
     if not group_name:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Group name is required")
+    if len(group_name) > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Group name must be 100 characters or fewer",
+        )
+    company_name = _clean_required_name(organizing_company_name, "Organising company name")
+    if len(company_name) > 100:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Organising company name must be 100 characters or fewer",
+        )
+    if not recipient_opt_in_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm recipient WhatsApp opt-in before saving this list",
+        )
 
     try:
         manual_contacts = [WhatsAppRecipientInput(**item) for item in json.loads(contacts_json or "[]")]
     except (TypeError, ValueError) as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid manual contact list") from exc
+
+    try:
+        support_contacts = [
+            WhatsAppSupportContactInput(**item)
+            for item in json.loads(support_contacts_json or "[]")
+        ]
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid customer support contact list",
+        ) from exc
+    if not support_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add at least one customer support contact",
+        )
 
     excel_contacts = _parse_excel_contacts(contacts_file) if contacts_file else []
     contacts = manual_contacts + excel_contacts
@@ -426,10 +659,56 @@ async def create_broadcast_group(
             normalized_contacts[normalized] = contact
     if not normalized_contacts:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Add at least one valid WhatsApp number")
+    if len(normalized_contacts) > 500:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A WhatsApp list can contain at most 500 recipients",
+        )
+    unnamed_numbers = [
+        contact.phone_number
+        for contact in normalized_contacts.values()
+        if not _clean_name(contact.name)
+    ]
+    if unnamed_numbers:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Every recipient needs a name for personalised messages. "
+                f"Missing names for {len(unnamed_numbers)} contact(s)."
+            ),
+        )
+    long_names = [
+        contact.phone_number
+        for contact in normalized_contacts.values()
+        if len(_clean_name(contact.name) or "") > 100
+    ]
+    if long_names:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient names must be 100 characters or fewer",
+        )
+
+    normalized_support_contacts: dict[str, WhatsAppSupportContactInput] = {}
+    for support_contact in support_contacts:
+        normalized = _normalize_phone(support_contact.phone_number)
+        if not normalized:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid WhatsApp number for support contact {support_contact.name}",
+            )
+        if normalized not in normalized_support_contacts:
+            normalized_support_contacts[normalized] = support_contact
+    if len(normalized_support_contacts) > 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add no more than three customer support contacts",
+        )
 
     group = WhatsAppBroadcastGroupModel(
         agency_id=current_user.agency_id,
         name=group_name,
+        organizing_company_name=company_name,
+        recipient_opt_in_confirmed_at=datetime.now(tz=timezone.utc),
         created_by_user_id=current_user.id,
         created_at=datetime.now(tz=timezone.utc),
         updated_at=datetime.now(tz=timezone.utc),
@@ -444,6 +723,18 @@ async def create_broadcast_group(
                 name=_clean_name(contact.name),
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
+                created_at=datetime.now(tz=timezone.utc),
+            )
+        )
+    for sort_order, (normalized, support_contact) in enumerate(normalized_support_contacts.items()):
+        session.add(
+            WhatsAppBroadcastSupportContactModel(
+                broadcast_group_id=group.id,
+                agency_id=current_user.agency_id,
+                name=_clean_required_name(support_contact.name, "Customer support name"),
+                phone_number=support_contact.phone_number.strip(),
+                normalized_phone_number=normalized,
+                sort_order=sort_order,
                 created_at=datetime.now(tz=timezone.utc),
             )
         )
@@ -480,46 +771,76 @@ async def send_broadcast_message(
     group = result.scalar_one_or_none()
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found")
-    if body.message_type == "passport_link" and not body.passport_link:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passport link is required")
+    if group.recipient_opt_in_confirmed_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient WhatsApp opt-in has not been confirmed for this list",
+        )
 
-    recipients_result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel).where(WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id)
-    )
-    recipients = list(recipients_result.scalars().all())
-    results: list[WhatsAppSendResult] = []
+    recipients = await _group_recipients(session, group.id)
+    if not recipients:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This WhatsApp list has no recipients",
+        )
+    support_contacts = await _support_contacts_for_group(session, group.id)
+    if not support_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add customer support contacts before sending this message",
+        )
+
+    message_type = _as_message_type(body.message_type)
+    message_content = _resolve_send_message_content(message_type, body.message_content)
     settings = get_settings()
-    for recipient in recipients:
-        display_name = recipient.name or "Guest"
-        provider_message_id = None
-        error_message = None
-        send_status = "submitted"
-        try:
-            if body.message_type == "welcome":
-                send_status, provider_message_id = await _send_whatsapp_template(
-                    recipient.normalized_phone_number,
-                    settings.whatsapp_welcome_template_name,
-                    [display_name],
-                )
-            else:
-                send_status, provider_message_id = await _send_whatsapp_template(
-                    recipient.normalized_phone_number,
-                    settings.whatsapp_passport_link_template_name,
-                    [display_name, body.passport_link or ""],
-                )
-        except Exception as exc:  # noqa: BLE001 - log per-recipient provider errors without stopping the batch.
-            send_status = "failed"
-            error_message = str(exc)
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="WhatsApp Cloud API credentials are incomplete",
+        )
+    template_name = (
+        settings.whatsapp_welcome_template_name
+        if message_type == "welcome"
+        else settings.whatsapp_passport_link_template_name
+    )
+    if not template_name.strip():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"WhatsApp {message_type} template name is not configured",
+        )
 
+    passport_link = (
+        _validate_passport_link(body.passport_link)
+        if message_type == "passport_link"
+        else None
+    )
+    resolved_body = WhatsAppSendRequest(
+        message_type=message_type,
+        passport_link=passport_link,
+        message_content=message_content,
+    )
+    batch_id = uuid.uuid4()
+    results: list[WhatsAppSendResult] = []
+    for recipient in recipients:
+        _, _, _, rendered, _, _ = _message_values(
+            group=group,
+            recipient=recipient,
+            support_contacts=support_contacts,
+            body=resolved_body,
+        )
         session.add(
             WhatsAppMessageLogModel(
+                batch_id=batch_id,
                 broadcast_group_id=group.id,
                 recipient_id=recipient.id,
                 agency_id=recipient.agency_id,
-                message_type=body.message_type,
-                status=send_status,
-                provider_message_id=provider_message_id,
-                error_message=error_message,
+                message_type=message_type,
+                status="queued",
+                status_updated_at=datetime.now(tz=timezone.utc),
+                provider_message_id=None,
+                error_message=None,
+                template_name=template_name,
+                rendered_message=rendered,
                 created_at=datetime.now(tz=timezone.utc),
             )
         )
@@ -527,14 +848,108 @@ async def send_broadcast_message(
             WhatsAppSendResult(
                 recipient_id=recipient.id,
                 phone_number=recipient.normalized_phone_number,
-                status=send_status,
-                provider_message_id=provider_message_id,
-                error_message=error_message,
+                status="queued",
             )
         )
-    await session.flush()
+    await session.commit()
+
+    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
+
+    try:
+        process_whatsapp_broadcast.apply_async(
+            kwargs={
+                "batch_id": str(batch_id),
+                "message_type": message_type,
+                "message_content": message_content,
+                "passport_link": passport_link,
+            },
+            queue="whatsapp",
+        )
+    except Exception as exc:  # noqa: BLE001 - convert broker failures into a visible batch failure.
+        error_message = f"WhatsApp worker queue is unavailable: {exc}"[:2000]
+        logs_result = await session.execute(
+            select(WhatsAppMessageLogModel).where(
+                WhatsAppMessageLogModel.batch_id == batch_id
+            )
+        )
+        for log in logs_result.scalars().all():
+            log.status = "failed"
+            log.status_updated_at = datetime.now(tz=timezone.utc)
+            log.error_message = error_message
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="WhatsApp delivery queue is unavailable",
+        ) from exc
+
     return WhatsAppSendResponse(
-        sent=sum(1 for item in results if item.status == "submitted"),
-        failed=sum(1 for item in results if item.status != "submitted"),
+        batch_id=batch_id,
+        queued=len(results),
+        sent=0,
+        failed=0,
+        results=results,
+    )
+
+
+@router.get("/batches/{batch_id}", response_model=WhatsAppSendResponse)
+async def get_broadcast_batch_status(
+    batch_id: uuid.UUID,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppSendResponse:
+    result = await session.execute(
+        select(WhatsAppMessageLogModel, WhatsAppBroadcastRecipientModel)
+        .join(
+            WhatsAppBroadcastRecipientModel,
+            WhatsAppBroadcastRecipientModel.id == WhatsAppMessageLogModel.recipient_id,
+        )
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+        )
+        .where(
+            WhatsAppMessageLogModel.batch_id == batch_id,
+            *_agency_filter(current_user),
+        )
+        .order_by(WhatsAppMessageLogModel.created_at.asc())
+    )
+    rows = list(result.all())
+    if not rows:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast batch not found",
+        )
+
+    queued_statuses = {"queued", "processing"}
+    successful_statuses = {"submitted", "sent", "delivered", "read"}
+    stale_cutoff = datetime.now(tz=timezone.utc) - timedelta(minutes=30)
+    results: list[WhatsAppSendResult] = []
+    for log, recipient in rows:
+        is_stalled = log.status in queued_statuses and log.status_updated_at < stale_cutoff
+        results.append(
+            WhatsAppSendResult(
+                recipient_id=recipient.id,
+                phone_number=recipient.normalized_phone_number,
+                status="stalled" if is_stalled else log.status,
+                provider_message_id=log.provider_message_id,
+                error_message=(
+                    log.error_message
+                    or (
+                        "Delivery status is unknown after a worker interruption; verify before resending"
+                        if is_stalled
+                        else None
+                    )
+                ),
+            )
+        )
+    return WhatsAppSendResponse(
+        batch_id=batch_id,
+        queued=sum(1 for item in results if item.status in queued_statuses),
+        sent=sum(1 for item in results if item.status in successful_statuses),
+        failed=sum(
+            1
+            for item in results
+            if item.status not in queued_statuses | successful_statuses
+        ),
         results=results,
     )

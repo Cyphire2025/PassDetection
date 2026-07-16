@@ -151,6 +151,10 @@ export interface TourGroup {
   destination: string | null;
   travel_date: string | null;
   departure_cities: string[];
+  base_city_enabled: boolean;
+  nearest_international_airport_enabled: boolean;
+  staff_code_enabled: boolean;
+  meal_preference_enabled: boolean;
   passenger_count: number;
   assigned_passengers_count: number;
   unassigned_passengers_count: number;

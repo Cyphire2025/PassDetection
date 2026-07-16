@@ -96,6 +96,11 @@ async def create_client_group(
         return_date=request.return_date,
         package_name=request.package_name,
         departure_cities=request.departure_cities,
+        base_city_enabled=request.base_city_enabled,
+        nearest_international_airport_enabled=request.nearest_international_airport_enabled,
+        staff_code_enabled=request.staff_code_enabled,
+        meal_preference_enabled=request.meal_preference_enabled,
+        require_selfie=request.require_selfie,
         notes=request.notes,
     )
 
@@ -222,6 +227,11 @@ async def update_client_group(
     group.return_date = request.return_date
     group.package_name = request.package_name.strip() if request.package_name else None
     group.departure_cities = request.departure_cities
+    group.base_city_enabled = request.base_city_enabled
+    group.nearest_international_airport_enabled = request.nearest_international_airport_enabled
+    group.staff_code_enabled = request.staff_code_enabled
+    group.meal_preference_enabled = request.meal_preference_enabled
+    group.require_selfie = request.require_selfie
     group.notes = request.notes.strip() if request.notes else None
     await repo.update(group)
     passenger_ids_result = await session.execute(

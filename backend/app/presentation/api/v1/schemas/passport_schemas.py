@@ -19,6 +19,9 @@ class ClientSubmitPassportRequest(BaseModel):
     client_email: EmailStr | None = None
     client_phone: str | None = Field(default=None, min_length=7, max_length=32)
     departure_city: str | None = Field(default=None, max_length=120)
+    base_city: str | None = Field(default=None, max_length=120)
+    staff_code: str | None = Field(default=None, max_length=80)
+    meal_preference: str | None = Field(default=None, max_length=20)
     group_token: str = Field(..., min_length=10)
     submission_mode: str = Field(default="single", pattern="^(single|family)$")
     family_group_id: uuid.UUID | None = None
@@ -134,6 +137,11 @@ class PassportGroupSummaryResponse(BaseModel):
     return_date: date | None = None
     package_name: str | None = None
     departure_cities: list[str] = Field(default_factory=list)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = None
 
     model_config = {"from_attributes": True}
