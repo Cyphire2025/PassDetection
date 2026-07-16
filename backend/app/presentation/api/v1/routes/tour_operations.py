@@ -47,6 +47,12 @@ from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     qr_hash as _qr_hash,
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    qr_payload as _qr_payload,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    qr_status as _qr_status,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
     qr_token_response as _qr_token_response,
 )
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
