@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import uuid
 import unittest
+import uuid
 import zipfile
 
 from app.domain.entities.entities import ClientGroup, PassportSubmission

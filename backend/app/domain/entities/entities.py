@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 def _new_uuid() -> uuid.UUID:
@@ -118,7 +118,7 @@ class User:
         full_name: str,
         role: UserRole,
         agency_id: uuid.UUID | None = None,
-    ) -> "User":
+    ) -> User:
         """Factory method — enforces valid construction."""
         return cls(
             id=_new_uuid(),
@@ -288,7 +288,7 @@ class Agency:
     updated_at: datetime = field(default_factory=_utcnow)
 
     @classmethod
-    def create(cls, name: str, email: str, phone: str | None = None) -> "Agency":
+    def create(cls, name: str, email: str, phone: str | None = None) -> Agency:
         return cls(
             id=_new_uuid(),
             name=name.strip(),
@@ -351,7 +351,7 @@ class ClientGroup:
         meal_preference_enabled: bool = False,
         require_selfie: bool = False,
         notes: str | None = None,
-    ) -> "ClientGroup":
+    ) -> ClientGroup:
         return cls(
             id=_new_uuid(),
             name=name.strip(),
@@ -460,7 +460,7 @@ class PassportSubmission:
         client_name: str,
         client_email: str | None,
         image_s3_key: str,
-    ) -> "PassportSubmission":
+    ) -> PassportSubmission:
         return cls(
             id=_new_uuid(),
             group_id=group_id,

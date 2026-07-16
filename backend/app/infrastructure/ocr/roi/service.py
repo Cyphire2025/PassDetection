@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from app.core.logging.logger import get_logger
 from app.infrastructure.ocr.roi.base import ROIExtractionResult, ROIFieldExtractor

@@ -6,8 +6,8 @@ import io
 import re
 import uuid
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Iterable
+from collections.abc import Iterable
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import StreamingResponse
@@ -19,8 +19,8 @@ from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     ClientGroupModel,
-    PassportSubmissionModel,
     PassengerQRTokenModel,
+    PassportSubmissionModel,
     RoomingAssignmentModel,
     RoomingCheckinModel,
     RoomingHotelModel,
@@ -30,26 +30,26 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.rooming_excel_exporter import RoomingExcelExporter
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_hash
 from app.presentation.api.v1.schemas.rooming_schemas import (
+    ROOM_TYPES,
     CreateRoomBatchRequest,
     CreateRoomingHotelRequest,
-    ROOM_TYPES,
-    RoomingHotelResponse,
-    RoomingPassengerResponse,
-    RoomingRoomResponse,
-    RoomingWorkspaceResponse,
-    UpdatePassengerAllocationRequest,
-    UpdateRoomingHotelRequest,
-    UpdateRoomOrderRequest,
-    UpdateRoomRequest,
     HotelCheckinDashboardResponse,
     HotelCheckinPassengerResponse,
     HotelCheckinScanRequest,
     HotelCheckinScanResponse,
+    RoomingHotelResponse,
+    RoomingPassengerResponse,
+    RoomingRoomResponse,
+    RoomingWorkspaceResponse,
     UpdateHotelCheckinRequest,
+    UpdatePassengerAllocationRequest,
+    UpdateRoomingHotelRequest,
+    UpdateRoomOrderRequest,
+    UpdateRoomRequest,
 )
 from app.presentation.dependencies.auth import require_role
-from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_hash
 
 router = APIRouter()
 ROOMING_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
@@ -467,7 +467,7 @@ async def scan_hotel_checkin(
     if not pair:
         return HotelCheckinScanResponse(status="invalid", message="Invalid QR code.")
     passenger, token = pair
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if token.revoked_at:
         return HotelCheckinScanResponse(status="revoked", message="This passenger QR code has been revoked.")
     if not token.is_active:
@@ -524,7 +524,7 @@ async def update_hotel_checkin(
     if not checkin:
         raise HTTPException(status_code=404, detail="Check-in was not found")
     hotel, _ = await _get_checkin_hotel(session, checkin.hotel_id, current_user)
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if body.key_issued is not None:
         checkin.key_issued = body.key_issued
         checkin.key_issued_at = now if body.key_issued else None

@@ -11,7 +11,6 @@ from PIL import Image, ImageOps
 
 from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
 
-
 MRZ_TESSERACT_CONFIG = (
     "--oem 1 --psm 6 --dpi 300 -l eng "
     "-c user_defined_dpi=300 "

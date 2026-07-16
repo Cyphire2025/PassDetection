@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import and_, func, select, update
@@ -31,21 +31,42 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    get_qr_passenger as _get_qr_passenger,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    group_passenger_qr_codes as _group_passenger_qr_codes,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    issue_passenger_qr as _issue_passenger_qr,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    latest_passenger_qr as _latest_passenger_qr,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    qr_hash as _qr_hash,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    qr_token_response as _qr_token_response,
+)
+from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
+    record_qr_audit as _record_qr_audit,
+)
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
     AssignedPassengerDetailResponse,
     AssignedPassengerResponse,
     AssignGroupCoordinatorsRequest,
     AssignGroupPassengersRequest,
-    AttendanceScanRequest,
-    AttendanceScanResponse,
-    AttendancePassengerStatus,
-    AttendanceSessionDetailsResponse,
-    AttendanceSessionResponse,
     AttendanceCoordinatorSummary,
     AttendanceMissingPassenger,
+    AttendancePassengerStatus,
+    AttendanceScanRequest,
+    AttendanceScanResponse,
+    AttendanceSessionDetailsResponse,
+    AttendanceSessionResponse,
     AttendanceSessionSummary,
-    CreateAttendanceSessionRequest,
     CoordinatorResponse,
+    CreateAttendanceSessionRequest,
     CreateCoordinatorRequest,
     GroupAttendanceOverviewResponse,
     GroupCoordinatorAssignmentResponse,
@@ -56,17 +77,6 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     TourOperationsArchitectureResponse,
     TourOperationsGroupResponse,
     TourOperationsPhaseResponse,
-)
-from app.presentation.api.v1.routes.tour_operations_qr_helpers import (
-    get_qr_passenger as _get_qr_passenger,
-    group_passenger_qr_codes as _group_passenger_qr_codes,
-    issue_passenger_qr as _issue_passenger_qr,
-    latest_passenger_qr as _latest_passenger_qr,
-    qr_hash as _qr_hash,
-    qr_payload as _qr_payload,
-    qr_status as _qr_status,
-    qr_token_response as _qr_token_response,
-    record_qr_audit as _record_qr_audit,
 )
 from app.presentation.dependencies.auth import require_role
 
@@ -396,7 +406,7 @@ async def assign_group_coordinators(
         if valid_ids != set(coordinator_ids):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="One or more coordinators are not assignable")
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     await session.execute(
         update(CoordinatorGroupAssignmentModel)
         .where(
@@ -557,7 +567,7 @@ async def revoke_passenger_qr(
     if not token:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
     if token.revoked_at is None:
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         token.is_active = False
         token.revoked_at = now
         token.updated_at = now
@@ -592,7 +602,7 @@ async def set_passenger_qr_active(
     token = await _latest_passenger_qr(session, passenger_id, lock=True)
     if not token:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger has no QR token")
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if body.is_active and (token.revoked_at is not None or token.expires_at <= now):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -645,8 +655,8 @@ async def set_passenger_qr_expiration(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Revoked QR tokens cannot be changed")
     expires_at = body.expires_at
     if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-    now = datetime.now(tz=timezone.utc)
+        expires_at = expires_at.replace(tzinfo=UTC)
+    now = datetime.now(tz=UTC)
     token.expires_at = expires_at
     if expires_at <= now:
         token.is_active = False
@@ -709,7 +719,7 @@ async def assign_group_passengers(
         if not coordinator_result.scalar_one_or_none():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Coordinator is not assigned to this group")
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     await session.execute(
         update(CoordinatorAssignmentModel)
         .where(
@@ -899,7 +909,7 @@ async def create_my_attendance_session(
 ) -> AttendanceSessionResponse:
     agency_id = _require_agency(current_user)
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     attendance_session = AttendanceSessionModel(
         agency_id=agency_id,
         group_id=group_id,
@@ -1022,7 +1032,7 @@ async def record_my_attendance_scan(
             session_id=session_id,
             passenger_id=passenger.id,
             coordinator_user_id=current_user.id,
-            scanned_at=body.scanned_at or datetime.now(tz=timezone.utc),
+            scanned_at=body.scanned_at or datetime.now(tz=UTC),
             sync_source=body.sync_source,
             client_event_id=body.client_event_id,
             device_id=body.device_id,
@@ -1091,7 +1101,7 @@ async def complete_my_attendance_session(
 ) -> AttendanceSessionResponse:
     agency_id = _require_agency(current_user)
     attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     attendance_session.status = "completed"
     attendance_session.completed_at = now
     attendance_session.updated_at = now
@@ -1311,7 +1321,7 @@ async def _resolve_scannable_passenger(
     coordinator_id: uuid.UUID,
     qr_payload: str,
 ) -> tuple[PassportSubmissionModel | None, PassengerQRTokenModel | None, str | None]:
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     token_hash = _qr_hash(qr_payload.strip())
     result = await session.execute(
         select(PassportSubmissionModel, PassengerQRTokenModel)

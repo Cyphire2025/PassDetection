@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import func, select
@@ -23,7 +23,9 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.document_matcher import DOCUMENT_TYPES, DocumentMatcher
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DeleteDistributionDocumentsRequest,
@@ -325,7 +327,7 @@ async def upload_documents(
         file_payloads.append((file, content))
         classified.append(classification)
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     batch = DocumentDistributionBatchModel(
         id=uuid.uuid4(),
         agency_id=group.agency_id,
@@ -453,7 +455,7 @@ async def reupload_passenger_document(
         .limit(1)
     )
     batch = result.scalar_one_or_none()
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if not batch:
         batch = DocumentDistributionBatchModel(
             id=uuid.uuid4(),
@@ -597,7 +599,7 @@ async def delete_distribution_documents(
         .order_by(DistributedDocumentModel.match_confidence.desc(), DistributedDocumentModel.created_at.asc())
     )
     remaining_documents = list(remaining_result.scalars().all())
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     batch.status = "draft"
     batch.saved_at = None
     batch.uploaded_count = len(remaining_documents)
@@ -638,7 +640,7 @@ async def save_batch(
     if not batch:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document batch was not found")
     await _get_authorized_group(batch.group_id, current_user=current_user, session=session)
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     batch.status = "saved"
     batch.saved_at = now
     batch.updated_at = now

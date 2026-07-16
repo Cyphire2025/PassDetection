@@ -12,7 +12,6 @@ import re
 
 import bcrypt
 
-
 PASSWORD_MIN_LENGTH = 10
 
 

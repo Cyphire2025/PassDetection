@@ -5,14 +5,16 @@ from __future__ import annotations
 import uuid
 
 from app.application.use_cases.passports.process_passport_submission_job_use_case import (
-    ProcessPassportSubmissionJobUseCase,
     ProcessingRetryRequested,
+    ProcessPassportSubmissionJobUseCase,
 )
-from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.ai import GeminiPassportVerificationService
+from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 

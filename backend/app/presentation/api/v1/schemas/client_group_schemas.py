@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -47,7 +48,7 @@ class CreateClientGroupRequest(BaseModel):
         return _normalize_departure_cities(value)
 
     @model_validator(mode="after")
-    def validate_airport_configuration(self) -> "CreateClientGroupRequest":
+    def validate_airport_configuration(self) -> CreateClientGroupRequest:
         if self.nearest_international_airport_enabled and not self.departure_cities:
             raise ValueError("Add at least one nearest international airport when the option is enabled.")
         if not self.nearest_international_airport_enabled:
@@ -75,7 +76,7 @@ class UpdateClientGroupRequest(BaseModel):
         return _normalize_departure_cities(value)
 
     @model_validator(mode="after")
-    def validate_airport_configuration(self) -> "UpdateClientGroupRequest":
+    def validate_airport_configuration(self) -> UpdateClientGroupRequest:
         if self.nearest_international_airport_enabled and not self.departure_cities:
             raise ValueError("Add at least one nearest international airport when the option is enabled.")
         if not self.nearest_international_airport_enabled:

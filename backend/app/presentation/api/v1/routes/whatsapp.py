@@ -2,20 +2,31 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
 import hmac
+import json
 import logging
 import re
 import tempfile
 import uuid
-from zipfile import BadZipFile
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
+from zipfile import BadZipFile
 
-from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, Request, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+    status,
+)
 from fastapi.responses import PlainTextResponse
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
@@ -217,7 +228,7 @@ async def receive_whatsapp_webhook(
         )
         for log in result.scalars().all():
             log.status = provider_status
-            log.status_updated_at = datetime.now(tz=timezone.utc)
+            log.status_updated_at = datetime.now(tz=UTC)
             if error_message:
                 log.error_message = error_message
             processed_statuses += 1
@@ -708,10 +719,10 @@ async def create_broadcast_group(
         agency_id=current_user.agency_id,
         name=group_name,
         organizing_company_name=company_name,
-        recipient_opt_in_confirmed_at=datetime.now(tz=timezone.utc),
+        recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
         created_by_user_id=current_user.id,
-        created_at=datetime.now(tz=timezone.utc),
-        updated_at=datetime.now(tz=timezone.utc),
+        created_at=datetime.now(tz=UTC),
+        updated_at=datetime.now(tz=UTC),
     )
     session.add(group)
     await session.flush()
@@ -723,7 +734,7 @@ async def create_broadcast_group(
                 name=_clean_name(contact.name),
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
-                created_at=datetime.now(tz=timezone.utc),
+                created_at=datetime.now(tz=UTC),
             )
         )
     for sort_order, (normalized, support_contact) in enumerate(normalized_support_contacts.items()):
@@ -735,7 +746,7 @@ async def create_broadcast_group(
                 phone_number=support_contact.phone_number.strip(),
                 normalized_phone_number=normalized,
                 sort_order=sort_order,
-                created_at=datetime.now(tz=timezone.utc),
+                created_at=datetime.now(tz=UTC),
             )
         )
     await session.flush()
@@ -836,12 +847,12 @@ async def send_broadcast_message(
                 agency_id=recipient.agency_id,
                 message_type=message_type,
                 status="queued",
-                status_updated_at=datetime.now(tz=timezone.utc),
+                status_updated_at=datetime.now(tz=UTC),
                 provider_message_id=None,
                 error_message=None,
                 template_name=template_name,
                 rendered_message=rendered,
-                created_at=datetime.now(tz=timezone.utc),
+                created_at=datetime.now(tz=UTC),
             )
         )
         results.append(
@@ -874,7 +885,7 @@ async def send_broadcast_message(
         )
         for log in logs_result.scalars().all():
             log.status = "failed"
-            log.status_updated_at = datetime.now(tz=timezone.utc)
+            log.status_updated_at = datetime.now(tz=UTC)
             log.error_message = error_message
         await session.commit()
         raise HTTPException(
@@ -922,7 +933,7 @@ async def get_broadcast_batch_status(
 
     queued_statuses = {"queued", "processing"}
     successful_statuses = {"submitted", "sent", "delivered", "read"}
-    stale_cutoff = datetime.now(tz=timezone.utc) - timedelta(minutes=30)
+    stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
     results: list[WhatsAppSendResult] = []
     for log, recipient in rows:
         is_stalled = log.status in queued_statuses and log.status_updated_at < stale_cutoff

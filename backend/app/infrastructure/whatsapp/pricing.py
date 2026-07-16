@@ -8,7 +8,7 @@ BSP/Meta rate card at send time.
 
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 from app.application.dtos.whatsapp_dtos import WhatsAppCostEstimate, WhatsAppMessageCategory
 

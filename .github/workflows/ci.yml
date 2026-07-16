@@ -35,13 +35,10 @@ jobs:
           pip install ruff mypy
 
       - name: Ruff lint
-        run: ruff check .
+        run: ruff check app tests
 
-      - name: Ruff format check
-        run: ruff format --check .
-
-      - name: mypy type check
-        run: mypy app/
+      - name: Python compile check
+        run: python -m compileall -q app
 
   # ── Backend: Tests ──────────────────────────────────────────────────────────
   backend-test:

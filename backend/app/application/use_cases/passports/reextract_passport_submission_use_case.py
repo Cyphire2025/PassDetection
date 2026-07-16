@@ -12,7 +12,10 @@ from app.application.interfaces.passport_extraction import IPassportExtractionSe
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
-from app.domain.repositories.interfaces import IObjectStorageRepository, IPassportSubmissionRepository
+from app.domain.repositories.interfaces import (
+    IObjectStorageRepository,
+    IPassportSubmissionRepository,
+)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 
 logger = get_logger(__name__)

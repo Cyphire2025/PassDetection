@@ -21,8 +21,8 @@ from app.core.security.jwt import create_access_token, create_refresh_token
 from app.core.security.password import verify_password
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.domain.repositories.interfaces import IUserRepository
-from app.infrastructure.security.login_attempt_limiter import LoginAttemptLimiter
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
+from app.infrastructure.security.login_attempt_limiter import LoginAttemptLimiter
 
 logger = get_logger(__name__)
 

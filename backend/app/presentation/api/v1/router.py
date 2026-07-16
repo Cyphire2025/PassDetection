@@ -14,9 +14,11 @@ from app.presentation.api.v1.routes.analytics import router as analytics_router
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
 from app.presentation.api.v1.routes.auth import router as auth_router
 from app.presentation.api.v1.routes.client_groups import router as links_router
-from app.presentation.api.v1.routes.document_distribution import router as document_distribution_router
-from app.presentation.api.v1.routes.document_rename import router as document_rename_router
 from app.presentation.api.v1.routes.dashboard import router as dashboard_router
+from app.presentation.api.v1.routes.document_distribution import (
+    router as document_distribution_router,
+)
+from app.presentation.api.v1.routes.document_rename import router as document_rename_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.notifications import router as notifications_router
 from app.presentation.api.v1.routes.passports import router as passport_router

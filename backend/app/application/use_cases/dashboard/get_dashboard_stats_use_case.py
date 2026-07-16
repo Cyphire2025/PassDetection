@@ -12,7 +12,7 @@ import uuid
 from app.application.dtos.dashboard_dtos import DashboardStatsDTO, RecentSubmissionDTO
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus, User
-from app.domain.repositories.interfaces import IPassportSubmissionRepository, IClientGroupRepository
+from app.domain.repositories.interfaces import IClientGroupRepository, IPassportSubmissionRepository
 
 logger = get_logger(__name__)
 

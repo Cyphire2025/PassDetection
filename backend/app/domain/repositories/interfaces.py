@@ -19,7 +19,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
 
-from app.domain.entities.entities import Agency, PassportSubmission, ClientGroup, User
+from app.domain.entities.entities import Agency, ClientGroup, PassportSubmission, User
 
 
 @dataclass(frozen=True)

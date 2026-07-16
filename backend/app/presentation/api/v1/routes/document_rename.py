@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from io import BytesIO
 from urllib.parse import quote
 
@@ -241,7 +241,7 @@ async def analyze_and_rename_documents(
 
     matcher = DocumentMatcher()
     storage = MinioStorageRepository()
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     batch = DocumentRenameBatchModel(
         id=uuid.uuid4(),
         agency_id=agency_id,

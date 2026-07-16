@@ -7,7 +7,6 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-
 ROOM_TYPES = {"single": 1, "twin": 2, "triple": 3}
 ALLOCATION_TAGS = {"mixed", "male", "female", "family", "couple", "vip"}
 PASSENGER_TAGS = {"unspecified", "male", "female", "family", "couple"}
@@ -21,7 +20,7 @@ class CreateRoomingHotelRequest(BaseModel):
     check_out_date: date | None = None
 
     @model_validator(mode="after")
-    def validate_dates(self) -> "CreateRoomingHotelRequest":
+    def validate_dates(self) -> CreateRoomingHotelRequest:
         if self.check_in_date and self.check_out_date and self.check_out_date < self.check_in_date:
             raise ValueError("Check-out date cannot be before check-in date")
         return self

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 DIGIT_CONFUSIONS = {
     "O": "0",
     "Q": "0",

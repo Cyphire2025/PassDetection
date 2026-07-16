@@ -15,7 +15,6 @@ from PIL import Image, UnidentifiedImageError
 from app.core.config.settings import get_settings
 from app.domain.exceptions.exceptions import ImageValidationError
 
-
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
 
 

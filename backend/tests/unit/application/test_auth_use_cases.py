@@ -8,8 +8,8 @@ Uses unittest.mock — no real DB required.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime, timezone
+from unittest.mock import AsyncMock
 
 import pytest
 

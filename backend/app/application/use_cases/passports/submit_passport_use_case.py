@@ -5,8 +5,8 @@ Submit Passport Use Case
 
 from __future__ import annotations
 
-import uuid
 import mimetypes
+import uuid
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.interfaces.passport_extraction import IPassportExtractionService
@@ -22,12 +22,14 @@ from app.domain.exceptions.exceptions import (
     ValidationError,
 )
 from app.domain.repositories.interfaces import (
+    IClientGroupRepository,
     IObjectStorageRepository,
     IPassportSubmissionRepository,
-    IClientGroupRepository,
+)
+from app.infrastructure.ocr.passport_back_extraction_service import (
+    PassportBackPageExtractionService,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
-from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 
 logger = get_logger(__name__)
 
@@ -84,7 +86,7 @@ class SubmitPassportUseCase:
         # Draft images are isolated from permanent passport storage until the
         # client explicitly submits the reviewed details.
         s3_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}{ext}"
-        
+
         await self._storage_repo.upload_file(
             file_content=file_content,
             file_name=s3_key,

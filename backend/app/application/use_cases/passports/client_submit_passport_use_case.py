@@ -12,7 +12,11 @@ from pathlib import PurePosixPath
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
-from app.domain.repositories.interfaces import IClientGroupRepository, IObjectStorageRepository, IPassportSubmissionRepository
+from app.domain.repositories.interfaces import (
+    IClientGroupRepository,
+    IObjectStorageRepository,
+    IPassportSubmissionRepository,
+)
 
 
 class ClientSubmitPassportUseCase:

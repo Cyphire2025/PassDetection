@@ -12,7 +12,6 @@ from typing import BinaryIO
 from app.domain.entities.entities import PassportSubmission
 from app.domain.repositories.interfaces import IObjectStorageRepository
 
-
 _UNSAFE_COMPONENT = re.compile(r"[\\/:*?\"<>|\x00-\x1f\x7f]+")
 _SAFE_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 _WINDOWS_RESERVED = {

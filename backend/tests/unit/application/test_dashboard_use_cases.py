@@ -12,7 +12,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.application.use_cases.dashboard.get_dashboard_stats_use_case import GetDashboardStatsUseCase
+from app.application.use_cases.dashboard.get_dashboard_stats_use_case import (
+    GetDashboardStatsUseCase,
+)
 from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission
 
 

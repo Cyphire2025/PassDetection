@@ -7,7 +7,7 @@ Added: RefreshTokenModel for storing revocable refresh tokens.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlalchemy import (
     Boolean,
@@ -20,15 +20,15 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 class Base(DeclarativeBase):

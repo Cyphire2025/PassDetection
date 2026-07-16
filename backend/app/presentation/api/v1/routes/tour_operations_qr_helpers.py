@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import secrets
 import uuid
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from hashlib import sha256
 
 from fastapi import HTTPException, Request, status
@@ -121,7 +121,7 @@ async def group_passenger_qr_codes(
     return GroupPassengerQrCodesResponse(
         group_id=group.id,
         group_name=group.name,
-        generated_at=datetime.now(tz=timezone.utc),
+        generated_at=datetime.now(tz=UTC),
         passengers=passengers,
     )
 
@@ -137,7 +137,7 @@ def qr_hash(payload: str) -> str:
 def qr_status(token: PassengerQRTokenModel | None, now: datetime | None = None) -> str:
     if token is None:
         return "not_generated"
-    now = now or datetime.now(tz=timezone.utc)
+    now = now or datetime.now(tz=UTC)
     if token.revoked_at is not None:
         return "revoked"
     if token.expires_at <= now:
@@ -214,7 +214,7 @@ async def issue_passenger_qr(
         .with_for_update()
     )
     previous = await latest_passenger_qr(session, passenger_id, lock=True)
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if previous and not regenerate and qr_status(previous, now) in {"active", "inactive"}:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -272,8 +272,8 @@ async def ensure_passenger_qr(
 
 def qr_expires_at_for_group(group: ClientGroupModel, now: datetime | None = None) -> datetime:
     if group.return_date:
-        return datetime.combine(group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS), time.max, tzinfo=timezone.utc)
-    return (now or datetime.now(tz=timezone.utc)) + QR_TOKEN_TTL
+        return datetime.combine(group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS), time.max, tzinfo=UTC)
+    return (now or datetime.now(tz=UTC)) + QR_TOKEN_TTL
 
 
 async def record_qr_audit(

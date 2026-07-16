@@ -16,7 +16,6 @@ from pathlib import PurePosixPath
 from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.security.upload_validator import UploadValidator, ValidatedUpload
 
-
 MAX_ARCHIVES = 8
 MAX_DIRECT_FILES = 3_000
 MAX_ARCHIVE_BYTES = 512 * 1024 * 1024

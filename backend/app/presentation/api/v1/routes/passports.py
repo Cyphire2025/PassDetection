@@ -7,29 +7,63 @@ from __future__ import annotations
 
 import io
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
-from app.application.use_cases.passports.confirm_passport_submission_use_case import ConfirmPassportSubmissionUseCase
-from app.application.use_cases.passports.client_submit_passport_use_case import ClientSubmitPassportUseCase
-from app.application.use_cases.passports.get_passport_submission_use_case import GetPassportSubmissionUseCase
-from app.application.use_cases.passports.list_passport_group_summaries_use_case import ListPassportGroupSummariesUseCase
-from app.application.use_cases.passports.list_passport_submissions_use_case import ListPassportSubmissionsUseCase
-from app.application.use_cases.passports.list_passport_submissions_by_group_use_case import ListPassportSubmissionsByGroupUseCase
-from app.application.use_cases.passports.reextract_passport_submission_use_case import ReextractPassportSubmissionUseCase
-from app.application.use_cases.passports.retry_public_passport_extraction_use_case import RetryPublicPassportExtractionUseCase
+from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.client_submit_passport_use_case import (
+    ClientSubmitPassportUseCase,
+)
+from app.application.use_cases.passports.confirm_passport_submission_use_case import (
+    ConfirmPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.get_passport_submission_use_case import (
+    GetPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.list_passport_group_summaries_use_case import (
+    ListPassportGroupSummariesUseCase,
+)
+from app.application.use_cases.passports.list_passport_submissions_by_group_use_case import (
+    ListPassportSubmissionsByGroupUseCase,
+)
+from app.application.use_cases.passports.list_passport_submissions_use_case import (
+    ListPassportSubmissionsUseCase,
+)
+from app.application.use_cases.passports.reextract_passport_submission_use_case import (
+    ReextractPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.retry_public_passport_extraction_use_case import (
+    RetryPublicPassportExtractionUseCase,
+)
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import AuthorizationError, PassDetectionError, EntityNotFoundError, StorageError
-from app.infrastructure.database.session import get_db_session
+from app.domain.exceptions.exceptions import (
+    AuthorizationError,
+    EntityNotFoundError,
+    PassDetectionError,
+    StorageError,
+)
 from app.infrastructure.ai import GeminiPassportVerificationService
-from app.infrastructure.database.models import ClientGroupModel, PassengerQRTokenModel, PassportSubmissionModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    PassengerQRTokenModel,
+    PassportSubmissionModel,
+)
+from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
 from app.infrastructure.export.passport_image_zip_exporter import (
     MissingPassportImagesError,
@@ -37,17 +71,25 @@ from app.infrastructure.export.passport_image_zip_exporter import (
     PassportImageZipExporter,
     safe_download_filename,
 )
+from app.infrastructure.imports.passport_document_importer import (
+    PassportDocumentFile,
+    PassportDocumentImporter,
+    RejectedPassportDocument,
+)
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
-from app.infrastructure.imports.passport_document_importer import PassportDocumentFile, PassportDocumentImporter, RejectedPassportDocument
+from app.infrastructure.ocr.passport_back_extraction_service import (
+    PassportBackPageExtractionService,
+)
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
-from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
-from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.repositories.notification_repository import NotificationRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
+from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import ensure_passenger_qr
 from app.presentation.api.v1.schemas.passport_schemas import (
@@ -153,7 +195,7 @@ async def _passport_qr_status(session: AsyncSession, passenger_id: uuid.UUID) ->
     token = result.scalar_one_or_none()
     if token is None:
         return {"status": "not_generated"}
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if token.revoked_at is not None:
         token_status = "revoked"
     elif token.expires_at <= now:
@@ -737,7 +779,7 @@ async def import_passports_by_group(
         for submission in existing_submissions
     }
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     models: list[PassportSubmissionModel] = []
     updated_count = 0
     seen_import_keys: set[str] = set()
@@ -1047,7 +1089,7 @@ async def _save_loose_passport_documents_by_group(
                     submission.extracted_fields = merged_fields
                     if submission.confirmed_fields is None:
                         submission.confirmed_fields = merged_fields
-                submission.updated_at = datetime.now(tz=timezone.utc)
+                submission.updated_at = datetime.now(tz=UTC)
                 touched_submissions[submission.id] = submission
                 accepted_documents.append(PassportDocumentImportItem(
                     filename=item.filename,

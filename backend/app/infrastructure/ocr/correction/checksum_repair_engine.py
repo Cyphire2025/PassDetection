@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 
 from app.infrastructure.ocr.correction.character_normalizer import CharacterNormalizer
 
-
 MRZ_WEIGHTS = (7, 3, 1)
 COUNTRY_CODES = ("IND",)
 

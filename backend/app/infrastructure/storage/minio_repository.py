@@ -4,6 +4,7 @@ MinIO / S3 Storage Repository
 """
 
 import asyncio
+
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError

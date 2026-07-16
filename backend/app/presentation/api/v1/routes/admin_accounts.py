@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import func, select, update
@@ -138,7 +138,7 @@ async def reset_managed_account_password(
 ) -> ManagedAccountResponse:
     account, agency_name = await _get_manageable_account(session, current_user, account_id)
     account.hashed_password = hash_password(body.password)
-    account.updated_at = datetime.now(tz=timezone.utc)
+    account.updated_at = datetime.now(tz=UTC)
     await RefreshTokenRepository(session).revoke_all_for_user(account.id)
     await _audit_account_action(session, current_user, request, account, "account.password_reset")
     await session.flush()
@@ -177,7 +177,7 @@ async def set_managed_account_status(
 ) -> ManagedAccountResponse:
     account, agency_name = await _get_manageable_account(session, current_user, account_id)
     account.is_active = body.is_active
-    account.updated_at = datetime.now(tz=timezone.utc)
+    account.updated_at = datetime.now(tz=UTC)
     if not body.is_active:
         await RefreshTokenRepository(session).revoke_all_for_user(account.id)
         await _deactivate_coordinator_assignments(session, account)
@@ -244,7 +244,7 @@ async def delete_managed_coordinator(
     )
     if preserves_history:
         account.is_active = False
-        account.updated_at = datetime.now(tz=timezone.utc)
+        account.updated_at = datetime.now(tz=UTC)
         result = "access_removed"
     else:
         await session.delete(account)
@@ -294,7 +294,7 @@ async def _get_manageable_account(
 async def _deactivate_coordinator_assignments(session: AsyncSession, account: UserModel) -> None:
     if account.role != UserRole.AGENCY_COORDINATOR.value:
         return
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     await session.execute(
         update(CoordinatorAssignmentModel)
         .where(

@@ -11,12 +11,19 @@ import uuid
 from sqlalchemy import and_, case, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.logging.logger import get_logger
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission, User
 from app.domain.exceptions.exceptions import EntityNotFoundError
-from app.domain.repositories.interfaces import IPassportSubmissionRepository, PassportSubmissionGroupSummary
-from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel, PassportSubmissionModel
+from app.domain.repositories.interfaces import (
+    IPassportSubmissionRepository,
+    PassportSubmissionGroupSummary,
+)
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ManagerGroupAccessModel,
+    PassportSubmissionModel,
+)
 
 logger = get_logger(__name__)
 

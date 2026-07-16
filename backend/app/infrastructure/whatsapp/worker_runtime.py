@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 from sqlalchemy import select, update
@@ -27,7 +27,6 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
 )
-
 
 MAX_PROVIDER_ATTEMPTS = 3
 
@@ -64,7 +63,7 @@ async def run_whatsapp_broadcast(
                 if log.status not in {"queued", "processing"}:
                     continue
                 log.status = "failed"
-                log.status_updated_at = datetime.now(tz=timezone.utc)
+                log.status_updated_at = datetime.now(tz=UTC)
                 log.error_message = "WhatsApp broadcast group no longer exists"
             await session.commit()
             return
@@ -100,7 +99,7 @@ async def run_whatsapp_broadcast(
                     )
                     .values(
                         status="processing",
-                        status_updated_at=datetime.now(tz=timezone.utc),
+                        status_updated_at=datetime.now(tz=UTC),
                     )
                     .returning(WhatsAppMessageLogModel.id)
                     .execution_options(synchronize_session=False)
@@ -112,7 +111,7 @@ async def run_whatsapp_broadcast(
                 recipient = recipients.get(log.recipient_id)
                 if not recipient:
                     log.status = "failed"
-                    log.status_updated_at = datetime.now(tz=timezone.utc)
+                    log.status_updated_at = datetime.now(tz=UTC)
                     log.error_message = "WhatsApp recipient no longer exists"
                     await session.commit()
                     continue
@@ -141,7 +140,7 @@ async def run_whatsapp_broadcast(
                             header_parameters=header_parameters,
                         )
                         log.status = "submitted"
-                        log.status_updated_at = datetime.now(tz=timezone.utc)
+                        log.status_updated_at = datetime.now(tz=UTC)
                         log.provider_message_id = provider_id
                         log.error_message = None
                         await session.commit()
@@ -149,19 +148,19 @@ async def run_whatsapp_broadcast(
                     except WhatsAppCloudApiError as exc:
                         if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
                             log.status = "processing"
-                            log.status_updated_at = datetime.now(tz=timezone.utc)
+                            log.status_updated_at = datetime.now(tz=UTC)
                             log.error_message = f"Temporary provider error; retrying: {exc}"[:2000]
                             await session.commit()
                             await asyncio.sleep(2**attempt)
                             continue
                         log.status = "failed"
-                        log.status_updated_at = datetime.now(tz=timezone.utc)
+                        log.status_updated_at = datetime.now(tz=UTC)
                         log.error_message = str(exc)[:2000]
                         await session.commit()
                         break
                     except Exception as exc:  # noqa: BLE001 - isolate permanent unknown failures.
                         log.status = "failed"
-                        log.status_updated_at = datetime.now(tz=timezone.utc)
+                        log.status_updated_at = datetime.now(tz=UTC)
                         log.error_message = str(exc)[:2000]
                         await session.commit()
                         break
@@ -179,6 +178,6 @@ async def mark_whatsapp_batch_failed(*, batch_id: str, error_message: str) -> No
         )
         for log in result.scalars().all():
             log.status = "failed"
-            log.status_updated_at = datetime.now(tz=timezone.utc)
+            log.status_updated_at = datetime.now(tz=UTC)
             log.error_message = error_message[:2000]
         await session.commit()

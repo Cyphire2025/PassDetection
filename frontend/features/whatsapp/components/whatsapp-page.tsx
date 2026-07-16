@@ -28,7 +28,6 @@ import {
   usePreviewWhatsAppMessage,
   useSendWhatsAppPassportLink,
   useSendWhatsAppWelcome,
-  WHATSAPP_BATCH_POLL_LIMIT_MS,
   useWhatsAppBatchStatus,
   useWhatsAppGroup,
   useWhatsAppGroups,
@@ -75,12 +74,6 @@ export function WhatsAppPage() {
     persistedBatch?.startedAt ?? null,
   );
   const displayedSend = currentBatch ?? lastSend;
-  const pollingTimedOut = Boolean(
-    currentBatch?.queued
-    && persistedBatch
-    && Date.now() - persistedBatch.startedAt >= WHATSAPP_BATCH_POLL_LIMIT_MS,
-  );
-
   useEffect(() => {
     if (!currentBatch || currentBatch.queued > 0 || typeof window === "undefined") return;
     window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
@@ -121,7 +114,7 @@ export function WhatsAppPage() {
         >
           {displayedSend.queued > 0 && (
             <>
-              {displayedSend.queued} message{displayedSend.queued === 1 ? " is" : "s are"} queued for individual delivery. {pollingTimedOut && "Automatic status checks paused; refresh this page later. "}
+              {displayedSend.queued} message{displayedSend.queued === 1 ? " is" : "s are"} queued for individual delivery.
             </>
           )}
           {displayedSend.sent > 0 && (

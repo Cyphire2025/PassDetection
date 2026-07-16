@@ -5,10 +5,14 @@ Create Upload Link Use Case
 
 from __future__ import annotations
 
-import uuid
 import secrets
+import uuid
 
-from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, CreateClientGroupInputDTO, client_group_output_from_entity
+from app.application.dtos.client_group_dtos import (
+    ClientGroupOutputDTO,
+    CreateClientGroupInputDTO,
+    client_group_output_from_entity,
+)
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup
 from app.domain.repositories.interfaces import IClientGroupRepository

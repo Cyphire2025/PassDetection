@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import uuid
 import unittest
+import uuid
 from unittest.mock import AsyncMock
 
-from app.application.use_cases.passports.client_submit_passport_use_case import ClientSubmitPassportUseCase
+from app.application.use_cases.passports.client_submit_passport_use_case import (
+    ClientSubmitPassportUseCase,
+)
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.domain.exceptions.exceptions import ValidationError

@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import uuid
 
-from app.application.dtos.client_group_dtos import ClientGroupOutputDTO, client_group_output_from_entity
+from app.application.dtos.client_group_dtos import (
+    ClientGroupOutputDTO,
+    client_group_output_from_entity,
+)
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
 

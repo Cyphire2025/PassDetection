@@ -14,13 +14,13 @@ Responsibilities:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security.jwt import hash_refresh_token
 from app.core.logging.logger import get_logger
+from app.core.security.jwt import hash_refresh_token
 from app.infrastructure.database.models import RefreshTokenModel
 
 logger = get_logger(__name__)
@@ -58,7 +58,7 @@ class RefreshTokenRepository:
           - Not revoked
           - Not expired
         """
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         hashed = hash_refresh_token(token)
         result = await self._session.execute(
             select(RefreshTokenModel).where(
@@ -75,14 +75,14 @@ class RefreshTokenRepository:
         await self._session.execute(
             update(RefreshTokenModel)
             .where(RefreshTokenModel.token.in_([hashed, token]))
-            .values(is_revoked=True, revoked_at=datetime.now(tz=timezone.utc))
+            .values(is_revoked=True, revoked_at=datetime.now(tz=UTC))
         )
         await self._session.flush()
         logger.info("refresh_token_revoked")
 
     async def revoke_all_for_user(self, user_id: uuid.UUID) -> None:
         """Revoke all refresh tokens for a user (force logout all devices)."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         await self._session.execute(
             update(RefreshTokenModel)
             .where(

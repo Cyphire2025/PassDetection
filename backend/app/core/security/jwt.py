@@ -13,10 +13,10 @@ Design:
 
 from __future__ import annotations
 
-import uuid
 import hashlib
 import hmac
-from datetime import datetime, timedelta, timezone
+import uuid
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from jose import JWTError, jwt
@@ -45,7 +45,7 @@ def create_access_token(
     Returns:
         (encoded_token, expires_at) tuple.
     """
-    expires_at = datetime.now(tz=timezone.utc) + timedelta(
+    expires_at = datetime.now(tz=UTC) + timedelta(
         minutes=_settings.jwt.access_token_expire_minutes
     )
     payload: dict[str, Any] = {
@@ -54,7 +54,7 @@ def create_access_token(
         "agency_id": str(agency_id) if agency_id else None,
         "type":      TOKEN_TYPE_ACCESS,
         "exp":       expires_at,
-        "iat":       datetime.now(tz=timezone.utc),
+        "iat":       datetime.now(tz=UTC),
         "jti":       str(uuid.uuid4()),   # unique token ID
     }
     encoded = jwt.encode(
@@ -73,7 +73,7 @@ def create_refresh_token() -> tuple[str, datetime]:
     Returns:
         (token_string, expires_at) tuple.
     """
-    expires_at = datetime.now(tz=timezone.utc) + timedelta(
+    expires_at = datetime.now(tz=UTC) + timedelta(
         days=_settings.jwt.refresh_token_expire_days
     )
     return str(uuid.uuid4()), expires_at
