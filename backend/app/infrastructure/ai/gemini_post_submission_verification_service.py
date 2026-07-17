@@ -7,7 +7,6 @@ import base64
 import json
 import re
 import time
-from datetime import date, datetime
 from typing import Any, Final
 
 import httpx
@@ -24,6 +23,14 @@ from app.application.interfaces.post_submission_verification import (
 )
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.domain.exceptions.exceptions import ValidationError
+from app.domain.value_objects.passport_fields import normalize_passport_date
+from app.infrastructure.ai.passport_date_evidence import (
+    PassportNumericDateOrder,
+    normalize_passport_date_evidence,
+    passport_date_evidence_candidates,
+    passport_numeric_date_order_hint,
+)
 
 logger = get_logger(__name__)
 
@@ -53,8 +60,20 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
                         "enum": list(POST_SUBMISSION_PASSPORT_FIELDS),
                     },
                     "verdict": {"type": "STRING", "enum": list(_VERDICTS)},
-                    "observed_value": {"type": "STRING"},
-                    "confidence": {"type": "NUMBER"},
+                    "observed_value": {
+                        "type": "STRING",
+                        "description": (
+                            "Visible field value; dates must use YYYY-MM-DD; "
+                            "empty only when unreadable"
+                        ),
+                    },
+                    "confidence": {
+                        "type": "NUMBER",
+                        "description": (
+                            "Confidence that observed_value is visibly supported; "
+                            "zero when unreadable"
+                        ),
+                    },
                     "reason_code": {"type": "STRING", "enum": list(_REASON_CODES)},
                 },
                 "required": [
@@ -77,7 +96,9 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "printed on the passport data page. Return exactly one result for every schema field and "
     "nothing outside the JSON schema. Use correct only for a clear normalized match, incorrect "
     "for a clear different value, and suspicious when unreadable or ambiguous. Put an empty "
-    "observed_value when unreadable. Never infer hidden values."
+    "observed_value when unreadable. For date fields, convert any visibly printed date format "
+    "to YYYY-MM-DD in observed_value. Confidence measures visible value evidence; set it to "
+    "zero when the value is unreadable. Never infer hidden values."
 )
 
 
@@ -85,7 +106,10 @@ def _string_value(value: Any) -> str:
     return value.strip() if isinstance(value, str) else ""
 
 
-def _normalize_passport_value(field: str, value: Any) -> str:
+def _normalize_passport_value(
+    field: str,
+    value: Any,
+) -> str:
     normalized = re.sub(r"\s+", " ", _string_value(value)).strip()
     if not normalized:
         return ""
@@ -109,16 +133,9 @@ def _normalize_passport_value(field: str, value: Any) -> str:
             return ""
     if field in {"date_of_birth", "date_of_issue", "date_of_expiry"}:
         try:
-            parsed = datetime.strptime(normalized, "%Y-%m-%d").date()
-        except ValueError:
+            return normalize_passport_date(normalized, field=field)
+        except ValidationError:
             return ""
-        if parsed.year < 1900 or parsed.year > 2100:
-            return ""
-        if field == "date_of_birth" and parsed >= date.today():
-            return ""
-        if field == "date_of_issue" and parsed > date.today():
-            return ""
-        return parsed.isoformat()
     if field == "sex":
         candidate = {
             "MALE": "M",
@@ -142,6 +159,23 @@ class PostSubmissionFieldAgent:
         ):
             raise ValueError("Gemini must return every passport field exactly once")
 
+        date_order_hints = {
+            hint
+            for raw in raw_fields
+            if isinstance(raw, dict)
+            and raw.get("field")
+            in {"date_of_birth", "date_of_issue", "date_of_expiry"}
+            and isinstance(raw.get("observed_value"), str)
+            and (
+                hint := passport_numeric_date_order_hint(
+                    raw["observed_value"],
+                )
+            )
+            is not None
+        }
+        date_order: PassportNumericDateOrder | None = (
+            next(iter(date_order_hints)) if len(date_order_hints) == 1 else None
+        )
         results: dict[str, PostSubmissionFieldResult] = {}
         expected_keys = {
             "field",
@@ -176,13 +210,31 @@ class PostSubmissionFieldAgent:
                 or len(raw_observed) > _MAX_OBSERVED_VALUE_CHARACTERS
             ):
                 raise ValueError("Observed value must be a bounded JSON string")
-            observed = _normalize_passport_value(field, raw_observed)
+            date_evidence_ambiguous = False
+            if field in {"date_of_birth", "date_of_issue", "date_of_expiry"}:
+                date_candidates = passport_date_evidence_candidates(
+                    raw_observed,
+                    field=field,
+                )
+                observed = normalize_passport_date_evidence(
+                    raw_observed,
+                    field=field,
+                    numeric_order=date_order,
+                )
+                date_evidence_ambiguous = (
+                    len(date_candidates) > 1 and not observed
+                )
+            else:
+                observed = _normalize_passport_value(field, raw_observed)
             verdict = PostSubmissionFieldVerdict(raw["verdict"])
             reason_code = str(raw["reason_code"])
 
             if not submitted:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "missing_submitted_value"
+            elif date_evidence_ambiguous:
+                verdict = PostSubmissionFieldVerdict.SUSPICIOUS
+                reason_code = "ambiguous"
             elif not observed:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "unreadable"
@@ -224,10 +276,16 @@ class PostSubmissionConfidenceAgent:
         for result in fields:
             verdict = result.verdict
             reason_code = result.reason_code
-            if verdict == PostSubmissionFieldVerdict.CORRECT and result.confidence < 0.90:
+            confidence = result.confidence
+            if result.observed_value is None or reason_code in {
+                "unreadable",
+                "missing_submitted_value",
+            }:
+                confidence = 0.0
+            if verdict == PostSubmissionFieldVerdict.CORRECT and confidence < 0.90:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "low_confidence"
-            elif verdict == PostSubmissionFieldVerdict.INCORRECT and result.confidence < 0.75:
+            elif verdict == PostSubmissionFieldVerdict.INCORRECT and confidence < 0.75:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "low_confidence"
             calibrated.append(
@@ -235,7 +293,7 @@ class PostSubmissionConfidenceAgent:
                     field=result.field,
                     verdict=verdict,
                     observed_value=result.observed_value,
-                    confidence=round(result.confidence, 4),
+                    confidence=round(confidence, 4),
                     reason_code=reason_code,
                 )
             )

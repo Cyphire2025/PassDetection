@@ -115,7 +115,13 @@ class PassportCaptureFieldTests(unittest.TestCase):
         }
 
         self.assertEqual(values["Nearest Domestic Airport"], "Delhi")
-        self.assertEqual(values["Date of Issue"], "2020-06-15")
+        issue_cell = worksheet.cell(
+            row=5,
+            column=headers.index("Date of Issue") + 1,
+        )
+        self.assertTrue(issue_cell.is_date)
+        self.assertEqual(issue_cell.number_format, "DD.MM.YYYY")
+        self.assertEqual(issue_cell.value.strftime("%d.%m.%Y"), "15.06.2020")
 
 
 if __name__ == "__main__":

@@ -7,9 +7,10 @@ Generates agency-ready XLSX files from confirmed passport submissions.
 from __future__ import annotations
 
 import io
+import re
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 import pycountry
@@ -25,13 +26,16 @@ class _ExportColumn:
     header: str
     width: int
     enabled_flag: str | None = None
+    number_format: str | None = None
 
 
+_EXCEL_DATE_NUMBER_FORMAT = "DD.MM.YYYY"
+_ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _COLUMNS = (
     _ExportColumn("Group", 24),
     _ExportColumn("Destination", 22),
-    _ExportColumn("Travel Date", 16),
-    _ExportColumn("Return Date", 16),
+    _ExportColumn("Travel Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("Return Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Client Name", 24),
     _ExportColumn("Email", 28),
     _ExportColumn("Phone", 18),
@@ -52,9 +56,9 @@ _COLUMNS = (
     _ExportColumn("Given Names", 24),
     _ExportColumn("Passport Number", 20),
     _ExportColumn("Nationality", 22),
-    _ExportColumn("Date of Birth", 16),
-    _ExportColumn("Date of Issue", 16),
-    _ExportColumn("Date of Expiry", 16),
+    _ExportColumn("Date of Birth", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("Date of Issue", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("Date of Expiry", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Sex", 10),
 )
 
@@ -75,6 +79,24 @@ def _uppercase(value: Any) -> str | None:
     if value in (None, ""):
         return None
     return str(value).upper()
+
+
+def _excel_date_value(value: Any) -> Any:
+    """Convert canonical dates to native Excel dates without losing legacy text."""
+
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if not isinstance(value, str):
+        return value
+    normalized = value.strip()
+    if not _ISO_DATE_PATTERN.fullmatch(normalized):
+        return value
+    try:
+        return date.fromisoformat(normalized)
+    except ValueError:
+        return value
 
 
 def _gender_display_value(value: Any) -> str | None:
@@ -166,7 +188,18 @@ class PassportExcelExporter:
                 "Date of Expiry": fields.get("date_of_expiry"),
                 "Sex": _gender_display_value(fields.get("sex")),
             }
-            worksheet.append([_safe_xlsx_value(values[column.header]) for column in columns])
+            row_values = []
+            for column in columns:
+                value = values[column.header]
+                if column.number_format:
+                    value = _excel_date_value(value)
+                row_values.append(_safe_xlsx_value(value))
+            worksheet.append(row_values)
+            row_index = worksheet.max_row
+            for column_index, column in enumerate(columns, start=1):
+                cell = worksheet.cell(row=row_index, column=column_index)
+                if column.number_format and isinstance(cell.value, (date, datetime)):
+                    cell.number_format = column.number_format
 
         if submissions:
             last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter

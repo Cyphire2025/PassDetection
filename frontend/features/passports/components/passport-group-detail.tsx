@@ -10,6 +10,7 @@ import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
+import { formatPassportDateForUi } from "@/lib/utils/passport-date";
 import { formatPassportCountry } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
@@ -465,7 +466,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                       </div>
                     </div>
                     <div className="text-right text-sm font-medium text-red-800">
-                      {getStringField(getDashboardFields(passport), "date_of_expiry") || "Expiry missing"}
+                      {formatPassportDateForUi(
+                        getStringField(getDashboardFields(passport), "date_of_expiry"),
+                      ) || "Expiry missing"}
                     </div>
                   </div>
                 </Link>

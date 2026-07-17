@@ -21,9 +21,11 @@ import {
   X,
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
+import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { previousPassportIsoDate } from "@/lib/utils/passport-date";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { uploadApi } from "../api/upload.api";
@@ -702,7 +704,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       return;
     }
     if (!hasValidReviewDates(reviewFields)) {
-      setUploadError("Enter valid passport dates in YYYY-MM-DD format. Date of Issue is optional, but it cannot be in the future, before birth, or after passport expiry.");
+      setUploadError("Enter valid passport dates in DD/MM/YYYY format. Date of Issue is optional, but it cannot be in the future, before birth, or after passport expiry.");
       return;
     }
     if (airportEnabled && !departureCity) {
@@ -1916,22 +1918,33 @@ function ReviewFields({ fields, onChange }: { fields: Record<string, string>; on
         const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
         const isOptional = key === "date_of_issue";
         return (
-          <label key={key} className="space-y-1.5">
+          <div key={key} className="space-y-1.5">
             <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               {toLabel(key)}
               {isOptional && <span className="normal-case tracking-normal text-slate-400">(optional)</span>}
             </span>
-            <Input
-              type={isDate ? "date" : "text"}
-              value={fields[key] ?? ""}
-              onChange={(event) => onChange(key, event.target.value)}
-              placeholder={isOptional ? "Leave empty if unavailable" : "Not extracted"}
-              min="1900-01-01"
-              max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
-              required={!isOptional}
-              className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
-            />
-          </label>
+            {isDate ? (
+              <PassportDateInput
+                value={fields[key] ?? ""}
+                onValueChange={(value) => onChange(key, value)}
+                minIso="1900-01-01"
+                maxIso={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+                required={!isOptional}
+                aria-label={toLabel(key)}
+                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
+              />
+            ) : (
+              <Input
+                type="text"
+                value={fields[key] ?? ""}
+                onChange={(event) => onChange(key, event.target.value)}
+                placeholder={isOptional ? "Leave empty if unavailable" : "Not extracted"}
+                required
+                aria-label={toLabel(key)}
+                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
+              />
+            )}
+          </div>
         );
       })}
     </div>
@@ -2052,9 +2065,8 @@ function createIdempotencyKey() {
 }
 
 function yesterdayIsoDate() {
-  const today = new Date(`${todayIsoDate()}T00:00:00`);
-  today.setDate(today.getDate() - 1);
-  return today.toISOString().slice(0, 10);
+  const today = todayIsoDate();
+  return previousPassportIsoDate(today) ?? today;
 }
 
 function isExtractionTerminal(submission: PassportSubmission) {

@@ -1,5 +1,6 @@
 import type {
   ExtractedPassportFields,
+  PassportPostSubmissionVerification,
   PassportSubmission,
   PassportVerificationField,
   PassportVerificationFieldName,
@@ -41,6 +42,10 @@ const RETRYABLE_AI_PROVIDER_STATUSES = new Set([
   "provider_unavailable",
   "rate_limited",
   "timeout",
+]);
+const NO_READABLE_EVIDENCE_REASON_CODES = new Set([
+  "unreadable",
+  "missing_submitted_value",
 ]);
 
 export function canRetryPassportAiVerification(
@@ -141,6 +146,48 @@ export function getPassportFieldReviewClassName(verdict?: PassportFieldReview["v
     return "border-amber-400 bg-amber-50 hover:border-amber-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-200";
   }
   return "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+}
+
+export function formatPassportFieldReviewConfidence(
+  review: Pick<
+    PassportFieldReview,
+    "confidence" | "observed_value" | "reason_code"
+  >,
+) {
+  if (
+    !review.observed_value?.trim()
+    || NO_READABLE_EVIDENCE_REASON_CODES.has(review.reason_code.trim().toLowerCase())
+    || !Number.isFinite(review.confidence)
+    || review.confidence <= 0
+  ) {
+    return null;
+  }
+  const percentage = review.confidence <= 1
+    ? review.confidence * 100
+    : Math.min(100, review.confidence);
+  return `${Math.round(percentage)}% confidence`;
+}
+
+export function getPassportVerificationConfidence(
+  verification: PassportPostSubmissionVerification,
+) {
+  const containsLegacyInflatedUnreadableConfidence = verification.fields.some(
+    (field) =>
+      field.confidence > 0
+      && (
+        !field.observed_value?.trim()
+        || NO_READABLE_EVIDENCE_REASON_CODES.has(
+          field.reason_code.trim().toLowerCase(),
+        )
+      ),
+  );
+  if (
+    containsLegacyInflatedUnreadableConfidence
+    || !Number.isFinite(verification.confidence)
+  ) {
+    return null;
+  }
+  return verification.confidence;
 }
 
 export function getPassportReviewActionState(

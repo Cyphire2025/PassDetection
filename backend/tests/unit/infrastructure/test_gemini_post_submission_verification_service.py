@@ -116,6 +116,167 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(result.to_dict()["incorrect_fields"], [])
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
 
+    async def test_normalizes_common_printed_passport_date_formats(self) -> None:
+        submitted = _submitted_fields()
+        submitted.update(
+            {
+                "date_of_birth": "1972-08-30",
+                "date_of_issue": "2023-08-10",
+                "date_of_expiry": "2033-08-09",
+            }
+        )
+        fields = _provider_fields(
+            override={
+                "date_of_birth": {"observed_value": "30/08/1972"},
+                "date_of_issue": {"observed_value": "10/08/2023"},
+                "date_of_expiry": {"observed_value": "09/08/2033"},
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        self.assertEqual(result.decision.value, "ai_approved")
+        self.assertEqual(result.to_dict()["suspicious_fields"], [])
+
+    async def test_ambiguous_numeric_date_requires_review(self) -> None:
+        fields = _provider_fields(
+            override={
+                "date_of_issue": {
+                    "observed_value": "03/04/2021",
+                    "confidence": 1.0,
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        date_result = next(
+            field for field in result.fields if field.field == "date_of_issue"
+        )
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(date_result.verdict.value, "suspicious")
+        self.assertEqual(date_result.reason_code, "ambiguous")
+        self.assertEqual(date_result.confidence, 0.0)
+
+    async def test_submitted_dates_remain_strictly_canonical_iso(self) -> None:
+        submitted = _submitted_fields()
+        submitted["date_of_birth"] = "02/01/1990"
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(_provider_fields())
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        date_result = next(
+            field for field in result.fields if field.field == "date_of_birth"
+        )
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(date_result.reason_code, "missing_submitted_value")
+        self.assertEqual(date_result.confidence, 0.0)
+
+    async def test_unreadable_evidence_never_reports_full_confidence(self) -> None:
+        fields = _provider_fields(
+            override={
+                "date_of_issue": {
+                    "verdict": "suspicious",
+                    "observed_value": "",
+                    "confidence": 1.0,
+                    "reason_code": "unreadable",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        date_result = next(
+            field for field in result.fields if field.field == "date_of_issue"
+        )
+        self.assertEqual(date_result.reason_code, "unreadable")
+        self.assertEqual(date_result.confidence, 0.0)
+        self.assertLess(result.confidence, 1.0)
+
+    async def test_all_unreadable_evidence_has_zero_verification_confidence(
+        self,
+    ) -> None:
+        fields = _provider_fields()
+        for field in fields:
+            field.update(
+                {
+                    "verdict": "suspicious",
+                    "observed_value": "",
+                    "confidence": 1.0,
+                    "reason_code": "unreadable",
+                }
+            )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(result.confidence, 0.0)
+        self.assertTrue(all(field.confidence == 0.0 for field in result.fields))
+
     async def test_accepts_bounded_thought_signature_metadata(self) -> None:
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(

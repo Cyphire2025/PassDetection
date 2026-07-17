@@ -5,10 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
+import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
+import {
+  formatPassportDateForUi,
+  previousPassportIsoDate,
+} from "@/lib/utils/passport-date";
 import {
   formatPassportCountry,
   getPassportCountryOptions,
@@ -29,11 +34,13 @@ import {
 } from "../hooks/use-passports";
 import {
   canRetryPassportAiVerification,
+  formatPassportFieldReviewConfidence,
   formatPassportVerificationReason,
   getPassportFieldReview,
   getPassportFieldReviewClassName,
   getPassportReviewerLabel,
   getPassportReviewActionState,
+  getPassportVerificationConfidence,
   PASSPORT_REVIEW_FIELDS,
   type PassportFieldReview,
 } from "../utils/passport-review";
@@ -348,7 +355,7 @@ function ReviewFieldsCard({
       return;
     }
     if (!hasValidReviewDates(cleanedFields)) {
-      onFormError("Enter valid passport dates in YYYY-MM-DD format. Date of Issue may be empty, but it cannot be in the future, before birth, or after passport expiry.");
+      onFormError("Enter valid passport dates in DD/MM/YYYY format. Date of Issue may be empty, but it cannot be in the future, before birth, or after passport expiry.");
       return;
     }
 
@@ -389,7 +396,10 @@ function ReviewFieldsCard({
             <MetaItem label="Extraction confidence" value={formatConfidence(passport.overall_confidence)} />
             <MetaItem label="Submitted" value={formatDateTime(passport.created_at)} />
             <MetaItem label="Updated" value={formatDateTime(passport.updated_at)} />
-            <MetaItem label="Expiry" value={reviewFields.date_of_expiry || "Not extracted"} />
+            <MetaItem
+              label="Expiry"
+              value={formatPassportDateForUi(reviewFields.date_of_expiry) || "Not extracted"}
+            />
             {passport.post_submission_verification && (
               <>
                 <MetaItem
@@ -402,7 +412,11 @@ function ReviewFieldsCard({
                 />
                 <MetaItem
                   label="Verification confidence"
-                  value={formatConfidence(passport.post_submission_verification.confidence)}
+                  value={formatConfidence(
+                    getPassportVerificationConfidence(
+                      passport.post_submission_verification,
+                    ),
+                  )}
                 />
               </>
             )}
@@ -458,7 +472,7 @@ function ReviewFieldsCard({
             const fieldReview = getPassportFieldReview(passport, validation, key);
             const fieldClassName = getPassportFieldReviewClassName(fieldReview?.verdict);
             return (
-              <label key={key} className="space-y-1.5">
+              <div key={key} className="space-y-1.5">
                 <span className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
                   <span>{toLabel(key)}</span>
                   {key === "date_of_issue" && <span className="normal-case tracking-normal">(optional)</span>}
@@ -476,15 +490,24 @@ function ReviewFieldsCard({
                     value={reviewFields[key] ?? ""}
                     onChange={(value) => handleFieldChange(key, value)}
                     className={fieldClassName}
+                    ariaLabel={toLabel(key)}
+                  />
+                ) : isDate ? (
+                  <PassportDateInput
+                    value={reviewFields[key] ?? ""}
+                    onValueChange={(value) => handleFieldChange(key, value)}
+                    minIso="1900-01-01"
+                    maxIso={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+                    aria-label={toLabel(key)}
+                    className={`h-10 rounded-lg ${fieldClassName}`}
                   />
                 ) : (
                   <Input
-                    type={isDate ? "date" : "text"}
+                    type="text"
                     value={reviewFields[key] ?? ""}
                     onChange={(event) => handleFieldChange(key, event.target.value)}
-                    placeholder={key === "date_of_issue" ? "Leave empty if unavailable" : "Not extracted"}
-                    min="1900-01-01"
-                    max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+                    placeholder="Not extracted"
+                    aria-label={toLabel(key)}
                     className={`h-10 rounded-lg ${fieldClassName}`}
                   />
                 )}
@@ -494,7 +517,7 @@ function ReviewFieldsCard({
                     editedValue={reviewFields[key] ?? ""}
                   />
                 )}
-              </label>
+              </div>
             );
           })}
         </div>
@@ -732,11 +755,7 @@ function FieldReviewMessage({
   const showObservedValue = Boolean(observedValue) && !valuesMatch(observedValue, editedValue);
   const messageClass = review.verdict === "incorrect" ? "text-red-700" : "text-amber-700";
   const reason = formatPassportVerificationReason(review.reason_code);
-  const confidence = review.confidence > 0
-    ? `${Math.round(review.confidence <= 1
-      ? review.confidence * 100
-      : Math.min(100, review.confidence))}% confidence`
-    : null;
+  const confidence = formatPassportFieldReviewConfidence(review);
 
   return (
     <p className={`text-xs leading-5 ${messageClass}`}>
@@ -755,10 +774,12 @@ function PassportCountryField({
   value,
   onChange,
   className,
+  ariaLabel,
 }: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  ariaLabel: string;
 }) {
   if (!isRecognizedPassportCountryCode(value)) {
     return (
@@ -767,6 +788,7 @@ function PassportCountryField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder="Not extracted"
+        aria-label={ariaLabel}
         className={`h-10 rounded-lg ${className ?? "border-slate-200 bg-white"}`}
       />
     );
@@ -778,6 +800,7 @@ function PassportCountryField({
     <select
       value={normalizedCode}
       onChange={(event) => onChange(event.target.value)}
+      aria-label={ariaLabel}
       className={`h-10 w-full rounded-lg border px-3 text-sm text-slate-900 outline-none transition ${
         className ?? "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       }`}
@@ -886,6 +909,9 @@ function formatConflictValue(field: string, value: string) {
   if (field === "nationality" || field === "issuing_country") {
     return formatPassportCountry(value) || value;
   }
+  if (field === "date_of_birth" || field === "date_of_issue" || field === "date_of_expiry") {
+    return formatPassportDateForUi(value) || value;
+  }
   return value;
 }
 
@@ -938,7 +964,6 @@ function todayIsoDate() {
 }
 
 function yesterdayIsoDate() {
-  const today = new Date(`${todayIsoDate()}T00:00:00`);
-  today.setDate(today.getDate() - 1);
-  return today.toISOString().slice(0, 10);
+  const today = todayIsoDate();
+  return previousPassportIsoDate(today) ?? today;
 }

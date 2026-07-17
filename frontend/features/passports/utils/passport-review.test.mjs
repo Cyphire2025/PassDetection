@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   canRetryPassportAiVerification,
+  formatPassportFieldReviewConfidence,
   getPassportFieldReview,
   getPassportFieldReviewClassName,
   getPassportReviewerLabel,
   getPassportReviewActionState,
+  getPassportVerificationConfidence,
 } from "./passport-review.ts";
 
 test("allows AI retry only for temporary provider failures", () => {
@@ -116,6 +118,51 @@ test("labels unavailable AI fields as not verified while retaining amber styling
   assert.equal(unavailable?.label, "Not verified");
   assert.equal(unavailable?.reason_code, "provider_unavailable");
   assert.match(getPassportFieldReviewClassName(unavailable?.verdict), /bg-amber-50/);
+});
+
+test("never displays confidence when AI could not read a field", () => {
+  assert.equal(
+    formatPassportFieldReviewConfidence({
+      observed_value: null,
+      confidence: 1,
+      reason_code: "unreadable",
+    }),
+    null,
+  );
+  assert.equal(
+    formatPassportFieldReviewConfidence({
+      observed_value: "Z7418523",
+      confidence: 0.99,
+      reason_code: "different_value",
+    }),
+    "99% confidence",
+  );
+});
+
+test("hides legacy aggregate confidence inflated by unreadable evidence", () => {
+  const verification = {
+    verification_status: "needs_review",
+    confidence: 1,
+    incorrect_fields: [],
+    suspicious_fields: ["date_of_birth"],
+    explanation: "Review the marked fields.",
+    provider_status: "verified",
+    reason_code: null,
+    model: "test-model",
+    stale_after_staff_edit: false,
+    fields: [{
+      field: "date_of_birth",
+      verdict: "suspicious",
+      observed_value: null,
+      confidence: 1,
+      reason_code: "unreadable",
+    }],
+  };
+
+  assert.equal(getPassportVerificationConfidence(verification), null);
+  verification.fields[0].confidence = 0;
+  verification.confidence = 0;
+  assert.equal(getPassportVerificationConfidence(verification), 0);
 });
 
 test("enables staff approval only while the passport needs review", () => {

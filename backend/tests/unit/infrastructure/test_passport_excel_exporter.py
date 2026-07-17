@@ -213,3 +213,44 @@ def test_export_normalizes_supported_gender_values(
 def test_export_gender_normalization_does_not_invent_unknown_values() -> None:
     assert _gender_display_value("X") == "X"
     assert _gender_display_value(None) is None
+
+
+def test_export_writes_all_visible_dates_as_native_dd_dot_mm_dot_yyyy() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        fields={
+            "date_of_birth": "1972-08-30",
+            "date_of_issue": "2023-08-10",
+            "date_of_expiry": "2033-08-09",
+        },
+    )
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Test Group",
+            group_details={
+                group_id: {
+                    "name": "Test Group",
+                    "travel_date": "2026-07-17",
+                    "return_date": "2026-07-25",
+                    **_OPTION_FLAGS,
+                }
+            },
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+    expected = {
+        "Travel Date": "17.07.2026",
+        "Return Date": "25.07.2026",
+        "Date of Birth": "30.08.1972",
+        "Date of Issue": "10.08.2023",
+        "Date of Expiry": "09.08.2033",
+    }
+
+    for header, display_value in expected.items():
+        cell = worksheet.cell(row=5, column=headers.index(header) + 1)
+        assert cell.is_date
+        assert cell.number_format == "DD.MM.YYYY"
+        assert cell.value.strftime("%d.%m.%Y") == display_value
