@@ -13,9 +13,9 @@ export function useUploadPassport() {
       token: string;
       client_name: string;
       file: File;
-      passportPhotoFile: File;
-      passportBackFile?: File | null;
-    }) => uploadApi.uploadPassport(token, client_name, file, passportPhotoFile, passportBackFile),
+      passportBackFile: File;
+      passportPhotoFile?: File | null;
+    }) => uploadApi.uploadPassport(token, client_name, file, passportBackFile, passportPhotoFile),
   });
 }
 
@@ -28,6 +28,9 @@ export function useSubmitClientPassportReview() {
       client_email,
       client_phone,
       departure_city,
+      base_city,
+      staff_code,
+      meal_preference,
       submission_mode,
       family_group_id,
       family_member_index,
@@ -43,6 +46,9 @@ export function useSubmitClientPassportReview() {
       client_email?: string | null;
       client_phone?: string | null;
       departure_city?: string | null;
+      base_city?: string | null;
+      staff_code?: string | null;
+      meal_preference?: string | null;
       submission_mode?: "single" | "family";
       family_group_id?: string | null;
       family_member_index?: number | null;
@@ -58,6 +64,9 @@ export function useSubmitClientPassportReview() {
         client_email,
         client_phone,
         departure_city,
+        base_city,
+        staff_code,
+        meal_preference,
         submission_mode,
         family_group_id,
         family_member_index,

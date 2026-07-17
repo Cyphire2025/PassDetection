@@ -11,7 +11,6 @@ from typing import Any
 
 from PIL import Image, ImageOps
 
-
 ROI_TESSERACT_BASE_CONFIG = (
     "--oem 1 --dpi 300 -l eng "
     "-c user_defined_dpi=300 "

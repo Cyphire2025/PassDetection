@@ -5,8 +5,8 @@ Submit Passport Use Case
 
 from __future__ import annotations
 
-import uuid
 import mimetypes
+import uuid
 
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
 from app.application.interfaces.passport_extraction import IPassportExtractionService
@@ -22,12 +22,14 @@ from app.domain.exceptions.exceptions import (
     ValidationError,
 )
 from app.domain.repositories.interfaces import (
+    IClientGroupRepository,
     IObjectStorageRepository,
     IPassportSubmissionRepository,
-    IClientGroupRepository,
+)
+from app.infrastructure.ocr.passport_back_extraction_service import (
+    PassportBackPageExtractionService,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
-from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 
 logger = get_logger(__name__)
 
@@ -63,12 +65,6 @@ class SubmitPassportUseCase:
         passport_photo: tuple[bytes, str, str] | None = None,
         passport_back: tuple[bytes, str, str] | None = None,
     ) -> PassportSubmissionOutputDTO:
-        if passport_photo is None:
-            raise ValidationError(
-                "A processed VISA selfie photo is required before the passport can be uploaded.",
-                field="passport_photo_file",
-            )
-
         # 1. Validate the link
         group = await self._client_group_repo.get_by_token(token)
         if not group:
@@ -77,13 +73,20 @@ class SubmitPassportUseCase:
         if not group.is_active():
             raise GroupClosedError()
 
+        if not file_content:
+            raise ValidationError("Passport front image is required.", field="file")
+        if not passport_back or not passport_back[0]:
+            raise ValidationError("Passport back image is required.", field="passport_back_file")
+        if group.require_selfie and (not passport_photo or not passport_photo[0]):
+            raise ValidationError("VISA selfie photo is required for this group.", field="passport_photo_file")
+
         # 2. Upload image to Object Storage
         ext = mimetypes.guess_extension(content_type) or ".jpg"
         unique_id = uuid.uuid4()
         # Draft images are isolated from permanent passport storage until the
         # client explicitly submits the reviewed details.
         s3_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}{ext}"
-        
+
         await self._storage_repo.upload_file(
             file_content=file_content,
             file_name=s3_key,

@@ -11,8 +11,13 @@ from app.application.use_cases.passports.passport_ai_verification import verify_
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import PassDetectionError
-from app.domain.repositories.interfaces import IObjectStorageRepository, IPassportSubmissionRepository
-from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
+from app.domain.repositories.interfaces import (
+    IObjectStorageRepository,
+    IPassportSubmissionRepository,
+)
+from app.infrastructure.ocr.passport_back_extraction_service import (
+    PassportBackPageExtractionService,
+)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 

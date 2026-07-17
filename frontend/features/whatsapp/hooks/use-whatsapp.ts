@@ -41,15 +41,52 @@ export function useDeleteWhatsAppGroup() {
   });
 }
 
+export const WHATSAPP_BATCH_POLL_LIMIT_MS = 10 * 60 * 1000;
+
+export function useWhatsAppBatchStatus(batchId: string | null, batchStartedAt: number | null) {
+  return useQuery({
+    queryKey: ["whatsapp", "batches", batchId],
+    queryFn: () => whatsappApi.batchStatus(batchId as string),
+    enabled: Boolean(batchId),
+    refetchInterval: (query) => {
+      const pollingStartedAt = batchStartedAt ?? query.state.dataUpdatedAt;
+      const stillWithinPollingWindow = Boolean(
+        pollingStartedAt && Date.now() - pollingStartedAt < WHATSAPP_BATCH_POLL_LIMIT_MS,
+      );
+      return (query.state.data?.queued ?? 1) > 0 && stillWithinPollingWindow ? 2_000 : false;
+    },
+  });
+}
+
+export function usePreviewWhatsAppMessage() {
+  return useMutation({
+    mutationFn: ({
+      groupId,
+      draft,
+    }: {
+      groupId: string;
+      draft: Parameters<typeof whatsappApi.previewMessage>[1];
+    }) => whatsappApi.previewMessage(groupId, draft),
+  });
+}
+
 export function useSendWhatsAppWelcome() {
   return useMutation({
-    mutationFn: whatsappApi.sendWelcome,
+    mutationFn: ({ groupId, messageContent }: { groupId: string; messageContent: string }) =>
+      whatsappApi.sendWelcome(groupId, messageContent),
   });
 }
 
 export function useSendWhatsAppPassportLink() {
   return useMutation({
-    mutationFn: ({ groupId, passportLink }: { groupId: string; passportLink: string }) =>
-      whatsappApi.sendPassportLink(groupId, passportLink),
+    mutationFn: ({
+      groupId,
+      passportLink,
+      messageContent,
+    }: {
+      groupId: string;
+      passportLink: string;
+      messageContent: string;
+    }) => whatsappApi.sendPassportLink(groupId, passportLink, messageContent),
   });
 }

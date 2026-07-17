@@ -7,7 +7,7 @@ Stores agency-facing operational notifications.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -41,7 +41,7 @@ class NotificationRepository:
             entity_type=entity_type,
             entity_id=entity_id,
             is_read=False,
-            created_at=datetime.now(tz=timezone.utc),
+            created_at=datetime.now(tz=UTC),
         )
         self._session.add(model)
         await self._session.flush()
@@ -78,6 +78,6 @@ class NotificationRepository:
         if not model:
             raise EntityNotFoundError("Notification", str(notification_id))
         model.is_read = True
-        model.read_at = datetime.now(tz=timezone.utc)
+        model.read_at = datetime.now(tz=UTC)
         await self._session.flush()
         return model

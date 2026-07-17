@@ -15,12 +15,12 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 def _new_uuid() -> uuid.UUID:
@@ -118,7 +118,7 @@ class User:
         full_name: str,
         role: UserRole,
         agency_id: uuid.UUID | None = None,
-    ) -> "User":
+    ) -> User:
         """Factory method — enforces valid construction."""
         return cls(
             id=_new_uuid(),
@@ -288,7 +288,7 @@ class Agency:
     updated_at: datetime = field(default_factory=_utcnow)
 
     @classmethod
-    def create(cls, name: str, email: str, phone: str | None = None) -> "Agency":
+    def create(cls, name: str, email: str, phone: str | None = None) -> Agency:
         return cls(
             id=_new_uuid(),
             name=name.strip(),
@@ -323,6 +323,11 @@ class ClientGroup:
     return_date: date | None = None
     package_name: str | None = None
     departure_cities: list[str] = field(default_factory=list)
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -340,8 +345,13 @@ class ClientGroup:
         return_date: date | None = None,
         package_name: str | None = None,
         departure_cities: list[str] | None = None,
+        base_city_enabled: bool = False,
+        nearest_international_airport_enabled: bool = False,
+        staff_code_enabled: bool = False,
+        meal_preference_enabled: bool = False,
+        require_selfie: bool = False,
         notes: str | None = None,
-    ) -> "ClientGroup":
+    ) -> ClientGroup:
         return cls(
             id=_new_uuid(),
             name=name.strip(),
@@ -353,7 +363,16 @@ class ClientGroup:
             travel_date=travel_date,
             return_date=return_date,
             package_name=package_name.strip() if package_name else None,
-            departure_cities=_normalize_departure_cities(departure_cities or []),
+            departure_cities=(
+                _normalize_departure_cities(departure_cities or [])
+                if nearest_international_airport_enabled
+                else []
+            ),
+            base_city_enabled=base_city_enabled,
+            nearest_international_airport_enabled=nearest_international_airport_enabled,
+            staff_code_enabled=staff_code_enabled,
+            meal_preference_enabled=meal_preference_enabled,
+            require_selfie=require_selfie,
             notes=notes.strip() if notes else None,
         )
 
@@ -441,7 +460,7 @@ class PassportSubmission:
         client_name: str,
         client_email: str | None,
         image_s3_key: str,
-    ) -> "PassportSubmission":
+    ) -> PassportSubmission:
         return cls(
             id=_new_uuid(),
             group_id=group_id,

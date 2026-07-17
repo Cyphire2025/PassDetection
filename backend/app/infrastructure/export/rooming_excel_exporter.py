@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import io
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -38,7 +38,7 @@ class RoomingExcelExporter:
             dates = f"{hotel.check_in_date or ''} to {hotel.check_out_date or ''}"
         worksheet["A3"] = f"City: {hotel.city or '-'}   Stay: {dates or '-'}"
         worksheet.merge_cells(start_row=3, start_column=1, end_row=3, end_column=len(self.headers))
-        worksheet["A4"] = f"Generated: {datetime.now(tz=timezone.utc).strftime('%d %b %Y %H:%M UTC')}"
+        worksheet["A4"] = f"Generated: {datetime.now(tz=UTC).strftime('%d %b %Y %H:%M UTC')}"
         worksheet.merge_cells(start_row=4, start_column=1, end_row=4, end_column=len(self.headers))
 
         worksheet.append([])

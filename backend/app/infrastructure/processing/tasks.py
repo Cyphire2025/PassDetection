@@ -6,7 +6,9 @@ import asyncio
 
 from celery.utils.log import get_task_logger
 
-from app.application.use_cases.passports.process_passport_submission_job_use_case import ProcessingRetryRequested
+from app.application.use_cases.passports.process_passport_submission_job_use_case import (
+    ProcessingRetryRequested,
+)
 from app.infrastructure.processing.celery_app import celery_app
 from app.infrastructure.processing.worker_runtime import run_passport_processing_job
 

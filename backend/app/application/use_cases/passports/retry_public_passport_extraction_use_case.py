@@ -10,7 +10,11 @@ from app.application.interfaces.passport_verification import IPassportVerificati
 from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
-from app.domain.repositories.interfaces import IClientGroupRepository, IObjectStorageRepository, IPassportSubmissionRepository
+from app.domain.repositories.interfaces import (
+    IClientGroupRepository,
+    IObjectStorageRepository,
+    IPassportSubmissionRepository,
+)
 
 
 class RetryPublicPassportExtractionUseCase:

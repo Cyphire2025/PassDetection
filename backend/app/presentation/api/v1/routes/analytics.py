@@ -5,7 +5,7 @@ Analytics Routes
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import case, cast, func, select
@@ -32,7 +32,7 @@ async def get_analytics_summary(
     session: AsyncSession = Depends(get_db_session),
     days: int = 30,
 ) -> AnalyticsSummaryResponse:
-    since = datetime.now(tz=timezone.utc) - timedelta(days=max(1, min(days, 365)))
+    since = datetime.now(tz=UTC) - timedelta(days=max(1, min(days, 365)))
     base_filters = [
         PassportSubmissionModel.created_at >= since,
         PassportSubmissionModel.status.in_(("client_submitted", "confirmed")),

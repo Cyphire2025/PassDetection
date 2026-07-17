@@ -10,14 +10,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.infrastructure.ocr.correction import ICAOCorrectionEngine
-from app.infrastructure.ocr.detection import MRZDetectionFailure, MRZDetectionResult, MRZRegionDetector
-from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
+from app.infrastructure.ocr.detection import (
+    MRZDetectionFailure,
+    MRZDetectionResult,
+    MRZRegionDetector,
+)
 from app.infrastructure.ocr.mrz import TD3MRZParser
+from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.ocr.preprocessing import ImageQualityAssessment, OCRImagePreprocessor
 from app.infrastructure.ocr.roi.service import ROIFallbackResult
 from app.infrastructure.ocr.stage1_extractor import MRZStageResult, Stage1MRZExtractor
-
 
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 

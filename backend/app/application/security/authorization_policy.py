@@ -73,8 +73,10 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
-        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
+        if user.role == UserRole.AGENCY_ADMIN:
             return True
+        if user.role == UserRole.AGENCY_MANAGER:
+            return await self.manager_can_access_group(user.id, group.id)
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, group.id)
         if user.role == UserRole.AGENCY_COORDINATOR:
@@ -86,8 +88,10 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
-        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
+        if user.role == UserRole.AGENCY_ADMIN:
             return True
+        if user.role == UserRole.AGENCY_MANAGER:
+            return group.created_by_user_id == user.id
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, group.id)
         return False
@@ -133,7 +137,7 @@ class AuthorizationPolicy:
         if not user.agency_id or group.agency_id != user.agency_id:
             return False
         if permanent:
-            return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}
+            return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN}
         if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
             return True
         if user.role == UserRole.AGENCY_STAFF:

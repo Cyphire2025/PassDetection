@@ -11,10 +11,13 @@ import {
   ChevronRight,
   Loader2,
   Mail,
+  MapPin,
   Phone,
+  BadgeCheck,
   Upload,
   User,
   Users,
+  Utensils,
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
 import { Button } from "@/components/ui/button";
@@ -52,6 +55,9 @@ interface FamilyMember {
   gender: string;
   email: string;
   phone: string;
+  baseCity: string;
+  staffCode: string;
+  mealPreference: string;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
   visaSelfie: File | null;
@@ -87,6 +93,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [clientEmail, setClientEmail] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [departureCity, setDepartureCity] = useState("");
+  const [baseCity, setBaseCity] = useState("");
+  const [staffCode, setStaffCode] = useState("");
+  const [mealPreference, setMealPreference] = useState("");
   const [submission, setSubmission] = useState<PassportSubmission | null>(null);
   const [reviewFields, setReviewFields] = useState<Record<string, string>>({});
 
@@ -105,6 +114,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [visaSelfie, setVisaSelfie] = useState<File | null>(null);
   const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>({ front: null, back: null });
   const departureCities = group?.departure_cities ?? [];
+  const airportEnabled = Boolean(group?.nearest_international_airport_enabled || departureCities.length > 0);
+  const baseCityEnabled = group?.base_city_enabled ?? false;
+  const staffCodeEnabled = group?.staff_code_enabled ?? false;
+  const mealPreferenceEnabled = group?.meal_preference_enabled ?? false;
+  const selfieRequired = group?.require_selfie ?? false;
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
 
@@ -180,24 +194,25 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const handleBundleUpload = async () => {
-    if (!activeVisaSelfie) {
-      setUploadError("Take the required VISA selfie before uploading the passport.");
-      return;
-    }
     if (!documentBundle.front) {
       setUploadError("Upload the passport front page before continuing.");
       return;
     }
-    await processUpload(documentBundle.front, activeVisaSelfie, documentBundle.back);
-  };
-
-  const handleCameraCapture = async (file: File) => {
-    if (!activeVisaSelfie) {
-      setUploadError("Take the required VISA selfie before scanning the passport.");
-      setStep("METHOD_SELECT");
+    if (!documentBundle.back) {
+      setUploadError("Upload the passport back page before continuing.");
       return;
     }
-    await processUpload(file, activeVisaSelfie);
+    if (selfieRequired && !activeVisaSelfie) {
+      setUploadError("Take the required VISA selfie before continuing.");
+      return;
+    }
+    await processUpload(documentBundle.front, documentBundle.back, activeVisaSelfie);
+  };
+
+  const handleCameraCapture = (file: File) => {
+    setDocumentBundle((current) => ({ ...current, front: file }));
+    setUploadError(null);
+    setStep("METHOD_SELECT");
   };
 
   const handleSelfieCapture = (file: File) => {
@@ -212,7 +227,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep("METHOD_SELECT");
   };
 
-  const processUpload = async (file: File, passportPhotoFile: File, passportBackFile?: File | null) => {
+  const processUpload = async (file: File, passportBackFile: File, passportPhotoFile?: File | null) => {
     const uploadName = flowMode === "family" ? activeFamilyMember?.name : clientName;
     if (!uploadName || uploadName.trim().length < 2) {
       setUploadError("Enter the passenger name before uploading.");
@@ -349,8 +364,20 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Please fill all passport fields before submitting. You can type corrections manually or scan again.");
       return;
     }
-    if (departureCities.length > 0 && !departureCity) {
-      setUploadError("Please select your departure city before submitting.");
+    if (airportEnabled && !departureCity) {
+      setUploadError("Please select your nearest international airport before submitting.");
+      return;
+    }
+    if (baseCityEnabled && !baseCity.trim()) {
+      setUploadError("Please enter your base city before submitting.");
+      return;
+    }
+    if (staffCodeEnabled && !staffCode.trim()) {
+      setUploadError("Please enter your staff code before submitting.");
+      return;
+    }
+    if (mealPreferenceEnabled && !mealPreference) {
+      setUploadError("Please select a meal preference before submitting.");
       return;
     }
 
@@ -364,6 +391,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
         client_email: clientEmail,
         client_phone: clientPhone,
         departure_city: departureCity || null,
+        base_city: baseCity.trim() || null,
+        staff_code: staffCode.trim() || null,
+        meal_preference: mealPreference || null,
         submission_mode: "single",
       });
       setStep("SUCCESS");
@@ -375,8 +405,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
   const handleFamilySubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (departureCities.length > 0 && !departureCity) {
-      setUploadError("Please select the family departure city before submitting.");
+    if (airportEnabled && !departureCity) {
+      setUploadError("Please select the family nearest international airport before submitting.");
       return;
     }
     if (!headEmail.trim() || !headPhone.trim()) {
@@ -393,6 +423,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(`Fill all passport fields for ${invalidReview.name}.`);
       return;
     }
+    const missingConfiguredField = familyMembers.find((member) => (
+      (baseCityEnabled && !member.baseCity.trim())
+      || (staffCodeEnabled && !member.staffCode.trim())
+      || (mealPreferenceEnabled && !member.mealPreference)
+    ));
+    if (missingConfiguredField) {
+      setUploadError(`Complete the required group fields for ${missingConfiguredField.name}.`);
+      return;
+    }
 
     try {
       setUploadError(null);
@@ -406,6 +445,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
           client_email: member.email.trim() || null,
           client_phone: member.phone.trim() || null,
           departure_city: departureCity || null,
+          base_city: member.baseCity.trim() || null,
+          staff_code: member.staffCode.trim() || null,
+          meal_preference: member.mealPreference || null,
           submission_mode: "family",
           family_group_id: familyGroupId,
           family_member_index: index,
@@ -502,6 +544,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
             emailRequired
             phoneRequired
           />
+          <ConfiguredClientFields
+            baseCityEnabled={baseCityEnabled}
+            staffCodeEnabled={staffCodeEnabled}
+            mealPreferenceEnabled={mealPreferenceEnabled}
+            baseCity={baseCity}
+            staffCode={staffCode}
+            mealPreference={mealPreference}
+            onBaseCity={setBaseCity}
+            onStaffCode={setStaffCode}
+            onMealPreference={setMealPreference}
+          />
           <Button type="submit" size="lg" className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700">
             Submit Verified Details
           </Button>
@@ -580,6 +633,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   <ContactInput icon={<Phone className="h-5 w-5" />} label="Member WhatsApp active number" type="tel" value={member.phone} onChange={(value) => updateFamilyMember(index, { phone: value })} />
                 </div>
               </div>
+              <ConfiguredClientFields
+                baseCityEnabled={baseCityEnabled}
+                staffCodeEnabled={staffCodeEnabled}
+                mealPreferenceEnabled={mealPreferenceEnabled}
+                baseCity={member.baseCity}
+                staffCode={member.staffCode}
+                mealPreference={member.mealPreference}
+                onBaseCity={(value) => updateFamilyMember(index, { baseCity: value })}
+                onStaffCode={(value) => updateFamilyMember(index, { staffCode: value })}
+                onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
+              />
             </section>
           ))}
           <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
@@ -589,7 +653,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               <ContactInput icon={<Mail className="h-5 w-5" />} label="Head email" type="email" value={headEmail} onChange={setHeadEmail} required />
               <ContactInput icon={<Phone className="h-5 w-5" />} label="Head WhatsApp active number" type="tel" value={headPhone} onChange={setHeadPhone} required />
             </div>
-            {departureCities.length > 0 && (
+            {airportEnabled && (
               <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" />
             )}
           </section>
@@ -742,12 +806,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
                       <p className="mt-1 text-sm text-slate-500">Choose how you want to upload this member&apos;s passport.</p>
                     </div>
                     <div className="space-y-4">
-                      <VisaSelfieChoice
-                        file={activeVisaSelfie}
-                        onClick={() => setStep("SELFIE_CAMERA")}
-                      />
-                      <PassportUploadSection selfieReady={Boolean(activeVisaSelfie)}>
-                        <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
+                      {selfieRequired && (
+                        <VisaSelfieChoice
+                          file={activeVisaSelfie}
+                          onClick={() => setStep("SELFIE_CAMERA")}
+                        />
+                      )}
+                      <PassportUploadSection>
+                        <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Capture the passport data page, then add the required back page." onClick={() => setStep("CAMERA")} />
                         <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
                       </PassportUploadSection>
                     </div>
@@ -764,9 +830,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     </button>
                   </div>
                   <div className="space-y-4">
-                    <VisaSelfieChoice file={activeVisaSelfie} onClick={() => setStep("SELFIE_CAMERA")} />
-                    <PassportUploadSection selfieReady={Boolean(activeVisaSelfie)}>
-                      <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Use your device camera to scan the passport data page." onClick={() => setStep("CAMERA")} />
+                    {selfieRequired && <VisaSelfieChoice file={activeVisaSelfie} onClick={() => setStep("SELFIE_CAMERA")} />}
+                    <PassportUploadSection>
+                      <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Capture the passport data page, then add the required back page." onClick={() => setStep("CAMERA")} />
                       <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
                     </PassportUploadSection>
                   </div>
@@ -789,6 +855,9 @@ function createFamilyMember(index: number): FamilyMember {
     gender: "",
     email: "",
     phone: "",
+    baseCity: "",
+    staffCode: "",
+    mealPreference: "",
     submission: null,
     reviewFields: {},
     visaSelfie: null,
@@ -833,8 +902,8 @@ function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () =>
         icon={file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
         title={file ? "VISA selfie ready" : "Take Selfie Photo"}
         description={file
-          ? "White-background selfie prepared. Tap to retake it."
-          : "Required for VISA processing. We will frame your face and replace the background with white."}
+          ? "Original selfie captured on a verified white background. Tap to retake it."
+          : "Required. Use a real plain white background; capture unlocks when photo checks pass."}
         onClick={onClick}
       />
       <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>
@@ -844,9 +913,9 @@ function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () =>
   );
 }
 
-function PassportUploadSection({ selfieReady, children }: { selfieReady: boolean; children: ReactNode }) {
+function PassportUploadSection({ children }: { children: ReactNode }) {
   return (
-    <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open={selfieReady}>
+    <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 marker:hidden sm:p-5">
         <div>
           <h4 className="text-base font-bold text-slate-900">Passport</h4>
@@ -855,13 +924,7 @@ function PassportUploadSection({ selfieReady, children }: { selfieReady: boolean
         <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
       </summary>
       <div className="border-t border-slate-100 p-4 pt-4 sm:p-5">
-        {selfieReady ? (
-          <div className="space-y-4">{children}</div>
-        ) : (
-          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm font-medium leading-6 text-blue-800">
-            Complete the required VISA selfie first to unlock passport scanning and file upload.
-          </div>
-        )}
+        <div className="space-y-4">{children}</div>
       </div>
     </details>
   );
@@ -888,14 +951,14 @@ function PassportDocumentBundlePanel({
         </div>
         <div className="min-w-0">
           <h4 className="text-base font-bold text-slate-900">Upload Files</h4>
-          <p className="mt-1 text-sm leading-5 text-slate-500">Add the passport front page and optional back page.</p>
+          <p className="mt-1 text-sm leading-5 text-slate-500">Add both the passport front page and back page.</p>
         </div>
       </div>
       <div className="grid gap-3">
         <PassportDocumentFileInput label="Passport front page" file={bundle.front} onChange={(file) => update("front", file)} required />
-        <PassportDocumentFileInput label="Passport back page" file={bundle.back} onChange={(file) => update("back", file)} />
+        <PassportDocumentFileInput label="Passport back page" file={bundle.back} onChange={(file) => update("back", file)} required />
       </div>
-      <Button type="button" className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700" onClick={onUpload}>
+      <Button type="button" className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700" onClick={onUpload} disabled={!bundle.front || !bundle.back}>
         Upload selected files
       </Button>
     </div>
@@ -1007,12 +1070,80 @@ function ContactSection({
   );
 }
 
+function ConfiguredClientFields({
+  baseCityEnabled,
+  staffCodeEnabled,
+  mealPreferenceEnabled,
+  baseCity,
+  staffCode,
+  mealPreference,
+  onBaseCity,
+  onStaffCode,
+  onMealPreference,
+}: {
+  baseCityEnabled: boolean;
+  staffCodeEnabled: boolean;
+  mealPreferenceEnabled: boolean;
+  baseCity: string;
+  staffCode: string;
+  mealPreference: string;
+  onBaseCity: (value: string) => void;
+  onStaffCode: (value: string) => void;
+  onMealPreference: (value: string) => void;
+}) {
+  if (!baseCityEnabled && !staffCodeEnabled && !mealPreferenceEnabled) return null;
+
+  return (
+    <div className="mt-5 grid gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
+      {baseCityEnabled && (
+        <ContactInput
+          icon={<MapPin className="h-5 w-5" />}
+          label="Base City"
+          type="text"
+          value={baseCity}
+          onChange={onBaseCity}
+          required
+        />
+      )}
+      {staffCodeEnabled && (
+        <ContactInput
+          icon={<BadgeCheck className="h-5 w-5" />}
+          label="Staff Code"
+          type="text"
+          value={staffCode}
+          onChange={onStaffCode}
+          required
+        />
+      )}
+      {mealPreferenceEnabled && (
+        <label className="block min-w-0 space-y-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Meal Preference</span>
+          <div className="relative min-w-0">
+            <Utensils className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
+            <select
+              value={mealPreference}
+              onChange={(event) => onMealPreference(event.target.value)}
+              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              required
+            >
+              <option value="">Select meal preference</option>
+              <option value="Veg">Veg</option>
+              <option value="Non Veg">Non Veg</option>
+              <option value="Jain">Jain</option>
+            </select>
+          </div>
+        </label>
+      )}
+    </div>
+  );
+}
+
 function DepartureCitySelect({ value, cities, onChange, className = "" }: { value: string; cities: string[]; onChange: (value: string) => void; className?: string }) {
   return (
     <label className={`block min-w-0 space-y-1.5 ${className}`}>
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Departure City</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Nearest International Airport</span>
       <select value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
-        <option value="">Select your departure city</option>
+        <option value="">Select your nearest international airport</option>
         {cities.map((city) => <option key={city} value={city}>{city}</option>)}
       </select>
     </label>

@@ -12,7 +12,10 @@ celery_app = Celery(
     "passdetection",
     broker=settings.redis.url,
     backend=settings.redis.url,
-    include=["app.infrastructure.processing.tasks"],
+    include=[
+        "app.infrastructure.processing.tasks",
+        "app.infrastructure.whatsapp.tasks",
+    ],
 )
 
 celery_app.conf.update(
@@ -26,4 +29,3 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
-

@@ -110,6 +110,8 @@ export function PassportDetail({ id }: PassportDetailProps) {
             </CardContent>
           </Card>
 
+          <ClientProvidedFieldsCard passport={data} />
+
           <ReviewFieldsCard
             key={`${data.id}:${data.updated_at}`}
             passport={data}
@@ -152,6 +154,29 @@ function PassportImagePreview({ label, url, clientName }: { label: string; url?:
         </div>
       )}
     </section>
+  );
+}
+
+function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }) {
+  const fields = passport.confirmed_fields ?? passport.extracted_fields ?? {};
+  const values = [
+    ["Nearest International Airport", passport.departure_city],
+    ["Base City", getStringField(fields, "base_city")],
+    ["Staff Code", getStringField(fields, "staff_code")],
+    ["Meal Preference", getStringField(fields, "meal_preference")],
+  ].filter((item): item is [string, string] => Boolean(item[1]));
+
+  if (values.length === 0) return null;
+
+  return (
+    <Card className="rounded-3xl">
+      <CardContent className="p-5">
+        <h3 className="font-semibold text-slate-900">Client-provided group details</h3>
+        <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
+          {values.map(([label, value]) => <MetaItem key={label} label={label} value={value} />)}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -220,11 +245,15 @@ function ReviewFieldsCard({
   };
 
   const handleConfirm = async () => {
-    const cleanedFields = Object.fromEntries(
+    const cleanedFields: Record<string, string> = Object.fromEntries(
       Object.entries(reviewFields)
         .map(([key, value]) => [key, value.trim()])
         .filter(([, value]) => value),
     );
+    for (const key of ["base_city", "staff_code", "meal_preference"] as const) {
+      const value = getStringField(sourceFields, key);
+      if (value) cleanedFields[key] = value;
+    }
 
     if (Object.keys(cleanedFields).length === 0) {
       onFormError("Add at least one reviewed field before confirming.");

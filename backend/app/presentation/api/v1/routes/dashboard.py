@@ -5,14 +5,18 @@ Dashboard Routes — /api/v1/dashboard
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.use_cases.dashboard.get_dashboard_stats_use_case import GetDashboardStatsUseCase
+from app.application.use_cases.dashboard.get_dashboard_stats_use_case import (
+    GetDashboardStatsUseCase,
+)
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
 from app.presentation.api.v1.schemas.dashboard_schemas import DashboardStatsResponse
 from app.presentation.dependencies.auth import get_current_active_user
 

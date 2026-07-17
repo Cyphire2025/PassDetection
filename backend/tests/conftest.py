@@ -12,14 +12,13 @@ Design:
 from __future__ import annotations
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config.settings import Settings
 from app.infrastructure.database.models import Base
 from app.infrastructure.database.session import get_db_session
 from app.main import create_application
-
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 

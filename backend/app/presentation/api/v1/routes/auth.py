@@ -22,6 +22,7 @@ from app.application.use_cases.auth.login_use_case import LoginUseCase
 from app.application.use_cases.auth.logout_all_use_case import LogoutAllUseCase
 from app.application.use_cases.auth.logout_use_case import LogoutUseCase
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
+from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -34,7 +35,6 @@ from app.presentation.api.v1.schemas.auth_schemas import (
 )
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_cookies
-from app.core.config.settings import get_settings
 
 router = APIRouter()
 

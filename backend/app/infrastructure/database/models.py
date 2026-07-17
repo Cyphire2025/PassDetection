@@ -7,9 +7,10 @@ Added: RefreshTokenModel for storing revocable refresh tokens.
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Date,
     DateTime,
@@ -20,15 +21,18 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    text,
     UniqueConstraint,
+    text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB as PostgreSQLJSONB
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+JSONB = JSON().with_variant(PostgreSQLJSONB, "postgresql")
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 class Base(DeclarativeBase):
@@ -135,6 +139,13 @@ class ClientGroupModel(Base):
     return_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     package_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     departure_cities: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    base_city_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    nearest_international_airport_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    staff_code_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    meal_preference_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    require_selfie: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_passport_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -176,6 +187,8 @@ class WhatsAppBroadcastGroupModel(Base):
         UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    organizing_company_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
@@ -203,6 +216,34 @@ class WhatsAppBroadcastRecipientModel(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
 
+class WhatsAppBroadcastSupportContactModel(Base):
+    __tablename__ = "whatsapp_broadcast_support_contacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "broadcast_group_id",
+            "normalized_phone_number",
+            name="uq_whatsapp_support_group_phone",
+        ),
+        Index("ix_whatsapp_support_group_order", "broadcast_group_id", "sort_order"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
+    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
 class WhatsAppMessageLogModel(Base):
     __tablename__ = "whatsapp_message_logs"
     __table_args__ = (
@@ -210,6 +251,7 @@ class WhatsAppMessageLogModel(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    batch_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
     broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False, index=True
     )
@@ -221,8 +263,11 @@ class WhatsAppMessageLogModel(Base):
     )
     message_type: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
+    status_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    template_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    rendered_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
 

@@ -28,8 +28,8 @@ from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security.jwt import decode_access_token
 from app.core.config.settings import get_settings
+from app.core.security.jwt import decode_access_token
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.domain.repositories.interfaces import IUserRepository

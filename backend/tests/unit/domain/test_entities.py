@@ -5,16 +5,12 @@ Test: Domain Entities
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
-
-import pytest
 
 from app.domain.entities.entities import (
-    Agency,
-    PassportProcessingStatus,
-    PassportSubmission,
     ClientGroup,
     GroupStatus,
+    PassportProcessingStatus,
+    PassportSubmission,
     User,
     UserRole,
 )

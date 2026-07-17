@@ -34,6 +34,12 @@ export function useExportPassportGroup() {
   });
 }
 
+export function useExportPassportGroupImages() {
+  return useMutation({
+    mutationFn: (groupId: string) => passportsApi.exportGroupImages(groupId),
+  });
+}
+
 export function useImportPassportGroup(groupId: string) {
   const queryClient = useQueryClient();
 

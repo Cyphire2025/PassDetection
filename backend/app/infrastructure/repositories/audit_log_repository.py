@@ -7,7 +7,7 @@ Durable audit trail for security and operational actions.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -42,7 +42,7 @@ class AuditLogRepository:
             entity_id=entity_id,
             ip_address=ip_address,
             metadata_json=metadata or {},
-            created_at=datetime.now(tz=timezone.utc),
+            created_at=datetime.now(tz=UTC),
         )
         self._session.add(model)
         await self._session.flush()

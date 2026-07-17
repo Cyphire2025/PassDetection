@@ -50,6 +50,11 @@ class ListPassportGroupSummariesUseCase:
                 return_date=summary.return_date,
                 package_name=summary.package_name,
                 departure_cities=list(summary.departure_cities or []),
+                base_city_enabled=summary.base_city_enabled,
+                nearest_international_airport_enabled=summary.nearest_international_airport_enabled,
+                staff_code_enabled=summary.staff_code_enabled,
+                meal_preference_enabled=summary.meal_preference_enabled,
+                require_selfie=summary.require_selfie,
                 notes=summary.notes,
             )
             for summary in summaries

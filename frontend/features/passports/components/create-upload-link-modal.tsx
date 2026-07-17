@@ -40,10 +40,20 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       travel_date: "",
       return_date: "",
       departure_cities: [],
+      base_city_enabled: false,
+      nearest_international_airport_enabled: false,
+      staff_code_enabled: false,
+      meal_preference_enabled: false,
+      require_selfie: false,
       notes: "",
     },
   });
   const departureCities = useWatch({ control, name: "departure_cities" }) ?? [];
+  const baseCityEnabled = useWatch({ control, name: "base_city_enabled" }) ?? false;
+  const airportEnabled = useWatch({ control, name: "nearest_international_airport_enabled" }) ?? false;
+  const staffCodeEnabled = useWatch({ control, name: "staff_code_enabled" }) ?? false;
+  const mealPreferenceEnabled = useWatch({ control, name: "meal_preference_enabled" }) ?? false;
+  const requireSelfie = useWatch({ control, name: "require_selfie" }) ?? false;
 
   if (!isOpen) return null;
 
@@ -54,7 +64,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         destination: data.destination || null,
         travel_date: data.travel_date || null,
         return_date: data.return_date || null,
-        departure_cities: normalizeCities(data.departure_cities ?? []),
+        departure_cities: data.nearest_international_airport_enabled
+          ? normalizeCities(data.departure_cities)
+          : [],
         notes: data.notes || null,
       });
       setGeneratedTargets(getPassportUploadTargets(result.token));
@@ -192,42 +204,84 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Departure Cities</label>
-                <div className="flex gap-2">
-                  <Input
-                    value={cityInput}
-                    onChange={(event) => setCityInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        event.preventDefault();
-                        addCity();
+              <div className="space-y-3">
+                <FormOptionToggle
+                  label="VISA Selfie Photo"
+                  description="Require each client to capture a passport-size selfie against a plain white wall."
+                  checked={requireSelfie}
+                  onChange={(checked) => setValue("require_selfie", checked, { shouldDirty: true })}
+                />
+                <FormOptionToggle
+                  label="Base City"
+                  description="Require each client to enter the city where they reside."
+                  checked={baseCityEnabled}
+                  onChange={(checked) => setValue("base_city_enabled", checked, { shouldDirty: true })}
+                />
+
+                <div className={`rounded-xl border p-4 transition-colors ${airportEnabled ? "border-blue-200 bg-blue-50/40" : "border-slate-200 bg-white"}`}>
+                  <FormOptionToggle
+                    label="Nearest International Airport"
+                    description="Require clients to select one airport from your list."
+                    checked={airportEnabled}
+                    onChange={(checked) => {
+                      setValue("nearest_international_airport_enabled", checked, { shouldDirty: true, shouldValidate: true });
+                      if (!checked) {
+                        setValue("departure_cities", [], { shouldDirty: true, shouldValidate: true });
+                        setCityInput("");
                       }
                     }}
-                    placeholder="e.g. Delhi, Chennai, Mumbai"
+                    borderless
                   />
-                  <Button type="button" variant="secondary" onClick={addCity}>
-                    Add
-                  </Button>
+                  {airportEnabled && (
+                    <div className="mt-4 space-y-2 border-t border-slate-100 pt-4">
+                      <div className="flex gap-2">
+                        <Input
+                          value={cityInput}
+                          onChange={(event) => setCityInput(event.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addCity();
+                            }
+                          }}
+                          placeholder="e.g. Delhi, Chennai, Mumbai"
+                        />
+                        <Button type="button" variant="secondary" onClick={addCity}>
+                          Add
+                        </Button>
+                      </div>
+                      {departureCities.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {departureCities.map((city) => (
+                            <button
+                              key={city}
+                              type="button"
+                              onClick={() => removeCity(city)}
+                              className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
+                            >
+                              {city}
+                              <X className="h-3 w-3" aria-hidden="true" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {errors.departure_cities && <p className="text-xs text-red-500">{errors.departure_cities.message}</p>}
+                    </div>
+                  )}
                 </div>
-                {departureCities.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {departureCities.map((city) => (
-                      <button
-                        key={city}
-                        type="button"
-                        onClick={() => removeCity(city)}
-                        className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800 transition hover:bg-blue-100"
-                      >
-                        {city}
-                        <X className="h-3 w-3" aria-hidden="true" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <p className="text-xs text-slate-500">
-                  Clients will choose one of these cities while submitting their passport.
-                </p>
+
+                <FormOptionToggle
+                  label="Staff Code"
+                  description="Require each client to enter their staff code."
+                  checked={staffCodeEnabled}
+                  onChange={(checked) => setValue("staff_code_enabled", checked, { shouldDirty: true })}
+                />
+                <FormOptionToggle
+                  label="Meal Preference"
+                  description="Require each client to choose Veg, Non Veg, or Jain."
+                  checked={mealPreferenceEnabled}
+                  onChange={(checked) => setValue("meal_preference_enabled", checked, { shouldDirty: true })}
+                />
               </div>
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
@@ -267,4 +321,41 @@ function normalizeCities(values: string[]) {
     cities.push(city);
   }
   return cities;
+}
+
+function FormOptionToggle({
+  label,
+  description,
+  checked,
+  onChange,
+  borderless = false,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  borderless?: boolean;
+}) {
+  const containerClassName = borderless
+    ? "flex items-start justify-between gap-4"
+    : `flex items-start justify-between gap-4 rounded-xl border p-4 transition-colors ${checked ? "border-blue-200 bg-blue-50/40" : "border-slate-200 bg-white"}`;
+
+  return (
+    <div className={containerClassName}>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-slate-800">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={`${checked ? "Disable" : "Enable"} ${label}`}
+        onClick={() => onChange(!checked)}
+        className={`relative mt-0.5 inline-flex h-7 w-12 shrink-0 overflow-hidden rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${checked ? "border-blue-600 bg-blue-600" : "border-slate-300 bg-slate-200"}`}
+      >
+        <span className={`pointer-events-none absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-slate-900/5 transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
+      </button>
+    </div>
+  );
 }

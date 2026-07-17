@@ -6,35 +6,54 @@ Upload Links Routes — /api/v1/upload-links
 from __future__ import annotations
 
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.dtos.client_group_dtos import CreateClientGroupInputDTO
-from app.application.use_cases.client_groups.create_client_group_use_case import CreateClientGroupUseCase
-from app.application.use_cases.client_groups.delete_client_group_use_case import DeleteClientGroupUseCase
-from app.application.use_cases.client_groups.get_client_group_by_token_use_case import GetClientGroupByTokenUseCase
-from app.application.use_cases.client_groups.list_client_groups_use_case import ListClientGroupsUseCase
-from app.application.use_cases.client_groups.revoke_client_group_use_case import RevokeClientGroupUseCase
-from app.application.use_cases.client_groups.restore_client_group_use_case import RestoreClientGroupUseCase
+from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.client_groups.create_client_group_use_case import (
+    CreateClientGroupUseCase,
+)
+from app.application.use_cases.client_groups.delete_client_group_use_case import (
+    DeleteClientGroupUseCase,
+)
+from app.application.use_cases.client_groups.get_client_group_by_token_use_case import (
+    GetClientGroupByTokenUseCase,
+)
+from app.application.use_cases.client_groups.list_client_groups_use_case import (
+    ListClientGroupsUseCase,
+)
+from app.application.use_cases.client_groups.restore_client_group_use_case import (
+    RestoreClientGroupUseCase,
+)
+from app.application.use_cases.client_groups.revoke_client_group_use_case import (
+    RevokeClientGroupUseCase,
+)
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import PassDetectionError, EntityNotFoundError, AuthorizationError
-from app.infrastructure.database.session import get_db_session
+from app.domain.exceptions.exceptions import (
+    AuthorizationError,
+    EntityNotFoundError,
+    PassDetectionError,
+)
 from app.infrastructure.database.models import (
-    AuditLogModel,
-    ClientGroupModel,
     ManagerGroupAccessModel,
     NotificationModel,
     PassengerQRTokenModel,
     PassportProcessingJobModel,
     PassportSubmissionModel,
 )
-from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
+from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_expires_at_for_group
-from app.presentation.api.v1.schemas.client_group_schemas import CreateClientGroupRequest, ClientGroupResponse, UpdateClientGroupRequest
+from app.presentation.api.v1.schemas.client_group_schemas import (
+    ClientGroupResponse,
+    CreateClientGroupRequest,
+    UpdateClientGroupRequest,
+)
 from app.presentation.dependencies.auth import get_current_active_user
 
 router = APIRouter()
@@ -96,6 +115,11 @@ async def create_client_group(
         return_date=request.return_date,
         package_name=request.package_name,
         departure_cities=request.departure_cities,
+        base_city_enabled=request.base_city_enabled,
+        nearest_international_airport_enabled=request.nearest_international_airport_enabled,
+        staff_code_enabled=request.staff_code_enabled,
+        meal_preference_enabled=request.meal_preference_enabled,
+        require_selfie=request.require_selfie,
         notes=request.notes,
     )
 
@@ -222,6 +246,11 @@ async def update_client_group(
     group.return_date = request.return_date
     group.package_name = request.package_name.strip() if request.package_name else None
     group.departure_cities = request.departure_cities
+    group.base_city_enabled = request.base_city_enabled
+    group.nearest_international_airport_enabled = request.nearest_international_airport_enabled
+    group.staff_code_enabled = request.staff_code_enabled
+    group.meal_preference_enabled = request.meal_preference_enabled
+    group.require_selfie = request.require_selfie
     group.notes = request.notes.strip() if request.notes else None
     await repo.update(group)
     passenger_ids_result = await session.execute(

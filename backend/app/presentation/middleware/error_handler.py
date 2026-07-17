@@ -20,8 +20,10 @@ from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import (
     AuthenticationError,
     AuthorizationError,
+    ClientGroupUsedError,
     DuplicateEntityError,
     EntityNotFoundError,
+    GroupClosedError,
     ImageValidationError,
     LowConfidenceError,
     MRZParsingError,
@@ -30,8 +32,6 @@ from app.domain.exceptions.exceptions import (
     RateLimitExceededError,
     StorageError,
     TokenExpiredError,
-    GroupClosedError,
-    ClientGroupUsedError,
     ValidationError,
 )
 

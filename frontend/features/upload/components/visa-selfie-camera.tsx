@@ -5,38 +5,57 @@ import Image from "next/image";
 import { AlertTriangle, Check, Loader2, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Detection } from "@mediapipe/face_detection";
-import type { Results as SegmentationResults } from "@mediapipe/selfie_segmentation";
+import { evaluateWhiteBackground, isVisaSelfieFaceLargeEnough } from "./visa-selfie-quality";
 
 interface VisaSelfieCameraProps {
   onCapture: (file: File) => void;
   onCancel: () => void;
 }
 
+type FacingMode = "user" | "environment";
 type FaceStatus = "loading" | "no_face" | "multiple" | "too_far" | "too_close" | "off_center" | "ready" | "unavailable";
+type BackgroundStatus = "checking" | "white" | "not_white";
+
+interface PendingAnalysis {
+  id: number;
+  cameraGeneration: number;
+}
 
 const OUTPUT_WIDTH = 826;
 const OUTPUT_HEIGHT = 1062;
 const STABLE_CAPTURE_MS = 2_000;
-const ANALYSIS_INTERVAL_MS = 180;
+const ANALYSIS_INTERVAL_MS = 160;
+const ANALYSIS_WIDTH = 72;
+const ANALYSIS_HEIGHT = 92;
 
 export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
+  const analysisCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<import("@mediapipe/face_detection").FaceDetection | null>(null);
-  const segmenterRef = useRef<import("@mediapipe/selfie_segmentation").SelfieSegmentation | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const lastAnalysisRef = useRef(0);
   const analysisBusyRef = useRef(false);
-  const latestDetectionsRef = useRef<Detection[]>([]);
   const stableSinceRef = useRef<number | null>(null);
   const captureStartedRef = useRef(false);
+  const captureReadyRef = useRef(false);
+  const takePhotoRef = useRef<() => Promise<void>>(async () => undefined);
+  const cameraGenerationRef = useRef(0);
+  const detectorGenerationRef = useRef(0);
+  const nextAnalysisIdRef = useRef(0);
+  const activeAnalysisIdRef = useRef<number | null>(null);
+  const pendingAnalysesRef = useRef(new Map<number, PendingAnalysis[]>());
+  const faceStatusRef = useRef<FaceStatus>("loading");
+  const backgroundStatusRef = useRef<BackgroundStatus>("checking");
 
+  const [facingMode, setFacingMode] = useState<FacingMode>("user");
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [isDetectorReady, setIsDetectorReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [faceStatus, setFaceStatus] = useState<FaceStatus>("loading");
-  const [segmentationReady, setSegmentationReady] = useState(false);
+  const [backgroundStatus, setBackgroundStatus] = useState<BackgroundStatus>("checking");
   const [modelError, setModelError] = useState<string | null>(null);
   const [initializationAttempt, setInitializationAttempt] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -45,76 +64,34 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
 
-  const stopCamera = useCallback(() => {
-    if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
-    animationFrameRef.current = null;
+  const resetQualityState = useCallback((status: FaceStatus = "loading") => {
+    faceStatusRef.current = status;
+    backgroundStatusRef.current = "checking";
+    captureReadyRef.current = false;
+    stableSinceRef.current = null;
+    setFaceStatus(status);
+    setBackgroundStatus("checking");
+    setCountdown(null);
+  }, []);
+
+  const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   }, []);
 
-  const classifyFace = useCallback((detections: Detection[], video: HTMLVideoElement, guide: HTMLDivElement): FaceStatus => {
-    if (detections.length === 0) return "no_face";
-    if (detections.length > 1) return "multiple";
-
-    const box = detections[0].boundingBox;
-    const crop = getVisibleGuideCrop(video, guide);
-    const relativeWidth = (box.width * video.videoWidth) / crop.width;
-    const relativeHeight = (box.height * video.videoHeight) / crop.height;
-    const relativeX = ((box.xCenter * video.videoWidth) - crop.left) / crop.width;
-    const relativeY = ((box.yCenter * video.videoHeight) - crop.top) / crop.height;
-
-    if (relativeHeight < 0.48 || relativeWidth < 0.36) return "too_far";
-    if (relativeHeight > 0.78 || relativeWidth > 0.76) return "too_close";
-    if (Math.abs(relativeX - 0.5) > 0.1 || Math.abs(relativeY - 0.45) > 0.12) return "off_center";
-    return "ready";
-  }, []);
-
-  const removeBackground = useCallback(async (source: HTMLCanvasElement): Promise<File> => {
-    const segmenter = segmenterRef.current;
-    if (!segmenter) throw new Error("Background processor is still loading. Please wait a moment and retry.");
-
-    const results = await new Promise<SegmentationResults>((resolve, reject) => {
-      const timer = window.setTimeout(() => reject(new Error("Background processing timed out. Please retry.")), 12_000);
-      segmenter.onResults((value) => {
-        window.clearTimeout(timer);
-        resolve(value);
-      });
-      void segmenter.send({ image: source }).catch((error) => {
-        window.clearTimeout(timer);
-        reject(error);
-      });
-    });
-
-    const output = document.createElement("canvas");
-    output.width = OUTPUT_WIDTH;
-    output.height = OUTPUT_HEIGHT;
-    const context = output.getContext("2d");
-    if (!context) throw new Error("This browser cannot process the selfie image.");
-
-    context.save();
-    context.filter = "blur(1.2px)";
-    context.drawImage(results.segmentationMask, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-    context.filter = "none";
-    context.globalCompositeOperation = "source-in";
-    context.drawImage(source, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-    context.globalCompositeOperation = "destination-over";
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-    context.restore();
-
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      output.toBlob((value) => value ? resolve(value) : reject(new Error("Could not save the processed selfie.")), "image/jpeg", 0.94);
-    });
-    return new File([blob], `visa-selfie-${Date.now()}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+  const stopAnalysis = useCallback(() => {
+    if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
+    animationFrameRef.current = null;
   }, []);
 
   const takePhoto = useCallback(async () => {
     const video = videoRef.current;
     const guide = guideRef.current;
     const canvas = captureCanvasRef.current;
-    if (!video || !guide || !canvas || !isCameraReady || captureStartedRef.current) return;
+    if (!video || !guide || !canvas || !isCameraReady || !captureReadyRef.current || captureStartedRef.current) return;
 
     captureStartedRef.current = true;
+    captureReadyRef.current = false;
     setIsProcessing(true);
     setProcessingError(null);
     stableSinceRef.current = null;
@@ -127,29 +104,125 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       const context = canvas.getContext("2d");
       if (!context) throw new Error("This browser cannot capture a camera image.");
 
+      // The source frame is saved as captured. No synthetic background or edge
+      // segmentation is applied; the live checks require a real white backdrop.
       context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-
-      const file = await removeBackground(canvas);
+      const blob = await canvasToJpeg(canvas);
+      const file = new File([blob], `visa-selfie-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      });
       setCapturedFile(file);
       setCapturedPreview(URL.createObjectURL(file));
     } catch (error) {
-      setProcessingError(error instanceof Error ? error.message : "The selfie could not be processed. Please retry.");
+      setProcessingError(error instanceof Error ? error.message : "The selfie could not be saved. Please retry.");
     } finally {
       setIsProcessing(false);
       captureStartedRef.current = false;
     }
-  }, [isCameraReady, removeBackground]);
+  }, [isCameraReady]);
+
+  useEffect(() => {
+    takePhotoRef.current = takePhoto;
+  }, [takePhoto]);
+
+  useEffect(() => {
+    let disposed = false;
+    const detectorGeneration = ++detectorGenerationRef.current;
+    const pendingAnalyses = pendingAnalysesRef.current;
+    pendingAnalyses.set(detectorGeneration, []);
+
+    async function initializeDetector() {
+      try {
+        const { FaceDetection } = await import("@mediapipe/face_detection");
+        if (disposed) return;
+
+        const detector = new FaceDetection({ locateFile: (file) => `/mediapipe/face_detection/${file}` });
+        detector.setOptions({
+          model: "short",
+          selfieMode: false,
+          minDetectionConfidence: 0.68,
+        });
+        detector.onResults((results) => {
+          const pending = pendingAnalyses.get(detectorGeneration)?.shift();
+          if (!pending) return;
+          if (activeAnalysisIdRef.current === pending.id) {
+            activeAnalysisIdRef.current = null;
+            analysisBusyRef.current = false;
+          }
+          if (
+            detectorGeneration !== detectorGenerationRef.current
+            || disposed
+            || captureStartedRef.current
+            || pending.cameraGeneration !== cameraGenerationRef.current
+          ) return;
+
+          const video = videoRef.current;
+          const guide = guideRef.current;
+          const analysisCanvas = analysisCanvasRef.current;
+          if (!video || !guide || !analysisCanvas || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+
+          const nextFaceStatus = classifyFace(results.detections, video, guide);
+          const nextBackgroundStatus = nextFaceStatus === "ready"
+            ? analyzeWhiteBackground(video, guide, analysisCanvas)
+            : "checking";
+          const isReady = nextFaceStatus === "ready" && nextBackgroundStatus === "white";
+
+          if (faceStatusRef.current !== nextFaceStatus) {
+            faceStatusRef.current = nextFaceStatus;
+            setFaceStatus(nextFaceStatus);
+          }
+          if (backgroundStatusRef.current !== nextBackgroundStatus) {
+            backgroundStatusRef.current = nextBackgroundStatus;
+            setBackgroundStatus(nextBackgroundStatus);
+          }
+          captureReadyRef.current = isReady;
+
+          const now = performance.now();
+          if (isReady) {
+            const stableSince = stableSinceRef.current ?? now;
+            stableSinceRef.current = stableSince;
+            const remaining = STABLE_CAPTURE_MS - (now - stableSince);
+            const nextCountdown = Math.max(1, Math.ceil(remaining / 1_000));
+            setCountdown((current) => current === nextCountdown ? current : nextCountdown);
+            if (remaining <= 0) void takePhotoRef.current();
+          } else {
+            stableSinceRef.current = null;
+            setCountdown((current) => current === null ? current : null);
+          }
+        });
+        await detector.initialize();
+        if (disposed) {
+          await detector.close();
+          return;
+        }
+        detectorRef.current = detector;
+        analysisBusyRef.current = false;
+        setModelError(null);
+        setIsDetectorReady(true);
+      } catch (error) {
+        console.error("VISA selfie face detection initialization failed", error);
+        if (disposed) return;
+        faceStatusRef.current = "unavailable";
+        setFaceStatus("unavailable");
+        setModelError("Live face and background checks could not start. Retry before taking a photo.");
+      }
+    }
+
+    void initializeDetector();
+    return () => {
+      disposed = true;
+      pendingAnalyses.delete(detectorGeneration);
+      const detector = detectorRef.current;
+      detectorRef.current = null;
+      void detector?.close();
+    };
+  }, [initializationAttempt]);
 
   useEffect(() => {
     let disposed = false;
 
-    async function initialize() {
-      setModelError(null);
-      setSegmentationReady(false);
-      setFaceStatus("loading");
-      setIsCameraReady(false);
-      latestDetectionsRef.current = [];
-      analysisBusyRef.current = false;
+    async function startCamera() {
       if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
         setCameraError("Camera access requires HTTPS, or localhost during development.");
         return;
@@ -157,7 +230,11 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
+          video: {
+            facingMode: { ideal: facingMode },
+            width: { ideal: 1920 },
+            height: { ideal: 1440 },
+          },
           audio: false,
         });
         if (disposed) {
@@ -165,68 +242,29 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
           return;
         }
         streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => undefined);
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          await video.play().catch(() => undefined);
         }
       } catch (error) {
+        console.error("Failed to start VISA selfie camera", error);
+        if (disposed) return;
         setCameraError(error instanceof DOMException && error.name === "NotAllowedError"
           ? "Camera permission was blocked. Allow camera access and try again."
-          : "The front camera could not be started on this device.");
-        return;
-      }
-
-      try {
-        const [{ FaceDetection }, { SelfieSegmentation }] = await Promise.all([
-          import("@mediapipe/face_detection"),
-          import("@mediapipe/selfie_segmentation"),
-        ]);
-        if (disposed) return;
-
-        const segmenter = new SelfieSegmentation({ locateFile: (file) => `/mediapipe/selfie_segmentation/${file}` });
-        segmenter.setOptions({ modelSelection: 0, selfieMode: true });
-        segmenterRef.current = segmenter;
-        await segmenter.initialize();
-        if (disposed) return;
-        setSegmentationReady(true);
-
-        try {
-          const detector = new FaceDetection({ locateFile: (file) => `/mediapipe/face_detection/${file}` });
-          detector.setOptions({ model: "short", selfieMode: true, minDetectionConfidence: 0.72 });
-          detector.onResults((results) => {
-            latestDetectionsRef.current = results.detections;
-            analysisBusyRef.current = false;
-          });
-          await detector.initialize();
-          if (disposed) {
-            await detector.close();
-            return;
-          }
-          detectorRef.current = detector;
-        } catch (error) {
-          console.error("VISA selfie face detection initialization failed", error);
-          setFaceStatus("unavailable");
-        }
-      } catch (error) {
-        console.error("VISA selfie ML initialization failed", error);
-        setFaceStatus("unavailable");
-        setModelError("The white-background processor could not start. Check your connection and retry.");
+          : `The ${facingMode === "user" ? "front" : "back"} camera could not be started on this device.`);
       }
     }
 
-    void initialize();
+    void startCamera();
     return () => {
       disposed = true;
-      stopCamera();
-      void detectorRef.current?.close();
-      void segmenterRef.current?.close();
-      detectorRef.current = null;
-      segmenterRef.current = null;
+      stopStream();
     };
-  }, [initializationAttempt, stopCamera]);
+  }, [facingMode, stopStream]);
 
   useEffect(() => {
-    if (!isCameraReady || capturedPreview || cameraError) return;
+    if (!isCameraReady || !isDetectorReady || capturedPreview || cameraError) return;
 
     const analyze = (now: number) => {
       const detector = detectorRef.current;
@@ -234,35 +272,47 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       if (detector && video && !analysisBusyRef.current && now - lastAnalysisRef.current >= ANALYSIS_INTERVAL_MS) {
         lastAnalysisRef.current = now;
         analysisBusyRef.current = true;
-        void detector.send({ image: video }).catch(() => {
-          analysisBusyRef.current = false;
+        const cameraGeneration = cameraGenerationRef.current;
+        const detectorGeneration = detectorGenerationRef.current;
+        const analysisId = ++nextAnalysisIdRef.current;
+        const pending = { id: analysisId, cameraGeneration };
+        activeAnalysisIdRef.current = analysisId;
+        const detectorQueue = pendingAnalysesRef.current.get(detectorGeneration) ?? [];
+        detectorQueue.push(pending);
+        pendingAnalysesRef.current.set(detectorGeneration, detectorQueue);
+        void detector.send({ image: video }).catch((error) => {
+          const queue = pendingAnalysesRef.current.get(detectorGeneration);
+          const pendingIndex = queue?.findIndex((item) => item.id === analysisId) ?? -1;
+          if (queue && pendingIndex >= 0) queue.splice(pendingIndex, 1);
+          if (activeAnalysisIdRef.current === analysisId) {
+            activeAnalysisIdRef.current = null;
+            analysisBusyRef.current = false;
+          }
+          if (
+            cameraGeneration !== cameraGenerationRef.current
+            || detectorGeneration !== detectorGenerationRef.current
+          ) return;
+          console.error("VISA selfie frame analysis failed", error);
+          captureReadyRef.current = false;
+          faceStatusRef.current = "unavailable";
           setFaceStatus("unavailable");
+          setModelError("Live photo checks stopped unexpectedly. Retry the checks to continue.");
+          setIsDetectorReady(false);
         });
-      }
-
-      if (detector && video && guideRef.current) {
-        const status = classifyFace(latestDetectionsRef.current, video, guideRef.current);
-        setFaceStatus(status);
-        if (status === "ready" && !captureStartedRef.current) {
-          const stableSince = stableSinceRef.current ?? now;
-          stableSinceRef.current = stableSince;
-          const remaining = STABLE_CAPTURE_MS - (now - stableSince);
-          setCountdown(Math.max(1, Math.ceil(remaining / 1000)));
-          if (remaining <= 0) void takePhoto();
-        } else {
-          stableSinceRef.current = null;
-          setCountdown(null);
-        }
       }
       animationFrameRef.current = requestAnimationFrame(analyze);
     };
 
     animationFrameRef.current = requestAnimationFrame(analyze);
+    return stopAnalysis;
+  }, [cameraError, capturedPreview, isCameraReady, isDetectorReady, stopAnalysis]);
+
+  useEffect(() => {
     return () => {
-      if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
+      stopAnalysis();
+      stopStream();
     };
-  }, [cameraError, capturedPreview, classifyFace, isCameraReady, takePhoto]);
+  }, [stopAnalysis, stopStream]);
 
   useEffect(() => {
     return () => {
@@ -271,29 +321,52 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   }, [capturedPreview]);
 
   const retake = () => {
+    if (capturedPreview) URL.revokeObjectURL(capturedPreview);
     setCapturedPreview(null);
     setCapturedFile(null);
     setProcessingError(null);
-    stableSinceRef.current = null;
     captureStartedRef.current = false;
+    resetQualityState(isDetectorReady ? "no_face" : "loading");
   };
 
   const close = () => {
-    stopCamera();
+    stopAnalysis();
+    stopStream();
     onCancel();
   };
 
-  const guidance = processingError
-    ? processingError
-    : modelError
-      ? modelError
-    : isProcessing
-      ? "Removing the background and applying a clean white backdrop..."
-      : countdown
-        ? `Hold still — capturing in ${countdown}`
-        : faceStatusMessage(faceStatus);
+  const toggleCamera = () => {
+    if (isProcessing) return;
+    cameraGenerationRef.current += 1;
+    activeAnalysisIdRef.current = null;
+    analysisBusyRef.current = false;
+    stopAnalysis();
+    stopStream();
+    setIsCameraReady(false);
+    setCameraError(null);
+    resetQualityState(isDetectorReady ? "no_face" : "loading");
+    setFacingMode((current) => current === "user" ? "environment" : "user");
+  };
 
-  const ready = faceStatus === "ready";
+  const retryChecks = () => {
+    detectorGenerationRef.current += 1;
+    activeAnalysisIdRef.current = null;
+    analysisBusyRef.current = false;
+    setModelError(null);
+    setIsDetectorReady(false);
+    resetQualityState("loading");
+    setInitializationAttempt((value) => value + 1);
+  };
+
+  const ready = faceStatus === "ready" && backgroundStatus === "white";
+  const guidance = processingError
+    ?? (isProcessing
+      ? "Saving the original camera photo..."
+      : countdown
+        ? `Hold still - capturing in ${countdown}`
+        : faceStatus === "ready" && backgroundStatus === "not_white"
+          ? "Use a plain light wall without patterns"
+          : faceStatusMessage(faceStatus));
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white">
@@ -303,7 +376,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
         </button>
         <div className="text-center">
           <h2 className="text-base font-semibold">VISA Selfie Photo</h2>
-          <p className="text-xs text-slate-400">White background applied automatically</p>
+          <p className="text-xs text-slate-400">Use a plain white or off-white wall</p>
         </div>
         <div className="w-10" aria-hidden="true" />
       </header>
@@ -314,7 +387,10 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
             <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" />
             <h3 className="mb-2 text-lg font-semibold">Camera unavailable</h3>
             <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
-            <Button onClick={close} className="w-full">Back</Button>
+            <div className="flex flex-col gap-3">
+              <Button onClick={toggleCamera} className="w-full">Try the {facingMode === "user" ? "back" : "front"} camera</Button>
+              <Button variant="outline" onClick={close} className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20">Back</Button>
+            </div>
           </div>
         ) : (
           <>
@@ -324,31 +400,44 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
               muted
               playsInline
               onLoadedData={() => setIsCameraReady(true)}
-              className={`h-full w-full scale-x-[-1] object-cover ${capturedPreview ? "opacity-0" : "opacity-100"}`}
+              className={`h-full w-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${capturedPreview ? "opacity-0" : "opacity-100"}`}
             />
             {capturedPreview ? (
-              <Image src={capturedPreview} alt="Processed VISA selfie with white background" fill unoptimized className="object-contain" />
+              <Image src={capturedPreview} alt="Captured VISA selfie" fill unoptimized className="object-contain" />
             ) : (
               <div className="pointer-events-none absolute inset-0">
-                <div ref={guideRef} className="absolute left-1/2 top-1/2 aspect-[35/45] w-[min(88vw,56vh,32rem)] -translate-x-1/2 -translate-y-1/2">
+                <div ref={guideRef} className="absolute bottom-0 left-1/2 aspect-[35/45] w-[min(68vw,45vh,27rem)] -translate-x-1/2">
                   <div className={`absolute inset-0 rounded-3xl border-2 shadow-[0_0_0_9999px_rgba(2,6,23,0.5)] transition-colors ${ready ? "border-emerald-400" : "border-white/65"}`} />
-                  <div className={`absolute left-1/2 top-[47%] h-[76%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border-2 border-dashed transition-colors ${ready ? "border-emerald-300" : "border-white/70"}`} />
-                  <div className="absolute bottom-[7%] left-1/2 h-[26%] w-[82%] -translate-x-1/2 rounded-t-[50%] border-x-2 border-t-2 border-dashed border-white/50" />
+                  <svg aria-hidden="true" viewBox="0 0 100 126" className="absolute inset-[5%] h-[90%] w-[90%]" preserveAspectRatio="none">
+                    <path
+                      d="M50 7 C34 7 25 20 25 39 C25 53 30 64 39 70 L39 77 C22 79 10 89 7 118 L93 118 C90 89 78 79 61 77 L61 70 C70 64 75 53 75 39 C75 20 66 7 50 7 Z"
+                      fill="none"
+                      strokeWidth="1.6"
+                      strokeDasharray="4 3"
+                      vectorEffect="non-scaling-stroke"
+                      className={`transition-colors ${ready ? "stroke-emerald-300" : "stroke-white/75"}`}
+                    />
+                  </svg>
                 </div>
                 <div className={`absolute left-1/2 top-4 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${processingError ? "bg-red-600" : ready ? "bg-emerald-500" : "bg-black/60"}`}>
                   {guidance}
+                </div>
+                <div className="absolute left-1/2 top-20 flex -translate-x-1/2 gap-2">
+                  <QualityChip label="One face" ready={faceStatus === "ready"} warning={faceStatus !== "loading" && faceStatus !== "ready"} />
+                  <QualityChip label="Plain light wall" ready={backgroundStatus === "white"} warning={backgroundStatus === "not_white"} />
                 </div>
               </div>
             )}
             {isProcessing && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-slate-950/85 px-6 text-center backdrop-blur-sm">
                 <Loader2 className="h-9 w-9 animate-spin text-blue-400" />
-                <p className="text-sm font-medium">Creating your VISA-ready white-background photo</p>
+                <p className="text-sm font-medium">Saving your original camera photo</p>
               </div>
             )}
           </>
         )}
         <canvas ref={captureCanvasRef} className="hidden" />
+        <canvas ref={analysisCanvasRef} className="hidden" />
       </main>
 
       {!cameraError && (
@@ -363,23 +452,35 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2 text-center">
+            <div className="grid w-full max-w-sm grid-cols-[1fr_auto_1fr] items-center gap-6">
               <button
                 type="button"
-                onClick={() => void takePhoto()}
-                disabled={!isCameraReady || isProcessing || !segmentationReady}
-                aria-label="Capture selfie manually"
-                className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-950 bg-white ring-2 ring-white disabled:opacity-40"
+                onClick={toggleCamera}
+                disabled={!isCameraReady || isProcessing}
+                aria-label={`Switch to ${facingMode === "user" ? "back" : "front"} camera`}
+                className="justify-self-end rounded-full bg-white/10 p-3 transition-colors hover:bg-white/20 disabled:opacity-40"
               >
-                <span className="h-16 w-16 rounded-full border border-slate-200" />
+                <RefreshCcw className="h-6 w-6" />
               </button>
-              {modelError ? (
-                <button type="button" onClick={() => setInitializationAttempt((value) => value + 1)} className="rounded-lg border border-white/20 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10">
-                  Retry photo processing
+              <div className="flex flex-col items-center gap-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => void takePhoto()}
+                  disabled={!isCameraReady || isProcessing || !isDetectorReady || !ready}
+                  aria-label="Capture selfie manually"
+                  className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-950 bg-white ring-2 ring-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span className="h-16 w-16 rounded-full border border-slate-200" />
                 </button>
-              ) : (
-                <p className="text-xs text-slate-400">{faceStatus === "unavailable" ? "Automatic framing unavailable — capture manually" : "Auto-captures after 2 seconds in position"}</p>
-              )}
+                <p className="w-36 text-xs text-slate-400">{ready ? "Auto-captures after 2 seconds" : "Capture unlocks when both checks pass"}</p>
+              </div>
+              <div className="justify-self-start">
+                {modelError && (
+                  <button type="button" onClick={retryChecks} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10">
+                    Retry checks
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </footer>
@@ -388,17 +489,65 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   );
 }
 
+function QualityChip({ label, ready, warning }: { label: string; ready: boolean; warning: boolean }) {
+  const tone = ready
+    ? "border-emerald-400/40 bg-emerald-500/20 text-emerald-100"
+    : warning
+      ? "border-amber-300/40 bg-amber-500/20 text-amber-50"
+      : "border-white/15 bg-black/45 text-white/70";
+  return <span className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur ${tone}`}>{label}</span>;
+}
+
 function faceStatusMessage(status: FaceStatus): string {
   switch (status) {
-    case "loading": return "Preparing secure face detection...";
-    case "no_face": return "Place your face inside the oval";
+    case "loading": return "Preparing live photo checks...";
+    case "no_face": return "Place one face inside the guide";
     case "multiple": return "Only one person should be visible";
-    case "too_far": return "Move closer — your face is too small";
+    case "too_far": return "Move closer - your face is too small";
     case "too_close": return "Move back slightly";
-    case "off_center": return "Center your face inside the oval";
-    case "ready": return "Perfect position — hold still";
-    case "unavailable": return "Automatic framing unavailable — use the capture button";
+    case "off_center": return "Center your head inside the guide";
+    case "ready": return "Checking the background...";
+    case "unavailable": return "Live checks unavailable - retry to continue";
   }
+}
+
+function classifyFace(detections: Detection[], video: HTMLVideoElement, guide: HTMLDivElement): FaceStatus {
+  if (detections.length === 0) return "no_face";
+  if (detections.length > 1) return "multiple";
+
+  const box = detections[0].boundingBox;
+  const crop = getVisibleGuideCrop(video, guide);
+  const relativeWidth = (box.width * video.videoWidth) / crop.width;
+  const relativeHeight = (box.height * video.videoHeight) / crop.height;
+  const relativeX = (box.xCenter * video.videoWidth - crop.left) / crop.width;
+  const relativeY = (box.yCenter * video.videoHeight - crop.top) / crop.height;
+
+  if (!isVisaSelfieFaceLargeEnough(relativeWidth, relativeHeight)) return "too_far";
+  if (relativeHeight > 0.74 || relativeWidth > 0.72) return "too_close";
+  if (Math.abs(relativeX - 0.5) > 0.11 || relativeY < 0.27 || relativeY > 0.52) return "off_center";
+  return "ready";
+}
+
+function analyzeWhiteBackground(video: HTMLVideoElement, guide: HTMLDivElement, canvas: HTMLCanvasElement): BackgroundStatus {
+  const crop = getVisibleGuideCrop(video, guide);
+  canvas.width = ANALYSIS_WIDTH;
+  canvas.height = ANALYSIS_HEIGHT;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return "not_white";
+
+  context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
+  const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
+  return evaluateWhiteBackground(pixels, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).isWhite ? "white" : "not_white";
+}
+
+function canvasToJpeg(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (value) => value ? resolve(value) : reject(new Error("Could not save the selfie.")),
+      "image/jpeg",
+      0.94,
+    );
+  });
 }
 
 interface CropBounds {

@@ -159,7 +159,7 @@ services:
       worker
       --loglevel=INFO
       --concurrency=${WORKER_CONCURRENCY:-2}
-      -Q passport_ocr"
+      -Q passport_ocr,whatsapp"
     networks:
       - passdetection-net
     healthcheck:

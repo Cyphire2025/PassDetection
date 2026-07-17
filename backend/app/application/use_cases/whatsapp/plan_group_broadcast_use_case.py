@@ -16,6 +16,10 @@ from app.application.dtos.whatsapp_dtos import (
     WhatsAppRecipient,
     WhatsAppTemplatePlan,
 )
+from app.application.use_cases.whatsapp.message_templates import (
+    PASSPORT_LINK_TEMPLATE_NAME,
+    WELCOME_TEMPLATE_NAME,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,14 +56,14 @@ def template_for_intent(intent: WhatsAppBroadcastIntent, language_code: str) -> 
         return WhatsAppTemplatePlan(
             intent=intent,
             category="marketing",
-            template_name="tour_welcome_v1",
+            template_name=WELCOME_TEMPLATE_NAME,
             language_code=language_code,
         )
     if intent == "passport_upload_link":
         return WhatsAppTemplatePlan(
             intent=intent,
             category="utility",
-            template_name="passport_upload_link_v1",
+            template_name=PASSPORT_LINK_TEMPLATE_NAME,
             language_code=language_code,
         )
     return WhatsAppTemplatePlan(

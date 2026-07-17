@@ -7,41 +7,89 @@ from __future__ import annotations
 
 import io
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
-from app.application.use_cases.passports.confirm_passport_submission_use_case import ConfirmPassportSubmissionUseCase
-from app.application.use_cases.passports.client_submit_passport_use_case import ClientSubmitPassportUseCase
-from app.application.use_cases.passports.get_passport_submission_use_case import GetPassportSubmissionUseCase
-from app.application.use_cases.passports.list_passport_group_summaries_use_case import ListPassportGroupSummariesUseCase
-from app.application.use_cases.passports.list_passport_submissions_use_case import ListPassportSubmissionsUseCase
-from app.application.use_cases.passports.list_passport_submissions_by_group_use_case import ListPassportSubmissionsByGroupUseCase
-from app.application.use_cases.passports.reextract_passport_submission_use_case import ReextractPassportSubmissionUseCase
-from app.application.use_cases.passports.retry_public_passport_extraction_use_case import RetryPublicPassportExtractionUseCase
+from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.client_submit_passport_use_case import (
+    ClientSubmitPassportUseCase,
+)
+from app.application.use_cases.passports.confirm_passport_submission_use_case import (
+    ConfirmPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.get_passport_submission_use_case import (
+    GetPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.list_passport_group_summaries_use_case import (
+    ListPassportGroupSummariesUseCase,
+)
+from app.application.use_cases.passports.list_passport_submissions_by_group_use_case import (
+    ListPassportSubmissionsByGroupUseCase,
+)
+from app.application.use_cases.passports.list_passport_submissions_use_case import (
+    ListPassportSubmissionsUseCase,
+)
+from app.application.use_cases.passports.reextract_passport_submission_use_case import (
+    ReextractPassportSubmissionUseCase,
+)
+from app.application.use_cases.passports.retry_public_passport_extraction_use_case import (
+    RetryPublicPassportExtractionUseCase,
+)
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import User, UserRole
-from app.domain.exceptions.exceptions import AuthorizationError, PassDetectionError, EntityNotFoundError
-from app.infrastructure.database.session import get_db_session
+from app.domain.exceptions.exceptions import (
+    AuthorizationError,
+    EntityNotFoundError,
+    PassDetectionError,
+    StorageError,
+)
 from app.infrastructure.ai import GeminiPassportVerificationService
-from app.infrastructure.database.models import ClientGroupModel, PassengerQRTokenModel, PassportSubmissionModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    PassengerQRTokenModel,
+    PassportSubmissionModel,
+)
+from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
+from app.infrastructure.export.passport_image_zip_exporter import (
+    MissingPassportImagesError,
+    PassportImageExportLimitError,
+    PassportImageZipExporter,
+    safe_download_filename,
+)
+from app.infrastructure.imports.passport_document_importer import (
+    PassportDocumentFile,
+    PassportDocumentImporter,
+    RejectedPassportDocument,
+)
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
-from app.infrastructure.imports.passport_document_importer import PassportDocumentFile, PassportDocumentImporter, RejectedPassportDocument
+from app.infrastructure.ocr.passport_back_extraction_service import (
+    PassportBackPageExtractionService,
+)
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
-from app.infrastructure.ocr.passport_back_extraction_service import PassportBackPageExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.passport_submission_repository import PassportSubmissionRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
-from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.repositories.notification_repository import NotificationRepository
+from app.infrastructure.repositories.passport_submission_repository import (
+    PassportSubmissionRepository,
+)
+from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import ensure_passenger_qr
 from app.presentation.api.v1.schemas.passport_schemas import (
@@ -63,6 +111,14 @@ router = APIRouter()
 
 def _owner_scope_for(user: User) -> uuid.UUID | None:
     return user.id if user.role == UserRole.AGENCY_STAFF else None
+
+
+def _stream_binary_file(file_object, *, chunk_size: int = 1024 * 1024):  # type: ignore[no-untyped-def]
+    try:
+        while chunk := file_object.read(chunk_size):
+            yield chunk
+    finally:
+        file_object.close()
 
 
 def _submitted_statuses() -> tuple[str, str]:
@@ -139,7 +195,7 @@ async def _passport_qr_status(session: AsyncSession, passenger_id: uuid.UUID) ->
     token = result.scalar_one_or_none()
     if token is None:
         return {"status": "not_generated"}
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if token.revoked_at is not None:
         token_status = "revoked"
     elif token.expires_at <= now:
@@ -325,15 +381,15 @@ async def upload_passport(
     background_tasks: BackgroundTasks,
     client_name: str = Form(...),
     file: UploadFile = File(...),
-    passport_photo_file: UploadFile = File(..., description="Required processed VISA selfie with a white background"),
-    passport_back_file: UploadFile | None = File(None),
+    passport_back_file: UploadFile = File(..., description="Required original passport back image"),
+    passport_photo_file: UploadFile | None = File(None, description="Optional original VISA selfie captured against a verified white background"),
     use_case: SubmitPassportUseCase = Depends(_get_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     # 1. Read and validate file content using magic bytes + actual decoder.
     validated = await _validated_upload_file(file, label="passport front")
-    validated_photo = await _validated_upload_file(passport_photo_file, label="VISA selfie photo")
-    validated_back = await _validated_upload_file(passport_back_file, label="passport back") if passport_back_file else None
+    validated_photo = await _validated_upload_file(passport_photo_file, label="VISA selfie photo") if passport_photo_file else None
+    validated_back = await _validated_upload_file(passport_back_file, label="passport back")
 
     # 2. Execute use case
     try:
@@ -343,8 +399,8 @@ async def upload_passport(
             content_type=validated.content_type,
             filename=validated.filename,
             client_name=client_name,
-            passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename),
-            passport_back=(validated_back.content, validated_back.content_type, validated_back.filename) if validated_back else None,
+            passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename) if validated_photo else None,
+            passport_back=(validated_back.content, validated_back.content_type, validated_back.filename),
         )
         await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)
         return await _response_from_dto(result, session=session)
@@ -600,6 +656,82 @@ async def export_passports_by_group(
     )
 
 
+@router.get(
+    "/groups/{group_id}/export-images",
+    status_code=status.HTTP_200_OK,
+    summary="Export a client group's original passport images as ZIP",
+)
+async def export_passport_images_by_group(
+    group_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    if not current_user.agency_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+
+    submissions = await PassportSubmissionRepository(session).list_by_group(
+        current_user.agency_id,
+        group_id,
+        limit=PassportImageZipExporter.MAX_SUBMISSIONS + 1,
+        exclude_archived_groups=True,
+        created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
+    )
+    try:
+        spool, image_count, uncompressed_bytes = await PassportImageZipExporter().export_group(
+            submissions,
+            group_name=group.name,
+            staff_code_enabled=group.staff_code_enabled,
+            storage=MinioStorageRepository(),
+        )
+    except MissingPassportImagesError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
+    except PassportImageExportLimitError as exc:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=str(exc))
+    except StorageError:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="One or more original images could not be read from secure storage.",
+        )
+
+    spool.seek(0, io.SEEK_END)
+    archive_size = spool.tell()
+    spool.seek(0)
+    await AuditLogRepository(session).record(
+        action="passport_group_images_exported",
+        entity_type="client_group",
+        entity_id=str(group_id),
+        agency_id=current_user.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "submission_count": len(submissions),
+            "image_count": image_count,
+            "uncompressed_bytes": uncompressed_bytes,
+            "archive_bytes": archive_size,
+        },
+    )
+
+    filename = safe_download_filename(group.name)
+    return StreamingResponse(
+        _stream_binary_file(spool),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(archive_size),
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
 @router.post(
     "/groups/{group_id}/import.xlsx",
     response_model=ImportPassportGroupResponse,
@@ -647,7 +779,7 @@ async def import_passports_by_group(
         for submission in existing_submissions
     }
 
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     models: list[PassportSubmissionModel] = []
     updated_count = 0
     seen_import_keys: set[str] = set()
@@ -957,7 +1089,7 @@ async def _save_loose_passport_documents_by_group(
                     submission.extracted_fields = merged_fields
                     if submission.confirmed_fields is None:
                         submission.confirmed_fields = merged_fields
-                submission.updated_at = datetime.now(tz=timezone.utc)
+                submission.updated_at = datetime.now(tz=UTC)
                 touched_submissions[submission.id] = submission
                 accepted_documents.append(PassportDocumentImportItem(
                     filename=item.filename,
@@ -1168,6 +1300,9 @@ async def client_submit_passport(
             client_email=str(body.client_email) if body.client_email else None,
             client_phone=body.client_phone,
             departure_city=body.departure_city,
+            base_city=body.base_city,
+            staff_code=body.staff_code,
+            meal_preference=body.meal_preference,
             submission_mode=body.submission_mode,
             family_group_id=body.family_group_id,
             family_member_index=body.family_member_index,

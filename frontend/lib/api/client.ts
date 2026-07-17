@@ -14,7 +14,8 @@ export interface ApiError {
 }
 
 export interface ApiErrorResponse {
-  error: ApiError;
+  error?: ApiError;
+  detail?: string;
 }
 
 let isRefreshing = false;
@@ -84,12 +85,19 @@ apiClient.interceptors.response.use(
 );
 
 function buildApiError(error: AxiosError<ApiErrorResponse>): ApiError {
-  return (
-    error.response?.data?.error ?? {
-      code: "NETWORK_ERROR",
-      message: error.message ?? "An unexpected error occurred",
-    }
-  );
+  const structuredError = error.response?.data?.error;
+  if (structuredError) return structuredError;
+  const detail = error.response?.data?.detail;
+  if (detail) {
+    return {
+      code: `HTTP_${error.response?.status ?? "ERROR"}`,
+      message: detail,
+    };
+  }
+  return {
+    code: "NETWORK_ERROR",
+    message: error.message ?? "An unexpected error occurred",
+  };
 }
 
 export default apiClient;

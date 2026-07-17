@@ -9,14 +9,14 @@ from __future__ import annotations
 import io
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from openpyxl import load_workbook
 
 
 def _utcnow() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 @dataclass(frozen=True)

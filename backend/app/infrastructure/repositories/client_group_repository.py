@@ -11,8 +11,8 @@ import uuid
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.logging.logger import get_logger
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup, GroupStatus, User
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
@@ -43,6 +43,11 @@ class ClientGroupRepository(IClientGroupRepository):
             return_date=model.return_date,
             package_name=model.package_name,
             departure_cities=list(model.departure_cities or []),
+            base_city_enabled=model.base_city_enabled,
+            nearest_international_airport_enabled=model.nearest_international_airport_enabled,
+            staff_code_enabled=model.staff_code_enabled,
+            meal_preference_enabled=model.meal_preference_enabled,
+            require_selfie=model.require_selfie,
             notes=model.notes,
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
@@ -65,6 +70,11 @@ class ClientGroupRepository(IClientGroupRepository):
             return_date=entity.return_date,
             package_name=entity.package_name,
             departure_cities=entity.departure_cities,
+            base_city_enabled=entity.base_city_enabled,
+            nearest_international_airport_enabled=entity.nearest_international_airport_enabled,
+            staff_code_enabled=entity.staff_code_enabled,
+            meal_preference_enabled=entity.meal_preference_enabled,
+            require_selfie=entity.require_selfie,
             notes=entity.notes,
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
@@ -129,6 +139,11 @@ class ClientGroupRepository(IClientGroupRepository):
         model.return_date = link.return_date
         model.package_name = link.package_name
         model.departure_cities = link.departure_cities
+        model.base_city_enabled = link.base_city_enabled
+        model.nearest_international_airport_enabled = link.nearest_international_airport_enabled
+        model.staff_code_enabled = link.staff_code_enabled
+        model.meal_preference_enabled = link.meal_preference_enabled
+        model.require_selfie = link.require_selfie
         model.notes = link.notes
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count

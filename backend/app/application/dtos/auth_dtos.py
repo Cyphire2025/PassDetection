@@ -14,7 +14,6 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-
 # ── Input DTOs (Use Case arguments) ──────────────────────────────────────────
 
 @dataclass(frozen=True)
