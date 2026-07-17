@@ -64,7 +64,7 @@ class TestGetDashboardStatsUseCase:
         agency_id = uuid.uuid4()
 
         # Mock repository returns
-        sub_repo.count_by_agency.side_effect = lambda aid, status_filter=None: {
+        sub_repo.count_by_agency.side_effect = lambda aid, status_filter=None, **kwargs: {
             None: 10,
             PassportProcessingStatus.REVIEW_REQUIRED.value: 3,
             PassportProcessingStatus.CONFIRMED.value: 5,
@@ -86,12 +86,36 @@ class TestGetDashboardStatsUseCase:
         assert len(result.recent_submissions) == 2
         assert result.recent_submissions[0].client_name == "John Doe"
 
-        sub_repo.count_by_agency.assert_any_call(agency_id)
         sub_repo.count_by_agency.assert_any_call(
-            agency_id, status_filter=PassportProcessingStatus.REVIEW_REQUIRED.value
+            agency_id,
+            created_by_user_id=None,
+            visible_to_user=None,
         )
         sub_repo.count_by_agency.assert_any_call(
-            agency_id, status_filter=PassportProcessingStatus.CONFIRMED.value
+            agency_id,
+            status_filter=PassportProcessingStatus.REVIEW_REQUIRED.value,
+            exclude_archived_groups=True,
+            created_by_user_id=None,
+            visible_to_user=None,
         )
-        link_repo.count_active_by_agency.assert_called_once_with(agency_id)
-        sub_repo.list_by_agency.assert_called_once_with(agency_id, skip=0, limit=5)
+        sub_repo.count_by_agency.assert_any_call(
+            agency_id,
+            status_filter=PassportProcessingStatus.CONFIRMED.value,
+            exclude_archived_groups=True,
+            created_by_user_id=None,
+            visible_to_user=None,
+        )
+        link_repo.count_active_by_agency.assert_called_once_with(
+            agency_id,
+            created_by_user_id=None,
+            visible_to_user=None,
+        )
+        sub_repo.list_by_agency.assert_called_once_with(
+            agency_id,
+            skip=0,
+            limit=5,
+            status_filter=PassportProcessingStatus.CLIENT_SUBMITTED.value,
+            exclude_archived_groups=True,
+            created_by_user_id=None,
+            visible_to_user=None,
+        )

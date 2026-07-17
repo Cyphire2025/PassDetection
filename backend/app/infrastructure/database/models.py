@@ -10,6 +10,7 @@ import uuid
 from datetime import UTC, date, datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Date,
     DateTime,
@@ -23,8 +24,11 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB as PostgreSQLJSONB
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+JSONB = JSON().with_variant(PostgreSQLJSONB, "postgresql")
 
 
 def _utcnow() -> datetime:
