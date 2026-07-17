@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, MoreVertical, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
@@ -76,6 +76,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const updateGroup = useUpdateUploadLink();
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
+  const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [passportImportFiles, setPassportImportFiles] = useState<File[]>([]);
   const [passportImportPreview, setPassportImportPreview] = useState<PassportDocumentImportPreview | null>(null);
@@ -94,6 +96,26 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     require_selfie: false,
     notes: "",
   });
+
+  useEffect(() => {
+    if (!isActionsMenuOpen) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!actionsMenuRef.current?.contains(event.target as Node)) {
+        setIsActionsMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsActionsMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isActionsMenuOpen]);
 
   const expiryAlerts = useMemo(() => {
     return (data ?? []).filter((passport) => getExpiryStatus(passport) !== "valid");
@@ -181,7 +203,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           title="Group Submissions"
           description="Review the passport submissions uploaded through this group link."
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2">
           <input
             ref={importInputRef}
             type="file"
@@ -219,53 +241,87 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               void handlePassportImportFiles(files);
             }}
           />
-          <Button
-            variant="secondary"
-            className="gap-2"
-            disabled={exportImagesMutation.isPending || !data?.length}
-            onClick={() => {
-              setImportMessage(null);
-              exportImagesMutation.mutate(groupId, {
-                onError: (exportError) => setImportMessage(exportError instanceof Error ? exportError.message : "Image download failed"),
-              });
-            }}
-          >
-            <Download className="h-4 w-4" />
-            {exportImagesMutation.isPending ? "Preparing Images" : "Download Passport Images"}
-          </Button>
-          <Button
-            variant="secondary"
-            className="gap-2"
-            disabled={importMutation.isPending}
-            onClick={() => importInputRef.current?.click()}
-          >
-            <UploadCloud className="h-4 w-4" />
-            {importMutation.isPending ? "Importing" : "Import Excel"}
-          </Button>
-          <Button
-            variant="secondary"
-            className="gap-2"
-            disabled={passportPreviewMutation.isPending || passportSaveMutation.isPending}
-            onClick={() => passportImportInputRef.current?.click()}
-          >
-            <UploadCloud className="h-4 w-4" />
-            {passportPreviewMutation.isPending ? "Checking documents" : "Import Passports"}
-          </Button>
-          <Button
-            variant="secondary"
-            className="gap-2"
-            disabled={exportMutation.isPending}
-            onClick={() => exportMutation.mutate(groupId)}
-          >
-            <Download className="h-4 w-4" />
-            {exportMutation.isPending ? "Exporting" : "Export Excel"}
-          </Button>
           <Link href={ROUTES.dashboard.passports}>
             <Button variant="outline" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Groups
             </Button>
           </Link>
+          <div ref={actionsMenuRef} className="relative">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Open group actions"
+              aria-haspopup="menu"
+              aria-expanded={isActionsMenuOpen}
+              onClick={() => setIsActionsMenuOpen((open) => !open)}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+            {isActionsMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-11 z-40 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={exportImagesMutation.isPending || !data?.length}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => {
+                    setIsActionsMenuOpen(false);
+                    setImportMessage(null);
+                    exportImagesMutation.mutate(groupId, {
+                      onError: (exportError) => setImportMessage(exportError instanceof Error ? exportError.message : "Image download failed"),
+                    });
+                  }}
+                >
+                  <Download className="h-4 w-4 text-slate-500" />
+                  {exportImagesMutation.isPending ? "Preparing Images" : "Download Passport Images"}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={importMutation.isPending}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => {
+                    setIsActionsMenuOpen(false);
+                    importInputRef.current?.click();
+                  }}
+                >
+                  <UploadCloud className="h-4 w-4 text-slate-500" />
+                  {importMutation.isPending ? "Importing" : "Import Excel"}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={passportPreviewMutation.isPending || passportSaveMutation.isPending}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => {
+                    setIsActionsMenuOpen(false);
+                    passportImportInputRef.current?.click();
+                  }}
+                >
+                  <UploadCloud className="h-4 w-4 text-slate-500" />
+                  {passportPreviewMutation.isPending ? "Checking documents" : "Import Passports"}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={exportMutation.isPending}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => {
+                    setIsActionsMenuOpen(false);
+                    exportMutation.mutate(groupId);
+                  }}
+                >
+                  <Download className="h-4 w-4 text-slate-500" />
+                  {exportMutation.isPending ? "Exporting" : "Export Excel"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
