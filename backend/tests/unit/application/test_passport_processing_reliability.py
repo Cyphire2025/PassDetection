@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from app.application.interfaces.passport_extraction import PassportExtractionResult
+from app.application.interfaces.passport_verification import PassportVerificationResult
 from app.application.use_cases.passports.process_passport_submission_job_use_case import (
     PUBLIC_EXTRACTION_FAILURE,
     ProcessingRetryRequested,
@@ -54,13 +55,19 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.job_repo.get.return_value = self.job
         self.passport_repo.get_by_id.return_value = self.submission
 
-    def _use_case(self, *, allow_retry: bool = True) -> ProcessPassportSubmissionJobUseCase:
+    def _use_case(
+        self,
+        *,
+        allow_retry: bool = True,
+        verification_service=None,
+    ) -> ProcessPassportSubmissionJobUseCase:
         return ProcessPassportSubmissionJobUseCase(
             passport_repo=self.passport_repo,
             storage_repo=self.storage_repo,
             extraction_service=self.extraction_service,
             job_repo=self.job_repo,
             allow_retry=allow_retry,
+            verification_service=verification_service,
         )
 
     async def test_success_extracts_only_the_persisted_front_image(self) -> None:
@@ -87,6 +94,40 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             content_type="image/jpeg",
         )
         self.passport_repo.apply_extraction_result.assert_awaited_once()
+        self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
+
+    async def test_initial_job_sends_stored_front_image_to_ai_verification(self) -> None:
+        self.storage_repo.get_file.return_value = b"canonical-front-image"
+        self.extraction_service.extract.return_value = PassportExtractionResult(
+            extracted_fields={},
+            overall_confidence=0.0,
+            confidence_score={"overall": 0.0},
+        )
+        verification_service = AsyncMock()
+        verification_service.verify.return_value = PassportVerificationResult(
+            merged_fields={
+                "surname": "KUMAR",
+                "given_names": "NIPUN",
+                "passport_number": "A1234567",
+            },
+            metadata={"status": "enhanced"},
+        )
+        self.passport_repo.apply_extraction_result.return_value = self.submission
+
+        await self._use_case(
+            verification_service=verification_service
+        ).execute(
+            submission_id=self.submission_id,
+            job_id=self.job_id,
+        )
+
+        verification_service.verify.assert_awaited_once_with(
+            b"canonical-front-image",
+            content_type="image/jpeg",
+            extracted_fields={},
+        )
+        saved = self.passport_repo.apply_extraction_result.await_args.kwargs
+        self.assertEqual(saved["extracted_fields"]["passport_number"], "A1234567")
         self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
 
     async def test_duplicate_delivery_does_not_read_or_extract_the_image(self) -> None:

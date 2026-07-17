@@ -9,6 +9,7 @@ import asyncio
 import io
 import mimetypes
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from fastapi import (
@@ -25,7 +26,10 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
+from app.application.dtos.passport_dtos import (
+    PassportSubmissionOutputDTO,
+    passport_submission_output_from_entity,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.passports.client_submit_passport_use_case import (
     ClientSubmitPassportUseCase,
@@ -79,7 +83,10 @@ from app.infrastructure.imports.passport_document_importer import (
     RejectedPassportDocument,
 )
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
-from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
+from app.infrastructure.processing.dispatcher import (
+    PassportProcessingDispatcher,
+    queued_job_needs_redelivery,
+)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
@@ -265,20 +272,29 @@ async def _ensure_submission_qr(
     )
 
 
-def _group_export_details(group) -> dict[str, str | None]:  # type: ignore[no-untyped-def]
+def _group_export_details(
+    group,
+) -> dict[str, str | bool | None]:  # type: ignore[no-untyped-def]
     return {
         "name": group.name,
         "destination": group.destination,
         "travel_date": group.travel_date.isoformat() if group.travel_date else None,
         "return_date": group.return_date.isoformat() if group.return_date else None,
         "package_name": group.package_name,
+        "nearest_international_airport_enabled": (
+            group.nearest_international_airport_enabled
+        ),
+        "ask_nearest_domestic_airport": group.ask_nearest_domestic_airport,
+        "base_city_enabled": group.base_city_enabled,
+        "staff_code_enabled": group.staff_code_enabled,
+        "meal_preference_enabled": group.meal_preference_enabled,
     }
 
 
 async def _export_group_details(
     session: AsyncSession,
     group_ids: list[uuid.UUID],
-) -> dict[uuid.UUID, dict[str, str | None]]:
+) -> dict[uuid.UUID, dict[str, str | bool | None]]:
     if not group_ids:
         return {}
     result = await session.execute(select(ClientGroupModel).where(ClientGroupModel.id.in_(set(group_ids))))
@@ -313,23 +329,22 @@ async def _dispatch_processing_job(
             error_type=type(exc).__name__,
         )
         return
-    if task_id:
-        try:
-            await PassportProcessingJobRepository(session).set_task_id(
-                result.processing_job_id,
-                task_id,
-            )
-            await session.commit()
-        except Exception as exc:
-            # The submission and job were already committed before dispatch.
-            # Losing optional queue metadata must not turn a successful upload
-            # into a reported upload failure.
-            await session.rollback()
-            logger.warning(
-                "passport_processing_task_id_not_recorded",
-                job_id=str(result.processing_job_id),
-                error_type=type(exc).__name__,
-            )
+    try:
+        await PassportProcessingJobRepository(session).set_task_id(
+            result.processing_job_id,
+            task_id or "local-background",
+        )
+        await session.commit()
+    except Exception as exc:
+        # The submission and job were already committed before dispatch.
+        # Losing optional queue metadata must not turn a successful upload
+        # into a reported upload failure.
+        await session.rollback()
+        logger.warning(
+            "passport_processing_task_id_not_recorded",
+            job_id=str(result.processing_job_id),
+            error_type=type(exc).__name__,
+        )
 
 
 async def _validated_upload_file(file: UploadFile, *, label: str):
@@ -498,6 +513,7 @@ async def upload_passport(
 async def get_upload_passport_status(
     token: str,
     submission_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     group = await ClientGroupRepository(session).get_by_token(token)
@@ -507,6 +523,23 @@ async def get_upload_passport_status(
     submission = await PassportSubmissionRepository(session).get_by_id(submission_id)
     if not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport submission was not found")
+
+    # The job row is a durable outbox. If the process stopped after committing
+    # it but before recording a delivery (or before an in-process background
+    # task started), the first poll safely re-delivers the same revision;
+    # worker claim semantics prevent duplicate extraction.
+    job = await PassportProcessingJobRepository(session).latest_for_submission(
+        submission.id
+    )
+    if (
+        job is not None
+        and queued_job_needs_redelivery(job)
+    ):
+        await _dispatch_processing_job(
+            passport_submission_output_from_entity(submission, job=job),
+            session=session,
+            background_tasks=background_tasks,
+        )
 
     return await _response_from_submission(submission, session=session)
 
@@ -1394,6 +1427,7 @@ async def export_selected_groups(
 )
 async def get_passport(
     submission_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_active_user),
     use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
@@ -1402,17 +1436,22 @@ async def get_passport(
         result = await use_case.execute(submission_id)
         await AuthorizationPolicy(session).require_view_passport(current_user, result)
 
-        storage = MinioStorageRepository()
-        image_url = await storage.get_presigned_url(result.image_s3_key)
-        return PassportSubmissionResponse.model_validate(
-            {
-                **result.__dict__,
-                "image_url": image_url,
-                "passport_photo_url": await storage.get_presigned_url(result.passport_photo_s3_key) if result.passport_photo_s3_key else None,
-                "passport_back_url": await storage.get_presigned_url(result.passport_back_s3_key) if result.passport_back_s3_key else None,
-                "qr_status": await _passport_qr_status(session, result.id),
-            }
+        job = await PassportProcessingJobRepository(session).latest_for_submission(
+            result.id
         )
+        if job is not None and queued_job_needs_redelivery(job):
+            await _dispatch_processing_job(
+                replace(
+                    result,
+                    processing_job_id=job.id,
+                    processing_job_status=job.status.value,
+                    processing_progress=job.progress,
+                    processing_stage=job.current_stage,
+                ),
+                session=session,
+                background_tasks=background_tasks,
+            )
+        return await _response_from_dto(result, session=session)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except AuthorizationError as e:

@@ -85,6 +85,13 @@ class PassengerQrStatusResponse(BaseModel):
     revoked_at: datetime | None = None
 
 
+class PassportExtractionConflictResponse(BaseModel):
+    field: str
+    manual_value: str
+    extracted_value: str | None = None
+    status: Literal["mismatch", "not_extracted"]
+
+
 class PassportSubmissionResponse(BaseModel):
     id: uuid.UUID
     group_id: uuid.UUID
@@ -124,6 +131,9 @@ class PassportSubmissionResponse(BaseModel):
     updated_at: datetime
     extracted_fields: dict | None = None
     confirmed_fields: dict | None = None
+    extraction_conflicts: list[PassportExtractionConflictResponse] = Field(
+        default_factory=list
+    )
     overall_confidence: float | None = None
     confidence_score: dict | None = None
     mrz_raw: str | None = None

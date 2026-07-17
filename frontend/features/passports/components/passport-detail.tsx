@@ -3,17 +3,31 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle2, QrCode, RotateCcw, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
-import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
+import {
+  formatPassportCountry,
+  getPassportCountryOptions,
+  isRecognizedPassportCountryCode,
+} from "@/lib/utils/passport-country";
+import type {
+  ExtractedPassportFields,
+  PassportExtractionConflict,
+  PassportSubmission,
+} from "@/types/passport.types";
 import { useConfirmPassportSubmission, usePassportSubmission, useReextractPassportSubmission } from "../hooks/use-passports";
 
 interface PassportDetailProps {
   id: string;
+}
+
+interface ReextractFeedback {
+  tone: "processing" | "success" | "warning" | "error";
+  message: string;
 }
 
 const REVIEW_FIELDS = [
@@ -33,6 +47,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
   const confirmMutation = useConfirmPassportSubmission(id);
   const reextractMutation = useReextractPassportSubmission();
   const [formError, setFormError] = useState<string | null>(null);
+  const [reextractFeedback, setReextractFeedback] = useState<ReextractFeedback | null>(null);
 
   if (isLoading) {
     return (
@@ -56,6 +71,46 @@ export function PassportDetail({ id }: PassportDetailProps) {
       </div>
     );
   }
+
+  const handleReextract = async () => {
+    setFormError(null);
+    setReextractFeedback({
+      tone: "processing",
+      message: "Re-extraction queued. Reading and verifying the saved passport image.",
+    });
+    try {
+      const result = await reextractMutation.mutateAsync(data.id);
+      if (result.outcome === "timed_out") {
+        setReextractFeedback({
+          tone: "warning",
+          message: "Extraction is still running. This page will keep refreshing automatically.",
+        });
+        return;
+      }
+      if (result.outcome === "failed") {
+        setReextractFeedback({
+          tone: "error",
+          message: result.submission.error_message
+            || "The saved image could not be extracted. It remains available for another retry.",
+        });
+        return;
+      }
+      const conflictCount = getExtractionConflicts(result.submission).length;
+      setReextractFeedback({
+        tone: "success",
+        message: conflictCount > 0
+          ? `Re-extraction finished with ${conflictCount} ${conflictCount === 1 ? "difference" : "differences"} for you to review below.`
+          : "Re-extraction finished. Matching manual values were kept and empty fields were filled where possible.",
+      });
+    } catch (reextractError) {
+      setReextractFeedback({
+        tone: "error",
+        message: reextractError instanceof Error
+          ? reextractError.message
+          : "Could not start re-extraction. Please try again.",
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,17 +169,19 @@ export function PassportDetail({ id }: PassportDetailProps) {
           <ClientProvidedFieldsCard passport={data} />
 
           <ReviewFieldsCard
-            key={data.id}
+            key={`${data.id}:${data.extraction_revision}:${data.updated_at}`}
             passport={data}
             sourceFields={data.confirmed_fields ?? data.extracted_fields ?? {}}
             validation={data.extracted_fields?.field_validation}
+            conflicts={getExtractionConflicts(data)}
             isSaving={confirmMutation.isPending}
             canReextract={needsReextraction(data)}
             isReextracting={reextractMutation.isPending}
+            reextractFeedback={reextractFeedback}
             formError={formError}
             onFormError={setFormError}
             onConfirm={(fields) => confirmMutation.mutateAsync(fields)}
-            onReextract={() => reextractMutation.mutate(data.id)}
+            onReextract={() => void handleReextract()}
           />
 
           {data.error_message && (
@@ -211,9 +268,11 @@ interface ReviewFieldsCardProps {
   passport: PassportSubmission;
   sourceFields: ExtractedPassportFields;
   validation?: ExtractedPassportFields["field_validation"];
+  conflicts: PassportExtractionConflict[];
   isSaving: boolean;
   canReextract: boolean;
   isReextracting: boolean;
+  reextractFeedback: ReextractFeedback | null;
   formError: string | null;
   onFormError: (error: string | null) => void;
   onConfirm: (fields: Record<string, string>) => Promise<unknown>;
@@ -224,9 +283,11 @@ function ReviewFieldsCard({
   passport,
   sourceFields,
   validation,
+  conflicts,
   isSaving,
   canReextract,
   isReextracting,
+  reextractFeedback,
   formError,
   onFormError,
   onConfirm,
@@ -291,24 +352,49 @@ function ReviewFieldsCard({
           </div>
         </div>
 
+        <ReextractStatus
+          passport={passport}
+          feedback={reextractFeedback}
+          isReextracting={isReextracting}
+        />
+
+        {conflicts.length > 0 && (
+          <ExtractionConflictPanel
+            conflicts={conflicts}
+            reviewFields={reviewFields}
+            onSelect={(field, value) => {
+              handleFieldChange(field, value);
+              onFormError(null);
+            }}
+          />
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           {REVIEW_FIELDS.map((key) => {
             const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
+            const isCountry = key === "nationality" || key === "issuing_country";
             return (
               <label key={key} className="space-y-1.5">
                 <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
                   {toLabel(key)}
                   {key === "date_of_issue" && <span className="normal-case tracking-normal">(optional)</span>}
                 </span>
-                <Input
-                  type={isDate ? "date" : "text"}
-                  value={reviewFields[key] ?? ""}
-                  onChange={(event) => handleFieldChange(key, event.target.value)}
-                  placeholder={key === "date_of_issue" ? "Leave empty if unavailable" : "Not extracted"}
-                  min="1900-01-01"
-                  max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
-                  className="h-10 rounded-lg border-slate-200 bg-white"
-                />
+                {isCountry ? (
+                  <PassportCountryField
+                    value={reviewFields[key] ?? ""}
+                    onChange={(value) => handleFieldChange(key, value)}
+                  />
+                ) : (
+                  <Input
+                    type={isDate ? "date" : "text"}
+                    value={reviewFields[key] ?? ""}
+                    onChange={(event) => handleFieldChange(key, event.target.value)}
+                    placeholder={key === "date_of_issue" ? "Leave empty if unavailable" : "Not extracted"}
+                    min="1900-01-01"
+                    max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+                    className="h-10 rounded-lg border-slate-200 bg-white"
+                  />
+                )}
               </label>
             );
           })}
@@ -336,15 +422,22 @@ function ReviewFieldsCard({
           </div>
         )}
 
-        {canReextract && (
+        {(canReextract || passport.extraction_status === "processing") && (
           <Button
             variant="secondary"
             className="w-full gap-2"
-            disabled={isReextracting}
+            disabled={isReextracting || passport.extraction_status === "processing"}
             onClick={onReextract}
+            aria-busy={isReextracting || passport.extraction_status === "processing"}
           >
-            <RotateCcw className="h-4 w-4" />
-            {isReextracting ? "Re-extracting" : "Re-extract Passport"}
+            {isReextracting || passport.extraction_status === "processing" ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            )}
+            {isReextracting || passport.extraction_status === "processing"
+              ? "Extracting saved passport"
+              : "Re-extract Passport"}
           </Button>
         )}
 
@@ -361,9 +454,268 @@ function ReviewFieldsCard({
   );
 }
 
+function ReextractStatus({
+  passport,
+  feedback,
+  isReextracting,
+}: {
+  passport: PassportSubmission;
+  feedback: ReextractFeedback | null;
+  isReextracting: boolean;
+}) {
+  const isProcessing = isReextracting || passport.extraction_status === "processing";
+  const backgroundFinished = feedback?.tone === "warning" && !isProcessing;
+  const backgroundFailed = backgroundFinished
+    && (passport.extraction_status === "extraction_failed" || passport.status === "failed");
+  const effectiveFeedback = backgroundFinished
+    ? {
+      tone: backgroundFailed ? "error" as const : "success" as const,
+      message: backgroundFailed
+        ? passport.error_message || "Automatic extraction failed. You can retry the saved image."
+        : getExtractionConflicts(passport).length > 0
+          ? "Extraction finished with differences for you to review below."
+          : "Extraction finished and the latest details are ready to review.",
+    }
+    : feedback;
+  if (!effectiveFeedback && !isProcessing) return null;
+
+  const tone = isProcessing && effectiveFeedback?.tone !== "warning"
+    ? "processing"
+    : effectiveFeedback?.tone ?? "processing";
+  const styles = {
+    processing: "border-blue-200 bg-blue-50 text-blue-900",
+    success: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    warning: "border-amber-200 bg-amber-50 text-amber-900",
+    error: "border-red-200 bg-red-50 text-red-900",
+  }[tone];
+  const message = isProcessing
+    ? processingStageLabel(passport.processing_stage ?? passport.processing_job_status)
+    : effectiveFeedback?.message;
+
+  return (
+    <div className={`rounded-2xl border p-4 ${styles}`} role={tone === "error" ? "alert" : "status"} aria-live="polite">
+      <div className="flex items-start gap-3">
+        {isProcessing ? (
+          <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin" aria-hidden="true" />
+        ) : tone === "success" ? (
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+        ) : (
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">
+            {isProcessing ? "Re-extraction in progress" : tone === "success" ? "Re-extraction complete" : "Re-extraction update"}
+          </p>
+          <p className="mt-1 text-sm leading-5 opacity-90">{message}</p>
+          {isProcessing && typeof passport.processing_progress === "number" && (
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/70" aria-hidden="true">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                style={{ width: `${Math.max(8, Math.min(100, Math.round(passport.processing_progress * 100)))}%` }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExtractionConflictPanel({
+  conflicts,
+  reviewFields,
+  onSelect,
+}: {
+  conflicts: PassportExtractionConflict[];
+  reviewFields: Record<string, string>;
+  onSelect: (field: string, value: string) => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4" aria-labelledby="extraction-conflicts-heading">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
+        <div>
+          <h4 id="extraction-conflicts-heading" className="font-semibold text-amber-950">
+            Compare re-extracted details
+          </h4>
+          <p className="mt-1 text-sm leading-5 text-amber-800">
+            Your manually entered values were preserved. Review each difference, choose the correct value, then save.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {conflicts.map((conflict) => {
+          const canEdit = isReviewField(conflict.field);
+          const selectedValue = reviewFields[conflict.field] ?? "";
+          const manualSelected = valuesMatch(selectedValue, conflict.manual_value);
+          const extractedSelected = conflict.extracted_value !== null
+            && valuesMatch(selectedValue, conflict.extracted_value);
+          return (
+            <article key={conflict.field} className="rounded-xl border border-amber-200 bg-white p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h5 className="text-sm font-semibold text-slate-900">{toLabel(conflict.field)}</h5>
+                <Badge variant={conflict.status === "mismatch" ? "warning" : "outline"}>
+                  {conflict.status === "mismatch" ? "Different values" : "Could not verify"}
+                </Badge>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className={`rounded-lg border p-3 ${manualSelected ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50"}`}>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Manually entered</div>
+                  <div className="mt-1 break-words text-sm font-semibold text-slate-900">
+                    {formatConflictValue(conflict.field, conflict.manual_value)}
+                  </div>
+                  {canEdit && (
+                    <button
+                      type="button"
+                      className="mt-2 text-xs font-semibold text-blue-700 hover:underline"
+                      onClick={() => onSelect(conflict.field, conflict.manual_value)}
+                    >
+                      {manualSelected ? "Using this value" : "Use manual value"}
+                    </button>
+                  )}
+                </div>
+                <div className={`rounded-lg border p-3 ${
+                  extractedSelected ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-slate-50"
+                }`}>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Read from passport</div>
+                  <div className="mt-1 break-words text-sm font-semibold text-slate-900">
+                    {conflict.extracted_value
+                      ? formatConflictValue(conflict.field, conflict.extracted_value)
+                      : "Not extracted from the image"}
+                  </div>
+                  {canEdit && conflict.extracted_value && (
+                    <button
+                      type="button"
+                      className="mt-2 text-xs font-semibold text-emerald-700 hover:underline"
+                      onClick={() => onSelect(conflict.field, conflict.extracted_value ?? "")}
+                    >
+                      {extractedSelected ? "Using this value" : "Use extracted value"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function PassportCountryField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  if (!isRecognizedPassportCountryCode(value)) {
+    return (
+      <Input
+        type="text"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Not extracted"
+        className="h-10 rounded-lg border-slate-200 bg-white"
+      />
+    );
+  }
+
+  const normalizedCode = value.trim().toUpperCase();
+  const codeLength = normalizedCode.length === 2 ? 2 : 3;
+  return (
+    <select
+      value={normalizedCode}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+    >
+      {getPassportCountryOptions(codeLength).map((option) => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+  );
+}
+
 function getStringField(fields: ExtractedPassportFields, key: string) {
   const value = fields[key];
   return typeof value === "string" ? value : "";
+}
+
+function getExtractionConflicts(passport: PassportSubmission): PassportExtractionConflict[] {
+  const direct = normalizeExtractionConflicts(passport.extraction_conflicts);
+  if (direct.length > 0) return direct;
+  return normalizeExtractionConflicts(passport.extracted_fields?.manual_review_conflicts);
+}
+
+function normalizeExtractionConflicts(value: unknown): PassportExtractionConflict[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+      const candidate = item as Record<string, unknown>;
+      if (
+        typeof candidate.field !== "string"
+        || typeof candidate.manual_value !== "string"
+        || (candidate.extracted_value !== null && typeof candidate.extracted_value !== "string")
+      ) {
+        return [];
+      }
+      const status = candidate.status === "not_extracted" ? "not_extracted" : "mismatch";
+      return [{
+        field: candidate.field,
+        manual_value: candidate.manual_value,
+        extracted_value: candidate.extracted_value,
+        status,
+      }];
+    });
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>).flatMap(([field, item]) => {
+      if (!item || typeof item !== "object") return [];
+      const candidate = item as Record<string, unknown>;
+      if (
+        typeof candidate.manual_value !== "string"
+        || (candidate.extracted_value !== null && typeof candidate.extracted_value !== "string")
+      ) {
+        return [];
+      }
+      return [{
+        field,
+        manual_value: candidate.manual_value,
+        extracted_value: candidate.extracted_value,
+        status: candidate.status === "not_extracted" ? "not_extracted" as const : "mismatch" as const,
+      }];
+    });
+  }
+  return [];
+}
+
+function processingStageLabel(stage: string | null | undefined) {
+  const labels: Record<string, string> = {
+    queued: "Queued safely. Processing will begin shortly.",
+    running: "Reading the saved passport image.",
+    downloading_image: "Preparing the saved passport image.",
+    extracting_passport_fields: "Extracting passport details from the image.",
+    verifying_passport_fields: "Checking extracted details against the passport.",
+    saving_extraction_result: "Saving the verified details and comparison.",
+  };
+  return labels[stage ?? ""] ?? "Reading and verifying the saved passport image.";
+}
+
+function isReviewField(field: string): field is typeof REVIEW_FIELDS[number] {
+  return (REVIEW_FIELDS as readonly string[]).includes(field);
+}
+
+function valuesMatch(left: string, right: string) {
+  return left.trim().toLocaleUpperCase("en") === right.trim().toLocaleUpperCase("en");
+}
+
+function formatConflictValue(field: string, value: string) {
+  if (field === "nationality" || field === "issuing_country") {
+    return formatPassportCountry(value) || value;
+  }
+  return value;
 }
 
 function MetaItem({ label, value }: { label: string; value: string }) {

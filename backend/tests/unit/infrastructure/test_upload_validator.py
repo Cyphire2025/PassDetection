@@ -36,10 +36,77 @@ class UploadValidatorTests(unittest.TestCase):
             declared_content_type="application/octet-stream",
         )
 
-        self.assertEqual(result.content_type, "image/png")
-        self.assertEqual(result.filename, "unsafe-passport.png")
+        self.assertEqual(result.content_type, "image/jpeg")
+        self.assertEqual(result.filename, "unsafe-passport.jpg")
+        self.assertEqual(result.format, "JPEG")
+        self.assertTrue(result.content.startswith(b"\xff\xd8\xff"))
         self.assertEqual(result.width, 64)
         self.assertEqual(result.height, 32)
+
+    def test_uses_decoded_content_instead_of_declared_mime_or_extension(self) -> None:
+        result = UploadValidator().validate(
+            content=self._png(),
+            filename="phone-capture.heic",
+            declared_content_type="image/heic",
+        )
+
+        self.assertEqual(result.content_type, "image/jpeg")
+        self.assertEqual(result.filename, "phone-capture.jpg")
+        with Image.open(io.BytesIO(result.content)) as image:
+            self.assertEqual(image.format, "JPEG")
+            self.assertEqual(image.size, (64, 32))
+
+    def test_canonicalizes_common_decodable_mobile_and_desktop_formats(self) -> None:
+        for source_format, filename in (
+            ("BMP", "passport.bmp"),
+            ("TIFF", "passport.tiff"),
+            ("WEBP", "passport.webp"),
+        ):
+            with self.subTest(source_format=source_format):
+                source = io.BytesIO()
+                Image.new("RGB", (48, 24), "white").save(source, format=source_format)
+                result = UploadValidator().validate(
+                    content=source.getvalue(),
+                    filename=filename,
+                    declared_content_type="application/octet-stream",
+                )
+
+                self.assertEqual(result.content_type, "image/jpeg")
+                self.assertEqual(result.filename, "passport.jpg")
+                self.assertTrue(result.content.startswith(b"\xff\xd8\xff"))
+
+    def test_decodes_real_heif_and_canonicalizes_it_to_jpeg(self) -> None:
+        try:
+            import pillow_heif
+        except ImportError:
+            self.skipTest("pillow-heif is not installed in this host test environment")
+
+        source = io.BytesIO()
+        pillow_heif.from_pillow(
+            Image.new("RGB", (80, 40), "white")
+        ).save(source, quality=90)
+
+        result = UploadValidator().validate(
+            content=source.getvalue(),
+            filename="iphone-passport.heic",
+            declared_content_type="image/heic",
+        )
+
+        self.assertEqual(result.content_type, "image/jpeg")
+        self.assertEqual(result.filename, "iphone-passport.jpg")
+        self.assertTrue(result.content.startswith(b"\xff\xd8\xff"))
+        with Image.open(io.BytesIO(result.content)) as image:
+            self.assertEqual(image.format, "JPEG")
+            self.assertEqual(image.size, (80, 40))
+
+    def test_rejects_truncated_image_after_header(self) -> None:
+        source = self._png()
+        with self.assertRaises(ImageValidationError):
+            UploadValidator().validate(
+                content=source[: len(source) // 2],
+                filename="passport.png",
+                declared_content_type="image/png",
+            )
 
     def test_rejects_non_image_payload_even_if_declared_image(self) -> None:
         with self.assertRaises(ImageValidationError):

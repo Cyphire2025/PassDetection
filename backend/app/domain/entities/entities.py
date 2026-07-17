@@ -19,6 +19,7 @@ from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 
 from app.domain.exceptions.exceptions import ValidationError
+from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
 
 
 def _utcnow() -> datetime:
@@ -555,6 +556,7 @@ class PassportSubmission:
     upload_idempotency_key: str | None = None
     extraction_status: PassportExtractionStatus = PassportExtractionStatus.NOT_STARTED
     extraction_revision: int = 0
+    extraction_conflicts: list[dict[str, str | None]] = field(default_factory=list)
     created_at: datetime = field(default_factory=_utcnow)
     updated_at: datetime = field(default_factory=_utcnow)
     client_reviewed_at: datetime | None = None
@@ -611,6 +613,7 @@ class PassportSubmission:
             upload_idempotency_key=normalized_idempotency_key,
             extraction_status=PassportExtractionStatus.NOT_STARTED,
             extraction_revision=0,
+            extraction_conflicts=[],
             staff_metadata=None,
             status=PassportProcessingStatus.UPLOADED,
             extracted_fields=None,
@@ -668,14 +671,12 @@ class PassportSubmission:
             else PassportExtractionStatus.PARTIAL
         )
         self.extracted_fields = extracted_fields
-        if self.confirmed_fields is not None:
-            merged_fields = dict(self.confirmed_fields)
-            for key, value in extracted_fields.items():
-                if key in {"field_validation", "field_provenance"}:
-                    continue
-                if not merged_fields.get(key) and value not in (None, ""):
-                    merged_fields[key] = value
-            self.confirmed_fields = merged_fields
+        self.confirmed_fields, self.extraction_conflicts = (
+            reconcile_confirmed_with_extraction(
+                self.confirmed_fields,
+                extracted_fields,
+            )
+        )
         self.overall_confidence = confidence
         self.confidence_score = confidence_score
         self.mrz_raw = mrz_raw
@@ -690,6 +691,7 @@ class PassportSubmission:
             self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
         self.status = PassportProcessingStatus.CONFIRMED
         self.confirmed_fields = confirmed_fields
+        self.extraction_conflicts = []
         self.confirmed_at = _utcnow()
         self.updated_at = _utcnow()
 
@@ -740,6 +742,7 @@ class PassportSubmission:
         self.family_head_phone = family_head_phone.strip() if family_head_phone else None
         self.family_broadcast_to_member = family_broadcast_to_member
         self.confirmed_fields = confirmed_fields
+        self.extraction_conflicts = []
         self.client_reviewed_at = _utcnow()
         self.updated_at = _utcnow()
 

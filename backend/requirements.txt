@@ -34,6 +34,7 @@ botocore==1.34.131
 # ── Image Processing ──────────────────────────────────────────────────────────
 opencv-python-headless==4.10.0.84
 Pillow==10.3.0
+pillow-heif==0.22.0
 numpy==1.26.4
 
 # ── OCR Engines (pluggable — only what's available will be loaded) ────────────
@@ -44,6 +45,7 @@ passporteye==2.2.1
 
 # ── Excel Export ──────────────────────────────────────────────────────────────
 openpyxl==3.1.4
+pycountry==26.2.16
 
 pypdf==4.3.1
 

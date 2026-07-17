@@ -24,7 +24,11 @@ export function usePassportsByGroup(groupId: string, search?: string, includeDel
     queryKey: QUERY_KEYS.passports.groupDetail(groupId, { search, includeDeleted }),
     queryFn: () => passportsApi.listByGroup(groupId, search, includeDeleted),
     enabled: Boolean(groupId),
-    refetchInterval: 30_000,
+    refetchInterval: (query) => (
+      query.state.data?.some((passport) => passport.extraction_status === "processing")
+        ? 2_000
+        : 30_000
+    ),
   });
 }
 
@@ -85,6 +89,9 @@ export function usePassportSubmission(id: string) {
     queryKey: QUERY_KEYS.passports.detail(id),
     queryFn: () => passportsApi.getById(id),
     enabled: Boolean(id),
+    refetchInterval: (query) => (
+      query.state.data?.extraction_status === "processing" ? 2_000 : false
+    ),
   });
 }
 
@@ -105,8 +112,12 @@ export function useReextractPassportSubmission() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => passportsApi.reextract(id),
-    onSuccess: (updated) => {
+    mutationFn: (id: string) => passportsApi.reextract(id, {
+      onProgress: (updated) => {
+        queryClient.setQueryData(QUERY_KEYS.passports.detail(updated.id), updated);
+      },
+    }),
+    onSuccess: ({ submission: updated }) => {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(updated.id), updated);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });

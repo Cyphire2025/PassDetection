@@ -14,9 +14,11 @@ import {
   MapPin,
   Phone,
   BadgeCheck,
+  ImagePlus,
   User,
   Users,
   Utensils,
+  X,
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
 import { Button } from "@/components/ui/button";
@@ -63,6 +65,7 @@ interface FamilyMember {
   visaSelfie: File | null;
   uploadIdempotencyKey: string;
   extractionNotice: string | null;
+  canRetryExtraction: boolean;
 }
 
 interface PassportDocumentBundle {
@@ -75,6 +78,7 @@ interface PassportDocumentBundle {
 interface ExtractionWaitResult {
   submission: PassportSubmission;
   notice: string | null;
+  retryAllowed: boolean;
 }
 
 const REVIEW_FIELDS = [
@@ -92,6 +96,26 @@ const REVIEW_FIELDS = [
 const REQUIRED_REVIEW_FIELDS = REVIEW_FIELDS.filter((field) => field !== "date_of_issue");
 const RELATIONS = ["Head", "Spouse", "Son", "Daughter", "Father", "Mother", "Brother", "Sister", "Other"];
 const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
+const PASSPORT_IMAGE_ACCEPT = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+  ".heic",
+  ".heif",
+  ".avif",
+  ".bmp",
+  ".tif",
+  ".tiff",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  "image/avif",
+  "image/bmp",
+  "image/tiff",
+].join(",");
 
 export function UploadFlow({ token }: UploadFlowProps) {
   const { data: group, isLoading, error } = useUploadLinkByToken(token);
@@ -114,6 +138,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     () => createIdempotencyKey(),
   );
   const [extractionNotice, setExtractionNotice] = useState<string | null>(null);
+  const [canRetryExtraction, setCanRetryExtraction] = useState(false);
 
   const [familyGroupId] = useState(() => (typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}`));
   const [familyCountInput, setFamilyCountInput] = useState("2");
@@ -316,6 +341,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     try {
       setUploadError(null);
       setExtractionNotice(null);
+      setCanRetryExtraction(false);
       setIsPreparingFile(true);
       const normalized = await normalizePassportFile(file);
       if (!mountedRef.current || controller.signal.aborted) return;
@@ -351,7 +377,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setProcessingProgress(persisted.processing_progress ?? 0.05);
       setProcessingStage("Passport pages saved. Reading available details for review.");
       const waitResult = isExtractionTerminal(persisted)
-        ? { submission: persisted, notice: extractionNoticeFor(persisted) }
+        ? {
+          submission: persisted,
+          notice: extractionNoticeFor(persisted),
+          retryAllowed: canRetryExtractionFor(persisted),
+        }
         : await waitForExtraction(persisted, controller.signal);
       const completed = waitResult.submission;
       if (!mountedRef.current || controller.signal.aborted) return;
@@ -367,6 +397,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               reviewFields: fields,
               visaSelfie: null,
               extractionNotice: waitResult.notice,
+              canRetryExtraction: waitResult.retryAllowed,
             }
             : member
         )));
@@ -384,6 +415,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
 
       setSubmission(completed);
       setExtractionNotice(waitResult.notice);
+      setCanRetryExtraction(waitResult.retryAllowed);
       setVisaSelfie(null);
       setReviewFields(getInitialReviewFields(completed.extracted_fields));
       setStep("REVIEW");
@@ -404,6 +436,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 reviewFields: fields,
                 visaSelfie: null,
                 extractionNotice: notice,
+                canRetryExtraction: true,
               }
               : member
           )));
@@ -412,6 +445,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
           setSubmission(persisted);
           setReviewFields(getInitialReviewFields(persisted.extracted_fields));
           setExtractionNotice(notice);
+          setCanRetryExtraction(true);
           setStep("REVIEW");
         }
       } else {
@@ -438,7 +472,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
     }
 
-    const deadline = Date.now() + 75_000;
+    const deadline = Date.now() + 65_000;
     let delayMs = 700;
     let consecutiveNetworkFailures = 0;
     while (Date.now() < deadline && !signal.aborted) {
@@ -453,6 +487,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
           return {
             submission: current,
             notice: "Your passport pages are saved. The connection was interrupted while reading details, so continue manually or retry reading the stored image.",
+            retryAllowed: true,
           };
         }
         delayMs = Math.min(2_500, delayMs + 500);
@@ -469,6 +504,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         return {
           submission: current,
           notice: extractionNoticeFor(current),
+          retryAllowed: canRetryExtractionFor(current),
         };
       }
       delayMs = Math.min(1600, delayMs + 150);
@@ -477,6 +513,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     return {
       submission: current,
       notice: "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
+      retryAllowed: true,
     };
   };
 
@@ -501,11 +538,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setIsScanningAgain(true);
       const queued = await uploadApi.scanAgain(token, submission.id, controller.signal);
       const waitResult = isExtractionTerminal(queued)
-        ? { submission: queued, notice: extractionNoticeFor(queued) }
+        ? {
+          submission: queued,
+          notice: extractionNoticeFor(queued),
+          retryAllowed: canRetryExtractionFor(queued),
+        }
         : await waitForExtraction(queued, controller.signal);
       if (!mountedRef.current || controller.signal.aborted) return;
       setSubmission(waitResult.submission);
       setExtractionNotice(waitResult.notice);
+      setCanRetryExtraction(waitResult.retryAllowed);
       setReviewFields((current) => (
         mergeMissingReviewFields(current, waitResult.submission.extracted_fields)
       ));
@@ -539,7 +581,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
       )));
       const queued = await uploadApi.scanAgain(token, savedSubmission.id, controller.signal);
       const waitResult = isExtractionTerminal(queued)
-        ? { submission: queued, notice: extractionNoticeFor(queued) }
+        ? {
+          submission: queued,
+          notice: extractionNoticeFor(queued),
+          retryAllowed: canRetryExtractionFor(queued),
+        }
         : await waitForExtraction(queued, controller.signal);
       if (!mountedRef.current || controller.signal.aborted) return;
       setFamilyMembers((current) => current.map((member, itemIndex) => (
@@ -552,6 +598,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               waitResult.submission.extracted_fields,
             ),
             extractionNotice: waitResult.notice,
+            canRetryExtraction: waitResult.retryAllowed,
           }
           : member
       )));
@@ -597,6 +644,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
               submission: null,
               reviewFields: {},
               extractionNotice: null,
+              canRetryExtraction: false,
               uploadIdempotencyKey: createIdempotencyKey(),
             }
             : member
@@ -605,6 +653,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         setSubmission(null);
         setReviewFields({});
         setExtractionNotice(null);
+        setCanRetryExtraction(false);
         setSingleUploadIdempotencyKey(createIdempotencyKey());
       }
     } catch (error: unknown) {
@@ -823,12 +872,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
           <ReviewWarning />
           <ExtractionNotice message={extractionNotice} />
           <ErrorMessage message={uploadError} />
-          {hasMissingRequiredFields(reviewFields) && (
+          {canRetryExtraction && (
             <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-medium text-blue-800">Some fields were not read clearly. Correct them manually or scan again.</p>
+                <p className="text-sm font-medium text-blue-800">
+                  Automatic reading failed or timed out. Your saved image can be retried without uploading it again.
+                </p>
                 <Button type="button" variant="secondary" size="sm" onClick={handleScanAgain} disabled={isScanningAgain}>
-                  {isScanningAgain ? "Scanning" : "Scan Again"}
+                  {isScanningAgain ? "Reading saved image" : "Retry automatic reading"}
                 </Button>
               </div>
             </div>
@@ -941,7 +992,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 <div>
                   <ReviewWarning />
                   <ExtractionNotice message={member.extractionNotice} />
-                  {hasMissingRequiredFields(member.reviewFields) && (
+                  {member.canRetryExtraction && (
                     <Button
                       type="button"
                       variant="secondary"
@@ -1229,6 +1280,7 @@ function createFamilyMember(index: number): FamilyMember {
     visaSelfie: null,
     uploadIdempotencyKey: createIdempotencyKey(),
     extractionNotice: null,
+    canRetryExtraction: false,
   };
 }
 
@@ -1335,17 +1387,18 @@ function PassportDocumentBundlePanel({
       ? { ...bundle, front: file, frontSource: file ? "file" : null }
       : { ...bundle, back: file, backSource: file ? "file" : null });
   };
+  const readyPageCount = Number(Boolean(bundle.front)) + Number(Boolean(bundle.back));
 
   return (
-    <div className="rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex items-start gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
+    <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/70 p-3 shadow-sm sm:p-5">
+      <div className="mb-5 flex items-start gap-3 px-1">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 sm:h-12 sm:w-12">
           <Camera className="h-6 w-6" />
         </div>
         <div className="min-w-0">
           <h4 className="text-base font-bold text-slate-900">Capture both passport pages</h4>
           <p className="mt-1 text-sm leading-5 text-slate-500">
-            The back page is stored with your passport but is not read for details.
+            Add a clear front and back image. We will read the details after both pages are saved.
           </p>
         </div>
       </div>
@@ -1356,7 +1409,10 @@ function PassportDocumentBundlePanel({
         </div>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div
+        className="grid gap-3"
+        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))" }}
+      >
         <PassportPageCaptureControl
           pageSide="front"
           file={bundle.front}
@@ -1374,9 +1430,26 @@ function PassportDocumentBundlePanel({
           onFileChange={(file) => updateFile("back", file)}
         />
       </div>
-      <Button type="button" className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700" onClick={onUpload} disabled={!bundle.front || !bundle.back}>
-        Save passport pages
+      <div className="mt-4 flex items-center justify-between gap-3 px-1 text-xs">
+        <span className="font-medium text-slate-500" aria-live="polite">
+          {readyPageCount} of 2 pages ready
+        </span>
+        <span className={readyPageCount === 2 ? "font-semibold text-emerald-700" : "text-slate-400"}>
+          {readyPageCount === 2 ? "Ready to extract" : "Both pages required"}
+        </span>
+      </div>
+      <Button
+        type="button"
+        className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-semibold shadow-lg shadow-blue-600/15 hover:bg-blue-700"
+        onClick={onUpload}
+        disabled={!bundle.front || !bundle.back}
+      >
+        <BadgeCheck className="h-5 w-5" aria-hidden="true" />
+        Save pages &amp; extract details
       </Button>
+      <p className="mt-3 px-1 text-center text-xs leading-5 text-slate-400">
+        Reading usually takes about 30–35 seconds. Keep this page open while we verify the details.
+      </p>
     </div>
   );
 }
@@ -1437,46 +1510,108 @@ function PassportPageCaptureControl({
 }) {
   const label = `Passport ${pageSide} page`;
   const inputId = `passport-${pageSide}-file`;
+  const pageNumber = pageSide === "front" ? 1 : 2;
 
   return (
-    <section aria-labelledby={`${inputId}-label`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h5 id={`${inputId}-label`} className="text-sm font-semibold text-slate-800">{label}</h5>
-          <p className="mt-1 truncate text-xs text-slate-500">
-            {file ? `${source === "camera" ? "Live scan" : "Device file"}: ${file.name}` : "Required"}
-          </p>
+    <section
+      aria-labelledby={`${inputId}-label`}
+      className={`rounded-2xl border p-4 transition ${
+        file
+          ? "border-emerald-200 bg-emerald-50/40 shadow-sm"
+          : "border-slate-200 bg-white"
+      }`}
+    >
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            file ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600"
+          }`}>
+            {file ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : pageNumber}
+          </span>
+          <div className="min-w-0">
+            <h5 id={`${inputId}-label`} className="text-sm font-bold text-slate-900">{label}</h5>
+            <p id={`${inputId}-hint`} className="mt-1 text-xs leading-5 text-slate-500">
+              {pageSide === "front"
+                ? "Open the photo and MRZ details page."
+                : "Add the opposite passport page for the agency record."}
+            </p>
+          </div>
         </div>
-        {file && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" aria-label={`${label} ready`} />}
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+          file ? "bg-emerald-100 text-emerald-800" : "bg-amber-50 text-amber-700"
+        }`}>
+          {file ? "Ready" : "Required"}
+        </span>
       </div>
 
-      <Button
-        type="button"
-        variant={file && source === "camera" ? "secondary" : "outline"}
-        size="sm"
-        className="w-full"
-        onClick={onScan}
-        aria-label={`${file && source === "camera" ? "Retake" : "Scan"} passport ${pageSide} page with live camera`}
-      >
-        <Camera className="h-4 w-4" aria-hidden="true" />
-        {file && source === "camera" ? "Retake live scan" : `Scan ${pageSide} page`}
-      </Button>
+      {file ? (
+        <div className="mb-3 flex min-w-0 items-center gap-3 rounded-xl border border-emerald-200 bg-white p-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+            <ImagePlus className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-slate-800" title={file.name}>{file.name}</span>
+            <span className="mt-0.5 block text-xs text-slate-500">
+              {source === "camera" ? "Live camera scan" : "Selected from device"} · {formatFileSize(file.size)}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => onFileChange(null)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label={`Remove ${label.toLowerCase()}`}
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      ) : (
+        <div className="mb-3 flex min-h-20 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
+          <p className="text-xs leading-5 text-slate-500">No {pageSide} page selected yet</p>
+        </div>
+      )}
+
+      <div className={`grid gap-2 ${allowFilesFromDevice ? "min-[360px]:grid-cols-2" : ""}`}>
+        <Button
+          type="button"
+          variant={file && source === "camera" ? "secondary" : "outline"}
+          className="h-11 w-full rounded-xl"
+          onClick={onScan}
+          aria-label={`${file && source === "camera" ? "Retake" : "Scan"} passport ${pageSide} page with live camera`}
+        >
+          <Camera className="h-4 w-4" aria-hidden="true" />
+          {file && source === "camera" ? "Retake scan" : "Use camera"}
+        </Button>
+
+        {allowFilesFromDevice && (
+          <>
+            <label
+              htmlFor={inputId}
+              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+            >
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />
+              {file && source === "file" ? "Choose another" : "Choose photo"}
+            </label>
+            <input
+              key={`${pageSide}:${source ?? "empty"}:${file?.name ?? ""}`}
+              id={inputId}
+              type="file"
+              accept={PASSPORT_IMAGE_ACCEPT}
+              className="sr-only"
+              onClick={(event) => {
+                event.currentTarget.value = "";
+              }}
+              onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+              aria-describedby={`${inputId}-hint ${inputId}-formats`}
+              aria-label={`Choose passport ${pageSide} page image from device`}
+            />
+          </>
+        )}
+      </div>
 
       {allowFilesFromDevice && (
-        <div className="mt-3">
-          <label htmlFor={inputId} className="mb-1.5 block text-xs font-semibold text-slate-600">
-            Or choose image from device
-          </label>
-          <input
-            key={`${pageSide}:${source ?? "empty"}:${file?.name ?? ""}`}
-            id={inputId}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-white file:px-2.5 file:py-2 file:text-xs file:font-semibold file:text-slate-700"
-            onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
-            aria-label={`Choose passport ${pageSide} page image from device`}
-          />
-        </div>
+        <p id={`${inputId}-formats`} className="mt-3 text-xs leading-5 text-slate-400">
+          JPG, PNG, WebP, HEIC/HEIF, AVIF, BMP, or TIFF
+        </p>
       )}
     </section>
   );
@@ -1916,6 +2051,16 @@ function extractionNoticeFor(submission: PassportSubmission) {
     return "Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.";
   }
   return null;
+}
+
+function canRetryExtractionFor(submission: PassportSubmission) {
+  return submission.extraction_status === "extraction_failed" || submission.status === "failed";
+}
+
+function formatFileSize(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "Size unavailable";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
 }
 
 function sleep(delayMs: number, signal: AbortSignal) {

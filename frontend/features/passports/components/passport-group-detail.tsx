@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, MoreVertical, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
+import { formatPassportCountry } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
@@ -69,7 +70,6 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     ask_nearest_domestic_airport: deletedGroup.ask_nearest_domestic_airport ?? false,
     notes: deletedGroup.notes,
   } : undefined);
-  const reextractMutation = useReextractPassportSubmission();
   const exportMutation = useExportPassportGroup();
   const exportImagesMutation = useExportPassportGroupImages();
   const importMutation = useImportPassportGroup(groupId);
@@ -461,11 +461,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     <div>
                       <div className="font-semibold text-slate-900">{passport.client_name}</div>
                       <div className="text-xs text-slate-500">
-                        {getStringField(passport.extracted_fields, "passport_number") || "Passport number not extracted"}
+                        {getStringField(getDashboardFields(passport), "passport_number") || "Passport number not extracted"}
                       </div>
                     </div>
                     <div className="text-right text-sm font-medium text-red-800">
-                      {getStringField(passport.extracted_fields, "date_of_expiry") || "Expiry missing"}
+                      {getStringField(getDashboardFields(passport), "date_of_expiry") || "Expiry missing"}
                     </div>
                   </div>
                 </Link>
@@ -642,30 +642,16 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                           <StatusBadge status={passport.status} />
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-medium text-slate-800">{getStringField(passport.extracted_fields, "passport_number") || "Not extracted"}</div>
+                          <div className="font-medium text-slate-800">{getStringField(getDashboardFields(passport), "passport_number") || "Not extracted"}</div>
                           <div className="mt-1 text-xs text-slate-500">
-                            {getStringField(passport.extracted_fields, "nationality") || getStringField(passport.extracted_fields, "issuing_country") || "Manual review"}
+                            {getDashboardCountry(passport) || "Manual review"}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-slate-700">{formatConfidence(passport.overall_confidence)}</td>
                         <td className="px-6 py-4 text-slate-500">{formatDateTime(passport.updated_at)}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
-                            {needsReextraction(passport) && (
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="gap-2"
-                                disabled={reextractMutation.isPending}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  reextractMutation.mutate(passport.id);
-                                }}
-                              >
-                                <RotateCcw className="h-4 w-4" />
-                                {reextractMutation.isPending && reextractMutation.variables === passport.id ? "Retrying" : "Re-extract"}
-                              </Button>
-                            )}
+                            <ReextractPassportControl passport={passport} compact />
                             <Link href={ROUTES.dashboard.passportDetail(passport.id) as never} onClick={(event) => event.stopPropagation()}>
                               <Button variant="outline" size="sm" className="gap-2">
                                 <Eye className="h-4 w-4" />
@@ -728,8 +714,6 @@ function PassportMobileCard({
   selected: boolean;
   onToggle: () => void;
 }) {
-  const reextractMutation = useReextractPassportSubmission();
-
   return (
     <Card className={selected ? "rounded-2xl border-blue-300 bg-blue-50/40" : "rounded-2xl"} onClick={onToggle}>
       <CardContent className="space-y-4 p-4">
@@ -751,30 +735,17 @@ function PassportMobileCard({
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <InfoPair label="Passport" value={getStringField(passport.extracted_fields, "passport_number") || "Not extracted"} />
+          <InfoPair label="Passport" value={getStringField(getDashboardFields(passport), "passport_number") || "Not extracted"} />
           <InfoPair
             label="Nationality"
-            value={getStringField(passport.extracted_fields, "nationality") || getStringField(passport.extracted_fields, "issuing_country") || "Manual review"}
+            value={getDashboardCountry(passport) || "Manual review"}
           />
           <InfoPair label="Confidence" value={formatConfidence(passport.overall_confidence)} />
           <InfoPair label="Updated" value={formatDateTime(passport.updated_at)} />
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          {needsReextraction(passport) && (
-            <Button
-              variant="secondary"
-              className="w-full gap-2"
-              disabled={reextractMutation.isPending}
-              onClick={(event) => {
-                event.stopPropagation();
-                reextractMutation.mutate(passport.id);
-              }}
-            >
-              <RotateCcw className="h-4 w-4" />
-              {reextractMutation.isPending ? "Retrying" : "Re-extract"}
-            </Button>
-          )}
+        <div className={`grid gap-2 ${needsReextraction(passport) || passport.extraction_status === "processing" ? "sm:grid-cols-2" : ""}`}>
+          <ReextractPassportControl passport={passport} />
           <Link href={ROUTES.dashboard.passportDetail(passport.id) as never} className="block" onClick={(event) => event.stopPropagation()}>
             <Button variant="outline" className="w-full gap-2">
               <Eye className="h-4 w-4" />
@@ -784,6 +755,114 @@ function PassportMobileCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function ReextractPassportControl({
+  passport,
+  compact = false,
+}: {
+  passport: PassportSubmission;
+  compact?: boolean;
+}) {
+  const reextractMutation = useReextractPassportSubmission();
+  const [feedback, setFeedback] = useState<{
+    tone: "success" | "warning" | "error";
+    message: string;
+  } | null>(null);
+  const isProcessing = passport.extraction_status === "processing";
+  const backgroundFinished = feedback?.tone === "warning" && !isProcessing;
+  const backgroundFailed = backgroundFinished
+    && (passport.extraction_status === "extraction_failed" || passport.status === "failed");
+  const backgroundConflictCount = getExtractionConflictCount(passport);
+  const effectiveFeedback = backgroundFinished
+    ? {
+      tone: backgroundFailed ? "error" as const : "success" as const,
+      message: backgroundFailed
+        ? "Automatic extraction failed. You can retry safely."
+        : backgroundConflictCount > 0
+          ? `Finished with ${backgroundConflictCount} ${backgroundConflictCount === 1 ? "difference" : "differences"} to review.`
+          : "Extraction finished. Open the passport to review the results.",
+    }
+    : feedback;
+
+  const handleReextract = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setFeedback(null);
+    try {
+      const result = await reextractMutation.mutateAsync(passport.id);
+      if (result.outcome === "timed_out") {
+        setFeedback({
+          tone: "warning",
+          message: "Still processing. This row will refresh automatically.",
+        });
+        return;
+      }
+      if (result.outcome === "failed") {
+        setFeedback({
+          tone: "error",
+          message: "Automatic extraction failed. The saved image is unchanged; try again.",
+        });
+        return;
+      }
+      const conflictCount = getExtractionConflictCount(result.submission);
+      setFeedback({
+        tone: "success",
+        message: conflictCount > 0
+          ? `Finished with ${conflictCount} ${conflictCount === 1 ? "difference" : "differences"} to review.`
+          : "Extraction finished. Open the passport to review the results.",
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Could not start re-extraction. Please try again.",
+      });
+    }
+  };
+
+  if (!needsReextraction(passport) && !isProcessing && !effectiveFeedback) return null;
+
+  return (
+    <div
+      className={compact ? "max-w-52 text-right" : "w-full"}
+      onClick={(event) => event.stopPropagation()}
+    >
+      <Button
+        variant="secondary"
+        size={compact ? "sm" : "md"}
+        className={compact ? "gap-2" : "w-full gap-2"}
+        disabled={reextractMutation.isPending || isProcessing}
+        onClick={(event) => void handleReextract(event)}
+        aria-busy={reextractMutation.isPending || isProcessing}
+      >
+        {reextractMutation.isPending || isProcessing ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
+        )}
+        {reextractMutation.isPending
+          ? "Extracting"
+          : isProcessing
+            ? "Processing"
+            : effectiveFeedback?.tone === "error"
+              ? "Try again"
+              : "Re-extract"}
+      </Button>
+      {effectiveFeedback && (
+        <p
+          className={`mt-1.5 text-xs leading-4 ${
+            effectiveFeedback.tone === "success"
+              ? "text-emerald-700"
+              : effectiveFeedback.tone === "warning"
+                ? "text-amber-700"
+                : "text-red-700"
+          }`}
+          role={effectiveFeedback.tone === "error" ? "alert" : "status"}
+        >
+          {effectiveFeedback.message}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -901,6 +980,22 @@ function needsReextraction(passport: PassportSubmission) {
 
 function hasRealPassportFront(passport: PassportSubmission) {
   return Boolean(passport.image_s3_key && !passport.image_s3_key.startsWith("excel-imports/"));
+}
+
+function getDashboardFields(passport: PassportSubmission) {
+  return passport.confirmed_fields ?? passport.extracted_fields;
+}
+
+function getDashboardCountry(passport: PassportSubmission) {
+  const fields = getDashboardFields(passport);
+  const value = getStringField(fields, "nationality") || getStringField(fields, "issuing_country");
+  return formatPassportCountry(value);
+}
+
+function getExtractionConflictCount(passport: PassportSubmission) {
+  if (Array.isArray(passport.extraction_conflicts)) return passport.extraction_conflicts.length;
+  const fallback = passport.extracted_fields?.manual_review_conflicts;
+  return Array.isArray(fallback) ? fallback.length : 0;
 }
 
 function getExpiryStatus(passport: PassportSubmission): "expired" | "near_expiry" | "valid" {

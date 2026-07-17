@@ -152,7 +152,10 @@ class Settings(BaseSettings):
     processing_backend: Literal["background", "celery"] = "background"
     processing_job_max_attempts: int = Field(default=3, ge=1, le=10)
     processing_job_timeout_seconds: int = Field(default=60, ge=15, le=300)
+    processing_watchdog_delay_seconds: float = Field(default=8.0, ge=3.0, le=30.0)
+    processing_worker_ping_timeout_seconds: float = Field(default=1.0, ge=0.2, le=5.0)
     roi_field_timeout_seconds: float = Field(default=8.0, ge=0.5, le=30.0)
+    roi_max_concurrency: int = Field(default=4, ge=1, le=8)
     upload_max_file_size_bytes: int = Field(default=10 * 1024 * 1024, ge=1024 * 1024)
     upload_max_pixels: int = Field(default=24_000_000, ge=1_000_000)
     malware_scanner_enabled: bool = False

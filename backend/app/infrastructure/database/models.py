@@ -414,6 +414,12 @@ class PassportSubmissionModel(Base):
     )
     extracted_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     confirmed_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    extraction_conflicts: Mapped[list[dict[str, object]]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
     overall_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     confidence_score: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     mrz_raw: Mapped[str | None] = mapped_column(Text, nullable=True)

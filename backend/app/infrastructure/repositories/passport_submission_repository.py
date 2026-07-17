@@ -72,6 +72,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             status=PassportProcessingStatus(model.status),
             extracted_fields=model.extracted_fields,
             confirmed_fields=model.confirmed_fields,
+            extraction_conflicts=list(model.extraction_conflicts or []),
             overall_confidence=model.overall_confidence,
             confidence_score=model.confidence_score,
             mrz_raw=model.mrz_raw,
@@ -114,6 +115,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             status=entity.status.value,
             extracted_fields=entity.extracted_fields,
             confirmed_fields=entity.confirmed_fields,
+            extraction_conflicts=entity.extraction_conflicts,
             overall_confidence=entity.overall_confidence,
             confidence_score=entity.confidence_score,
             mrz_raw=entity.mrz_raw,
@@ -238,6 +240,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.status = submission.status.value
         model.extracted_fields = submission.extracted_fields
         model.confirmed_fields = submission.confirmed_fields
+        model.extraction_conflicts = submission.extraction_conflicts
         model.overall_confidence = submission.overall_confidence
         model.confidence_score = submission.confidence_score
         model.mrz_raw = submission.mrz_raw
@@ -320,6 +323,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.extraction_status = submission.extraction_status.value
         model.extracted_fields = submission.extracted_fields
         model.confirmed_fields = submission.confirmed_fields
+        model.extraction_conflicts = submission.extraction_conflicts
         model.overall_confidence = submission.overall_confidence
         model.confidence_score = submission.confidence_score
         model.mrz_raw = submission.mrz_raw

@@ -63,7 +63,15 @@ export interface ExtractedPassportFields {
     filled_fields?: string[];
     duration_ms?: number;
   };
+  manual_review_conflicts?: PassportExtractionConflict[];
   [key: string]: unknown;  // allow validation metadata and country-specific fields
+}
+
+export interface PassportExtractionConflict {
+  field: string;
+  manual_value: string;
+  extracted_value: string | null;
+  status: "mismatch" | "not_extracted";
 }
 
 export interface PassportConfidenceSignal {
@@ -114,6 +122,7 @@ export interface PassportSubmission extends TimestampedEntity {
   status: PassportStatus;
   extracted_fields: ExtractedPassportFields | null;
   confirmed_fields: ExtractedPassportFields | null;
+  extraction_conflicts?: PassportExtractionConflict[];
   overall_confidence: number | null;
   confidence_score: PassportConfidenceScore | null;
   mrz_raw: string | null;

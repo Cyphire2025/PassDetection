@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import io
 import uuid
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from typing import Any
 
+import pycountry
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -17,55 +20,102 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 from app.domain.entities.entities import PassportSubmission
 
 
-class PassportExcelExporter:
-    HEADERS = [
-        "Group",
-        "Destination",
-        "Travel Date",
-        "Return Date",
-        "Client Name",
-        "Email",
-        "Phone",
+@dataclass(frozen=True)
+class _ExportColumn:
+    header: str
+    width: int
+    enabled_flag: str | None = None
+
+
+_COLUMNS = (
+    _ExportColumn("Group", 24),
+    _ExportColumn("Destination", 22),
+    _ExportColumn("Travel Date", 16),
+    _ExportColumn("Return Date", 16),
+    _ExportColumn("Client Name", 24),
+    _ExportColumn("Email", 28),
+    _ExportColumn("Phone", 18),
+    _ExportColumn(
         "Nearest International Airport",
+        28,
+        "nearest_international_airport_enabled",
+    ),
+    _ExportColumn(
         "Nearest Domestic Airport",
-        "Base City",
-        "Staff Code",
-        "Meal Preference",
-        "Status",
-        "Surname",
-        "Given Names",
-        "Passport Number",
-        "Nationality",
-        "Issuing Country",
-        "Date of Birth",
-        "Date of Issue",
-        "Date of Expiry",
-        "Sex",
-        "Confidence",
-        "Submitted At",
-        "Reviewed At",
-    ]
+        26,
+        "ask_nearest_domestic_airport",
+    ),
+    _ExportColumn("Base City", 20, "base_city_enabled"),
+    _ExportColumn("Staff Code", 18, "staff_code_enabled"),
+    _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
+    _ExportColumn("Surname", 20),
+    _ExportColumn("Given Names", 24),
+    _ExportColumn("Passport Number", 20),
+    _ExportColumn("Nationality", 22),
+    _ExportColumn("Date of Birth", 16),
+    _ExportColumn("Date of Issue", 16),
+    _ExportColumn("Date of Expiry", 16),
+    _ExportColumn("Sex", 10),
+)
+
+_FORMULA_PREFIXES = ("=", "+", "-", "@")
+
+
+def _safe_xlsx_value(value: Any) -> Any:
+    """Keep untrusted text from being interpreted as an Excel formula."""
+
+    if not isinstance(value, str):
+        return value
+    if value.lstrip().startswith(_FORMULA_PREFIXES):
+        return f"'{value}"
+    return value
+
+
+def _uppercase(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    return str(value).upper()
+
+
+def _country_display_name(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    normalized = str(value).strip()
+    if not normalized:
+        return None
+    try:
+        country = pycountry.countries.lookup(normalized)
+    except LookupError:
+        return normalized
+    return str(getattr(country, "common_name", country.name))
+
+
+class PassportExcelExporter:
+    HEADERS = [column.header for column in _COLUMNS]
 
     def export_group(
         self,
         submissions: list[PassportSubmission],
         *,
         group_name: str,
-        group_details: dict[uuid.UUID, dict[str, str | None]] | None = None,
+        group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None = None,
     ) -> bytes:
+        columns = self._enabled_columns(submissions, group_details)
+        headers = [column.header for column in columns]
         workbook = Workbook()
         worksheet = workbook.active
         worksheet.title = "Passport Submissions"
 
         worksheet["A1"] = f"Passport Export - {group_name}"
         worksheet["A1"].font = Font(bold=True, size=14)
-        worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(self.HEADERS))
-        worksheet["A2"] = f"Generated at {datetime.utcnow().isoformat(timespec='seconds')}Z"
+        worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(headers))
+        generated_at = datetime.now(tz=UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+        worksheet["A2"] = f"Generated at {generated_at}"
         worksheet["A2"].font = Font(color="64748B")
-        worksheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=len(self.HEADERS))
+        worksheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=len(headers))
 
         worksheet.append([])
-        worksheet.append(self.HEADERS)
+        worksheet.append(headers)
         header_row = 4
         for cell in worksheet[header_row]:
             cell.font = Font(bold=True, color="FFFFFF")
@@ -74,39 +124,36 @@ class PassportExcelExporter:
 
         for submission in submissions:
             fields = submission.confirmed_fields or submission.extracted_fields or {}
+            staff_metadata = submission.staff_metadata or {}
             details = (group_details or {}).get(submission.group_id, {})
-            worksheet.append(
-                [
-                    details.get("name") or group_name,
-                    details.get("destination"),
-                    details.get("travel_date"),
-                    details.get("return_date"),
-                    submission.client_name,
-                    submission.client_email,
-                    submission.client_phone,
-                    submission.departure_city,
-                    submission.nearest_domestic_airport,
-                    fields.get("base_city"),
-                    fields.get("staff_code"),
-                    fields.get("meal_preference"),
-                    submission.status.value,
-                    fields.get("surname"),
-                    fields.get("given_names"),
-                    fields.get("passport_number"),
-                    fields.get("nationality"),
-                    fields.get("issuing_country"),
-                    fields.get("date_of_birth"),
-                    fields.get("date_of_issue"),
-                    fields.get("date_of_expiry"),
-                    fields.get("sex"),
-                    submission.overall_confidence,
-                    submission.created_at.isoformat() if submission.created_at else None,
-                    submission.client_reviewed_at.isoformat() if submission.client_reviewed_at else None,
-                ]
-            )
+            values = {
+                "Group": details.get("name") or group_name,
+                "Destination": details.get("destination"),
+                "Travel Date": details.get("travel_date"),
+                "Return Date": details.get("return_date"),
+                "Client Name": submission.client_name,
+                "Email": submission.client_email,
+                "Phone": submission.client_phone,
+                "Nearest International Airport": submission.departure_city,
+                "Nearest Domestic Airport": submission.nearest_domestic_airport,
+                "Base City": fields.get("base_city") or staff_metadata.get("base_city"),
+                "Staff Code": fields.get("staff_code") or staff_metadata.get("staff_code"),
+                "Meal Preference": (
+                    fields.get("meal_preference") or staff_metadata.get("meal_preference")
+                ),
+                "Surname": _uppercase(fields.get("surname")),
+                "Given Names": _uppercase(fields.get("given_names")),
+                "Passport Number": fields.get("passport_number"),
+                "Nationality": _country_display_name(fields.get("nationality")),
+                "Date of Birth": fields.get("date_of_birth"),
+                "Date of Issue": fields.get("date_of_issue"),
+                "Date of Expiry": fields.get("date_of_expiry"),
+                "Sex": fields.get("sex"),
+            }
+            worksheet.append([_safe_xlsx_value(values[column.header]) for column in columns])
 
         if submissions:
-            last_column = worksheet.cell(row=header_row, column=len(self.HEADERS)).column_letter
+            last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter
             table_ref = f"A{header_row}:{last_column}{header_row + len(submissions)}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
@@ -118,13 +165,34 @@ class PassportExcelExporter:
             )
             worksheet.add_table(table)
 
-        widths = [
-            24, 22, 16, 16, 24, 28, 18, 28, 26, 20, 18, 18, 18,
-            20, 24, 20, 16, 18, 16, 16, 16, 10, 14, 28, 28,
-        ]
-        for index, width in enumerate(widths, start=1):
-            worksheet.column_dimensions[worksheet.cell(row=4, column=index).column_letter].width = width
+        for index, column in enumerate(columns, start=1):
+            column_letter = worksheet.cell(row=header_row, column=index).column_letter
+            worksheet.column_dimensions[column_letter].width = column.width
 
         buffer = io.BytesIO()
         workbook.save(buffer)
         return buffer.getvalue()
+
+    @staticmethod
+    def _enabled_columns(
+        submissions: list[PassportSubmission],
+        group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None,
+    ) -> list[_ExportColumn]:
+        if group_details is None:
+            return list(_COLUMNS)
+
+        submitted_group_ids = {submission.group_id for submission in submissions}
+        relevant_details = [
+            details
+            for group_id, details in group_details.items()
+            if not submitted_group_ids or group_id in submitted_group_ids
+        ]
+        if not relevant_details:
+            return list(_COLUMNS)
+
+        return [
+            column
+            for column in _COLUMNS
+            if column.enabled_flag is None
+            or any(bool(details.get(column.enabled_flag, True)) for details in relevant_details)
+        ]

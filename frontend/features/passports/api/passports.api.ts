@@ -44,6 +44,17 @@ export interface PassportDocumentImportChunkRequest extends PassportDocumentImpo
 }
 
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
+export type PassportReextractOutcome = "completed" | "failed" | "timed_out";
+
+export interface PassportReextractResult {
+  submission: PassportSubmission;
+  outcome: PassportReextractOutcome;
+}
+
+interface PassportReextractOptions {
+  onProgress?: (submission: PassportSubmission) => void;
+  timeoutMs?: number;
+}
 
 export const passportsApi = {
   listGroups: async (): Promise<PassportGroupSummary[]> => {
@@ -75,9 +86,38 @@ export const passportsApi = {
     return data;
   },
 
-  reextract: async (id: string): Promise<PassportSubmission> => {
-    const { data } = await apiClient.post<PassportSubmission>(API_ENDPOINTS.passports.reextract(id));
-    return data;
+  reextract: async (
+    id: string,
+    options: PassportReextractOptions = {},
+  ): Promise<PassportReextractResult> => {
+    const { data: queued } = await apiClient.post<PassportSubmission>(API_ENDPOINTS.passports.reextract(id));
+    options.onProgress?.(queued);
+
+    let current = queued;
+    const immediateOutcome = getReextractOutcome(current);
+    if (immediateOutcome) return { submission: current, outcome: immediateOutcome };
+
+    const deadline = Date.now() + (options.timeoutMs ?? 65_000);
+    let delayMs = 750;
+    let consecutiveFailures = 0;
+    while (Date.now() < deadline) {
+      await wait(delayMs);
+      try {
+        current = await passportsApi.getById(id);
+        consecutiveFailures = 0;
+        options.onProgress?.(current);
+      } catch (error) {
+        consecutiveFailures += 1;
+        if (consecutiveFailures >= 4) throw error;
+        delayMs = Math.min(2_000, delayMs + 350);
+        continue;
+      }
+
+      const outcome = getReextractOutcome(current);
+      if (outcome) return { submission: current, outcome };
+      delayMs = Math.min(1_500, delayMs + 100);
+    }
+    return { submission: current, outcome: "timed_out" };
   },
 
   exportGroup: async (groupId: string): Promise<void> => {
@@ -190,6 +230,29 @@ export const passportsApi = {
     downloadBlob(response.data, "selected-groups-passports.xlsx");
   },
 };
+
+function getReextractOutcome(submission: PassportSubmission): PassportReextractOutcome | null {
+  if (
+    submission.status === "failed"
+    || submission.extraction_status === "extraction_failed"
+    || ["failed", "dead_letter", "cancelled"].includes(submission.processing_job_status ?? "")
+  ) {
+    return "failed";
+  }
+  if (
+    ["extraction_complete", "extraction_partial", "ready_for_review"].includes(submission.extraction_status)
+    || submission.processing_job_status === "succeeded"
+  ) {
+    return "completed";
+  }
+  return null;
+}
+
+function wait(delayMs: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, delayMs);
+  });
+}
 
 function chunkFilesForUpload(files: File[], maxBytes: number, maxFiles: number) {
   const chunks: File[][] = [];

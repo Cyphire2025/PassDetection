@@ -9,6 +9,17 @@ from typing import Any
 from app.domain.exceptions.exceptions import ValidationError
 
 PASSPORT_DATE_FIELDS = ("date_of_birth", "date_of_issue", "date_of_expiry")
+REVIEWABLE_PASSPORT_FIELDS = (
+    "surname",
+    "given_names",
+    "passport_number",
+    "nationality",
+    "issuing_country",
+    "date_of_birth",
+    "date_of_issue",
+    "date_of_expiry",
+    "sex",
+)
 _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
@@ -63,6 +74,49 @@ def normalize_extracted_passport_dates(fields: dict[str, Any]) -> dict[str, Any]
         else:
             normalized.pop(exc.field or "", None)
     return normalized
+
+
+def reconcile_confirmed_with_extraction(
+    confirmed_fields: dict[str, Any] | None,
+    extracted_fields: dict[str, Any],
+) -> tuple[dict[str, Any] | None, list[dict[str, str | None]]]:
+    """Fill confirmed blanks and surface non-destructive verification conflicts."""
+
+    if confirmed_fields is None:
+        return None, []
+
+    merged = dict(confirmed_fields)
+    conflicts: list[dict[str, str | None]] = []
+    for field in REVIEWABLE_PASSPORT_FIELDS:
+        manual_value = _text_value(merged.get(field))
+        extracted_value = _text_value(extracted_fields.get(field))
+        if not manual_value:
+            if extracted_value:
+                merged[field] = extracted_value
+            continue
+        if not extracted_value:
+            conflicts.append(
+                {
+                    "field": field,
+                    "manual_value": manual_value,
+                    "extracted_value": None,
+                    "status": "not_extracted",
+                }
+            )
+            continue
+        if _comparable_passport_value(field, manual_value) != _comparable_passport_value(
+            field,
+            extracted_value,
+        ):
+            conflicts.append(
+                {
+                    "field": field,
+                    "manual_value": manual_value,
+                    "extracted_value": extracted_value,
+                    "status": "mismatch",
+                }
+            )
+    return merged, conflicts
 
 
 def normalize_passport_date(value: str, *, field: str) -> str:
@@ -127,3 +181,44 @@ def _date_label(field: str) -> str:
         "date_of_issue": "Date of issue",
         "date_of_expiry": "Date of expiry",
     }.get(field, "Date")
+
+
+def _text_value(value: Any) -> str:
+    if not isinstance(value, str):
+        return ""
+    return " ".join(value.strip().split())
+
+
+def _comparable_passport_value(field: str, value: str) -> str:
+    normalized = " ".join(value.strip().split())
+    if field == "passport_number":
+        return re.sub(r"[^A-Z0-9]", "", normalized.upper())
+    if field in {"nationality", "issuing_country"}:
+        return _country_identity(normalized)
+    if field == "sex":
+        key = normalized.casefold()
+        return {
+            "m": "M",
+            "male": "M",
+            "f": "F",
+            "female": "F",
+            "x": "X",
+            "unspecified": "X",
+            "<": "X",
+        }.get(key, key)
+    return normalized.casefold()
+
+
+def _country_identity(value: str) -> str:
+    key = re.sub(r"[^A-Z]", "", value.upper())
+    # pycountry is a runtime dependency, but retaining the India fallback keeps
+    # domain-only unit tests usable in minimal host Python environments.
+    try:
+        import pycountry
+    except ImportError:
+        return {"IND": "IND", "INDIA": "IND"}.get(key, key)
+    try:
+        country = pycountry.countries.lookup(value)
+    except LookupError:
+        return {"IND": "IND", "INDIA": "IND"}.get(key, key)
+    return str(country.alpha_3).upper()

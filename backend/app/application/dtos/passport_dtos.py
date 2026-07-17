@@ -44,6 +44,7 @@ class PassportSubmissionOutputDTO:
     extraction_revision: int = 0
     extracted_fields: dict[str, Any] | None = None
     confirmed_fields: dict[str, Any] | None = None
+    extraction_conflicts: list[dict[str, Any]] | None = None
     overall_confidence: float | None = None
     confidence_score: dict[str, Any] | None = None
     mrz_raw: str | None = None
@@ -100,6 +101,7 @@ def passport_submission_output_from_entity(
         updated_at=submission.updated_at,
         extracted_fields=submission.extracted_fields,
         confirmed_fields=submission.confirmed_fields,
+        extraction_conflicts=list(submission.extraction_conflicts or []),
         overall_confidence=submission.overall_confidence,
         confidence_score=submission.confidence_score,
         mrz_raw=submission.mrz_raw,

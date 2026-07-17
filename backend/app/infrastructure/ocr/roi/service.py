@@ -57,34 +57,48 @@ class ROIFallbackService:
         if not attempted:
             return ROIFallbackResult({}, {}, [], [], self._elapsed_ms(started))
 
-        timeout_seconds = get_settings().roi_field_timeout_seconds
-        for field_name in attempted:
+        settings = get_settings()
+        timeout_seconds = settings.roi_field_timeout_seconds
+        semaphore = asyncio.Semaphore(settings.roi_max_concurrency)
+
+        async def extract_field(
+            field_name: str,
+        ) -> ROIExtractionResult | None:
             try:
-                # Each worker owns its decoded image. If a native OCR call
-                # outlives the await timeout, no shared PIL object is closed
-                # underneath that worker and the FastAPI event loop stays free.
-                result = await asyncio.wait_for(
-                    asyncio.to_thread(
-                        self._extract_one,
-                        self._extractors[field_name],
-                        image_bytes,
-                    ),
-                    timeout=timeout_seconds,
-                )
+                async with semaphore:
+                    # Each worker owns its decoded image. If a native OCR call
+                    # outlives the await timeout, no shared PIL object is
+                    # closed underneath that worker.
+                    return await asyncio.wait_for(
+                        asyncio.to_thread(
+                            self._extract_one,
+                            self._extractors[field_name],
+                            image_bytes,
+                        ),
+                        timeout=timeout_seconds,
+                    )
             except TimeoutError:
                 logger.warning(
                     "roi_fallback_field_timeout",
                     field=field_name,
                     timeout_seconds=timeout_seconds,
                 )
-                continue
+                return None
             except Exception as exc:
                 logger.warning(
                     "roi_fallback_field_failed",
                     field=field_name,
                     error_type=type(exc).__name__,
                 )
-                continue
+            return None
+
+        # Field crops are independent. A bounded fan-out prevents the previous
+        # worst case of eight sequential timeouts while keeping CPU use
+        # predictable on the OCR worker.
+        results = await asyncio.gather(
+            *(extract_field(field_name) for field_name in attempted)
+        )
+        for result in results:
             if result is None:
                 continue
             fields[result.field_name] = result.value

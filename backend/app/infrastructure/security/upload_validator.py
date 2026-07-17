@@ -6,16 +6,50 @@ import io
 import re
 import socket
 import struct
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.config.settings import get_settings
 from app.domain.exceptions.exceptions import ImageValidationError
 
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
+_SUPPORTED_SOURCE_FORMATS = frozenset(
+    {
+        "AVIF",
+        "BMP",
+        "HEIC",
+        "HEIF",
+        "JPEG",
+        "PNG",
+        "TIFF",
+        "WEBP",
+    }
+)
+_SUPPORTED_FORMAT_MESSAGE = (
+    "Unsupported image format. Please upload a JPEG/JPG, PNG, WebP, "
+    "HEIC/HEIF, AVIF, BMP, or TIFF image"
+)
+
+
+def _register_mobile_image_decoders() -> None:
+    """Register optional libheif-backed Pillow decoders when installed."""
+
+    try:
+        import pillow_heif
+    except ImportError:
+        return
+
+    pillow_heif.register_heif_opener()
+    register_avif = getattr(pillow_heif, "register_avif_opener", None)
+    if register_avif is not None:
+        register_avif()
+
+
+_register_mobile_image_decoders()
 
 
 @dataclass(frozen=True)
@@ -67,18 +101,6 @@ class ClamAVMalwareScanner:
 
 
 class UploadValidator:
-    _magic_types = (
-        (b"\xff\xd8\xff", "image/jpeg", ".jpg"),
-        (b"\x89PNG\r\n\x1a\n", "image/png", ".png"),
-        (b"RIFF", "image/webp", ".webp"),
-    )
-
-    _pil_types = {
-        "JPEG": ("image/jpeg", ".jpg"),
-        "PNG": ("image/png", ".png"),
-        "WEBP": ("image/webp", ".webp"),
-    }
-
     def __init__(self, scanner: MalwareScanner | None = None) -> None:
         self._settings = get_settings()
         self._scanner = scanner or self._default_scanner()
@@ -91,56 +113,79 @@ class UploadValidator:
         if len(content) > max_size:
             raise ImageValidationError(f"Image is too large. Maximum allowed size is {max_size // (1024 * 1024)} MB")
 
-        magic_content_type, magic_ext = self._detect_magic(content)
-        if magic_content_type is None:
-            raise ImageValidationError("Unsupported image format. Please upload a JPEG, PNG, or WebP image")
-
-        if magic_content_type == "image/webp" and content[8:12] != b"WEBP":
-            raise ImageValidationError("Invalid WebP image signature")
-
+        # Scan the original bytes, but never persist them. The decoded pixels
+        # are re-encoded below so metadata, polyglot trailers, misleading
+        # extensions, and unsupported provider MIME types cannot reach storage
+        # or OCR.
         self._scanner.scan(content)
 
         try:
-            with Image.open(io.BytesIO(content)) as image:
-                image.verify()
-            with Image.open(io.BytesIO(content)) as image:
-                image_format = image.format or ""
-                width, height = image.size
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", Image.DecompressionBombWarning)
+                with Image.open(io.BytesIO(content)) as image:
+                    image_format = (image.format or "").upper()
+                    if image_format not in _SUPPORTED_SOURCE_FORMATS:
+                        raise ImageValidationError(_SUPPORTED_FORMAT_MESSAGE)
+
+                    width, height = image.size
+                    if width <= 0 or height <= 0:
+                        raise ImageValidationError("Image dimensions are invalid")
+                    if width * height > self._settings.upload_max_pixels:
+                        raise ImageValidationError(
+                            "Image resolution is too large. Please upload a smaller image"
+                        )
+
+                    # load() forces the decoder to validate the complete image,
+                    # rather than accepting only a plausible header.
+                    image.seek(0)
+                    image.load()
+                    canonical_image = self._to_rgb(ImageOps.exif_transpose(image))
+                    try:
+                        canonical_content = self._encode_jpeg(canonical_image)
+                    finally:
+                        canonical_image.close()
         except (
             UnidentifiedImageError,
             OSError,
             Image.DecompressionBombError,
+            Image.DecompressionBombWarning,
         ) as exc:
             raise ImageValidationError("Uploaded file is not a readable image") from exc
 
-        if image_format not in self._pil_types:
-            raise ImageValidationError("Unsupported image format. Please upload a JPEG, PNG, or WebP image")
-
-        pil_content_type, pil_ext = self._pil_types[image_format]
-        if pil_content_type != magic_content_type:
-            raise ImageValidationError("Image header does not match the encoded image format")
-
-        if width <= 0 or height <= 0:
-            raise ImageValidationError("Image dimensions are invalid")
-
-        if width * height > self._settings.upload_max_pixels:
-            raise ImageValidationError("Image resolution is too large. Please upload a smaller image")
-
-        safe_name = self._safe_filename(filename, pil_ext)
+        safe_name = self._safe_filename(filename, ".jpg")
         return ValidatedUpload(
-            content=content,
-            content_type=pil_content_type,
+            content=canonical_content,
+            content_type="image/jpeg",
             filename=safe_name,
             width=width,
             height=height,
-            format=image_format,
+            format="JPEG",
         )
 
-    def _detect_magic(self, content: bytes) -> tuple[str | None, str | None]:
-        for signature, content_type, extension in self._magic_types:
-            if content.startswith(signature):
-                return content_type, extension
-        return None, None
+    @staticmethod
+    def _to_rgb(image: Image.Image) -> Image.Image:
+        if image.mode in {"RGBA", "LA"} or (
+            image.mode == "P" and "transparency" in image.info
+        ):
+            rgba = image.convert("RGBA")
+            background = Image.new("RGBA", rgba.size, "white")
+            composited = Image.alpha_composite(background, rgba).convert("RGB")
+            rgba.close()
+            background.close()
+            return composited
+        return image.convert("RGB")
+
+    @staticmethod
+    def _encode_jpeg(image: Image.Image) -> bytes:
+        output = io.BytesIO()
+        image.save(
+            output,
+            format="JPEG",
+            quality=94,
+            optimize=True,
+            progressive=True,
+        )
+        return output.getvalue()
 
     def _safe_filename(self, filename: str | None, extension: str) -> str:
         original = Path(filename or "passport").name
