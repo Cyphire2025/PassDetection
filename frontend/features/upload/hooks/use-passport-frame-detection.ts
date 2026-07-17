@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { detectPassportFrame } from "../services/passport-frame-detector";
+import { detectPassportFrame, type PassportPageSide } from "../services/passport-frame-detector";
 
 const ANALYSIS_INTERVAL_MS = 180;
 // A document must remain fully inside the guide for ~0.72 seconds before the
@@ -11,6 +11,7 @@ interface UsePassportFrameDetectionOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   enabled: boolean;
+  pageSide?: PassportPageSide;
 }
 
 /** Keeps frame analysis and stability rules outside the camera UI. */
@@ -18,6 +19,7 @@ export function usePassportFrameDetection({
   videoRef,
   canvasRef,
   enabled,
+  pageSide = "front",
 }: UsePassportFrameDetectionOptions) {
   const [isDetected, setIsDetected] = useState(false);
   const stableFramesRef = useRef(0);
@@ -30,7 +32,7 @@ export function usePassportFrameDetection({
 
     const interval = window.setInterval(() => {
       if (!videoRef.current || !canvasRef.current) return;
-      const result = detectPassportFrame(videoRef.current, canvasRef.current);
+      const result = detectPassportFrame(videoRef.current, canvasRef.current, pageSide);
       const reliablyDetected = result.isDetected && result.confidence >= 0.64;
       stableFramesRef.current = reliablyDetected
         ? Math.min(REQUIRED_STABLE_FRAMES, stableFramesRef.current + 1)
@@ -39,7 +41,7 @@ export function usePassportFrameDetection({
     }, ANALYSIS_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
-  }, [canvasRef, enabled, videoRef]);
+  }, [canvasRef, enabled, pageSide, videoRef]);
 
   return { isDetected: enabled && isDetected };
 }

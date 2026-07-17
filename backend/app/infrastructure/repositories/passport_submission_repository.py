@@ -9,11 +9,17 @@ from __future__ import annotations
 import uuid
 
 from sqlalchemy import and_, case, delete, func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission, User
+from app.domain.entities.entities import (
+    PassportExtractionStatus,
+    PassportProcessingStatus,
+    PassportSubmission,
+    User,
+)
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import (
     IPassportSubmissionRepository,
@@ -44,6 +50,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             client_email=model.client_email,
             client_phone=model.client_phone,
             departure_city=model.departure_city,
+            nearest_domestic_airport=model.nearest_domestic_airport,
             submission_mode=model.submission_mode,
             family_group_id=model.family_group_id,
             family_member_index=model.family_member_index,
@@ -57,6 +64,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             thumbnail_s3_key=model.thumbnail_s3_key,
             passport_photo_s3_key=model.passport_photo_s3_key,
             passport_back_s3_key=model.passport_back_s3_key,
+            acquisition_mode=model.acquisition_mode,
+            upload_idempotency_key=model.upload_idempotency_key,
+            extraction_status=PassportExtractionStatus(model.extraction_status),
+            extraction_revision=model.extraction_revision,
             staff_metadata=model.staff_metadata,
             status=PassportProcessingStatus(model.status),
             extracted_fields=model.extracted_fields,
@@ -81,6 +92,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             client_email=entity.client_email,
             client_phone=entity.client_phone,
             departure_city=entity.departure_city,
+            nearest_domestic_airport=entity.nearest_domestic_airport,
             submission_mode=entity.submission_mode,
             family_group_id=entity.family_group_id,
             family_member_index=entity.family_member_index,
@@ -94,6 +106,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             thumbnail_s3_key=entity.thumbnail_s3_key,
             passport_photo_s3_key=entity.passport_photo_s3_key,
             passport_back_s3_key=entity.passport_back_s3_key,
+            acquisition_mode=entity.acquisition_mode,
+            upload_idempotency_key=entity.upload_idempotency_key,
+            extraction_status=entity.extraction_status.value,
+            extraction_revision=entity.extraction_revision,
             staff_metadata=entity.staff_metadata,
             status=entity.status.value,
             extracted_fields=entity.extracted_fields,
@@ -115,6 +131,32 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
+    async def get_by_upload_idempotency_key(
+        self,
+        group_id: uuid.UUID,
+        upload_idempotency_key: str,
+    ) -> PassportSubmission | None:
+        result = await self._session.execute(
+            select(PassportSubmissionModel).where(
+                PassportSubmissionModel.group_id == group_id,
+                PassportSubmissionModel.upload_idempotency_key == upload_idempotency_key,
+            )
+        )
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
+    async def get_by_id_for_update(
+        self,
+        submission_id: uuid.UUID,
+    ) -> PassportSubmission | None:
+        result = await self._session.execute(
+            select(PassportSubmissionModel)
+            .where(PassportSubmissionModel.id == submission_id)
+            .with_for_update()
+        )
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
     async def save(self, submission: PassportSubmission) -> PassportSubmission:
         model = self._to_model(submission)
         self._session.add(model)
@@ -122,9 +164,43 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         logger.info(
             "passport_submission_created",
             submission_id=str(submission.id),
-            client_email=submission.client_email,
+            group_id=str(submission.group_id),
+            agency_id=str(submission.agency_id),
         )
         return submission
+
+    async def save_idempotent(
+        self,
+        submission: PassportSubmission,
+    ) -> tuple[PassportSubmission, bool]:
+        if not submission.upload_idempotency_key:
+            return await self.save(submission), True
+
+        model = self._to_model(submission)
+        try:
+            async with self._session.begin_nested():
+                self._session.add(model)
+                await self._session.flush()
+        except IntegrityError:
+            existing = await self.get_by_upload_idempotency_key(
+                submission.group_id,
+                submission.upload_idempotency_key,
+            )
+            if existing is None:
+                raise
+            logger.info(
+                "passport_submission_idempotency_collision_resolved",
+                submission_id=str(existing.id),
+                group_id=str(existing.group_id),
+            )
+            return existing, False
+        logger.info(
+            "passport_submission_created",
+            submission_id=str(submission.id),
+            group_id=str(submission.group_id),
+            agency_id=str(submission.agency_id),
+        )
+        return submission, True
 
     async def update(self, submission: PassportSubmission) -> PassportSubmission:
         result = await self._session.execute(
@@ -140,6 +216,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.client_email = submission.client_email
         model.client_phone = submission.client_phone
         model.departure_city = submission.departure_city
+        model.nearest_domestic_airport = submission.nearest_domestic_airport
         model.submission_mode = submission.submission_mode
         model.family_group_id = submission.family_group_id
         model.family_member_index = submission.family_member_index
@@ -153,6 +230,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.thumbnail_s3_key = submission.thumbnail_s3_key
         model.passport_photo_s3_key = submission.passport_photo_s3_key
         model.passport_back_s3_key = submission.passport_back_s3_key
+        model.acquisition_mode = submission.acquisition_mode
+        model.upload_idempotency_key = submission.upload_idempotency_key
+        model.extraction_status = submission.extraction_status.value
+        model.extraction_revision = submission.extraction_revision
         model.staff_metadata = submission.staff_metadata
         model.status = submission.status.value
         model.extracted_fields = submission.extracted_fields
@@ -167,6 +248,83 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
 
         await self._session.flush()
         return submission
+
+    async def apply_extraction_result(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        extracted_fields: dict,
+        confidence: float,
+        confidence_score: dict | None,
+        mrz_raw: str | None,
+    ) -> PassportSubmission | None:
+        result = await self._session.execute(
+            select(PassportSubmissionModel)
+            .where(
+                PassportSubmissionModel.id == submission_id,
+                PassportSubmissionModel.extraction_revision == expected_revision,
+            )
+            .with_for_update()
+        )
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+        submission = self._to_entity(model)
+        if not submission.mark_review_required(
+            extracted_fields=extracted_fields,
+            confidence=confidence,
+            confidence_score=confidence_score,
+            mrz_raw=mrz_raw,
+            expected_revision=expected_revision,
+        ):
+            return None
+        self._apply_extraction_fields(model, submission)
+        await self._session.flush()
+        return submission
+
+    async def apply_extraction_failure(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        public_message: str,
+    ) -> PassportSubmission | None:
+        result = await self._session.execute(
+            select(PassportSubmissionModel)
+            .where(
+                PassportSubmissionModel.id == submission_id,
+                PassportSubmissionModel.extraction_revision == expected_revision,
+            )
+            .with_for_update()
+        )
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+        submission = self._to_entity(model)
+        if not submission.mark_extraction_failed(
+            public_message,
+            expected_revision=expected_revision,
+        ):
+            return None
+        self._apply_extraction_fields(model, submission)
+        await self._session.flush()
+        return submission
+
+    @staticmethod
+    def _apply_extraction_fields(
+        model: PassportSubmissionModel,
+        submission: PassportSubmission,
+    ) -> None:
+        model.status = submission.status.value
+        model.extraction_status = submission.extraction_status.value
+        model.extracted_fields = submission.extracted_fields
+        model.confirmed_fields = submission.confirmed_fields
+        model.overall_confidence = submission.overall_confidence
+        model.confidence_score = submission.confidence_score
+        model.mrz_raw = submission.mrz_raw
+        model.error_message = submission.error_message
+        model.updated_at = submission.updated_at
 
     async def delete(self, submission_id: uuid.UUID) -> None:
         await self._session.execute(
@@ -301,6 +459,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.staff_code_enabled.label("staff_code_enabled"),
                 ClientGroupModel.meal_preference_enabled.label("meal_preference_enabled"),
                 ClientGroupModel.require_selfie.label("require_selfie"),
+                ClientGroupModel.allow_files_from_device.label("allow_files_from_device"),
+                ClientGroupModel.ask_nearest_domestic_airport.label("ask_nearest_domestic_airport"),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value, 1), else_=0)
@@ -346,6 +506,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.staff_code_enabled,
                 ClientGroupModel.meal_preference_enabled,
                 ClientGroupModel.require_selfie,
+                ClientGroupModel.allow_files_from_device,
+                ClientGroupModel.ask_nearest_domestic_airport,
                 ClientGroupModel.created_at,
             )
             .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
@@ -373,6 +535,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 staff_code_enabled=row.staff_code_enabled,
                 meal_preference_enabled=row.meal_preference_enabled,
                 require_selfie=row.require_selfie,
+                allow_files_from_device=row.allow_files_from_device,
+                ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
                 notes=row.notes,
             )
             for row in result.all()

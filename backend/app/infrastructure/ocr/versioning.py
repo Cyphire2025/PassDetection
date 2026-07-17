@@ -10,6 +10,6 @@ INDIAN_TD3_DOCUMENT_PROFILE = {
 }
 
 PIPELINE_VERSION = "indian-td3-mrz-detector-pipeline-v2-2026-07-01"
-OCR_LOGIC_VERSION = "indian-td3-standard-first-fallback-reconcile-v13-2026-07-02"
+OCR_LOGIC_VERSION = "indian-td3-standard-first-fallback-reconcile-v14-2026-07-17"
 CONFIDENCE_VERSION = "weighted-signal-v2"
 CACHE_VERSION = "ocr-cache-v2"

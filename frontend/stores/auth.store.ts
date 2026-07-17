@@ -7,16 +7,29 @@
 
 import { create } from "zustand";
 import type { User } from "@/types";
+import {
+  clearServerSessionCookies,
+  clearSensitiveBrowserState,
+  prepareSensitiveBrowserStateForUser,
+  type SensitiveStateResetReason,
+} from "@/features/auth/services/session-state";
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   hasHydrated: boolean;
+  sessionVersion: number;
 }
 
 interface AuthActions {
   setSession: (user: User) => void;
-  clearSession: () => void;
+  clearSession: (
+    reason?: SensitiveStateResetReason,
+    options?: {
+      notifyOtherTabs?: boolean;
+      revokeServerSession?: boolean;
+    },
+  ) => Promise<void>;
   markHydrated: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -25,20 +38,54 @@ const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   hasHydrated: false,
+  sessionVersion: 0,
 };
 
 export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
   ...initialState,
 
-  setSession: (user) => set({ user, isAuthenticated: true, hasHydrated: true }),
+  setSession: (user) => {
+    prepareSensitiveBrowserStateForUser(user.id);
+    set((state) => ({
+      user,
+      isAuthenticated: true,
+      hasHydrated: true,
+      sessionVersion: state.sessionVersion + 1,
+    }));
+  },
 
-  clearSession: () => set({ ...initialState, hasHydrated: true }),
+  clearSession: async (
+    reason = "logout",
+    {
+      notifyOtherTabs = true,
+      revokeServerSession = true,
+    } = {},
+  ) => {
+    set((state) => ({
+      user: null,
+      isAuthenticated: false,
+      hasHydrated: true,
+      sessionVersion: state.sessionVersion + 1,
+    }));
+    await Promise.all([
+      revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),
+      clearSensitiveBrowserState(reason, notifyOtherTabs),
+    ]);
+
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+      const destination = reason === "session_expired"
+        ? "/login?reason=session_expired"
+        : "/login";
+      window.location.replace(destination);
+    }
+  },
 
   markHydrated: () => set({ hasHydrated: true }),
 
   updateUser: (partial) => {
     const current = get().user;
     if (!current) return;
+    if (partial.id && partial.id !== current.id) return;
     set({ user: { ...current, ...partial } });
   },
 }));

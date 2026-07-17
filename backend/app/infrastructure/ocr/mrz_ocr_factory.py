@@ -9,11 +9,10 @@ from app.infrastructure.ocr.mrz_ocr import ICAOTD3MRZOCR
 from app.infrastructure.ocr.mrz_ocr_base import MRZOCRReader
 
 
-@lru_cache(maxsize=1)
-def _tesseract_reader() -> ICAOTD3MRZOCR:
-    return ICAOTD3MRZOCR()
+@lru_cache(maxsize=4)
+def _tesseract_reader(timeout_seconds: float) -> ICAOTD3MRZOCR:
+    return ICAOTD3MRZOCR(timeout_seconds=timeout_seconds)
 
 
 def build_mrz_ocr_reader(settings: MRZSettings) -> MRZOCRReader:
-    _ = settings
-    return _tesseract_reader()
+    return _tesseract_reader(settings.timeout_seconds)

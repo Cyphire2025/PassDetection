@@ -1,140 +1,78 @@
-"""Rerun extraction for a public upload without creating a new submission."""
+"""Queue OCR again for an already-persisted public passport image."""
 
 from __future__ import annotations
 
 import uuid
 
-from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
-from app.application.interfaces.passport_extraction import IPassportExtractionService
-from app.application.interfaces.passport_verification import IPassportVerificationService
-from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
+from app.application.dtos.passport_dtos import (
+    PassportSubmissionOutputDTO,
+    passport_submission_output_from_entity,
+)
+from app.core.config.settings import get_settings
 from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
-    IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
+from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 
 class RetryPublicPassportExtractionUseCase:
-    """Refreshes automatic MRZ extraction on the stored passport image."""
+    """Create one retryable extraction job without re-uploading either page."""
 
     def __init__(
         self,
         *,
         passport_repo: IPassportSubmissionRepository,
         client_group_repo: IClientGroupRepository,
-        storage_repo: IObjectStorageRepository,
-        extraction_service: IPassportExtractionService,
-        verification_service: IPassportVerificationService | None = None,
+        processing_job_repo: PassportProcessingJobRepository,
     ) -> None:
         self._passport_repo = passport_repo
         self._client_group_repo = client_group_repo
-        self._storage_repo = storage_repo
-        self._extraction_service = extraction_service
-        self._verification_service = verification_service
+        self._processing_job_repo = processing_job_repo
 
-    async def execute(self, *, token: str, submission_id: uuid.UUID) -> PassportSubmissionOutputDTO:
+    async def execute(
+        self,
+        *,
+        token: str,
+        submission_id: uuid.UUID,
+    ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(token)
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
 
-        submission = await self._passport_repo.get_by_id(submission_id)
+        submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission or submission.group_id != group.id:
             raise EntityNotFoundError("PassportSubmission", submission_id)
-        if submission.status == PassportProcessingStatus.CLIENT_SUBMITTED:
-            raise ValidationError("Passport details were already submitted.", field="submission_id")
-
-        image = await self._storage_repo.get_file(submission.image_s3_key)
-        extraction = await self._extraction_service.extract(
-            image,
-            filename=submission.image_s3_key.rsplit("/", 1)[-1],
-            content_type="image/jpeg",
-        )
-        verified_fields = await verify_passport_fields(
-            self._verification_service,
-            image_content=image,
-            content_type="image/jpeg",
-            extracted_fields=extraction.extracted_fields,
-        )
-
-        merged_fields = self._merge_missing_fields(
-            current=submission.extracted_fields or {},
-            refreshed=verified_fields,
-        )
-        submission.mark_review_required(
-            extracted_fields=merged_fields,
-            confidence=extraction.overall_confidence,
-            confidence_score=extraction.confidence_score,
-            mrz_raw=extraction.mrz_raw,
-        )
-        await self._passport_repo.update(submission)
-        return self._to_dto(submission)
-
-    @staticmethod
-    def _merge_missing_fields(*, current: dict, refreshed: dict) -> dict:
-        merged = dict(current)
-        verification = refreshed.get("ai_verification")
-        corrected_fields = {
-            field
-            for field in (
-                verification.get("corrected_fields", [])
-                if isinstance(verification, dict)
-                else []
+        if submission.status in {
+            PassportProcessingStatus.CLIENT_SUBMITTED,
+            PassportProcessingStatus.CONFIRMED,
+        }:
+            raise ValidationError(
+                "Passport details were already submitted.",
+                field="submission_id",
             )
-            if isinstance(field, str)
-        }
-        validation_keys = {
-            "field_validation",
-            "extraction_sources",
-            "raw_mrz_ocr_text",
-            "corrected_mrz_text",
-            "field_provenance",
-            "processing_note",
-            "ai_verification",
-        }
-        for key, value in refreshed.items():
-            if key in validation_keys:
-                merged[key] = value
-            elif key in corrected_fields and value:
-                merged[key] = value
-            elif value and not merged.get(key):
-                merged[key] = value
-        return merged
 
-    @staticmethod
-    def _to_dto(submission) -> PassportSubmissionOutputDTO:  # type: ignore[no-untyped-def]
-        return PassportSubmissionOutputDTO(
-            id=submission.id,
-            group_id=submission.group_id,
-            agency_id=submission.agency_id,
-            client_name=submission.client_name,
-            client_email=submission.client_email,
-            client_phone=submission.client_phone,
-            departure_city=submission.departure_city,
-            submission_mode=submission.submission_mode,
-            family_group_id=submission.family_group_id,
-            family_member_index=submission.family_member_index,
-            family_relation=submission.family_relation,
-            family_gender=submission.family_gender,
-            family_head_name=submission.family_head_name,
-            family_head_email=submission.family_head_email,
-            family_head_phone=submission.family_head_phone,
-            family_broadcast_to_member=submission.family_broadcast_to_member,
-            image_s3_key=submission.image_s3_key,
-            thumbnail_s3_key=submission.thumbnail_s3_key,
-            passport_photo_s3_key=submission.passport_photo_s3_key,
-            passport_back_s3_key=submission.passport_back_s3_key,
-            status=submission.status.value,
-            created_at=submission.created_at,
-            updated_at=submission.updated_at,
-            extracted_fields=submission.extracted_fields,
-            confirmed_fields=submission.confirmed_fields,
-            overall_confidence=submission.overall_confidence,
-            confidence_score=submission.confidence_score,
-            mrz_raw=submission.mrz_raw,
-            error_message=submission.error_message,
-            client_reviewed_at=submission.client_reviewed_at,
-            confirmed_at=submission.confirmed_at,
+        active_job = await self._processing_job_repo.active_for_submission(
+            submission.id,
+            extraction_revision=submission.extraction_revision,
         )
+        if active_job and active_job.status in {
+            ProcessingJobStatus.QUEUED,
+            ProcessingJobStatus.RUNNING,
+        }:
+            return passport_submission_output_from_entity(
+                submission,
+                job=active_job if active_job.status == ProcessingJobStatus.QUEUED else None,
+            )
+
+        extraction_revision = submission.mark_processing()
+        await self._passport_repo.update(submission)
+        job = await self._processing_job_repo.create(
+            submission_id=submission.id,
+            extraction_revision=extraction_revision,
+            max_attempts=get_settings().processing_job_max_attempts,
+        )
+        return passport_submission_output_from_entity(submission, job=job)

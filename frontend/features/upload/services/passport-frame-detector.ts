@@ -6,6 +6,8 @@ export interface FrameDetectionResult {
   visibleEdges: number;
 }
 
+export type PassportPageSide = "front" | "back";
+
 const SAMPLE_WIDTH = 320;
 const SAMPLE_HEIGHT = 200;
 const EDGE_THRESHOLD = 30;
@@ -18,6 +20,7 @@ const EDGE_THRESHOLD = 30;
 export function detectPassportFrame(
   video: HTMLVideoElement,
   canvas: HTMLCanvasElement,
+  pageSide: PassportPageSide = "front",
 ): FrameDetectionResult {
   if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth) {
     return { isDetected: false, confidence: 0, visibleEdges: 0 };
@@ -103,18 +106,28 @@ export function detectPassportFrame(
   const exposureConfidence = guideStats.brightness > 0.32 && guideStats.brightness < 0.9 ? 1 : 0.5;
   const confidence = Math.min(
     1,
-    (fillConfidence * 0.34)
-      + (textConfidence * 0.28)
-      + (mrzConfidence * 0.26)
-      + (boundaryConfidence * 0.07)
-      + (exposureConfidence * 0.05),
+    pageSide === "front"
+      ? (fillConfidence * 0.34)
+        + (textConfidence * 0.28)
+        + (mrzConfidence * 0.26)
+        + (boundaryConfidence * 0.07)
+        + (exposureConfidence * 0.05)
+      : (fillConfidence * 0.39)
+        + (textConfidence * 0.34)
+        + (boundaryConfidence * 0.22)
+        + (exposureConfidence * 0.05),
   );
 
   return {
-    isDetected: guideStats.brightRatio >= 0.62
-      && guideStats.textureRatio >= 0.08
-      && guideStats.mrzTextureRatio >= 0.014
-      && confidence >= 0.68,
+    isDetected: pageSide === "front"
+      ? guideStats.brightRatio >= 0.62
+        && guideStats.textureRatio >= 0.08
+        && guideStats.mrzTextureRatio >= 0.014
+        && confidence >= 0.68
+      : guideStats.brightRatio >= 0.55
+        && guideStats.textureRatio >= 0.055
+        && visibleEdges >= 2
+        && confidence >= 0.61,
     confidence,
     visibleEdges,
   };

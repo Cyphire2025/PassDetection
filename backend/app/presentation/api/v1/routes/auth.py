@@ -12,7 +12,8 @@ All business logic lives in use cases — routes only:
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +25,7 @@ from app.application.use_cases.auth.logout_use_case import LogoutUseCase
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User
+from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from app.infrastructure.repositories.user_repository import UserRepository
@@ -101,7 +103,7 @@ async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     use_case: LoginUseCase = Depends(_get_login_use_case),
-) -> AuthResponse:
+) -> AuthResponse | Response:
     """
     OAuth2 Password Flow login.
 
@@ -132,16 +134,34 @@ async def refresh_token(
     response: Response,
     body: RefreshTokenRequest | None = None,
     use_case: RefreshTokenUseCase = Depends(_get_refresh_use_case),
-) -> AuthResponse:
+) -> AuthResponse | Response:
     client_ip = request.client.host if request.client else None
     refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
     refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
     if not refresh_value:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
-    result = await use_case.execute(
-        dto=RefreshTokenInputDTO(refresh_token=refresh_value),
-        client_ip=client_ip,
-    )
+        error_response = JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={
+                "error": {
+                    "code": "AUTHENTICATION_ERROR",
+                    "message": "Refresh token missing",
+                }
+            },
+        )
+        clear_auth_cookies(error_response)
+        return error_response
+    try:
+        result = await use_case.execute(
+            dto=RefreshTokenInputDTO(refresh_token=refresh_value),
+            client_ip=client_ip,
+        )
+    except AuthenticationError as exc:
+        error_response = JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={"error": {"code": exc.code, "message": exc.message}},
+        )
+        clear_auth_cookies(error_response)
+        return error_response
     set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(
         user=UserResponse.model_validate(result.user.__dict__),

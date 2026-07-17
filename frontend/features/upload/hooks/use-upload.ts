@@ -9,13 +9,28 @@ export function useUploadPassport() {
       file,
       passportPhotoFile,
       passportBackFile,
+      acquisitionMode,
+      uploadIdempotencyKey,
+      signal,
     }: {
       token: string;
       client_name: string;
       file: File;
       passportBackFile: File;
+      acquisitionMode: "camera" | "file";
+      uploadIdempotencyKey: string;
       passportPhotoFile?: File | null;
-    }) => uploadApi.uploadPassport(token, client_name, file, passportBackFile, passportPhotoFile),
+      signal?: AbortSignal;
+    }) => uploadApi.uploadPassport(
+      token,
+      client_name,
+      file,
+      passportBackFile,
+      acquisitionMode,
+      uploadIdempotencyKey,
+      passportPhotoFile,
+      signal,
+    ),
   });
 }
 
@@ -29,6 +44,7 @@ export function useSubmitClientPassportReview() {
       client_phone,
       departure_city,
       base_city,
+      nearest_domestic_airport,
       staff_code,
       meal_preference,
       submission_mode,
@@ -47,6 +63,7 @@ export function useSubmitClientPassportReview() {
       client_phone?: string | null;
       departure_city?: string | null;
       base_city?: string | null;
+      nearest_domestic_airport?: string | null;
       staff_code?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";
@@ -65,6 +82,7 @@ export function useSubmitClientPassportReview() {
         client_phone,
         departure_city,
         base_city,
+        nearest_domestic_airport,
         staff_code,
         meal_preference,
         submission_mode,

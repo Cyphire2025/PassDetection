@@ -25,6 +25,7 @@ class PassportProcessingJob:
     status: ProcessingJobStatus
     attempts: int
     max_attempts: int
+    extraction_revision: int
     progress: float
     current_stage: str | None
     error_message: str | None
@@ -38,4 +39,3 @@ class PassportProcessingJob:
     @property
     def can_retry(self) -> bool:
         return self.attempts < self.max_attempts
-

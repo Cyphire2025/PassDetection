@@ -27,6 +27,7 @@ class PassportExcelExporter:
         "Email",
         "Phone",
         "Nearest International Airport",
+        "Nearest Domestic Airport",
         "Base City",
         "Staff Code",
         "Meal Preference",
@@ -37,6 +38,7 @@ class PassportExcelExporter:
         "Nationality",
         "Issuing Country",
         "Date of Birth",
+        "Date of Issue",
         "Date of Expiry",
         "Sex",
         "Confidence",
@@ -83,6 +85,7 @@ class PassportExcelExporter:
                     submission.client_email,
                     submission.client_phone,
                     submission.departure_city,
+                    submission.nearest_domestic_airport,
                     fields.get("base_city"),
                     fields.get("staff_code"),
                     fields.get("meal_preference"),
@@ -93,6 +96,7 @@ class PassportExcelExporter:
                     fields.get("nationality"),
                     fields.get("issuing_country"),
                     fields.get("date_of_birth"),
+                    fields.get("date_of_issue"),
                     fields.get("date_of_expiry"),
                     fields.get("sex"),
                     submission.overall_confidence,
@@ -114,7 +118,10 @@ class PassportExcelExporter:
             )
             worksheet.add_table(table)
 
-        widths = [24, 22, 16, 16, 24, 28, 18, 28, 20, 18, 18, 18, 20, 24, 20, 16, 18, 16, 16, 10, 14, 28, 28]
+        widths = [
+            24, 22, 16, 16, 24, 28, 18, 28, 26, 20, 18, 18, 18,
+            20, 24, 20, 16, 18, 16, 16, 16, 10, 14, 28, 28,
+        ]
         for index, width in enumerate(widths, start=1):
             worksheet.column_dimensions[worksheet.cell(row=4, column=index).column_letter].width = width
 

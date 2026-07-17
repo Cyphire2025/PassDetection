@@ -8,7 +8,7 @@ from __future__ import annotations
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def _normalize_departure_cities(values: list[str] | None) -> list[str]:
@@ -29,6 +29,8 @@ def _normalize_departure_cities(values: list[str] | None) -> list[str]:
 
 
 class CreateClientGroupRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     name: str = Field(..., min_length=1, max_length=100)
     destination: str | None = Field(default=None, max_length=255)
     travel_date: date | None = None
@@ -40,6 +42,8 @@ class CreateClientGroupRequest(BaseModel):
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
@@ -53,10 +57,14 @@ class CreateClientGroupRequest(BaseModel):
             raise ValueError("Add at least one nearest international airport when the option is enabled.")
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
+        if self.travel_date and self.return_date and self.return_date < self.travel_date:
+            raise ValueError("Return date cannot be before the travel date.")
         return self
 
 
 class UpdateClientGroupRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
     name: str = Field(..., min_length=1, max_length=100)
     destination: str | None = Field(default=None, max_length=255)
     travel_date: date | None = None
@@ -68,6 +76,8 @@ class UpdateClientGroupRequest(BaseModel):
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
@@ -81,6 +91,8 @@ class UpdateClientGroupRequest(BaseModel):
             raise ValueError("Add at least one nearest international airport when the option is enabled.")
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
+        if self.travel_date and self.return_date and self.return_date < self.travel_date:
+            raise ValueError("Return date cannot be before the travel date.")
         return self
 
 
@@ -103,6 +115,8 @@ class ClientGroupResponse(BaseModel):
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0

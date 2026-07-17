@@ -1,17 +1,15 @@
-"""
-Submit Passport Use Case
-========================
-"""
+"""Persist public passport images and enqueue extraction as separate stages."""
 
 from __future__ import annotations
 
+import asyncio
 import mimetypes
 import uuid
 
-from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
-from app.application.interfaces.passport_extraction import IPassportExtractionService
-from app.application.interfaces.passport_verification import IPassportVerificationService
-from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
+from app.application.dtos.passport_dtos import (
+    PassportSubmissionOutputDTO,
+    passport_submission_output_from_entity,
+)
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportSubmission
@@ -19,6 +17,7 @@ from app.domain.exceptions.exceptions import (
     EntityNotFoundError,
     GroupClosedError,
     PassDetectionError,
+    StorageError,
     ValidationError,
 )
 from app.domain.repositories.interfaces import (
@@ -26,34 +25,26 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
-from app.infrastructure.ocr.passport_back_extraction_service import (
-    PassportBackPageExtractionService,
-)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
+from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 logger = get_logger(__name__)
 
 
 class SubmitPassportUseCase:
-    """Handles client passport image upload via secure link."""
+    """Save every required image before scheduling best-effort OCR."""
 
     def __init__(
         self,
         client_group_repo: IClientGroupRepository,
         passport_repo: IPassportSubmissionRepository,
         storage_repo: IObjectStorageRepository,
-        extraction_service: IPassportExtractionService | None = None,
         processing_job_repo: PassportProcessingJobRepository | None = None,
-        back_extraction_service: PassportBackPageExtractionService | None = None,
-        verification_service: IPassportVerificationService | None = None,
     ) -> None:
         self._client_group_repo = client_group_repo
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
-        self._extraction_service = extraction_service
         self._processing_job_repo = processing_job_repo
-        self._back_extraction_service = back_extraction_service or PassportBackPageExtractionService()
-        self._verification_service = verification_service
 
     async def execute(
         self,
@@ -64,165 +55,207 @@ class SubmitPassportUseCase:
         client_name: str,
         passport_photo: tuple[bytes, str, str] | None = None,
         passport_back: tuple[bytes, str, str] | None = None,
+        *,
+        acquisition_mode: str = "file",
+        upload_idempotency_key: str | None = None,
     ) -> PassportSubmissionOutputDTO:
-        # 1. Validate the link
         group = await self._client_group_repo.get_by_token(token)
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
 
+        normalized_key = upload_idempotency_key.strip() if upload_idempotency_key else None
+        if normalized_key:
+            existing = await self._passport_repo.get_by_upload_idempotency_key(
+                group.id,
+                normalized_key,
+            )
+            if existing:
+                queued_job = None
+                if self._processing_job_repo is not None:
+                    active_job = await self._processing_job_repo.active_for_submission(
+                        existing.id,
+                        extraction_revision=existing.extraction_revision,
+                    )
+                    if active_job and active_job.status == ProcessingJobStatus.QUEUED:
+                        # A process may have stopped after the durable commit
+                        # but before dispatch. Re-delivery of the same queued
+                        # job is safe because workers claim it atomically.
+                        queued_job = active_job
+                logger.info(
+                    "passport_upload_idempotent_replay",
+                    submission_id=str(existing.id),
+                    group_id=str(group.id),
+                    agency_id=str(group.agency_id),
+                )
+                # Returning without a dispatchable job prevents a replayed
+                # request from starting the same OCR job a second time. The
+                # response layer still attaches the latest job for polling.
+                return passport_submission_output_from_entity(
+                    existing,
+                    job=queued_job,
+                )
+
         if not group.is_active():
             raise GroupClosedError()
 
+        acquisition_mode = group.require_allowed_acquisition_mode(acquisition_mode)
         if not file_content:
             raise ValidationError("Passport front image is required.", field="file")
         if not passport_back or not passport_back[0]:
             raise ValidationError("Passport back image is required.", field="passport_back_file")
         if group.require_selfie and (not passport_photo or not passport_photo[0]):
-            raise ValidationError("VISA selfie photo is required for this group.", field="passport_photo_file")
-
-        # 2. Upload image to Object Storage
-        ext = mimetypes.guess_extension(content_type) or ".jpg"
-        unique_id = uuid.uuid4()
-        # Draft images are isolated from permanent passport storage until the
-        # client explicitly submits the reviewed details.
-        s3_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}{ext}"
-
-        await self._storage_repo.upload_file(
-            file_content=file_content,
-            file_name=s3_key,
-            content_type=content_type,
-        )
-
-        # 3. Create PassportSubmission entity
-        submission = PassportSubmission.create(
-            group_id=group.id,
-            agency_id=group.agency_id,
-            client_name=client_name,
-            client_email=None,
-            image_s3_key=s3_key,
-        )
-        for document_type, upload in (("photo", passport_photo), ("back", passport_back)):
-            if not upload:
-                continue
-            upload_content, upload_content_type, _upload_filename = upload
-            upload_ext = mimetypes.guess_extension(upload_content_type) or ".jpg"
-            upload_key = f"drafts/{group.agency_id}/{group.id}/{unique_id}-{document_type}{upload_ext}"
-            await self._storage_repo.upload_file(
-                file_content=upload_content,
-                file_name=upload_key,
-                content_type=upload_content_type,
+            raise ValidationError(
+                "VISA selfie photo is required for this group.",
+                field="passport_photo_file",
             )
-            if document_type == "photo":
-                submission.promote_passport_photo(upload_key)
-            else:
-                submission.promote_passport_back(upload_key)
 
-        # 4. Save submission and run the MRZ-only extraction inline. Public
-        # uploads should not depend on Celery health for the review screen.
-        await self._passport_repo.save(submission)
+        unique_id = uuid.uuid4()
+        uploaded_keys: list[str] = []
+        try:
+            front_key = self._draft_key(
+                agency_id=group.agency_id,
+                group_id=group.id,
+                unique_id=unique_id,
+                document_type=None,
+                content_type=content_type,
+            )
+            upload_specs: list[tuple[str | None, bytes, str, str]] = [
+                (None, file_content, content_type, front_key),
+            ]
+            for document_type, upload in (("back", passport_back), ("photo", passport_photo)):
+                if not upload:
+                    continue
+                upload_content, upload_content_type, _upload_filename = upload
+                upload_specs.append(
+                    (
+                        document_type,
+                        upload_content,
+                        upload_content_type,
+                        self._draft_key(
+                            agency_id=group.agency_id,
+                            group_id=group.id,
+                            unique_id=unique_id,
+                            document_type=document_type,
+                            content_type=upload_content_type,
+                        ),
+                    )
+                )
+            # All keys are unique to this attempt and deleting a missing object
+            # is safe. Compensate every intended key because an S3 write may
+            # have succeeded even when its response timed out.
+            uploaded_keys = [upload_key for *_upload, upload_key in upload_specs]
 
-        submission.mark_processing()
-        await self._passport_repo.update(submission)
+            # The pages are independent objects. Persist them concurrently so
+            # the public request has one bounded S3 timeout window rather than
+            # multiplying that window by front/back/selfie.
+            upload_results = await asyncio.gather(
+                *[
+                    self._storage_repo.upload_file(
+                        file_content=upload_content,
+                        file_name=upload_key,
+                        content_type=upload_content_type,
+                    )
+                    for _document_type, upload_content, upload_content_type, upload_key
+                    in upload_specs
+                ],
+                return_exceptions=True,
+            )
+            upload_error = next(
+                (
+                    result
+                    for result in upload_results
+                    if isinstance(result, BaseException)
+                ),
+                None,
+            )
+            if upload_error:
+                raise upload_error
 
-        job = None
-        if self._extraction_service is not None:
-            try:
-                extraction = await self._extraction_service.extract(
-                    file_content,
-                    filename=validated_filename(filename, s3_key),
-                    content_type=content_type,
-                )
-                extracted_fields = await verify_passport_fields(
-                    self._verification_service,
-                    image_content=file_content,
-                    content_type=content_type,
-                    extracted_fields=extraction.extracted_fields,
-                )
-                if passport_back:
-                    back_result = await self._back_extraction_service.extract(passport_back[0])
-                    if back_result.fields.get("raw_text"):
-                        extracted_fields["passport_back"] = back_result.fields
-                submission.mark_review_required(
-                    extracted_fields=extracted_fields,
-                    confidence=extraction.overall_confidence,
-                    confidence_score=extraction.confidence_score,
-                    mrz_raw=extraction.mrz_raw,
-                )
-                await self._passport_repo.update(submission)
+            submission = PassportSubmission.create(
+                group_id=group.id,
+                agency_id=group.agency_id,
+                client_name=client_name,
+                client_email=None,
+                image_s3_key=front_key,
+                acquisition_mode=acquisition_mode,
+                upload_idempotency_key=normalized_key,
+            )
+            for stored_document_type, _content, _content_type, upload_key in upload_specs:
+                if stored_document_type is None:
+                    continue
+                if stored_document_type == "photo":
+                    submission.promote_passport_photo(upload_key)
+                else:
+                    # Back pages are persisted and displayed only. They are not
+                    # passed to any field extraction service.
+                    submission.promote_passport_back(upload_key)
+
+            submission, created = await self._passport_repo.save_idempotent(submission)
+            if not created:
+                await self._cleanup_uploads(uploaded_keys)
                 logger.info(
-                    "passport_public_upload_extracted_inline",
+                    "passport_upload_concurrent_replay_resolved",
                     submission_id=str(submission.id),
                     group_id=str(group.id),
                     agency_id=str(group.agency_id),
-                    confidence=extraction.overall_confidence,
                 )
-            except PassDetectionError as exc:
-                submission.mark_failed(exc.message)
-                await self._passport_repo.update(submission)
-                logger.warning(
-                    "passport_public_upload_inline_extraction_failed",
+                return passport_submission_output_from_entity(submission)
+            extraction_revision = submission.mark_processing()
+            await self._passport_repo.update(submission)
+
+            job = None
+            if self._processing_job_repo is not None:
+                job = await self._processing_job_repo.create(
+                    submission_id=submission.id,
+                    extraction_revision=extraction_revision,
+                    max_attempts=get_settings().processing_job_max_attempts,
+                )
+                logger.info(
+                    "passport_upload_persisted_and_extraction_queued",
                     submission_id=str(submission.id),
-                    error=exc.message,
+                    job_id=str(job.id),
+                    group_id=str(group.id),
+                    agency_id=str(group.agency_id),
+                    acquisition_mode=acquisition_mode,
                 )
-            except Exception as exc:
-                submission.mark_failed("Automatic passport extraction failed")
-                await self._passport_repo.update(submission)
-                logger.exception(
-                    "passport_public_upload_inline_extraction_unexpected_failed",
-                    submission_id=str(submission.id),
-                    error=str(exc),
-                )
-        elif self._processing_job_repo is not None:
-            job = await self._processing_job_repo.create(
-                submission_id=submission.id,
-                max_attempts=get_settings().processing_job_max_attempts,
-            )
-            logger.info(
-                "passport_processing_queued",
-                submission_id=str(submission.id),
-                job_id=str(job.id),
+
+            return passport_submission_output_from_entity(submission, job=job)
+        except PassDetectionError:
+            await self._cleanup_uploads(uploaded_keys)
+            raise
+        except Exception as exc:
+            await self._cleanup_uploads(uploaded_keys)
+            logger.exception(
+                "passport_upload_persistence_failed",
                 group_id=str(group.id),
                 agency_id=str(group.agency_id),
+                error_type=type(exc).__name__,
+            )
+            raise StorageError(
+                "Passport images could not be saved. Please try the upload again."
+            ) from exc
+
+    async def _cleanup_uploads(self, keys: list[str]) -> None:
+        if not keys:
+            return
+        try:
+            await self._storage_repo.delete_files(keys)
+        except Exception as exc:
+            logger.warning(
+                "passport_upload_compensation_failed",
+                object_count=len(keys),
+                error_type=type(exc).__name__,
             )
 
-        return PassportSubmissionOutputDTO(
-            id=submission.id,
-            group_id=submission.group_id,
-            agency_id=submission.agency_id,
-            client_name=submission.client_name,
-            client_email=submission.client_email,
-            client_phone=submission.client_phone,
-            departure_city=submission.departure_city,
-            submission_mode=submission.submission_mode,
-            family_group_id=submission.family_group_id,
-            family_member_index=submission.family_member_index,
-            family_relation=submission.family_relation,
-            family_gender=submission.family_gender,
-            family_head_name=submission.family_head_name,
-            family_head_email=submission.family_head_email,
-            family_head_phone=submission.family_head_phone,
-            family_broadcast_to_member=submission.family_broadcast_to_member,
-            image_s3_key=submission.image_s3_key,
-            thumbnail_s3_key=submission.thumbnail_s3_key,
-            passport_photo_s3_key=submission.passport_photo_s3_key,
-            passport_back_s3_key=submission.passport_back_s3_key,
-            status=submission.status.value,
-            created_at=submission.created_at,
-            updated_at=submission.updated_at,
-            extracted_fields=submission.extracted_fields,
-            confirmed_fields=submission.confirmed_fields,
-            overall_confidence=submission.overall_confidence,
-            confidence_score=submission.confidence_score,
-            mrz_raw=submission.mrz_raw,
-            error_message=submission.error_message,
-            client_reviewed_at=submission.client_reviewed_at,
-            confirmed_at=submission.confirmed_at,
-            processing_job_id=job.id if job else None,
-            processing_job_status=job.status.value if job else None,
-            processing_progress=job.progress if job else None,
-            processing_stage=job.current_stage if job else None,
-        )
-
-
-def validated_filename(filename: str, fallback_key: str) -> str:
-    return filename or fallback_key.rsplit("/", 1)[-1]
+    @staticmethod
+    def _draft_key(
+        *,
+        agency_id: uuid.UUID,
+        group_id: uuid.UUID,
+        unique_id: uuid.UUID,
+        document_type: str | None,
+        content_type: str,
+    ) -> str:
+        extension = mimetypes.guess_extension(content_type) or ".jpg"
+        suffix = f"-{document_type}" if document_type else ""
+        return f"drafts/{agency_id}/{group_id}/{unique_id}{suffix}{extension}"

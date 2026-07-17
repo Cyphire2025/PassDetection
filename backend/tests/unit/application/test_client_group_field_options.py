@@ -15,7 +15,7 @@ from app.domain.exceptions.exceptions import ValidationError
 class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
     def _build_use_case(self, group: ClientGroup, submission: PassportSubmission):
         passport_repo = AsyncMock()
-        passport_repo.get_by_id.return_value = submission
+        passport_repo.get_by_id_for_update.return_value = submission
         passport_repo.exists_contact_in_group.return_value = False
         group_repo = AsyncMock()
         group_repo.get_by_token.return_value = group
@@ -49,6 +49,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         group = self._group(
             base_city_enabled=True,
             nearest_international_airport_enabled=True,
+            ask_nearest_domestic_airport=True,
             staff_code_enabled=True,
             meal_preference_enabled=True,
         )
@@ -62,12 +63,17 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             client_email="person@example.com",
             client_phone="+91 98765 43210",
             departure_city="delhi",
+            nearest_domestic_airport="  Indira   Gandhi Domestic Terminal ",
             base_city="  New   Delhi ",
             staff_code=" STF-42 ",
             meal_preference="non veg",
         )
 
         self.assertEqual(submission.departure_city, "Delhi")
+        self.assertEqual(
+            submission.nearest_domestic_airport,
+            "Indira Gandhi Domestic Terminal",
+        )
         self.assertEqual(submission.confirmed_fields["base_city"], "New Delhi")
         self.assertEqual(submission.confirmed_fields["staff_code"], "STF-42")
         self.assertEqual(submission.confirmed_fields["meal_preference"], "Non Veg")
@@ -94,6 +100,10 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             ("staff_code", {"staff_code_enabled": True}),
             ("meal_preference", {"meal_preference_enabled": True}),
             ("departure_city", {"nearest_international_airport_enabled": True}),
+            (
+                "nearest_domestic_airport",
+                {"ask_nearest_domestic_airport": True},
+            ),
         )
         for expected_field, options in cases:
             with self.subTest(field=expected_field):
@@ -125,16 +135,19 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
                 "base_city": "Injected",
                 "staff_code": "Injected",
                 "meal_preference": "Veg",
+                "nearest_domestic_airport": "Injected",
             },
             client_email="person@example.com",
             client_phone="9876543210",
             departure_city="Injected",
+            nearest_domestic_airport="Injected",
             base_city="Injected",
             staff_code="Injected",
             meal_preference="Veg",
         )
 
         self.assertIsNone(submission.departure_city)
+        self.assertIsNone(submission.nearest_domestic_airport)
         self.assertNotIn("base_city", submission.confirmed_fields)
         self.assertNotIn("staff_code", submission.confirmed_fields)
         self.assertNotIn("meal_preference", submission.confirmed_fields)
@@ -181,6 +194,10 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         group_repo = AsyncMock()
         passport_repo = AsyncMock()
         storage_repo = AsyncMock()
+        passport_repo.save_idempotent.side_effect = lambda submission: (
+            submission,
+            True,
+        )
         use_case = SubmitPassportUseCase(group_repo, passport_repo, storage_repo)
 
         group_repo.get_by_token.return_value = self._group()
@@ -220,6 +237,29 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result.passport_photo_s3_key)
         self.assertIsNotNone(result.passport_back_s3_key)
         self.assertEqual(storage_repo.upload_file.await_count, 2)
+
+    async def test_initial_upload_rejects_file_mode_when_group_requires_camera(self) -> None:
+        group_repo = AsyncMock()
+        passport_repo = AsyncMock()
+        storage_repo = AsyncMock()
+        use_case = SubmitPassportUseCase(group_repo, passport_repo, storage_repo)
+        group_repo.get_by_token.return_value = self._group(
+            allow_files_from_device=False,
+        )
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                token="public-group-token",
+                file_content=b"front",
+                content_type="image/jpeg",
+                filename="front.jpg",
+                client_name="Test Passenger",
+                passport_back=(b"back", "image/jpeg", "back.jpg"),
+                acquisition_mode="file",
+            )
+
+        self.assertEqual(context.exception.field, "acquisition_mode")
+        storage_repo.upload_file.assert_not_awaited()
 
 
 if __name__ == "__main__":

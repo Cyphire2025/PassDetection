@@ -106,7 +106,11 @@ class UploadValidator:
             with Image.open(io.BytesIO(content)) as image:
                 image_format = image.format or ""
                 width, height = image.size
-        except (UnidentifiedImageError, OSError) as exc:
+        except (
+            UnidentifiedImageError,
+            OSError,
+            Image.DecompressionBombError,
+        ) as exc:
             raise ImageValidationError("Uploaded file is not a readable image") from exc
 
         if image_format not in self._pil_types:

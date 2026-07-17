@@ -48,6 +48,8 @@ class ClientGroupRepository(IClientGroupRepository):
             staff_code_enabled=model.staff_code_enabled,
             meal_preference_enabled=model.meal_preference_enabled,
             require_selfie=model.require_selfie,
+            allow_files_from_device=model.allow_files_from_device,
+            ask_nearest_domestic_airport=model.ask_nearest_domestic_airport,
             notes=model.notes,
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
@@ -75,6 +77,8 @@ class ClientGroupRepository(IClientGroupRepository):
             staff_code_enabled=entity.staff_code_enabled,
             meal_preference_enabled=entity.meal_preference_enabled,
             require_selfie=entity.require_selfie,
+            allow_files_from_device=entity.allow_files_from_device,
+            ask_nearest_domestic_airport=entity.ask_nearest_domestic_airport,
             notes=entity.notes,
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
@@ -144,6 +148,8 @@ class ClientGroupRepository(IClientGroupRepository):
         model.staff_code_enabled = link.staff_code_enabled
         model.meal_preference_enabled = link.meal_preference_enabled
         model.require_selfie = link.require_selfie
+        model.allow_files_from_device = link.allow_files_from_device
+        model.ask_nearest_domestic_airport = link.ask_nearest_domestic_airport
         model.notes = link.notes
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count

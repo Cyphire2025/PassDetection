@@ -55,6 +55,8 @@ class ListPassportGroupSummariesUseCase:
                 staff_code_enabled=summary.staff_code_enabled,
                 meal_preference_enabled=summary.meal_preference_enabled,
                 require_selfie=summary.require_selfie,
+                allow_files_from_device=summary.allow_files_from_device,
+                ask_nearest_domestic_airport=summary.ask_nearest_domestic_airport,
                 notes=summary.notes,
             )
             for summary in summaries

@@ -23,6 +23,26 @@ class CreateClientGroupInputDTO:
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
+    notes: str | None = None
+
+
+@dataclass(frozen=True)
+class UpdateClientGroupInputDTO:
+    name: str
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    package_name: str | None = None
+    departure_cities: list[str] | None = None
+    base_city_enabled: bool = False
+    nearest_international_airport_enabled: bool = False
+    staff_code_enabled: bool = False
+    meal_preference_enabled: bool = False
+    require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
 
 
@@ -46,6 +66,8 @@ class ClientGroupOutputDTO:
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -72,6 +94,8 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         staff_code_enabled=link.staff_code_enabled,
         meal_preference_enabled=link.meal_preference_enabled,
         require_selfie=link.require_selfie,
+        allow_files_from_device=link.allow_files_from_device,
+        ask_nearest_domestic_airport=link.ask_nearest_domestic_airport,
         notes=link.notes,
         deleted_at=link.deleted_at,
         deleted_passport_count=link.deleted_passport_count,

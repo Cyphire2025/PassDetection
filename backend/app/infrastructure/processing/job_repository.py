@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config.settings import get_settings
 from app.infrastructure.database.models import PassportProcessingJobModel
 from app.infrastructure.processing.job_state import PassportProcessingJob, ProcessingJobStatus
 
@@ -29,6 +31,7 @@ class PassportProcessingJobRepository:
             status=ProcessingJobStatus(model.status),
             attempts=model.attempts,
             max_attempts=model.max_attempts,
+            extraction_revision=model.extraction_revision,
             progress=model.progress,
             current_stage=model.current_stage,
             error_message=model.error_message,
@@ -46,7 +49,14 @@ class PassportProcessingJobRepository:
         submission_id: uuid.UUID,
         queue_name: str = "passport_ocr",
         max_attempts: int = 3,
+        extraction_revision: int = 0,
     ) -> PassportProcessingJob:
+        existing = await self.active_for_submission(
+            submission_id,
+            extraction_revision=extraction_revision,
+        )
+        if existing:
+            return existing
         model = PassportProcessingJobModel(
             id=uuid.uuid4(),
             submission_id=submission_id,
@@ -54,14 +64,25 @@ class PassportProcessingJobRepository:
             status=ProcessingJobStatus.QUEUED.value,
             attempts=0,
             max_attempts=max_attempts,
+            extraction_revision=extraction_revision,
             progress=0.0,
             current_stage="queued",
             cancel_requested=False,
             created_at=_utcnow(),
             updated_at=_utcnow(),
         )
-        self._session.add(model)
-        await self._session.flush()
+        try:
+            async with self._session.begin_nested():
+                self._session.add(model)
+                await self._session.flush()
+        except IntegrityError:
+            existing = await self.active_for_submission(
+                submission_id,
+                extraction_revision=extraction_revision,
+            )
+            if existing is None:
+                raise
+            return existing
         return self._to_entity(model)
 
     async def get(self, job_id: uuid.UUID) -> PassportProcessingJob | None:
@@ -75,14 +96,45 @@ class PassportProcessingJobRepository:
         await self._session.flush()
 
     async def mark_running(self, job_id: uuid.UUID, *, stage: str = "starting") -> PassportProcessingJob:
-        model = await self._require_model(job_id)
+        job, _claimed = await self.claim_running(job_id, stage=stage)
+        if job is None:
+            raise LookupError(f"Passport processing job {job_id} was not found")
+        return job
+
+    async def claim_running(
+        self,
+        job_id: uuid.UUID,
+        *,
+        stage: str = "starting",
+    ) -> tuple[PassportProcessingJob | None, bool]:
+        result = await self._session.execute(
+            select(PassportProcessingJobModel)
+            .where(PassportProcessingJobModel.id == job_id)
+            .with_for_update()
+        )
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None, False
+        if model.status in {
+            ProcessingJobStatus.SUCCEEDED.value,
+            ProcessingJobStatus.FAILED.value,
+            ProcessingJobStatus.CANCELLED.value,
+            ProcessingJobStatus.DEAD_LETTER.value,
+        }:
+            return self._to_entity(model), False
+        if model.status == ProcessingJobStatus.RUNNING.value:
+            lease_cutoff = _utcnow() - timedelta(
+                seconds=get_settings().processing_job_timeout_seconds + 30
+            )
+            if model.updated_at and model.updated_at >= lease_cutoff:
+                return self._to_entity(model), False
         if model.cancel_requested:
             model.status = ProcessingJobStatus.CANCELLED.value
             model.current_stage = "cancelled"
             model.finished_at = _utcnow()
             model.updated_at = _utcnow()
             await self._session.flush()
-            return self._to_entity(model)
+            return self._to_entity(model), False
 
         model.status = ProcessingJobStatus.RUNNING.value
         model.attempts += 1
@@ -91,7 +143,12 @@ class PassportProcessingJobRepository:
         model.started_at = model.started_at or _utcnow()
         model.updated_at = _utcnow()
         await self._session.flush()
-        return self._to_entity(model)
+        return self._to_entity(model), True
+
+    async def checkpoint(self) -> None:
+        """Publish job state and release any short-lived claim lock."""
+
+        await self._session.commit()
 
     async def update_progress(self, job_id: uuid.UUID, *, progress: float, stage: str) -> PassportProcessingJob:
         model = await self._require_model(job_id)
@@ -175,9 +232,35 @@ class PassportProcessingJobRepository:
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
+    async def active_for_submission(
+        self,
+        submission_id: uuid.UUID,
+        *,
+        extraction_revision: int,
+    ) -> PassportProcessingJob | None:
+        result = await self._session.execute(
+            select(PassportProcessingJobModel)
+            .where(
+                PassportProcessingJobModel.submission_id == submission_id,
+                PassportProcessingJobModel.extraction_revision == extraction_revision,
+                PassportProcessingJobModel.status.in_(
+                    [
+                        ProcessingJobStatus.QUEUED.value,
+                        ProcessingJobStatus.RUNNING.value,
+                    ]
+                ),
+            )
+            .order_by(PassportProcessingJobModel.created_at.desc())
+            .limit(1)
+        )
+        model = result.scalar_one_or_none()
+        return self._to_entity(model) if model else None
+
     async def _get_model(self, job_id: uuid.UUID) -> PassportProcessingJobModel | None:
         result = await self._session.execute(
-            select(PassportProcessingJobModel).where(PassportProcessingJobModel.id == job_id)
+            select(PassportProcessingJobModel)
+            .where(PassportProcessingJobModel.id == job_id)
+            .execution_options(populate_existing=True)
         )
         return result.scalar_one_or_none()
 

@@ -14,6 +14,14 @@ export type PassportStatus =
   | "confirmed"
   | "failed";
 
+export type PassportExtractionStatus =
+  | "not_started"
+  | "processing"
+  | "extraction_complete"
+  | "extraction_partial"
+  | "extraction_failed"
+  | "ready_for_review";
+
 export type UploadLinkStatus = "active" | "used" | "expired" | "revoked";
 
 export interface ExtractedPassportFields {
@@ -81,6 +89,7 @@ export interface PassportSubmission extends TimestampedEntity {
   client_email: string | null;
   client_phone: string | null;
   departure_city: string | null;
+  nearest_domestic_airport?: string | null;
   submission_mode?: "single" | "family" | string;
   family_group_id?: string | null;
   family_member_index?: number | null;
@@ -98,6 +107,10 @@ export interface PassportSubmission extends TimestampedEntity {
   passport_back_url?: string | null;
   thumbnail_s3_key: string | null;
   staff_metadata?: Record<string, string> | null;
+  acquisition_mode: "camera" | "file";
+  upload_idempotency_key?: string | null;
+  extraction_status: PassportExtractionStatus;
+  extraction_revision: number;
   status: PassportStatus;
   extracted_fields: ExtractedPassportFields | null;
   confirmed_fields: ExtractedPassportFields | null;
@@ -139,6 +152,8 @@ export interface PassportGroupSummary {
   staff_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
+  allow_files_from_device: boolean;
+  ask_nearest_domestic_airport: boolean;
   notes: string | null;
 }
 

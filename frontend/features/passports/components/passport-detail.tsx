@@ -23,6 +23,7 @@ const REVIEW_FIELDS = [
   "nationality",
   "issuing_country",
   "date_of_birth",
+  "date_of_issue",
   "date_of_expiry",
   "sex",
 ] as const;
@@ -113,7 +114,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
           <ClientProvidedFieldsCard passport={data} />
 
           <ReviewFieldsCard
-            key={`${data.id}:${data.updated_at}`}
+            key={data.id}
             passport={data}
             sourceFields={data.confirmed_fields ?? data.extracted_fields ?? {}}
             validation={data.extracted_fields?.field_validation}
@@ -161,6 +162,7 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
   const fields = passport.confirmed_fields ?? passport.extracted_fields ?? {};
   const values = [
     ["Nearest International Airport", passport.departure_city],
+    ["Nearest Domestic Airport", passport.nearest_domestic_airport],
     ["Base City", getStringField(fields, "base_city")],
     ["Staff Code", getStringField(fields, "staff_code")],
     ["Meal Preference", getStringField(fields, "meal_preference")],
@@ -259,6 +261,10 @@ function ReviewFieldsCard({
       onFormError("Add at least one reviewed field before confirming.");
       return;
     }
+    if (!hasValidReviewDates(cleanedFields)) {
+      onFormError("Enter valid passport dates in YYYY-MM-DD format. Date of Issue may be empty, but it cannot be in the future, before birth, or after passport expiry.");
+      return;
+    }
 
     onFormError(null);
     await onConfirm(cleanedFields);
@@ -286,17 +292,26 @@ function ReviewFieldsCard({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {REVIEW_FIELDS.map((key) => (
-            <label key={key} className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-400">{toLabel(key)}</span>
-              <Input
-                value={reviewFields[key] ?? ""}
-                onChange={(event) => handleFieldChange(key, event.target.value)}
-                placeholder="Not extracted"
-                className="h-10 rounded-lg border-slate-200 bg-white"
-              />
-            </label>
-          ))}
+          {REVIEW_FIELDS.map((key) => {
+            const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
+            return (
+              <label key={key} className="space-y-1.5">
+                <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  {toLabel(key)}
+                  {key === "date_of_issue" && <span className="normal-case tracking-normal">(optional)</span>}
+                </span>
+                <Input
+                  type={isDate ? "date" : "text"}
+                  value={reviewFields[key] ?? ""}
+                  onChange={(event) => handleFieldChange(key, event.target.value)}
+                  placeholder={key === "date_of_issue" ? "Leave empty if unavailable" : "Not extracted"}
+                  min="1900-01-01"
+                  max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+                  className="h-10 rounded-lg border-slate-200 bg-white"
+                />
+              </label>
+            );
+          })}
         </div>
 
         {validation?.issues && validation.issues.length > 0 && (
@@ -367,6 +382,44 @@ function toLabel(value: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function hasValidReviewDates(fields: Record<string, string>) {
+  const dateOfBirth = fields.date_of_birth?.trim() ?? "";
+  const dateOfIssue = fields.date_of_issue?.trim() ?? "";
+  const dateOfExpiry = fields.date_of_expiry?.trim() ?? "";
+  for (const value of [dateOfBirth, dateOfIssue, dateOfExpiry]) {
+    if (value && !isValidIsoDate(value)) return false;
+  }
+  const today = todayIsoDate();
+  if (dateOfBirth && dateOfBirth >= today) return false;
+  if (dateOfIssue && dateOfIssue > today) return false;
+  if (dateOfBirth && dateOfIssue && dateOfIssue <= dateOfBirth) return false;
+  if (dateOfIssue && dateOfExpiry && dateOfIssue >= dateOfExpiry) return false;
+  if (dateOfBirth && dateOfExpiry && dateOfExpiry <= dateOfBirth) return false;
+  return true;
+}
+
+function isValidIsoDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return year >= 1900
+    && year <= 2200
+    && parsed.getUTCFullYear() === year
+    && parsed.getUTCMonth() === month - 1
+    && parsed.getUTCDate() === day;
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  return new Date(now.getTime() - (now.getTimezoneOffset() * 60_000)).toISOString().slice(0, 10);
+}
+
+function yesterdayIsoDate() {
+  const today = new Date(`${todayIsoDate()}T00:00:00`);
+  today.setDate(today.getDate() - 1);
+  return today.toISOString().slice(0, 10);
+}
+
 function getAttentionFieldLabels(
   issues: Array<{ field: string; message: string; severity: string }>,
 ) {
@@ -387,6 +440,10 @@ function getAttentionFieldLabels(
     }
     if (text.includes("date_of_expiry") || text.includes("expiry")) {
       labels.add("Date of expiry");
+      continue;
+    }
+    if (text.includes("date_of_issue") || text.includes("issue date")) {
+      labels.add("Date of issue");
       continue;
     }
     if (text.includes("nationality")) {

@@ -12,11 +12,16 @@ export const uploadApi = {
     client_name: string,
     file: File,
     passportBackFile: File,
+    acquisitionMode: "camera" | "file",
+    uploadIdempotencyKey: string,
     passportPhotoFile?: File | null,
+    signal?: AbortSignal,
   ): Promise<PassportSubmission> => {
     const formData = new FormData();
     formData.append("client_name", client_name);
     formData.append("file", file);
+    formData.append("acquisition_mode", acquisitionMode);
+    formData.append("upload_idempotency_key", uploadIdempotencyKey);
     if (passportPhotoFile) formData.append("passport_photo_file", passportPhotoFile);
     formData.append("passport_back_file", passportBackFile);
 
@@ -27,21 +32,36 @@ export const uploadApi = {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        signal,
+        // Storage retries are bounded server-side; this request timeout only
+        // covers durable file persistence, never OCR.
+        timeout: 60_000,
       }
     );
     return response.data;
   },
 
-  getUploadStatus: async (token: string, submissionId: string): Promise<PassportSubmission> => {
+  getUploadStatus: async (
+    token: string,
+    submissionId: string,
+    signal?: AbortSignal,
+  ): Promise<PassportSubmission> => {
     const response = await apiClient.get<PassportSubmission>(
       API_ENDPOINTS.passports.uploadStatus(token, submissionId),
+      { signal },
     );
     return response.data;
   },
 
-  scanAgain: async (token: string, submissionId: string): Promise<PassportSubmission> => {
+  scanAgain: async (
+    token: string,
+    submissionId: string,
+    signal?: AbortSignal,
+  ): Promise<PassportSubmission> => {
     const response = await apiClient.post<PassportSubmission>(
       API_ENDPOINTS.passports.uploadScanAgain(token, submissionId),
+      undefined,
+      { signal },
     );
     return response.data;
   },
@@ -59,6 +79,7 @@ export const uploadApi = {
       client_phone?: string | null;
       departure_city?: string | null;
       base_city?: string | null;
+      nearest_domestic_airport?: string | null;
       staff_code?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";

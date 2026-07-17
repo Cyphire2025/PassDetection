@@ -376,7 +376,10 @@ class Stage1MRZExtractor:
         try:
             import pytesseract  # noqa: F401
         except Exception as exc:
-            logger.warning("stage1_mrz_tesseract_unavailable", error=str(exc))
+            logger.warning(
+                "stage1_mrz_tesseract_unavailable",
+                error_type=type(exc).__name__,
+            )
             return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
 
         try:
@@ -396,7 +399,7 @@ class Stage1MRZExtractor:
             logger.warning("stage1_mrz_ocr_timeout", timeout_seconds=self._timeout_seconds)
             return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
         except Exception as exc:
-            logger.warning("stage1_mrz_ocr_failed", error=str(exc))
+            logger.warning("stage1_mrz_ocr_failed", error_type=type(exc).__name__)
             return MRZOCRResult(text="", confidence=0.0, duration_ms=0.0)
 
     def _prepare_mrz_crop(self, image_bytes: bytes):  # type: ignore[no-untyped-def]

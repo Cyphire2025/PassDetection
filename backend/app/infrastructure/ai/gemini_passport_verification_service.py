@@ -1,4 +1,4 @@
-"""Gemini image verification for the eight client-review passport fields."""
+"""Gemini image verification for client-review passport fields."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from app.application.interfaces.passport_verification import (
 )
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.domain.value_objects.passport_fields import normalize_extracted_passport_dates
 from app.infrastructure.validation.passport_field_validator import PassportFieldValidator
 
 logger = get_logger(__name__)
@@ -29,6 +30,7 @@ PASSPORT_FIELDS: Final[tuple[str, ...]] = (
     "nationality",
     "issuing_country",
     "date_of_birth",
+    "date_of_issue",
     "date_of_expiry",
     "sex",
 )
@@ -40,6 +42,7 @@ _FIELD_CODES: Final[dict[str, str]] = {
     "na": "nationality",
     "ic": "issuing_country",
     "db": "date_of_birth",
+    "di": "date_of_issue",
     "de": "date_of_expiry",
     "sx": "sex",
 }
@@ -70,7 +73,8 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
 _SYSTEM_INSTRUCTION: Final[str] = (
     "Verify the passport data-page image against the compact OCR JSON. Return only the schema. "
     "Read exactly these codes: sn surname, gn given names, pn passport number, na nationality "
-    "ISO-3, ic issuing country ISO-3, db birth YYYY-MM-DD, de expiry YYYY-MM-DD, sx M/F/X. "
+    "ISO-3, ic issuing country ISO-3, db birth YYYY-MM-DD, di issue YYYY-MM-DD, "
+    "de expiry YYYY-MM-DD, sx M/F/X. "
     "For every readable field return keep, replace, or fill; use unknown with empty v when unreadable. "
     "Never infer a value that is not visibly printed. Set confidence c from 0 to 1."
 )
@@ -282,6 +286,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             merged["extraction_sources"] = sources
             merged.pop("processing_note", None)
 
+        merged = normalize_extracted_passport_dates(merged)
         validated_fields = {
             field: value
             for field in PASSPORT_FIELDS
@@ -318,7 +323,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         if field in {"nationality", "issuing_country"}:
             normalized = value.upper()
             return normalized if re.fullmatch(r"[A-Z]{3}", normalized) else ""
-        if field in {"date_of_birth", "date_of_expiry"}:
+        if field in {"date_of_birth", "date_of_issue", "date_of_expiry"}:
             try:
                 parsed = datetime.strptime(value, "%Y-%m-%d").date()
             except ValueError:
@@ -326,6 +331,8 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             if parsed.year < 1900 or parsed.year > 2100:
                 return ""
             if field == "date_of_birth" and parsed >= date.today():
+                return ""
+            if field == "date_of_issue" and parsed > date.today():
                 return ""
             return parsed.isoformat()
         if field == "sex":

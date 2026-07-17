@@ -24,6 +24,7 @@ import {
   useSavePassportDocuments,
 } from "../hooks/use-passports";
 import type { PassportDocumentImportPreview } from "../api/passports.api";
+import { GroupOptionToggle } from "./group-option-toggle";
 
 interface PassportGroupDetailProps {
   groupId: string;
@@ -64,6 +65,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     staff_code_enabled: deletedGroup.staff_code_enabled,
     meal_preference_enabled: deletedGroup.meal_preference_enabled,
     require_selfie: deletedGroup.require_selfie,
+    allow_files_from_device: deletedGroup.allow_files_from_device ?? true,
+    ask_nearest_domestic_airport: deletedGroup.ask_nearest_domestic_airport ?? false,
     notes: deletedGroup.notes,
   } : undefined);
   const reextractMutation = useReextractPassportSubmission();
@@ -94,6 +97,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     staff_code_enabled: false,
     meal_preference_enabled: false,
     require_selfie: false,
+    allow_files_from_device: true,
+    ask_nearest_domestic_airport: false,
     notes: "",
   });
 
@@ -354,6 +359,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     staff_code_enabled: groupDetails.staff_code_enabled,
                     meal_preference_enabled: groupDetails.meal_preference_enabled,
                     require_selfie: groupDetails.require_selfie,
+                    allow_files_from_device: groupDetails.allow_files_from_device ?? true,
+                    ask_nearest_domestic_airport: groupDetails.ask_nearest_domestic_airport ?? false,
                     notes: groupDetails.notes ?? "",
                   });
                   setIsEditingTrip(true);
@@ -372,6 +379,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
               <InfoPair label="VISA Selfie Photo" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
+              <InfoPair label="Files From Device" value={(groupDetails.allow_files_from_device ?? true) ? "Allowed" : "Live scanner only"} />
+              <InfoPair label="Nearest Domestic Airport" value={(groupDetails.ask_nearest_domestic_airport ?? false) ? "Required" : "Disabled"} />
               <div className="sm:col-span-2">
                 <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
               </div>
@@ -697,6 +706,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 staff_code_enabled: tripForm.staff_code_enabled,
                 meal_preference_enabled: tripForm.meal_preference_enabled,
                 require_selfie: tripForm.require_selfie,
+                allow_files_from_device: tripForm.allow_files_from_device,
+                ask_nearest_domestic_airport: tripForm.ask_nearest_domestic_airport,
                 notes: tripForm.notes || null,
               },
               { onSuccess: () => setIsEditingTrip(false) },
@@ -1138,6 +1149,8 @@ function TripDetailsDialog({
     staff_code_enabled: boolean;
     meal_preference_enabled: boolean;
     require_selfie: boolean;
+    allow_files_from_device: boolean;
+    ask_nearest_domestic_airport: boolean;
     notes: string;
   };
   isLoading: boolean;
@@ -1152,6 +1165,8 @@ function TripDetailsDialog({
     staff_code_enabled: boolean;
     meal_preference_enabled: boolean;
     require_selfie: boolean;
+    allow_files_from_device: boolean;
+    ask_nearest_domestic_airport: boolean;
     notes: string;
   }) => void;
   onClose: () => void;
@@ -1200,6 +1215,18 @@ function TripDetailsDialog({
             description="Require a passport-size selfie against a plain white wall."
             checked={form.require_selfie}
             onChange={(checked) => onChange({ ...form, require_selfie: checked })}
+          />
+          <GroupOptionToggle
+            label="Allow files from device"
+            description="Let travellers choose existing passport images as well as use the live scanner."
+            checked={form.allow_files_from_device}
+            onChange={(checked) => onChange({ ...form, allow_files_from_device: checked })}
+          />
+          <GroupOptionToggle
+            label="Ask for nearest domestic airport"
+            description="Require each traveller to enter their nearest domestic airport."
+            checked={form.ask_nearest_domestic_airport}
+            onChange={(checked) => onChange({ ...form, ask_nearest_domestic_airport: checked })}
           />
           <GroupOptionToggle
             label="Base City"
@@ -1290,39 +1317,6 @@ function TripDetailsDialog({
           </Button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function GroupOptionToggle({
-  label,
-  description,
-  checked,
-  onChange,
-  borderless = false,
-}: {
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  borderless?: boolean;
-}) {
-  return (
-    <div className={borderless ? "flex items-start justify-between gap-3" : "flex items-start justify-between gap-3 rounded-xl border border-slate-200 p-4"}>
-      <div>
-        <p className="text-sm font-semibold text-slate-800">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={`${checked ? "Disable" : "Enable"} ${label}`}
-        onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-blue-600" : "bg-slate-300"}`}
-      >
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? "translate-x-5" : "translate-x-0.5"}`} />
-      </button>
     </div>
   );
 }

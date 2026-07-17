@@ -1,4 +1,5 @@
 import type { AttendanceSession } from "@/features/operations/api/operations.api";
+import { useAuthStore } from "@/stores/auth.store";
 
 interface AttendanceSessionProgress {
   scanned_count: number;
@@ -7,7 +8,7 @@ interface AttendanceSessionProgress {
   updated_at: string;
 }
 
-const STORAGE_KEY = "passdetection-attendance-session-progress";
+const STORAGE_KEY_PREFIX = "passdetection-attendance-session-progress";
 
 export function readAttendanceSessionProgress(sessionId: string): AttendanceSessionProgress | null {
   return readProgressMap()[sessionId] ?? null;
@@ -44,13 +45,26 @@ export function mergeAttendanceSessionProgress(sessions: AttendanceSession[]): A
 
 function readProgressMap(): Record<string, AttendanceSessionProgress> {
   if (typeof window === "undefined") return {};
+  const storageKey = getCurrentUserStorageKey();
+  if (!storageKey) return {};
   try {
-    return JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}") as Record<string, AttendanceSessionProgress>;
+    return JSON.parse(window.localStorage.getItem(storageKey) ?? "{}") as Record<string, AttendanceSessionProgress>;
   } catch {
     return {};
   }
 }
 
 function writeProgressMap(map: Record<string, AttendanceSessionProgress>) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  const storageKey = getCurrentUserStorageKey();
+  if (!storageKey) return;
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(map));
+  } catch {
+    // Progress is an optimization; server state remains authoritative.
+  }
+}
+
+function getCurrentUserStorageKey() {
+  const userId = useAuthStore.getState().user?.id;
+  return userId ? `${STORAGE_KEY_PREFIX}:user:${userId}` : null;
 }

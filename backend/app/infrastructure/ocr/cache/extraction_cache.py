@@ -39,7 +39,10 @@ class ExtractionCache:
                     decode_responses=True,
                 )
             except Exception as exc:
-                logger.warning("ocr_cache_redis_init_failed", error=str(exc))
+                logger.warning(
+                    "ocr_cache_redis_init_failed",
+                    error_type=type(exc).__name__,
+                )
 
     async def get(self, image_bytes: bytes) -> PassportExtractionResult | None:
         ttl = self._settings.ocr_cache_ttl_seconds
@@ -52,7 +55,10 @@ class ExtractionCache:
             try:
                 payload = await self._redis.get(key)
             except Exception as exc:
-                logger.warning("ocr_cache_redis_get_failed", error=str(exc))
+                logger.warning(
+                    "ocr_cache_redis_get_failed",
+                    error_type=type(exc).__name__,
+                )
                 self._redis = None
 
         if payload is None:
@@ -64,7 +70,10 @@ class ExtractionCache:
         try:
             return self._from_payload(json.loads(payload), cache_key=key)
         except Exception as exc:
-            logger.warning("ocr_cache_decode_failed", error=str(exc))
+            logger.warning(
+                "ocr_cache_decode_failed",
+                error_type=type(exc).__name__,
+            )
             return None
 
     async def set(self, image_bytes: bytes, result: PassportExtractionResult) -> None:
@@ -87,7 +96,10 @@ class ExtractionCache:
             try:
                 await self._redis.setex(key, ttl, json.dumps(payload, default=str))
             except Exception as exc:
-                logger.warning("ocr_cache_redis_set_failed", error=str(exc))
+                logger.warning(
+                    "ocr_cache_redis_set_failed",
+                    error_type=type(exc).__name__,
+                )
                 self._redis = None
 
     def _from_payload(self, payload: dict, *, cache_key: str) -> PassportExtractionResult:

@@ -42,6 +42,8 @@ class PassportSubmissionGroupSummary:
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
 
 
@@ -132,10 +134,50 @@ class IPassportSubmissionRepository(ABC):
     async def get_by_id(self, submission_id: uuid.UUID) -> PassportSubmission | None: ...
 
     @abstractmethod
+    async def get_by_id_for_update(
+        self,
+        submission_id: uuid.UUID,
+    ) -> PassportSubmission | None: ...
+
+    @abstractmethod
+    async def get_by_upload_idempotency_key(
+        self,
+        group_id: uuid.UUID,
+        upload_idempotency_key: str,
+    ) -> PassportSubmission | None: ...
+
+    @abstractmethod
     async def save(self, submission: PassportSubmission) -> PassportSubmission: ...
 
     @abstractmethod
+    async def save_idempotent(
+        self,
+        submission: PassportSubmission,
+    ) -> tuple[PassportSubmission, bool]: ...
+
+    @abstractmethod
     async def update(self, submission: PassportSubmission) -> PassportSubmission: ...
+
+    @abstractmethod
+    async def apply_extraction_result(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        extracted_fields: dict,
+        confidence: float,
+        confidence_score: dict | None,
+        mrz_raw: str | None,
+    ) -> PassportSubmission | None: ...
+
+    @abstractmethod
+    async def apply_extraction_failure(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        public_message: str,
+    ) -> PassportSubmission | None: ...
 
     @abstractmethod
     async def delete(self, submission_id: uuid.UUID) -> None: ...

@@ -9,13 +9,21 @@ import { usePassportBlurDetection } from "../hooks/use-passport-blur-detection";
 import { usePassportLightingDetection } from "../hooks/use-passport-lighting-detection";
 import { usePassportGlareDetection } from "../hooks/use-passport-glare-detection";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
+import type { PassportPageSide } from "../services/passport-frame-detector";
 
 interface SmartCameraProps {
   onCapture: (file: File) => void;
   onCancel: () => void;
+  pageSide: PassportPageSide;
+  allowFileFallback?: boolean;
 }
 
-export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
+export function SmartCamera({
+  onCapture,
+  onCancel,
+  pageSide,
+  allowFileFallback = true,
+}: SmartCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -25,6 +33,7 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
   const lightingCanvasRef = useRef<HTMLCanvasElement>(null);
   const glareCanvasRef = useRef<HTMLCanvasElement>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+  const [cameraRestartGeneration, setCameraRestartGeneration] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,11 +43,13 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
   const [autoCaptureCountdown, setAutoCaptureCountdown] = useState<number | null>(null);
   const autoCaptureTimeoutRef = useRef<number | null>(null);
   const autoCaptureIntervalRef = useRef<number | null>(null);
+  const mountedRef = useRef(true);
 
   const { isDetected: isPassportDetected } = usePassportFrameDetection({
     videoRef,
     canvasRef: analysisCanvasRef,
     enabled: isReady && !capturedImage && !cameraError,
+    pageSide,
   });
 
   const { status: blurStatus, isSharp } = usePassportBlurDetection({
@@ -73,11 +84,11 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
       : "bg-black/55 text-white/90";
 
   const guidanceMessage = isProcessingCapture
-    ? "Saving the original camera image"
+    ? `Straightening and saving the passport ${pageSide} page`
     : autoCaptureCountdown !== null && autoCaptureCountdown > 0
       ? `Hold steady - capturing in ${autoCaptureCountdown}`
     : !isPassportDetected
-    ? "Position the data page within the frame"
+    ? `Position the passport ${pageSide === "front" ? "data" : "back"} page within the frame`
     : glareStatus === "checking"
       ? "Checking surface glare"
     : glareStatus === "glare"
@@ -94,7 +105,25 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           ? "Hold steady - image is blurry"
           : "Passport detected - image is ready";
 
+  const stopCamera = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  }, []);
+
   useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+
     async function startCamera() {
       setIsLoading(true);
       setIsReady(false);
@@ -108,18 +137,21 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           return;
         }
 
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-        }
+        stopCamera();
 
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode,
+            facingMode: { ideal: facingMode },
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
           audio: false,
         });
+
+        if (disposed) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
 
         streamRef.current = mediaStream;
         if (videoRef.current) {
@@ -127,28 +159,29 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           await videoRef.current.play().catch(() => undefined);
         }
       } catch (error) {
-        console.error("Failed to access camera", error);
+        if (disposed) return;
         setCameraError(
           error instanceof DOMException && error.name === "NotAllowedError"
             ? "Camera access was blocked. Allow camera permission in your browser and try again."
-            : "The camera could not be started. Open the link over HTTPS or go back and upload a photo instead.",
+            : allowFileFallback
+              ? "The camera could not be started. Open the link over HTTPS or go back and upload a photo instead."
+              : "The camera could not be started. This group requires live scanning, so open the link over HTTPS and allow camera access.",
         );
       } finally {
-        setIsLoading(false);
+        if (!disposed) setIsLoading(false);
       }
     }
 
-    startCamera();
+    void startCamera();
 
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      }
+      disposed = true;
+      stopCamera();
     };
-  }, [facingMode]);
+  }, [allowFileFallback, cameraRestartGeneration, facingMode, stopCamera]);
 
   const toggleCamera = () => {
+    setIsReady(false);
     setFacingMode((prev) => prev === "environment" ? "user" : "environment");
   };
 
@@ -169,9 +202,8 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    // Keep minimal context around every side of the guide.  This is
-    // intentional: the source photo remains Visa-ready and is never edge-fit
-    // or perspective-warped after capture.
+    // Keep minimal context around every side of the guide so the shared
+    // normalizer has enough boundary pixels for perspective rectification.
     const crop = addCaptureMargin(getVisibleGuideCrop(video, guideRef.current), video.videoWidth, video.videoHeight);
     const cropWidth = Math.max(1, Math.round(crop.width));
     const cropHeight = Math.max(1, Math.round(crop.height));
@@ -198,14 +230,36 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
           cropHeight,
         );
 
-        const normalized = await normalizePassportCanvasCapture(canvas);
+        const normalized = await normalizePassportCanvasCapture(
+          canvas,
+          `passport-${pageSide}-capture.jpg`,
+        );
+        if (!mountedRef.current) return;
         setCapturedFile(normalized.file);
         setCapturedImage(normalized.previewDataUrl);
+        stopCamera();
+      } catch {
+        stopCamera();
+        if (mountedRef.current) {
+          setCameraError(
+            `The passport ${pageSide} page could not be prepared. Try the camera again or go back and choose another capture method.`,
+          );
+        }
       } finally {
-        setIsProcessingCapture(false);
+        if (mountedRef.current) setIsProcessingCapture(false);
       }
     }
-  }, [clearAutoCaptureTimers, isReady]);
+  }, [clearAutoCaptureTimers, isReady, pageSide, stopCamera]);
+
+  const restartCamera = () => {
+    clearAutoCaptureTimers();
+    stopCamera();
+    setCameraError(null);
+    setCapturedImage(null);
+    setCapturedFile(null);
+    setIsReady(false);
+    setCameraRestartGeneration((generation) => generation + 1);
+  };
 
   const retake = () => {
     clearAutoCaptureTimers();
@@ -213,17 +267,21 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
     setCapturedFile(null);
     setAutoCaptureCountdown(null);
     setIsProcessingCapture(false);
+    setIsReady(false);
 
-    window.requestAnimationFrame(() => {
-      if (!videoRef.current || !streamRef.current) return;
-      videoRef.current.srcObject = streamRef.current;
-      void videoRef.current.play().catch(() => undefined);
-    });
+    setCameraRestartGeneration((generation) => generation + 1);
   };
 
   const confirm = () => {
     if (!capturedFile) return;
+    stopCamera();
     onCapture(capturedFile);
+  };
+
+  const close = () => {
+    clearAutoCaptureTimers();
+    stopCamera();
+    onCancel();
   };
 
   useEffect(() => {
@@ -266,13 +324,15 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
       <div className="flex h-16 items-center justify-between px-4 pt-[max(0.25rem,env(safe-area-inset-top))]">
         <button
           type="button"
-          onClick={onCancel}
+          onClick={close}
           aria-label="Close camera"
           className="rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X className="h-6 w-6" />
         </button>
-        <h2 className="text-lg font-semibold tracking-tight">Passport Scan</h2>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Passport {pageSide === "front" ? "Front" : "Back"} Scan
+        </h2>
         <div className="w-10" aria-hidden="true" />
       </div>
 
@@ -289,7 +349,10 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
             <h3 className="mb-2 text-lg font-semibold">Camera unavailable</h3>
             <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
             <div className="flex flex-col gap-3">
-              <Button onClick={onCancel} className="w-full">
+              <Button onClick={restartCamera} className="w-full">
+                Try Camera Again
+              </Button>
+              <Button variant="outline" onClick={close} className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20">
                 Back
               </Button>
               <p className="text-xs text-slate-400">
@@ -311,7 +374,7 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
             {capturedImage ? (
               <Image
                 src={capturedImage}
-                alt="Captured passport"
+                alt={`Captured passport ${pageSide} page`}
                 fill
                 unoptimized
                 className="object-contain"
@@ -331,6 +394,9 @@ export function SmartCamera({ onCapture, onCancel }: SmartCameraProps) {
                 </div>
 
                 <div
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
                   className={`absolute left-1/2 top-5 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
                 >
                   {guidanceMessage}

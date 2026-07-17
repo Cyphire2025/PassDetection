@@ -5,7 +5,9 @@ Passport Routes — /api/v1/passports
 
 from __future__ import annotations
 
+import asyncio
 import io
+import mimetypes
 import uuid
 from datetime import UTC, datetime
 
@@ -50,6 +52,7 @@ from app.application.use_cases.passports.retry_public_passport_extraction_use_ca
     RetryPublicPassportExtractionUseCase,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
@@ -57,7 +60,6 @@ from app.domain.exceptions.exceptions import (
     PassDetectionError,
     StorageError,
 )
-from app.infrastructure.ai import GeminiPassportVerificationService
 from app.infrastructure.database.models import (
     ClientGroupModel,
     PassengerQRTokenModel,
@@ -77,10 +79,6 @@ from app.infrastructure.imports.passport_document_importer import (
     RejectedPassportDocument,
 )
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
-from app.infrastructure.ocr.passport_back_extraction_service import (
-    PassportBackPageExtractionService,
-)
-from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.processing.dispatcher import PassportProcessingDispatcher
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -107,6 +105,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
 from app.presentation.dependencies.auth import get_current_active_user
 
 router = APIRouter()
+logger = get_logger(__name__)
 
 
 def _owner_scope_for(user: User) -> uuid.UUID | None:
@@ -125,6 +124,40 @@ def _submitted_statuses() -> tuple[str, str]:
     return ("client_submitted", "confirmed")
 
 
+async def _safe_presigned_url(
+    storage: MinioStorageRepository,
+    key: str | None,
+) -> str | None:
+    if not key:
+        return None
+    try:
+        return await storage.get_presigned_url(key)
+    except StorageError as exc:
+        logger.warning(
+            "passport_presigned_url_unavailable",
+            error_type=type(exc).__name__,
+        )
+        return None
+
+
+async def _cleanup_uncommitted_promotions(
+    result: PassportSubmissionOutputDTO | None,
+) -> None:
+    if not result or not result.promoted_storage_keys:
+        return
+    try:
+        await MinioStorageRepository().delete_files(
+            list(result.promoted_storage_keys)
+        )
+    except StorageError as exc:
+        logger.warning(
+            "passport_promotion_rollback_cleanup_failed",
+            submission_id=str(result.id),
+            object_count=len(result.promoted_storage_keys),
+            error_type=type(exc).__name__,
+        )
+
+
 def _apply_manager_visibility(stmt, current_user: User):  # type: ignore[no-untyped-def]
     return AuthorizationPolicy.apply_passport_visibility_scope(stmt, current_user)
 
@@ -135,12 +168,11 @@ async def _response_from_dto(
     session: AsyncSession,
 ) -> PassportSubmissionResponse:
     storage = MinioStorageRepository()
-    image_url = await storage.get_presigned_url(result.image_s3_key)
     payload = {
         **result.__dict__,
-        "image_url": image_url,
-        "passport_photo_url": await storage.get_presigned_url(result.passport_photo_s3_key) if result.passport_photo_s3_key else None,
-        "passport_back_url": await storage.get_presigned_url(result.passport_back_s3_key) if result.passport_back_s3_key else None,
+        "image_url": await _safe_presigned_url(storage, result.image_s3_key),
+        "passport_photo_url": await _safe_presigned_url(storage, result.passport_photo_s3_key),
+        "passport_back_url": await _safe_presigned_url(storage, result.passport_back_s3_key),
         "qr_status": await _passport_qr_status(session, result.id),
     }
     if not payload.get("processing_job_id"):
@@ -163,13 +195,12 @@ async def _response_from_submission(
     session: AsyncSession,
 ) -> PassportSubmissionResponse:  # type: ignore[no-untyped-def]
     storage = MinioStorageRepository()
-    image_url = await storage.get_presigned_url(submission.image_s3_key)
     payload = {
         **submission.__dict__,
         "status": submission.status.value,
-        "image_url": image_url,
-        "passport_photo_url": await storage.get_presigned_url(submission.passport_photo_s3_key) if submission.passport_photo_s3_key else None,
-        "passport_back_url": await storage.get_presigned_url(submission.passport_back_s3_key) if submission.passport_back_s3_key else None,
+        "image_url": await _safe_presigned_url(storage, submission.image_s3_key),
+        "passport_photo_url": await _safe_presigned_url(storage, submission.passport_photo_s3_key),
+        "passport_back_url": await _safe_presigned_url(storage, submission.passport_back_s3_key),
         "qr_status": await _passport_qr_status(session, submission.id),
     }
     job = await PassportProcessingJobRepository(session).latest_for_submission(submission.id)
@@ -266,14 +297,39 @@ async def _dispatch_processing_job(
     # The worker uses a separate database session, so commit the queued rows
     # before dispatching to avoid a race with the worker reading the job.
     await session.commit()
-    task_id = PassportProcessingDispatcher().dispatch(
-        job_id=result.processing_job_id,
-        submission_id=result.id,
-        background_tasks=background_tasks,
-    )
+    try:
+        task_id = PassportProcessingDispatcher().dispatch(
+            job_id=result.processing_job_id,
+            submission_id=result.id,
+            background_tasks=background_tasks,
+        )
+    except Exception as exc:
+        # The submission and image keys are durable at this point. Dispatch is
+        # best effort and must never turn persistence success into an upload
+        # failure (or trigger compensation that deletes committed objects).
+        logger.exception(
+            "passport_processing_dispatch_failed_after_persistence",
+            job_id=str(result.processing_job_id),
+            error_type=type(exc).__name__,
+        )
+        return
     if task_id:
-        await PassportProcessingJobRepository(session).set_task_id(result.processing_job_id, task_id)
-        await session.commit()
+        try:
+            await PassportProcessingJobRepository(session).set_task_id(
+                result.processing_job_id,
+                task_id,
+            )
+            await session.commit()
+        except Exception as exc:
+            # The submission and job were already committed before dispatch.
+            # Losing optional queue metadata must not turn a successful upload
+            # into a reported upload failure.
+            await session.rollback()
+            logger.warning(
+                "passport_processing_task_id_not_recorded",
+                job_id=str(result.processing_job_id),
+                error_type=type(exc).__name__,
+            )
 
 
 async def _validated_upload_file(file: UploadFile, *, label: str):
@@ -285,7 +341,8 @@ async def _validated_upload_file(file: UploadFile, *, label: str):
             detail=f"Failed to read {label} file content",
         )
     try:
-        return UploadValidator().validate(
+        return await asyncio.to_thread(
+            UploadValidator().validate,
             content=content,
             filename=file.filename,
             declared_content_type=file.content_type,
@@ -301,9 +358,7 @@ def _get_submit_passport_use_case(
         client_group_repo=ClientGroupRepository(session),
         passport_repo=PassportSubmissionRepository(session),
         storage_repo=MinioStorageRepository(),
-        extraction_service=PassportExtractionService(),
         processing_job_repo=PassportProcessingJobRepository(session),
-        verification_service=GeminiPassportVerificationService(),
     )
 
 
@@ -352,8 +407,6 @@ def _get_reextract_passport_use_case(
 ) -> ReextractPassportSubmissionUseCase:
     return ReextractPassportSubmissionUseCase(
         passport_repo=PassportSubmissionRepository(session),
-        storage_repo=MinioStorageRepository(),
-        extraction_service=PassportExtractionService(),
         processing_job_repo=PassportProcessingJobRepository(session),
     )
 
@@ -364,9 +417,7 @@ def _get_retry_public_extraction_use_case(
     return RetryPublicPassportExtractionUseCase(
         passport_repo=PassportSubmissionRepository(session),
         client_group_repo=ClientGroupRepository(session),
-        storage_repo=MinioStorageRepository(),
-        extraction_service=PassportExtractionService(),
-        verification_service=GeminiPassportVerificationService(),
+        processing_job_repo=PassportProcessingJobRepository(session),
     )
 
 
@@ -380,6 +431,8 @@ async def upload_passport(
     token: str,
     background_tasks: BackgroundTasks,
     client_name: str = Form(...),
+    acquisition_mode: str = Form(..., pattern="^(camera|file)$"),
+    upload_idempotency_key: str = Form(..., min_length=8, max_length=128),
     file: UploadFile = File(...),
     passport_back_file: UploadFile = File(..., description="Required original passport back image"),
     passport_photo_file: UploadFile | None = File(None, description="Optional original VISA selfie captured against a verified white background"),
@@ -401,11 +454,37 @@ async def upload_passport(
             client_name=client_name,
             passport_photo=(validated_photo.content, validated_photo.content_type, validated_photo.filename) if validated_photo else None,
             passport_back=(validated_back.content, validated_back.content_type, validated_back.filename),
+            acquisition_mode=acquisition_mode,
+            upload_idempotency_key=upload_idempotency_key,
         )
-        await _dispatch_processing_job(result, session=session, background_tasks=background_tasks)
+        try:
+            await _dispatch_processing_job(
+                result,
+                session=session,
+                background_tasks=background_tasks,
+            )
+        except Exception as exc:
+            await session.rollback()
+            # A database commit exception is ambiguous: the server may have
+            # committed before the connection failed, and this may also be an
+            # idempotent replay of existing objects. Never delete durable image
+            # keys here, because that could leave a committed row dangling.
+            logger.exception(
+                "passport_upload_database_commit_failed",
+                group_id=str(result.group_id),
+                error_type=type(exc).__name__,
+            )
+            raise StorageError(
+                "Passport images could not be saved. Please try the upload again."
+            ) from exc
         return await _response_from_dto(result, session=session)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except StorageError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=e.message,
+        )
     except PassDetectionError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
 
@@ -441,11 +520,17 @@ async def get_upload_passport_status(
 async def scan_again_public_upload(
     token: str,
     submission_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
     use_case: RetryPublicPassportExtractionUseCase = Depends(_get_retry_public_extraction_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     try:
         result = await use_case.execute(token=token, submission_id=submission_id)
+        await _dispatch_processing_job(
+            result,
+            session=session,
+            background_tasks=background_tasks,
+        )
         return await _response_from_dto(result, session=session)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
@@ -471,13 +556,74 @@ async def get_public_upload_passport_image(
     if not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport submission was not found")
 
-    content = await MinioStorageRepository().get_file(submission.image_s3_key)
+    try:
+        content = await MinioStorageRepository().get_file(submission.image_s3_key)
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        )
     return StreamingResponse(
         io.BytesIO(content),
-        media_type="image/jpeg",
+        media_type=mimetypes.guess_type(submission.image_s3_key)[0] or "image/jpeg",
         headers={
-            "Cache-Control": "private, max-age=300",
+            "Cache-Control": "private, no-store",
             "Content-Disposition": 'inline; filename="passport.jpg"',
+        },
+    )
+
+
+@router.get(
+    "/upload/{token}/{submission_id}/image/{document_type}",
+    status_code=status.HTTP_200_OK,
+    summary="Stream one stored public passport document through the API",
+)
+async def get_public_upload_passport_document(
+    token: str,
+    submission_id: uuid.UUID,
+    document_type: str,
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    group = await ClientGroupRepository(session).get_by_token(token)
+    if not group:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Upload link was not found")
+
+    submission = await PassportSubmissionRepository(session).get_by_id(submission_id)
+    if not submission or submission.group_id != group.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport submission was not found",
+        )
+
+    keys = {
+        "front": submission.image_s3_key,
+        "back": submission.passport_back_s3_key,
+        "photo": submission.passport_photo_s3_key,
+    }
+    if document_type not in keys:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Choose front, back, or photo.",
+        )
+    key = keys[document_type]
+    if not key:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The requested passport document was not uploaded.",
+        )
+    try:
+        content = await MinioStorageRepository().get_file(key)
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        )
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=mimetypes.guess_type(key)[0] or "image/jpeg",
+        headers={
+            "Cache-Control": "private, no-store",
+            "Content-Disposition": f'inline; filename="passport-{document_type}"',
         },
     )
 
@@ -494,23 +640,33 @@ async def discard_public_upload(
 ) -> dict[str, bool]:
     group = await ClientGroupRepository(session).get_by_token(token)
     submission_repo = PassportSubmissionRepository(session)
-    submission = await submission_repo.get_by_id(submission_id)
+    submission = await submission_repo.get_by_id_for_update(submission_id)
     if not group or not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport draft was not found")
     if submission.status.value in {"client_submitted", "confirmed"}:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded")
 
-    await MinioStorageRepository().delete_files(
-        [
-            key for key in (
-                submission.image_s3_key,
-                submission.thumbnail_s3_key,
-                submission.passport_photo_s3_key,
-                submission.passport_back_s3_key,
-            ) if key
-        ]
-    )
+    keys = [
+        key for key in (
+            submission.image_s3_key,
+            submission.thumbnail_s3_key,
+            submission.passport_photo_s3_key,
+            submission.passport_back_s3_key,
+        ) if key
+    ]
     await submission_repo.delete(submission.id)
+    # Remove the live database reference first. A failed commit leaves all
+    # stored pages intact; post-commit object cleanup is best effort.
+    await session.commit()
+    try:
+        await MinioStorageRepository().delete_files(keys)
+    except StorageError as exc:
+        logger.warning(
+            "discarded_passport_object_cleanup_deferred",
+            submission_id=str(submission.id),
+            object_count=len(keys),
+            error_type=type(exc).__name__,
+        )
     return {"discarded": True}
 
 
@@ -797,6 +953,7 @@ async def import_passports_by_group(
             existing.client_email = row.client_email
             existing.client_phone = row.client_phone
             existing.departure_city = row.departure_city
+            existing.nearest_domestic_airport = row.nearest_domestic_airport
             existing.staff_metadata = row.staff_metadata or existing.staff_metadata
             existing.confirmed_fields = _merge_excel_fields(existing.confirmed_fields, row.confirmed_fields)
             existing.extracted_fields = _merge_excel_fields(existing.extracted_fields, row.confirmed_fields)
@@ -822,6 +979,7 @@ async def import_passports_by_group(
                 client_email=row.client_email,
                 client_phone=row.client_phone,
                 departure_city=row.departure_city,
+                nearest_domestic_airport=row.nearest_domestic_airport,
                 image_s3_key=f"excel-imports/{group.id}/{submission_id}.placeholder",
                 status="client_submitted",
                 confirmed_fields=row.confirmed_fields or None,
@@ -876,13 +1034,6 @@ def _staff_code_for_submission(submission: PassportSubmissionModel) -> str | Non
     fields = submission.confirmed_fields or submission.extracted_fields or {}
     value = metadata.get("staff_code") or fields.get("staff_code")
     return str(value).strip().upper() if value else None
-
-
-def _merge_back_extraction(fields: dict | None, back_fields: dict[str, object]) -> dict:
-    merged = dict(fields or {})
-    if back_fields.get("raw_text"):
-        merged["passport_back"] = back_fields
-    return merged
 
 
 async def _authorized_passport_document_group(
@@ -992,12 +1143,6 @@ async def save_passport_documents_by_group(
             await storage.upload_file(item.upload.content, key, item.upload.content_type)
             uploaded_keys.append(key)
             setattr(submission, attr, key)
-            if item.document_type == "back":
-                back_result = await PassportBackPageExtractionService().extract(item.upload.content)
-                merged_fields = _merge_back_extraction(submission.extracted_fields, back_result.fields)
-                submission.extracted_fields = merged_fields
-                if submission.confirmed_fields is None:
-                    submission.confirmed_fields = merged_fields
             if old_key and not old_key.startswith("excel-imports/") and old_key != key:
                 replaced_keys.append(old_key)
         await AuditLogRepository(session).record(
@@ -1083,12 +1228,6 @@ async def _save_loose_passport_documents_by_group(
                 await storage.upload_file(item.upload.content, key, item.upload.content_type)
                 uploaded_keys.append(key)
                 setattr(submission, attr, key)
-                if item.document_type == "back":
-                    back_result = await PassportBackPageExtractionService().extract(item.upload.content)
-                    merged_fields = _merge_back_extraction(submission.extracted_fields, back_result.fields)
-                    submission.extracted_fields = merged_fields
-                    if submission.confirmed_fields is None:
-                        submission.confirmed_fields = merged_fields
                 submission.updated_at = datetime.now(tz=UTC)
                 touched_submissions[submission.id] = submission
                 accepted_documents.append(PassportDocumentImportItem(
@@ -1292,6 +1431,9 @@ async def client_submit_passport(
     use_case: ClientSubmitPassportUseCase = Depends(_get_client_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
+    result: PassportSubmissionOutputDTO | None = None
+    committed = False
+    commit_attempted = False
     try:
         result = await use_case.execute(
             submission_id,
@@ -1300,6 +1442,7 @@ async def client_submit_passport(
             client_email=str(body.client_email) if body.client_email else None,
             client_phone=body.client_phone,
             departure_city=body.departure_city,
+            nearest_domestic_airport=body.nearest_domestic_airport,
             base_city=body.base_city,
             staff_code=body.staff_code,
             meal_preference=body.meal_preference,
@@ -1320,7 +1463,6 @@ async def client_submit_passport(
             actor_email=str(body.client_email or body.family_head_email or ""),
             metadata={
                 "group_id": str(result.group_id),
-                "client_phone": body.client_phone,
                 "departure_city": result.departure_city,
                 "submission_mode": result.submission_mode,
                 "family_group_id": str(result.family_group_id) if result.family_group_id else None,
@@ -1335,11 +1477,38 @@ async def client_submit_passport(
             entity_id=str(result.id),
         )
         await _ensure_submission_qr(session, result.id)
+        # Commit the DB transition before deleting superseded draft objects.
+        # A failed commit therefore leaves the original draft keys intact and
+        # the traveller can retry safely.
+        commit_attempted = True
+        await session.commit()
+        committed = True
+        if result.storage_cleanup_keys:
+            try:
+                await MinioStorageRepository().delete_files(
+                    list(result.storage_cleanup_keys)
+                )
+            except StorageError as exc:
+                logger.warning(
+                    "passport_draft_cleanup_deferred",
+                    submission_id=str(result.id),
+                    object_count=len(result.storage_cleanup_keys),
+                    error_type=type(exc).__name__,
+                )
         return PassportSubmissionResponse.model_validate(result)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except PassDetectionError as e:
+        if not committed and not commit_attempted:
+            await _cleanup_uncommitted_promotions(result)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+    except Exception:
+        # Once commit was attempted its outcome can be ambiguous after a
+        # connection loss. Deleting promoted objects could break a row that
+        # PostgreSQL actually committed, so compensate only pre-commit errors.
+        if not committed and not commit_attempted:
+            await _cleanup_uncommitted_promotions(result)
+        raise
 
 
 @router.post(

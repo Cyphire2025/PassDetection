@@ -11,6 +11,8 @@ from typing import Any
 
 from PIL import Image, ImageOps
 
+from app.core.config.settings import get_settings
+
 ROI_TESSERACT_BASE_CONFIG = (
     "--oem 1 --dpi 300 -l eng "
     "-c user_defined_dpi=300 "
@@ -63,7 +65,12 @@ class ROIImageTools:
             import pytesseract
             from pytesseract import Output
 
-            data = pytesseract.image_to_data(image, config=config, output_type=Output.DICT)
+            data = pytesseract.image_to_data(
+                image,
+                config=config,
+                output_type=Output.DICT,
+                timeout=get_settings().roi_field_timeout_seconds,
+            )
         finally:
             image.close()
 
@@ -88,6 +95,6 @@ class ROIImageTools:
     @staticmethod
     def _is_confidence(value: object) -> bool:
         try:
-            return float(value) >= 0
+            return float(str(value)) >= 0
         except (TypeError, ValueError):
             return False

@@ -137,6 +137,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 {"k": "na", "v": "IND", "a": "fill", "c": 0.99},
                 {"k": "ic", "v": "IND", "a": "fill", "c": 0.99},
                 {"k": "db", "v": "2004-12-15", "a": "fill", "c": 0.98},
+                {"k": "di", "v": "2025-03-18", "a": "fill", "c": 0.96},
                 {"k": "de", "v": "2035-03-18", "a": "fill", "c": 0.98},
                 {"k": "sx", "v": "F", "a": "fill", "c": 0.96},
             ],
@@ -153,7 +154,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result.merged_fields["passport_number"], "C9391041")
         self.assertEqual(result.merged_fields["given_names"], "KHUSHI")
-        self.assertEqual(len(result.metadata["filled_fields"]), 8)
+        self.assertEqual(len(result.metadata["filled_fields"]), 9)
+        self.assertEqual(result.merged_fields["date_of_issue"], "2025-03-18")
         self.assertEqual(result.merged_fields["field_validation"]["status"], "valid")
 
     async def test_invalid_or_unknown_response_falls_back_to_ocr(self) -> None:

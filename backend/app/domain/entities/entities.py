@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 
+from app.domain.exceptions.exceptions import ValidationError
+
 
 def _utcnow() -> datetime:
     return datetime.now(tz=UTC)
@@ -62,6 +64,17 @@ class PassportProcessingStatus(str, Enum):
     CLIENT_SUBMITTED = "client_submitted"
     CONFIRMED = "confirmed"
     FAILED = "failed"
+
+
+class PassportExtractionStatus(str, Enum):
+    """Independent OCR state after image persistence succeeds."""
+
+    NOT_STARTED = "not_started"
+    PROCESSING = "processing"
+    COMPLETE = "extraction_complete"
+    PARTIAL = "extraction_partial"
+    FAILED = "extraction_failed"
+    READY_FOR_REVIEW = "ready_for_review"
 
 
 class GroupStatus(str, Enum):
@@ -328,6 +341,8 @@ class ClientGroup:
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -350,11 +365,31 @@ class ClientGroup:
         staff_code_enabled: bool = False,
         meal_preference_enabled: bool = False,
         require_selfie: bool = False,
+        allow_files_from_device: bool = True,
+        ask_nearest_domestic_airport: bool = False,
         notes: str | None = None,
     ) -> ClientGroup:
+        normalized_name = " ".join(name.strip().split())
+        if not normalized_name:
+            raise ValidationError("Group name is required.", field="name")
+        if travel_date and return_date and return_date < travel_date:
+            raise ValidationError(
+                "Return date cannot be before the travel date.",
+                field="return_date",
+            )
+        normalized_departure_cities = (
+            _normalize_departure_cities(departure_cities or [])
+            if nearest_international_airport_enabled
+            else []
+        )
+        if nearest_international_airport_enabled and not normalized_departure_cities:
+            raise ValidationError(
+                "Add at least one nearest international airport.",
+                field="departure_cities",
+            )
         return cls(
             id=_new_uuid(),
-            name=name.strip(),
+            name=normalized_name,
             token=token,
             agency_id=agency_id,
             status=GroupStatus.ACTIVE,
@@ -363,18 +398,86 @@ class ClientGroup:
             travel_date=travel_date,
             return_date=return_date,
             package_name=package_name.strip() if package_name else None,
-            departure_cities=(
-                _normalize_departure_cities(departure_cities or [])
-                if nearest_international_airport_enabled
-                else []
-            ),
+            departure_cities=normalized_departure_cities,
             base_city_enabled=base_city_enabled,
             nearest_international_airport_enabled=nearest_international_airport_enabled,
             staff_code_enabled=staff_code_enabled,
             meal_preference_enabled=meal_preference_enabled,
             require_selfie=require_selfie,
+            allow_files_from_device=allow_files_from_device,
+            ask_nearest_domestic_airport=ask_nearest_domestic_airport,
             notes=notes.strip() if notes else None,
         )
+
+    def update_configuration(
+        self,
+        *,
+        name: str,
+        destination: str | None,
+        travel_date: date | None,
+        return_date: date | None,
+        package_name: str | None,
+        departure_cities: list[str] | None,
+        base_city_enabled: bool,
+        nearest_international_airport_enabled: bool,
+        staff_code_enabled: bool,
+        meal_preference_enabled: bool,
+        require_selfie: bool,
+        allow_files_from_device: bool,
+        ask_nearest_domestic_airport: bool,
+        notes: str | None,
+    ) -> None:
+        """Apply editable group settings through one domain boundary."""
+
+        normalized_name = " ".join(name.strip().split())
+        if not normalized_name:
+            raise ValidationError("Group name is required.", field="name")
+        if travel_date and return_date and return_date < travel_date:
+            raise ValidationError(
+                "Return date cannot be before the travel date.",
+                field="return_date",
+            )
+        normalized_departure_cities = (
+            _normalize_departure_cities(departure_cities or [])
+            if nearest_international_airport_enabled
+            else []
+        )
+        if nearest_international_airport_enabled and not normalized_departure_cities:
+            raise ValidationError(
+                "Add at least one nearest international airport.",
+                field="departure_cities",
+            )
+
+        self.name = normalized_name
+        self.destination = " ".join(destination.strip().split()) if destination else None
+        self.travel_date = travel_date
+        self.return_date = return_date
+        self.package_name = " ".join(package_name.strip().split()) if package_name else None
+        self.departure_cities = normalized_departure_cities
+        self.base_city_enabled = base_city_enabled
+        self.nearest_international_airport_enabled = nearest_international_airport_enabled
+        self.staff_code_enabled = staff_code_enabled
+        self.meal_preference_enabled = meal_preference_enabled
+        self.require_selfie = require_selfie
+        self.allow_files_from_device = allow_files_from_device
+        self.ask_nearest_domestic_airport = ask_nearest_domestic_airport
+        self.notes = notes.strip() if notes else None
+
+    def require_allowed_acquisition_mode(self, acquisition_mode: str) -> str:
+        """Validate whether a public upload came through an enabled capture path."""
+
+        normalized = acquisition_mode.strip().lower()
+        if normalized not in {"camera", "file"}:
+            raise ValidationError(
+                "Choose a supported passport capture method.",
+                field="acquisition_mode",
+            )
+        if normalized == "file" and not self.allow_files_from_device:
+            raise ValidationError(
+                "This group requires live passport scanning. Files from the device are not allowed.",
+                field="acquisition_mode",
+            )
+        return normalized
 
     def is_active(self) -> bool:
         """True if the group is still accepting uploads."""
@@ -447,6 +550,11 @@ class PassportSubmission:
     confidence_score: dict | None              # Layered confidence breakdown
     mrz_raw: str | None                        # Raw MRZ string
     error_message: str | None
+    nearest_domestic_airport: str | None = None
+    acquisition_mode: str = "file"
+    upload_idempotency_key: str | None = None
+    extraction_status: PassportExtractionStatus = PassportExtractionStatus.NOT_STARTED
+    extraction_revision: int = 0
     created_at: datetime = field(default_factory=_utcnow)
     updated_at: datetime = field(default_factory=_utcnow)
     client_reviewed_at: datetime | None = None
@@ -460,7 +568,23 @@ class PassportSubmission:
         client_name: str,
         client_email: str | None,
         image_s3_key: str,
+        acquisition_mode: str = "file",
+        upload_idempotency_key: str | None = None,
     ) -> PassportSubmission:
+        normalized_acquisition_mode = acquisition_mode.strip().lower()
+        if normalized_acquisition_mode not in {"camera", "file"}:
+            raise ValidationError(
+                "Choose a supported passport capture method.",
+                field="acquisition_mode",
+            )
+        normalized_idempotency_key = (
+            upload_idempotency_key.strip() if upload_idempotency_key else None
+        )
+        if normalized_idempotency_key and len(normalized_idempotency_key) > 128:
+            raise ValidationError(
+                "Upload idempotency key is too long.",
+                field="upload_idempotency_key",
+            )
         return cls(
             id=_new_uuid(),
             group_id=group_id,
@@ -469,6 +593,7 @@ class PassportSubmission:
             client_email=client_email.lower().strip() if client_email else None,
             client_phone=None,
             departure_city=None,
+            nearest_domestic_airport=None,
             submission_mode="single",
             family_group_id=None,
             family_member_index=None,
@@ -482,6 +607,10 @@ class PassportSubmission:
             thumbnail_s3_key=None,
             passport_photo_s3_key=None,
             passport_back_s3_key=None,
+            acquisition_mode=normalized_acquisition_mode,
+            upload_idempotency_key=normalized_idempotency_key,
+            extraction_status=PassportExtractionStatus.NOT_STARTED,
+            extraction_revision=0,
             staff_metadata=None,
             status=PassportProcessingStatus.UPLOADED,
             extracted_fields=None,
@@ -492,9 +621,19 @@ class PassportSubmission:
             error_message=None,
         )
 
-    def mark_processing(self) -> None:
-        self.status = PassportProcessingStatus.PROCESSING
+    def mark_processing(self) -> int:
+        """Start a new extraction revision and return its immutable revision."""
+
+        self.extraction_revision += 1
+        self.extraction_status = PassportExtractionStatus.PROCESSING
+        if self.status not in {
+            PassportProcessingStatus.CLIENT_SUBMITTED,
+            PassportProcessingStatus.CONFIRMED,
+        }:
+            self.status = PassportProcessingStatus.PROCESSING
+        self.error_message = None
         self.updated_at = _utcnow()
+        return self.extraction_revision
 
     def mark_review_required(
         self,
@@ -502,7 +641,11 @@ class PassportSubmission:
         confidence: float,
         confidence_score: dict | None = None,
         mrz_raw: str | None = None,
-    ) -> None:
+        *,
+        expected_revision: int | None = None,
+    ) -> bool:
+        if expected_revision is not None and expected_revision != self.extraction_revision:
+            return False
         # Excel imports are an authoritative source. OCR can enrich blank
         # imported fields but must never replace them (or make an imported row
         # disappear from normal group views while it is being reprocessed).
@@ -512,6 +655,18 @@ class PassportSubmission:
         }
         if not preserve_submitted_status:
             self.status = PassportProcessingStatus.REVIEW_REQUIRED
+        required_fields = (
+            "passport_number",
+            "surname",
+            "given_names",
+            "date_of_birth",
+            "date_of_expiry",
+        )
+        self.extraction_status = (
+            PassportExtractionStatus.COMPLETE
+            if all(extracted_fields.get(key) for key in required_fields)
+            else PassportExtractionStatus.PARTIAL
+        )
         self.extracted_fields = extracted_fields
         if self.confirmed_fields is not None:
             merged_fields = dict(self.confirmed_fields)
@@ -524,9 +679,15 @@ class PassportSubmission:
         self.overall_confidence = confidence
         self.confidence_score = confidence_score
         self.mrz_raw = mrz_raw
+        self.error_message = None
         self.updated_at = _utcnow()
+        return True
 
     def confirm(self, confirmed_fields: dict) -> None:
+        # Invalidate any extraction job that started before this correction.
+        self.extraction_revision += 1
+        if self.extraction_status == PassportExtractionStatus.PROCESSING:
+            self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
         self.status = PassportProcessingStatus.CONFIRMED
         self.confirmed_fields = confirmed_fields
         self.confirmed_at = _utcnow()
@@ -536,8 +697,8 @@ class PassportSubmission:
         self,
         confirmed_fields: dict,
         *,
-        client_email: str,
-        client_phone: str,
+        client_email: str | None,
+        client_phone: str | None,
         departure_city: str | None = None,
         submission_mode: str = "single",
         family_group_id: uuid.UUID | None = None,
@@ -548,11 +709,27 @@ class PassportSubmission:
         family_head_email: str | None = None,
         family_head_phone: str | None = None,
         family_broadcast_to_member: bool = False,
+        nearest_domestic_airport: str | None = None,
     ) -> None:
+        # Invalidate any extraction job that started before this correction.
+        self.extraction_revision += 1
+        if self.extraction_status == PassportExtractionStatus.PROCESSING:
+            self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
         self.status = PassportProcessingStatus.CLIENT_SUBMITTED
         self.client_email = client_email.lower().strip() if client_email else None
         self.client_phone = client_phone.strip() if client_phone else None
         self.departure_city = departure_city.strip() if departure_city else None
+        normalized_domestic_airport = (
+            " ".join(nearest_domestic_airport.strip().split())
+            if nearest_domestic_airport
+            else None
+        )
+        if normalized_domestic_airport and len(normalized_domestic_airport) > 120:
+            raise ValidationError(
+                "Nearest domestic airport must be 120 characters or fewer.",
+                field="nearest_domestic_airport",
+            )
+        self.nearest_domestic_airport = normalized_domestic_airport
         self.submission_mode = submission_mode
         self.family_group_id = family_group_id
         self.family_member_index = family_member_index
@@ -580,5 +757,29 @@ class PassportSubmission:
 
     def mark_failed(self, reason: str) -> None:
         self.status = PassportProcessingStatus.FAILED
+        self.extraction_status = PassportExtractionStatus.FAILED
         self.error_message = reason
         self.updated_at = _utcnow()
+
+    def mark_extraction_failed(
+        self,
+        public_message: str = (
+            "Some passport fields could not be read automatically. "
+            "Please enter the missing details manually."
+        ),
+        *,
+        expected_revision: int | None = None,
+    ) -> bool:
+        """Keep stored images reviewable after OCR failure."""
+
+        if expected_revision is not None and expected_revision != self.extraction_revision:
+            return False
+        if self.status not in {
+            PassportProcessingStatus.CLIENT_SUBMITTED,
+            PassportProcessingStatus.CONFIRMED,
+        }:
+            self.status = PassportProcessingStatus.REVIEW_REQUIRED
+        self.extraction_status = PassportExtractionStatus.FAILED
+        self.error_message = public_message
+        self.updated_at = _utcnow()
+        return True

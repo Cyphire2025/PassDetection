@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { AxiosError, isAxiosError } from "axios";
 import {
@@ -14,7 +14,6 @@ import {
   MapPin,
   Phone,
   BadgeCheck,
-  Upload,
   User,
   Users,
   Utensils,
@@ -56,16 +55,26 @@ interface FamilyMember {
   email: string;
   phone: string;
   baseCity: string;
+  nearestDomesticAirport: string;
   staffCode: string;
   mealPreference: string;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
   visaSelfie: File | null;
+  uploadIdempotencyKey: string;
+  extractionNotice: string | null;
 }
 
 interface PassportDocumentBundle {
   front: File | null;
   back: File | null;
+  frontSource: "camera" | "file" | null;
+  backSource: "camera" | "file" | null;
+}
+
+interface ExtractionWaitResult {
+  submission: PassportSubmission;
+  notice: string | null;
 }
 
 const REVIEW_FIELDS = [
@@ -75,10 +84,12 @@ const REVIEW_FIELDS = [
   "nationality",
   "issuing_country",
   "date_of_birth",
+  "date_of_issue",
   "date_of_expiry",
   "sex",
 ] as const;
 
+const REQUIRED_REVIEW_FIELDS = REVIEW_FIELDS.filter((field) => field !== "date_of_issue");
 const RELATIONS = ["Head", "Spouse", "Son", "Daughter", "Father", "Mother", "Brother", "Sister", "Other"];
 const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
 
@@ -94,10 +105,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [clientPhone, setClientPhone] = useState("");
   const [departureCity, setDepartureCity] = useState("");
   const [baseCity, setBaseCity] = useState("");
+  const [nearestDomesticAirport, setNearestDomesticAirport] = useState("");
   const [staffCode, setStaffCode] = useState("");
   const [mealPreference, setMealPreference] = useState("");
   const [submission, setSubmission] = useState<PassportSubmission | null>(null);
   const [reviewFields, setReviewFields] = useState<Record<string, string>>({});
+  const [singleUploadIdempotencyKey, setSingleUploadIdempotencyKey] = useState(
+    () => createIdempotencyKey(),
+  );
+  const [extractionNotice, setExtractionNotice] = useState<string | null>(null);
 
   const [familyGroupId] = useState(() => (typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}`));
   const [familyCountInput, setFamilyCountInput] = useState("2");
@@ -111,20 +127,35 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [processingStage, setProcessingStage] = useState<string>("Uploading securely");
   const [isPreparingFile, setIsPreparingFile] = useState(false);
   const [isScanningAgain, setIsScanningAgain] = useState(false);
+  const [isReplacingSavedPassport, setIsReplacingSavedPassport] = useState(false);
   const [visaSelfie, setVisaSelfie] = useState<File | null>(null);
-  const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>({ front: null, back: null });
+  const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>(() => emptyDocumentBundle());
+  const [scannerPageSide, setScannerPageSide] = useState<"front" | "back">("front");
+  const mountedRef = useRef(true);
+  const operationInFlightRef = useRef(false);
+  const requestControllerRef = useRef<AbortController | null>(null);
   const departureCities = group?.departure_cities ?? [];
   const airportEnabled = Boolean(group?.nearest_international_airport_enabled || departureCities.length > 0);
   const baseCityEnabled = group?.base_city_enabled ?? false;
   const staffCodeEnabled = group?.staff_code_enabled ?? false;
   const mealPreferenceEnabled = group?.meal_preference_enabled ?? false;
   const selfieRequired = group?.require_selfie ?? false;
+  const allowFilesFromDevice = group?.allow_files_from_device ?? true;
+  const askNearestDomesticAirport = group?.ask_nearest_domestic_airport ?? false;
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      requestControllerRef.current?.abort();
+    };
+  }, []);
+
   const selectFamilyMember = (index: number) => {
     setActiveFamilyIndex(index);
-    setDocumentBundle({ front: null, back: null });
+    setDocumentBundle(emptyDocumentBundle());
     setUploadError(null);
   };
 
@@ -206,13 +237,41 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Take the required VISA selfie before continuing.");
       return;
     }
-    await processUpload(documentBundle.front, documentBundle.back, activeVisaSelfie);
+    const acquisitionMode = documentBundle.frontSource === "camera"
+      && documentBundle.backSource === "camera"
+      ? "camera"
+      : "file";
+    if (!allowFilesFromDevice && acquisitionMode !== "camera") {
+      setUploadError("This group requires both passport pages to be captured with the live scanner.");
+      return;
+    }
+    await processUpload(
+      documentBundle.front,
+      documentBundle.back,
+      acquisitionMode,
+      activeVisaSelfie,
+    );
   };
 
   const handleCameraCapture = (file: File) => {
-    setDocumentBundle((current) => ({ ...current, front: file }));
+    const capturedSide = scannerPageSide;
+    setDocumentBundle((current) => ({
+      ...current,
+      [capturedSide]: file,
+      [`${capturedSide}Source`]: "camera",
+    }));
     setUploadError(null);
+    if (capturedSide === "front" && !documentBundle.back) {
+      setScannerPageSide("back");
+      return;
+    }
     setStep("METHOD_SELECT");
+  };
+
+  const openPassportScanner = (pageSide: "front" | "back") => {
+    setScannerPageSide(pageSide);
+    setUploadError(null);
+    setStep("CAMERA");
   };
 
   const handleSelfieCapture = (file: File) => {
@@ -227,43 +286,93 @@ export function UploadFlow({ token }: UploadFlowProps) {
     setStep("METHOD_SELECT");
   };
 
-  const processUpload = async (file: File, passportBackFile: File, passportPhotoFile?: File | null) => {
+  const processUpload = async (
+    file: File,
+    passportBackFile: File,
+    acquisitionMode: "camera" | "file",
+    passportPhotoFile?: File | null,
+  ) => {
+    if (operationInFlightRef.current) return;
     const uploadName = flowMode === "family" ? activeFamilyMember?.name : clientName;
     if (!uploadName || uploadName.trim().length < 2) {
       setUploadError("Enter the passenger name before uploading.");
       return;
     }
+    const familyIndex = flowMode === "family" ? activeFamilyIndex : null;
+    const uploadIdempotencyKey = familyIndex === null
+      ? singleUploadIdempotencyKey
+      : familyMembers[familyIndex]?.uploadIdempotencyKey;
+    if (!uploadIdempotencyKey) {
+      setUploadError("Could not prepare a safe upload attempt. Please try again.");
+      return;
+    }
+
+    operationInFlightRef.current = true;
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
     const stageTimers: number[] = [];
+    let persisted: PassportSubmission | null = null;
     try {
       setUploadError(null);
+      setExtractionNotice(null);
       setIsPreparingFile(true);
       const normalized = await normalizePassportFile(file);
+      if (!mountedRef.current || controller.signal.aborted) return;
       setIsPreparingFile(false);
       setProcessingProgress(null);
-      setProcessingStage("Extracting passport details from the passport image.");
+      setProcessingStage("Validating and saving your passport pages securely.");
       setStep("UPLOADING");
       stageTimers.push(window.setTimeout(() => {
-        setProcessingStage("Verifying the extracted passport details against the image.");
+        if (mountedRef.current) {
+          setProcessingStage("Saving is taking a little longer. It is safe to keep this page open.");
+        }
       }, 3_000));
       stageTimers.push(window.setTimeout(() => {
-        setProcessingStage("This is taking a little longer due to higher traffic. Please keep this page open while verification completes.");
+        if (mountedRef.current) {
+          setProcessingStage("Still confirming secure file storage. Please do not submit the same pages again yet.");
+        }
       }, 15_000));
-      const result = await uploadPassport({
+      persisted = await uploadPassport({
         token,
         client_name: uploadName.trim(),
         file: normalized.file,
         passportPhotoFile,
         passportBackFile,
+        acquisitionMode,
+        uploadIdempotencyKey,
+        signal: controller.signal,
       });
-      const completed = isExtractionComplete(result) ? result : await waitForExtraction(result);
-      setDocumentBundle({ front: null, back: null });
+      stageTimers.forEach((timer) => window.clearTimeout(timer));
+      stageTimers.length = 0;
+      if (!mountedRef.current || controller.signal.aborted) return;
 
-      if (flowMode === "family") {
+      setSubmission(persisted);
+      setProcessingProgress(persisted.processing_progress ?? 0.05);
+      setProcessingStage("Passport pages saved. Reading available details for review.");
+      const waitResult = isExtractionTerminal(persisted)
+        ? { submission: persisted, notice: extractionNoticeFor(persisted) }
+        : await waitForExtraction(persisted, controller.signal);
+      const completed = waitResult.submission;
+      if (!mountedRef.current || controller.signal.aborted) return;
+      setDocumentBundle(emptyDocumentBundle());
+
+      if (familyIndex !== null) {
         const fields = getInitialReviewFields(completed.extracted_fields);
         setFamilyMembers((current) => current.map((member, index) => (
-          index === activeFamilyIndex ? { ...member, submission: completed, reviewFields: fields, visaSelfie: null } : member
+          index === familyIndex
+            ? {
+              ...member,
+              submission: completed,
+              reviewFields: fields,
+              visaSelfie: null,
+              extractionNotice: waitResult.notice,
+            }
+            : member
         )));
-        const nextIndex = familyMembers.findIndex((member, index) => index !== activeFamilyIndex && !member.submission);
+        const nextIndex = familyMembers.findIndex(
+          (member, index) => index !== familyIndex && !member.submission,
+        );
         if (nextIndex >= 0) {
           selectFamilyMember(nextIndex);
           setStep("METHOD_SELECT");
@@ -274,45 +383,101 @@ export function UploadFlow({ token }: UploadFlowProps) {
       }
 
       setSubmission(completed);
+      setExtractionNotice(waitResult.notice);
       setVisaSelfie(null);
       setReviewFields(getInitialReviewFields(completed.extracted_fields));
       setStep("REVIEW");
     } catch (error: unknown) {
+      if (!mountedRef.current || controller.signal.aborted) return;
       setIsPreparingFile(false);
       setProcessingProgress(null);
       setProcessingStage("Uploading securely");
-      setUploadError(errorMessage(error, "Failed to upload file. Please try again."));
-      setStep("METHOD_SELECT");
+      if (persisted) {
+        const notice = "Your passport pages were saved, but automatic reading could not be confirmed. Enter the details manually or retry reading the stored image.";
+        if (familyIndex !== null) {
+          const fields = getInitialReviewFields(persisted.extracted_fields);
+          setFamilyMembers((current) => current.map((member, index) => (
+            index === familyIndex
+              ? {
+                ...member,
+                submission: persisted,
+                reviewFields: fields,
+                visaSelfie: null,
+                extractionNotice: notice,
+              }
+              : member
+          )));
+          setStep("FAMILY_REVIEW");
+        } else {
+          setSubmission(persisted);
+          setReviewFields(getInitialReviewFields(persisted.extracted_fields));
+          setExtractionNotice(notice);
+          setStep("REVIEW");
+        }
+      } else {
+        setUploadError(uploadPersistenceErrorMessage(error));
+        setStep("METHOD_SELECT");
+      }
     } finally {
       stageTimers.forEach((timer) => window.clearTimeout(timer));
+      if (requestControllerRef.current === controller) {
+        requestControllerRef.current = null;
+      }
+      operationInFlightRef.current = false;
     }
   };
 
-  const waitForExtraction = async (initial: PassportSubmission) => {
+  const waitForExtraction = async (
+    initial: PassportSubmission,
+    signal: AbortSignal,
+  ): Promise<ExtractionWaitResult> => {
     let current = initial;
-    setSubmission(current);
-    setProcessingProgress(current.processing_progress ?? 0.05);
-    setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
-
-    const deadline = Date.now() + 120_000;
-    let delayMs = 700;
-    while (Date.now() < deadline) {
-      await sleep(delayMs);
-      current = await uploadApi.getUploadStatus(token, current.id);
+    if (mountedRef.current) {
       setSubmission(current);
-      setProcessingProgress(current.processing_progress ?? null);
-      setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "processing"));
+      setProcessingProgress(current.processing_progress ?? 0.05);
+      setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
+    }
 
-      if (isExtractionComplete(current)) {
-        setProcessingProgress(1);
-        return current;
+    const deadline = Date.now() + 75_000;
+    let delayMs = 700;
+    let consecutiveNetworkFailures = 0;
+    while (Date.now() < deadline && !signal.aborted) {
+      await sleep(delayMs, signal);
+      try {
+        current = await uploadApi.getUploadStatus(token, current.id, signal);
+        consecutiveNetworkFailures = 0;
+      } catch (pollError: unknown) {
+        if (signal.aborted) throw pollError;
+        consecutiveNetworkFailures += 1;
+        if (consecutiveNetworkFailures >= 4) {
+          return {
+            submission: current,
+            notice: "Your passport pages are saved. The connection was interrupted while reading details, so continue manually or retry reading the stored image.",
+          };
+        }
+        delayMs = Math.min(2_500, delayMs + 500);
+        continue;
       }
-      if (current.status === "failed") {
-        throw new Error(current.error_message ?? "Automatic extraction failed. Please scan again.");
+      if (mountedRef.current) {
+        setSubmission(current);
+        setProcessingProgress(current.processing_progress ?? null);
+        setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "processing"));
+      }
+
+      if (isExtractionTerminal(current)) {
+        if (mountedRef.current) setProcessingProgress(1);
+        return {
+          submission: current,
+          notice: extractionNoticeFor(current),
+        };
       }
       delayMs = Math.min(1600, delayMs + 150);
     }
-    throw new Error("Processing is taking longer than expected. Please try again in a moment.");
+    if (signal.aborted) throw new DOMException("Operation cancelled", "AbortError");
+    return {
+      submission: current,
+      notice: "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
+    };
   };
 
   const handleReviewFieldChange = (key: string, value: string) => {
@@ -326,42 +491,144 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const handleScanAgain = async () => {
-    if (!submission) return;
+    if (!submission || isScanningAgain) return;
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
     try {
       setUploadError(null);
+      setExtractionNotice("Retrying automatic reading from the passport image that is already saved.");
       setIsScanningAgain(true);
-      const refreshed = await uploadApi.scanAgain(token, submission.id);
-      setSubmission(refreshed);
-      setReviewFields((current) => mergeMissingReviewFields(current, refreshed.extracted_fields));
+      const queued = await uploadApi.scanAgain(token, submission.id, controller.signal);
+      const waitResult = isExtractionTerminal(queued)
+        ? { submission: queued, notice: extractionNoticeFor(queued) }
+        : await waitForExtraction(queued, controller.signal);
+      if (!mountedRef.current || controller.signal.aborted) return;
+      setSubmission(waitResult.submission);
+      setExtractionNotice(waitResult.notice);
+      setReviewFields((current) => (
+        mergeMissingReviewFields(current, waitResult.submission.extracted_fields)
+      ));
     } catch (error: unknown) {
+      if (!mountedRef.current || controller.signal.aborted) return;
       setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
     } finally {
-      setIsScanningAgain(false);
+      if (mountedRef.current) setIsScanningAgain(false);
+      if (requestControllerRef.current === controller) {
+        requestControllerRef.current = null;
+      }
     }
   };
 
-  const handleBackToUploadMethods = async () => {
-    const draft = submission;
-    setSubmission(null);
-    setReviewFields({});
+  const handleFamilyScanAgain = async (index: number) => {
+    const savedSubmission = familyMembers[index]?.submission;
+    if (!savedSubmission || isScanningAgain) return;
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+    try {
+      setUploadError(null);
+      setIsScanningAgain(true);
+      setFamilyMembers((current) => current.map((member, itemIndex) => (
+        itemIndex === index
+          ? {
+            ...member,
+            extractionNotice: "Retrying automatic reading from the passport image that is already saved.",
+          }
+          : member
+      )));
+      const queued = await uploadApi.scanAgain(token, savedSubmission.id, controller.signal);
+      const waitResult = isExtractionTerminal(queued)
+        ? { submission: queued, notice: extractionNoticeFor(queued) }
+        : await waitForExtraction(queued, controller.signal);
+      if (!mountedRef.current || controller.signal.aborted) return;
+      setFamilyMembers((current) => current.map((member, itemIndex) => (
+        itemIndex === index
+          ? {
+            ...member,
+            submission: waitResult.submission,
+            reviewFields: mergeMissingReviewFields(
+              member.reviewFields,
+              waitResult.submission.extracted_fields,
+            ),
+            extractionNotice: waitResult.notice,
+          }
+          : member
+      )));
+    } catch (error: unknown) {
+      if (!mountedRef.current || controller.signal.aborted) return;
+      setUploadError(errorMessage(error, "Could not scan the stored passport again. Please try again."));
+    } finally {
+      if (mountedRef.current) setIsScanningAgain(false);
+      if (requestControllerRef.current === controller) {
+        requestControllerRef.current = null;
+      }
+    }
+  };
+
+  const handleBackToUploadMethods = () => {
+    requestControllerRef.current?.abort();
     setUploadError(null);
     setProcessingProgress(null);
     setProcessingStage("Uploading securely");
     setStep("METHOD_SELECT");
-    if (draft) {
-      try {
-        await uploadApi.discardUpload(token, draft.id);
-      } catch {
-        // Draft cleanup failure should not block a fresh upload attempt.
+  };
+
+  const replaceSavedPassport = async () => {
+    const savedSubmission = flowMode === "family"
+      ? activeFamilyMember?.submission ?? null
+      : submission;
+    if (!savedSubmission || operationInFlightRef.current) return;
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    setIsScanningAgain(false);
+    operationInFlightRef.current = true;
+    setIsReplacingSavedPassport(true);
+    try {
+      setUploadError(null);
+      await uploadApi.discardUpload(token, savedSubmission.id);
+      if (!mountedRef.current) return;
+      setDocumentBundle(emptyDocumentBundle());
+      if (flowMode === "family") {
+        setFamilyMembers((current) => current.map((member, index) => (
+          index === activeFamilyIndex
+            ? {
+              ...member,
+              submission: null,
+              reviewFields: {},
+              extractionNotice: null,
+              uploadIdempotencyKey: createIdempotencyKey(),
+            }
+            : member
+        )));
+      } else {
+        setSubmission(null);
+        setReviewFields({});
+        setExtractionNotice(null);
+        setSingleUploadIdempotencyKey(createIdempotencyKey());
       }
+    } catch (error: unknown) {
+      if (mountedRef.current) {
+        setUploadError(errorMessage(
+          error,
+          "The saved passport could not be replaced safely. It has been preserved; please try again.",
+        ));
+      }
+    } finally {
+      operationInFlightRef.current = false;
+      if (mountedRef.current) setIsReplacingSavedPassport(false);
     }
   };
 
   const handleFinalSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!submission) return;
-    if (!validateReviewFields(reviewFields)) {
-      setUploadError("Please fill all passport fields before submitting. You can type corrections manually or scan again.");
+    if (!submission || operationInFlightRef.current) return;
+    if (hasMissingRequiredFields(reviewFields)) {
+      setUploadError("Please fill all required passport fields before submitting. Date of Issue may be left empty when it is unavailable.");
+      return;
+    }
+    if (!hasValidReviewDates(reviewFields)) {
+      setUploadError("Enter valid passport dates in YYYY-MM-DD format. Date of Issue is optional, but it cannot be in the future, before birth, or after passport expiry.");
       return;
     }
     if (airportEnabled && !departureCity) {
@@ -370,6 +637,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
     }
     if (baseCityEnabled && !baseCity.trim()) {
       setUploadError("Please enter your base city before submitting.");
+      return;
+    }
+    if (askNearestDomesticAirport && !nearestDomesticAirport.trim()) {
+      setUploadError("Please enter your nearest domestic airport before submitting.");
       return;
     }
     if (staffCodeEnabled && !staffCode.trim()) {
@@ -381,6 +652,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       return;
     }
 
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    setIsScanningAgain(false);
+    operationInFlightRef.current = true;
     try {
       setUploadError(null);
       setStep("SUBMITTING");
@@ -392,6 +667,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
         client_phone: clientPhone,
         departure_city: departureCity || null,
         base_city: baseCity.trim() || null,
+        nearest_domestic_airport: nearestDomesticAirport.trim() || null,
         staff_code: staffCode.trim() || null,
         meal_preference: mealPreference || null,
         submission_mode: "single",
@@ -400,11 +676,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
       setStep("REVIEW");
+    } finally {
+      operationInFlightRef.current = false;
     }
   };
 
   const handleFamilySubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (operationInFlightRef.current) return;
     if (airportEnabled && !departureCity) {
       setUploadError("Please select the family nearest international airport before submitting.");
       return;
@@ -418,13 +697,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError(`Upload passport for ${missingUpload.name || "every family member"} before submitting.`);
       return;
     }
-    const invalidReview = familyMembers.find((member) => hasMissingRequiredFields(member.reviewFields));
+    const invalidReview = familyMembers.find((member) => (
+      hasMissingRequiredFields(member.reviewFields) || !hasValidReviewDates(member.reviewFields)
+    ));
     if (invalidReview) {
       setUploadError(`Fill all passport fields for ${invalidReview.name}.`);
       return;
     }
     const missingConfiguredField = familyMembers.find((member) => (
       (baseCityEnabled && !member.baseCity.trim())
+      || (askNearestDomesticAirport && !member.nearestDomesticAirport.trim())
       || (staffCodeEnabled && !member.staffCode.trim())
       || (mealPreferenceEnabled && !member.mealPreference)
     ));
@@ -433,6 +715,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       return;
     }
 
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    setIsScanningAgain(false);
+    operationInFlightRef.current = true;
     try {
       setUploadError(null);
       setStep("SUBMITTING");
@@ -446,6 +732,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
           client_phone: member.phone.trim() || null,
           departure_city: departureCity || null,
           base_city: member.baseCity.trim() || null,
+          nearest_domestic_airport: member.nearestDomesticAirport.trim() || null,
           staff_code: member.staffCode.trim() || null,
           meal_preference: member.mealPreference || null,
           submission_mode: "family",
@@ -462,6 +749,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
       setStep("FAMILY_REVIEW");
+    } finally {
+      operationInFlightRef.current = false;
     }
   };
 
@@ -482,7 +771,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (step === "CAMERA") {
-    return <SmartCamera onCapture={handleCameraCapture} onCancel={() => setStep("METHOD_SELECT")} />;
+    return (
+      <SmartCamera
+        key={scannerPageSide}
+        pageSide={scannerPageSide}
+        allowFileFallback={allowFilesFromDevice}
+        onCapture={handleCameraCapture}
+        onCancel={() => setStep("METHOD_SELECT")}
+      />
+    );
   }
 
   if (step === "SELFIE_CAMERA") {
@@ -512,14 +809,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
       <ReviewLayout
         title="Verify Passport Details"
         description="Please check every field carefully before submitting."
-        image={submission.image_url ? API_ENDPOINTS.passports.uploadImage(token, submission.id) : null}
-        photoImage={submission.passport_photo_url ?? null}
-        backImage={submission.passport_back_url ?? null}
+        image={API_ENDPOINTS.passports.uploadDocumentImage(token, submission.id, "front")}
+        photoImage={submission.passport_photo_s3_key
+          ? API_ENDPOINTS.passports.uploadDocumentImage(token, submission.id, "photo")
+          : null}
+        backImage={submission.passport_back_s3_key
+          ? API_ENDPOINTS.passports.uploadDocumentImage(token, submission.id, "back")
+          : null}
         fields={submission.extracted_fields}
         onBack={handleBackToUploadMethods}
       >
         <form onSubmit={handleFinalSubmit} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
           <ReviewWarning />
+          <ExtractionNotice message={extractionNotice} />
           <ErrorMessage message={uploadError} />
           {hasMissingRequiredFields(reviewFields) && (
             <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
@@ -546,16 +848,24 @@ export function UploadFlow({ token }: UploadFlowProps) {
           />
           <ConfiguredClientFields
             baseCityEnabled={baseCityEnabled}
+            askNearestDomesticAirport={askNearestDomesticAirport}
             staffCodeEnabled={staffCodeEnabled}
             mealPreferenceEnabled={mealPreferenceEnabled}
             baseCity={baseCity}
+            nearestDomesticAirport={nearestDomesticAirport}
             staffCode={staffCode}
             mealPreference={mealPreference}
             onBaseCity={setBaseCity}
+            onNearestDomesticAirport={setNearestDomesticAirport}
             onStaffCode={setStaffCode}
             onMealPreference={setMealPreference}
           />
-          <Button type="submit" size="lg" className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isScanningAgain}
+            className="mt-6 h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
+          >
             Submit Verified Details
           </Button>
         </form>
@@ -598,9 +908,13 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                   {member.submission ? (
                     <div className="relative w-full">
-                      {member.submission.passport_photo_url && (
+                      {member.submission.passport_photo_s3_key && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={member.submission.passport_photo_url} alt={`${member.name} VISA selfie photo`} className="block h-auto w-full border-b border-slate-200" />
+                        <img
+                          src={API_ENDPOINTS.passports.uploadDocumentImage(token, member.submission.id, "photo")}
+                          alt={`${member.name} VISA selfie photo`}
+                          className="block h-auto w-full border-b border-slate-200"
+                        />
                       )}
                       <div className="relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -611,9 +925,13 @@ export function UploadFlow({ token }: UploadFlowProps) {
                         />
                         <PassportRoiOverlays fields={member.submission.extracted_fields} />
                       </div>
-                      {member.submission.passport_back_url && (
+                      {member.submission.passport_back_s3_key && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={member.submission.passport_back_url} alt={`${member.name} passport back`} className="block h-auto w-full border-t border-slate-200" />
+                        <img
+                          src={API_ENDPOINTS.passports.uploadDocumentImage(token, member.submission.id, "back")}
+                          alt={`${member.name} passport back`}
+                          className="block h-auto w-full border-t border-slate-200"
+                        />
                       )}
                     </div>
                   ) : (
@@ -622,6 +940,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 </div>
                 <div>
                   <ReviewWarning />
+                  <ExtractionNotice message={member.extractionNotice} />
+                  {hasMissingRequiredFields(member.reviewFields) && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="mb-4"
+                      onClick={() => handleFamilyScanAgain(index)}
+                      disabled={isScanningAgain}
+                    >
+                      {isScanningAgain ? "Reading saved image" : "Retry reading saved image"}
+                    </Button>
+                  )}
                   <ReviewFields fields={member.reviewFields} onChange={(key, value) => handleFamilyReviewFieldChange(index, key, value)} />
                 </div>
               </div>
@@ -635,12 +966,15 @@ export function UploadFlow({ token }: UploadFlowProps) {
               </div>
               <ConfiguredClientFields
                 baseCityEnabled={baseCityEnabled}
+                askNearestDomesticAirport={askNearestDomesticAirport}
                 staffCodeEnabled={staffCodeEnabled}
                 mealPreferenceEnabled={mealPreferenceEnabled}
                 baseCity={member.baseCity}
+                nearestDomesticAirport={member.nearestDomesticAirport}
                 staffCode={member.staffCode}
                 mealPreference={member.mealPreference}
                 onBaseCity={(value) => updateFamilyMember(index, { baseCity: value })}
+                onNearestDomesticAirport={(value) => updateFamilyMember(index, { nearestDomesticAirport: value })}
                 onStaffCode={(value) => updateFamilyMember(index, { staffCode: value })}
                 onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
               />
@@ -657,7 +991,12 @@ export function UploadFlow({ token }: UploadFlowProps) {
               <DepartureCitySelect value={departureCity} cities={departureCities} onChange={setDepartureCity} className="mt-4" />
             )}
           </section>
-          <Button type="submit" size="lg" className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isScanningAgain}
+            className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700"
+          >
             Submit Family Details
           </Button>
         </form>
@@ -812,10 +1151,23 @@ export function UploadFlow({ token }: UploadFlowProps) {
                           onClick={() => setStep("SELFIE_CAMERA")}
                         />
                       )}
-                      <PassportUploadSection>
-                        <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Capture the passport data page, then add the required back page." onClick={() => setStep("CAMERA")} />
-                        <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
-                      </PassportUploadSection>
+                      {activeFamilyMember.submission ? (
+                        <SavedPassportActions
+                          onResume={() => setStep("FAMILY_REVIEW")}
+                          onReplace={replaceSavedPassport}
+                          isReplacing={isReplacingSavedPassport}
+                        />
+                      ) : (
+                        <PassportUploadSection allowFilesFromDevice={allowFilesFromDevice}>
+                          <PassportDocumentBundlePanel
+                            bundle={documentBundle}
+                            allowFilesFromDevice={allowFilesFromDevice}
+                            onChange={setDocumentBundle}
+                            onScan={openPassportScanner}
+                            onUpload={handleBundleUpload}
+                          />
+                        </PassportUploadSection>
+                      )}
                     </div>
                   </section>
                 </div>
@@ -831,10 +1183,23 @@ export function UploadFlow({ token }: UploadFlowProps) {
                   </div>
                   <div className="space-y-4">
                     {selfieRequired && <VisaSelfieChoice file={activeVisaSelfie} onClick={() => setStep("SELFIE_CAMERA")} />}
-                    <PassportUploadSection>
-                      <ChoiceCard icon={<Camera className="h-6 w-6" />} title="Scan passport front page" description="Capture the passport data page, then add the required back page." onClick={() => setStep("CAMERA")} />
-                      <PassportDocumentBundlePanel bundle={documentBundle} onChange={setDocumentBundle} onUpload={handleBundleUpload} />
-                    </PassportUploadSection>
+                    {submission ? (
+                      <SavedPassportActions
+                        onResume={() => setStep("REVIEW")}
+                        onReplace={replaceSavedPassport}
+                        isReplacing={isReplacingSavedPassport}
+                      />
+                    ) : (
+                      <PassportUploadSection allowFilesFromDevice={allowFilesFromDevice}>
+                        <PassportDocumentBundlePanel
+                          bundle={documentBundle}
+                          allowFilesFromDevice={allowFilesFromDevice}
+                          onChange={setDocumentBundle}
+                          onScan={openPassportScanner}
+                          onUpload={handleBundleUpload}
+                        />
+                      </PassportUploadSection>
+                    )}
                   </div>
                 </>
               )}
@@ -856,16 +1221,28 @@ function createFamilyMember(index: number): FamilyMember {
     email: "",
     phone: "",
     baseCity: "",
+    nearestDomesticAirport: "",
     staffCode: "",
     mealPreference: "",
     submission: null,
     reviewFields: {},
     visaSelfie: null,
+    uploadIdempotencyKey: createIdempotencyKey(),
+    extractionNotice: null,
   };
 }
 
 function createFamilyMembers(count: number) {
   return Array.from({ length: count }, (_, index) => createFamilyMember(index));
+}
+
+function emptyDocumentBundle(): PassportDocumentBundle {
+  return {
+    front: null,
+    back: null,
+    frontSource: null,
+    backSource: null,
+  };
 }
 
 function UploadHeader({ groupName }: { groupName: string }) {
@@ -913,13 +1290,23 @@ function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () =>
   );
 }
 
-function PassportUploadSection({ children }: { children: ReactNode }) {
+function PassportUploadSection({
+  children,
+  allowFilesFromDevice,
+}: {
+  children: ReactNode;
+  allowFilesFromDevice: boolean;
+}) {
   return (
     <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 marker:hidden sm:p-5">
         <div>
           <h4 className="text-base font-bold text-slate-900">Passport</h4>
-          <p className="mt-1 text-sm text-slate-500">Scan the front page or upload passport files.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {allowFilesFromDevice
+              ? "Scan both passport pages live or choose existing images from this device."
+              : "Live scanning is mandatory for both passport pages in this group."}
+          </p>
         </div>
         <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
       </summary>
@@ -932,64 +1319,166 @@ function PassportUploadSection({ children }: { children: ReactNode }) {
 
 function PassportDocumentBundlePanel({
   bundle,
+  allowFilesFromDevice,
   onChange,
+  onScan,
   onUpload,
 }: {
   bundle: PassportDocumentBundle;
+  allowFilesFromDevice: boolean;
   onChange: (bundle: PassportDocumentBundle) => void;
+  onScan: (pageSide: "front" | "back") => void;
   onUpload: () => void;
 }) {
-  const update = (key: keyof PassportDocumentBundle, file: File | null) => {
-    onChange({ ...bundle, [key]: file });
+  const updateFile = (pageSide: "front" | "back", file: File | null) => {
+    onChange(pageSide === "front"
+      ? { ...bundle, front: file, frontSource: file ? "file" : null }
+      : { ...bundle, back: file, backSource: file ? "file" : null });
   };
 
   return (
     <div className="rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-start gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
-          <Upload className="h-6 w-6" />
+          <Camera className="h-6 w-6" />
         </div>
         <div className="min-w-0">
-          <h4 className="text-base font-bold text-slate-900">Upload Files</h4>
-          <p className="mt-1 text-sm leading-5 text-slate-500">Add both the passport front page and back page.</p>
+          <h4 className="text-base font-bold text-slate-900">Capture both passport pages</h4>
+          <p className="mt-1 text-sm leading-5 text-slate-500">
+            The back page is stored with your passport but is not read for details.
+          </p>
         </div>
       </div>
-      <div className="grid gap-3">
-        <PassportDocumentFileInput label="Passport front page" file={bundle.front} onChange={(file) => update("front", file)} required />
-        <PassportDocumentFileInput label="Passport back page" file={bundle.back} onChange={(file) => update("back", file)} required />
+
+      {!allowFilesFromDevice && (
+        <div role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm font-medium leading-5 text-blue-900">
+          Live scanning is required. Gallery and file-picker options are disabled for this group.
+        </div>
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <PassportPageCaptureControl
+          pageSide="front"
+          file={bundle.front}
+          source={bundle.frontSource}
+          allowFilesFromDevice={allowFilesFromDevice}
+          onScan={() => onScan("front")}
+          onFileChange={(file) => updateFile("front", file)}
+        />
+        <PassportPageCaptureControl
+          pageSide="back"
+          file={bundle.back}
+          source={bundle.backSource}
+          allowFilesFromDevice={allowFilesFromDevice}
+          onScan={() => onScan("back")}
+          onFileChange={(file) => updateFile("back", file)}
+        />
       </div>
       <Button type="button" className="mt-4 h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700" onClick={onUpload} disabled={!bundle.front || !bundle.back}>
-        Upload selected files
+        Save passport pages
       </Button>
     </div>
   );
 }
 
-function PassportDocumentFileInput({
-  label,
-  file,
-  onChange,
-  required = false,
+function SavedPassportActions({
+  onResume,
+  onReplace,
+  isReplacing,
 }: {
-  label: string;
-  file: File | null;
-  onChange: (file: File | null) => void;
-  required?: boolean;
+  onResume: () => void;
+  onReplace: () => void;
+  isReplacing: boolean;
 }) {
   return (
-    <label className="block rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <span className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold text-slate-700">
-        <span>{label}</span>
-        {required && <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">Required</span>}
-      </span>
-      <input
-        type="file"
-        accept="image/*"
-        className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700"
-        onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-      />
-      {file && <span className="mt-2 block truncate text-xs font-medium text-emerald-700">{file.name}</span>}
-    </label>
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+      <div className="flex items-start gap-3">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+        <div>
+          <h4 className="text-sm font-bold text-emerald-950">Passport pages saved</h4>
+          <p className="mt-1 text-sm leading-5 text-emerald-800">
+            Continue reviewing the saved images. Replacing them is an explicit action, so back-navigation will not discard a successful upload.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Button type="button" onClick={onResume} disabled={isReplacing}>
+          Resume review
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onReplace}
+          disabled={isReplacing}
+          aria-busy={isReplacing}
+        >
+          {isReplacing && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+          {isReplacing ? "Replacing saved pages" : "Replace saved pages"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function PassportPageCaptureControl({
+  pageSide,
+  file,
+  source,
+  allowFilesFromDevice,
+  onScan,
+  onFileChange,
+}: {
+  pageSide: "front" | "back";
+  file: File | null;
+  source: "camera" | "file" | null;
+  allowFilesFromDevice: boolean;
+  onScan: () => void;
+  onFileChange: (file: File | null) => void;
+}) {
+  const label = `Passport ${pageSide} page`;
+  const inputId = `passport-${pageSide}-file`;
+
+  return (
+    <section aria-labelledby={`${inputId}-label`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h5 id={`${inputId}-label`} className="text-sm font-semibold text-slate-800">{label}</h5>
+          <p className="mt-1 truncate text-xs text-slate-500">
+            {file ? `${source === "camera" ? "Live scan" : "Device file"}: ${file.name}` : "Required"}
+          </p>
+        </div>
+        {file && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" aria-label={`${label} ready`} />}
+      </div>
+
+      <Button
+        type="button"
+        variant={file && source === "camera" ? "secondary" : "outline"}
+        size="sm"
+        className="w-full"
+        onClick={onScan}
+        aria-label={`${file && source === "camera" ? "Retake" : "Scan"} passport ${pageSide} page with live camera`}
+      >
+        <Camera className="h-4 w-4" aria-hidden="true" />
+        {file && source === "camera" ? "Retake live scan" : `Scan ${pageSide} page`}
+      </Button>
+
+      {allowFilesFromDevice && (
+        <div className="mt-3">
+          <label htmlFor={inputId} className="mb-1.5 block text-xs font-semibold text-slate-600">
+            Or choose image from device
+          </label>
+          <input
+            key={`${pageSide}:${source ?? "empty"}:${file?.name ?? ""}`}
+            id={inputId}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="block w-full text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-white file:px-2.5 file:py-2 file:text-xs file:font-semibold file:text-slate-700"
+            onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+            aria-label={`Choose passport ${pageSide} page image from device`}
+          />
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -1023,13 +1512,29 @@ function SelectInput({ label, value, values, onChange, disabled = false }: { lab
   );
 }
 
-function ContactInput({ icon, label, type, value, onChange, required = false }: { icon: ReactNode; label: string; type: string; value: string; onChange: (value: string) => void; required?: boolean }) {
+function ContactInput({
+  icon,
+  label,
+  type,
+  value,
+  onChange,
+  required = false,
+  maxLength,
+}: {
+  icon: ReactNode;
+  label: string;
+  type: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  maxLength?: number;
+}) {
   return (
     <label className="block min-w-0 space-y-1.5">
       <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
       <div className="relative min-w-0">
         <span className="absolute left-3 top-3 text-slate-400">{icon}</span>
-        <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" required={required} />
+        <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" required={required} maxLength={maxLength} />
       </div>
     </label>
   );
@@ -1072,26 +1577,32 @@ function ContactSection({
 
 function ConfiguredClientFields({
   baseCityEnabled,
+  askNearestDomesticAirport,
   staffCodeEnabled,
   mealPreferenceEnabled,
   baseCity,
+  nearestDomesticAirport,
   staffCode,
   mealPreference,
   onBaseCity,
+  onNearestDomesticAirport,
   onStaffCode,
   onMealPreference,
 }: {
   baseCityEnabled: boolean;
+  askNearestDomesticAirport: boolean;
   staffCodeEnabled: boolean;
   mealPreferenceEnabled: boolean;
   baseCity: string;
+  nearestDomesticAirport: string;
   staffCode: string;
   mealPreference: string;
   onBaseCity: (value: string) => void;
+  onNearestDomesticAirport: (value: string) => void;
   onStaffCode: (value: string) => void;
   onMealPreference: (value: string) => void;
 }) {
-  if (!baseCityEnabled && !staffCodeEnabled && !mealPreferenceEnabled) return null;
+  if (!baseCityEnabled && !askNearestDomesticAirport && !staffCodeEnabled && !mealPreferenceEnabled) return null;
 
   return (
     <div className="mt-5 grid gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
@@ -1103,6 +1614,17 @@ function ConfiguredClientFields({
           value={baseCity}
           onChange={onBaseCity}
           required
+        />
+      )}
+      {askNearestDomesticAirport && (
+        <ContactInput
+          icon={<MapPin className="h-5 w-5" />}
+          label="Nearest Domestic Airport"
+          type="text"
+          value={nearestDomesticAirport}
+          onChange={onNearestDomesticAirport}
+          required
+          maxLength={120}
         />
       )}
       {staffCodeEnabled && (
@@ -1230,12 +1752,28 @@ function ErrorMessage({ message }: { message: string | null }) {
 function ReviewFields({ fields, onChange }: { fields: Record<string, string>; onChange: (key: string, value: string) => void }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {REVIEW_FIELDS.map((key) => (
-        <label key={key} className="space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{toLabel(key)}</span>
-          <Input value={fields[key] ?? ""} onChange={(event) => onChange(key, event.target.value)} placeholder="Not extracted" className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" />
-        </label>
-      ))}
+      {REVIEW_FIELDS.map((key) => {
+        const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
+        const isOptional = key === "date_of_issue";
+        return (
+          <label key={key} className="space-y-1.5">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              {toLabel(key)}
+              {isOptional && <span className="normal-case tracking-normal text-slate-400">(optional)</span>}
+            </span>
+            <Input
+              type={isDate ? "date" : "text"}
+              value={fields[key] ?? ""}
+              onChange={(event) => onChange(key, event.target.value)}
+              placeholder={isOptional ? "Leave empty if unavailable" : "Not extracted"}
+              min="1900-01-01"
+              max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
+              required={!isOptional}
+              className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
+            />
+          </label>
+        );
+      })}
     </div>
   );
 }
@@ -1283,15 +1821,9 @@ function getInitialReviewFields(fields: ExtractedPassportFields | null) {
 }
 
 function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {
-  const verification = fields?.ai_verification;
-  const correctedFields = new Set(
-    verification && Array.isArray(verification.corrected_fields)
-      ? verification.corrected_fields.filter((field): field is string => typeof field === "string")
-      : [],
-  );
   return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {
     const value = fields?.[key];
-    if (typeof value === "string" && value.trim() && (correctedFields.has(key) || !next[key]?.trim())) {
+    if (typeof value === "string" && value.trim() && !next[key]?.trim()) {
       next[key] = value;
     }
     return next;
@@ -1299,15 +1831,52 @@ function mergeMissingReviewFields(current: Record<string, string>, fields: Extra
 }
 
 function hasMissingRequiredFields(fields: Record<string, string>) {
-  return REVIEW_FIELDS.some((key) => !fields[key]?.trim());
+  return REQUIRED_REVIEW_FIELDS.some((key) => !fields[key]?.trim());
 }
 
-function validateReviewFields(fields: Record<string, string>) {
-  return !hasMissingRequiredFields(fields);
+function ExtractionNotice({ message }: { message: string | null }) {
+  if (!message) return null;
+  return (
+    <div role="status" aria-live="polite" className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm font-medium leading-5 text-blue-900">
+      {message}
+    </div>
+  );
+}
+
+function hasValidReviewDates(fields: Record<string, string>) {
+  const dateOfBirth = fields.date_of_birth?.trim() ?? "";
+  const dateOfIssue = fields.date_of_issue?.trim() ?? "";
+  const dateOfExpiry = fields.date_of_expiry?.trim() ?? "";
+  if (![dateOfBirth, dateOfExpiry].every(isValidIsoDate)) return false;
+  if (dateOfIssue && !isValidIsoDate(dateOfIssue)) return false;
+
+  const today = todayIsoDate();
+  if (dateOfBirth >= today || (dateOfIssue && dateOfIssue > today)) return false;
+  if (dateOfIssue && dateOfIssue <= dateOfBirth) return false;
+  if (dateOfIssue && dateOfExpiry && dateOfIssue >= dateOfExpiry) return false;
+  if (dateOfExpiry <= dateOfBirth) return false;
+  return true;
 }
 
 function cleanReviewFields(fields: Record<string, string>) {
   return Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.trim()]).filter(([, value]) => value));
+}
+
+function isValidIsoDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return year >= 1900
+    && year <= 2200
+    && parsed.getUTCFullYear() === year
+    && parsed.getUTCMonth() === month - 1
+    && parsed.getUTCDate() === day;
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  const localDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60_000));
+  return localDate.toISOString().slice(0, 10);
 }
 
 function toLabel(value: string) {
@@ -1315,12 +1884,56 @@ function toLabel(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function isExtractionComplete(submission: PassportSubmission) {
-  return submission.status === "review_required" && Boolean(submission.extracted_fields);
+function createIdempotencyKey() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `upload-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function sleep(delayMs: number) {
-  return new Promise((resolve) => window.setTimeout(resolve, delayMs));
+function yesterdayIsoDate() {
+  const today = new Date(`${todayIsoDate()}T00:00:00`);
+  today.setDate(today.getDate() - 1);
+  return today.toISOString().slice(0, 10);
+}
+
+function isExtractionTerminal(submission: PassportSubmission) {
+  return [
+    "extraction_complete",
+    "extraction_partial",
+    "extraction_failed",
+    "ready_for_review",
+  ].includes(submission.extraction_status)
+    || submission.status === "review_required"
+    || submission.status === "failed";
+}
+
+function extractionNoticeFor(submission: PassportSubmission) {
+  if (submission.extraction_status === "extraction_failed" || submission.status === "failed") {
+    return "Your passport pages were saved, but some details could not be read automatically. Enter the missing fields manually or retry reading the stored image.";
+  }
+  if (submission.extraction_status === "extraction_partial") {
+    return "Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.";
+  }
+  return null;
+}
+
+function sleep(delayMs: number, signal: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException("Operation cancelled", "AbortError"));
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, delayMs);
+    const onAbort = () => {
+      window.clearTimeout(timer);
+      reject(new DOMException("Operation cancelled", "AbortError"));
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
 }
 
 function stageLabel(stage: string) {
@@ -1374,6 +1987,7 @@ function isNormalizedBbox(value: unknown): value is [number, number, number, num
 }
 
 function submitErrorMessage(error: unknown) {
+  if (isPublicApiError(error)) return error.message;
   if (isAxiosError(error)) {
     return extractApiErrorDetail(error.response?.data) ?? "Could not submit reviewed details. Please check the contact details.";
   }
@@ -1381,11 +1995,31 @@ function submitErrorMessage(error: unknown) {
 }
 
 function errorMessage(error: unknown, fallback: string) {
+  if (isPublicApiError(error)) return error.message;
   if (error instanceof Error && !(error instanceof AxiosError)) return error.message;
   if (isAxiosError(error)) {
     return extractApiErrorDetail(error.response?.data) ?? fallback;
   }
   return fallback;
+}
+
+function uploadPersistenceErrorMessage(error: unknown) {
+  if (isPublicApiError(error)) return error.message;
+  if (isAxiosError(error)) {
+    const detail = extractApiErrorDetail(error.response?.data);
+    if (error.response?.status && error.response.status >= 400 && error.response.status < 500) {
+      return detail ?? "The passport pages were rejected. Check the file type and size, then try again.";
+    }
+    return detail
+      ?? "We could not confirm that the passport pages were saved. Retry safely; the same upload will not create a duplicate.";
+  }
+  return "We could not confirm that the passport pages were saved. Check your connection and retry safely.";
+}
+
+function isPublicApiError(error: unknown): error is { code: string; message: string } {
+  if (!error || typeof error !== "object") return false;
+  const candidate = error as { code?: unknown; message?: unknown };
+  return typeof candidate.code === "string" && typeof candidate.message === "string";
 }
 
 function extractApiErrorDetail(payload: unknown) {

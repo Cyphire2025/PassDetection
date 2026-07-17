@@ -7,19 +7,25 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class ConfirmPassportSubmissionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     confirmed_fields: dict[str, str] = Field(..., min_length=1)
 
 
 class ClientSubmitPassportRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     confirmed_fields: dict[str, str] = Field(..., min_length=1)
     client_email: EmailStr | None = None
     client_phone: str | None = Field(default=None, min_length=7, max_length=32)
     departure_city: str | None = Field(default=None, max_length=120)
+    nearest_domestic_airport: str | None = Field(default=None, max_length=120)
     base_city: str | None = Field(default=None, max_length=120)
     staff_code: str | None = Field(default=None, max_length=80)
     meal_preference: str | None = Field(default=None, max_length=20)
@@ -87,6 +93,7 @@ class PassportSubmissionResponse(BaseModel):
     client_email: str | None = None
     client_phone: str | None = None
     departure_city: str | None = None
+    nearest_domestic_airport: str | None = None
     submission_mode: str = "single"
     family_group_id: uuid.UUID | None = None
     family_member_index: int | None = None
@@ -101,6 +108,17 @@ class PassportSubmissionResponse(BaseModel):
     passport_photo_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
+    acquisition_mode: Literal["camera", "file"] = "file"
+    upload_idempotency_key: str | None = Field(default=None, max_length=128)
+    extraction_status: Literal[
+        "not_started",
+        "processing",
+        "extraction_complete",
+        "extraction_partial",
+        "extraction_failed",
+        "ready_for_review",
+    ] = "not_started"
+    extraction_revision: int = Field(default=0, ge=0)
     status: str
     created_at: datetime
     updated_at: datetime
@@ -143,6 +161,8 @@ class PassportGroupSummaryResponse(BaseModel):
     staff_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
+    allow_files_from_device: bool = True
+    ask_nearest_domestic_airport: bool = False
     notes: str | None = None
 
     model_config = {"from_attributes": True}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 
 from app.application.use_cases.passports.process_passport_submission_job_use_case import (
@@ -42,3 +43,20 @@ async def run_passport_processing_job(*, job_id: str, submission_id: str, allow_
             raise
         finally:
             await session.close()
+
+
+async def run_passport_processing_job_locally(*, job_id: str, submission_id: str) -> None:
+    """Run bounded retries when no external queue is configured."""
+
+    retry_number = 0
+    while True:
+        try:
+            await run_passport_processing_job(
+                job_id=job_id,
+                submission_id=submission_id,
+                allow_retry=True,
+            )
+            return
+        except ProcessingRetryRequested:
+            retry_number += 1
+            await asyncio.sleep(min(15, 2 ** retry_number))

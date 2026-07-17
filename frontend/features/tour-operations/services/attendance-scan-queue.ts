@@ -1,24 +1,32 @@
 import { operationsApi, type AttendanceScanResponse } from "@/features/operations/api/operations.api";
+import { useAuthStore } from "@/stores/auth.store";
 
-export interface PendingAttendanceScan {
-  id: string;
+export interface AttendanceScanInput {
   sessionId: string;
   qrPayload: string;
   clientEventId: string;
   scannedAt: string;
   deviceId: string;
+}
+
+export interface PendingAttendanceScan extends AttendanceScanInput {
+  id: string;
+  ownerUserId: string;
   queuedAt: string;
 }
 
 const DB_NAME = "passdetection-tour-ops";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = "pending-attendance-scans";
+const OWNER_INDEX = "owner-user-id";
 
-export async function enqueueAttendanceScan(scan: Omit<PendingAttendanceScan, "id" | "queuedAt">) {
-  const id = getStableScanQueueId(scan.sessionId, scan.qrPayload);
+export async function enqueueAttendanceScan(scan: AttendanceScanInput) {
+  const ownerUserId = requireCurrentUserId();
+  const id = getStableScanQueueId(ownerUserId, scan.sessionId, scan.qrPayload);
   const pendingScan: PendingAttendanceScan = {
     ...scan,
     id,
+    ownerUserId,
     queuedAt: new Date().toISOString(),
   };
   const db = await openDb();
@@ -33,35 +41,51 @@ export async function enqueueAttendanceScan(scan: Omit<PendingAttendanceScan, "i
 }
 
 export async function countPendingAttendanceScans() {
+  const ownerUserId = getCurrentUserId();
+  if (!ownerUserId) return 0;
   const db = await openDb();
-  const count = await requestToPromise<number>(db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).count());
+  const store = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME);
+  const count = await requestToPromise<number>(store.index(OWNER_INDEX).count(ownerUserId));
   db.close();
   return count;
 }
 
 export async function listPendingAttendanceScans() {
+  const ownerUserId = getCurrentUserId();
+  if (!ownerUserId) return [];
   const db = await openDb();
+  const store = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME);
   const scans = await requestToPromise<PendingAttendanceScan[]>(
-    db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll(),
+    store.index(OWNER_INDEX).getAll(ownerUserId),
   );
   db.close();
   return scans.sort((a, b) => a.queuedAt.localeCompare(b.queuedAt));
 }
 
 export async function removePendingAttendanceScan(id: string) {
+  const ownerUserId = getCurrentUserId();
+  if (!ownerUserId) return;
   const db = await openDb();
-  await requestToPromise(db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME).delete(id));
+  const transaction = db.transaction(STORE_NAME, "readwrite");
+  const store = transaction.objectStore(STORE_NAME);
+  const existing = await requestToPromise<PendingAttendanceScan | undefined>(store.get(id));
+  if (existing?.ownerUserId === ownerUserId) {
+    await requestToPromise(store.delete(id));
+  }
   db.close();
 }
 
 export async function syncPendingAttendanceScans() {
   if (!navigator.onLine) return { synced: 0, failed: 0 };
 
+  const ownerUserId = getCurrentUserId();
+  if (!ownerUserId) return { synced: 0, failed: 0 };
   const scans = await listPendingAttendanceScans();
   let synced = 0;
   let failed = 0;
 
   for (const scan of scans) {
+    if (getCurrentUserId() !== ownerUserId || scan.ownerUserId !== ownerUserId) break;
     try {
       await operationsApi.scanMyAttendanceSession({
         sessionId: scan.sessionId,
@@ -81,7 +105,7 @@ export async function syncPendingAttendanceScans() {
   return { synced, failed };
 }
 
-export async function tryRecordAttendanceScan(scan: Omit<PendingAttendanceScan, "id" | "queuedAt">): Promise<
+export async function tryRecordAttendanceScan(scan: AttendanceScanInput): Promise<
   | { mode: "online"; response: AttendanceScanResponse }
   | { mode: "queued"; pending: PendingAttendanceScan; duplicate: boolean }
 > {
@@ -109,17 +133,23 @@ export async function tryRecordAttendanceScan(scan: Omit<PendingAttendanceScan, 
   }
 }
 
-function getStableScanQueueId(sessionId: string, qrPayload: string) {
-  return `${sessionId}:${qrPayload}`;
+function getStableScanQueueId(ownerUserId: string, sessionId: string, qrPayload: string) {
+  return `${ownerUserId}:${sessionId}:${qrPayload}`;
 }
 
 function openDb() {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const db = request.result;
+      // Version 1 records were not user-scoped. Remove that legacy store
+      // rather than risk syncing one coordinator's queue under another login.
+      if (db.objectStoreNames.contains(STORE_NAME) && event.oldVersion < 2) {
+        db.deleteObjectStore(STORE_NAME);
+      }
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -138,4 +168,14 @@ function isLikelyNetworkFailure(error: unknown) {
   if (!navigator.onLine) return true;
   if (!(error instanceof Error)) return false;
   return /network|fetch|timeout|offline|connection/i.test(error.message);
+}
+
+function getCurrentUserId() {
+  return useAuthStore.getState().user?.id ?? null;
+}
+
+function requireCurrentUserId() {
+  const userId = getCurrentUserId();
+  if (!userId) throw new Error("An authenticated coordinator session is required.");
+  return userId;
 }

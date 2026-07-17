@@ -13,6 +13,8 @@ Rules:
 
 from __future__ import annotations
 
+import uuid
+
 
 class PassDetectionError(Exception):
     """Base exception for all platform errors."""
@@ -52,7 +54,7 @@ class TokenExpiredError(AuthenticationError):
 class EntityNotFoundError(PassDetectionError):
     """Raised when a requested entity does not exist."""
 
-    def __init__(self, entity: str, identifier: str | int) -> None:
+    def __init__(self, entity: str, identifier: str | int | uuid.UUID) -> None:
         super().__init__(
             f"{entity} with identifier '{identifier}' was not found",
             code="NOT_FOUND",

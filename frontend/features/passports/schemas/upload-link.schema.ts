@@ -11,6 +11,8 @@ export const createUploadLinkSchema = z.object({
   staff_code_enabled: z.boolean(),
   meal_preference_enabled: z.boolean(),
   require_selfie: z.boolean(),
+  allow_files_from_device: z.boolean(),
+  ask_nearest_domestic_airport: z.boolean(),
   notes: z.string().max(2000).optional(),
 }).superRefine((data, context) => {
   if (data.nearest_international_airport_enabled && data.departure_cities.length === 0) {

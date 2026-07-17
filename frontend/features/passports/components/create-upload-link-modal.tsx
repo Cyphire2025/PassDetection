@@ -3,7 +3,7 @@
 import { X, Copy, Check } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
@@ -13,6 +13,7 @@ import {
 } from "@/lib/utils/public-url";
 import { createUploadLinkSchema, type CreateUploadLinkFormData } from "../schemas/upload-link.schema";
 import { useCreateUploadLink } from "../hooks/use-upload-links";
+import { GroupOptionToggle } from "./group-option-toggle";
 
 interface CreateUploadLinkModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
   const [cityInput, setCityInput] = useState("");
+  const copiedTimerRef = useRef<number | null>(null);
   const { mutateAsync: createUploadLink, isPending } = useCreateUploadLink();
 
   const {
@@ -45,6 +47,8 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       staff_code_enabled: false,
       meal_preference_enabled: false,
       require_selfie: false,
+      allow_files_from_device: true,
+      ask_nearest_domestic_airport: false,
       notes: "",
     },
   });
@@ -54,6 +58,12 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const staffCodeEnabled = useWatch({ control, name: "staff_code_enabled" }) ?? false;
   const mealPreferenceEnabled = useWatch({ control, name: "meal_preference_enabled" }) ?? false;
   const requireSelfie = useWatch({ control, name: "require_selfie" }) ?? false;
+  const allowFilesFromDevice = useWatch({ control, name: "allow_files_from_device" }) ?? true;
+  const askNearestDomesticAirport = useWatch({ control, name: "ask_nearest_domestic_airport" }) ?? false;
+
+  useEffect(() => () => {
+    if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -76,6 +86,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   };
 
   const handleClose = () => {
+    if (copiedTimerRef.current !== null) {
+      window.clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = null;
+    }
     reset();
     setGeneratedTargets([]);
     setCopiedTargetKey(null);
@@ -102,8 +116,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const copyTarget = async (target: PassportUploadTarget) => {
     await copyTextToClipboard(target.url);
     setCopiedTargetKey(target.key);
-    window.setTimeout(() => {
+    if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
+    copiedTimerRef.current = window.setTimeout(() => {
       setCopiedTargetKey((current) => current === target.key ? null : current);
+      copiedTimerRef.current = null;
     }, 2000);
   };
 
@@ -117,7 +133,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
             {hasGeneratedTargets ? "Links Generated" : "Create Upload Link"}
           </h2>
           <button
+            type="button"
             onClick={handleClose}
+            aria-label="Close create upload link dialog"
             className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
             <X className="h-5 w-5" />
@@ -205,13 +223,25 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
               </div>
 
               <div className="space-y-3">
-                <FormOptionToggle
+                <GroupOptionToggle
+                  label="Allow files from device"
+                  description="Let travellers choose existing passport images from their gallery or file picker in addition to using the live scanner."
+                  checked={allowFilesFromDevice}
+                  onChange={(checked) => setValue("allow_files_from_device", checked, { shouldDirty: true })}
+                />
+                <GroupOptionToggle
+                  label="Ask for nearest domestic airport"
+                  description="Require each traveller to enter their nearest domestic airport during passport review."
+                  checked={askNearestDomesticAirport}
+                  onChange={(checked) => setValue("ask_nearest_domestic_airport", checked, { shouldDirty: true })}
+                />
+                <GroupOptionToggle
                   label="VISA Selfie Photo"
                   description="Require each client to capture a passport-size selfie against a plain white wall."
                   checked={requireSelfie}
                   onChange={(checked) => setValue("require_selfie", checked, { shouldDirty: true })}
                 />
-                <FormOptionToggle
+                <GroupOptionToggle
                   label="Base City"
                   description="Require each client to enter the city where they reside."
                   checked={baseCityEnabled}
@@ -219,7 +249,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
 
                 <div className={`rounded-xl border p-4 transition-colors ${airportEnabled ? "border-blue-200 bg-blue-50/40" : "border-slate-200 bg-white"}`}>
-                  <FormOptionToggle
+                  <GroupOptionToggle
                     label="Nearest International Airport"
                     description="Require clients to select one airport from your list."
                     checked={airportEnabled}
@@ -270,13 +300,13 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   )}
                 </div>
 
-                <FormOptionToggle
+                <GroupOptionToggle
                   label="Staff Code"
                   description="Require each client to enter their staff code."
                   checked={staffCodeEnabled}
                   onChange={(checked) => setValue("staff_code_enabled", checked, { shouldDirty: true })}
                 />
-                <FormOptionToggle
+                <GroupOptionToggle
                   label="Meal Preference"
                   description="Require each client to choose Veg, Non Veg, or Jain."
                   checked={mealPreferenceEnabled}
@@ -321,41 +351,4 @@ function normalizeCities(values: string[]) {
     cities.push(city);
   }
   return cities;
-}
-
-function FormOptionToggle({
-  label,
-  description,
-  checked,
-  onChange,
-  borderless = false,
-}: {
-  label: string;
-  description: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  borderless?: boolean;
-}) {
-  const containerClassName = borderless
-    ? "flex items-start justify-between gap-4"
-    : `flex items-start justify-between gap-4 rounded-xl border p-4 transition-colors ${checked ? "border-blue-200 bg-blue-50/40" : "border-slate-200 bg-white"}`;
-
-  return (
-    <div className={containerClassName}>
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-slate-800">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={`${checked ? "Disable" : "Enable"} ${label}`}
-        onClick={() => onChange(!checked)}
-        className={`relative mt-0.5 inline-flex h-7 w-12 shrink-0 overflow-hidden rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${checked ? "border-blue-600 bg-blue-600" : "border-slate-300 bg-slate-200"}`}
-      >
-        <span className={`pointer-events-none absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-slate-900/5 transition-transform duration-200 ${checked ? "translate-x-5" : "translate-x-0"}`} />
-      </button>
-    </div>
-  );
 }

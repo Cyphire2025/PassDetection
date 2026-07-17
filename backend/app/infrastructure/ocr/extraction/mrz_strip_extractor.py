@@ -30,7 +30,10 @@ class MRZStripExtractor:
         try:
             import pytesseract  # noqa: F401
         except Exception as exc:
-            logger.warning("mrz_strip_ocr_unavailable", error=str(exc))
+            logger.warning(
+                "mrz_strip_ocr_unavailable",
+                error_type=type(exc).__name__,
+            )
             return []
 
         jobs = await asyncio.to_thread(self._preprocessor.mrz_tesseract_jobs, image_bytes)
@@ -40,7 +43,10 @@ class MRZStripExtractor:
         seen: set[str] = set()
         for result in results:
             if isinstance(result, BaseException):
-                logger.warning("mrz_strip_ocr_failed", error=str(result))
+                logger.warning(
+                    "mrz_strip_ocr_failed",
+                    error_type=type(result).__name__,
+                )
                 continue
             normalized_key = "".join(result.text.split()).upper()
             if normalized_key and normalized_key not in seen:
@@ -52,7 +58,12 @@ class MRZStripExtractor:
         started = time.perf_counter()
         try:
             text = await asyncio.wait_for(
-                asyncio.to_thread(self._image_to_string, image, config),
+                asyncio.to_thread(
+                    self._image_to_string,
+                    image,
+                    config,
+                    self._timeout_seconds,
+                ),
                 timeout=self._timeout_seconds,
             )
         except TimeoutError:
@@ -70,7 +81,15 @@ class MRZStripExtractor:
         )
 
     @staticmethod
-    def _image_to_string(image, config: str) -> str:  # type: ignore[no-untyped-def]
+    def _image_to_string(
+        image,
+        config: str,
+        timeout_seconds: float,
+    ) -> str:  # type: ignore[no-untyped-def]
         import pytesseract
 
-        return pytesseract.image_to_string(image, config=config)
+        return pytesseract.image_to_string(
+            image,
+            config=config,
+            timeout=timeout_seconds,
+        )

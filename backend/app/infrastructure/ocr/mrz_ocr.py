@@ -36,8 +36,14 @@ class ICAOTD3MRZOCR:
 
     engine_name = "tesseract"
 
-    def __init__(self, *, normalizer: MRZImageNormalizer | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        normalizer: MRZImageNormalizer | None = None,
+        timeout_seconds: float = 3.0,
+    ) -> None:
         self._normalizer = normalizer or MRZImageNormalizer()
+        self._timeout_seconds = timeout_seconds
 
     def read(self, crop: Image.Image, *, normalize: bool = False) -> MRZOCRResult:
         started = time.perf_counter()
@@ -50,6 +56,7 @@ class ICAOTD3MRZOCR:
                 prepared,
                 config=MRZ_TESSERACT_CONFIG,
                 output_type=Output.DICT,
+                timeout=self._timeout_seconds,
             )
         finally:
             prepared.close()

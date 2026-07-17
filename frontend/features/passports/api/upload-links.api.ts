@@ -19,6 +19,8 @@ export interface CreateUploadLinkRequest {
   staff_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
+  allow_files_from_device: boolean;
+  ask_nearest_domestic_airport: boolean;
   notes?: string | null;
 }
 
@@ -41,6 +43,8 @@ export interface UploadLinkResponse {
   staff_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
+  allow_files_from_device: boolean;
+  ask_nearest_domestic_airport: boolean;
   notes: string | null;
   deleted_at: string | null;
   deleted_passport_count: number;

@@ -12,6 +12,7 @@ from datetime import UTC, date, datetime
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     Enum,
@@ -146,6 +147,12 @@ class ClientGroupModel(Base):
     staff_code_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     meal_preference_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     require_selfie: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    allow_files_from_device: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true"
+    )
+    ask_nearest_domestic_airport: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_passport_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -334,6 +341,28 @@ class CoordinatorGroupAssignmentModel(Base):
 
 class PassportSubmissionModel(Base):
     __tablename__ = "passport_submissions"
+    __table_args__ = (
+        UniqueConstraint(
+            "group_id",
+            "upload_idempotency_key",
+            name="uq_passport_submissions_group_upload_key",
+        ),
+        CheckConstraint(
+            "acquisition_mode IN ('camera', 'file')",
+            name="ck_passport_submissions_acquisition_mode",
+        ),
+        CheckConstraint(
+            "extraction_status IN ("
+            "'not_started', 'processing', 'extraction_complete', "
+            "'extraction_partial', 'extraction_failed', 'ready_for_review'"
+            ")",
+            name="ck_passport_submissions_extraction_status",
+        ),
+        CheckConstraint(
+            "extraction_revision >= 0",
+            name="ck_passport_submissions_extraction_revision",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id: Mapped[uuid.UUID] = mapped_column(
@@ -346,6 +375,7 @@ class PassportSubmissionModel(Base):
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     client_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
     departure_city: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
+    nearest_domestic_airport: Mapped[str | None] = mapped_column(String(120), nullable=True)
     submission_mode: Mapped[str] = mapped_column(String(20), nullable=False, default="single", server_default="single")
     family_group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
     family_member_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -362,6 +392,16 @@ class PassportSubmissionModel(Base):
     staff_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     passport_back_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    acquisition_mode: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="file", server_default="file"
+    )
+    upload_idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    extraction_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="not_started", server_default="not_started"
+    )
+    extraction_revision: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
     status: Mapped[str] = mapped_column(
         Enum(
             "pending_upload", "uploaded", "processing",
@@ -706,6 +746,19 @@ class AttendanceRecordModel(Base):
 
 class PassportProcessingJobModel(Base):
     __tablename__ = "passport_processing_jobs"
+    __table_args__ = (
+        CheckConstraint(
+            "extraction_revision >= 0",
+            name="ck_passport_processing_jobs_extraction_revision",
+        ),
+        Index(
+            "uq_passport_processing_jobs_active_revision",
+            "submission_id",
+            "extraction_revision",
+            unique=True,
+            postgresql_where=text("status IN ('queued', 'running')"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     submission_id: Mapped[uuid.UUID] = mapped_column(
@@ -715,6 +768,9 @@ class PassportProcessingJobModel(Base):
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    extraction_revision: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
     progress: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     current_stage: Mapped[str | None] = mapped_column(String(120), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)

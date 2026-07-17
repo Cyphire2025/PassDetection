@@ -75,6 +75,11 @@ export const API_ENDPOINTS = {
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,
     uploadImage: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/image`,
+    uploadDocumentImage: (
+      token: string,
+      id: string,
+      documentType: "front" | "back" | "photo",
+    ) => `/api/v1/passports/upload/${token}/${id}/image/${documentType}`,
     uploadScanAgain: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/scan-again`,
     discardUpload: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}`,
     confirm: (id: string) => `/api/v1/passports/${id}/confirm`,

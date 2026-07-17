@@ -1,11 +1,12 @@
 "use client";
 
-import { Archive, Check, CheckCircle2, Clock, Copy, Link2, Pencil, RotateCcw, Trash2, XCircle } from "lucide-react";
+import { Archive, Check, CheckCircle2, Clock, Copy, Link2, Pencil, RotateCcw, Trash2, X, XCircle } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { ConfirmDialog, TextInputDialog } from "@/components/ui";
+import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
@@ -19,6 +20,7 @@ import {
   useUploadLinks,
 } from "../hooks/use-upload-links";
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
+import { GroupOptionToggle } from "./group-option-toggle";
 
 export function UploadLinkList() {
   const role = useAuthStore(selectUserRole);
@@ -36,6 +38,8 @@ export function UploadLinkList() {
   const [renameTarget, setRenameTarget] = useState<UploadLinkResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UploadLinkResponse | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [editAllowFilesFromDevice, setEditAllowFilesFromDevice] = useState(true);
+  const [editAskNearestDomesticAirport, setEditAskNearestDomesticAirport] = useState(false);
   const { data: activeLinks = [], isLoading: isLoadingActive } = useUploadLinks();
   const { data: archivedLinks = [], isLoading: isLoadingArchived } = useUploadLinks("archived");
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
@@ -43,6 +47,13 @@ export function UploadLinkList() {
   const { mutate: restoreLink, isPending: isRestoring } = useRestoreUploadLink();
   const { mutate: renameLink, isPending: isRenaming } = useUpdateUploadLink();
   const { mutate: permanentlyDeleteLink, isPending: isPermanentlyDeleting } = usePermanentlyDeleteUploadLink();
+
+  const openGroupEditor = (link: UploadLinkResponse) => {
+    setRenameTarget(link);
+    setRenameValue(link.name);
+    setEditAllowFilesFromDevice(link.allow_files_from_device ?? true);
+    setEditAskNearestDomesticAirport(link.ask_nearest_domestic_airport ?? false);
+  };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
     try {
@@ -108,10 +119,7 @@ export function UploadLinkList() {
               onConfirm: () => archiveLink(id, { onSuccess: () => setConfirmAction(null) }),
             });
           }}
-          onRename={(link) => {
-            setRenameTarget(link);
-            setRenameValue(link.name);
-          }}
+          onRename={openGroupEditor}
           isMutating={isClosing || isArchiving || isRenaming}
         />
       )}
@@ -137,10 +145,7 @@ export function UploadLinkList() {
             copiedLinkKey={copiedLinkKey}
             onCopy={copyUploadLink}
             onRestore={(id) => restoreLink(id)}
-            onRename={(link) => {
-              setRenameTarget(link);
-              setRenameValue(link.name);
-            }}
+            onRename={openGroupEditor}
             onPermanentDelete={(id) => {
               setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
             }}
@@ -161,20 +166,23 @@ export function UploadLinkList() {
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmAction?.onConfirm()}
       />
-      <TextInputDialog
-        isOpen={Boolean(renameTarget)}
-        title="Rename Group"
-        description="Update the group name shown in upload links, passport queues, and exports."
-        label="Group name"
-        value={renameValue}
-        confirmLabel="Save Name"
+      <EditGroupDialog
+        group={renameTarget}
+        name={renameValue}
+        allowFilesFromDevice={editAllowFilesFromDevice}
+        askNearestDomesticAirport={editAskNearestDomesticAirport}
         isLoading={isRenaming}
-        onValueChange={setRenameValue}
+        onNameChange={setRenameValue}
+        onAllowFilesFromDeviceChange={setEditAllowFilesFromDevice}
+        onAskNearestDomesticAirportChange={setEditAskNearestDomesticAirport}
         onClose={() => setRenameTarget(null)}
         onConfirm={() => {
           if (!renameTarget) return;
           const nextName = renameValue.trim();
-          if (!nextName || nextName === renameTarget.name) {
+          const hasChanges = nextName !== renameTarget.name
+            || editAllowFilesFromDevice !== (renameTarget.allow_files_from_device ?? true)
+            || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false);
+          if (!nextName || !hasChanges) {
             setRenameTarget(null);
             return;
           }
@@ -192,6 +200,8 @@ export function UploadLinkList() {
               staff_code_enabled: renameTarget.staff_code_enabled,
               meal_preference_enabled: renameTarget.meal_preference_enabled,
               require_selfie: renameTarget.require_selfie,
+              allow_files_from_device: editAllowFilesFromDevice,
+              ask_nearest_domestic_airport: editAskNearestDomesticAirport,
               notes: renameTarget.notes,
             },
             { onSuccess: () => setRenameTarget(null) },
@@ -217,6 +227,102 @@ export function UploadLinkList() {
           );
         }}
       />
+    </div>
+  );
+}
+
+function EditGroupDialog({
+  group,
+  name,
+  allowFilesFromDevice,
+  askNearestDomesticAirport,
+  isLoading,
+  onNameChange,
+  onAllowFilesFromDeviceChange,
+  onAskNearestDomesticAirportChange,
+  onConfirm,
+  onClose,
+}: {
+  group: UploadLinkResponse | null;
+  name: string;
+  allowFilesFromDevice: boolean;
+  askNearestDomesticAirport: boolean;
+  isLoading: boolean;
+  onNameChange: (value: string) => void;
+  onAllowFilesFromDeviceChange: (checked: boolean) => void;
+  onAskNearestDomesticAirportChange: (checked: boolean) => void;
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  if (!group) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-passport-group-title"
+    >
+      <form
+        className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onConfirm();
+        }}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
+          <div>
+            <h2 id="edit-passport-group-title" className="text-lg font-semibold text-slate-900">
+              Edit Group
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              Update the group name and traveller passport-capture requirements.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Close edit group dialog"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="space-y-4 px-6 py-5">
+          <Input
+            label="Group name"
+            value={name}
+            maxLength={100}
+            required
+            autoFocus
+            disabled={isLoading}
+            onChange={(event) => onNameChange(event.target.value)}
+          />
+          <GroupOptionToggle
+            label="Allow files from device"
+            description="When disabled, travellers must capture both passport pages with the live camera."
+            checked={allowFilesFromDevice}
+            disabled={isLoading}
+            onChange={onAllowFilesFromDeviceChange}
+          />
+          <GroupOptionToggle
+            label="Ask for nearest domestic airport"
+            description="When enabled, each traveller must provide their nearest domestic airport during review."
+            checked={askNearestDomesticAirport}
+            disabled={isLoading}
+            onChange={onAskNearestDomesticAirportChange}
+          />
+        </div>
+        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" isLoading={isLoading} disabled={!name.trim()}>
+            Save changes
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -301,7 +407,7 @@ function UploadLinkTable({
                     )}
                     {onRename && (
                       <Button type="button" variant="secondary" size="sm" onClick={() => onRename(link)} disabled={isMutating}>
-                        <Pencil className="h-3.5 w-3.5" /> Rename
+                        <Pencil className="h-3.5 w-3.5" /> Edit
                       </Button>
                     )}
                     {link.status !== "archived" && onArchive && (

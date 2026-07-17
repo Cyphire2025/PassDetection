@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
+from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.infrastructure.ocr.roi.base import ROIExtractionResult, ROIFieldExtractor
 from app.infrastructure.ocr.roi.common import ROIImageTools
 from app.infrastructure.ocr.roi.extractors.date_of_birth_roi import DateOfBirthROIExtractor
 from app.infrastructure.ocr.roi.extractors.date_of_expiry_roi import DateOfExpiryROIExtractor
+from app.infrastructure.ocr.roi.extractors.date_of_issue_roi import DateOfIssueROIExtractor
 from app.infrastructure.ocr.roi.extractors.given_names_roi import GivenNamesROIExtractor
 from app.infrastructure.ocr.roi.extractors.nationality_roi import NationalityROIExtractor
 from app.infrastructure.ocr.roi.extractors.passport_number_roi import PassportNumberROIExtractor
@@ -34,12 +37,13 @@ class ROIFallbackService:
     """Runs only requested field extractors against the full passport image."""
 
     def __init__(self, extractors: Iterable[ROIFieldExtractor] | None = None) -> None:
-        registered = list(extractors) if extractors is not None else [
+        registered: list[ROIFieldExtractor] = list(extractors) if extractors is not None else [
             PassportNumberROIExtractor(),
             SurnameROIExtractor(),
             GivenNamesROIExtractor(),
             DateOfBirthROIExtractor(),
             DateOfExpiryROIExtractor(),
+            DateOfIssueROIExtractor(),
             SexROIExtractor(),
             NationalityROIExtractor(),
         ]
@@ -53,21 +57,38 @@ class ROIFallbackService:
         if not attempted:
             return ROIFallbackResult({}, {}, [], [], self._elapsed_ms(started))
 
-        try:
-            image = ROIImageTools.open_image(image_bytes)
-        except Exception as exc:
-            logger.warning("roi_fallback_image_open_failed", error=str(exc))
-            return ROIFallbackResult({}, {}, attempted, [], self._elapsed_ms(started), {"error": str(exc)})
-
-        try:
-            for field_name in attempted:
-                result = self._extractors[field_name].extract(image)
-                if result is None:
-                    continue
-                fields[result.field_name] = result.value
-                provenance[result.field_name] = self._provenance(result)
-        finally:
-            image.close()
+        timeout_seconds = get_settings().roi_field_timeout_seconds
+        for field_name in attempted:
+            try:
+                # Each worker owns its decoded image. If a native OCR call
+                # outlives the await timeout, no shared PIL object is closed
+                # underneath that worker and the FastAPI event loop stays free.
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        self._extract_one,
+                        self._extractors[field_name],
+                        image_bytes,
+                    ),
+                    timeout=timeout_seconds,
+                )
+            except TimeoutError:
+                logger.warning(
+                    "roi_fallback_field_timeout",
+                    field=field_name,
+                    timeout_seconds=timeout_seconds,
+                )
+                continue
+            except Exception as exc:
+                logger.warning(
+                    "roi_fallback_field_failed",
+                    field=field_name,
+                    error_type=type(exc).__name__,
+                )
+                continue
+            if result is None:
+                continue
+            fields[result.field_name] = result.value
+            provenance[result.field_name] = self._provenance(result)
 
         return ROIFallbackResult(
             fields=fields,
@@ -76,6 +97,17 @@ class ROIFallbackService:
             recovered_fields=sorted(fields),
             duration_ms=self._elapsed_ms(started),
         )
+
+    @staticmethod
+    def _extract_one(
+        extractor: ROIFieldExtractor,
+        image_bytes: bytes,
+    ) -> ROIExtractionResult | None:
+        image = ROIImageTools.open_image(image_bytes)
+        try:
+            return extractor.extract(image)
+        finally:
+            image.close()
 
     @staticmethod
     def _provenance(result: ROIExtractionResult) -> dict[str, object]:

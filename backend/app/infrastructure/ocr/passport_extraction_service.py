@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import time
+from collections.abc import Mapping
 from typing import Any
 
 from app.application.interfaces.passport_extraction import (
@@ -11,6 +13,7 @@ from app.application.interfaces.passport_extraction import (
 )
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.domain.value_objects.passport_fields import normalize_extracted_passport_dates
 from app.infrastructure.observability import metrics
 from app.infrastructure.ocr.cache import ExtractionCache
 from app.infrastructure.ocr.confidence import PassportConfidenceScoringService
@@ -75,11 +78,11 @@ class PassportExtractionService(IPassportExtractionService):
             )
 
         normalized_started = time.perf_counter()
-        normalized = self._preprocessor.normalize(file_content)
+        normalized = await asyncio.to_thread(self._preprocessor.normalize, file_content)
         timings.append(StageTiming("image_normalization", self._elapsed_ms(normalized_started)))
 
         quality_started = time.perf_counter()
-        quality = self._preprocessor.assess_quality(normalized)
+        quality = await asyncio.to_thread(self._preprocessor.assess_quality, normalized)
         timings.append(StageTiming("image_quality_assessment", self._elapsed_ms(quality_started)))
 
         mrz_result = await self._mrz_extractor.extract(normalized)
@@ -127,6 +130,7 @@ class PassportExtractionService(IPassportExtractionService):
             correction_provenance=correction_provenance,
             sources=sources,
         )
+        merged = normalize_extracted_passport_dates(merged)
 
         evidence = self._evidence(fields, sources)
         confidence = self._scorer.score(
@@ -198,7 +202,7 @@ class PassportExtractionService(IPassportExtractionService):
         validation: Any,
         mrz_ocr_text: str | None,
         corrected_mrz_text: str | None,
-        correction_provenance: dict[str, dict[str, str | float]],
+        correction_provenance: Mapping[str, Mapping[str, object]],
         sources: dict[str, str],
     ) -> dict[str, Any]:
         merged: dict[str, Any] = dict(fields)
@@ -242,9 +246,13 @@ class PassportExtractionService(IPassportExtractionService):
         self,
         fields: dict[str, str],
         validation: Any,
-        correction_provenance: dict[str, dict[str, str | float]],
+        correction_provenance: Mapping[str, Mapping[str, object]],
     ) -> set[str]:
         invalid = {field for field in CORE_FIELDS if not fields.get(field)}
+        # Date of issue is not encoded in TD3 MRZ data. Always request its
+        # label-anchored visual ROI when it is not already present.
+        if not fields.get("date_of_issue"):
+            invalid.add("date_of_issue")
         invalid.update(issue.field for issue in validation.issues if issue.field in CORE_FIELDS)
         for field_name, provenance in correction_provenance.items():
             if field_name in CORE_FIELDS and provenance.get("checksum_status") in {"fail", "review_required"}:
@@ -256,13 +264,16 @@ class PassportExtractionService(IPassportExtractionService):
         *,
         fields: dict[str, str],
         mrz_fields: dict[str, str],
-        correction_provenance: dict[str, dict[str, str | float]],
+        correction_provenance: Mapping[str, Mapping[str, object]],
         invalid_fields: set[str],
         roi_result: ROIFallbackResult,
     ) -> tuple[dict[str, str], dict[str, str], dict[str, dict[str, object]]]:
         merged_fields = dict(fields)
         sources = self._field_sources(merged_fields, mrz_fields)
-        provenance: dict[str, dict[str, object]] = dict(correction_provenance)
+        provenance = {
+            field_name: dict(field_provenance)
+            for field_name, field_provenance in correction_provenance.items()
+        }
 
         for field_name, value in roi_result.fields.items():
             if field_name not in invalid_fields:

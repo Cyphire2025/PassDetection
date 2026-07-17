@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import os
 import unittest
+from datetime import date
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -19,6 +20,7 @@ from app.infrastructure.ocr.mrz import TD3MRZParser
 from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.ocr.preprocessing import ImageQualityAssessment, OCRImagePreprocessor
+from app.infrastructure.ocr.roi.extractors.date_of_issue_roi import DateOfIssueROIExtractor
 from app.infrastructure.ocr.roi.service import ROIFallbackResult
 from app.infrastructure.ocr.stage1_extractor import MRZStageResult, Stage1MRZExtractor
 
@@ -355,6 +357,19 @@ class FakeROIFallback:
             recovered_fields=sorted(recovered),
             duration_ms=3.0,
         )
+
+
+class DateOfIssueROIExtractorTests(unittest.TestCase):
+    def test_normalizes_supported_printed_date_formats(self) -> None:
+        self.assertEqual(DateOfIssueROIExtractor.parse_date("18/03/2025"), "2025-03-18")
+        self.assertEqual(DateOfIssueROIExtractor.parse_date("18 MAR 2025"), "2025-03-18")
+        self.assertEqual(DateOfIssueROIExtractor.parse_date("2025-03-18"), "2025-03-18")
+
+    def test_rejects_invalid_and_future_dates(self) -> None:
+        self.assertIsNone(DateOfIssueROIExtractor.parse_date("31/02/2025"))
+        future_year = date.today().year + 1
+        self.assertIsNone(DateOfIssueROIExtractor.parse_date(f"01/01/{future_year}"))
+        self.assertIsNone(DateOfIssueROIExtractor.parse_date("unreadable"))
 
 
 class PassportExtractionMRZOnlyTests(unittest.IsolatedAsyncioTestCase):

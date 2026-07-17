@@ -22,6 +22,7 @@ except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
+from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.router import api_v1_router
 from app.presentation.middleware.error_handler import register_exception_handlers
 from app.presentation.middleware.metrics import MetricsMiddleware
@@ -106,6 +107,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
 
     @app.on_event("startup")
     async def on_startup() -> None:
+        await MinioStorageRepository().ensure_bucket_exists()
         logger.info(
             "application_started",
             version=settings.app_version,

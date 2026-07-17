@@ -120,6 +120,8 @@ async def create_client_group(
         staff_code_enabled=request.staff_code_enabled,
         meal_preference_enabled=request.meal_preference_enabled,
         require_selfie=request.require_selfie,
+        allow_files_from_device=request.allow_files_from_device,
+        ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         notes=request.notes,
     )
 
@@ -240,18 +242,22 @@ async def update_client_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
-    group.name = request.name.strip()
-    group.destination = request.destination.strip() if request.destination else None
-    group.travel_date = request.travel_date
-    group.return_date = request.return_date
-    group.package_name = request.package_name.strip() if request.package_name else None
-    group.departure_cities = request.departure_cities
-    group.base_city_enabled = request.base_city_enabled
-    group.nearest_international_airport_enabled = request.nearest_international_airport_enabled
-    group.staff_code_enabled = request.staff_code_enabled
-    group.meal_preference_enabled = request.meal_preference_enabled
-    group.require_selfie = request.require_selfie
-    group.notes = request.notes.strip() if request.notes else None
+    group.update_configuration(
+        name=request.name,
+        destination=request.destination,
+        travel_date=request.travel_date,
+        return_date=request.return_date,
+        package_name=request.package_name,
+        departure_cities=request.departure_cities,
+        base_city_enabled=request.base_city_enabled,
+        nearest_international_airport_enabled=request.nearest_international_airport_enabled,
+        staff_code_enabled=request.staff_code_enabled,
+        meal_preference_enabled=request.meal_preference_enabled,
+        require_selfie=request.require_selfie,
+        allow_files_from_device=request.allow_files_from_device,
+        ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
+        notes=request.notes,
+    )
     await repo.update(group)
     passenger_ids_result = await session.execute(
         select(PassportSubmissionModel.id).where(PassportSubmissionModel.group_id == group.id)

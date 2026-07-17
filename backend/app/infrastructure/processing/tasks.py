@@ -19,7 +19,10 @@ logger = get_task_logger(__name__)
     bind=True,
     name="passport.process_submission",
     queue="passport_ocr",
-    max_retries=2,
+    # Covers the configured maximum of ten provider attempts plus bounded
+    # busy-worker redeliveries; the database job remains the authoritative
+    # provider-attempt limit.
+    max_retries=15,
     default_retry_delay=5,
 )
 def process_passport_submission(self, *, job_id: str, submission_id: str) -> None:  # type: ignore[no-untyped-def]

@@ -5,7 +5,16 @@
  * one cookie-based refresh, then retries the original request.
  */
 
-import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+} from "axios";
+import {
+  readRefreshEpoch,
+  runCoordinatedRefresh,
+} from "@/features/auth/services/refresh-coordinator";
+import { useAuthStore } from "@/stores/auth.store";
 
 export interface ApiError {
   code: string;
@@ -18,27 +27,18 @@ export interface ApiErrorResponse {
   detail?: string;
 }
 
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: () => void;
-  reject: (reason: ApiError) => void;
-}> = [];
-
-function processQueue(error: ApiError | null) {
-  failedQueue.forEach(({ resolve, reject }) => {
-    if (error) reject(error);
-    else resolve();
-  });
-  failedQueue = [];
+interface RetriableRequestConfig extends InternalAxiosRequestConfig {
+  _authRetry?: boolean;
+  _authEpoch?: string;
 }
 
-function clearAuthAndRedirect() {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent("passdetection:auth-expired"));
-  if (!window.location.pathname.startsWith("/login")) {
-    window.location.href = "/login";
-  }
-}
+const SESSION_EXPIRED_ERROR: ApiError = {
+  code: "AUTH_SESSION_EXPIRED",
+  message: "Your session expired. Please sign in again.",
+};
+
+let refreshPromise: Promise<void> | null = null;
+let expirationPromise: Promise<void> | null = null;
 
 const apiBaseUrl = typeof window === "undefined"
   ? (process.env.NEXT_PUBLIC_API_BASE_URL ?? "")
@@ -51,33 +51,28 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
+apiClient.interceptors.request.use((config) => {
+  (config as RetriableRequestConfig)._authEpoch = readRefreshEpoch();
+  return config;
+});
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as RetriableRequestConfig | undefined;
+    const shouldRefresh =
+      error.response?.status === 401 &&
+      originalRequest !== undefined &&
+      originalRequest._authRetry !== true &&
+      isRefreshEligibleRequest(originalRequest.url);
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise<void>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(() => apiClient(originalRequest));
-      }
+    if (shouldRefresh) {
+      // Mark every failed request before it waits on the shared refresh. A
+      // retried request can therefore never start another refresh cycle.
+      originalRequest._authRetry = true;
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        await axios.post(`${apiBaseUrl}/api/v1/auth/refresh`, undefined, { withCredentials: true });
-        processQueue(null);
-        return apiClient(originalRequest);
-      } catch {
-        const apiError = buildApiError(error);
-        processQueue(apiError);
-        clearAuthAndRedirect();
-        return Promise.reject(apiError);
-      } finally {
-        isRefreshing = false;
-      }
+      await getRefreshPromise(originalRequest._authEpoch ?? readRefreshEpoch());
+      return apiClient(originalRequest);
     }
 
     return Promise.reject(buildApiError(error));
@@ -94,10 +89,77 @@ function buildApiError(error: AxiosError<ApiErrorResponse>): ApiError {
       message: detail,
     };
   }
+  if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+    return {
+      code: "REQUEST_TIMEOUT",
+      message: "The server took too long to respond. Please try again.",
+    };
+  }
+  if (!error.response) {
+    return {
+      code: "NETWORK_ERROR",
+      message: "Unable to reach the server. Check your connection and try again.",
+    };
+  }
   return {
-    code: "NETWORK_ERROR",
-    message: error.message ?? "An unexpected error occurred",
+    code: `HTTP_${error.response.status}`,
+    message: "The request could not be completed. Please try again.",
   };
+}
+
+function getRefreshPromise(observedEpoch: string) {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = runCoordinatedRefresh(
+    observedEpoch,
+    async () => {
+      await axios.post(`${apiBaseUrl}/api/v1/auth/refresh`, undefined, {
+        withCredentials: true,
+        timeout: 10_000,
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  )
+    .catch(async () => {
+      await expireSession();
+      throw SESSION_EXPIRED_ERROR;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+function expireSession() {
+  if (expirationPromise) return expirationPromise;
+
+  const expiring = (async () => {
+    if (typeof window === "undefined") return;
+
+    await useAuthStore.getState().clearSession("session_expired");
+  })().finally(() => {
+    if (expirationPromise === expiring) expirationPromise = null;
+  });
+
+  expirationPromise = expiring;
+  return expirationPromise;
+}
+
+function isRefreshEligibleRequest(url: string | undefined) {
+  if (!url) return false;
+
+  // Authentication commands and public traveller flows have their own 401
+  // semantics. A revoked public link must never redirect a traveller to the
+  // staff login page or attempt to use an unrelated staff refresh cookie.
+  if (/\/api\/v1\/auth\/(?:login|refresh|logout|logout-all)(?:[/?]|$)/.test(url)) {
+    return false;
+  }
+  if (url.includes("/api/v1/passports/upload/")) return false;
+  if (url.includes("/api/v1/upload-links/token/")) return false;
+  if (/\/api\/v1\/passports\/[^/]+\/client-submit(?:[/?]|$)/.test(url)) return false;
+
+  return true;
 }
 
 export default apiClient;

@@ -14,6 +14,8 @@ from typing import Any
 
 from openpyxl import load_workbook
 
+from app.domain.value_objects.passport_fields import normalize_extracted_passport_dates
+
 
 def _utcnow() -> datetime:
     return datetime.now(tz=UTC)
@@ -27,6 +29,7 @@ class ImportedPassportRow:
     client_email: str | None
     client_phone: str | None
     departure_city: str | None
+    nearest_domestic_airport: str | None
     confirmed_fields: dict[str, str]
     staff_metadata: dict[str, str]
 
@@ -48,12 +51,18 @@ class PassportExcelImporter:
         "client_email": {"email", "client email", "passenger email", "email address"},
         "client_phone": {"phone", "mobile", "contact", "contact no", "contact number", "client phone", "phone number"},
         "departure_city": {"departure city", "hub", "departure hub", "city"},
+        "nearest_domestic_airport": {
+            "nearest domestic airport",
+            "domestic airport",
+            "nearest airport domestic",
+        },
         "surname": {"surname", "last name"},
         "given_names": {"given names", "given name", "first name", "forename"},
         "passport_number": {"passport number", "passport no", "passport", "passport #"},
         "nationality": {"nationality"},
         "issuing_country": {"issuing country", "issue country", "country of issue"},
         "date_of_birth": {"date of birth", "dob", "birth date"},
+        "date_of_issue": {"date of issue", "issue date", "passport issue date"},
         "date_of_expiry": {"date of expiry", "expiry date", "passport expiry", "valid until"},
         "sex": {"sex", "gender"},
         "staff_code": {"staffcode", "staff code", "employee code", "employee id"},
@@ -66,6 +75,7 @@ class PassportExcelImporter:
         "nationality",
         "issuing_country",
         "date_of_birth",
+        "date_of_issue",
         "date_of_expiry",
         "sex",
         "staff_code",
@@ -97,6 +107,12 @@ class PassportExcelImporter:
                     for key in self.FIELD_KEYS
                     if (value := mapped.get(key))
                 }
+                confirmed_fields = {
+                    key: str(value)
+                    for key, value in normalize_extracted_passport_dates(
+                        confirmed_fields
+                    ).items()
+                }
                 staff_metadata = self._map_metadata_row(metadata_headers, values)
                 if mapped.get("staff_code"):
                     staff_metadata.setdefault("staff_code", mapped["staff_code"])
@@ -112,6 +128,10 @@ class PassportExcelImporter:
                         client_email=self._normalize_email(mapped.get("client_email")),
                         client_phone=self._limit(mapped.get("client_phone"), 32),
                         departure_city=self._limit(mapped.get("departure_city"), 120),
+                        nearest_domestic_airport=self._limit(
+                            mapped.get("nearest_domestic_airport"),
+                            120,
+                        ),
                         confirmed_fields=confirmed_fields,
                         staff_metadata=staff_metadata,
                     )

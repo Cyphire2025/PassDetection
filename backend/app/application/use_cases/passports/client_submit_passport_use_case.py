@@ -8,15 +8,23 @@ from __future__ import annotations
 
 import re
 import uuid
+from dataclasses import replace
 from pathlib import PurePosixPath
 
-from app.application.dtos.passport_dtos import PassportSubmissionOutputDTO
+from app.application.dtos.passport_dtos import (
+    PassportSubmissionOutputDTO,
+    passport_submission_output_from_entity,
+)
+from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.passport_fields import normalize_reviewed_passport_fields
+
+logger = get_logger(__name__)
 
 
 class ClientSubmitPassportUseCase:
@@ -41,6 +49,7 @@ class ClientSubmitPassportUseCase:
         client_email: str | None,
         client_phone: str | None,
         departure_city: str | None = None,
+        nearest_domestic_airport: str | None = None,
         base_city: str | None = None,
         staff_code: str | None = None,
         meal_preference: str | None = None,
@@ -57,7 +66,7 @@ class ClientSubmitPassportUseCase:
         if not group:
             raise EntityNotFoundError("ClientGroup", group_token)
 
-        submission = await self._passport_repo.get_by_id(submission_id)
+        submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission:
             raise EntityNotFoundError("PassportSubmission", submission_id)
 
@@ -115,6 +124,13 @@ class ClientSubmitPassportUseCase:
             label="base city",
             max_length=120,
         )
+        normalized_domestic_airport = self._normalize_configured_text(
+            nearest_domestic_airport,
+            enabled=group.ask_nearest_domestic_airport,
+            field="nearest_domestic_airport",
+            label="nearest domestic airport",
+            max_length=120,
+        )
         normalized_staff_code = self._normalize_configured_text(
             staff_code,
             enabled=group.staff_code_enabled,
@@ -138,13 +154,19 @@ class ClientSubmitPassportUseCase:
                 field="client_contact",
             )
 
-        clean_fields = {
-            key: value.strip()
-            for key, value in confirmed_fields.items()
-            if key not in {"base_city", "staff_code", "meal_preference"}
-            and isinstance(value, str)
-            and value.strip()
-        }
+        clean_fields = normalize_reviewed_passport_fields(
+            {
+                key: value
+                for key, value in confirmed_fields.items()
+                if key
+                not in {
+                    "base_city",
+                    "nearest_domestic_airport",
+                    "staff_code",
+                    "meal_preference",
+                }
+            }
+        )
         if not clean_fields:
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
         if normalized_base_city:
@@ -155,79 +177,76 @@ class ClientSubmitPassportUseCase:
             clean_fields["meal_preference"] = normalized_meal_preference
 
         draft_keys: list[str] = []
-        draft_key = submission.image_s3_key
-        if draft_key.startswith("drafts/"):
-            suffix = PurePosixPath(draft_key).suffix or ".jpg"
-            permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}{suffix}"
-            image = await self._storage_repo.get_file(draft_key)
-            await self._storage_repo.upload_file(image, permanent_key, self._content_type(suffix))
-            submission.promote_image(permanent_key)
-            draft_keys.append(draft_key)
+        promoted_keys: list[str] = []
+        try:
+            draft_key = submission.image_s3_key
+            if draft_key.startswith("drafts/"):
+                suffix = PurePosixPath(draft_key).suffix or ".jpg"
+                permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}{suffix}"
+                image = await self._storage_repo.get_file(draft_key)
+                await self._storage_repo.upload_file(
+                    image,
+                    permanent_key,
+                    self._content_type(suffix),
+                )
+                promoted_keys.append(permanent_key)
+                submission.promote_image(permanent_key)
+                draft_keys.append(draft_key)
 
-        for document_type, current_key, promote in (
-            ("photo", submission.passport_photo_s3_key, submission.promote_passport_photo),
-            ("back", submission.passport_back_s3_key, submission.promote_passport_back),
-        ):
-            if not current_key or not current_key.startswith("drafts/"):
-                continue
-            suffix = PurePosixPath(current_key).suffix or ".jpg"
-            permanent_key = f"{submission.agency_id}/{submission.group_id}/{submission.id}-{document_type}{suffix}"
-            image = await self._storage_repo.get_file(current_key)
-            await self._storage_repo.upload_file(image, permanent_key, self._content_type(suffix))
-            promote(permanent_key)
-            draft_keys.append(current_key)
+            for document_type, current_key, promote in (
+                ("photo", submission.passport_photo_s3_key, submission.promote_passport_photo),
+                ("back", submission.passport_back_s3_key, submission.promote_passport_back),
+            ):
+                if not current_key or not current_key.startswith("drafts/"):
+                    continue
+                suffix = PurePosixPath(current_key).suffix or ".jpg"
+                permanent_key = (
+                    f"{submission.agency_id}/{submission.group_id}/"
+                    f"{submission.id}-{document_type}{suffix}"
+                )
+                image = await self._storage_repo.get_file(current_key)
+                await self._storage_repo.upload_file(
+                    image,
+                    permanent_key,
+                    self._content_type(suffix),
+                )
+                promoted_keys.append(permanent_key)
+                promote(permanent_key)
+                draft_keys.append(current_key)
 
-        submission.submit_client_review(
-            clean_fields,
-            client_email=normalized_email,
-            client_phone=normalized_phone,
-            departure_city=normalized_departure_city,
-            submission_mode=normalized_mode,
-            family_group_id=family_group_id,
-            family_member_index=family_member_index,
-            family_relation=normalized_relation,
-            family_gender=normalized_gender,
-            family_head_name=normalized_head_name,
-            family_head_email=normalized_head_email,
-            family_head_phone=normalized_head_phone,
-            family_broadcast_to_member=bool(normalized_email or normalized_phone),
-        )
-        await self._passport_repo.update(submission)
-        if draft_keys:
-            await self._storage_repo.delete_files(draft_keys)
+            submission.submit_client_review(
+                clean_fields,
+                client_email=normalized_email,
+                client_phone=normalized_phone,
+                departure_city=normalized_departure_city,
+                nearest_domestic_airport=normalized_domestic_airport,
+                submission_mode=normalized_mode,
+                family_group_id=family_group_id,
+                family_member_index=family_member_index,
+                family_relation=normalized_relation,
+                family_gender=normalized_gender,
+                family_head_name=normalized_head_name,
+                family_head_email=normalized_head_email,
+                family_head_phone=normalized_head_phone,
+                family_broadcast_to_member=bool(normalized_email or normalized_phone),
+            )
+            await self._passport_repo.update(submission)
+        except Exception:
+            if promoted_keys:
+                try:
+                    await self._storage_repo.delete_files(promoted_keys)
+                except Exception as cleanup_error:
+                    logger.warning(
+                        "passport_promotion_compensation_failed",
+                        object_count=len(promoted_keys),
+                        error_type=type(cleanup_error).__name__,
+                    )
+            raise
 
-        return PassportSubmissionOutputDTO(
-            id=submission.id,
-            group_id=submission.group_id,
-            agency_id=submission.agency_id,
-            client_name=submission.client_name,
-            client_email=submission.client_email,
-            client_phone=submission.client_phone,
-            departure_city=submission.departure_city,
-            submission_mode=submission.submission_mode,
-            family_group_id=submission.family_group_id,
-            family_member_index=submission.family_member_index,
-            family_relation=submission.family_relation,
-            family_gender=submission.family_gender,
-            family_head_name=submission.family_head_name,
-            family_head_email=submission.family_head_email,
-            family_head_phone=submission.family_head_phone,
-            family_broadcast_to_member=submission.family_broadcast_to_member,
-            image_s3_key=submission.image_s3_key,
-            thumbnail_s3_key=submission.thumbnail_s3_key,
-            passport_photo_s3_key=submission.passport_photo_s3_key,
-            passport_back_s3_key=submission.passport_back_s3_key,
-            status=submission.status.value,
-            created_at=submission.created_at,
-            updated_at=submission.updated_at,
-            extracted_fields=submission.extracted_fields,
-            confirmed_fields=submission.confirmed_fields,
-            overall_confidence=submission.overall_confidence,
-            confidence_score=submission.confidence_score,
-            mrz_raw=submission.mrz_raw,
-            error_message=submission.error_message,
-            client_reviewed_at=submission.client_reviewed_at,
-            confirmed_at=submission.confirmed_at,
+        return replace(
+            passport_submission_output_from_entity(submission),
+            storage_cleanup_keys=tuple(draft_keys),
+            promoted_storage_keys=tuple(promoted_keys),
         )
 
     def _normalize_phone(self, value: str | None) -> str:

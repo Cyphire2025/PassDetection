@@ -5,10 +5,10 @@ import {
   countPendingAttendanceScans,
   syncPendingAttendanceScans,
   tryRecordAttendanceScan,
-  type PendingAttendanceScan,
+  type AttendanceScanInput,
 } from "../services/attendance-scan-queue";
 
-type ScanInput = Omit<PendingAttendanceScan, "id" | "queuedAt">;
+type ScanInput = AttendanceScanInput;
 
 export function useAttendanceScanSync() {
   const [pendingCount, setPendingCount] = useState(0);
