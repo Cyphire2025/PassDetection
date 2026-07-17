@@ -41,10 +41,26 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         )
 
         self.assertEqual(provider_id, "wamid.test-123")
-        _, kwargs = client.post.call_args
+        args, kwargs = client.post.call_args
+        self.assertEqual(
+            args[0],
+            "https://graph.facebook.com/v25.0/123456789/messages",
+        )
         self.assertEqual(kwargs["json"]["recipient_type"], "individual")
         self.assertEqual(kwargs["json"]["to"], "919876543210")
         self.assertEqual(kwargs["json"]["type"], "template")
+        self.assertEqual(
+            kwargs["json"]["template"]["name"],
+            "global_connect_welcome_v1",
+        )
+        self.assertEqual(
+            kwargs["json"]["template"]["language"],
+            {"code": "en_US"},
+        )
+        self.assertEqual(
+            [component["type"] for component in kwargs["json"]["template"]["components"]],
+            ["header", "body"],
+        )
         self.assertEqual(
             kwargs["json"]["template"]["components"][0]["parameters"],
             [{"type": "text", "text": "Aarav"}],

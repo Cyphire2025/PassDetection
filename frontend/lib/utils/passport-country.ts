@@ -27,6 +27,7 @@ const ISO3_TO_ISO2 = new Map(
 );
 
 const REGION_NAMES = createRegionNames();
+const INDIA_NATIONALITY_VALUES = new Set(["IN", "IND", "INDIA", "INDIAN"]);
 
 export interface PassportCountryOption {
   value: string;
@@ -52,6 +53,13 @@ export function formatPassportCountry(value: string | null | undefined) {
   }
 }
 
+export function formatPassportNationality(value: string | null | undefined) {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed) return "";
+  if (INDIA_NATIONALITY_VALUES.has(trimmed.toUpperCase())) return "Indian";
+  return formatPassportCountry(trimmed);
+}
+
 export function isRecognizedPassportCountryCode(value: string | null | undefined) {
   const code = value?.trim().toUpperCase() ?? "";
   return /^[A-Z]{2}$/.test(code) || ISO3_TO_ISO2.has(code);
@@ -63,6 +71,13 @@ export function getPassportCountryOptions(codeLength: 2 | 3): PassportCountryOpt
     label: formatPassportCountry(codeLength === 3 ? iso3 : iso2),
   }));
   return options.sort((left, right) => left.label.localeCompare(right.label, "en"));
+}
+
+export function getPassportNationalityOptions(codeLength: 2 | 3): PassportCountryOption[] {
+  return getPassportCountryOptions(codeLength).map((option) => ({
+    ...option,
+    label: formatPassportNationality(option.value) || option.label,
+  }));
 }
 
 function createRegionNames() {

@@ -26,6 +26,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { previousPassportIsoDate } from "@/lib/utils/passport-date";
+import {
+  formatPassportCountry,
+  formatPassportNationality,
+  isRecognizedPassportCountryCode,
+} from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { uploadApi } from "../api/upload.api";
@@ -700,11 +705,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
     event.preventDefault();
     if (!submission || operationInFlightRef.current) return;
     if (hasMissingRequiredFields(reviewFields)) {
-      setUploadError("Please fill all required passport fields before submitting. Date of Issue may be left empty when it is unavailable.");
+      setUploadError("Please fill all required passport fields before submitting.");
       return;
     }
     if (!hasValidReviewDates(reviewFields)) {
-      setUploadError("Enter valid passport dates in DD/MM/YYYY format. Date of Issue is optional, but it cannot be in the future, before birth, or after passport expiry.");
+      setUploadError("Enter valid passport dates in DD/MM/YYYY format. Check that birth, issue, and expiry are chronological and no entered birth or issue date is in the future.");
       return;
     }
     if (airportEnabled && !departureCity) {
@@ -1921,7 +1926,6 @@ function ReviewFields({ fields, onChange }: { fields: Record<string, string>; on
           <div key={key} className="space-y-1.5">
             <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
               {toLabel(key)}
-              {isOptional && <span className="normal-case tracking-normal text-slate-400">(optional)</span>}
             </span>
             {isDate ? (
               <PassportDateInput
@@ -1936,9 +1940,9 @@ function ReviewFields({ fields, onChange }: { fields: Record<string, string>; on
             ) : (
               <Input
                 type="text"
-                value={fields[key] ?? ""}
+                value={formatReviewFieldValue(key, fields[key] ?? "")}
                 onChange={(event) => onChange(key, event.target.value)}
-                placeholder={isOptional ? "Leave empty if unavailable" : "Not extracted"}
+                placeholder="Not extracted"
                 required
                 aria-label={toLabel(key)}
                 className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
@@ -2005,6 +2009,13 @@ function mergeMissingReviewFields(current: Record<string, string>, fields: Extra
 
 function hasMissingRequiredFields(fields: Record<string, string>) {
   return REQUIRED_REVIEW_FIELDS.some((key) => !fields[key]?.trim());
+}
+
+function formatReviewFieldValue(key: typeof REVIEW_FIELDS[number], value: string) {
+  if (!isRecognizedPassportCountryCode(value)) return value;
+  if (key === "nationality") return formatPassportNationality(value);
+  if (key === "issuing_country") return formatPassportCountry(value);
+  return value;
 }
 
 function ExtractionNotice({ message }: { message: string | null }) {

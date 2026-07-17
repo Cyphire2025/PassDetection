@@ -16,7 +16,9 @@ import {
 } from "@/lib/utils/passport-date";
 import {
   formatPassportCountry,
+  formatPassportNationality,
   getPassportCountryOptions,
+  getPassportNationalityOptions,
   isRecognizedPassportCountryCode,
 } from "@/lib/utils/passport-country";
 import type {
@@ -355,7 +357,7 @@ function ReviewFieldsCard({
       return;
     }
     if (!hasValidReviewDates(cleanedFields)) {
-      onFormError("Enter valid passport dates in DD/MM/YYYY format. Date of Issue may be empty, but it cannot be in the future, before birth, or after passport expiry.");
+      onFormError("Enter valid passport dates in DD/MM/YYYY format. Check that birth, issue, and expiry are chronological and no entered birth or issue date is in the future.");
       return;
     }
 
@@ -475,7 +477,6 @@ function ReviewFieldsCard({
               <div key={key} className="space-y-1.5">
                 <span className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
                   <span>{toLabel(key)}</span>
-                  {key === "date_of_issue" && <span className="normal-case tracking-normal">(optional)</span>}
                   {fieldReview && (
                     <span className={fieldReview.verdict === "incorrect"
                       ? "rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800"
@@ -491,6 +492,7 @@ function ReviewFieldsCard({
                     onChange={(value) => handleFieldChange(key, value)}
                     className={fieldClassName}
                     ariaLabel={toLabel(key)}
+                    field={key}
                   />
                 ) : isDate ? (
                   <PassportDateInput
@@ -775,11 +777,13 @@ function PassportCountryField({
   onChange,
   className,
   ariaLabel,
+  field,
 }: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
   ariaLabel: string;
+  field: "nationality" | "issuing_country";
 }) {
   if (!isRecognizedPassportCountryCode(value)) {
     return (
@@ -805,7 +809,10 @@ function PassportCountryField({
         className ?? "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
       }`}
     >
-      {getPassportCountryOptions(codeLength).map((option) => (
+      {(field === "nationality"
+        ? getPassportNationalityOptions(codeLength)
+        : getPassportCountryOptions(codeLength)
+      ).map((option) => (
         <option key={option.value} value={option.value}>{option.label}</option>
       ))}
     </select>
@@ -906,7 +913,10 @@ function valuesMatch(left: string, right: string) {
 }
 
 function formatConflictValue(field: string, value: string) {
-  if (field === "nationality" || field === "issuing_country") {
+  if (field === "nationality") {
+    return formatPassportNationality(value) || value;
+  }
+  if (field === "issuing_country") {
     return formatPassportCountry(value) || value;
   }
   if (field === "date_of_birth" || field === "date_of_issue" || field === "date_of_expiry") {

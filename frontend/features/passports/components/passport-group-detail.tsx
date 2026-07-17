@@ -11,7 +11,10 @@ import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
 import { formatPassportDateForUi } from "@/lib/utils/passport-date";
-import { formatPassportCountry } from "@/lib/utils/passport-country";
+import {
+  formatPassportCountry,
+  formatPassportNationality,
+} from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
@@ -998,8 +1001,9 @@ function getDashboardFields(passport: PassportSubmission) {
 
 function getDashboardCountry(passport: PassportSubmission) {
   const fields = getDashboardFields(passport);
-  const value = getStringField(fields, "nationality") || getStringField(fields, "issuing_country");
-  return formatPassportCountry(value);
+  const nationality = getStringField(fields, "nationality");
+  if (nationality) return formatPassportNationality(nationality);
+  return formatPassportCountry(getStringField(fields, "issuing_country"));
 }
 
 function getExtractionConflictCount(passport: PassportSubmission) {

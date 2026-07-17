@@ -128,6 +128,19 @@ def _country_display_name(value: Any) -> str | None:
     return str(getattr(country, "common_name", country.name))
 
 
+def _nationality_display_value(value: Any) -> str | None:
+    """Format nationality for export without changing its stored source value."""
+
+    if value in (None, ""):
+        return None
+    normalized = " ".join(str(value).strip().split())
+    if not normalized:
+        return None
+    if normalized.casefold() in {"in", "ind", "india", "indian"}:
+        return "Indian"
+    return _country_display_name(normalized)
+
+
 class PassportExcelExporter:
     HEADERS = [column.header for column in _COLUMNS]
 
@@ -182,7 +195,7 @@ class PassportExcelExporter:
                 "Surname": _uppercase(fields.get("surname")),
                 "Given Names": _uppercase(fields.get("given_names")),
                 "Passport Number": fields.get("passport_number"),
-                "Nationality": _country_display_name(fields.get("nationality")),
+                "Nationality": _nationality_display_value(fields.get("nationality")),
                 "Date of Birth": fields.get("date_of_birth"),
                 "Date of Issue": fields.get("date_of_issue"),
                 "Date of Expiry": fields.get("date_of_expiry"),

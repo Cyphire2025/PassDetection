@@ -9,7 +9,9 @@ from openpyxl import load_workbook
 from app.domain.entities.entities import PassportSubmission
 from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
+    _country_display_name,
     _gender_display_value,
+    _nationality_display_value,
     _safe_xlsx_value,
 )
 
@@ -99,7 +101,15 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
     }.isdisjoint(headers)
     assert values["Surname"] == "VASHISTHA"
     assert values["Given Names"] == "NIPUN KUMAR"
-    assert values["Nationality"] == "India"
+    assert values["Nationality"] == "Indian"
+
+
+@pytest.mark.parametrize("source", ("IN", "IND", "India", "indian"))
+def test_export_formats_indian_nationality_without_changing_country_labels(
+    source: str,
+) -> None:
+    assert _nationality_display_value(source) == "Indian"
+    assert _country_display_name(source if source != "indian" else "India") == "India"
 
 
 def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:

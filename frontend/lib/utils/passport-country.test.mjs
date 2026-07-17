@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   formatPassportCountry,
+  formatPassportNationality,
   getPassportCountryOptions,
+  getPassportNationalityOptions,
   isRecognizedPassportCountryCode,
 } from "./passport-country.ts";
 
@@ -19,12 +21,22 @@ test("preserves country names and unknown values", () => {
   assert.equal(formatPassportCountry(""), "");
 });
 
+test("formats Indian nationality separately from the India issuing country", () => {
+  for (const value of ["IN", "IND", "India", "indian"]) {
+    assert.equal(formatPassportNationality(value), "Indian");
+  }
+  assert.equal(formatPassportNationality("USA"), "United States");
+  assert.equal(formatPassportCountry("IND"), "India");
+});
+
 test("builds options that retain raw API code shapes", () => {
   const alpha3India = getPassportCountryOptions(3).find((option) => option.value === "IND");
   const alpha2India = getPassportCountryOptions(2).find((option) => option.value === "IN");
+  const nationalityIndia = getPassportNationalityOptions(3).find((option) => option.value === "IND");
 
   assert.deepEqual(alpha3India, { value: "IND", label: "India" });
   assert.deepEqual(alpha2India, { value: "IN", label: "India" });
+  assert.deepEqual(nationalityIndia, { value: "IND", label: "Indian" });
   assert.equal(isRecognizedPassportCountryCode("IND"), true);
   assert.equal(isRecognizedPassportCountryCode("India"), false);
 });
