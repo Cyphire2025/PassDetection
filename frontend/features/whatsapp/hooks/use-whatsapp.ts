@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { WhatsAppBroadcastGroupDetail } from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
 
 export const WHATSAPP_QUERY_KEYS = {
@@ -31,11 +32,57 @@ export function useCreateWhatsAppGroup() {
   });
 }
 
+export function useUpdateWhatsAppGroup() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.updateGroup,
+    onSuccess: (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    },
+  });
+}
+
+export function useAddWhatsAppRecipients() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.addRecipients,
+    onSuccess: (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    },
+  });
+}
+
 export function useDeleteWhatsAppGroup() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: whatsappApi.deleteGroup,
-    onSuccess: () => {
+    onSuccess: (_, groupId) => {
+      queryClient.removeQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) });
+      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    },
+  });
+}
+
+export function useDeleteWhatsAppRecipient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.deleteRecipient,
+    onSuccess: (_, { groupId, recipientId }) => {
+      queryClient.setQueryData<WhatsAppBroadcastGroupDetail>(
+        WHATSAPP_QUERY_KEYS.group(groupId),
+        (current) => current
+          ? {
+              ...current,
+              recipient_count: Math.max(0, current.recipient_count - 1),
+              recipients: current.recipients.filter(
+                (recipient) => recipient.id !== recipientId,
+              ),
+            }
+          : current,
+      );
+      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
     },
   });

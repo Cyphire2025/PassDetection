@@ -24,6 +24,11 @@ type PurgePassportDataResponse = {
   deleted_notifications: number;
   deleted_audit_logs: number;
   deleted_storage_objects: number;
+  deleted_whatsapp_broadcast_groups: number;
+  deleted_whatsapp_recipients: number;
+  deleted_whatsapp_support_contacts: number;
+  deleted_whatsapp_message_logs: number;
+  deleted_whatsapp_delivery_states: number;
 };
 
 type PlatformSettings = {
@@ -295,12 +300,12 @@ export default function SettingsPage() {
               </span>
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-base font-semibold text-slate-900">Delete Passport Data</h2>
+                  <h2 className="text-base font-semibold text-slate-900">Delete All Data</h2>
                   <Badge variant="secondary">Permanent</Badge>
                 </div>
                 <p className="max-w-3xl text-sm text-slate-600">
                   Deletes all groups, archived groups, passport uploads, extracted details, related processing jobs,
-                  notifications, audit entries, and stored passport images.
+                  notifications, audit entries, stored passport images, and all WhatsApp broadcast data.
                 </p>
               </div>
             </div>
@@ -340,7 +345,12 @@ export default function SettingsPage() {
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               Deleted {purgeResult.deleted_client_groups} groups, {purgeResult.deleted_passport_submissions} passports,
               {purgeResult.deleted_processing_jobs} jobs, {purgeResult.deleted_notifications} notifications,
-              {purgeResult.deleted_audit_logs} audit entries, and {purgeResult.deleted_storage_objects} storage files.
+              {purgeResult.deleted_audit_logs} audit entries, {purgeResult.deleted_storage_objects} storage files,
+              and {purgeResult.deleted_whatsapp_broadcast_groups} WhatsApp broadcasts with{" "}
+              {purgeResult.deleted_whatsapp_recipients} recipients,{" "}
+              {purgeResult.deleted_whatsapp_support_contacts} support contacts, and{" "}
+              {purgeResult.deleted_whatsapp_message_logs} message records with{" "}
+              {purgeResult.deleted_whatsapp_delivery_states} delivery checklists.
             </div>
           )}
         </CardContent>
@@ -348,8 +358,8 @@ export default function SettingsPage() {
 
       <ConfirmDialog
         isOpen={isPurgeDialogOpen}
-        title="Permanently Delete Passport Data"
-        description="This will permanently delete all groups, archived groups, uploaded passport images, extracted passport details, related processing jobs, notifications, and audit entries. This action cannot be undone."
+        title="Permanently Delete All Data"
+        description="This will permanently delete all groups, archived groups, uploaded passport images, extracted passport details, related processing jobs, notifications, audit entries, and every WhatsApp broadcast, recipient, support contact, and message record. This action cannot be undone."
         confirmLabel="Delete All Data"
         variant="danger"
         isLoading={isPurging}

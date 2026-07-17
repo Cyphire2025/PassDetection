@@ -57,6 +57,11 @@ class PurgePassportDataResponse(BaseModel):
     deleted_notifications: int
     deleted_audit_logs: int
     deleted_storage_objects: int
+    deleted_whatsapp_broadcast_groups: int = 0
+    deleted_whatsapp_recipients: int = 0
+    deleted_whatsapp_support_contacts: int = 0
+    deleted_whatsapp_message_logs: int = 0
+    deleted_whatsapp_delivery_states: int = 0
 
 
 class PlatformSettingsResponse(BaseModel):

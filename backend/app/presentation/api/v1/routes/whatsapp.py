@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import json
 import logging
 import re
-import tempfile
 import uuid
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
+from io import BytesIO
+from itertools import islice
 from typing import Any
 from urllib.parse import urlparse
-from zipfile import BadZipFile
+from zipfile import BadZipFile, ZipFile
 
 from fastapi import (
     APIRouter,
@@ -31,7 +32,8 @@ from fastapi.responses import PlainTextResponse
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from pydantic import BaseModel, Field
-from sqlalchemy import delete, func, select
+from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.message_templates import (
@@ -49,6 +51,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
+    WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.presentation.dependencies.auth import require_role
@@ -58,11 +61,34 @@ logger = logging.getLogger(__name__)
 
 WHATSAPP_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
 PHONE_RE = re.compile(r"(?:\+|00)?\d[\d\s().-]{7,}\d")
+WHATSAPP_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
+WHATSAPP_ACCEPTED_STATUS_RANK = {
+    "submitted": 0,
+    "sent": 1,
+    "delivered": 2,
+    "read": 3,
+}
+WHATSAPP_WEBHOOK_STATUSES = frozenset({"sent", "delivered", "read", "failed"})
+WHATSAPP_IN_PROGRESS_STATUSES = frozenset({"queued", "processing"})
+WHATSAPP_UNCERTAIN_STATUSES = frozenset({"delivery_unknown"})
+WHATSAPP_SUPPRESSED_STATUSES = (
+    WHATSAPP_ACCEPTED_STATUSES
+    | WHATSAPP_IN_PROGRESS_STATUSES
+    | WHATSAPP_UNCERTAIN_STATUSES
+)
+WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
+MAX_WHATSAPP_RECIPIENTS = 500
+MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
+MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
+MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
+MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
+WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
+PHONE_ALLOWED_RE = re.compile(r"^(?:\+|00)?[\d\s().-]+$")
 
 
 class WhatsAppRecipientInput(BaseModel):
     name: str | None = None
-    phone_number: str = Field(min_length=6)
+    phone_number: str = Field(min_length=6, max_length=64)
 
 
 class WhatsAppSupportContactInput(BaseModel):
@@ -75,6 +101,17 @@ class WhatsAppRecipientResponse(BaseModel):
     name: str | None
     phone_number: str
     normalized_phone_number: str
+    sent_message_types: list[str] = Field(default_factory=list)
+    message_statuses: list["WhatsAppRecipientMessageStatusResponse"] = Field(default_factory=list)
+
+
+class WhatsAppRecipientMessageStatusResponse(BaseModel):
+    message_type: str
+    status: str
+    already_sent: bool
+    send_suppressed: bool
+    submitted_at: datetime | None
+    status_updated_at: datetime
 
 
 class WhatsAppSupportContactResponse(BaseModel):
@@ -115,6 +152,10 @@ class WhatsAppPreviewResponse(BaseModel):
     recipient_id: uuid.UUID
     recipient_name: str
     recipient_count: int
+    eligible_recipient_count: int
+    already_sent_count: int
+    in_progress_count: int
+    uncertain_recipient_count: int
     message_content: str
     rendered_message: str
     header_parameter_values: list[str]
@@ -134,6 +175,10 @@ class WhatsAppSendResponse(BaseModel):
     queued: int = 0
     sent: int
     failed: int
+    delivery_unknown: int = 0
+    skipped_already_sent: int = 0
+    skipped_in_progress: int = 0
+    skipped_delivery_unknown: int = 0
     results: list[WhatsAppSendResult]
 
 
@@ -176,6 +221,109 @@ def _extract_status_error(status_payload: dict[str, Any]) -> str | None:
     return str(message)[:2000] if message else None
 
 
+def _parse_provider_status_at(value: Any) -> datetime | None:
+    try:
+        return datetime.fromtimestamp(int(str(value)), tz=UTC)
+    except (TypeError, ValueError, OSError):
+        return None
+
+
+def _is_stale_provider_status(
+    current: datetime | None,
+    incoming: datetime | None,
+) -> bool:
+    return bool(current and incoming and incoming < current)
+
+
+def _apply_provider_status_to_delivery_state(
+    delivery_state: WhatsAppRecipientMessageStateModel,
+    *,
+    provider_status: str,
+    provider_status_at: datetime | None,
+    now: datetime,
+) -> None:
+    """Apply Meta receipts without letting late events enable duplicate sends."""
+
+    if _is_stale_provider_status(
+        delivery_state.provider_status_at,
+        provider_status_at,
+    ):
+        return
+    if provider_status in WHATSAPP_ACCEPTED_STATUSES:
+        current_rank = WHATSAPP_ACCEPTED_STATUS_RANK.get(delivery_state.status, -1)
+        incoming_rank = WHATSAPP_ACCEPTED_STATUS_RANK[provider_status]
+        if incoming_rank >= current_rank:
+            delivery_state.status = provider_status
+        delivery_state.submitted_at = delivery_state.submitted_at or now
+        delivery_state.status_updated_at = now
+        delivery_state.provider_status_at = (
+            provider_status_at or delivery_state.provider_status_at
+        )
+        delivery_state.updated_at = now
+    elif provider_status == "failed" and delivery_state.status not in {
+        "delivered",
+        "read",
+    }:
+        # A current-batch definitive failure is retryable until Meta reports
+        # delivery. Delivered/read are monotonic and never move backwards.
+        delivery_state.status = "failed"
+        delivery_state.status_updated_at = now
+        delivery_state.provider_status_at = (
+            provider_status_at or delivery_state.provider_status_at
+        )
+        delivery_state.updated_at = now
+
+
+def _apply_provider_status_to_message_log(
+    log: WhatsAppMessageLogModel,
+    *,
+    provider_status: str,
+    error_message: str | None,
+    provider_status_at: datetime | None,
+    now: datetime,
+) -> None:
+    """Keep message-log status consistent with the monotonic delivery ledger."""
+
+    if _is_stale_provider_status(log.provider_status_at, provider_status_at):
+        return
+    if provider_status in WHATSAPP_ACCEPTED_STATUSES:
+        current_rank = WHATSAPP_ACCEPTED_STATUS_RANK.get(log.status, -1)
+        incoming_rank = WHATSAPP_ACCEPTED_STATUS_RANK[provider_status]
+        if incoming_rank >= current_rank:
+            log.status = provider_status
+            log.status_updated_at = now
+            log.provider_status_at = provider_status_at or log.provider_status_at
+    elif provider_status == "failed" and log.status not in {"delivered", "read"}:
+        log.status = "failed"
+        log.status_updated_at = now
+        log.provider_status_at = provider_status_at or log.provider_status_at
+    if error_message:
+        log.error_message = error_message
+
+
+def _provider_status_state_predicates(
+    log: WhatsAppMessageLogModel,
+    *,
+    provider_status: str,
+) -> list[Any]:
+    predicates = [
+        WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
+        WhatsAppRecipientMessageStateModel.message_type == log.message_type,
+    ]
+    if provider_status == "failed":
+        # A failed receipt is only authoritative for the matching attempt. A
+        # delayed failure from an older provider message must never release a
+        # newer claim for retry.
+        predicates.append(
+            WhatsAppRecipientMessageStateModel.batch_id == log.batch_id
+        )
+    # Provider acceptance is authoritative for this recipient and message
+    # type even if a later retry has already claimed the ledger. Omitting the
+    # batch predicate promotes the ledger and suppresses that duplicate send
+    # whenever the retry worker has not yet contacted Meta.
+    return predicates
+
+
 @router.get("/webhook", response_class=PlainTextResponse)
 async def verify_whatsapp_webhook(
     mode: str | None = Query(default=None, alias="hub.mode"),
@@ -207,7 +355,9 @@ async def receive_whatsapp_webhook(
     if not isinstance(payload, dict):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid WhatsApp webhook payload")
 
-    provider_statuses: dict[str, tuple[str, str | None]] = {}
+    provider_statuses: list[
+        tuple[str, str, str | None, datetime | None]
+    ] = []
     received_messages = 0
     for value in _iter_webhook_values(payload):
         for status_payload in value.get("statuses", []) if isinstance(value.get("statuses"), list) else []:
@@ -216,21 +366,65 @@ async def receive_whatsapp_webhook(
             provider_id = status_payload.get("id")
             provider_status = status_payload.get("status")
             if provider_id and provider_status:
-                provider_statuses[str(provider_id)] = (str(provider_status)[:32], _extract_status_error(status_payload))
+                normalized_status = str(provider_status)[:32]
+                if normalized_status not in WHATSAPP_WEBHOOK_STATUSES:
+                    logger.warning(
+                        "Ignoring unknown WhatsApp provider status %s",
+                        normalized_status,
+                    )
+                    continue
+                provider_statuses.append(
+                    (
+                        str(provider_id),
+                        normalized_status,
+                        _extract_status_error(status_payload),
+                        _parse_provider_status_at(status_payload.get("timestamp")),
+                    )
+                )
         messages = value.get("messages")
         if isinstance(messages, list):
             received_messages += len(messages)
 
     processed_statuses = 0
-    for provider_id, (provider_status, error_message) in provider_statuses.items():
+    provider_statuses.sort(
+        key=lambda item: item[3] or datetime.min.replace(tzinfo=UTC)
+    )
+    for (
+        provider_id,
+        provider_status,
+        error_message,
+        provider_status_at,
+    ) in provider_statuses:
         result = await session.execute(
             select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.provider_message_id == provider_id)
         )
         for log in result.scalars().all():
-            log.status = provider_status
-            log.status_updated_at = datetime.now(tz=UTC)
-            if error_message:
-                log.error_message = error_message
+            now = datetime.now(tz=UTC)
+            _apply_provider_status_to_message_log(
+                log,
+                provider_status=provider_status,
+                error_message=error_message,
+                provider_status_at=provider_status_at,
+                now=now,
+            )
+            state_result = await session.execute(
+                select(WhatsAppRecipientMessageStateModel)
+                .where(
+                    *_provider_status_state_predicates(
+                        log,
+                        provider_status=provider_status,
+                    )
+                )
+                .with_for_update()
+            )
+            delivery_state = state_result.scalar_one_or_none()
+            if delivery_state:
+                _apply_provider_status_to_delivery_state(
+                    delivery_state,
+                    provider_status=provider_status,
+                    provider_status_at=provider_status_at,
+                    now=now,
+                )
             processed_statuses += 1
     if processed_statuses:
         await session.commit()
@@ -250,7 +444,7 @@ def _agency_filter(current_user: User) -> list[Any]:
 
 def _normalize_phone(raw: str) -> str | None:
     value = (raw or "").strip()
-    if not value:
+    if not value or len(value) > 64 or not PHONE_ALLOWED_RE.fullmatch(value):
         return None
     has_plus = value.startswith("+")
     digits = re.sub(r"\D", "", value)
@@ -258,13 +452,15 @@ def _normalize_phone(raw: str) -> str | None:
         return None
     if value.startswith("00"):
         digits = digits[2:]
-    if has_plus or len(digits) > 10:
+    if not 8 <= len(digits) <= 15:
+        return None
+    if has_plus or value.startswith("00") or len(digits) > 10:
+        if digits.startswith("0"):
+            return None
         normalized = f"+{digits}"
     elif len(digits) == 10:
         normalized = f"+91{digits}"
     else:
-        return None
-    if len(re.sub(r"\D", "", normalized)) < 8:
         return None
     return normalized
 
@@ -325,30 +521,76 @@ def _validate_passport_link(value: str | None, *, allow_placeholder: bool = Fals
     return link
 
 
-def _parse_excel_contacts(upload: UploadFile) -> list[WhatsAppRecipientInput]:
-    suffix = Path(upload.filename or "contacts.xlsx").suffix.lower() or ".xlsx"
+def _validate_excel_archive(payload: bytes) -> None:
+    with ZipFile(BytesIO(payload)) as archive:
+        members = archive.infolist()
+        if len(members) > MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The Excel contact file contains too many archive entries",
+            )
+        total_uncompressed = sum(member.file_size for member in members)
+        if total_uncompressed > MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The Excel contact file expands beyond the allowed size",
+            )
+        for member in members:
+            if (
+                member.file_size > WHATSAPP_UPLOAD_READ_CHUNK_BYTES
+                and member.compress_size > 0
+                and member.file_size / member.compress_size
+                > MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="The Excel contact file has an unsafe compression ratio",
+                )
+
+
+def _parse_excel_contact_bytes(
+    payload: bytes,
+    *,
+    filename: str,
+) -> list[WhatsAppRecipientInput]:
+    suffix = filename.rsplit(".", maxsplit=1)[-1].lower()
+    suffix = f".{suffix}" if "." in filename else ".xlsx"
     if suffix not in {".xlsx", ".xlsm"}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Upload an .xlsx or .xlsm contact file",
         )
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(upload.file.read())
-        tmp_path = Path(tmp.name)
 
+    workbook = None
     try:
-        try:
-            workbook = load_workbook(tmp_path, read_only=True, data_only=True)
-            sheet = workbook.active
-            rows = list(sheet.iter_rows(values_only=True))
-            workbook.close()
-        except (BadZipFile, InvalidFileException, OSError, ValueError) as exc:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded Excel contact file could not be read",
-            ) from exc
+        _validate_excel_archive(payload)
+        workbook = load_workbook(
+            BytesIO(payload),
+            read_only=True,
+            data_only=True,
+        )
+        sheet = workbook.active
+        rows = list(
+            islice(
+                sheet.iter_rows(values_only=True),
+                MAX_WHATSAPP_RECIPIENTS + 2,
+            )
+        )
+    except HTTPException:
+        raise
+    except (
+        BadZipFile,
+        InvalidFileException,
+        OSError,
+        ValueError,
+    ) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The uploaded Excel contact file could not be read",
+        ) from exc
     finally:
-        tmp_path.unlink(missing_ok=True)
+        if workbook is not None:
+            workbook.close()
 
     if not rows:
         return []
@@ -357,9 +599,18 @@ def _parse_excel_contacts(upload: UploadFile) -> list[WhatsAppRecipientInput]:
     phone_columns = [idx for idx, label in enumerate(header) if any(term in label for term in ("phone", "mobile", "whatsapp", "contact"))]
     name_columns = [idx for idx, label in enumerate(header) if any(term in label for term in ("name", "client", "passenger"))]
     data_rows = rows[1:] if phone_columns else rows
+    if len(data_rows) > MAX_WHATSAPP_RECIPIENTS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "The Excel contact file can contain at most "
+                f"{MAX_WHATSAPP_RECIPIENTS} data rows"
+            ),
+        )
 
     contacts: list[WhatsAppRecipientInput] = []
     seen: set[str] = set()
+    invalid_phone_count = 0
     for row in data_rows:
         row_values = list(row)
         candidates: list[tuple[str | None, str]] = []
@@ -375,18 +626,194 @@ def _parse_excel_contacts(upload: UploadFile) -> list[WhatsAppRecipientInput]:
 
         for name, phone in candidates:
             normalized = _normalize_phone(phone)
-            if normalized and normalized not in seen:
+            if not normalized:
+                invalid_phone_count += 1
+            elif normalized not in seen:
                 seen.add(normalized)
                 contacts.append(WhatsAppRecipientInput(name=name, phone_number=phone))
+    if invalid_phone_count:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"{invalid_phone_count} WhatsApp number(s) in the Excel file "
+                "are invalid. Use 8 to 15 digits with an optional country code."
+            ),
+        )
     return contacts
 
 
-def _recipient_response(model: WhatsAppBroadcastRecipientModel) -> WhatsAppRecipientResponse:
+async def _parse_excel_contacts(
+    upload: UploadFile,
+) -> list[WhatsAppRecipientInput]:
+    payload = bytearray()
+    while chunk := await upload.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
+        payload.extend(chunk)
+        if len(payload) > MAX_WHATSAPP_CONTACT_FILE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=(
+                    "The Excel contact file must be "
+                    f"{MAX_WHATSAPP_CONTACT_FILE_BYTES // (1024 * 1024)} MB or smaller"
+                ),
+            )
+    filename = upload.filename or "contacts.xlsx"
+    return await asyncio.to_thread(
+        _parse_excel_contact_bytes,
+        bytes(payload),
+        filename=filename,
+    )
+
+
+def _parse_manual_contacts(value: str) -> list[WhatsAppRecipientInput]:
+    try:
+        parsed = json.loads(value or "[]")
+        if not isinstance(parsed, list):
+            raise TypeError
+        return [WhatsAppRecipientInput(**item) for item in parsed]
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid manual contact list",
+        ) from exc
+
+
+def _normalized_recipient_inputs(
+    contacts: list[WhatsAppRecipientInput],
+) -> dict[str, WhatsAppRecipientInput]:
+    normalized_contacts: dict[str, WhatsAppRecipientInput] = {}
+    invalid_numbers: list[str] = []
+    for contact in contacts:
+        normalized = _normalize_phone(contact.phone_number)
+        if not normalized:
+            invalid_numbers.append(contact.phone_number)
+        elif normalized not in normalized_contacts:
+            normalized_contacts[normalized] = contact
+    if invalid_numbers:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"{len(invalid_numbers)} WhatsApp number(s) are invalid. "
+                "Use 8 to 15 digits with an optional country code."
+            ),
+        )
+    if not normalized_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add at least one valid WhatsApp number",
+        )
+    unnamed_numbers = [
+        contact.phone_number
+        for contact in normalized_contacts.values()
+        if not _clean_name(contact.name)
+    ]
+    if unnamed_numbers:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Every recipient needs a name for personalised messages. "
+                f"Missing names for {len(unnamed_numbers)} contact(s)."
+            ),
+        )
+    if any(
+        len(_clean_name(contact.name) or "") > 100
+        for contact in normalized_contacts.values()
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient names must be 100 characters or fewer",
+        )
+    return normalized_contacts
+
+
+def _activate_recipient_models(
+    *,
+    session: AsyncSession,
+    group: WhatsAppBroadcastGroupModel,
+    existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel],
+    normalized_contacts: dict[str, WhatsAppRecipientInput],
+    now: datetime,
+) -> None:
+    """Reactivate matching rows so their durable message checklist survives."""
+
+    for normalized, contact in normalized_contacts.items():
+        existing = existing_by_phone.get(normalized)
+        if existing:
+            existing.name = _clean_name(contact.name)
+            existing.phone_number = contact.phone_number.strip()
+            existing.removed_at = None
+            continue
+        session.add(
+            WhatsAppBroadcastRecipientModel(
+                broadcast_group_id=group.id,
+                agency_id=group.agency_id,
+                name=_clean_name(contact.name),
+                phone_number=contact.phone_number.strip(),
+                normalized_phone_number=normalized,
+                removed_at=None,
+                created_at=now,
+            )
+        )
+
+
+def _parse_support_contacts(value: str) -> list[WhatsAppSupportContactInput]:
+    try:
+        parsed = json.loads(value or "[]")
+        if not isinstance(parsed, list):
+            raise TypeError
+        contacts = [WhatsAppSupportContactInput(**item) for item in parsed]
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid customer support contact list",
+        ) from exc
+    if not contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add at least one customer support contact",
+        )
+    normalized: dict[str, WhatsAppSupportContactInput] = {}
+    for contact in contacts:
+        phone = _normalize_phone(contact.phone_number)
+        if not phone:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid WhatsApp number for support contact {contact.name}",
+            )
+        normalized.setdefault(phone, contact)
+    if len(normalized) > 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add no more than three customer support contacts",
+        )
+    return list(normalized.values())
+
+
+def _recipient_response(
+    model: WhatsAppBroadcastRecipientModel,
+    states: list[WhatsAppRecipientMessageStateModel] | None = None,
+) -> WhatsAppRecipientResponse:
+    ordered_states = sorted(states or [], key=lambda state: state.message_type)
     return WhatsAppRecipientResponse(
         id=model.id,
         name=model.name,
         phone_number=model.phone_number,
         normalized_phone_number=model.normalized_phone_number,
+        sent_message_types=[
+            state.message_type
+            for state in ordered_states
+            if state.status in WHATSAPP_ACCEPTED_STATUSES
+        ],
+        message_statuses=[
+            WhatsAppRecipientMessageStatusResponse(
+                message_type=state.message_type,
+                status=state.status,
+                already_sent=state.status in WHATSAPP_ACCEPTED_STATUSES,
+                send_suppressed=state.status in WHATSAPP_SUPPRESSED_STATUSES,
+                submitted_at=state.submitted_at,
+                status_updated_at=state.status_updated_at,
+            )
+            for state in ordered_states
+        ],
     )
 
 
@@ -419,10 +846,26 @@ async def _support_contacts_for_group(
 async def _group_detail(session: AsyncSession, group: WhatsAppBroadcastGroupModel) -> WhatsAppBroadcastGroupDetailResponse:
     recipients_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
-        .where(WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id)
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
         .order_by(WhatsAppBroadcastRecipientModel.name.asc().nullslast(), WhatsAppBroadcastRecipientModel.created_at.asc())
     )
     recipients = list(recipients_result.scalars().all())
+    states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
+    if recipients:
+        states_result = await session.execute(
+            select(WhatsAppRecipientMessageStateModel)
+            .where(
+                WhatsAppRecipientMessageStateModel.recipient_id.in_(
+                    [recipient.id for recipient in recipients]
+                )
+            )
+            .order_by(WhatsAppRecipientMessageStateModel.message_type.asc())
+        )
+        for state_model in states_result.scalars().all():
+            states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
     support_contacts = await _support_contacts_for_group(session, group.id)
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
@@ -432,7 +875,13 @@ async def _group_detail(session: AsyncSession, group: WhatsAppBroadcastGroupMode
         recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
         created_at=group.created_at,
         updated_at=group.updated_at,
-        recipients=[_recipient_response(recipient) for recipient in recipients],
+        recipients=[
+            _recipient_response(
+                recipient,
+                states_by_recipient.get(recipient.id, []),
+            )
+            for recipient in recipients
+        ],
         support_contacts=[_support_contact_response(contact) for contact in support_contacts],
     )
 
@@ -443,13 +892,56 @@ async def _group_recipients(
 ) -> list[WhatsAppBroadcastRecipientModel]:
     result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
-        .where(WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id)
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
         .order_by(
             WhatsAppBroadcastRecipientModel.name.asc().nullslast(),
             WhatsAppBroadcastRecipientModel.created_at.asc(),
         )
     )
     return list(result.scalars().all())
+
+
+async def _recipient_delivery_counts(
+    session: AsyncSession,
+    *,
+    recipients: list[WhatsAppBroadcastRecipientModel],
+    message_type: str,
+) -> tuple[int, int, int, int]:
+    if not recipients:
+        return 0, 0, 0, 0
+    states_result = await session.execute(
+        select(
+            WhatsAppRecipientMessageStateModel.recipient_id,
+            WhatsAppRecipientMessageStateModel.status,
+        ).where(
+            WhatsAppRecipientMessageStateModel.recipient_id.in_(
+                [recipient.id for recipient in recipients]
+            ),
+            WhatsAppRecipientMessageStateModel.message_type == message_type,
+        )
+    )
+    statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
+    already_sent = sum(
+        1 for state_status in statuses.values()
+        if state_status in WHATSAPP_ACCEPTED_STATUSES
+    )
+    in_progress = sum(
+        1 for state_status in statuses.values()
+        if state_status in WHATSAPP_IN_PROGRESS_STATUSES
+    )
+    uncertain = sum(
+        1 for state_status in statuses.values()
+        if state_status in WHATSAPP_UNCERTAIN_STATUSES
+    )
+    return (
+        len(recipients) - already_sent - in_progress - uncertain,
+        already_sent,
+        in_progress,
+        uncertain,
+    )
 
 
 def _message_values(
@@ -509,7 +1001,10 @@ async def list_broadcast_groups(
         )
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
+            and_(
+                WhatsAppBroadcastRecipientModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            ),
         )
         .where(*_agency_filter(current_user))
         .group_by(WhatsAppBroadcastGroupModel.id)
@@ -536,7 +1031,11 @@ async def get_broadcast_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group_id, *_agency_filter(current_user))
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
     )
     group = result.scalar_one_or_none()
     if not group:
@@ -588,6 +1087,16 @@ async def preview_broadcast_message(
         body=body,
         preview=True,
     )
+    (
+        eligible_count,
+        already_sent_count,
+        in_progress_count,
+        uncertain_count,
+    ) = await _recipient_delivery_counts(
+        session,
+        recipients=recipients,
+        message_type=message_type,
+    )
     settings = get_settings()
     template_name = (
         settings.whatsapp_welcome_template_name
@@ -600,6 +1109,10 @@ async def preview_broadcast_message(
         recipient_id=recipient.id,
         recipient_name=recipient_name,
         recipient_count=len(recipients),
+        eligible_recipient_count=eligible_count,
+        already_sent_count=already_sent_count,
+        in_progress_count=in_progress_count,
+        uncertain_recipient_count=uncertain_count,
         message_content=message_content,
         rendered_message=rendered,
         header_parameter_values=header_parameters,
@@ -661,19 +1174,18 @@ async def create_broadcast_group(
             detail="Add at least one customer support contact",
         )
 
-    excel_contacts = _parse_excel_contacts(contacts_file) if contacts_file else []
+    excel_contacts = (
+        await _parse_excel_contacts(contacts_file) if contacts_file else []
+    )
     contacts = manual_contacts + excel_contacts
-    normalized_contacts: dict[str, WhatsAppRecipientInput] = {}
-    for contact in contacts:
-        normalized = _normalize_phone(contact.phone_number)
-        if normalized and normalized not in normalized_contacts:
-            normalized_contacts[normalized] = contact
-    if not normalized_contacts:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Add at least one valid WhatsApp number")
-    if len(normalized_contacts) > 500:
+    normalized_contacts = _normalized_recipient_inputs(contacts)
+    if len(normalized_contacts) > MAX_WHATSAPP_RECIPIENTS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A WhatsApp list can contain at most 500 recipients",
+            detail=(
+                "A WhatsApp list can contain at most "
+                f"{MAX_WHATSAPP_RECIPIENTS} recipients"
+            ),
         )
     unnamed_numbers = [
         contact.phone_number
@@ -753,6 +1265,237 @@ async def create_broadcast_group(
     return await _group_detail(session, group)
 
 
+@router.patch("/groups/{group_id}", response_model=WhatsAppBroadcastGroupDetailResponse)
+async def update_broadcast_group(
+    group_id: uuid.UUID,
+    name: str | None = Form(None),
+    organizing_company_name: str | None = Form(None),
+    support_contacts_json: str | None = Form(None),
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBroadcastGroupDetailResponse:
+    result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    if name is not None:
+        group_name = name.strip()
+        if not group_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Group name is required",
+            )
+        if len(group_name) > 100:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Group name must be 100 characters or fewer",
+            )
+        group.name = group_name
+
+    if organizing_company_name is not None:
+        company_name = _clean_required_name(
+            organizing_company_name,
+            "Organising company name",
+        )
+        if len(company_name) > 100:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Organising company name must be 100 characters or fewer",
+            )
+        group.organizing_company_name = company_name
+
+    if support_contacts_json is not None:
+        support_contacts = _parse_support_contacts(support_contacts_json)
+        await session.execute(
+            delete(WhatsAppBroadcastSupportContactModel).where(
+                WhatsAppBroadcastSupportContactModel.broadcast_group_id == group.id
+            )
+        )
+        await session.flush()
+        for sort_order, support_contact in enumerate(support_contacts):
+            normalized = _normalize_phone(support_contact.phone_number)
+            if not normalized:  # Defensive; _parse_support_contacts already validates.
+                continue
+            session.add(
+                WhatsAppBroadcastSupportContactModel(
+                    broadcast_group_id=group.id,
+                    agency_id=group.agency_id,
+                    name=_clean_required_name(
+                        support_contact.name,
+                        "Customer support name",
+                    ),
+                    phone_number=support_contact.phone_number.strip(),
+                    normalized_phone_number=normalized,
+                    sort_order=sort_order,
+                    created_at=datetime.now(tz=UTC),
+                )
+            )
+
+    group.updated_at = datetime.now(tz=UTC)
+    await session.flush()
+    return await _group_detail(session, group)
+
+
+@router.post(
+    "/groups/{group_id}/recipients",
+    response_model=WhatsAppBroadcastGroupDetailResponse,
+)
+async def add_broadcast_recipients(
+    group_id: uuid.UUID,
+    contacts_json: str = Form("[]"),
+    recipient_opt_in_confirmed: bool = Form(...),
+    contacts_file: UploadFile | None = File(None),
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBroadcastGroupDetailResponse:
+    if not recipient_opt_in_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm recipient WhatsApp opt-in before adding contacts",
+        )
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    manual_contacts = _parse_manual_contacts(contacts_json)
+    excel_contacts = (
+        await _parse_excel_contacts(contacts_file) if contacts_file else []
+    )
+    normalized_contacts = _normalized_recipient_inputs(manual_contacts + excel_contacts)
+
+    existing_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id
+        )
+    )
+    existing_by_phone = {
+        recipient.normalized_phone_number: recipient
+        for recipient in existing_result.scalars().all()
+    }
+    active_count = sum(
+        1 for recipient in existing_by_phone.values()
+        if recipient.removed_at is None
+    )
+    activating_count = sum(
+        1
+        for normalized in normalized_contacts
+        if normalized not in existing_by_phone
+        or existing_by_phone[normalized].removed_at is not None
+    )
+    if active_count + activating_count > MAX_WHATSAPP_RECIPIENTS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients",
+        )
+
+    now = datetime.now(tz=UTC)
+    _activate_recipient_models(
+        session=session,
+        group=group,
+        existing_by_phone=existing_by_phone,
+        normalized_contacts=normalized_contacts,
+        now=now,
+    )
+
+    group.recipient_opt_in_confirmed_at = (
+        group.recipient_opt_in_confirmed_at or now
+    )
+    group.updated_at = now
+    await session.flush()
+    return await _group_detail(session, group)
+
+
+@router.delete(
+    "/groups/{group_id}/recipients/{recipient_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def remove_broadcast_recipient(
+    group_id: uuid.UUID,
+    recipient_id: uuid.UUID,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, bool]:
+    result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id
+            == WhatsAppBroadcastRecipientModel.broadcast_group_id,
+        )
+        .where(
+            WhatsAppBroadcastRecipientModel.id == recipient_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    recipient = result.scalar_one_or_none()
+    if not recipient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp recipient not found",
+        )
+
+    now = datetime.now(tz=UTC)
+    recipient.removed_at = now
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.status == "queued",
+        )
+        .values(
+            status="failed",
+            status_updated_at=now,
+            error_message="Recipient removed from WhatsApp broadcast before delivery",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.recipient_id == recipient.id,
+            WhatsAppRecipientMessageStateModel.status == "queued",
+        )
+        .values(
+            status="failed",
+            batch_id=None,
+            status_updated_at=now,
+            updated_at=now,
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppBroadcastGroupModel)
+        .where(WhatsAppBroadcastGroupModel.id == group_id)
+        .values(updated_at=now)
+    )
+    return {"deleted": True}
+
+
 @router.delete("/groups/{group_id}", status_code=status.HTTP_200_OK)
 async def delete_broadcast_group(
     group_id: uuid.UUID,
@@ -760,11 +1503,60 @@ async def delete_broadcast_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, bool]:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group_id, *_agency_filter(current_user))
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
     )
     group = result.scalar_one_or_none()
     if not group:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found")
+    processing_result = await session.execute(
+        select(func.count())
+        .select_from(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.broadcast_group_id == group.id,
+            WhatsAppRecipientMessageStateModel.status == "processing",
+        )
+    )
+    if int(processing_result.scalar_one()) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "A WhatsApp provider request is currently in progress. "
+                "Wait for it to finish before deleting this broadcast."
+            ),
+        )
+    now = datetime.now(tz=UTC)
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group.id,
+            WhatsAppMessageLogModel.status == "queued",
+        )
+        .values(
+            status="failed",
+            status_updated_at=now,
+            error_message="WhatsApp broadcast deleted before delivery",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.broadcast_group_id == group.id,
+            WhatsAppRecipientMessageStateModel.status == "queued",
+        )
+        .values(
+            status="failed",
+            batch_id=None,
+            status_updated_at=now,
+            updated_at=now,
+        )
+        .execution_options(synchronize_session=False)
+    )
     await session.execute(delete(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group.id))
     return {"deleted": True}
 
@@ -777,7 +1569,12 @@ async def send_broadcast_message(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppSendResponse:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group_id, *_agency_filter(current_user))
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
     )
     group = result.scalar_one_or_none()
     if not group:
@@ -831,8 +1628,160 @@ async def send_broadcast_message(
         message_content=message_content,
     )
     batch_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
+
+    # A queued task has not contacted Meta and is safe to reclaim. A stale
+    # processing task may have submitted bytes before a worker interruption,
+    # so it becomes delivery_unknown and remains suppressed.
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status == "queued",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="failed",
+            status_updated_at=now,
+            error_message="Delivery claim expired before provider submission",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status == "processing",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=now,
+            error_message=(
+                "Delivery outcome is unknown after a worker interruption; "
+                "automatic resend is suppressed"
+            ),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.broadcast_group_id == group.id,
+            WhatsAppRecipientMessageStateModel.message_type == message_type,
+            WhatsAppRecipientMessageStateModel.status == "processing",
+            WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=now,
+            updated_at=now,
+        )
+        .execution_options(synchronize_session=False)
+    )
+
+    claim_values = [
+        {
+            "id": uuid.uuid4(),
+            "broadcast_group_id": group.id,
+            "recipient_id": recipient.id,
+            "agency_id": recipient.agency_id,
+            "message_type": message_type,
+            "status": "queued",
+            "batch_id": batch_id,
+            "submitted_at": None,
+            "status_updated_at": now,
+            "created_at": now,
+            "updated_at": now,
+        }
+        for recipient in recipients
+    ]
+    claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(
+        claim_values
+    )
+    claim_statement = (
+        claim_insert.on_conflict_do_update(
+            constraint="uq_whatsapp_recipient_message_state",
+            set_={
+                "status": "queued",
+                "batch_id": batch_id,
+                "submitted_at": None,
+                "status_updated_at": now,
+                "updated_at": now,
+            },
+            where=or_(
+                ~WhatsAppRecipientMessageStateModel.status.in_(
+                    WHATSAPP_SUPPRESSED_STATUSES
+                ),
+                and_(
+                    WhatsAppRecipientMessageStateModel.status == "queued",
+                    WhatsAppRecipientMessageStateModel.status_updated_at
+                    < stale_cutoff,
+                ),
+            ),
+        )
+        .returning(WhatsAppRecipientMessageStateModel.recipient_id)
+        .execution_options(synchronize_session=False)
+    )
+    claimed_result = await session.execute(claim_statement)
+    claimed_recipient_ids = set(claimed_result.scalars().all())
+    claimed_recipients = [
+        recipient
+        for recipient in recipients
+        if recipient.id in claimed_recipient_ids
+    ]
+    unclaimed_recipient_ids = [
+        recipient.id
+        for recipient in recipients
+        if recipient.id not in claimed_recipient_ids
+    ]
+    skipped_already_sent = 0
+    skipped_in_progress = 0
+    skipped_delivery_unknown = 0
+    if unclaimed_recipient_ids:
+        skipped_result = await session.execute(
+            select(WhatsAppRecipientMessageStateModel.status).where(
+                WhatsAppRecipientMessageStateModel.recipient_id.in_(
+                    unclaimed_recipient_ids
+                ),
+                WhatsAppRecipientMessageStateModel.message_type == message_type,
+            )
+        )
+        skipped_statuses = list(skipped_result.scalars().all())
+        skipped_already_sent = sum(
+            1
+            for delivery_status in skipped_statuses
+            if delivery_status in WHATSAPP_ACCEPTED_STATUSES
+        )
+        skipped_in_progress = sum(
+            1
+            for delivery_status in skipped_statuses
+            if delivery_status in WHATSAPP_IN_PROGRESS_STATUSES
+        )
+        skipped_delivery_unknown = sum(
+            1
+            for delivery_status in skipped_statuses
+            if delivery_status in WHATSAPP_UNCERTAIN_STATUSES
+        )
+
+    if not claimed_recipients:
+        await session.commit()
+        return WhatsAppSendResponse(
+            batch_id=None,
+            queued=0,
+            sent=0,
+            failed=0,
+            skipped_already_sent=skipped_already_sent,
+            skipped_in_progress=skipped_in_progress,
+            skipped_delivery_unknown=skipped_delivery_unknown,
+            results=[],
+        )
+
     results: list[WhatsAppSendResult] = []
-    for recipient in recipients:
+    for recipient in claimed_recipients:
         _, _, _, rendered, _, _ = _message_values(
             group=group,
             recipient=recipient,
@@ -847,12 +1796,12 @@ async def send_broadcast_message(
                 agency_id=recipient.agency_id,
                 message_type=message_type,
                 status="queued",
-                status_updated_at=datetime.now(tz=UTC),
+                status_updated_at=now,
                 provider_message_id=None,
                 error_message=None,
                 template_name=template_name,
                 rendered_message=rendered,
-                created_at=datetime.now(tz=UTC),
+                created_at=now,
             )
         )
         results.append(
@@ -887,6 +1836,23 @@ async def send_broadcast_message(
             log.status = "failed"
             log.status_updated_at = datetime.now(tz=UTC)
             log.error_message = error_message
+        failure_time = datetime.now(tz=UTC)
+        await session.execute(
+            update(WhatsAppRecipientMessageStateModel)
+            .where(
+                WhatsAppRecipientMessageStateModel.batch_id == batch_id,
+                WhatsAppRecipientMessageStateModel.status.in_(
+                    WHATSAPP_IN_PROGRESS_STATUSES
+                ),
+            )
+            .values(
+                status="failed",
+                batch_id=None,
+                status_updated_at=failure_time,
+                updated_at=failure_time,
+            )
+            .execution_options(synchronize_session=False)
+        )
         await session.commit()
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -898,6 +1864,9 @@ async def send_broadcast_message(
         queued=len(results),
         sent=0,
         failed=0,
+        skipped_already_sent=skipped_already_sent,
+        skipped_in_progress=skipped_in_progress,
+        skipped_delivery_unknown=skipped_delivery_unknown,
         results=results,
     )
 
@@ -933,6 +1902,7 @@ async def get_broadcast_batch_status(
 
     queued_statuses = {"queued", "processing"}
     successful_statuses = {"submitted", "sent", "delivered", "read"}
+    uncertain_statuses = {"delivery_unknown", "stalled"}
     stale_cutoff = datetime.now(tz=UTC) - timedelta(minutes=30)
     results: list[WhatsAppSendResult] = []
     for log, recipient in rows:
@@ -960,7 +1930,11 @@ async def get_broadcast_batch_status(
         failed=sum(
             1
             for item in results
-            if item.status not in queued_statuses | successful_statuses
+            if item.status
+            not in queued_statuses | successful_statuses | uncertain_statuses
+        ),
+        delivery_unknown=sum(
+            1 for item in results if item.status in uncertain_statuses
         ),
         results=results,
     )

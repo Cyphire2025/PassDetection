@@ -16,6 +16,15 @@ export interface WhatsAppRecipient {
   name: string | null;
   phone_number: string;
   normalized_phone_number: string;
+  message_statuses: WhatsAppRecipientMessageStatus[];
+}
+
+export interface WhatsAppRecipientMessageStatus {
+  message_type: string;
+  status: string;
+  already_sent: boolean;
+  submitted_at: string | null;
+  status_updated_at: string;
 }
 
 export interface WhatsAppSupportContact {
@@ -55,6 +64,10 @@ export interface WhatsAppPreviewResponse {
   recipient_id: string;
   recipient_name: string;
   recipient_count: number;
+  eligible_recipient_count: number;
+  already_sent_count: number;
+  in_progress_count: number;
+  uncertain_recipient_count: number;
   message_content: string;
   rendered_message: string;
   header_parameter_values: string[];
@@ -66,6 +79,10 @@ export interface WhatsAppSendResponse {
   queued: number;
   sent: number;
   failed: number;
+  delivery_unknown: number;
+  skipped_already_sent: number;
+  skipped_in_progress: number;
+  skipped_delivery_unknown: number;
   results: Array<{
     recipient_id: string;
     phone_number: string;
@@ -114,8 +131,68 @@ export const whatsappApi = {
     return data;
   },
 
+  updateGroup: async ({
+    groupId,
+    name,
+    organizingCompanyName,
+    supportContacts,
+  }: {
+    groupId: string;
+    name?: string;
+    organizingCompanyName?: string;
+    supportContacts?: WhatsAppSupportContactInput[];
+  }): Promise<WhatsAppBroadcastGroupDetail> => {
+    const formData = new FormData();
+    if (name !== undefined) formData.append("name", name);
+    if (organizingCompanyName !== undefined) {
+      formData.append("organizing_company_name", organizingCompanyName);
+    }
+    if (supportContacts !== undefined) {
+      formData.append("support_contacts_json", JSON.stringify(supportContacts));
+    }
+    const { data } = await apiClient.patch<WhatsAppBroadcastGroupDetail>(
+      API_ENDPOINTS.whatsapp.group(groupId),
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return data;
+  },
+
+  addRecipients: async ({
+    groupId,
+    contacts,
+    recipientOptInConfirmed,
+    file,
+  }: {
+    groupId: string;
+    contacts: WhatsAppRecipientInput[];
+    recipientOptInConfirmed: boolean;
+    file?: File | null;
+  }): Promise<WhatsAppBroadcastGroupDetail> => {
+    const formData = new FormData();
+    formData.append("contacts_json", JSON.stringify(contacts));
+    formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
+    if (file) formData.append("contacts_file", file);
+    const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
+      API_ENDPOINTS.whatsapp.recipients(groupId),
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return data;
+  },
+
   deleteGroup: async (groupId: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.whatsapp.group(groupId));
+  },
+
+  deleteRecipient: async ({
+    groupId,
+    recipientId,
+  }: {
+    groupId: string;
+    recipientId: string;
+  }): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.whatsapp.recipient(groupId, recipientId));
   },
 
   previewMessage: async (

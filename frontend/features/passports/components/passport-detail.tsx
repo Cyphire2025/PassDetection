@@ -16,10 +16,8 @@ import {
 } from "@/lib/utils/passport-date";
 import {
   formatPassportCountry,
+  formatPassportCountryField,
   formatPassportNationality,
-  getPassportCountryOptions,
-  getPassportNationalityOptions,
-  isRecognizedPassportCountryCode,
 } from "@/lib/utils/passport-country";
 import type {
   ExtractedPassportFields,
@@ -487,7 +485,8 @@ function ReviewFieldsCard({
                   )}
                 </span>
                 {isCountry ? (
-                  <PassportCountryField
+                  <PassportCountryTextField
+                    key={`${key}:${reviewFields[key] ?? ""}`}
                     value={reviewFields[key] ?? ""}
                     onChange={(value) => handleFieldChange(key, value)}
                     className={fieldClassName}
@@ -772,7 +771,7 @@ function FieldReviewMessage({
   );
 }
 
-function PassportCountryField({
+function PassportCountryTextField({
   value,
   onChange,
   className,
@@ -785,37 +784,27 @@ function PassportCountryField({
   ariaLabel: string;
   field: "nationality" | "issuing_country";
 }) {
-  if (!isRecognizedPassportCountryCode(value)) {
-    return (
-      <Input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Not extracted"
-        aria-label={ariaLabel}
-        className={`h-10 rounded-lg ${className ?? "border-slate-200 bg-white"}`}
-      />
-    );
-  }
+  const formattedValue = formatPassportCountryField(field, value) || value;
+  const [draftValue, setDraftValue] = useState(formattedValue);
+  const [isDirty, setIsDirty] = useState(false);
 
-  const normalizedCode = value.trim().toUpperCase();
-  const codeLength = normalizedCode.length === 2 ? 2 : 3;
   return (
-    <select
-      value={normalizedCode}
-      onChange={(event) => onChange(event.target.value)}
+    <Input
+      type="text"
+      value={draftValue}
+      onChange={(event) => {
+        setDraftValue(event.target.value);
+        setIsDirty(true);
+      }}
+      onBlur={() => {
+        if (!isDirty) return;
+        onChange(draftValue);
+        setIsDirty(false);
+      }}
+      placeholder="Not extracted"
       aria-label={ariaLabel}
-      className={`h-10 w-full rounded-lg border px-3 text-sm text-slate-900 outline-none transition ${
-        className ?? "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-      }`}
-    >
-      {(field === "nationality"
-        ? getPassportNationalityOptions(codeLength)
-        : getPassportCountryOptions(codeLength)
-      ).map((option) => (
-        <option key={option.value} value={option.value}>{option.label}</option>
-      ))}
-    </select>
+      className={`h-10 rounded-lg ${className ?? "border-slate-200 bg-white"}`}
+    />
   );
 }
 

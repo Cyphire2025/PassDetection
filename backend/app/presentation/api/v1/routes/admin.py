@@ -6,6 +6,7 @@ Admin Routes
 from __future__ import annotations
 
 import uuid
+from dataclasses import dataclass
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, func, or_, select
@@ -29,6 +30,11 @@ from app.infrastructure.database.models import (
     PassportSubmissionModel,
     PlatformSettingModel,
     UserModel,
+    WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastSupportContactModel,
+    WhatsAppMessageLogModel,
+    WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -50,6 +56,15 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 PLATFORM_SETTINGS_KEY = "global"
 DEFAULT_PLATFORM_SETTINGS = PlatformSettingsResponse().model_dump(exclude={"updated_at"})
+
+
+@dataclass(frozen=True, slots=True)
+class _WhatsAppPurgeCounts:
+    broadcast_groups: int
+    recipients: int
+    support_contacts: int
+    message_logs: int
+    delivery_states: int
 
 
 def _manager_scope(current_user: User) -> list:
@@ -522,7 +537,7 @@ async def delete_manager(
     "/passport-data",
     response_model=PurgePassportDataResponse,
     status_code=status.HTTP_200_OK,
-    summary="Permanently delete passport submissions and client groups",
+    summary="Permanently delete passport and WhatsApp broadcast data",
 )
 async def purge_passport_data(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN])),
@@ -530,6 +545,35 @@ async def purge_passport_data(
 ) -> PurgePassportDataResponse:
     if current_user.role != UserRole.SUPER_ADMIN and not current_user.agency_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This admin account is not assigned to an agency")
+
+    whatsapp_group_lock = select(WhatsAppBroadcastGroupModel.id).order_by(
+        WhatsAppBroadcastGroupModel.id
+    )
+    if current_user.role != UserRole.SUPER_ADMIN:
+        whatsapp_group_lock = whatsapp_group_lock.where(
+            WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id
+        )
+    await session.execute(whatsapp_group_lock.with_for_update())
+    processing_filter = [
+        WhatsAppRecipientMessageStateModel.status == "processing"
+    ]
+    if current_user.role != UserRole.SUPER_ADMIN:
+        processing_filter.append(
+            WhatsAppRecipientMessageStateModel.agency_id == current_user.agency_id
+        )
+    processing_result = await session.execute(
+        select(func.count())
+        .select_from(WhatsAppRecipientMessageStateModel)
+        .where(*processing_filter)
+    )
+    if int(processing_result.scalar_one()) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "A WhatsApp provider request is currently in progress. "
+                "Wait for it to finish before deleting all data."
+            ),
+        )
 
     group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
     passport_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [PassportSubmissionModel.agency_id == current_user.agency_id]
@@ -582,6 +626,10 @@ async def purge_passport_data(
         submission_ids,
     )
     deleted_client_groups = await _delete_by_ids(session, ClientGroupModel, ClientGroupModel.id, group_ids)
+    whatsapp_counts = await _delete_whatsapp_broadcast_data(
+        session,
+        agency_id=None if current_user.role == UserRole.SUPER_ADMIN else current_user.agency_id,
+    )
 
     response = PurgePassportDataResponse(
         deleted_client_groups=deleted_client_groups,
@@ -590,6 +638,11 @@ async def purge_passport_data(
         deleted_notifications=deleted_notifications,
         deleted_audit_logs=deleted_audit_logs,
         deleted_storage_objects=deleted_storage_objects,
+        deleted_whatsapp_broadcast_groups=whatsapp_counts.broadcast_groups,
+        deleted_whatsapp_recipients=whatsapp_counts.recipients,
+        deleted_whatsapp_support_contacts=whatsapp_counts.support_contacts,
+        deleted_whatsapp_message_logs=whatsapp_counts.message_logs,
+        deleted_whatsapp_delivery_states=whatsapp_counts.delivery_states,
     )
 
     await AuditLogRepository(session).record(
@@ -662,6 +715,38 @@ async def _delete_by_ids(session: AsyncSession, model, column, ids: list) -> int
         return 0
     result = await session.execute(delete(model).where(column.in_(ids)))
     return int(result.rowcount or 0)
+
+
+async def _delete_whatsapp_broadcast_data(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID | None,
+) -> _WhatsAppPurgeCounts:
+    """Delete WhatsApp data in FK-safe order within the caller's transaction."""
+
+    async def delete_model(model) -> int:  # type: ignore[no-untyped-def]
+        stmt = delete(model)
+        if agency_id is not None:
+            stmt = stmt.where(model.agency_id == agency_id)
+        result = await session.execute(stmt)
+        return int(result.rowcount or 0)
+
+    # Message logs and delivery states reference both groups and recipients,
+    # while support contacts and recipients reference groups. Keep this
+    # explicit instead of relying on database cascades so counts stay accurate
+    # and the order is portable.
+    message_logs = await delete_model(WhatsAppMessageLogModel)
+    delivery_states = await delete_model(WhatsAppRecipientMessageStateModel)
+    support_contacts = await delete_model(WhatsAppBroadcastSupportContactModel)
+    recipients = await delete_model(WhatsAppBroadcastRecipientModel)
+    broadcast_groups = await delete_model(WhatsAppBroadcastGroupModel)
+    return _WhatsAppPurgeCounts(
+        broadcast_groups=broadcast_groups,
+        recipients=recipients,
+        support_contacts=support_contacts,
+        message_logs=message_logs,
+        delivery_states=delivery_states,
+    )
 
 
 async def _delete_entity_rows(

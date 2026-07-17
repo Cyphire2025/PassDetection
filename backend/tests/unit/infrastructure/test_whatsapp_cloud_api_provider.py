@@ -6,6 +6,8 @@ import types
 import unittest
 from unittest.mock import AsyncMock
 
+import httpx
+
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
@@ -13,6 +15,15 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 
 
 class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
+    @staticmethod
+    def _settings() -> types.SimpleNamespace:
+        return types.SimpleNamespace(
+            whatsapp_access_token="test-token",
+            whatsapp_phone_number_id="123456789",
+            whatsapp_api_version="v25.0",
+            whatsapp_template_language="en_US",
+        )
+
     async def test_sends_one_individual_template_with_ordered_parameters(self) -> None:
         response = types.SimpleNamespace(
             status_code=200,
@@ -101,6 +112,79 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 template_name="global_connect_welcome_v1",
                 parameters=["Aarav"],
             )
+
+    async def test_connect_failure_is_safe_to_retry(self) -> None:
+        request = httpx.Request("POST", "https://graph.facebook.com")
+        client = types.SimpleNamespace(
+            post=AsyncMock(side_effect=httpx.ConnectTimeout("connect", request=request))
+        )
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="welcome",
+                parameters=["Aarav"],
+            )
+
+        self.assertTrue(raised.exception.transient)
+        self.assertFalse(raised.exception.delivery_unknown)
+
+    async def test_read_timeout_is_suppressed_instead_of_retried(self) -> None:
+        request = httpx.Request("POST", "https://graph.facebook.com")
+        client = types.SimpleNamespace(
+            post=AsyncMock(side_effect=httpx.ReadTimeout("read", request=request))
+        )
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="welcome",
+                parameters=["Aarav"],
+            )
+
+        self.assertFalse(raised.exception.transient)
+        self.assertTrue(raised.exception.delivery_unknown)
+
+    async def test_server_error_is_suppressed_instead_of_retried(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=500,
+            json=lambda: {"error": {"message": "Temporary provider failure"}},
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="welcome",
+                parameters=["Aarav"],
+            )
+
+        self.assertFalse(raised.exception.transient)
+        self.assertTrue(raised.exception.delivery_unknown)
+
+    async def test_success_without_message_id_is_suppressed(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=200,
+            json=lambda: {"messages": [{}]},
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="welcome",
+                parameters=["Aarav"],
+            )
+
+        self.assertTrue(raised.exception.delivery_unknown)
 
 
 if __name__ == "__main__":

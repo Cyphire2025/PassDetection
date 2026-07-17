@@ -12,9 +12,16 @@ from app.core.config.settings import Settings
 class WhatsAppCloudApiError(RuntimeError):
     """A safe provider error suitable for per-recipient message logs."""
 
-    def __init__(self, message: str, *, transient: bool = False) -> None:
+    def __init__(
+        self,
+        message: str,
+        *,
+        transient: bool = False,
+        delivery_unknown: bool = False,
+    ) -> None:
         super().__init__(message)
         self.transient = transient
+        self.delivery_unknown = delivery_unknown
 
 
 def _text_parameter(value: str) -> dict[str, str]:
@@ -70,10 +77,18 @@ async def send_whatsapp_template(
             },
             headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
         )
-    except httpx.HTTPError as exc:
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
         raise WhatsAppCloudApiError(
             "WhatsApp Cloud API could not be reached",
             transient=True,
+        ) from exc
+    except httpx.HTTPError as exc:
+        # Once request bytes may have left this process, retrying without a
+        # provider idempotency key can duplicate a message. Preserve an
+        # uncertain/suppressed outcome for manual reconciliation.
+        raise WhatsAppCloudApiError(
+            "WhatsApp delivery outcome is unknown after a provider connection interruption",
+            delivery_unknown=True,
         ) from exc
     try:
         data = response.json()
@@ -85,18 +100,19 @@ async def send_whatsapp_template(
         message = details or (error.get("message") if isinstance(error, dict) else None)
         raise WhatsAppCloudApiError(
             str(message or f"WhatsApp API returned {response.status_code}")[:2000],
-            transient=response.status_code == 429 or response.status_code >= 500,
+            transient=response.status_code == 429,
+            delivery_unknown=response.status_code >= 500,
         )
     messages = data.get("messages") if isinstance(data, dict) else None
     if not isinstance(messages, list) or not messages:
         raise WhatsAppCloudApiError(
             "WhatsApp API accepted the request without returning a message ID",
-            transient=True,
+            delivery_unknown=True,
         )
     provider_id = messages[0].get("id") if isinstance(messages[0], dict) else None
     if not provider_id:
         raise WhatsAppCloudApiError(
             "WhatsApp API accepted the request without returning a message ID",
-            transient=True,
+            delivery_unknown=True,
         )
     return str(provider_id)
