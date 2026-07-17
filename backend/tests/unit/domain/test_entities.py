@@ -101,9 +101,9 @@ class TestPassportSubmissionEntity:
             image_s3_key="uploads/passports/abc123.jpg",
         )
 
-    def test_initial_status_is_uploaded(self) -> None:
+    def test_initial_status_is_pending_extraction(self) -> None:
         sub = self._make_submission()
-        assert sub.status == PassportProcessingStatus.UPLOADED
+        assert sub.status == PassportProcessingStatus.PENDING_EXTRACTION
 
     def test_confirm_sets_confirmed_fields(self) -> None:
         sub = self._make_submission()

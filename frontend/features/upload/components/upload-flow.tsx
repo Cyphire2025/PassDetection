@@ -2039,6 +2039,7 @@ function isExtractionTerminal(submission: PassportSubmission) {
     "extraction_failed",
     "ready_for_review",
   ].includes(submission.extraction_status)
+    || submission.status === "ready_for_client_review"
     || submission.status === "review_required"
     || submission.status === "failed";
 }

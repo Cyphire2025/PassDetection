@@ -25,6 +25,7 @@ class IPassportVerificationService(ABC):
         *,
         content_type: str,
         extracted_fields: dict[str, Any],
+        timeout_seconds: float | None = None,
     ) -> PassportVerificationResult:
-        """Return conservatively merged fields or the original OCR fields on failure."""
+        """Return conservatively merged fields within the caller's remaining budget."""
         ...

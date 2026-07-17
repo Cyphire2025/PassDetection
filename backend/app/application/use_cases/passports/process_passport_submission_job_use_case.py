@@ -6,11 +6,15 @@ import asyncio
 import mimetypes
 import uuid
 
-from app.application.interfaces.passport_extraction import IPassportExtractionService
+from app.application.interfaces.passport_extraction import (
+    IPassportExtractionService,
+    PassportExtractionResult,
+)
 from app.application.interfaces.passport_verification import IPassportVerificationService
 from app.application.use_cases.passports.passport_ai_verification import verify_passport_fields
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.core.time_budget import TimeBudget
 from app.domain.exceptions.exceptions import PassDetectionError, StorageError
 from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
@@ -25,6 +29,9 @@ PUBLIC_EXTRACTION_FAILURE = (
     "Some passport fields could not be read automatically. "
     "Please enter the missing details manually."
 )
+MAX_FIRST_PASS_SECONDS = 45.0
+MAX_GEMINI_SECONDS = 30.0
+RESULT_SAVE_RESERVE_SECONDS = 2.0
 
 
 class ProcessingRetryRequested(Exception):
@@ -94,8 +101,15 @@ class ProcessPassportSubmissionJobUseCase:
             )
             return
 
+        local_extraction_started = False
         try:
-            async with asyncio.timeout(get_settings().processing_job_timeout_seconds):
+            settings = get_settings()
+            job_timeout = min(
+                float(settings.processing_job_timeout_seconds),
+                MAX_FIRST_PASS_SECONDS,
+            )
+            budget = TimeBudget.start(job_timeout)
+            async with asyncio.timeout(job_timeout):
                 await self._job_repo.update_progress(
                     job_id,
                     progress=0.15,
@@ -113,11 +127,41 @@ class ProcessPassportSubmissionJobUseCase:
                 )
                 await self._job_repo.checkpoint()
                 content_type = self._guess_content_type(submission.image_s3_key)
-                extraction = await self._extraction_service.extract(
-                    file_content,
-                    filename=submission.image_s3_key.rsplit("/", 1)[-1],
-                    content_type=content_type,
+                local_timeout = min(
+                    float(
+                        getattr(
+                            settings,
+                            "passport_local_extraction_timeout_seconds",
+                            10.0,
+                        )
+                    ),
+                    10.0,
+                    budget.remaining(),
                 )
+                local_extraction_started = True
+                try:
+                    async with asyncio.timeout(local_timeout):
+                        extraction = await self._extraction_service.extract(
+                            file_content,
+                            filename=submission.image_s3_key.rsplit("/", 1)[-1],
+                            content_type=content_type,
+                        )
+                except TimeoutError:
+                    logger.warning(
+                        "passport_local_extraction_hard_timeout",
+                        job_id=str(job_id),
+                        submission_id=str(submission_id),
+                        timeout_seconds=local_timeout,
+                    )
+                    extraction = self._local_timeout_result(local_timeout)
+                except Exception as exc:
+                    logger.error(
+                        "passport_local_extraction_unexpected_fallback",
+                        job_id=str(job_id),
+                        submission_id=str(submission_id),
+                        error_type=type(exc).__name__,
+                    )
+                    extraction = self._local_failure_result(local_timeout)
                 if await self._cancel_if_requested(job_id, submission_id, job.extraction_revision):
                     return
 
@@ -127,11 +171,17 @@ class ProcessPassportSubmissionJobUseCase:
                     stage="verifying_passport_fields",
                 )
                 await self._job_repo.checkpoint()
+                verification_timeout = min(
+                    float(getattr(settings, "gemini_timeout_seconds", 30.0)),
+                    MAX_GEMINI_SECONDS,
+                    max(0.0, budget.remaining() - RESULT_SAVE_RESERVE_SECONDS),
+                )
                 extracted_fields = await verify_passport_fields(
                     self._verification_service,
                     image_content=file_content,
                     content_type=content_type,
                     extracted_fields=extraction.extracted_fields,
+                    timeout_seconds=verification_timeout,
                 )
                 await self._job_repo.update_progress(
                     job_id,
@@ -172,7 +222,12 @@ class ProcessPassportSubmissionJobUseCase:
                 job_id=str(job_id),
                 submission_id=str(submission_id),
             )
-            await self._handle_failure(job_id, submission_id, job.extraction_revision)
+            await self._handle_failure(
+                job_id,
+                submission_id,
+                job.extraction_revision,
+                retry_allowed=not local_extraction_started,
+            )
         except StorageError as exc:
             logger.warning(
                 "passport_processing_storage_read_failure",
@@ -180,7 +235,12 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id=str(submission_id),
                 error_type=type(exc).__name__,
             )
-            await self._handle_failure(job_id, submission_id, job.extraction_revision)
+            await self._handle_failure(
+                job_id,
+                submission_id,
+                job.extraction_revision,
+                retry_allowed=not local_extraction_started,
+            )
         except PassDetectionError as exc:
             logger.warning(
                 "passport_processing_job_provider_failure",
@@ -188,7 +248,12 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id=str(submission_id),
                 error_type=type(exc).__name__,
             )
-            await self._handle_failure(job_id, submission_id, job.extraction_revision)
+            await self._handle_failure(
+                job_id,
+                submission_id,
+                job.extraction_revision,
+                retry_allowed=False,
+            )
         except Exception as exc:
             logger.exception(
                 "passport_processing_job_unexpected_failure",
@@ -196,16 +261,28 @@ class ProcessPassportSubmissionJobUseCase:
                 submission_id=str(submission_id),
                 error_type=type(exc).__name__,
             )
-            await self._handle_failure(job_id, submission_id, job.extraction_revision)
+            await self._handle_failure(
+                job_id,
+                submission_id,
+                job.extraction_revision,
+                retry_allowed=False,
+            )
 
     async def _handle_failure(
         self,
         job_id: uuid.UUID,
         submission_id: uuid.UUID,
         extraction_revision: int,
+        *,
+        retry_allowed: bool = True,
     ) -> None:
         latest = await self._job_repo.get(job_id)
-        if self._allow_retry and latest and latest.attempts < latest.max_attempts:
+        if (
+            retry_allowed
+            and self._allow_retry
+            and latest
+            and latest.attempts < latest.max_attempts
+        ):
             await self._job_repo.mark_retryable_failure(
                 job_id,
                 "Automatic extraction will be retried",
@@ -252,3 +329,44 @@ class ProcessPassportSubmissionJobUseCase:
     @staticmethod
     def _guess_content_type(key: str) -> str:
         return mimetypes.guess_type(key)[0] or "image/jpeg"
+
+    @staticmethod
+    def _local_timeout_result(timeout_seconds: float) -> PassportExtractionResult:
+        return PassportExtractionResult(
+            extracted_fields={
+                "processing_note": "Local OCR timed out; AI image verification was attempted.",
+            },
+            overall_confidence=0.0,
+            confidence_score={
+                "overall": 0.0,
+                "pipeline": {
+                    "local_budget": {
+                        "timeout_seconds": timeout_seconds,
+                        "exhausted": True,
+                    }
+                },
+            },
+            mrz_raw=None,
+        )
+
+    @staticmethod
+    def _local_failure_result(timeout_seconds: float) -> PassportExtractionResult:
+        return PassportExtractionResult(
+            extracted_fields={
+                "processing_note": (
+                    "Local OCR was unavailable; AI image verification was attempted."
+                ),
+            },
+            overall_confidence=0.0,
+            confidence_score={
+                "overall": 0.0,
+                "pipeline": {
+                    "local_budget": {
+                        "timeout_seconds": timeout_seconds,
+                        "exhausted": False,
+                    },
+                    "local_status": "unavailable",
+                },
+            },
+            mrz_raw=None,
+        )

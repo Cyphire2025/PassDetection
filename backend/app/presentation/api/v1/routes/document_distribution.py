@@ -11,7 +11,12 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.domain.entities.entities import PassportSubmission, User, UserRole
+from app.domain.entities.entities import (
+    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    PassportSubmission,
+    User,
+    UserRole,
+)
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -47,8 +52,8 @@ def _owner_scope_for(user: User) -> uuid.UUID | None:
     return user.id if user.role == UserRole.AGENCY_STAFF else None
 
 
-def _submitted_statuses() -> tuple[str, str]:
-    return ("client_submitted", "confirmed")
+def _submitted_statuses() -> tuple[str, ...]:
+    return OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 
 
 def _passport_number(passenger: PassportSubmission) -> str | None:

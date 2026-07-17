@@ -1,0 +1,147 @@
+"""Idempotent QR issuance for operationally approved passengers."""
+
+from __future__ import annotations
+
+import secrets
+import uuid
+from datetime import UTC, datetime, time, timedelta
+from hashlib import sha256
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.domain.entities.entities import (
+    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+)
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    PassengerQRTokenModel,
+    PassportSubmissionModel,
+)
+
+QR_TOKEN_TTL = timedelta(days=365)
+QR_RETURN_GRACE_DAYS = 2
+
+
+def qr_payload() -> str:
+    return f"pdatt:{secrets.token_urlsafe(32)}"
+
+
+def qr_hash(payload: str) -> str:
+    return sha256(payload.encode("utf-8")).hexdigest()
+
+
+def qr_status(
+    token: PassengerQRTokenModel | None,
+    now: datetime | None = None,
+) -> str:
+    if token is None:
+        return "not_generated"
+    current_time = now or datetime.now(tz=UTC)
+    if token.revoked_at is not None:
+        return "revoked"
+    if token.expires_at <= current_time:
+        return "expired"
+    return "active" if token.is_active else "inactive"
+
+
+def qr_expires_at_for_group(
+    group: ClientGroupModel,
+    now: datetime | None = None,
+) -> datetime:
+    if group.return_date:
+        return datetime.combine(
+            group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS),
+            time.max,
+            tzinfo=UTC,
+        )
+    return (now or datetime.now(tz=UTC)) + QR_TOKEN_TTL
+
+
+def build_passenger_qr_token(
+    *,
+    agency_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    created_by_user_id: uuid.UUID | None,
+    group: ClientGroupModel,
+    token_version: int,
+    now: datetime | None = None,
+) -> tuple[PassengerQRTokenModel, str]:
+    """Build one token with the shared payload, hash, and expiry policy."""
+
+    issued_at = now or datetime.now(tz=UTC)
+    payload = qr_payload()
+    return (
+        PassengerQRTokenModel(
+            agency_id=agency_id,
+            passenger_id=passenger_id,
+            token_hash=qr_hash(payload),
+            qr_payload=payload,
+            token_version=token_version,
+            is_active=True,
+            created_by_user_id=created_by_user_id,
+            expires_at=qr_expires_at_for_group(group, issued_at),
+            created_at=issued_at,
+            updated_at=issued_at,
+        ),
+        payload,
+    )
+
+
+async def ensure_approved_passenger_qr(
+    session: AsyncSession,
+    submission_id: uuid.UUID,
+    *,
+    created_by_user_id: uuid.UUID | None = None,
+) -> PassengerQRTokenModel | None:
+    """Issue one token only after approval, serialized by the passenger row."""
+
+    result = await session.execute(
+        select(PassportSubmissionModel, ClientGroupModel)
+        .join(
+            ClientGroupModel,
+            ClientGroupModel.id == PassportSubmissionModel.group_id,
+        )
+        .where(
+            PassportSubmissionModel.id == submission_id,
+            PassportSubmissionModel.status.in_(
+                OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+            ),
+        )
+        .with_for_update(of=PassportSubmissionModel)
+    )
+    row = result.first()
+    if not row:
+        return None
+    submission, group = row
+    # Defense in depth for test doubles and any dialect-specific filtering.
+    if (
+        submission.status
+        not in OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+    ):
+        return None
+
+    existing_result = await session.execute(
+        select(PassengerQRTokenModel)
+        .where(PassengerQRTokenModel.passenger_id == submission.id)
+        .order_by(
+            PassengerQRTokenModel.token_version.desc(),
+            PassengerQRTokenModel.created_at.desc(),
+        )
+        .limit(1)
+        .with_for_update()
+    )
+    existing = existing_result.scalar_one_or_none()
+    if existing is not None:
+        return existing
+
+    token, _payload = build_passenger_qr_token(
+        agency_id=submission.agency_id,
+        passenger_id=submission.id,
+        created_by_user_id=created_by_user_id or group.created_by_user_id,
+        group=group,
+        token_version=1,
+    )
+    session.add(token)
+    await session.flush()
+    return token

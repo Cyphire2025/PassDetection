@@ -11,9 +11,13 @@ from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
     passport_submission_output_from_entity,
 )
+from app.domain.entities.entities import PassportProcessingStatus
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import IPassportSubmissionRepository
-from app.domain.value_objects.passport_fields import normalize_reviewed_passport_fields
+from app.domain.value_objects.passport_fields import (
+    normalize_reviewed_passport_fields,
+    validate_reviewed_passport_payload,
+)
 
 
 class ConfirmPassportSubmissionUseCase:
@@ -30,12 +34,21 @@ class ConfirmPassportSubmissionUseCase:
         if not submission:
             raise EntityNotFoundError("PassportSubmission", submission_id)
 
+        validate_reviewed_passport_payload(confirmed_fields)
         clean_fields = normalize_reviewed_passport_fields(confirmed_fields)
 
         if not clean_fields:
             raise ValidationError("At least one confirmed field is required", field="confirmed_fields")
 
-        submission.confirm(clean_fields)
+        if submission.status in {
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
+        }:
+            submission.update_reviewed_fields(clean_fields)
+        else:
+            submission.confirm(clean_fields)
         await self._passport_repo.update(submission)
 
         return passport_submission_output_from_entity(submission)

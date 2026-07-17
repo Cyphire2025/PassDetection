@@ -3,11 +3,13 @@ from __future__ import annotations
 import io
 import uuid
 
+import pytest
 from openpyxl import load_workbook
 
 from app.domain.entities.entities import PassportSubmission
 from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
+    _gender_display_value,
     _safe_xlsx_value,
 )
 
@@ -174,3 +176,40 @@ def test_export_neutralizes_formula_like_text_after_leading_whitespace() -> None
         assert str(values[header]).startswith("'")
     assert _safe_xlsx_value(42) == 42
     assert _safe_xlsx_value("2026-07-17") == "2026-07-17"
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    (
+        ("M", "Male"),
+        ("m", "Male"),
+        ("Male", "Male"),
+        ("male", "Male"),
+        (" F ", "Female"),
+        ("f", "Female"),
+        ("Female", "Female"),
+        ("female", "Female"),
+    ),
+)
+def test_export_normalizes_supported_gender_values(
+    source: str,
+    expected: str,
+) -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(group_id, fields={"sex": source})
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Test Group",
+            group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
+        )
+    )
+    _, values = _row_values(worksheet)
+
+    assert values["Sex"] == expected
+
+
+def test_export_gender_normalization_does_not_invent_unknown_values() -> None:
+    assert _gender_display_value("X") == "X"
+    assert _gender_display_value(None) is None

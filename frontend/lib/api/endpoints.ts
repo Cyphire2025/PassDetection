@@ -83,6 +83,7 @@ export const API_ENDPOINTS = {
     uploadScanAgain: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/scan-again`,
     discardUpload: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}`,
     confirm: (id: string) => `/api/v1/passports/${id}/confirm`,
+    staffApprove: (id: string) => `/api/v1/passports/${id}/staff-approve`,
     clientSubmit: (id: string) => `/api/v1/passports/${id}/client-submit`,
     reextract: (id: string) => `/api/v1/passports/${id}/reextract`,
     cancelProcessing: (id: string) => `/api/v1/passports/${id}/cancel-processing`,

@@ -73,6 +73,32 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(compact_input["f"]["sn"], "KHANNA")
         self.assertEqual(parts[1]["inlineData"]["data"], "aW1hZ2UtYnl0ZXM=")
 
+    async def test_transient_retry_reuses_the_exact_prebuilt_payload(self) -> None:
+        class _Client:
+            def __init__(self) -> None:
+                self.payload_ids: list[int] = []
+
+            async def post(self, _endpoint: str, **kwargs) -> httpx.Response:  # type: ignore[no-untyped-def]
+                self.payload_ids.append(id(kwargs["json"]))
+                if len(self.payload_ids) == 1:
+                    return httpx.Response(503, json={"error": "temporary"})
+                return _gemini_response({"s": "match", "f": []})
+
+        client = _Client()
+        result = await GeminiPassportVerificationService(
+            settings=_settings(),
+            http_client=client,  # type: ignore[arg-type]
+        ).verify(
+            b"one-front-image",
+            content_type="image/jpeg",
+            extracted_fields={},
+        )
+
+        self.assertEqual(result.metadata["status"], "verified")
+        self.assertEqual(result.metadata["attempts"], 2)
+        self.assertEqual(len(client.payload_ids), 2)
+        self.assertEqual(len(set(client.payload_ids)), 1)
+
     async def test_fills_missing_and_replaces_only_high_confidence_valid_values(self) -> None:
         provider = {
             "s": "changes",
@@ -181,7 +207,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["status"], "invalid_response")
         self.assertNotIn("unknown", result.merged_fields)
 
-    async def test_rate_limit_falls_back_without_retry(self) -> None:
+    async def test_rate_limit_retries_once_then_falls_back(self) -> None:
         calls = 0
 
         async def handler(_request: httpx.Request) -> httpx.Response:
@@ -199,7 +225,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 extracted_fields={"surname": "KHANNA"},
             )
 
-        self.assertEqual(calls, 1)
+        self.assertEqual(calls, 2)
+        self.assertEqual(result.metadata["attempts"], 2)
         self.assertEqual(result.metadata["status"], "rate_limited")
         self.assertEqual(result.merged_fields["surname"], "KHANNA")
 
@@ -221,7 +248,11 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["status"], "not_configured")
 
     async def test_permission_denied_falls_back_to_ocr(self) -> None:
+        calls = 0
+
         async def handler(_request: httpx.Request) -> httpx.Response:
+            nonlocal calls
+            calls += 1
             return httpx.Response(403, json={"error": {"message": "blocked"}})
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
@@ -234,6 +265,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 extracted_fields={"surname": "KHANNA"},
             )
 
+        self.assertEqual(calls, 1)
         self.assertEqual(result.metadata["status"], "permission_denied")
         self.assertEqual(result.merged_fields["surname"], "KHANNA")
 

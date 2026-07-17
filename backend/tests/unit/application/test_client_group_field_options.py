@@ -152,6 +152,37 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("staff_code", submission.confirmed_fields)
         self.assertNotIn("meal_preference", submission.confirmed_fields)
 
+    async def test_exact_family_submit_replay_is_idempotent(self) -> None:
+        group = self._group()
+        submission = self._submission(group)
+        use_case, passport_repo = self._build_use_case(group, submission)
+        family_id = uuid.uuid4()
+        request = {
+            "group_token": group.token,
+            "confirmed_fields": {"passport_number": "P1234567"},
+            "client_email": None,
+            "client_phone": None,
+            "submission_mode": "family",
+            "family_group_id": family_id,
+            "family_member_index": 0,
+            "family_relation": "Self",
+            "family_gender": "Male",
+            "family_head_name": "Family Head",
+            "family_head_email": "head@example.com",
+            "family_head_phone": "9876543210",
+        }
+
+        first = await use_case.execute(submission.id, **request)
+        replay = await use_case.execute(submission.id, **request)
+
+        self.assertFalse(first.idempotent_replay)
+        self.assertTrue(replay.idempotent_replay)
+        passport_repo.update.assert_awaited_once_with(submission)
+
+        changed = {**request, "confirmed_fields": {"passport_number": "DIFFERENT"}}
+        with self.assertRaises(ValidationError):
+            await use_case.execute(submission.id, **changed)
+
     async def test_final_submit_requires_front_and_back_but_selfie_only_when_configured(self) -> None:
         optional_group = self._group()
         optional_submission = self._submission(optional_group)

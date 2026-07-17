@@ -362,6 +362,10 @@ class PassportSubmissionModel(Base):
             "extraction_revision >= 0",
             name="ck_passport_submissions_extraction_revision",
         ),
+        CheckConstraint(
+            "post_submission_verification_revision >= 0",
+            name="ck_passport_submissions_post_verification_revision",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -406,6 +410,8 @@ class PassportSubmissionModel(Base):
         Enum(
             "pending_upload", "uploaded", "processing",
             "review_required", "client_submitted", "confirmed", "failed",
+            "pending_extraction", "extracting", "ready_for_client_review",
+            "submitted", "ai_approved", "needs_review", "staff_approved",
             name="submission_status_enum",
             native_enum=True,
             create_type=False,
@@ -428,6 +434,28 @@ class PassportSubmissionModel(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
     client_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    post_submission_verification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    post_submission_verification_revision: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
+    )
+    post_submission_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    verification_reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    verification_reviewer_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    verification_reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
 
@@ -786,6 +814,71 @@ class PassportProcessingJobModel(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False, index=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class PassportPostSubmissionVerificationJobModel(Base):
+    __tablename__ = "passport_post_submission_verification_jobs"
+    __table_args__ = (
+        UniqueConstraint(
+            "submission_id",
+            "verification_revision",
+            name="uq_passport_post_verification_job_revision",
+        ),
+        CheckConstraint(
+            "verification_revision >= 1",
+            name="ck_passport_post_verification_revision",
+        ),
+        CheckConstraint(
+            "status IN ('queued', 'running', 'succeeded', 'failed')",
+            name="ck_passport_post_verification_job_status",
+        ),
+        CheckConstraint(
+            "attempts >= 0",
+            name="ck_passport_post_verification_job_attempts",
+        ),
+        CheckConstraint(
+            "max_attempts BETWEEN 1 AND 3",
+            name="ck_passport_post_verification_job_max_attempts",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    verification_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default="queued",
+        server_default="queued",
+        index=True,
+    )
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3, server_default="3")
+    celery_task_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+        index=True,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
 
 
 class AuditLogModel(Base):

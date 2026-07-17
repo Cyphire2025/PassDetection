@@ -16,13 +16,17 @@ from app.application.dtos.passport_dtos import (
     passport_submission_output_from_entity,
 )
 from app.core.logging.logger import get_logger
+from app.domain.entities.entities import OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 from app.domain.exceptions.exceptions import EntityNotFoundError, ValidationError
 from app.domain.repositories.interfaces import (
     IClientGroupRepository,
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
-from app.domain.value_objects.passport_fields import normalize_reviewed_passport_fields
+from app.domain.value_objects.passport_fields import (
+    normalize_reviewed_passport_fields,
+    validate_reviewed_passport_payload,
+)
 
 logger = get_logger(__name__)
 
@@ -154,19 +158,23 @@ class ClientSubmitPassportUseCase:
                 field="client_contact",
             )
 
-        clean_fields = normalize_reviewed_passport_fields(
-            {
-                key: value
-                for key, value in confirmed_fields.items()
-                if key
-                not in {
-                    "base_city",
-                    "nearest_domestic_airport",
-                    "staff_code",
-                    "meal_preference",
-                }
+        # Older upload clients placed group-option values inside
+        # ``confirmed_fields`` as well as their dedicated request properties.
+        # Ignore those known non-passport keys for backwards compatibility,
+        # then strictly validate the passport-only payload.
+        passport_fields = {
+            key: value
+            for key, value in confirmed_fields.items()
+            if key
+            not in {
+                "base_city",
+                "nearest_domestic_airport",
+                "staff_code",
+                "meal_preference",
             }
-        )
+        }
+        validate_reviewed_passport_payload(passport_fields)
+        clean_fields = normalize_reviewed_passport_fields(passport_fields)
         if not clean_fields:
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
         if normalized_base_city:
@@ -175,6 +183,38 @@ class ClientSubmitPassportUseCase:
             clean_fields["staff_code"] = normalized_staff_code
         if normalized_meal_preference:
             clean_fields["meal_preference"] = normalized_meal_preference
+
+        if submission.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
+            if (
+                submission.post_submission_verification_revision >= 1
+                and self._is_exact_replay(
+                    submission,
+                    clean_fields=clean_fields,
+                    client_email=normalized_email,
+                    client_phone=normalized_phone,
+                    departure_city=normalized_departure_city,
+                    nearest_domestic_airport=normalized_domestic_airport,
+                    submission_mode=normalized_mode,
+                    family_group_id=family_group_id,
+                    family_member_index=family_member_index,
+                    family_relation=normalized_relation,
+                    family_gender=normalized_gender,
+                    family_head_name=normalized_head_name,
+                    family_head_email=normalized_head_email,
+                    family_head_phone=normalized_head_phone,
+                    family_broadcast_to_member=bool(
+                        normalized_email or normalized_phone
+                    ),
+                )
+            ):
+                return replace(
+                    passport_submission_output_from_entity(submission),
+                    idempotent_replay=True,
+                )
+            raise ValidationError(
+                "Passport details were already submitted.",
+                field="submission_id",
+            )
 
         draft_keys: list[str] = []
         promoted_keys: list[str] = []
@@ -247,6 +287,44 @@ class ClientSubmitPassportUseCase:
             passport_submission_output_from_entity(submission),
             storage_cleanup_keys=tuple(draft_keys),
             promoted_storage_keys=tuple(promoted_keys),
+        )
+
+    @staticmethod
+    def _is_exact_replay(
+        submission,  # type: ignore[no-untyped-def]
+        *,
+        clean_fields: dict[str, str],
+        client_email: str | None,
+        client_phone: str | None,
+        departure_city: str | None,
+        nearest_domestic_airport: str | None,
+        submission_mode: str,
+        family_group_id: uuid.UUID | None,
+        family_member_index: int | None,
+        family_relation: str | None,
+        family_gender: str | None,
+        family_head_name: str | None,
+        family_head_email: str | None,
+        family_head_phone: str | None,
+        family_broadcast_to_member: bool,
+    ) -> bool:
+        return (
+            dict(submission.confirmed_fields or {}) == clean_fields
+            and submission.client_email == client_email
+            and submission.client_phone == client_phone
+            and submission.departure_city == departure_city
+            and submission.nearest_domestic_airport
+            == nearest_domestic_airport
+            and submission.submission_mode == submission_mode
+            and submission.family_group_id == family_group_id
+            and submission.family_member_index == family_member_index
+            and submission.family_relation == family_relation
+            and submission.family_gender == family_gender
+            and submission.family_head_name == family_head_name
+            and submission.family_head_email == family_head_email
+            and submission.family_head_phone == family_head_phone
+            and submission.family_broadcast_to_member
+            == family_broadcast_to_member
         )
 
     def _normalize_phone(self, value: str | None) -> str:

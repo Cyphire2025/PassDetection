@@ -87,20 +87,11 @@ class Stage1MRZExtractor:
         started = time.perf_counter()
         image = await asyncio.to_thread(self._prepare_mrz_crop, image_bytes)
         try:
-            primary_ocr = await self._read_mrz_text(image, normalize=False)
-            primary = self._build_result(primary_ocr, started=started)
-            invalid_fields = self._invalid_required_fields(primary)
-            if not invalid_fields:
-                return primary
-
-            fallback_ocr = await self._read_mrz_text(image, normalize=True)
-            fallback = self._build_result(fallback_ocr, started=started)
-            return self._merge_fallback_result(
-                primary=primary,
-                fallback=fallback,
-                invalid_fields=invalid_fields,
-                duration_ms=_elapsed_ms(started),
-            )
+            # One normalized read is the complete MRZ attempt. Missing fields
+            # move to the bounded ROI stage and then Gemini; repeating a full
+            # OCR cycle made first-pass latency unpredictable on mobile photos.
+            ocr_result = await self._read_mrz_text(image, normalize=True)
+            return self._build_result(ocr_result, started=started)
         finally:
             image.close()
 

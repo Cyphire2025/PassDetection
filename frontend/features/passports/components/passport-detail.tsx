@@ -19,7 +19,22 @@ import type {
   PassportExtractionConflict,
   PassportSubmission,
 } from "@/types/passport.types";
-import { useConfirmPassportSubmission, usePassportSubmission, useReextractPassportSubmission } from "../hooks/use-passports";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
+import {
+  useConfirmPassportSubmission,
+  usePassportSubmission,
+  useReextractPassportSubmission,
+  useStaffApprovePassportSubmission,
+} from "../hooks/use-passports";
+import {
+  formatPassportVerificationReason,
+  getPassportFieldReview,
+  getPassportFieldReviewClassName,
+  getPassportReviewerLabel,
+  getPassportReviewActionState,
+  PASSPORT_REVIEW_FIELDS,
+  type PassportFieldReview,
+} from "../utils/passport-review";
 
 interface PassportDetailProps {
   id: string;
@@ -30,22 +45,14 @@ interface ReextractFeedback {
   message: string;
 }
 
-const REVIEW_FIELDS = [
-  "surname",
-  "given_names",
-  "passport_number",
-  "nationality",
-  "issuing_country",
-  "date_of_birth",
-  "date_of_issue",
-  "date_of_expiry",
-  "sex",
-] as const;
+const REVIEW_FIELDS = PASSPORT_REVIEW_FIELDS;
 
 export function PassportDetail({ id }: PassportDetailProps) {
   const { data, isLoading, error } = usePassportSubmission(id);
   const confirmMutation = useConfirmPassportSubmission(id);
+  const staffApproveMutation = useStaffApprovePassportSubmission(id);
   const reextractMutation = useReextractPassportSubmission();
+  const currentUser = useAuthStore(selectUser);
   const [formError, setFormError] = useState<string | null>(null);
   const [reextractFeedback, setReextractFeedback] = useState<ReextractFeedback | null>(null);
 
@@ -174,13 +181,15 @@ export function PassportDetail({ id }: PassportDetailProps) {
             sourceFields={data.confirmed_fields ?? data.extracted_fields ?? {}}
             validation={data.extracted_fields?.field_validation}
             conflicts={getExtractionConflicts(data)}
-            isSaving={confirmMutation.isPending}
+            isSaving={confirmMutation.isPending || staffApproveMutation.isPending}
             canReextract={needsReextraction(data)}
             isReextracting={reextractMutation.isPending}
             reextractFeedback={reextractFeedback}
             formError={formError}
             onFormError={setFormError}
             onConfirm={(fields) => confirmMutation.mutateAsync(fields)}
+            onStaffApprove={(fields) => staffApproveMutation.mutateAsync(fields)}
+            reviewerLabel={getPassportReviewerLabel(data, currentUser)}
             onReextract={() => void handleReextract()}
           />
 
@@ -276,6 +285,8 @@ interface ReviewFieldsCardProps {
   formError: string | null;
   onFormError: (error: string | null) => void;
   onConfirm: (fields: Record<string, string>) => Promise<unknown>;
+  onStaffApprove: (fields: Record<string, string>) => Promise<unknown>;
+  reviewerLabel: string | null;
   onReextract: () => void;
 }
 
@@ -291,6 +302,8 @@ function ReviewFieldsCard({
   formError,
   onFormError,
   onConfirm,
+  onStaffApprove,
+  reviewerLabel,
   onReextract,
 }: ReviewFieldsCardProps) {
   const initialFields = useMemo(
@@ -328,8 +341,24 @@ function ReviewFieldsCard({
     }
 
     onFormError(null);
-    await onConfirm(cleanedFields);
+    try {
+      if (passport.status === "needs_review") {
+        await onStaffApprove(cleanedFields);
+      } else {
+        await onConfirm(cleanedFields);
+      }
+    } catch (error) {
+      onFormError(readReviewActionError(
+        error,
+        passport.status === "needs_review"
+          ? "Could not approve this passport. Your field edits were not saved, so it is safe to retry."
+          : "Could not save the reviewed passport fields. Please try again.",
+      ));
+    }
   };
+
+  const actionState = getPassportReviewActionState(passport.status, isSaving);
+  const workflowStatusMessage = getWorkflowStatusMessage(passport.status);
 
   return (
     <Card className="rounded-3xl">
@@ -345,11 +374,52 @@ function ReviewFieldsCard({
             </Badge>
           </div>
           <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
-            <MetaItem label="Confidence" value={formatConfidence(passport.overall_confidence)} />
+            <MetaItem label="Extraction confidence" value={formatConfidence(passport.overall_confidence)} />
             <MetaItem label="Submitted" value={formatDateTime(passport.created_at)} />
             <MetaItem label="Updated" value={formatDateTime(passport.updated_at)} />
             <MetaItem label="Expiry" value={reviewFields.date_of_expiry || "Not extracted"} />
+            {passport.post_submission_verification && (
+              <>
+                <MetaItem
+                  label="AI decision"
+                  value={
+                    PASSPORT_STATUS_LABELS[
+                      passport.post_submission_verification.verification_status
+                    ] || passport.post_submission_verification.verification_status
+                  }
+                />
+                <MetaItem
+                  label="Verification confidence"
+                  value={formatConfidence(passport.post_submission_verification.confidence)}
+                />
+              </>
+            )}
+            {passport.post_submission_verified_at && (
+              <MetaItem
+                label="AI verification completed"
+                value={formatDateTime(passport.post_submission_verified_at)}
+              />
+            )}
+            {reviewerLabel && (
+              <MetaItem label="Reviewed by" value={reviewerLabel} />
+            )}
+            {passport.verification_reviewed_at && (
+              <MetaItem
+                label="Staff reviewed"
+                value={formatDateTime(passport.verification_reviewed_at)}
+              />
+            )}
           </div>
+          {workflowStatusMessage && (
+            <p className="text-sm leading-6 text-blue-700" role="status" aria-live="polite">
+              {workflowStatusMessage}
+            </p>
+          )}
+          {passport.post_submission_verification?.explanation && (
+            <p className="text-sm leading-6 text-slate-600">
+              {passport.post_submission_verification.explanation}
+            </p>
+          )}
         </div>
 
         <ReextractStatus
@@ -373,16 +443,27 @@ function ReviewFieldsCard({
           {REVIEW_FIELDS.map((key) => {
             const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
             const isCountry = key === "nationality" || key === "issuing_country";
+            const fieldReview = getPassportFieldReview(passport, validation, key);
+            const fieldClassName = getPassportFieldReviewClassName(fieldReview?.verdict);
             return (
               <label key={key} className="space-y-1.5">
-                <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
-                  {toLabel(key)}
+                <span className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  <span>{toLabel(key)}</span>
                   {key === "date_of_issue" && <span className="normal-case tracking-normal">(optional)</span>}
+                  {fieldReview && (
+                    <span className={fieldReview.verdict === "incorrect"
+                      ? "rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800"
+                      : "rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800"}
+                    >
+                      {fieldReview.verdict === "incorrect" ? "Incorrect" : "Suspicious"}
+                    </span>
+                  )}
                 </span>
                 {isCountry ? (
                   <PassportCountryField
                     value={reviewFields[key] ?? ""}
                     onChange={(value) => handleFieldChange(key, value)}
+                    className={fieldClassName}
                   />
                 ) : (
                   <Input
@@ -392,29 +473,19 @@ function ReviewFieldsCard({
                     placeholder={key === "date_of_issue" ? "Leave empty if unavailable" : "Not extracted"}
                     min="1900-01-01"
                     max={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
-                    className="h-10 rounded-lg border-slate-200 bg-white"
+                    className={`h-10 rounded-lg ${fieldClassName}`}
+                  />
+                )}
+                {fieldReview && (
+                  <FieldReviewMessage
+                    review={fieldReview}
+                    editedValue={reviewFields[key] ?? ""}
                   />
                 )}
               </label>
             );
           })}
         </div>
-
-        {validation?.issues && validation.issues.length > 0 && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-            <div className="font-medium">Fields needing attention</div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {getAttentionFieldLabels(validation.issues).map((label) => (
-                <span
-                  key={label}
-                  className="rounded-full border border-amber-200 bg-white px-2.5 py-1 text-xs font-medium text-amber-800"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
 
         {formError && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -443,11 +514,18 @@ function ReviewFieldsCard({
 
         <Button
           onClick={() => void handleConfirm()}
-          disabled={isSaving}
+          disabled={actionState.disabled}
           className="w-full gap-2 bg-blue-600 text-white hover:bg-blue-700"
+          aria-busy={isSaving}
         >
-          <Save className="h-4 w-4" />
-          {isSaving ? "Saving Review" : passport.status === "confirmed" ? "Update Confirmed Fields" : "Confirm Reviewed Fields"}
+          {isSaving ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : passport.status === "staff_approved" || passport.status === "ai_approved" ? (
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Save className="h-4 w-4" aria-hidden="true" />
+          )}
+          {actionState.label}
         </Button>
       </CardContent>
     </Card>
@@ -603,12 +681,44 @@ function ExtractionConflictPanel({
   );
 }
 
+function FieldReviewMessage({
+  review,
+  editedValue,
+}: {
+  review: PassportFieldReview;
+  editedValue: string;
+}) {
+  const observedValue = review.observed_value?.trim() ?? "";
+  const showObservedValue = Boolean(observedValue) && !valuesMatch(observedValue, editedValue);
+  const messageClass = review.verdict === "incorrect" ? "text-red-700" : "text-amber-700";
+  const reason = formatPassportVerificationReason(review.reason_code);
+  const confidence = review.confidence > 0
+    ? `${Math.round(review.confidence <= 1
+      ? review.confidence * 100
+      : Math.min(100, review.confidence))}% confidence`
+    : null;
+
+  return (
+    <p className={`text-xs leading-5 ${messageClass}`}>
+      {reason}
+      {showObservedValue && (
+        <>
+          {" "}AI observed <span className="font-semibold">{formatConflictValue(review.field, observedValue)}</span>.
+        </>
+      )}
+      {confidence && <> {confidence}.</>}
+    </p>
+  );
+}
+
 function PassportCountryField({
   value,
   onChange,
+  className,
 }: {
   value: string;
   onChange: (value: string) => void;
+  className?: string;
 }) {
   if (!isRecognizedPassportCountryCode(value)) {
     return (
@@ -617,7 +727,7 @@ function PassportCountryField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder="Not extracted"
-        className="h-10 rounded-lg border-slate-200 bg-white"
+        className={`h-10 rounded-lg ${className ?? "border-slate-200 bg-white"}`}
       />
     );
   }
@@ -628,13 +738,34 @@ function PassportCountryField({
     <select
       value={normalizedCode}
       onChange={(event) => onChange(event.target.value)}
-      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      className={`h-10 w-full rounded-lg border px-3 text-sm text-slate-900 outline-none transition ${
+        className ?? "border-slate-200 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      }`}
     >
       {getPassportCountryOptions(codeLength).map((option) => (
         <option key={option.value} value={option.value}>{option.label}</option>
       ))}
     </select>
   );
+}
+
+function readReviewActionError(error: unknown, fallback: string) {
+  if (!error || typeof error !== "object") return fallback;
+  const candidate = error as { message?: unknown };
+  return typeof candidate.message === "string" && candidate.message.trim()
+    ? candidate.message
+    : fallback;
+}
+
+function getWorkflowStatusMessage(status: PassportSubmission["status"]) {
+  const messages: Partial<Record<PassportSubmission["status"], string>> = {
+    pending_extraction: "The passport is saved and queued for automatic extraction. This page refreshes automatically.",
+    extracting: "AI is reading the saved passport. This page refreshes automatically until the fields are ready.",
+    processing: "The saved passport is being processed. This page refreshes automatically.",
+    ready_for_client_review: "Automatic extraction is complete and waiting for the client to review and submit the details.",
+    submitted: "AI verification is running. This page refreshes automatically until a final decision is ready.",
+  };
+  return messages[status] ?? null;
 }
 
 function getStringField(fields: ExtractedPassportFields, key: string) {
@@ -770,47 +901,4 @@ function yesterdayIsoDate() {
   const today = new Date(`${todayIsoDate()}T00:00:00`);
   today.setDate(today.getDate() - 1);
   return today.toISOString().slice(0, 10);
-}
-
-function getAttentionFieldLabels(
-  issues: Array<{ field: string; message: string; severity: string }>,
-) {
-  const labels = new Set<string>();
-  for (const issue of issues) {
-    const text = `${issue.field} ${issue.message}`.toLowerCase();
-    if (text.includes("name") || issue.field === "surname" || issue.field === "given_names") {
-      labels.add("Name");
-      continue;
-    }
-    if (text.includes("passport_number") || text.includes("passport number")) {
-      labels.add("Passport number");
-      continue;
-    }
-    if (text.includes("date_of_birth") || text.includes("birth")) {
-      labels.add("Date of birth");
-      continue;
-    }
-    if (text.includes("date_of_expiry") || text.includes("expiry")) {
-      labels.add("Date of expiry");
-      continue;
-    }
-    if (text.includes("date_of_issue") || text.includes("issue date")) {
-      labels.add("Date of issue");
-      continue;
-    }
-    if (text.includes("nationality")) {
-      labels.add("Nationality");
-      continue;
-    }
-    if (text.includes("issuing_country") || text.includes("issuing country")) {
-      labels.add("Issuing country");
-      continue;
-    }
-    if (text.includes("sex")) {
-      labels.add("Sex");
-      continue;
-    }
-    labels.add(toLabel(issue.field));
-  }
-  return Array.from(labels);
 }

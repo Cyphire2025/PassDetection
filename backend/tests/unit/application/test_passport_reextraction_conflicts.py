@@ -49,7 +49,7 @@ class PassportReextractionConflictTests(unittest.TestCase):
         )
 
         self.assertTrue(applied)
-        self.assertEqual(submission.status, PassportProcessingStatus.CLIENT_SUBMITTED)
+        self.assertEqual(submission.status, PassportProcessingStatus.SUBMITTED)
         self.assertEqual(submission.confirmed_fields["surname"], "Kumar")
         self.assertEqual(submission.confirmed_fields["given_names"], "Nipun")
         self.assertEqual(submission.confirmed_fields["passport_number"], "a 1234567")

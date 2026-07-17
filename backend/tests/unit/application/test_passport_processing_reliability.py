@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import unittest
 import uuid
 from types import SimpleNamespace
@@ -25,7 +26,11 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         settings_patcher = patch(
             "app.application.use_cases.passports."
             "process_passport_submission_job_use_case.get_settings",
-            return_value=SimpleNamespace(processing_job_timeout_seconds=60),
+            return_value=SimpleNamespace(
+                processing_job_timeout_seconds=60,
+                passport_local_extraction_timeout_seconds=0.02,
+                gemini_timeout_seconds=30.0,
+            ),
         )
         self.addCleanup(settings_patcher.stop)
         settings_patcher.start()
@@ -125,6 +130,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             b"canonical-front-image",
             content_type="image/jpeg",
             extracted_fields={},
+            timeout_seconds=30.0,
         )
         saved = self.passport_repo.apply_extraction_result.await_args.kwargs
         self.assertEqual(saved["extracted_fields"]["passport_number"], "A1234567")
@@ -142,6 +148,36 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.storage_repo.get_file.assert_not_awaited()
         self.extraction_service.extract.assert_not_awaited()
         self.passport_repo.apply_extraction_result.assert_not_awaited()
+
+    async def test_local_timeout_never_retries_ocr_or_the_processing_job(self) -> None:
+        self.storage_repo.get_file.return_value = b"canonical-front-image"
+
+        async def slow_extract(*_args, **_kwargs) -> PassportExtractionResult:
+            await asyncio.sleep(0.2)
+            raise AssertionError("the bounded extraction should have been cancelled")
+
+        self.extraction_service.extract.side_effect = slow_extract
+        verification_service = AsyncMock()
+        verification_service.verify.return_value = PassportVerificationResult(
+            merged_fields={
+                "processing_note": "Local OCR timed out; AI image verification was attempted.",
+                "ai_verification": {"status": "unavailable"},
+            },
+            metadata={"status": "unavailable"},
+        )
+        self.passport_repo.apply_extraction_result.return_value = self.submission
+
+        await self._use_case(
+            verification_service=verification_service,
+        ).execute(
+            submission_id=self.submission_id,
+            job_id=self.job_id,
+        )
+
+        self.assertEqual(self.extraction_service.extract.await_count, 1)
+        self.job_repo.mark_retryable_failure.assert_not_awaited()
+        self.passport_repo.apply_extraction_result.assert_awaited_once()
+        self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
 
     async def test_stale_extraction_result_is_discarded(self) -> None:
         self.storage_repo.get_file.return_value = b"front-image"

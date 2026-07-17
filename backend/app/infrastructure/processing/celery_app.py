@@ -14,6 +14,7 @@ celery_app = Celery(
     backend=settings.redis.url,
     include=[
         "app.infrastructure.processing.tasks",
+        "app.infrastructure.verification.tasks",
         "app.infrastructure.whatsapp.tasks",
     ],
 )

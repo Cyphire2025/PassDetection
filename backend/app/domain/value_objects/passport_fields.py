@@ -21,6 +21,43 @@ REVIEWABLE_PASSPORT_FIELDS = (
     "sex",
 )
 _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+MAX_REVIEWED_FIELD_VALUE_LENGTH = 160
+MAX_REVIEWED_FIELDS_TOTAL_LENGTH = 1_440
+
+
+def validate_reviewed_passport_payload(fields: dict[str, str]) -> None:
+    """Bound and allowlist untrusted client review dictionaries."""
+
+    if len(fields) > len(REVIEWABLE_PASSPORT_FIELDS):
+        raise ValidationError(
+            "Too many reviewed passport fields were supplied.",
+            field="confirmed_fields",
+        )
+    unknown = sorted(set(fields) - set(REVIEWABLE_PASSPORT_FIELDS))
+    if unknown:
+        raise ValidationError(
+            "Unsupported reviewed passport field.",
+            field="confirmed_fields",
+        )
+
+    total_length = 0
+    for key, value in fields.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise ValidationError(
+                "Reviewed passport fields must contain text values.",
+                field="confirmed_fields",
+            )
+        if len(value) > MAX_REVIEWED_FIELD_VALUE_LENGTH:
+            raise ValidationError(
+                "A reviewed passport field is too long.",
+                field=key,
+            )
+        total_length += len(key) + len(value)
+    if total_length > MAX_REVIEWED_FIELDS_TOTAL_LENGTH:
+        raise ValidationError(
+            "Reviewed passport fields are too large.",
+            field="confirmed_fields",
+        )
 
 
 def normalize_reviewed_passport_fields(fields: dict[str, str]) -> dict[str, str]:

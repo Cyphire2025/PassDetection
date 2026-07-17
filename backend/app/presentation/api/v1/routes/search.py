@@ -10,7 +10,11 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.domain.entities.entities import PassportProcessingStatus, User, UserRole
+from app.domain.entities.entities import (
+    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    User,
+    UserRole,
+)
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.schemas.search_schemas import GlobalSearchResult
@@ -156,11 +160,8 @@ def _apply_group_visibility_scope(stmt, current_user: User):  # type: ignore[no-
     return AuthorizationPolicy.apply_group_visibility_scope(stmt, current_user)
 
 
-def _submitted_statuses() -> tuple[str, str]:
-    return (
-        PassportProcessingStatus.CLIENT_SUBMITTED.value,
-        PassportProcessingStatus.CONFIRMED.value,
-    )
+def _submitted_statuses() -> tuple[str, ...]:
+    return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 
 
 def _string_field(fields: dict, key: str) -> str | None:

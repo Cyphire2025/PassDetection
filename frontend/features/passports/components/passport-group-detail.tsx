@@ -492,6 +492,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="all">All statuses</option>
+          <option value="pending_extraction">Pending Extraction</option>
+          <option value="extracting">Extracting</option>
+          <option value="ready_for_client_review">Ready For Client Review</option>
+          <option value="submitted">Submitted</option>
+          <option value="ai_approved">AI Approved</option>
+          <option value="needs_review">Needs Review</option>
+          <option value="staff_approved">Staff Approved</option>
           <option value="client_submitted">Client submitted</option>
           <option value="confirmed">Confirmed</option>
           <option value="review_required">Review required</option>

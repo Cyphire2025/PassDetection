@@ -15,6 +15,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import (
+    CONFIRMED_PASSPORT_STATUS_VALUES,
+    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    PENDING_REVIEW_PASSPORT_STATUS_VALUES,
     PassportExtractionStatus,
     PassportProcessingStatus,
     PassportSubmission,
@@ -81,6 +84,14 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             updated_at=model.updated_at,
             client_reviewed_at=model.client_reviewed_at,
             confirmed_at=model.confirmed_at,
+            post_submission_verification=model.post_submission_verification,
+            post_submission_verification_revision=(
+                model.post_submission_verification_revision
+            ),
+            post_submission_verified_at=model.post_submission_verified_at,
+            verification_reviewed_by_user_id=model.verification_reviewed_by_user_id,
+            verification_reviewer_name=model.verification_reviewer_name,
+            verification_reviewed_at=model.verification_reviewed_at,
         )
 
     @staticmethod
@@ -124,6 +135,14 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             updated_at=entity.updated_at,
             client_reviewed_at=entity.client_reviewed_at,
             confirmed_at=entity.confirmed_at,
+            post_submission_verification=entity.post_submission_verification,
+            post_submission_verification_revision=(
+                entity.post_submission_verification_revision
+            ),
+            post_submission_verified_at=entity.post_submission_verified_at,
+            verification_reviewed_by_user_id=entity.verification_reviewed_by_user_id,
+            verification_reviewer_name=entity.verification_reviewer_name,
+            verification_reviewed_at=entity.verification_reviewed_at,
         )
 
     async def get_by_id(self, submission_id: uuid.UUID) -> PassportSubmission | None:
@@ -248,6 +267,16 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.updated_at = submission.updated_at
         model.client_reviewed_at = submission.client_reviewed_at
         model.confirmed_at = submission.confirmed_at
+        model.post_submission_verification = submission.post_submission_verification
+        model.post_submission_verification_revision = (
+            submission.post_submission_verification_revision
+        )
+        model.post_submission_verified_at = submission.post_submission_verified_at
+        model.verification_reviewed_by_user_id = (
+            submission.verification_reviewed_by_user_id
+        )
+        model.verification_reviewer_name = submission.verification_reviewer_name
+        model.verification_reviewed_at = submission.verification_reviewed_at
 
         await self._session.flush()
         return submission
@@ -314,6 +343,40 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         await self._session.flush()
         return submission
 
+    async def apply_post_submission_verification(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        decision: str,
+        verification: dict,
+    ) -> PassportSubmission | None:
+        result = await self._session.execute(
+            select(PassportSubmissionModel)
+            .where(
+                PassportSubmissionModel.id == submission_id,
+                PassportSubmissionModel.post_submission_verification_revision
+                == expected_revision,
+            )
+            .with_for_update()
+        )
+        model = result.scalar_one_or_none()
+        if model is None:
+            return None
+        submission = self._to_entity(model)
+        if not submission.apply_post_submission_verification(
+            expected_revision=expected_revision,
+            decision=decision,
+            verification=verification,
+        ):
+            return None
+        model.status = submission.status.value
+        model.post_submission_verification = submission.post_submission_verification
+        model.post_submission_verified_at = submission.post_submission_verified_at
+        model.updated_at = submission.updated_at
+        await self._session.flush()
+        return submission
+
     @staticmethod
     def _apply_extraction_fields(
         model: PassportSubmissionModel,
@@ -337,11 +400,18 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         await self._session.flush()
 
     @staticmethod
-    def _submitted_statuses() -> tuple[str, str]:
-        return (
-            PassportProcessingStatus.CLIENT_SUBMITTED.value,
-            PassportProcessingStatus.CONFIRMED.value,
-        )
+    def _office_visible_statuses() -> tuple[str, ...]:
+        return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+
+    @staticmethod
+    def _status_filter_values(status_filter: str) -> tuple[str, ...]:
+        if status_filter == PassportProcessingStatus.CONFIRMED.value:
+            return CONFIRMED_PASSPORT_STATUS_VALUES
+        if status_filter == PassportProcessingStatus.REVIEW_REQUIRED.value:
+            return PENDING_REVIEW_PASSPORT_STATUS_VALUES
+        if status_filter == PassportProcessingStatus.CLIENT_SUBMITTED.value:
+            return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+        return (status_filter,)
 
     @staticmethod
     def _apply_manager_group_scope(stmt, manager_id: uuid.UUID):  # type: ignore[no-untyped-def]
@@ -370,7 +440,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
     ) -> list[PassportSubmission]:
         stmt = select(PassportSubmissionModel).where(
             PassportSubmissionModel.agency_id == agency_id,
-            PassportSubmissionModel.status.in_(self._submitted_statuses()),
+            PassportSubmissionModel.status.in_(self._office_visible_statuses()),
         )
         if exclude_archived_groups or created_by_user_id or visible_to_user:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
@@ -381,7 +451,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         if status_filter:
-            stmt = stmt.where(PassportSubmissionModel.status == status_filter)
+            stmt = stmt.where(
+                PassportSubmissionModel.status.in_(
+                    self._status_filter_values(status_filter)
+                )
+            )
         stmt = self._apply_search(stmt, search)
         stmt = stmt.order_by(PassportSubmissionModel.created_at.desc()).offset(skip).limit(limit)
 
@@ -406,7 +480,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             .where(
                 PassportSubmissionModel.agency_id == agency_id,
                 PassportSubmissionModel.group_id == group_id,
-                PassportSubmissionModel.status.in_(self._submitted_statuses()),
+                PassportSubmissionModel.status.in_(self._office_visible_statuses()),
             )
         )
         if exclude_archived_groups:
@@ -467,10 +541,26 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.ask_nearest_domestic_airport.label("ask_nearest_domestic_airport"),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
-                    case((PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value, 1), else_=0)
+                    case(
+                        (
+                            PassportSubmissionModel.status.in_(
+                                PENDING_REVIEW_PASSPORT_STATUS_VALUES
+                            ),
+                            1,
+                        ),
+                        else_=0,
+                    )
                 ).label("pending_review_count"),
                 func.sum(
-                    case((PassportSubmissionModel.status == PassportProcessingStatus.CONFIRMED.value, 1), else_=0)
+                    case(
+                        (
+                            PassportSubmissionModel.status.in_(
+                                CONFIRMED_PASSPORT_STATUS_VALUES
+                            ),
+                            1,
+                        ),
+                        else_=0,
+                    )
                 ).label("confirmed_count"),
                 func.sum(
                     case((PassportSubmissionModel.status == PassportProcessingStatus.FAILED.value, 1), else_=0)
@@ -483,7 +573,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 PassportSubmissionModel,
                 and_(
                     PassportSubmissionModel.group_id == ClientGroupModel.id,
-                    PassportSubmissionModel.status.in_(self._submitted_statuses()),
+                    PassportSubmissionModel.status.in_(self._office_visible_statuses()),
                 ),
             )
             .where(ClientGroupModel.agency_id == agency_id)
@@ -581,7 +671,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
     ) -> int:
         stmt = select(func.count()).select_from(PassportSubmissionModel).where(
             PassportSubmissionModel.agency_id == agency_id,
-            PassportSubmissionModel.status.in_(self._submitted_statuses()),
+            PassportSubmissionModel.status.in_(self._office_visible_statuses()),
         )
         if exclude_archived_groups or created_by_user_id or visible_to_user:
             stmt = stmt.join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
@@ -592,7 +682,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         if status_filter:
-            stmt = stmt.where(PassportSubmissionModel.status == status_filter)
+            stmt = stmt.where(
+                PassportSubmissionModel.status.in_(
+                    self._status_filter_values(status_filter)
+                )
+            )
 
         result = await self._session.execute(stmt)
         total = int(result.scalar_one())

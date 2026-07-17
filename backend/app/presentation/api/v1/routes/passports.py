@@ -55,9 +55,16 @@ from app.application.use_cases.passports.reextract_passport_submission_use_case 
 from app.application.use_cases.passports.retry_public_passport_extraction_use_case import (
     RetryPublicPassportExtractionUseCase,
 )
+from app.application.use_cases.passports.staff_approve_passport_use_case import (
+    StaffApprovePassportUseCase,
+)
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import (
+    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    User,
+    UserRole,
+)
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
     EntityNotFoundError,
@@ -88,6 +95,9 @@ from app.infrastructure.processing.dispatcher import (
     queued_job_needs_redelivery,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
+from app.infrastructure.qr.approved_passenger_qr_issuer import (
+    ensure_approved_passenger_qr,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.notification_repository import NotificationRepository
@@ -96,7 +106,12 @@ from app.infrastructure.repositories.passport_submission_repository import (
 )
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
-from app.presentation.api.v1.routes.tour_operations_qr_helpers import ensure_passenger_qr
+from app.infrastructure.verification.dispatcher import (
+    PostSubmissionVerificationDispatcher,
+)
+from app.infrastructure.verification.job_repository import (
+    PostSubmissionVerificationJobRepository,
+)
 from app.presentation.api.v1.schemas.passport_schemas import (
     ClientSubmitPassportRequest,
     ConfirmPassportSubmissionRequest,
@@ -108,8 +123,10 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportDocumentImportSaveResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
+    StaffApprovePassportRequest,
 )
 from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -127,8 +144,8 @@ def _stream_binary_file(file_object, *, chunk_size: int = 1024 * 1024):  # type:
         file_object.close()
 
 
-def _submitted_statuses() -> tuple[str, str]:
-    return ("client_submitted", "confirmed")
+def _submitted_statuses() -> tuple[str, ...]:
+    return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
 
 
 async def _safe_presigned_url(
@@ -254,20 +271,9 @@ async def _ensure_submission_qr(
     submission_id: uuid.UUID,
     created_by_user_id: uuid.UUID | None = None,
 ) -> None:
-    result = await session.execute(
-        select(PassportSubmissionModel, ClientGroupModel)
-        .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
-        .where(PassportSubmissionModel.id == submission_id)
-    )
-    row = result.first()
-    if not row:
-        return
-    submission, group = row
-    await ensure_passenger_qr(
+    await ensure_approved_passenger_qr(
         session,
-        submission.agency_id,
-        group,
-        submission.id,
+        submission_id,
         created_by_user_id=created_by_user_id,
     )
 
@@ -606,6 +612,14 @@ async def get_public_upload_passport_image(
     )
 
 
+def _get_staff_approve_passport_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> StaffApprovePassportUseCase:
+    return StaffApprovePassportUseCase(
+        passport_repo=PassportSubmissionRepository(session)
+    )
+
+
 @router.get(
     "/upload/{token}/{submission_id}/image/{document_type}",
     status_code=status.HTTP_200_OK,
@@ -676,7 +690,7 @@ async def discard_public_upload(
     submission = await submission_repo.get_by_id_for_update(submission_id)
     if not group or not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport draft was not found")
-    if submission.status.value in {"client_submitted", "confirmed"}:
+    if submission.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded")
 
     keys = [
@@ -1467,10 +1481,12 @@ async def get_passport(
 async def client_submit_passport(
     submission_id: uuid.UUID,
     body: ClientSubmitPassportRequest,
+    background_tasks: BackgroundTasks,
     use_case: ClientSubmitPassportUseCase = Depends(_get_client_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     result: PassportSubmissionOutputDTO | None = None
+    verification_job = None
     committed = False
     commit_attempted = False
     try:
@@ -1494,34 +1510,59 @@ async def client_submit_passport(
             family_head_email=str(body.family_head_email) if body.family_head_email else None,
             family_head_phone=body.family_head_phone,
         )
-        await AuditLogRepository(session).record(
-            action="client_passport_submitted",
-            entity_type="passport_submission",
-            entity_id=str(result.id),
-            agency_id=result.agency_id,
-            actor_email=str(body.client_email or body.family_head_email or ""),
-            metadata={
-                "group_id": str(result.group_id),
-                "departure_city": result.departure_city,
-                "submission_mode": result.submission_mode,
-                "family_group_id": str(result.family_group_id) if result.family_group_id else None,
-            },
+        verification_job = await PostSubmissionVerificationJobRepository(
+            session
+        ).enqueue(
+            submission_id=result.id,
+            verification_revision=result.post_submission_verification_revision,
         )
-        await NotificationRepository(session).create(
-            agency_id=result.agency_id,
-            type="passport_submitted",
-            title="Client passport submitted",
-            message=f"{result.client_name} submitted reviewed passport details.",
-            entity_type="passport_submission",
-            entity_id=str(result.id),
-        )
-        await _ensure_submission_qr(session, result.id)
+        if not result.idempotent_replay:
+            await AuditLogRepository(session).record(
+                action="client_passport_submitted",
+                entity_type="passport_submission",
+                entity_id=str(result.id),
+                agency_id=result.agency_id,
+                metadata={
+                    "group_id": str(result.group_id),
+                    "submission_mode": result.submission_mode,
+                },
+            )
+            await NotificationRepository(session).create(
+                agency_id=result.agency_id,
+                type="passport_submitted",
+                title="Client passport submitted",
+                message="A client submitted reviewed passport details.",
+                entity_type="passport_submission",
+                entity_id=str(result.id),
+            )
         # Commit the DB transition before deleting superseded draft objects.
         # A failed commit therefore leaves the original draft keys intact and
         # the traveller can retry safely.
         commit_attempted = True
         await session.commit()
         committed = True
+        task_id = None
+        if verification_job.status == "queued":
+            task_id = PostSubmissionVerificationDispatcher().dispatch(
+                job_id=verification_job.id,
+                submission_id=result.id,
+                verification_revision=result.post_submission_verification_revision,
+                background_tasks=background_tasks,
+            )
+        if task_id:
+            try:
+                await PostSubmissionVerificationJobRepository(session).set_task_id(
+                    verification_job.id,
+                    task_id,
+                )
+                await session.commit()
+            except Exception as exc:
+                await session.rollback()
+                logger.warning(
+                    "post_submission_verification_task_id_persist_failed",
+                    job_id=str(verification_job.id),
+                    error_type=type(exc).__name__,
+                )
         if result.storage_cleanup_keys:
             try:
                 await MinioStorageRepository().delete_files(
@@ -1548,6 +1589,69 @@ async def client_submit_passport(
         if not committed and not commit_attempted:
             await _cleanup_uncommitted_promotions(result)
         raise
+
+
+@router.post(
+    "/{submission_id}/staff-approve",
+    response_model=PassportSubmissionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Approve a passport that needs post-submission review",
+)
+async def staff_approve_passport(
+    submission_id: uuid.UUID,
+    body: StaffApprovePassportRequest,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
+    approve_use_case: StaffApprovePassportUseCase = Depends(
+        _get_staff_approve_passport_use_case
+    ),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportSubmissionResponse:
+    try:
+        existing = await get_use_case.execute(submission_id)
+        await AuthorizationPolicy(session).require_staff_approve_passport(
+            current_user,
+            existing,
+        )
+        result, changed = await approve_use_case.execute(
+            submission_id,
+            reviewer_id=current_user.id,
+            reviewer_name=current_user.full_name,
+            confirmed_fields=body.confirmed_fields,
+        )
+        if changed:
+            await AuditLogRepository(session).record(
+                action="passport_staff_approved",
+                entity_type="passport_submission",
+                entity_id=str(result.id),
+                agency_id=result.agency_id,
+                user_id=current_user.id,
+                metadata={
+                    "group_id": str(result.group_id),
+                    "fields_corrected": body.confirmed_fields is not None,
+                    "verification_revision": (
+                        result.post_submission_verification_revision
+                    ),
+                },
+            )
+            await _ensure_submission_qr(session, result.id, current_user.id)
+        return await _response_from_dto(result, session=session)
+    except EntityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=exc.message,
+        )
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+    except PassDetectionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=exc.message,
+        )
 
 
 @router.post(
@@ -1637,6 +1741,7 @@ async def cancel_passport_processing(
 async def confirm_passport(
     submission_id: uuid.UUID,
     body: ConfirmPassportSubmissionRequest,
+    _csrf: None = Depends(require_cookie_csrf),
     current_user: User = Depends(get_current_active_user),
     get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
     confirm_use_case: ConfirmPassportSubmissionUseCase = Depends(_get_confirm_passport_use_case),

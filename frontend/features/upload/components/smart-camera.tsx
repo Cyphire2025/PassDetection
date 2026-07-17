@@ -10,6 +10,11 @@ import { usePassportLightingDetection } from "../hooks/use-passport-lighting-det
 import { usePassportGlareDetection } from "../hooks/use-passport-glare-detection";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
 import type { PassportPageSide } from "../services/passport-frame-detector";
+import {
+  getEmptyPassportAutoCaptureProgress,
+  getPassportAutoCaptureProgress,
+  PASSPORT_AUTO_CAPTURE_TICK_MS,
+} from "./passport-auto-capture";
 
 interface SmartCameraProps {
   onCapture: (file: File) => void;
@@ -40,7 +45,10 @@ export function SmartCamera({
   const [isReady, setIsReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isProcessingCapture, setIsProcessingCapture] = useState(false);
-  const [autoCaptureCountdown, setAutoCaptureCountdown] = useState<number | null>(null);
+  const [autoCaptureProgress, setAutoCaptureProgress] = useState(
+    getEmptyPassportAutoCaptureProgress,
+  );
+  const autoCaptureStableSinceRef = useRef<number | null>(null);
   const autoCaptureTimeoutRef = useRef<number | null>(null);
   const autoCaptureIntervalRef = useRef<number | null>(null);
   const mountedRef = useRef(true);
@@ -85,8 +93,10 @@ export function SmartCamera({
 
   const guidanceMessage = isProcessingCapture
     ? `Straightening and saving the passport ${pageSide} page`
-    : autoCaptureCountdown !== null && autoCaptureCountdown > 0
-      ? `Hold steady - capturing in ${autoCaptureCountdown}`
+    : isCaptureReady && autoCaptureProgress.isComplete
+      ? "Stability confirmed - capturing now"
+    : isCaptureReady
+      ? `Hold steady - ${autoCaptureProgress.secondsRemaining || 1}s until automatic capture`
     : !isPassportDetected
     ? `Position the passport ${pageSide === "front" ? "data" : "back"} page within the frame`
     : glareStatus === "checking"
@@ -180,12 +190,8 @@ export function SmartCamera({
     };
   }, [allowFileFallback, cameraRestartGeneration, facingMode, stopCamera]);
 
-  const toggleCamera = () => {
-    setIsReady(false);
-    setFacingMode((prev) => prev === "environment" ? "user" : "environment");
-  };
-
   const clearAutoCaptureTimers = useCallback(() => {
+    autoCaptureStableSinceRef.current = null;
     if (autoCaptureTimeoutRef.current !== null) {
       window.clearTimeout(autoCaptureTimeoutRef.current);
       autoCaptureTimeoutRef.current = null;
@@ -196,6 +202,13 @@ export function SmartCamera({
       autoCaptureIntervalRef.current = null;
     }
   }, []);
+
+  const toggleCamera = () => {
+    clearAutoCaptureTimers();
+    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
+    setIsReady(false);
+    setFacingMode((prev) => prev === "environment" ? "user" : "environment");
+  };
 
   const takePhoto = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isReady) return;
@@ -215,7 +228,6 @@ export function SmartCamera({
     if (context) {
       setIsProcessingCapture(true);
       clearAutoCaptureTimers();
-      setAutoCaptureCountdown(null);
 
       try {
         context.drawImage(
@@ -258,6 +270,7 @@ export function SmartCamera({
     setCapturedImage(null);
     setCapturedFile(null);
     setIsReady(false);
+    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
     setCameraRestartGeneration((generation) => generation + 1);
   };
 
@@ -265,7 +278,7 @@ export function SmartCamera({
     clearAutoCaptureTimers();
     setCapturedImage(null);
     setCapturedFile(null);
-    setAutoCaptureCountdown(null);
+    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
     setIsProcessingCapture(false);
     setIsReady(false);
 
@@ -287,28 +300,37 @@ export function SmartCamera({
   useEffect(() => {
     if (!isCaptureReady || capturedImage || cameraError) {
       clearAutoCaptureTimers();
-      return;
+      autoCaptureTimeoutRef.current = window.setTimeout(() => {
+        if (mountedRef.current) {
+          setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
+        }
+      }, 0);
+      return () => {
+        clearAutoCaptureTimers();
+      };
     }
 
-    autoCaptureTimeoutRef.current = window.setTimeout(() => {
-      setAutoCaptureCountdown(3);
-    }, 0);
-
-    autoCaptureIntervalRef.current = window.setInterval(() => {
-      setAutoCaptureCountdown((current) => {
-        if (current === null || current <= 1) {
-          return 1;
-        }
-        return current - 1;
-      });
-    }, 400);
-
-    const captureTimeout = window.setTimeout(() => {
+    clearAutoCaptureTimers();
+    const stableSince = window.performance.now();
+    autoCaptureStableSinceRef.current = stableSince;
+    const updateProgress = () => {
+      if (autoCaptureStableSinceRef.current !== stableSince || !mountedRef.current) return;
+      const nextProgress = getPassportAutoCaptureProgress(
+        stableSince,
+        window.performance.now(),
+      );
+      setAutoCaptureProgress(nextProgress);
+      if (!nextProgress.isComplete) return;
+      clearAutoCaptureTimers();
       void takePhoto();
-    }, 1200);
+    };
+    autoCaptureTimeoutRef.current = window.setTimeout(updateProgress, 0);
+    autoCaptureIntervalRef.current = window.setInterval(
+      updateProgress,
+      PASSPORT_AUTO_CAPTURE_TICK_MS,
+    );
 
     return () => {
-      window.clearTimeout(captureTimeout);
       clearAutoCaptureTimers();
     };
   }, [cameraError, capturedImage, clearAutoCaptureTimers, isCaptureReady, takePhoto]);
@@ -397,9 +419,24 @@ export function SmartCamera({
                   role="status"
                   aria-live="polite"
                   aria-atomic="true"
-                  className={`absolute left-1/2 top-5 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
+                  className={`absolute left-1/2 top-5 w-[min(92%,28rem)] -translate-x-1/2 rounded-2xl px-4 py-2.5 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
                 >
-                  {guidanceMessage}
+                  <div>{guidanceMessage}</div>
+                  {isPassportDetected && !isProcessingCapture && (
+                    <div
+                      className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/20"
+                      role="progressbar"
+                      aria-label="Passport stability before automatic capture"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={Math.round(autoCaptureProgress.progress * 100)}
+                    >
+                      <div
+                        className="h-full rounded-full bg-white transition-[width] duration-150 ease-out"
+                        style={{ width: `${Math.round(autoCaptureProgress.progress * 100)}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="absolute bottom-28 left-1/2 flex max-w-[94%] -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:bottom-24">
@@ -417,7 +454,9 @@ export function SmartCamera({
                     status={!isPassportDetected || glareStatus === "checking" ? "pending" : hasGlare ? "warning" : "ready"}
                   />
                   <QualityChip
-                    label="Auto"
+                    label={isCaptureReady
+                      ? `Auto ${autoCaptureProgress.secondsRemaining || "now"}`
+                      : "Auto"}
                     status={!isPassportDetected ? "pending" : isCaptureReady ? "ready" : "pending"}
                   />
                 </div>

@@ -17,7 +17,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.security.password import hash_password
-from app.domain.entities.entities import PassportProcessingStatus, User, UserRole
+from app.domain.entities.entities import (
+    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    User,
+    UserRole,
+)
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
@@ -106,10 +110,7 @@ COORDINATOR_ACCOUNT_ROLES = [
     UserRole.AGENCY_ADMIN,
     UserRole.AGENCY_MANAGER,
 ]
-SUBMITTED_PASSENGER_STATUSES = (
-    PassportProcessingStatus.CLIENT_SUBMITTED.value,
-    PassportProcessingStatus.CONFIRMED.value,
-)
+SUBMITTED_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 SCANNABLE_ATTENDANCE_STATUSES = ("active", "completed")
 
 

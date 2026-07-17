@@ -11,6 +11,9 @@ Uses the application factory pattern so:
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -23,6 +26,9 @@ except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.infrastructure.verification.dispatcher import (
+    post_submission_verification_recovery_loop,
+)
 from app.presentation.api.v1.router import api_v1_router
 from app.presentation.middleware.error_handler import register_exception_handlers
 from app.presentation.middleware.metrics import MetricsMiddleware
@@ -108,6 +114,9 @@ def create_application(settings: Settings | None = None) -> FastAPI:
     @app.on_event("startup")
     async def on_startup() -> None:
         await MinioStorageRepository().ensure_bucket_exists()
+        app.state.post_submission_verification_recovery_task = asyncio.create_task(
+            post_submission_verification_recovery_loop()
+        )
         logger.info(
             "application_started",
             version=settings.app_version,
@@ -117,6 +126,15 @@ def create_application(settings: Settings | None = None) -> FastAPI:
 
     @app.on_event("shutdown")
     async def on_shutdown() -> None:
+        recovery_task = getattr(
+            app.state,
+            "post_submission_verification_recovery_task",
+            None,
+        )
+        if recovery_task is not None:
+            recovery_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await recovery_task
         logger.info("application_shutdown")
 
     return app

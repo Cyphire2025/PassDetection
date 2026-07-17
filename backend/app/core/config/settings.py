@@ -151,7 +151,8 @@ class Settings(BaseSettings):
     sentry_dsn: str | None = None
     processing_backend: Literal["background", "celery"] = "background"
     processing_job_max_attempts: int = Field(default=3, ge=1, le=10)
-    processing_job_timeout_seconds: int = Field(default=60, ge=15, le=300)
+    processing_job_timeout_seconds: int = Field(default=45, ge=15, le=300)
+    passport_local_extraction_timeout_seconds: float = Field(default=10.0, ge=1.0, le=10.0)
     processing_watchdog_delay_seconds: float = Field(default=8.0, ge=3.0, le=30.0)
     processing_worker_ping_timeout_seconds: float = Field(default=1.0, ge=0.2, le=5.0)
     roi_field_timeout_seconds: float = Field(default=8.0, ge=0.5, le=30.0)
@@ -168,6 +169,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
+    gemini_max_retries: int = Field(default=1, ge=0, le=1)
     gemini_max_output_tokens: int = Field(default=512, ge=128, le=1024)
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None

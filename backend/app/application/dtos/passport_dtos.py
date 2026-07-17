@@ -52,6 +52,12 @@ class PassportSubmissionOutputDTO:
     image_url: str | None = None
     client_reviewed_at: datetime | None = None
     confirmed_at: datetime | None = None
+    post_submission_verification: dict[str, Any] | None = None
+    post_submission_verification_revision: int = 0
+    post_submission_verified_at: datetime | None = None
+    verification_reviewed_by_user_id: uuid.UUID | None = None
+    verification_reviewer_name: str | None = None
+    verification_reviewed_at: datetime | None = None
     processing_job_id: uuid.UUID | None = None
     processing_job_status: str | None = None
     processing_progress: float | None = None
@@ -60,6 +66,7 @@ class PassportSubmissionOutputDTO:
     # these fields; routes use them only for post-commit storage cleanup.
     storage_cleanup_keys: tuple[str, ...] = ()
     promoted_storage_keys: tuple[str, ...] = ()
+    idempotent_replay: bool = False
 
 
 def passport_submission_output_from_entity(
@@ -108,6 +115,14 @@ def passport_submission_output_from_entity(
         error_message=submission.error_message,
         client_reviewed_at=submission.client_reviewed_at,
         confirmed_at=submission.confirmed_at,
+        post_submission_verification=submission.post_submission_verification,
+        post_submission_verification_revision=(
+            submission.post_submission_verification_revision
+        ),
+        post_submission_verified_at=submission.post_submission_verified_at,
+        verification_reviewed_by_user_id=submission.verification_reviewed_by_user_id,
+        verification_reviewer_name=submission.verification_reviewer_name,
+        verification_reviewed_at=submission.verification_reviewed_at,
         processing_job_id=job.id if job else None,
         processing_job_status=job.status.value if job else None,
         processing_progress=job.progress if job else None,

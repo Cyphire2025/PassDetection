@@ -1,4 +1,4 @@
-"""MRZ-only passport extraction service."""
+"""Bounded MRZ plus single-pass visual passport extraction service."""
 
 from __future__ import annotations
 
@@ -13,15 +13,21 @@ from app.application.interfaces.passport_extraction import (
 )
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.core.time_budget import TimeBudget
 from app.domain.value_objects.passport_fields import normalize_extracted_passport_dates
 from app.infrastructure.observability import metrics
 from app.infrastructure.ocr.cache import ExtractionCache
 from app.infrastructure.ocr.confidence import PassportConfidenceScoringService
 from app.infrastructure.ocr.mrz import TD3MRZParser
-from app.infrastructure.ocr.preprocessing import OCRImagePreprocessor
+from app.infrastructure.ocr.preprocessing import ImageQualityAssessment, OCRImagePreprocessor
 from app.infrastructure.ocr.roi import ROIFallbackService
 from app.infrastructure.ocr.roi.service import ROIFallbackResult
-from app.infrastructure.ocr.stage1_extractor import CORE_FIELDS, Stage1MRZExtractor, StageTiming
+from app.infrastructure.ocr.stage1_extractor import (
+    CORE_FIELDS,
+    MRZStageResult,
+    Stage1MRZExtractor,
+    StageTiming,
+)
 from app.infrastructure.ocr.versioning import INDIAN_TD3_DOCUMENT_PROFILE
 from app.infrastructure.validation.passport_field_validator import PassportFieldValidator
 
@@ -29,7 +35,7 @@ logger = get_logger(__name__)
 
 
 class PassportExtractionService(IPassportExtractionService):
-    """Minimal extraction engine that reads and parses only the MRZ strip."""
+    """Runs one MRZ read and at most one visual data-page read."""
 
     def __init__(
         self,
@@ -38,9 +44,18 @@ class PassportExtractionService(IPassportExtractionService):
         mrz_extractor: Stage1MRZExtractor | None = None,
         roi_fallback: ROIFallbackService | None = None,
         cache: ExtractionCache | None = None,
+        local_timeout_seconds: float | None = None,
     ) -> None:
         settings = get_settings()
         self._mrz_settings = settings.mrz
+        configured_timeout = (
+            settings.passport_local_extraction_timeout_seconds
+            if local_timeout_seconds is None
+            else local_timeout_seconds
+        )
+        # This is a safety limit, not only a default. A bad deployment value
+        # must never make local OCR consume the whole first-pass job deadline.
+        self._local_timeout_seconds = min(10.0, max(0.1, float(configured_timeout)))
         self._preprocessor = image_preprocessor or OCRImagePreprocessor()
         self._mrz_parser = TD3MRZParser()
         self._mrz_extractor = mrz_extractor or Stage1MRZExtractor(
@@ -57,63 +72,115 @@ class PassportExtractionService(IPassportExtractionService):
         started = time.perf_counter()
         timings: list[StageTiming] = []
         cache_fingerprint = self._cache.fingerprint(file_content)
+        budget = TimeBudget.start(self._local_timeout_seconds)
+        reserve_seconds = min(0.25, self._local_timeout_seconds * 0.1)
+        working_timeout = max(0.01, budget.remaining() - reserve_seconds)
+        current_stage = "cache_lookup"
+        budget_exhausted = False
+        quality = self._empty_quality()
+        mrz_result = self._empty_mrz_result()
+        roi_result = self._empty_roi_result()
+        fields: dict[str, str] = {}
+        invalid_fields = set(CORE_FIELDS) | {"date_of_issue"}
 
-        cache_started = time.perf_counter()
-        cached = await self._cache.get(file_content)
-        timings.append(
-            StageTiming(
-                "cache_lookup",
-                self._elapsed_ms(cache_started),
-                {"cache_hit": cached is not None},
-            )
-        )
-        if cached is not None:
-            score = dict(cached.confidence_score)
-            score["cache"] = {"hit": True, **cache_fingerprint}
-            return PassportExtractionResult(
-                extracted_fields=cached.extracted_fields,
-                overall_confidence=cached.overall_confidence,
-                confidence_score=score,
-                mrz_raw=cached.mrz_raw,
-            )
+        try:
+            async with asyncio.timeout(working_timeout):
+                cache_started = time.perf_counter()
+                cached = await self._cache.get(file_content)
+                timings.append(
+                    StageTiming(
+                        "cache_lookup",
+                        self._elapsed_ms(cache_started),
+                        {"cache_hit": cached is not None},
+                    )
+                )
+                if cached is not None:
+                    score = dict(cached.confidence_score)
+                    score["cache"] = {"hit": True, **cache_fingerprint}
+                    return PassportExtractionResult(
+                        extracted_fields=cached.extracted_fields,
+                        overall_confidence=cached.overall_confidence,
+                        confidence_score=score,
+                        mrz_raw=cached.mrz_raw,
+                    )
 
-        normalized_started = time.perf_counter()
-        normalized = await asyncio.to_thread(self._preprocessor.normalize, file_content)
-        timings.append(StageTiming("image_normalization", self._elapsed_ms(normalized_started)))
+                current_stage = "image_normalization"
+                normalized_started = time.perf_counter()
+                normalized = await asyncio.to_thread(self._preprocessor.normalize, file_content)
+                timings.append(
+                    StageTiming("image_normalization", self._elapsed_ms(normalized_started))
+                )
 
-        quality_started = time.perf_counter()
-        quality = await asyncio.to_thread(self._preprocessor.assess_quality, normalized)
-        timings.append(StageTiming("image_quality_assessment", self._elapsed_ms(quality_started)))
+                current_stage = "image_quality_assessment"
+                quality_started = time.perf_counter()
+                quality = await asyncio.to_thread(self._preprocessor.assess_quality, normalized)
+                timings.append(
+                    StageTiming("image_quality_assessment", self._elapsed_ms(quality_started))
+                )
 
-        mrz_result = await self._mrz_extractor.extract(normalized)
-        timings.append(
-            StageTiming(
-                "mrz_extraction",
-                mrz_result.duration_ms,
-                {
-                    "fields_found": sorted(mrz_result.fields.keys()),
-                    "mrz_found": bool(mrz_result.raw_text),
-                    "correction_ms": mrz_result.correction_duration_ms,
-                    "checksum_pass_rate": mrz_result.checksum_pass_rate,
-                },
-            )
-        )
+                current_stage = "mrz_extraction"
+                mrz_result = await self._mrz_extractor.extract(normalized)
+                timings.append(
+                    StageTiming(
+                        "mrz_extraction",
+                        mrz_result.duration_ms,
+                        {
+                            "fields_found": sorted(mrz_result.fields.keys()),
+                            "mrz_found": bool(mrz_result.raw_text),
+                            "correction_ms": mrz_result.correction_duration_ms,
+                            "checksum_pass_rate": mrz_result.checksum_pass_rate,
+                        },
+                    )
+                )
 
-        fields = dict(mrz_result.fields)
-        validation = self._validator.validate(fields, mrz_warnings=mrz_result.warnings)
-        invalid_fields = self._invalid_fields(fields, validation, mrz_result.correction_provenance)
-        roi_result = await self._roi_fallback.extract(normalized, invalid_fields)
-        if roi_result.attempted_fields:
+                fields = dict(mrz_result.fields)
+                validation = self._validator.validate(
+                    fields,
+                    mrz_warnings=mrz_result.warnings,
+                )
+                invalid_fields = self._invalid_fields(
+                    fields,
+                    validation,
+                    mrz_result.correction_provenance,
+                )
+                current_stage = "roi_fallback"
+                roi_timeout = max(0.001, budget.remaining() - reserve_seconds)
+                roi_result = await self._roi_fallback.extract(
+                    normalized,
+                    invalid_fields,
+                    overall_timeout_seconds=roi_timeout,
+                )
+                if roi_result.attempted_fields:
+                    timings.append(
+                        StageTiming(
+                            "roi_fallback",
+                            roi_result.duration_ms,
+                            {
+                                "attempted_fields": roi_result.attempted_fields,
+                                "recovered_fields": roi_result.recovered_fields,
+                                "budget_exhausted": bool(
+                                    roi_result.debug.get("budget_exhausted")
+                                ),
+                            },
+                        )
+                    )
+                budget_exhausted = bool(roi_result.debug.get("budget_exhausted"))
+        except TimeoutError:
+            budget_exhausted = True
             timings.append(
                 StageTiming(
-                    "roi_fallback",
-                    roi_result.duration_ms,
-                    {
-                        "attempted_fields": roi_result.attempted_fields,
-                        "recovered_fields": roi_result.recovered_fields,
-                    },
+                    f"{current_stage}_timeout",
+                    self._elapsed_ms(started),
+                    {"budget_exhausted": True},
                 )
             )
+            logger.warning(
+                "passport_local_extraction_budget_exhausted",
+                stage=current_stage,
+                timeout_seconds=self._local_timeout_seconds,
+                fields_found_count=len(fields),
+            )
+
         fields, sources, correction_provenance = self._merge_roi_fields(
             fields=fields,
             mrz_fields=mrz_result.fields,
@@ -163,8 +230,12 @@ class PassportExtractionService(IPassportExtractionService):
         score_payload["diagnostics"] = diagnostics
         score_payload["timing_report"] = diagnostics["timing_report"]
         score_payload["pipeline"] = {
-            "name": "mrz_only",
+            "name": "mrz_plus_single_pass_visual",
             "document_profile": INDIAN_TD3_DOCUMENT_PROFILE,
+            "local_budget": {
+                "timeout_seconds": self._local_timeout_seconds,
+                "exhausted": budget_exhausted,
+            },
             "roi_fallback": {
                 "attempted_fields": roi_result.attempted_fields,
                 "recovered_fields": roi_result.recovered_fields,
@@ -185,13 +256,18 @@ class PassportExtractionService(IPassportExtractionService):
         )
         for timing in timings:
             metrics.record_ocr_stage(stage=timing.name, duration_ms=timing.duration_ms)
-        await self._cache.set(file_content, result)
+        if not budget_exhausted and budget.has_time(0.001):
+            try:
+                async with asyncio.timeout(budget.remaining()):
+                    await self._cache.set(file_content, result)
+            except TimeoutError:
+                logger.info("passport_extraction_cache_write_skipped", reason="budget_exhausted")
         logger.info(
-            "mrz_only_passport_extraction_completed",
-            filename=filename,
+            "mrz_and_single_pass_ocr_extraction_completed",
             confidence=confidence.overall,
             validation_status=validation.status,
             total_ms=total_ms,
+            budget_exhausted=budget_exhausted,
         )
         return result
 
@@ -308,6 +384,37 @@ class PassportExtractionService(IPassportExtractionService):
             "stages": stages,
             "timing_report": stages,
         }
+
+    @staticmethod
+    def _empty_quality() -> ImageQualityAssessment:
+        return ImageQualityAssessment(
+            score=0.0,
+            sharpness=0.0,
+            brightness=0.0,
+            contrast=0.0,
+            width=0,
+            height=0,
+        )
+
+    @staticmethod
+    def _empty_mrz_result() -> MRZStageResult:
+        return MRZStageResult(
+            fields={},
+            raw_text=None,
+            ocr_text=None,
+            warnings=[],
+            duration_ms=0.0,
+        )
+
+    @staticmethod
+    def _empty_roi_result() -> ROIFallbackResult:
+        return ROIFallbackResult(
+            fields={},
+            provenance={},
+            attempted_fields=[],
+            recovered_fields=[],
+            duration_ms=0.0,
+        )
 
     @staticmethod
     def _elapsed_ms(started: float) -> float:

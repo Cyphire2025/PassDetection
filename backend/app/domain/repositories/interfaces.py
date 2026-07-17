@@ -180,6 +180,16 @@ class IPassportSubmissionRepository(ABC):
     ) -> PassportSubmission | None: ...
 
     @abstractmethod
+    async def apply_post_submission_verification(
+        self,
+        *,
+        submission_id: uuid.UUID,
+        expected_revision: int,
+        decision: str,
+        verification: dict,
+    ) -> PassportSubmission | None: ...
+
+    @abstractmethod
     async def delete(self, submission_id: uuid.UUID) -> None: ...
 
     @abstractmethod

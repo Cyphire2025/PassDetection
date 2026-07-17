@@ -12,7 +12,13 @@ from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.password import hash_password
-from app.domain.entities.entities import PassportProcessingStatus, User, UserRole
+from app.domain.entities.entities import (
+    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    PENDING_REVIEW_PASSPORT_STATUS_VALUES,
+    PassportProcessingStatus,
+    User,
+    UserRole,
+)
 from app.infrastructure.database.models import (
     AgencyModel,
     AuditLogModel,
@@ -88,10 +94,7 @@ async def get_admin_overview(
         session,
         select(func.count()).select_from(PassportSubmissionModel).where(
             *passport_scope_filter,
-            PassportSubmissionModel.status.in_((
-                PassportProcessingStatus.CLIENT_SUBMITTED.value,
-                PassportProcessingStatus.CONFIRMED.value,
-            )),
+            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
         ),
     )
     pending = await _count(
@@ -101,7 +104,7 @@ async def get_admin_overview(
             PassportSubmissionModel.group_id == ClientGroupModel.id,
         ).where(
             *passport_scope_filter,
-            PassportSubmissionModel.status == PassportProcessingStatus.REVIEW_REQUIRED.value,
+            PassportSubmissionModel.status.in_(PENDING_REVIEW_PASSPORT_STATUS_VALUES),
             ClientGroupModel.status.notin_(["archived", "deleted"]),
         ),
     )
@@ -112,7 +115,7 @@ async def get_admin_overview(
             PassportSubmissionModel.group_id == ClientGroupModel.id,
         ).where(
             *passport_scope_filter,
-            PassportSubmissionModel.status == PassportProcessingStatus.CLIENT_SUBMITTED.value,
+            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
             ClientGroupModel.status.notin_(["archived", "deleted"]),
         ),
     )

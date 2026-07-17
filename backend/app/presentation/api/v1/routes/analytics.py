@@ -12,7 +12,11 @@ from sqlalchemy import case, cast, func, select
 from sqlalchemy.dialects.postgresql import DATE
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import (
+    OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    User,
+    UserRole,
+)
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.database.session import get_db_session
 from app.presentation.api.v1.schemas.operations_schemas import AnalyticsSummaryResponse
@@ -35,7 +39,7 @@ async def get_analytics_summary(
     since = datetime.now(tz=UTC) - timedelta(days=max(1, min(days, 365)))
     base_filters = [
         PassportSubmissionModel.created_at >= since,
-        PassportSubmissionModel.status.in_(("client_submitted", "confirmed")),
+        PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
     ]
     if current_user.role != UserRole.SUPER_ADMIN:
         if not current_user.agency_id:

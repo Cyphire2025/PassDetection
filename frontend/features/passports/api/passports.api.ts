@@ -86,6 +86,17 @@ export const passportsApi = {
     return data;
   },
 
+  staffApprove: async (
+    id: string,
+    confirmedFields?: Record<string, string>,
+  ): Promise<PassportSubmission> => {
+    const { data } = await apiClient.post<PassportSubmission>(
+      API_ENDPOINTS.passports.staffApprove(id),
+      confirmedFields ? { confirmed_fields: confirmedFields } : {},
+    );
+    return data;
+  },
+
   reextract: async (
     id: string,
     options: PassportReextractOptions = {},

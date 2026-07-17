@@ -38,6 +38,7 @@ class ReextractPassportSubmissionUseCase:
                 "Upload a passport front image before running re-extraction.",
                 field="image_s3_key",
             )
+        submission.ensure_reextract_allowed()
 
         active_job = await self._processing_job_repo.active_for_submission(
             submission.id,

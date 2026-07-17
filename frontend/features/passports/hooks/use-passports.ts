@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
 import { passportsApi } from "../api/passports.api";
 import type { PassportDocumentImportChunkRequest, PassportDocumentImportRequest } from "../api/passports.api";
+import { isPassportWorkflowPending } from "../utils/passport-workflow";
 
 export function usePassports() {
   return useQuery({
@@ -25,7 +26,9 @@ export function usePassportsByGroup(groupId: string, search?: string, includeDel
     queryFn: () => passportsApi.listByGroup(groupId, search, includeDeleted),
     enabled: Boolean(groupId),
     refetchInterval: (query) => (
-      query.state.data?.some((passport) => passport.extraction_status === "processing")
+      query.state.data?.some((passport) => (
+        isPassportWorkflowPending(passport.status, passport.extraction_status)
+      ))
         ? 2_000
         : 30_000
     ),
@@ -90,7 +93,12 @@ export function usePassportSubmission(id: string) {
     queryFn: () => passportsApi.getById(id),
     enabled: Boolean(id),
     refetchInterval: (query) => (
-      query.state.data?.extraction_status === "processing" ? 2_000 : false
+      isPassportWorkflowPending(
+        query.state.data?.status,
+        query.state.data?.extraction_status,
+      )
+        ? 2_000
+        : false
     ),
   });
 }
@@ -100,6 +108,21 @@ export function useConfirmPassportSubmission(id: string) {
 
   return useMutation({
     mutationFn: (confirmedFields: Record<string, string>) => passportsApi.confirm(id, confirmedFields),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
+export function useStaffApprovePassportSubmission(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (confirmedFields?: Record<string, string>) => (
+      passportsApi.staffApprove(id, confirmedFields)
+    ),
     onSuccess: (updated) => {
       queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });

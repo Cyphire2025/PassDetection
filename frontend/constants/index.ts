@@ -13,6 +13,13 @@ export const PASSPORT_STATUS_LABELS: Record<string, string> = {
   client_submitted: "Client Submitted",
   confirmed: "Confirmed",
   failed: "Failed",
+  pending_extraction: "Pending Extraction",
+  extracting: "Extracting",
+  ready_for_client_review: "Ready For Client Review",
+  submitted: "Submitted",
+  ai_approved: "AI Approved",
+  needs_review: "Needs Review",
+  staff_approved: "Staff Approved",
 };
 
 export const PASSPORT_STATUS_COLORS: Record<
@@ -26,6 +33,13 @@ export const PASSPORT_STATUS_COLORS: Record<
   client_submitted: "secondary",
   confirmed: "success",
   failed: "destructive",
+  pending_extraction: "outline",
+  extracting: "secondary",
+  ready_for_client_review: "default",
+  submitted: "secondary",
+  ai_approved: "success",
+  needs_review: "warning",
+  staff_approved: "success",
 };
 
 export const UPLOAD_LINK_STATUS_LABELS: Record<string, string> = {

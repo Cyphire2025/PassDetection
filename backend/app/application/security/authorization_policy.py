@@ -112,6 +112,11 @@ class AuthorizationPolicy:
     async def can_confirm_passport(self, user: User, passport: Any) -> bool:
         return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF} and await self.can_view_passport(user, passport)
 
+    async def can_staff_approve_passport(self, user: User, passport: Any) -> bool:
+        """Require an office role plus object-level tenant/group visibility."""
+
+        return await self.can_confirm_passport(user, passport)
+
     async def can_assign_coordinator(self, user: User, group: Any) -> bool:
         if user.role not in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF}:
             return False
@@ -159,6 +164,10 @@ class AuthorizationPolicy:
     async def require_confirm_passport(self, user: User, passport: Any) -> None:
         if not await self.can_confirm_passport(user, passport):
             raise AuthorizationError("You cannot confirm this passport submission")
+
+    async def require_staff_approve_passport(self, user: User, passport: Any) -> None:
+        if not await self.can_staff_approve_passport(user, passport):
+            raise AuthorizationError("You cannot approve this passport submission")
 
     async def require_assign_coordinator(self, user: User, group: Any) -> None:
         if not await self.can_assign_coordinator(user, group):

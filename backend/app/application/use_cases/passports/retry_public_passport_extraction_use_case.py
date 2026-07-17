@@ -49,6 +49,10 @@ class RetryPublicPassportExtractionUseCase:
         if submission.status in {
             PassportProcessingStatus.CLIENT_SUBMITTED,
             PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
         }:
             raise ValidationError(
                 "Passport details were already submitted.",

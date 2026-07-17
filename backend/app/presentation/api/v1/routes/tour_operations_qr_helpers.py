@@ -2,22 +2,30 @@
 
 from __future__ import annotations
 
-import secrets
 import uuid
-from datetime import UTC, datetime, time, timedelta
-from hashlib import sha256
+from datetime import UTC, datetime
 
 from fastapi import HTTPException, Request, status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.entities.entities import PassportProcessingStatus, User
+from app.domain.entities.entities import (
+    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    User,
+)
 from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorAssignmentModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
     UserModel,
+)
+from app.infrastructure.qr.approved_passenger_qr_issuer import (
+    build_passenger_qr_token,
+    qr_expires_at_for_group,
+    qr_hash,
+    qr_payload,
+    qr_status,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.schemas.tour_operations_schemas import (
@@ -26,12 +34,14 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     PassengerQrTokenResponse,
 )
 
-SUBMITTED_PASSENGER_STATUSES = (
-    PassportProcessingStatus.CLIENT_SUBMITTED.value,
-    PassportProcessingStatus.CONFIRMED.value,
-)
-QR_TOKEN_TTL = timedelta(days=365)
-QR_RETURN_GRACE_DAYS = 2
+__all__ = [
+    "qr_expires_at_for_group",
+    "qr_hash",
+    "qr_payload",
+    "qr_status",
+]
+
+SUBMITTED_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 
 
 async def group_passenger_qr_codes(
@@ -126,25 +136,6 @@ async def group_passenger_qr_codes(
     )
 
 
-def qr_payload() -> str:
-    return f"pdatt:{secrets.token_urlsafe(32)}"
-
-
-def qr_hash(payload: str) -> str:
-    return sha256(payload.encode("utf-8")).hexdigest()
-
-
-def qr_status(token: PassengerQRTokenModel | None, now: datetime | None = None) -> str:
-    if token is None:
-        return "not_generated"
-    now = now or datetime.now(tz=UTC)
-    if token.revoked_at is not None:
-        return "revoked"
-    if token.expires_at <= now:
-        return "expired"
-    return "active" if token.is_active else "inactive"
-
-
 def qr_token_response(
     token: PassengerQRTokenModel,
     payload: str | None = None,
@@ -231,18 +222,13 @@ async def issue_passenger_qr(
     if previous and regenerate and previous.revoked_at is None:
         previous.revoked_at = now
 
-    payload = qr_payload()
-    token = PassengerQRTokenModel(
+    token, payload = build_passenger_qr_token(
         agency_id=agency_id,
         passenger_id=passenger_id,
-        token_hash=qr_hash(payload),
-        qr_payload=payload,
-        token_version=(previous.token_version + 1) if previous else 1,
-        is_active=True,
         created_by_user_id=created_by_user_id,
-        expires_at=qr_expires_at_for_group(group, now),
-        created_at=now,
-        updated_at=now,
+        group=group,
+        token_version=(previous.token_version + 1) if previous else 1,
+        now=now,
     )
     session.add(token)
     await session.flush()
@@ -268,12 +254,6 @@ async def ensure_passenger_qr(
         regenerate=False,
     )
     return token
-
-
-def qr_expires_at_for_group(group: ClientGroupModel, now: datetime | None = None) -> datetime:
-    if group.return_date:
-        return datetime.combine(group.return_date + timedelta(days=QR_RETURN_GRACE_DAYS), time.max, tzinfo=UTC)
-    return (now or datetime.now(tz=UTC)) + QR_TOKEN_TTL
 
 
 async def record_qr_audit(

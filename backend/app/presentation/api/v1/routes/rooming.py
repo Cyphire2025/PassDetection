@@ -15,7 +15,11 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import (
+    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    User,
+    UserRole,
+)
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -54,7 +58,7 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 ROOMING_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
 CHECKIN_ROLES = [*ROOMING_ROLES, UserRole.AGENCY_COORDINATOR]
-ROOMING_PASSENGER_STATUSES = ("client_submitted", "confirmed")
+ROOMING_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 
 
 @router.get(
@@ -461,7 +465,11 @@ async def scan_hotel_checkin(
     resolved = await session.execute(
         select(PassportSubmissionModel, PassengerQRTokenModel)
         .join(PassengerQRTokenModel, PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id)
-        .where(PassengerQRTokenModel.agency_id == hotel.agency_id, PassengerQRTokenModel.token_hash == qr_hash(body.qr_payload.strip()))
+        .where(
+            PassengerQRTokenModel.agency_id == hotel.agency_id,
+            PassengerQRTokenModel.token_hash == qr_hash(body.qr_payload.strip()),
+            PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
+        )
     )
     pair = resolved.first()
     if not pair:

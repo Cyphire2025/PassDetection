@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import io
 import os
+import time
 import unittest
 from datetime import date
+from unittest.mock import AsyncMock, patch
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -18,6 +20,7 @@ from app.infrastructure.ocr.detection import (
 )
 from app.infrastructure.ocr.mrz import TD3MRZParser
 from app.infrastructure.ocr.mrz_image_normalizer import MRZImageNormalizer
+from app.infrastructure.ocr.mrz_ocr import MRZOCRResult
 from app.infrastructure.ocr.passport_extraction_service import PassportExtractionService
 from app.infrastructure.ocr.preprocessing import ImageQualityAssessment, OCRImagePreprocessor
 from app.infrastructure.ocr.roi.extractors.date_of_issue_roi import DateOfIssueROIExtractor
@@ -124,6 +127,39 @@ class TD3MRZParserTests(unittest.TestCase):
         crop = extractor._prepare_mrz_crop(source.getvalue())  # noqa: SLF001
 
         self.assertEqual(crop.size, (1000, 308))
+
+
+class Stage1SinglePassTests(unittest.IsolatedAsyncioTestCase):
+    async def test_incomplete_mrz_never_triggers_a_second_ocr_read(self) -> None:
+        class _Detector:
+            def detect(self, _content: bytes) -> MRZDetectionResult:
+                return MRZDetectionResult(
+                    crop=Image.new("L", (900, 180), "white"),
+                    bbox=(0, 0, 900, 180),
+                    score=0.9,
+                    elapsed_ms=1.0,
+                    candidate_count=1,
+                )
+
+        extractor = Stage1MRZExtractor(
+            preprocessor=OCRImagePreprocessor(),
+            parser=TD3MRZParser(),
+            timeout_seconds=1.0,
+            detector=_Detector(),  # type: ignore[arg-type]
+        )
+        read = AsyncMock(
+            return_value=MRZOCRResult(
+                text="unreadable",
+                confidence=0.1,
+                duration_ms=2.0,
+            )
+        )
+        with patch.object(extractor, "_read_mrz_text", read):
+            result = await extractor.extract(b"front")
+
+        read.assert_awaited_once()
+        self.assertEqual(read.await_args.kwargs["normalize"], True)
+        self.assertEqual(result.fields, {})
 
 
 class MRZRegionDetectorTests(unittest.TestCase):
@@ -337,7 +373,14 @@ class FakeROIFallback:
         self._fields = fields
         self.requested_fields: set[str] = set()
 
-    async def extract(self, _image_bytes: bytes, requested_fields: set[str]) -> ROIFallbackResult:
+    async def extract(
+        self,
+        _image_bytes: bytes,
+        requested_fields: set[str],
+        *,
+        overall_timeout_seconds: float | None = None,
+    ) -> ROIFallbackResult:
+        del overall_timeout_seconds
         self.requested_fields = set(requested_fields)
         recovered = {field: value for field, value in self._fields.items() if field in requested_fields}
         return ROIFallbackResult(
@@ -373,6 +416,30 @@ class DateOfIssueROIExtractorTests(unittest.TestCase):
 
 
 class PassportExtractionMRZOnlyTests(unittest.IsolatedAsyncioTestCase):
+    async def test_entire_local_pipeline_returns_empty_fallback_within_hard_budget(self) -> None:
+        class SlowPreprocessor(FakePreprocessor):
+            def normalize(self, file_content: bytes) -> bytes:
+                del file_content
+                time.sleep(0.3)
+                return b"too-late"
+
+        service = PassportExtractionService(
+            image_preprocessor=SlowPreprocessor(),  # type: ignore[arg-type]
+            cache=FakeCache(),  # type: ignore[arg-type]
+            local_timeout_seconds=0.1,
+        )
+        started = time.perf_counter()
+
+        result = await service.extract(
+            b"image",
+            filename="passport.jpg",
+            content_type="image/jpeg",
+        )
+
+        self.assertLess(time.perf_counter() - started, 0.2)
+        self.assertTrue(result.confidence_score["pipeline"]["local_budget"]["exhausted"])
+        self.assertIn("processing_note", result.extracted_fields)
+
     async def test_valid_mrz_returns_only_mrz_sources(self) -> None:
         class FakeMRZ:
             async def extract(self, _image_bytes: bytes) -> MRZStageResult:
@@ -411,7 +478,10 @@ class PassportExtractionMRZOnlyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.extracted_fields["extraction_sources"]["surname"], "mrz")
         self.assertNotIn("targeted_ocr_text", result.extracted_fields)
         self.assertNotIn("gemini_verification", result.extracted_fields)
-        self.assertEqual(result.confidence_score["pipeline"]["name"], "mrz_only")
+        self.assertEqual(
+            result.confidence_score["pipeline"]["name"],
+            "mrz_plus_single_pass_visual",
+        )
 
     async def test_missing_mrz_fields_are_left_empty(self) -> None:
         class IncompleteMRZ:

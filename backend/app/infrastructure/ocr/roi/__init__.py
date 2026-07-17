@@ -1,4 +1,4 @@
-"""Field-specific ROI OCR fallback components."""
+"""Single-pass visual OCR fallback components."""
 
 from app.infrastructure.ocr.roi.service import ROIFallbackService
 

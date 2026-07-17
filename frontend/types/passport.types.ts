@@ -12,7 +12,14 @@ export type PassportStatus =
   | "review_required"
   | "client_submitted"
   | "confirmed"
-  | "failed";
+  | "failed"
+  | "pending_extraction"
+  | "extracting"
+  | "ready_for_client_review"
+  | "submitted"
+  | "ai_approved"
+  | "needs_review"
+  | "staff_approved";
 
 export type PassportExtractionStatus =
   | "not_started"
@@ -74,6 +81,40 @@ export interface PassportExtractionConflict {
   status: "mismatch" | "not_extracted";
 }
 
+export type PassportVerificationFieldName =
+  | "surname"
+  | "given_names"
+  | "passport_number"
+  | "nationality"
+  | "issuing_country"
+  | "date_of_birth"
+  | "date_of_issue"
+  | "date_of_expiry"
+  | "sex";
+
+export type PassportVerificationVerdict = "correct" | "suspicious" | "incorrect";
+
+export interface PassportVerificationField {
+  field: PassportVerificationFieldName;
+  verdict: PassportVerificationVerdict;
+  observed_value: string | null;
+  confidence: number;
+  reason_code: string;
+}
+
+export interface PassportPostSubmissionVerification {
+  verification_status: "ai_approved" | "needs_review";
+  confidence: number;
+  incorrect_fields: PassportVerificationFieldName[];
+  suspicious_fields: PassportVerificationFieldName[];
+  explanation: string;
+  provider_status: string;
+  reason_code: string | null;
+  model: string | null;
+  fields: PassportVerificationField[];
+  stale_after_staff_edit: boolean;
+}
+
 export interface PassportConfidenceSignal {
   name: string;
   score: number;
@@ -123,6 +164,12 @@ export interface PassportSubmission extends TimestampedEntity {
   extracted_fields: ExtractedPassportFields | null;
   confirmed_fields: ExtractedPassportFields | null;
   extraction_conflicts?: PassportExtractionConflict[];
+  post_submission_verification?: PassportPostSubmissionVerification | null;
+  post_submission_verification_revision?: number;
+  post_submission_verified_at?: string | null;
+  verification_reviewed_by_user_id?: string | null;
+  verification_reviewer_name?: string | null;
+  verification_reviewed_at?: string | null;
   overall_confidence: number | null;
   confidence_score: PassportConfidenceScore | null;
   mrz_raw: string | null;

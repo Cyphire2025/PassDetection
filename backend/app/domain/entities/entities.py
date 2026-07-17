@@ -65,6 +65,44 @@ class PassportProcessingStatus(str, Enum):
     CLIENT_SUBMITTED = "client_submitted"
     CONFIRMED = "confirmed"
     FAILED = "failed"
+    # Canonical workflow states. Legacy values above remain readable for
+    # backwards-compatible rows and API filters.
+    PENDING_EXTRACTION = "pending_extraction"
+    EXTRACTING = "extracting"
+    READY_FOR_CLIENT_REVIEW = "ready_for_client_review"
+    SUBMITTED = "submitted"
+    AI_APPROVED = "ai_approved"
+    NEEDS_REVIEW = "needs_review"
+    STAFF_APPROVED = "staff_approved"
+
+
+OFFICE_VISIBLE_PASSPORT_STATUS_VALUES = (
+    PassportProcessingStatus.CLIENT_SUBMITTED.value,
+    PassportProcessingStatus.CONFIRMED.value,
+    PassportProcessingStatus.SUBMITTED.value,
+    PassportProcessingStatus.AI_APPROVED.value,
+    PassportProcessingStatus.NEEDS_REVIEW.value,
+    PassportProcessingStatus.STAFF_APPROVED.value,
+)
+
+OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES = (
+    PassportProcessingStatus.CLIENT_SUBMITTED.value,
+    PassportProcessingStatus.CONFIRMED.value,
+    PassportProcessingStatus.AI_APPROVED.value,
+    PassportProcessingStatus.STAFF_APPROVED.value,
+)
+
+PENDING_REVIEW_PASSPORT_STATUS_VALUES = (
+    PassportProcessingStatus.CLIENT_SUBMITTED.value,
+    PassportProcessingStatus.SUBMITTED.value,
+    PassportProcessingStatus.NEEDS_REVIEW.value,
+)
+
+CONFIRMED_PASSPORT_STATUS_VALUES = (
+    PassportProcessingStatus.CONFIRMED.value,
+    PassportProcessingStatus.AI_APPROVED.value,
+    PassportProcessingStatus.STAFF_APPROVED.value,
+)
 
 
 class PassportExtractionStatus(str, Enum):
@@ -557,6 +595,12 @@ class PassportSubmission:
     extraction_status: PassportExtractionStatus = PassportExtractionStatus.NOT_STARTED
     extraction_revision: int = 0
     extraction_conflicts: list[dict[str, str | None]] = field(default_factory=list)
+    post_submission_verification: dict | None = None
+    post_submission_verification_revision: int = 0
+    post_submission_verified_at: datetime | None = None
+    verification_reviewed_by_user_id: uuid.UUID | None = None
+    verification_reviewer_name: str | None = None
+    verification_reviewed_at: datetime | None = None
     created_at: datetime = field(default_factory=_utcnow)
     updated_at: datetime = field(default_factory=_utcnow)
     client_reviewed_at: datetime | None = None
@@ -614,8 +658,14 @@ class PassportSubmission:
             extraction_status=PassportExtractionStatus.NOT_STARTED,
             extraction_revision=0,
             extraction_conflicts=[],
+            post_submission_verification=None,
+            post_submission_verification_revision=0,
+            post_submission_verified_at=None,
+            verification_reviewed_by_user_id=None,
+            verification_reviewer_name=None,
+            verification_reviewed_at=None,
             staff_metadata=None,
-            status=PassportProcessingStatus.UPLOADED,
+            status=PassportProcessingStatus.PENDING_EXTRACTION,
             extracted_fields=None,
             confirmed_fields=None,
             overall_confidence=None,
@@ -632,11 +682,28 @@ class PassportSubmission:
         if self.status not in {
             PassportProcessingStatus.CLIENT_SUBMITTED,
             PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
         }:
-            self.status = PassportProcessingStatus.PROCESSING
+            self.status = PassportProcessingStatus.EXTRACTING
         self.error_message = None
         self.updated_at = _utcnow()
         return self.extraction_revision
+
+    def ensure_reextract_allowed(self) -> None:
+        """Prevent extraction from mutating a pending or canonical approved row."""
+
+        if self.status in {
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.STAFF_APPROVED,
+        }:
+            raise ValidationError(
+                "Re-extraction is unavailable while this passport is submitted or approved.",
+                field="status",
+            )
 
     def mark_review_required(
         self,
@@ -655,9 +722,13 @@ class PassportSubmission:
         preserve_submitted_status = self.status in {
             PassportProcessingStatus.CLIENT_SUBMITTED,
             PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
         }
         if not preserve_submitted_status:
-            self.status = PassportProcessingStatus.REVIEW_REQUIRED
+            self.status = PassportProcessingStatus.READY_FOR_CLIENT_REVIEW
         required_fields = (
             "passport_number",
             "surname",
@@ -713,11 +784,16 @@ class PassportSubmission:
         family_broadcast_to_member: bool = False,
         nearest_domestic_airport: str | None = None,
     ) -> None:
+        if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
+            raise ValidationError(
+                "Passport details were already submitted.",
+                field="status",
+            )
         # Invalidate any extraction job that started before this correction.
         self.extraction_revision += 1
         if self.extraction_status == PassportExtractionStatus.PROCESSING:
             self.extraction_status = PassportExtractionStatus.READY_FOR_REVIEW
-        self.status = PassportProcessingStatus.CLIENT_SUBMITTED
+        self.status = PassportProcessingStatus.SUBMITTED
         self.client_email = client_email.lower().strip() if client_email else None
         self.client_phone = client_phone.strip() if client_phone else None
         self.departure_city = departure_city.strip() if departure_city else None
@@ -743,7 +819,108 @@ class PassportSubmission:
         self.family_broadcast_to_member = family_broadcast_to_member
         self.confirmed_fields = confirmed_fields
         self.extraction_conflicts = []
+        self.post_submission_verification_revision += 1
+        self.post_submission_verification = None
+        self.post_submission_verified_at = None
+        self.verification_reviewed_by_user_id = None
+        self.verification_reviewer_name = None
+        self.verification_reviewed_at = None
         self.client_reviewed_at = _utcnow()
+        self.updated_at = _utcnow()
+
+    def apply_post_submission_verification(
+        self,
+        *,
+        expected_revision: int,
+        decision: str,
+        verification: dict,
+    ) -> bool:
+        """Apply one revision-matched AI decision without changing client fields."""
+
+        if (
+            expected_revision != self.post_submission_verification_revision
+            or self.status != PassportProcessingStatus.SUBMITTED
+        ):
+            return False
+        if decision not in {
+            PassportProcessingStatus.AI_APPROVED.value,
+            PassportProcessingStatus.NEEDS_REVIEW.value,
+        }:
+            raise ValidationError("Unsupported post-submission verification decision.")
+
+        now = _utcnow()
+        self.status = PassportProcessingStatus(decision)
+        self.post_submission_verification = dict(verification)
+        self.post_submission_verified_at = now
+        self.updated_at = now
+        return True
+
+    def staff_approve_verification(
+        self,
+        *,
+        reviewer_id: uuid.UUID,
+        reviewer_name: str,
+        confirmed_fields: dict | None = None,
+    ) -> bool:
+        """Atomically save optional corrections and transition Needs Review."""
+
+        if self.status == PassportProcessingStatus.STAFF_APPROVED:
+            if confirmed_fields is not None and any(
+                (self.confirmed_fields or {}).get(key) != value
+                for key, value in confirmed_fields.items()
+            ):
+                raise ValidationError(
+                    "This passport is already staff approved; new corrections require reopening review.",
+                    field="confirmed_fields",
+                )
+            return False
+        if self.status != PassportProcessingStatus.NEEDS_REVIEW:
+            raise ValidationError(
+                "Only passports that need review can be staff approved.",
+                field="status",
+            )
+
+        if confirmed_fields is not None:
+            self.extraction_revision += 1
+            self.confirmed_fields = {
+                **dict(self.confirmed_fields or {}),
+                **dict(confirmed_fields),
+            }
+            self.extraction_conflicts = []
+        now = _utcnow()
+        self.status = PassportProcessingStatus.STAFF_APPROVED
+        self.verification_reviewed_by_user_id = reviewer_id
+        self.verification_reviewer_name = " ".join(reviewer_name.strip().split())[:255]
+        self.verification_reviewed_at = now
+        self.confirmed_at = now
+        self.updated_at = now
+        return True
+
+    def update_reviewed_fields(self, confirmed_fields: dict) -> None:
+        """Save staff edits without bypassing the canonical approval transition."""
+
+        self.extraction_revision += 1
+        self.confirmed_fields = {
+            **dict(self.confirmed_fields or {}),
+            **dict(confirmed_fields),
+        }
+        self.extraction_conflicts = []
+        if self.status in {
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
+        }:
+            self.status = PassportProcessingStatus.NEEDS_REVIEW
+            self.verification_reviewed_by_user_id = None
+            self.verification_reviewer_name = None
+            self.verification_reviewed_at = None
+            self.confirmed_at = None
+            if self.post_submission_verification is not None:
+                self.post_submission_verification = {
+                    **self.post_submission_verification,
+                    "stale_after_staff_edit": True,
+                }
         self.updated_at = _utcnow()
 
     def promote_image(self, permanent_key: str) -> None:
@@ -780,8 +957,12 @@ class PassportSubmission:
         if self.status not in {
             PassportProcessingStatus.CLIENT_SUBMITTED,
             PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+            PassportProcessingStatus.STAFF_APPROVED,
         }:
-            self.status = PassportProcessingStatus.REVIEW_REQUIRED
+            self.status = PassportProcessingStatus.READY_FOR_CLIENT_REVIEW
         self.extraction_status = PassportExtractionStatus.FAILED
         self.error_message = public_message
         self.updated_at = _utcnow()

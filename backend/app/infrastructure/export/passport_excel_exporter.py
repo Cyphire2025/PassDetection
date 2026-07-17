@@ -77,6 +77,22 @@ def _uppercase(value: Any) -> str | None:
     return str(value).upper()
 
 
+def _gender_display_value(value: Any) -> str | None:
+    """Normalize recognized passport sex values without mutating stored data."""
+
+    if value in (None, ""):
+        return None
+    normalized = " ".join(str(value).strip().split()).casefold()
+    if normalized in {"m", "male"}:
+        return "Male"
+    if normalized in {"f", "female"}:
+        return "Female"
+    # Do not invent a binary value for an unsupported or non-binary document
+    # marker. Returning the trimmed source is safer than silently misgendering
+    # the traveller while still normalizing every supported legacy value.
+    return " ".join(str(value).strip().split()) or None
+
+
 def _country_display_name(value: Any) -> str | None:
     if value in (None, ""):
         return None
@@ -148,7 +164,7 @@ class PassportExcelExporter:
                 "Date of Birth": fields.get("date_of_birth"),
                 "Date of Issue": fields.get("date_of_issue"),
                 "Date of Expiry": fields.get("date_of_expiry"),
-                "Sex": fields.get("sex"),
+                "Sex": _gender_display_value(fields.get("sex")),
             }
             worksheet.append([_safe_xlsx_value(values[column.header]) for column in columns])
 
