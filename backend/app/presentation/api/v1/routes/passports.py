@@ -540,17 +540,22 @@ async def get_upload_passport_status(
     job = await PassportProcessingJobRepository(session).latest_for_submission(
         submission.id
     )
+    # Snapshot every response field before a possible dispatch commit. SQLAlchemy
+    # expires loaded state on commit; reading the submission afterwards from an
+    # async route can otherwise trigger an implicit synchronous refresh and
+    # raise MissingGreenlet, turning an otherwise healthy status poll into 500.
+    response_result = passport_submission_output_from_entity(submission, job=job)
     if (
         job is not None
         and queued_job_needs_redelivery(job)
     ):
         await _dispatch_processing_job(
-            passport_submission_output_from_entity(submission, job=job),
+            response_result,
             session=session,
             background_tasks=background_tasks,
         )
 
-    return await _response_from_submission(submission, session=session)
+    return await _response_from_dto(response_result, session=session)
 
 
 @router.post(
