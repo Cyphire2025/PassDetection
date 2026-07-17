@@ -14,7 +14,8 @@ interface VisaSelfieCameraProps {
 
 type FacingMode = "user" | "environment";
 type FaceStatus = "loading" | "no_face" | "multiple" | "too_far" | "too_close" | "off_center" | "ready" | "unavailable";
-type BackgroundStatus = "checking" | "white" | "not_white";
+type BackgroundStatus = "checking" | "white" | "not_white" | "not_plain";
+type ResolvedBackgroundStatus = Exclude<BackgroundStatus, "checking">;
 
 interface PendingAnalysis {
   id: number;
@@ -49,6 +50,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   const pendingAnalysesRef = useRef(new Map<number, PendingAnalysis[]>());
   const faceStatusRef = useRef<FaceStatus>("loading");
   const backgroundStatusRef = useRef<BackgroundStatus>("checking");
+  const backgroundSamplesRef = useRef<ResolvedBackgroundStatus[]>([]);
 
   const [facingMode, setFacingMode] = useState<FacingMode>("user");
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -69,6 +71,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     backgroundStatusRef.current = "checking";
     captureReadyRef.current = false;
     stableSinceRef.current = null;
+    backgroundSamplesRef.current = [];
     setFaceStatus(status);
     setBackgroundStatus("checking");
     setCountdown(null);
@@ -164,8 +167,12 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
 
           const nextFaceStatus = classifyFace(results.detections, video, guide);
           const nextBackgroundStatus = nextFaceStatus === "ready"
-            ? analyzeWhiteBackground(video, guide, analysisCanvas)
+            ? stabilizeBackgroundStatus(
+                analyzeWhiteBackground(video, guide, analysisCanvas),
+                backgroundSamplesRef.current,
+              )
             : "checking";
+          if (nextFaceStatus !== "ready") backgroundSamplesRef.current = [];
           const isReady = nextFaceStatus === "ready" && nextBackgroundStatus === "white";
 
           if (faceStatusRef.current !== nextFaceStatus) {
@@ -364,32 +371,34 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       ? "Saving the original camera photo..."
       : countdown
         ? `Hold still - capturing in ${countdown}`
-        : faceStatus === "ready" && backgroundStatus === "not_white"
-          ? "Use a plain light wall without patterns"
+        : faceStatus === "ready" && backgroundStatus === "not_plain"
+          ? "The wall is not plain - avoid patterns and texture"
+          : faceStatus === "ready" && backgroundStatus === "not_white"
+            ? "Use a white or off-white wall - normal room lighting is okay"
           : faceStatusMessage(faceStatus));
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white">
-      <header className="flex h-16 items-center justify-between px-4 pt-[max(0.25rem,env(safe-area-inset-top))]">
-        <button type="button" onClick={close} aria-label="Close selfie camera" className="rounded-full p-2 text-white/80 hover:bg-white/10 hover:text-white">
+    <div className="fixed inset-0 z-50 flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-slate-50 text-slate-900">
+      <header className="z-10 flex min-h-[4.5rem] flex-none items-center justify-between border-b border-slate-200 bg-white px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-sm">
+        <button type="button" onClick={close} aria-label="Close selfie camera" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900">
           <X className="h-6 w-6" />
         </button>
         <div className="text-center">
-          <h2 className="text-base font-semibold">VISA Selfie Photo</h2>
-          <p className="text-xs text-slate-400">Use a plain white or off-white wall</p>
+          <h2 className="text-base font-semibold text-slate-950">VISA Selfie Photo</h2>
+          <p className="text-xs text-slate-500">Use a plain white or off-white wall</p>
         </div>
         <div className="w-10" aria-hidden="true" />
       </header>
 
-      <main className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
+      <main className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-slate-100">
         {cameraError ? (
-          <div className="mx-6 max-w-md rounded-2xl border border-amber-400/30 bg-slate-900 p-6 text-center">
-            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" />
-            <h3 className="mb-2 text-lg font-semibold">Camera unavailable</h3>
-            <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
+          <div className="mx-6 max-w-md rounded-2xl border border-amber-200 bg-white p-6 text-center shadow-xl">
+            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
+            <h3 className="mb-2 text-lg font-semibold text-slate-950">Camera unavailable</h3>
+            <p className="mb-6 text-sm leading-6 text-slate-600">{cameraError}</p>
             <div className="flex flex-col gap-3">
               <Button onClick={toggleCamera} className="w-full">Try the {facingMode === "user" ? "back" : "front"} camera</Button>
-              <Button variant="outline" onClick={close} className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20">Back</Button>
+              <Button variant="outline" onClick={close} className="w-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50">Back</Button>
             </div>
           </div>
         ) : (
@@ -403,34 +412,48 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
               className={`h-full w-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${capturedPreview ? "opacity-0" : "opacity-100"}`}
             />
             {capturedPreview ? (
-              <Image src={capturedPreview} alt="Captured VISA selfie" fill unoptimized className="object-contain" />
+              <Image src={capturedPreview} alt="Captured VISA selfie" fill unoptimized className="bg-slate-100 object-contain" />
             ) : (
               <div className="pointer-events-none absolute inset-0">
-                <div ref={guideRef} className="absolute bottom-0 left-1/2 aspect-[35/45] w-[min(68vw,45vh,27rem)] -translate-x-1/2">
-                  <div className={`absolute inset-0 rounded-3xl border-2 shadow-[0_0_0_9999px_rgba(2,6,23,0.5)] transition-colors ${ready ? "border-emerald-400" : "border-white/65"}`} />
-                  <svg aria-hidden="true" viewBox="0 0 100 126" className="absolute inset-[5%] h-[90%] w-[90%]" preserveAspectRatio="none">
+                {/* Keep a dedicated lane for live guidance while allowing the crop
+                    to grow on taller phones. Safe-area insets are removed from
+                    the vertical budget so Safari controls never crowd the frame. */}
+                <div
+                  ref={guideRef}
+                  className="absolute bottom-[clamp(0.75rem,1.75dvh,1.25rem)] left-1/2 aspect-[35/45] -translate-x-1/2"
+                  style={{
+                    width: "max(min(68vw, 45dvh, 27rem), min(84vw, calc(77.7778dvh - 15.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 31rem))",
+                  }}
+                >
+                  <div className={`absolute inset-0 rounded-[1.75rem] border-[3px] shadow-[0_0_0_9999px_rgba(248,250,252,0.42)] transition-colors ${ready ? "border-emerald-500" : "border-white"}`} />
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 100 126"
+                    className="absolute inset-x-[3.5%] bottom-0 top-[3%] h-[97%] w-[93%]"
+                    preserveAspectRatio="none"
+                  >
                     <path
-                      d="M50 7 C34 7 25 20 25 39 C25 53 30 64 39 70 L39 77 C22 79 10 89 7 118 L93 118 C90 89 78 79 61 77 L61 70 C70 64 75 53 75 39 C75 20 66 7 50 7 Z"
+                      d="M50 3 C32 3 22 19 22 41 C22 59 28 73 38 80 L38 87 C20 89 8 99 5 126 L95 126 C92 99 80 89 62 87 L62 80 C72 73 78 59 78 41 C78 19 68 3 50 3 Z"
                       fill="none"
-                      strokeWidth="1.6"
+                      strokeWidth="1.7"
                       strokeDasharray="4 3"
                       vectorEffect="non-scaling-stroke"
-                      className={`transition-colors ${ready ? "stroke-emerald-300" : "stroke-white/75"}`}
+                      className={`transition-colors ${ready ? "stroke-emerald-500" : "stroke-white"}`}
                     />
                   </svg>
                 </div>
-                <div className={`absolute left-1/2 top-4 w-max max-w-[92%] -translate-x-1/2 rounded-full px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur ${processingError ? "bg-red-600" : ready ? "bg-emerald-500" : "bg-black/60"}`}>
+                <div className={`absolute left-1/2 top-2 w-max max-w-[92%] -translate-x-1/2 rounded-full border px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur-md ${processingError ? "border-red-500 bg-red-600 text-white" : ready ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-200/80 bg-white/90 text-slate-800"}`}>
                   {guidance}
                 </div>
-                <div className="absolute left-1/2 top-20 flex -translate-x-1/2 gap-2">
+                <div className="absolute left-1/2 top-[3.75rem] flex -translate-x-1/2 gap-2">
                   <QualityChip label="One face" ready={faceStatus === "ready"} warning={faceStatus !== "loading" && faceStatus !== "ready"} />
-                  <QualityChip label="Plain light wall" ready={backgroundStatus === "white"} warning={backgroundStatus === "not_white"} />
+                  <QualityChip label="Plain light wall" ready={backgroundStatus === "white"} warning={backgroundStatus === "not_white" || backgroundStatus === "not_plain"} />
                 </div>
               </div>
             )}
             {isProcessing && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-slate-950/85 px-6 text-center backdrop-blur-sm">
-                <Loader2 className="h-9 w-9 animate-spin text-blue-400" />
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/90 px-6 text-center text-slate-900 backdrop-blur-sm">
+                <Loader2 className="h-9 w-9 animate-spin text-blue-600" />
                 <p className="text-sm font-medium">Saving your original camera photo</p>
               </div>
             )}
@@ -441,13 +464,13 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       </main>
 
       {!cameraError && (
-        <footer className="flex min-h-28 items-center justify-center bg-slate-950/90 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <footer className="z-10 flex min-h-[8.75rem] flex-none items-center justify-center border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
           {capturedPreview ? (
             <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
-              <Button variant="outline" size="lg" onClick={retake} className="flex-1 border-white/20 bg-white/10 text-white hover:bg-white/20">
+              <Button variant="outline" size="lg" onClick={retake} className="flex-1 border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
                 <RefreshCcw className="mr-2 h-4 w-4" /> Retake
               </Button>
-              <Button size="lg" onClick={() => capturedFile && onCapture(capturedFile)} className="flex-1 bg-blue-600 hover:bg-blue-500">
+              <Button size="lg" onClick={() => capturedFile && onCapture(capturedFile)} className="flex-1 bg-blue-600 hover:bg-blue-700">
                 <Check className="mr-2 h-4 w-4" /> Use Selfie
               </Button>
             </div>
@@ -458,7 +481,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
                 onClick={toggleCamera}
                 disabled={!isCameraReady || isProcessing}
                 aria-label={`Switch to ${facingMode === "user" ? "back" : "front"} camera`}
-                className="justify-self-end rounded-full bg-white/10 p-3 transition-colors hover:bg-white/20 disabled:opacity-40"
+                className="justify-self-end rounded-full border border-slate-200 bg-slate-50 p-3 text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-40"
               >
                 <RefreshCcw className="h-6 w-6" />
               </button>
@@ -468,15 +491,15 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
                   onClick={() => void takePhoto()}
                   disabled={!isCameraReady || isProcessing || !isDetectorReady || !ready}
                   aria-label="Capture selfie manually"
-                  className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-950 bg-white ring-2 ring-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-white bg-blue-600 shadow-lg ring-2 ring-blue-600 transition-transform active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:ring-slate-300 disabled:opacity-60"
                 >
-                  <span className="h-16 w-16 rounded-full border border-slate-200" />
+                  <span className="h-14 w-14 rounded-full border border-white/70" />
                 </button>
-                <p className="w-36 text-xs text-slate-400">{ready ? "Auto-captures after 2 seconds" : "Capture unlocks when both checks pass"}</p>
+                <p className="w-40 text-xs leading-4 text-slate-500">{ready ? "Auto-captures after 2 seconds" : "Capture unlocks when both checks pass"}</p>
               </div>
               <div className="justify-self-start">
                 {modelError && (
-                  <button type="button" onClick={retryChecks} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10">
+                  <button type="button" onClick={retryChecks} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                     Retry checks
                   </button>
                 )}
@@ -491,11 +514,11 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
 
 function QualityChip({ label, ready, warning }: { label: string; ready: boolean; warning: boolean }) {
   const tone = ready
-    ? "border-emerald-400/40 bg-emerald-500/20 text-emerald-100"
+    ? "border-emerald-300 bg-emerald-50/95 text-emerald-700"
     : warning
-      ? "border-amber-300/40 bg-amber-500/20 text-amber-50"
-      : "border-white/15 bg-black/45 text-white/70";
-  return <span className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur ${tone}`}>{label}</span>;
+      ? "border-amber-300 bg-amber-50/95 text-amber-700"
+      : "border-slate-200 bg-white/90 text-slate-600";
+  return <span className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur ${tone}`}>{label}</span>;
 }
 
 function faceStatusMessage(status: FaceStatus): string {
@@ -528,7 +551,7 @@ function classifyFace(detections: Detection[], video: HTMLVideoElement, guide: H
   return "ready";
 }
 
-function analyzeWhiteBackground(video: HTMLVideoElement, guide: HTMLDivElement, canvas: HTMLCanvasElement): BackgroundStatus {
+function analyzeWhiteBackground(video: HTMLVideoElement, guide: HTMLDivElement, canvas: HTMLCanvasElement): ResolvedBackgroundStatus {
   const crop = getVisibleGuideCrop(video, guide);
   canvas.width = ANALYSIS_WIDTH;
   canvas.height = ANALYSIS_HEIGHT;
@@ -537,7 +560,22 @@ function analyzeWhiteBackground(video: HTMLVideoElement, guide: HTMLDivElement, 
 
   context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
   const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
-  return evaluateWhiteBackground(pixels, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).isWhite ? "white" : "not_white";
+  const result = evaluateWhiteBackground(pixels, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
+  if (result.isWhite) return "white";
+  return result.failureReason === "not_plain" ? "not_plain" : "not_white";
+}
+
+function stabilizeBackgroundStatus(
+  sample: ResolvedBackgroundStatus,
+  samples: ResolvedBackgroundStatus[],
+): BackgroundStatus {
+  samples.push(sample);
+  if (samples.length > 4) samples.shift();
+  if (samples.length < 4) return "checking";
+
+  const statuses: ResolvedBackgroundStatus[] = ["white", "not_white", "not_plain"];
+  return statuses.find((status) => samples.filter((value) => value === status).length >= 3)
+    ?? "checking";
 }
 
 function canvasToJpeg(canvas: HTMLCanvasElement): Promise<Blob> {

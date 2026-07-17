@@ -19,8 +19,13 @@ test("accepts an evenly lit neutral white wall", () => {
   assert.equal(result.isWhite, true);
 });
 
-test("rejects a gray wall", () => {
+test("accepts a neutral wall photographed dimmer than its real white tone", () => {
   const result = evaluateWhiteBackground(makeFrame(() => [165, 165, 165]), WIDTH, HEIGHT);
+  assert.equal(result.isWhite, true);
+});
+
+test("rejects a genuinely dark neutral background", () => {
+  const result = evaluateWhiteBackground(makeFrame(() => [118, 118, 118]), WIDTH, HEIGHT);
   assert.equal(result.isWhite, false);
 });
 
@@ -46,9 +51,41 @@ test("accepts a white wall with a moderate soft side shadow", () => {
   assert.equal(result.isWhite, true);
 });
 
+test("accepts a white wall under uneven warm indoor lighting", () => {
+  const pixels = makeFrame((x, y) => {
+    const horizontalLight = 152 + Math.round((x / (WIDTH - 1)) * 52);
+    const verticalLight = Math.round((y / (HEIGHT - 1)) * 12);
+    const shade = horizontalLight + verticalLight;
+    return [shade + 10, shade + 5, shade];
+  });
+
+  const result = evaluateWhiteBackground(pixels, WIDTH, HEIGHT);
+  assert.equal(result.zoneMeanSpread > 35, true);
+  assert.equal(result.isWhite, true);
+});
+
+test("ignores realistic hair and shoulder spill outside the ideal silhouette", () => {
+  const pixels = makeFrame((x, y) => {
+    const normalizedX = (x + 0.5) / WIDTH;
+    const normalizedY = (y + 0.5) / HEIGHT;
+    const hairSpill = normalizedY < 0.34 && normalizedX > 0.07 && normalizedX < 0.88;
+    const shoulderSpill = normalizedY > 0.64
+      && Math.abs(normalizedX - 0.5) < 0.48;
+    if (hairSpill) return [24, 22, 21];
+    if (shoulderSpill) return [54, 76, 49];
+    const shade = 190 + Math.round(normalizedX * 28);
+    return [shade + 3, shade + 2, shade];
+  });
+
+  const result = evaluateWhiteBackground(pixels, WIDTH, HEIGHT);
+  assert.equal(result.isWhite, true);
+});
+
 test("rejects a warm colored wall", () => {
   const result = evaluateWhiteBackground(makeFrame(() => [242, 210, 176]), WIDTH, HEIGHT);
   assert.equal(result.isWhite, false);
+  assert.equal(result.isLightNeutral, false);
+  assert.equal(result.failureReason, "not_light_neutral");
 });
 
 test("accepts a subtle warm off-white wall", () => {
@@ -75,6 +112,21 @@ test("rejects a light checker pattern that passes brightness alone", () => {
   const result = evaluateWhiteBackground(pixels, WIDTH, HEIGHT);
   assert.equal(result.averageLuminance > 190, true);
   assert.equal(result.isWhite, false);
+  assert.equal(result.isPlain, false);
+  assert.equal(result.failureReason, "not_plain");
+});
+
+test("rejects subtle wallpaper stripes while allowing smooth light falloff", () => {
+  const pixels = makeFrame((x) => Math.floor(x / 5) % 2 === 0
+    ? [232, 230, 226]
+    : [209, 207, 203]);
+
+  const result = evaluateWhiteBackground(pixels, WIDTH, HEIGHT);
+  assert.equal(result.averageLuminance > 200, true);
+  assert.equal(result.isWhite, false);
+  assert.equal(result.isLightNeutral, true);
+  assert.equal(result.isPlain, false);
+  assert.equal(result.failureReason, "not_plain");
 });
 
 test("rejects localized dark clutter on an otherwise white wall", () => {
