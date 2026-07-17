@@ -24,9 +24,11 @@ import {
   useConfirmPassportSubmission,
   usePassportSubmission,
   useReextractPassportSubmission,
+  useRetryPassportAiVerification,
   useStaffApprovePassportSubmission,
 } from "../hooks/use-passports";
 import {
+  canRetryPassportAiVerification,
   formatPassportVerificationReason,
   getPassportFieldReview,
   getPassportFieldReviewClassName,
@@ -51,6 +53,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
   const { data, isLoading, error } = usePassportSubmission(id);
   const confirmMutation = useConfirmPassportSubmission(id);
   const staffApproveMutation = useStaffApprovePassportSubmission(id);
+  const retryAiVerificationMutation = useRetryPassportAiVerification(id);
   const reextractMutation = useReextractPassportSubmission();
   const currentUser = useAuthStore(selectUser);
   const [formError, setFormError] = useState<string | null>(null);
@@ -182,6 +185,8 @@ export function PassportDetail({ id }: PassportDetailProps) {
             validation={data.extracted_fields?.field_validation}
             conflicts={getExtractionConflicts(data)}
             isSaving={confirmMutation.isPending || staffApproveMutation.isPending}
+            canRetryAiVerification={canRetryPassportAiVerification(data)}
+            isRetryingAiVerification={retryAiVerificationMutation.isPending}
             canReextract={needsReextraction(data)}
             isReextracting={reextractMutation.isPending}
             reextractFeedback={reextractFeedback}
@@ -189,6 +194,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
             onFormError={setFormError}
             onConfirm={(fields) => confirmMutation.mutateAsync(fields)}
             onStaffApprove={(fields) => staffApproveMutation.mutateAsync(fields)}
+            onRetryAiVerification={() => retryAiVerificationMutation.mutateAsync()}
             reviewerLabel={getPassportReviewerLabel(data, currentUser)}
             onReextract={() => void handleReextract()}
           />
@@ -279,6 +285,8 @@ interface ReviewFieldsCardProps {
   validation?: ExtractedPassportFields["field_validation"];
   conflicts: PassportExtractionConflict[];
   isSaving: boolean;
+  canRetryAiVerification: boolean;
+  isRetryingAiVerification: boolean;
   canReextract: boolean;
   isReextracting: boolean;
   reextractFeedback: ReextractFeedback | null;
@@ -286,6 +294,7 @@ interface ReviewFieldsCardProps {
   onFormError: (error: string | null) => void;
   onConfirm: (fields: Record<string, string>) => Promise<unknown>;
   onStaffApprove: (fields: Record<string, string>) => Promise<unknown>;
+  onRetryAiVerification: () => Promise<unknown>;
   reviewerLabel: string | null;
   onReextract: () => void;
 }
@@ -296,6 +305,8 @@ function ReviewFieldsCard({
   validation,
   conflicts,
   isSaving,
+  canRetryAiVerification,
+  isRetryingAiVerification,
   canReextract,
   isReextracting,
   reextractFeedback,
@@ -303,6 +314,7 @@ function ReviewFieldsCard({
   onFormError,
   onConfirm,
   onStaffApprove,
+  onRetryAiVerification,
   reviewerLabel,
   onReextract,
 }: ReviewFieldsCardProps) {
@@ -455,7 +467,7 @@ function ReviewFieldsCard({
                       ? "rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-800"
                       : "rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800"}
                     >
-                      {fieldReview.verdict === "incorrect" ? "Incorrect" : "Suspicious"}
+                      {fieldReview.label}
                     </span>
                   )}
                 </span>
@@ -512,9 +524,37 @@ function ReviewFieldsCard({
           </Button>
         )}
 
+        {canRetryAiVerification && (
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full gap-2"
+            disabled={isRetryingAiVerification || isSaving}
+            onClick={() => {
+              onFormError(null);
+              void onRetryAiVerification().catch((error) => {
+                onFormError(readReviewActionError(
+                  error,
+                  "Could not retry AI verification. The existing review remains unchanged.",
+                ));
+              });
+            }}
+            aria-busy={isRetryingAiVerification}
+          >
+            {isRetryingAiVerification ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            )}
+            {isRetryingAiVerification
+              ? "Starting AI verification"
+              : "Retry AI Verification"}
+          </Button>
+        )}
+
         <Button
           onClick={() => void handleConfirm()}
-          disabled={actionState.disabled}
+          disabled={actionState.disabled || isRetryingAiVerification}
           className="w-full gap-2 bg-blue-600 text-white hover:bg-blue-700"
           aria-busy={isSaving}
         >

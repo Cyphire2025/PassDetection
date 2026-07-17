@@ -52,6 +52,9 @@ from app.application.use_cases.passports.list_passport_submissions_use_case impo
 from app.application.use_cases.passports.reextract_passport_submission_use_case import (
     ReextractPassportSubmissionUseCase,
 )
+from app.application.use_cases.passports.retry_post_submission_verification_use_case import (
+    RetryPostSubmissionVerificationUseCase,
+)
 from app.application.use_cases.passports.retry_public_passport_extraction_use_case import (
     RetryPublicPassportExtractionUseCase,
 )
@@ -616,6 +619,14 @@ def _get_staff_approve_passport_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> StaffApprovePassportUseCase:
     return StaffApprovePassportUseCase(
+        passport_repo=PassportSubmissionRepository(session)
+    )
+
+
+def _get_retry_post_submission_verification_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> RetryPostSubmissionVerificationUseCase:
+    return RetryPostSubmissionVerificationUseCase(
         passport_repo=PassportSubmissionRepository(session)
     )
 
@@ -1636,6 +1647,102 @@ async def staff_approve_passport(
                 },
             )
             await _ensure_submission_qr(session, result.id, current_user.id)
+        return await _response_from_dto(result, session=session)
+    except EntityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=exc.message,
+        )
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+    except PassDetectionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=exc.message,
+        )
+
+
+@router.post(
+    "/{submission_id}/retry-ai-verification",
+    response_model=PassportSubmissionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retry AI verification after a temporary provider failure",
+)
+async def retry_post_submission_verification(
+    submission_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
+    retry_use_case: RetryPostSubmissionVerificationUseCase = Depends(
+        _get_retry_post_submission_verification_use_case
+    ),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportSubmissionResponse:
+    try:
+        existing = await get_use_case.execute(submission_id)
+        await AuthorizationPolicy(session).require_confirm_passport(
+            current_user,
+            existing,
+        )
+        retry_result = await retry_use_case.execute(submission_id)
+        result = retry_result.submission
+        verification_job = await PostSubmissionVerificationJobRepository(
+            session
+        ).enqueue(
+            submission_id=result.id,
+            verification_revision=result.post_submission_verification_revision,
+        )
+        await AuditLogRepository(session).record(
+            action="passport_post_submission_verification_retry_requested",
+            entity_type="passport_submission",
+            entity_id=str(result.id),
+            agency_id=result.agency_id,
+            user_id=current_user.id,
+            metadata={
+                "group_id": str(result.group_id),
+                "previous_provider_status": retry_result.previous_provider_status,
+                "previous_reason_code": retry_result.previous_reason_code,
+                "verification_revision": result.post_submission_verification_revision,
+            },
+        )
+
+        # The submission revision and durable outbox job must be committed
+        # together before any worker can claim the new revision.
+        await session.commit()
+        if verification_job.status == "queued":
+            try:
+                task_id = PostSubmissionVerificationDispatcher().dispatch(
+                    job_id=verification_job.id,
+                    submission_id=result.id,
+                    verification_revision=result.post_submission_verification_revision,
+                    background_tasks=background_tasks,
+                )
+            except Exception as exc:
+                # The recovery loop will publish the already-committed outbox
+                # row. A queue outage must not lose or duplicate the request.
+                logger.exception(
+                    "post_submission_verification_retry_dispatch_deferred",
+                    job_id=str(verification_job.id),
+                    error_type=type(exc).__name__,
+                )
+            else:
+                if task_id:
+                    try:
+                        await PostSubmissionVerificationJobRepository(
+                            session
+                        ).set_task_id(verification_job.id, task_id)
+                        await session.commit()
+                    except Exception as exc:
+                        await session.rollback()
+                        logger.warning(
+                            "post_submission_verification_retry_task_id_persist_failed",
+                            job_id=str(verification_job.id),
+                            error_type=type(exc).__name__,
+                        )
         return await _response_from_dto(result, session=session)
     except EntityNotFoundError as exc:
         raise HTTPException(

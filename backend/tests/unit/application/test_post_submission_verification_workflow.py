@@ -154,6 +154,72 @@ class PostSubmissionVerificationWorkflowTests(unittest.TestCase):
             "Z5292390",
         )
 
+    def test_temporary_provider_failure_can_start_a_new_verification_revision(self) -> None:
+        for provider_status in (
+            "network_error",
+            "provider_unavailable",
+            "rate_limited",
+            "timeout",
+        ):
+            with self.subTest(provider_status=provider_status):
+                submission = _submission()
+                fields = _reviewed_fields()
+                submission.submit_client_review(
+                    fields,
+                    client_email="traveller@example.com",
+                    client_phone="+919999999999",
+                )
+                previous_revision = submission.post_submission_verification_revision
+                submission.apply_post_submission_verification(
+                    expected_revision=previous_revision,
+                    decision="needs_review",
+                    verification={
+                        "verification_status": "needs_review",
+                        "provider_status": provider_status,
+                        "reason_code": provider_status,
+                    },
+                )
+
+                revision = submission.request_post_submission_verification_retry()
+
+                self.assertEqual(revision, previous_revision + 1)
+                self.assertEqual(
+                    submission.status,
+                    PassportProcessingStatus.SUBMITTED,
+                )
+                self.assertEqual(submission.confirmed_fields, fields)
+                self.assertIsNone(submission.post_submission_verification)
+                self.assertIsNone(submission.post_submission_verified_at)
+
+    def test_genuine_ai_review_and_approved_states_cannot_be_retried(self) -> None:
+        submission = _submission()
+        submission.submit_client_review(
+            _reviewed_fields(),
+            client_email="traveller@example.com",
+            client_phone="+919999999999",
+        )
+        submission.apply_post_submission_verification(
+            expected_revision=submission.post_submission_verification_revision,
+            decision="needs_review",
+            verification={
+                "verification_status": "needs_review",
+                "provider_status": "verified",
+                "incorrect_fields": ["given_names"],
+            },
+        )
+        with self.assertRaises(ValidationError):
+            submission.request_post_submission_verification_retry()
+
+        for passport_status in (
+            PassportProcessingStatus.SUBMITTED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.STAFF_APPROVED,
+        ):
+            with self.subTest(status=passport_status.value):
+                submission.status = passport_status
+                with self.assertRaises(ValidationError):
+                    submission.request_post_submission_verification_retry()
+
     def test_already_office_visible_statuses_cannot_be_resubmitted(self) -> None:
         for passport_status in (
             PassportProcessingStatus.AI_APPROVED,

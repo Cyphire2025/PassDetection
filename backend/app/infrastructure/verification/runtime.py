@@ -11,6 +11,7 @@ from app.application.interfaces.post_submission_verification import (
     PostSubmissionVerificationResult,
 )
 from app.application.use_cases.passports.verify_submitted_passport_use_case import (
+    TransientPostSubmissionVerificationError,
     VerifySubmittedPassportUseCase,
 )
 from app.core.logging.logger import get_logger
@@ -42,11 +43,13 @@ async def _persist_terminal_needs_review(
     session: AsyncSession,
     submission_id: uuid.UUID,
     verification_revision: int,
+    verification: PostSubmissionVerificationResult | None = None,
 ) -> None:
-    fallback = PostSubmissionVerificationResult.fallback(
+    fallback = verification or PostSubmissionVerificationResult.fallback(
         provider_status="internal_error",
         reason_code="verification_job_failed",
     )
+    reason_code = fallback.reason_code or "verification_job_failed"
     applied = await PassportSubmissionRepository(
         session
     ).apply_post_submission_verification(
@@ -70,7 +73,8 @@ async def _persist_terminal_needs_review(
                 "group_id": str(applied.group_id),
                 "verification_status": "needs_review",
                 "verification_revision": verification_revision,
-                "reason_code": "verification_job_failed",
+                "provider_status": fallback.provider_status,
+                "reason_code": reason_code,
             },
         )
         await session.commit()
@@ -81,6 +85,35 @@ async def _persist_terminal_needs_review(
             submission_id=str(applied.id),
             error_type=type(audit_exc).__name__,
         )
+
+
+async def _handle_job_failure(
+    *,
+    session: AsyncSession,
+    job_id: uuid.UUID,
+    submission_id: uuid.UUID,
+    verification_revision: int,
+    error_code: str,
+    terminal_verification: PostSubmissionVerificationResult | None = None,
+) -> bool | None:
+    """Return True to retry, False after terminal persistence, or None to re-raise."""
+
+    job_repo = PostSubmissionVerificationJobRepository(session)
+    await job_repo.mark_retryable(job_id, error_code)
+    refreshed = await job_repo.get(job_id)
+    if refreshed and refreshed.status == "queued":
+        await session.commit()
+        return True
+    if refreshed and refreshed.status == "failed":
+        await _persist_terminal_needs_review(
+            session=session,
+            submission_id=submission_id,
+            verification_revision=verification_revision,
+            verification=terminal_verification,
+        )
+        return False
+    await session.commit()
+    return None
 
 
 async def run_post_submission_verification(
@@ -156,23 +189,36 @@ async def run_post_submission_verification(
                         )
             await job_repo.mark_succeeded(job_uuid)
             await session.commit()
+        except TransientPostSubmissionVerificationError as exc:
+            await session.rollback()
+            should_retry = await _handle_job_failure(
+                session=session,
+                job_id=job_uuid,
+                submission_id=submission_uuid,
+                verification_revision=verification_revision,
+                error_code=(
+                    exc.verification.reason_code
+                    or exc.verification.provider_status
+                ),
+                terminal_verification=exc.verification,
+            )
+            if should_retry:
+                raise PostSubmissionVerificationRetryRequested() from exc
+            if should_retry is None:
+                raise
         except Exception as exc:
             await session.rollback()
-            job_repo = PostSubmissionVerificationJobRepository(session)
-            await job_repo.mark_retryable(job_uuid, type(exc).__name__)
-            refreshed = await job_repo.get(job_uuid)
-            if refreshed and refreshed.status == "queued":
-                await session.commit()
+            should_retry = await _handle_job_failure(
+                session=session,
+                job_id=job_uuid,
+                submission_id=submission_uuid,
+                verification_revision=verification_revision,
+                error_code=type(exc).__name__,
+            )
+            if should_retry:
                 raise PostSubmissionVerificationRetryRequested() from exc
-            if refreshed and refreshed.status == "failed":
-                await _persist_terminal_needs_review(
-                    session=session,
-                    submission_id=submission_uuid,
-                    verification_revision=verification_revision,
-                )
-                return
-            await session.commit()
-            raise
+            if should_retry is None:
+                raise
 
 
 async def run_post_submission_verification_locally(

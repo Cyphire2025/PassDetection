@@ -97,6 +97,13 @@ export const passportsApi = {
     return data;
   },
 
+  retryAiVerification: async (id: string): Promise<PassportSubmission> => {
+    const { data } = await apiClient.post<PassportSubmission>(
+      API_ENDPOINTS.passports.retryAiVerification(id),
+    );
+    return data;
+  },
+
   reextract: async (
     id: string,
     options: PassportReextractOptions = {},

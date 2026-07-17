@@ -71,14 +71,21 @@ def _provider_fields(
     ]
 
 
-def _response(fields: list[dict[str, object]]) -> httpx.Response:
+def _response(
+    fields: list[dict[str, object]],
+    *,
+    thought_signature: str | None = None,
+) -> httpx.Response:
+    part = {"text": json.dumps({"fields": fields})}
+    if thought_signature is not None:
+        part["thoughtSignature"] = thought_signature
     return httpx.Response(
         200,
         json={
             "candidates": [
                 {
                     "content": {
-                        "parts": [{"text": json.dumps({"fields": fields})}]
+                        "parts": [part]
                     }
                 }
             ]
@@ -108,6 +115,66 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(result.decision.value, "ai_approved")
         self.assertEqual(result.to_dict()["incorrect_fields"], [])
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
+
+    async def test_accepts_bounded_thought_signature_metadata(self) -> None:
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(
+                _provider_fields(),
+                thought_signature="opaque-provider-signature",
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        self.assertEqual(result.provider_status, "verified")
+        self.assertEqual(result.decision.value, "ai_approved")
+
+    async def test_wrong_trailing_letter_is_classified_as_incorrect(self) -> None:
+        submitted = _submitted_fields()
+        submitted["given_names"] = "YOGESH KUMARK"
+        fields = _provider_fields(
+            override={
+                "given_names": {
+                    "verdict": "incorrect",
+                    "observed_value": "YOGESH KUMAR",
+                    "confidence": 0.99,
+                    "reason_code": "different_value",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(
+                fields,
+                thought_signature="opaque-provider-signature",
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        payload = result.to_dict()
+        self.assertEqual(payload["verification_status"], "needs_review")
+        self.assertEqual(payload["incorrect_fields"], ["given_names"])
+        self.assertEqual(payload["suspicious_fields"], [])
+        self.assertEqual(result.model, "gemini-3.5-flash")
 
     async def test_suspicious_equal_value_cannot_be_upgraded_to_correct(self) -> None:
         fields = _provider_fields(
@@ -223,3 +290,40 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(client.prompt_lengths, [160, 160])
         self.assertEqual(result.decision.value, "needs_review")
 
+    async def test_transient_primary_failure_uses_configured_fallback_model(
+        self,
+    ) -> None:
+        requested_models: list[str] = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            requested_models.append(
+                str(request.url).split("/models/", 1)[1].split(":", 1)[0]
+            )
+            if len(requested_models) == 1:
+                return httpx.Response(503)
+            return _response(
+                _provider_fields(),
+                thought_signature="opaque-provider-signature",
+            )
+
+        settings = _settings().model_copy(
+            update={"gemini_fallback_model": "gemini-3.1-flash-lite"}
+        )
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=settings,
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        self.assertEqual(
+            requested_models,
+            ["gemini-3.5-flash", "gemini-3.1-flash-lite"],
+        )
+        self.assertEqual(result.provider_status, "verified")
+        self.assertEqual(result.model, "gemini-3.1-flash-lite")

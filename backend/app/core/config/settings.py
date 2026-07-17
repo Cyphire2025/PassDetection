@@ -167,6 +167,7 @@ class Settings(BaseSettings):
     google_api_key: SecretStr | None = Field(default=None, repr=False)
     gemini_verification_enabled: bool = True
     gemini_model: str = "gemini-3.5-flash"
+    gemini_fallback_model: str = "gemini-3.1-flash-lite"
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
     gemini_max_retries: int = Field(default=1, ge=0, le=1)

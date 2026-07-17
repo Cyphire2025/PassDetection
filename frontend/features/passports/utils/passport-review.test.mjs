@@ -1,11 +1,50 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  canRetryPassportAiVerification,
   getPassportFieldReview,
   getPassportFieldReviewClassName,
   getPassportReviewerLabel,
   getPassportReviewActionState,
 } from "./passport-review.ts";
+
+test("allows AI retry only for temporary provider failures", () => {
+  for (const providerStatus of [
+    "network_error",
+    "provider_unavailable",
+    "rate_limited",
+    "timeout",
+  ]) {
+    assert.equal(
+      canRetryPassportAiVerification({
+        status: "needs_review",
+        post_submission_verification: {
+          provider_status: providerStatus,
+        },
+      }),
+      true,
+    );
+  }
+
+  assert.equal(
+    canRetryPassportAiVerification({
+      status: "needs_review",
+      post_submission_verification: {
+        provider_status: "verified",
+      },
+    }),
+    false,
+  );
+  assert.equal(
+    canRetryPassportAiVerification({
+      status: "ai_approved",
+      post_submission_verification: {
+        provider_status: "provider_unavailable",
+      },
+    }),
+    false,
+  );
+});
 
 test("maps suspicious and incorrect verification decisions to field-level colors", () => {
   const baseVerification = {
@@ -40,20 +79,42 @@ test("maps suspicious and incorrect verification decisions to field-level colors
   const suspicious = getPassportFieldReview(passport, undefined, "surname");
 
   assert.equal(incorrect?.verdict, "incorrect");
+  assert.equal(incorrect?.label, "Incorrect");
   assert.match(getPassportFieldReviewClassName(incorrect?.verdict), /border-red-400/);
   assert.equal(suspicious?.verdict, "suspicious");
+  assert.equal(suspicious?.label, "Suspicious");
   assert.match(getPassportFieldReviewClassName(suspicious?.verdict), /border-amber-400/);
 });
 
-test("marks every field suspicious when AI verification is unavailable", () => {
+test("labels unavailable AI fields as not verified while retaining amber styling", () => {
   const unavailable = getPassportFieldReview(
-    { status: "needs_review", post_submission_verification: null },
+    {
+      status: "needs_review",
+      post_submission_verification: {
+        verification_status: "needs_review",
+        confidence: 0,
+        incorrect_fields: [],
+        suspicious_fields: ["date_of_expiry"],
+        explanation: "AI verification was unavailable.",
+        provider_status: "provider_unavailable",
+        reason_code: "provider_unavailable",
+        model: null,
+        fields: [{
+          field: "date_of_expiry",
+          verdict: "suspicious",
+          observed_value: null,
+          confidence: 0,
+          reason_code: "provider_unavailable",
+        }],
+      },
+    },
     undefined,
     "date_of_expiry",
   );
 
   assert.equal(unavailable?.verdict, "suspicious");
-  assert.equal(unavailable?.reason_code, "verification_result_unavailable");
+  assert.equal(unavailable?.label, "Not verified");
+  assert.equal(unavailable?.reason_code, "provider_unavailable");
   assert.match(getPassportFieldReviewClassName(unavailable?.verdict), /bg-amber-50/);
 });
 

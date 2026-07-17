@@ -22,6 +22,7 @@ export type PassportReviewFieldName = typeof PASSPORT_REVIEW_FIELDS[number];
 
 export type PassportFieldReview = Omit<PassportVerificationField, "verdict"> & {
   verdict: Exclude<PassportVerificationVerdict, "correct">;
+  label: "Incorrect" | "Suspicious" | "Not verified";
 };
 
 type VerificationSource = Pick<
@@ -35,6 +36,22 @@ type ReviewerSource = Pick<
   | "verification_reviewer_name"
 >;
 
+const RETRYABLE_AI_PROVIDER_STATUSES = new Set([
+  "network_error",
+  "provider_unavailable",
+  "rate_limited",
+  "timeout",
+]);
+
+export function canRetryPassportAiVerification(
+  passport: VerificationSource,
+) {
+  if (passport.status !== "needs_review") return false;
+  const providerStatus = passport.post_submission_verification?.provider_status;
+  return typeof providerStatus === "string"
+    && RETRYABLE_AI_PROVIDER_STATUSES.has(providerStatus.trim().toLowerCase());
+}
+
 export function getPassportFieldReview(
   passport: VerificationSource,
   validation: ExtractedPassportFields["field_validation"] | undefined,
@@ -42,11 +59,26 @@ export function getPassportFieldReview(
 ): PassportFieldReview | null {
   if (passport.status === "needs_review") {
     const verification = passport.post_submission_verification;
+    const providerUnavailable = typeof verification?.provider_status === "string"
+      && RETRYABLE_AI_PROVIDER_STATUSES.has(
+        verification.provider_status.trim().toLowerCase(),
+      );
     const decisions = Array.isArray(verification?.fields) ? verification.fields : [];
     const decision = decisions.find((item) => item.field === field);
     if (decision?.verdict === "correct") return null;
     if (decision?.verdict === "suspicious" || decision?.verdict === "incorrect") {
-      return decision as PassportFieldReview;
+      return {
+        field: decision.field,
+        verdict: decision.verdict,
+        observed_value: decision.observed_value,
+        confidence: decision.confidence,
+        reason_code: decision.reason_code,
+        label: providerUnavailable
+          ? "Not verified"
+          : decision.verdict === "incorrect"
+            ? "Incorrect"
+            : "Suspicious",
+      };
     }
 
     const incorrectFields = Array.isArray(verification?.incorrect_fields)
@@ -64,6 +96,11 @@ export function getPassportFieldReview(
       return {
         field,
         verdict: listedVerdict,
+        label: providerUnavailable
+          ? "Not verified"
+          : listedVerdict === "incorrect"
+            ? "Incorrect"
+            : "Suspicious",
         observed_value: null,
         confidence: verification?.confidence ?? 0,
         reason_code: verification?.reason_code ?? "manual_review_required",
@@ -77,6 +114,7 @@ export function getPassportFieldReview(
     return {
       field,
       verdict: "suspicious",
+      label: "Not verified",
       observed_value: null,
       confidence: verification?.confidence ?? 0,
       reason_code: verification?.reason_code ?? "verification_result_unavailable",
@@ -88,6 +126,7 @@ export function getPassportFieldReview(
   return {
     field,
     verdict: issue.severity.toLowerCase() === "error" ? "incorrect" : "suspicious",
+    label: issue.severity.toLowerCase() === "error" ? "Incorrect" : "Suspicious",
     observed_value: null,
     confidence: 0,
     reason_code: issue.message,

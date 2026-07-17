@@ -28,6 +28,12 @@ import type { ExtractedPassportFields, PassportSubmission } from "@/types/passpo
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { uploadApi } from "../api/upload.api";
 import { normalizePassportFile } from "../services/passport-perspective-correction";
+import {
+  EXTRACTION_POLL_INITIAL_DELAY_MS,
+  EXTRACTION_POLL_WINDOW_MS,
+  isTransientExtractionPollError,
+  nextExtractionPollDelay,
+} from "./extraction-polling";
 import { SmartCamera } from "./smart-camera";
 import { VisaSelfieCamera } from "./visa-selfie-camera";
 
@@ -472,8 +478,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setProcessingStage(stageLabel(current.processing_stage ?? current.processing_job_status ?? "queued"));
     }
 
-    const deadline = Date.now() + 65_000;
-    let delayMs = 700;
+    const deadline = Date.now() + EXTRACTION_POLL_WINDOW_MS;
+    let delayMs = EXTRACTION_POLL_INITIAL_DELAY_MS;
     let consecutiveNetworkFailures = 0;
     while (Date.now() < deadline && !signal.aborted) {
       await sleep(delayMs, signal);
@@ -482,15 +488,12 @@ export function UploadFlow({ token }: UploadFlowProps) {
         consecutiveNetworkFailures = 0;
       } catch (pollError: unknown) {
         if (signal.aborted) throw pollError;
+        if (!isTransientExtractionPollError(pollError)) throw pollError;
         consecutiveNetworkFailures += 1;
-        if (consecutiveNetworkFailures >= 4) {
-          return {
-            submission: current,
-            notice: "Your passport pages are saved. The connection was interrupted while reading details, so continue manually or retry reading the stored image.",
-            retryAllowed: true,
-          };
+        if (mountedRef.current) {
+          setProcessingStage("Reconnecting to your saved passport");
         }
-        delayMs = Math.min(2_500, delayMs + 500);
+        delayMs = nextExtractionPollDelay(delayMs, "failure");
         continue;
       }
       if (mountedRef.current) {
@@ -507,12 +510,34 @@ export function UploadFlow({ token }: UploadFlowProps) {
           retryAllowed: canRetryExtractionFor(current),
         };
       }
-      delayMs = Math.min(1600, delayMs + 150);
+      delayMs = nextExtractionPollDelay(delayMs, "success");
     }
     if (signal.aborted) throw new DOMException("Operation cancelled", "AbortError");
+
+    // Reconcile once without a delay at the boundary. This prevents the UI
+    // from presenting stale empty fields when the worker completed during the
+    // final backoff interval.
+    try {
+      current = await uploadApi.getUploadStatus(token, current.id, signal);
+      if (isExtractionTerminal(current)) {
+        if (mountedRef.current) setProcessingProgress(1);
+        return {
+          submission: current,
+          notice: extractionNoticeFor(current),
+          retryAllowed: canRetryExtractionFor(current),
+        };
+      }
+    } catch {
+      // The durable upload remains safe. The review screen explains that
+      // automatic reading could not yet be confirmed and offers a stored-image
+      // retry without asking the traveller to upload again.
+    }
+
     return {
       submission: current,
-      notice: "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
+      notice: consecutiveNetworkFailures > 0
+        ? "Your passport pages are saved. The connection remained unstable while checking the extracted details, so you can continue manually or retry reading the stored image."
+        : "Your passport pages are saved. Automatic reading is taking longer than expected, so you can enter the details manually now or retry reading the stored image.",
       retryAllowed: true,
     };
   };

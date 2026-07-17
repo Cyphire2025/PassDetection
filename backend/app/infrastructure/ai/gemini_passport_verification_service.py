@@ -133,30 +133,28 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             )
         budget = TimeBudget.start(total_timeout)
         payload = self._request_payload(image_content, content_type, extracted_fields)
-        endpoint = (
-            f"{self._settings.gemini_api_base_url.rstrip('/')}"
-            f"/models/{self._settings.gemini_model}:generateContent"
-        )
         headers = {
             "x-goog-api-key": api_key,
             "Content-Type": "application/json",
         }
         if self._http_client is not None:
-            response, failure_status, attempts = await self._request_with_retries(
-                self._http_client,
-                endpoint=endpoint,
-                headers=headers,
-                payload=payload,
-                budget=budget,
-            )
-        else:
-            async with httpx.AsyncClient() as client:
-                response, failure_status, attempts = await self._request_with_retries(
-                    client,
-                    endpoint=endpoint,
+            response, failure_status, attempts, provider_model = (
+                await self._request_with_retries(
+                    self._http_client,
                     headers=headers,
                     payload=payload,
                     budget=budget,
+                )
+            )
+        else:
+            async with httpx.AsyncClient() as client:
+                response, failure_status, attempts, provider_model = (
+                    await self._request_with_retries(
+                        client,
+                        headers=headers,
+                        payload=payload,
+                        budget=budget,
+                    )
                 )
 
         if response is None:
@@ -165,12 +163,14 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 "gemini_passport_verification_fallback",
                 reason=status,
                 attempts=attempts,
+                model=provider_model,
             )
             return self._fallback(
                 original,
                 status=status,
                 started=started,
                 attempts=attempts,
+                model=provider_model,
             )
 
         try:
@@ -179,16 +179,25 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             provider_result = self._extract_provider_json(response.json())
             merged, corrected, filled = self._merge(original, provider_result)
         except (KeyError, TypeError, ValueError, json.JSONDecodeError):
-            logger.warning("gemini_passport_verification_fallback", reason="invalid_response")
+            logger.warning(
+                "gemini_passport_verification_fallback",
+                reason="invalid_response",
+                model=provider_model,
+            )
             return self._fallback(
                 original,
                 status="invalid_response",
                 started=started,
                 attempts=attempts,
+                model=provider_model,
             )
 
         provider_status = str(provider_result["s"])
-        accepted_status = "verified" if provider_status == "match" and not corrected and not filled else "enhanced"
+        accepted_status = (
+            "verified"
+            if provider_status == "match" and not corrected and not filled
+            else "enhanced"
+        )
         metadata = self._metadata(
             status=accepted_status,
             started=started,
@@ -196,6 +205,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             filled_fields=filled,
             provider_status=provider_status,
             attempts=attempts,
+            model=provider_model,
         )
         merged["ai_verification"] = metadata
         logger.info(
@@ -203,6 +213,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             status=accepted_status,
             corrected_count=len(corrected),
             filled_count=len(filled),
+            model=provider_model,
             duration_ms=metadata["duration_ms"],
         )
         return PassportVerificationResult(merged_fields=merged, metadata=metadata)
@@ -211,37 +222,45 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         self,
         client: httpx.AsyncClient,
         *,
-        endpoint: str,
         headers: dict[str, str],
         payload: dict[str, Any],
         budget: TimeBudget,
-    ) -> tuple[httpx.Response | None, str | None, int]:
-        max_attempts = 1 + min(1, self._settings.gemini_max_retries)
+    ) -> tuple[httpx.Response | None, str | None, int, str]:
+        model_route = self._model_route()
         attempts = 0
         last_status = "deadline_exhausted"
+        last_model = model_route[0]
 
-        for attempt in range(1, max_attempts + 1):
+        for attempt, model in enumerate(model_route, start=1):
             remaining = budget.remaining()
             if remaining <= 0.01:
                 break
             attempts = attempt
+            last_model = model
+            attempts_left = len(model_route) - attempt + 1
+            attempt_timeout = (
+                remaining
+                if attempts_left == 1
+                else max(0.01, remaining / attempts_left)
+            )
             attempt_started = time.perf_counter()
             timeout = httpx.Timeout(
-                remaining,
-                connect=min(2.0, remaining),
-                read=remaining,
-                write=min(3.0, remaining),
-                pool=min(1.0, remaining),
+                attempt_timeout,
+                connect=min(2.0, attempt_timeout),
+                read=attempt_timeout,
+                write=min(3.0, attempt_timeout),
+                pool=min(1.0, attempt_timeout),
             )
+            endpoint = self._endpoint_for_model(model)
             transient = False
             logger.info(
                 "gemini_passport_verification_request_started",
-                model=self._settings.gemini_model,
+                model=model,
                 attempt=attempt,
-                timeout_ms=round(remaining * 1000, 2),
+                timeout_ms=round(attempt_timeout * 1000, 2),
             )
             try:
-                async with asyncio.timeout(remaining):
+                async with asyncio.timeout(attempt_timeout):
                     response = await client.post(
                         endpoint,
                         headers=headers,
@@ -254,7 +273,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 response = None
                 logger.warning(
                     "gemini_passport_verification_response_received",
-                    model=self._settings.gemini_model,
+                    model=model,
                     attempt=attempt,
                     provider_status=last_status,
                     duration_ms=round(
@@ -268,7 +287,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 response = None
                 logger.warning(
                     "gemini_passport_verification_response_received",
-                    model=self._settings.gemini_model,
+                    model=model,
                     attempt=attempt,
                     provider_status=last_status,
                     duration_ms=round(
@@ -278,10 +297,10 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 )
             except httpx.HTTPError:
                 # Configuration/request-construction failures are not made
-                # healthier by retrying the same request.
+                # healthier by switching models.
                 logger.warning(
                     "gemini_passport_verification_response_received",
-                    model=self._settings.gemini_model,
+                    model=model,
                     attempt=attempt,
                     provider_status="provider_request_error",
                     duration_ms=round(
@@ -289,11 +308,11 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                         2,
                     ),
                 )
-                return None, "provider_request_error", attempts
+                return None, "provider_request_error", attempts, last_model
             else:
                 logger.info(
                     "gemini_passport_verification_response_received",
-                    model=self._settings.gemini_model,
+                    model=model,
                     attempt=attempt,
                     http_status=response.status_code,
                     response_bytes=len(response.content),
@@ -304,22 +323,35 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 )
                 last_status, transient = self._response_failure(response.status_code)
                 if last_status is None:
-                    return response, None, attempts
+                    return response, None, attempts, model
 
             if (
                 not transient
-                or attempt >= max_attempts
+                or attempt >= len(model_route)
                 or not budget.has_time(0.01)
             ):
-                return None, last_status, attempts
+                return None, last_status, attempts, last_model
             logger.info(
                 "gemini_passport_verification_retrying",
                 reason=last_status,
                 completed_attempt=attempt,
+                next_model=model_route[attempt],
                 remaining_ms=round(budget.remaining() * 1000, 2),
             )
 
-        return None, last_status, attempts
+        return None, last_status, attempts, last_model
+
+    def _model_route(self) -> tuple[str, ...]:
+        primary = self._settings.gemini_model.strip()
+        fallback = self._settings.gemini_fallback_model.strip() or primary
+        max_attempts = 1 + min(1, self._settings.gemini_max_retries)
+        return (primary, fallback)[:max_attempts]
+
+    def _endpoint_for_model(self, model: str) -> str:
+        return (
+            f"{self._settings.gemini_api_base_url.rstrip('/')}"
+            f"/models/{model}:generateContent"
+        )
 
     @staticmethod
     def _response_failure(status_code: int) -> tuple[str | None, bool]:
@@ -509,11 +541,13 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         status: str,
         started: float,
         attempts: int,
+        model: str | None = None,
     ) -> PassportVerificationResult:
         metadata = self._metadata(
             status=status,
             started=started,
             attempts=attempts,
+            model=model,
         )
         merged = dict(original)
         merged["ai_verification"] = metadata
@@ -528,11 +562,12 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         filled_fields: list[str] | None = None,
         provider_status: str | None = None,
         attempts: int = 0,
+        model: str | None = None,
     ) -> dict[str, Any]:
         return {
             "status": status,
             "available": status in {"verified", "enhanced"},
-            "model": self._settings.gemini_model,
+            "model": model or self._settings.gemini_model,
             "provider_status": provider_status,
             "attempts": attempts,
             "corrected_fields": corrected_fields or [],

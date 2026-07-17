@@ -131,6 +131,19 @@ export function useStaffApprovePassportSubmission(id: string) {
   });
 }
 
+export function useRetryPassportAiVerification(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => passportsApi.retryAiVerification(id),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
 export function useReextractPassportSubmission() {
   const queryClient = useQueryClient();
 

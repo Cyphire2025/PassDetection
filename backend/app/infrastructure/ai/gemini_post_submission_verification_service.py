@@ -37,6 +37,7 @@ _REASON_CODES: Final[tuple[str, ...]] = (
 )
 _MAX_PROVIDER_RESPONSE_BYTES: Final[int] = 256 * 1024
 _MAX_PROVIDER_TEXT_CHARACTERS: Final[int] = 64 * 1024
+_MAX_THOUGHT_SIGNATURE_CHARACTERS: Final[int] = 64 * 1024
 _MAX_OBSERVED_VALUE_CHARACTERS: Final[int] = 160
 
 _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
@@ -340,7 +341,8 @@ class GeminiPostSubmissionVerificationService(
         submitted_fields: dict[str, Any],
     ) -> PostSubmissionVerificationResult:
         api_key = self._api_key()
-        model = self._settings.gemini_model
+        models = self._model_candidates()
+        model = models[0]
         if not self._settings.gemini_verification_enabled:
             return PostSubmissionVerificationResult.fallback(
                 provider_status="disabled",
@@ -356,10 +358,6 @@ class GeminiPostSubmissionVerificationService(
                 submitted_fields=submitted_fields,
             )
 
-        endpoint = (
-            f"{self._settings.gemini_api_base_url.rstrip('/')}"
-            f"/models/{model}:generateContent"
-        )
         timeout_seconds = self._settings.gemini_timeout_seconds
         payload = self._request_payload(
             image_content,
@@ -372,17 +370,28 @@ class GeminiPostSubmissionVerificationService(
         last_transport_reason = "provider_network_error"
         max_attempts = self._settings.gemini_max_retries + 1
         for attempt in range(max_attempts):
+            model = models[min(attempt, len(models) - 1)]
+            endpoint = (
+                f"{self._settings.gemini_api_base_url.rstrip('/')}"
+                f"/models/{model}:generateContent"
+            )
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 last_transport_status = "timeout"
                 last_transport_reason = "provider_timeout"
                 break
+            attempts_left = max_attempts - attempt
+            attempt_timeout = (
+                remaining
+                if attempts_left == 1
+                else max(0.01, remaining / attempts_left)
+            )
             timeout = httpx.Timeout(
-                remaining,
-                connect=min(2.0, remaining),
-                read=remaining,
-                write=min(3.0, remaining),
-                pool=min(1.0, remaining),
+                attempt_timeout,
+                connect=min(2.0, attempt_timeout),
+                read=attempt_timeout,
+                write=min(3.0, attempt_timeout),
+                pool=min(1.0, attempt_timeout),
             )
             attempt_started = time.monotonic()
             logger.info(
@@ -397,7 +406,7 @@ class GeminiPostSubmissionVerificationService(
                     api_key=api_key,
                     payload=payload,
                     timeout=timeout,
-                    timeout_seconds=remaining,
+                    timeout_seconds=attempt_timeout,
                 )
             except (TimeoutError, httpx.TimeoutException):
                 last_transport_status = "timeout"
@@ -484,6 +493,7 @@ class GeminiPostSubmissionVerificationService(
         }
         logger.info(
             "post_submission_verification_completed",
+            model=model,
             decision=result.decision.value,
             correct_count=counts["correct"],
             suspicious_count=counts["suspicious"],
@@ -575,8 +585,18 @@ class GeminiPostSubmissionVerificationService(
         if not isinstance(parts, list) or len(parts) != 1:
             raise ValueError("Gemini response must contain one text part")
         part = parts[0]
-        if not isinstance(part, dict) or set(part) != {"text"}:
-            raise ValueError("Gemini response part must contain only text")
+        if not isinstance(part, dict) or not set(part).issubset(
+            {"text", "thoughtSignature"}
+        ):
+            raise ValueError("Gemini response part contains unexpected data")
+        if "text" not in part:
+            raise ValueError("Gemini response part must contain text")
+        thought_signature = part.get("thoughtSignature")
+        if thought_signature is not None and (
+            not isinstance(thought_signature, str)
+            or len(thought_signature) > _MAX_THOUGHT_SIGNATURE_CHARACTERS
+        ):
+            raise ValueError("Gemini thought signature must be a bounded string")
         text = part["text"]
         if not isinstance(text, str) or len(text) > _MAX_PROVIDER_TEXT_CHARACTERS:
             raise ValueError("Gemini response text must be a bounded string")
@@ -619,6 +639,16 @@ class GeminiPostSubmissionVerificationService(
     def _api_key(self) -> str:
         secret = self._settings.google_api_key
         return secret.get_secret_value().strip() if secret else ""
+
+    def _model_candidates(self) -> tuple[str, ...]:
+        configured = (
+            self._settings.gemini_model,
+            self._settings.gemini_fallback_model,
+        )
+        candidates = tuple(
+            dict.fromkeys(model.strip() for model in configured if model.strip())
+        )
+        return candidates or ("gemini-3.5-flash",)
 
     @staticmethod
     def _safe_content_type(content_type: str) -> str:

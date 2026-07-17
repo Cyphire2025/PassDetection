@@ -22,6 +22,25 @@ from app.domain.repositories.interfaces import (
 
 logger = get_logger(__name__)
 
+_TRANSIENT_PROVIDER_STATUSES = frozenset(
+    {
+        "network_error",
+        "provider_unavailable",
+        "rate_limited",
+        "timeout",
+    }
+)
+
+
+class TransientPostSubmissionVerificationError(RuntimeError):
+    """Ask the durable worker to retry without persisting a false AI decision."""
+
+    def __init__(self, verification: PostSubmissionVerificationResult) -> None:
+        self.verification = verification
+        super().__init__(
+            verification.reason_code or verification.provider_status
+        )
+
 
 class VerifySubmittedPassportUseCase:
     def __init__(
@@ -81,6 +100,15 @@ class VerifySubmittedPassportUseCase:
                     reason_code="verification_internal_error",
                     submitted_fields=submitted_fields,
                 )
+            if verification.provider_status in _TRANSIENT_PROVIDER_STATUSES:
+                logger.warning(
+                    "post_submission_verification_transient_provider_failure",
+                    submission_id=str(submission_id),
+                    provider_status=verification.provider_status,
+                    reason_code=verification.reason_code,
+                    model=verification.model,
+                )
+                raise TransientPostSubmissionVerificationError(verification)
 
         applied = await self._passport_repo.apply_post_submission_verification(
             submission_id=submission_id,

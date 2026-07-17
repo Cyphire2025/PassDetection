@@ -104,6 +104,15 @@ CONFIRMED_PASSPORT_STATUS_VALUES = (
     PassportProcessingStatus.STAFF_APPROVED.value,
 )
 
+RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES = frozenset(
+    {
+        "network_error",
+        "provider_unavailable",
+        "rate_limited",
+        "timeout",
+    }
+)
+
 
 class PassportExtractionStatus(str, Enum):
     """Independent OCR state after image persistence succeeds."""
@@ -854,6 +863,46 @@ class PassportSubmission:
         self.post_submission_verified_at = now
         self.updated_at = now
         return True
+
+    def request_post_submission_verification_retry(self) -> int:
+        """Requeue only a prior decision caused by a temporary AI provider failure."""
+
+        if self.status != PassportProcessingStatus.NEEDS_REVIEW:
+            raise ValidationError(
+                "AI verification can only be retried after a temporary provider failure.",
+                field="status",
+            )
+        verification = self.post_submission_verification
+        provider_status = (
+            str(verification.get("provider_status", "")).strip().lower()
+            if isinstance(verification, dict)
+            else ""
+        )
+        if provider_status not in RETRYABLE_POST_SUBMISSION_PROVIDER_STATUSES:
+            raise ValidationError(
+                "This passport received an AI review result and cannot be re-verified automatically.",
+                field="post_submission_verification",
+            )
+        if not self.image_s3_key or self.image_s3_key.startswith("excel-imports/"):
+            raise ValidationError(
+                "A stored passport front image is required for AI verification.",
+                field="image_s3_key",
+            )
+        if not self.confirmed_fields:
+            raise ValidationError(
+                "Submitted passport fields are required for AI verification.",
+                field="confirmed_fields",
+            )
+
+        self.post_submission_verification_revision += 1
+        self.status = PassportProcessingStatus.SUBMITTED
+        self.post_submission_verification = None
+        self.post_submission_verified_at = None
+        self.verification_reviewed_by_user_id = None
+        self.verification_reviewer_name = None
+        self.verification_reviewed_at = None
+        self.updated_at = _utcnow()
+        return self.post_submission_verification_revision
 
     def staff_approve_verification(
         self,

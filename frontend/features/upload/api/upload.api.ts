@@ -48,7 +48,13 @@ export const uploadApi = {
   ): Promise<PassportSubmission> => {
     const response = await apiClient.get<PassportSubmission>(
       API_ENDPOINTS.passports.uploadStatus(token, submissionId),
-      { signal },
+      {
+        signal,
+        // Status reads are intentionally short and retried by the upload flow.
+        // A stalled proxy request must not consume the entire reconciliation
+        // window on an unreliable mobile connection.
+        timeout: 10_000,
+      },
     );
     return response.data;
   },
