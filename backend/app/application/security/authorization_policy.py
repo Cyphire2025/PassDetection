@@ -7,6 +7,7 @@ from typing import Any
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
@@ -27,17 +28,34 @@ class AuthorizationPolicy:
         self._session = session
 
     @staticmethod
-    def manager_group_visibility_filter(user: User):
+    def manager_group_visibility_filter(user: User) -> ColumnElement[bool]:
         return (ClientGroupModel.created_by_user_id == user.id) | ClientGroupModel.id.in_(
             select(ManagerGroupAccessModel.group_id).where(ManagerGroupAccessModel.manager_id == user.id)
         )
+
+    @staticmethod
+    def manager_passport_visibility_filter(user: User) -> ColumnElement[bool]:
+        """Scope passports by group id without adding an unjoined group table."""
+
+        owned_group_ids = select(ClientGroupModel.id).where(
+            ClientGroupModel.created_by_user_id == user.id
+        )
+        assigned_group_ids = select(ManagerGroupAccessModel.group_id).where(
+            ManagerGroupAccessModel.manager_id == user.id
+        )
+        return PassportSubmissionModel.group_id.in_(
+            owned_group_ids
+        ) | PassportSubmissionModel.group_id.in_(assigned_group_ids)
 
     @staticmethod
     def apply_group_visibility_scope(stmt, user: User):  # type: ignore[no-untyped-def]
         if user.role == UserRole.SUPER_ADMIN:
             return stmt
         stmt = stmt.where(ClientGroupModel.agency_id == user.agency_id)
-        if user.role == UserRole.AGENCY_STAFF:
+        if user.role in {
+            UserRole.AGENCY_MANAGER,
+            UserRole.AGENCY_STAFF,
+        }:
             stmt = stmt.where(AuthorizationPolicy.manager_group_visibility_filter(user))
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
@@ -55,8 +73,13 @@ class AuthorizationPolicy:
         if user.role == UserRole.SUPER_ADMIN:
             return stmt
         stmt = stmt.where(PassportSubmissionModel.agency_id == user.agency_id)
-        if user.role == UserRole.AGENCY_STAFF:
-            stmt = stmt.where(AuthorizationPolicy.manager_group_visibility_filter(user))
+        if user.role in {
+            UserRole.AGENCY_MANAGER,
+            UserRole.AGENCY_STAFF,
+        }:
+            stmt = stmt.where(
+                AuthorizationPolicy.manager_passport_visibility_filter(user)
+            )
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
                 PassportSubmissionModel.id.in_(
@@ -101,8 +124,10 @@ class AuthorizationPolicy:
             return True
         if not user.agency_id or passport.agency_id != user.agency_id:
             return False
-        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
+        if user.role == UserRole.AGENCY_ADMIN:
             return True
+        if user.role == UserRole.AGENCY_MANAGER:
+            return await self.manager_can_access_group(user.id, passport.group_id)
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, passport.group_id)
         if user.role == UserRole.AGENCY_COORDINATOR:
@@ -143,8 +168,10 @@ class AuthorizationPolicy:
             return False
         if permanent:
             return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN}
-        if user.role in {UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER}:
+        if user.role == UserRole.AGENCY_ADMIN:
             return True
+        if user.role == UserRole.AGENCY_MANAGER:
+            return await self.can_manage_group(user, group)
         if user.role == UserRole.AGENCY_STAFF:
             return await self.manager_can_access_group(user.id, group.id)
         return False

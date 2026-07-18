@@ -28,6 +28,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     _activate_recipient_models,
     _apply_provider_status_to_delivery_state,
     _excel_contact_preview_response,
+    _extract_status_error,
     _normalized_recipient_inputs,
     _parse_excel_contacts,
     _provider_status_state_predicates,
@@ -53,6 +54,27 @@ def test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type() -> No
     assert WhatsAppRecipientMessageStateModel.__table__.c.message_type.type.length == 64
     assert WhatsAppMessageLogModel.__table__.c.message_type.type.length == 64
     assert "removed_at" in WhatsAppBroadcastRecipientModel.__table__.c
+
+
+def test_webhook_delivery_error_redacts_raw_meta_message() -> None:
+    error = _extract_status_error(
+        {
+            "errors": [
+                {
+                    "code": 131026,
+                    "message": "Raw provider recipient detail",
+                    "details": "Sensitive upstream diagnostic",
+                }
+            ]
+        }
+    )
+
+    assert error == (
+        "WHATSAPP_PROVIDER_DELIVERY_FAILED: "
+        "Meta reported that this message was not delivered (131026)"
+    )
+    assert "Raw provider" not in error
+    assert "Sensitive upstream" not in error
 
 
 def test_recipient_checklist_only_marks_provider_accepted_states_as_sent() -> None:
@@ -298,6 +320,15 @@ async def test_worker_success_exits_retry_loop_and_remains_submitted(
     )
 
     assert send_template.await_count == 1
+    send_kwargs = send_template.await_args.kwargs
+    assert send_kwargs["message_type"] == "welcome"
+    assert send_kwargs["header_parameters"] == []
+    assert send_kwargs["parameters"] == [
+        "Welcome aboard",
+        "Please contact your company travel coordinator.",
+    ]
+    assert "Aarav" not in " ".join(send_kwargs["parameters"])
+    assert "Bluechip" not in " ".join(send_kwargs["parameters"])
     assert load_recipient.await_count == 2
     assert log.status == "submitted"
     assert log.provider_message_id == "wamid.success"

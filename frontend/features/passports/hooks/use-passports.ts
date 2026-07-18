@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
+import type { StaffApprovalRequest } from "@/types/passport.types";
 import { passportsApi } from "../api/passports.api";
 import type { PassportDocumentImportChunkRequest, PassportDocumentImportRequest } from "../api/passports.api";
+import { getStaffApprovalErrorFeedback } from "../utils/passport-review";
 import { isPassportWorkflowPending } from "../utils/passport-workflow";
 
 export function usePassports() {
@@ -120,13 +122,30 @@ export function useStaffApprovePassportSubmission(id: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (confirmedFields?: Record<string, string>) => (
-      passportsApi.staffApprove(id, confirmedFields)
+    mutationFn: (request: StaffApprovalRequest) => (
+      passportsApi.staffApprove(id, request)
     ),
-    onSuccess: (updated) => {
-      queryClient.setQueryData(QUERY_KEYS.passports.detail(id), updated);
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        QUERY_KEYS.passports.detail(id),
+        result.submission,
+      );
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.passports.detail(id),
+      });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+    onError: (error) => {
+      const feedback = getStaffApprovalErrorFeedback(error);
+      if (
+        feedback.kind === "record_changed"
+        || feedback.kind === "unavailable"
+      ) {
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.passports.detail(id),
+        });
+      }
     },
   });
 }

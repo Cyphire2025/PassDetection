@@ -12,6 +12,11 @@ from app.core.config.settings import Settings
 from app.infrastructure.ai.gemini_passport_verification_service import (
     GeminiPassportVerificationService,
 )
+from app.infrastructure.ai_priority.metrics import (
+    AiPriorityMetrics,
+    InMemoryAiMetricsStore,
+)
+from app.infrastructure.observability.metrics import MetricsRegistry
 
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 
@@ -28,11 +33,23 @@ def _settings(**overrides) -> Settings:  # type: ignore[no-untyped-def]
 
 
 def _gemini_response(payload: dict) -> httpx.Response:
+    classified_payload = {
+        "d": "passport_data_page",
+        "p": "data_page",
+        "q": "acceptable",
+        "dc": 0.99,
+        "r": "passport_confirmed",
+        **payload,
+    }
     return httpx.Response(
         200,
         json={
             "candidates": [
-                {"content": {"parts": [{"text": json.dumps(payload)}]}}
+                {
+                    "content": {
+                        "parts": [{"text": json.dumps(classified_payload)}]
+                    }
+                }
             ]
         },
     )
@@ -244,8 +261,89 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["status"], "invalid_response")
         self.assertNotIn("unknown", result.merged_fields)
 
+    async def test_high_confidence_passport_cover_is_rejected_safely(self) -> None:
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(
+                {
+                    "d": "passport_cover",
+                    "p": "cover",
+                    "dc": 0.98,
+                    "r": "passport_cover",
+                    "s": "unreadable",
+                    "f": [],
+                }
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"cover-image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": "LOCAL OCR"},
+            )
+
+        self.assertEqual(result.metadata["status"], "passport_cover")
+        self.assertEqual(result.metadata["document_class"], "passport_cover")
+        self.assertEqual(result.metadata["reason_code"], "passport_cover")
+        self.assertFalse(result.metadata["available"])
+        self.assertEqual(result.merged_fields["surname"], "LOCAL OCR")
+
+    async def test_high_confidence_aadhaar_is_wrong_document(self) -> None:
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(
+                {
+                    "d": "aadhaar",
+                    "p": "not_applicable",
+                    "dc": 0.97,
+                    "r": "wrong_document",
+                    "s": "unreadable",
+                    "f": [],
+                }
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(b"aadhaar-image", content_type="image/jpeg", extracted_fields={})
+
+        self.assertEqual(result.metadata["status"], "wrong_document")
+        self.assertEqual(result.metadata["document_class"], "aadhaar")
+        self.assertNotIn("processing_note", result.merged_fields)
+
+    async def test_uncertain_document_classification_stays_generic(self) -> None:
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(
+                {
+                    "d": "uncertain",
+                    "p": "unknown",
+                    "dc": 0.42,
+                    "r": "classification_uncertain",
+                    "s": "unreadable",
+                    "f": [],
+                }
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(b"unclear-image", content_type="image/jpeg", extracted_fields={})
+
+        self.assertEqual(result.metadata["status"], "document_uncertain")
+        self.assertEqual(result.metadata["reason_code"], "classification_uncertain")
+
     async def test_rate_limit_retries_once_then_falls_back(self) -> None:
         endpoints: list[str] = []
+        shared_metrics = InMemoryAiMetricsStore()
 
         async def handler(request: httpx.Request) -> httpx.Response:
             endpoints.append(str(request.url))
@@ -255,6 +353,10 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
+                priority_metrics=AiPriorityMetrics(
+                    MetricsRegistry(),
+                    shared_metrics,
+                ),
             ).verify(
                 b"image",
                 content_type="image/jpeg",
@@ -268,6 +370,15 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["status"], "rate_limited")
         self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
         self.assertEqual(result.merged_fields["surname"], "KHANNA")
+        counters = shared_metrics.snapshot()["counters"]
+        self.assertEqual(
+            counters["ai_provider.events.total.extraction.upstream_429"],
+            2,
+        )
+        self.assertEqual(
+            counters["ai_provider.events.total.extraction.retry"],
+            1,
+        )
 
     async def test_zero_retries_does_not_attempt_fallback(self) -> None:
         endpoints: list[str] = []
@@ -308,6 +419,31 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(calls, 0)
         self.assertEqual(result.metadata["status"], "not_configured")
+
+    async def test_post_submit_flag_does_not_disable_interactive_gemini(
+        self,
+    ) -> None:
+        calls = 0
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            nonlocal calls
+            calls += 1
+            return _gemini_response({"s": "match", "f": []})
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(gemini_verification_enabled=False),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": "KHANNA"},
+            )
+
+        self.assertEqual(calls, 1)
+        self.assertEqual(result.metadata["status"], "verified")
 
     async def test_permission_denied_falls_back_to_ocr(self) -> None:
         calls = 0

@@ -68,7 +68,7 @@ class AgencyRepository(IAgencyRepository):
         model = self._to_model(agency)
         self._session.add(model)
         await self._session.flush()
-        logger.info("agency_created", agency_id=str(agency.id), name=agency.name)
+        logger.info("agency_created", agency_id=str(agency.id))
         return agency
 
     async def update(self, agency: Agency) -> Agency:

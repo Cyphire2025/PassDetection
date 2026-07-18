@@ -21,6 +21,7 @@ _OPTION_FLAGS = {
     "base_city_enabled": False,
     "staff_code_enabled": False,
     "meal_preference_enabled": False,
+    "relation_with_qualifier_enabled": False,
 }
 
 
@@ -98,6 +99,7 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
         "Base City",
         "Staff Code",
         "Meal Preference",
+        "Relation with Qualifier",
     }.isdisjoint(headers)
     assert values["Surname"] == "VASHISTHA"
     assert values["Given Names"] == "NIPUN KUMAR"
@@ -157,6 +159,33 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
     assert second_values["Base City"] == "Mumbai"
     assert second_values["Staff Code"] == "GC-77"
     assert second_values["Meal Preference"] == "Jain"
+
+
+def test_export_includes_relation_snapshot_only_for_enabled_groups() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(group_id)
+    submission.qualifier_enabled_snapshot = True
+    submission.qualifier_is_self = False
+    submission.qualifier_relation_code = "spouse"
+    submission.qualifier_relation_label = "Spouse"
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Qualifier Group",
+            group_details={
+                group_id: {
+                    "name": "Qualifier Group",
+                    **_OPTION_FLAGS,
+                    "relation_with_qualifier_enabled": True,
+                }
+            },
+        )
+    )
+    headers, values = _row_values(worksheet)
+
+    assert "Relation with Qualifier" in headers
+    assert values["Relation with Qualifier"] == "Spouse"
 
 
 def test_export_neutralizes_formula_like_text_after_leading_whitespace() -> None:

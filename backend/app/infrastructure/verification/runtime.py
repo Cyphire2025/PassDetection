@@ -11,14 +11,18 @@ from app.application.interfaces.post_submission_verification import (
     PostSubmissionVerificationResult,
 )
 from app.application.use_cases.passports.verify_submitted_passport_use_case import (
-    TransientPostSubmissionVerificationError,
     VerifySubmittedPassportUseCase,
 )
 from app.core.logging.logger import get_logger
 from app.infrastructure.ai.gemini_post_submission_verification_service import (
     GeminiPostSubmissionVerificationService,
 )
-from app.infrastructure.database.session import AsyncSessionFactory
+from app.infrastructure.ai_priority import (
+    AiPriorityAdmissionDeferred,
+    AiPriorityCoordinator,
+    MaintainPriorityLease,
+    get_ai_priority_coordinator,
+)
 from app.infrastructure.qr.approved_passenger_qr_issuer import (
     ensure_approved_passenger_qr,
 )
@@ -26,7 +30,6 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
-from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.job_repository import (
     PostSubmissionVerificationJobRepository,
 )
@@ -121,7 +124,33 @@ async def run_post_submission_verification(
     job_id: str,
     submission_id: str,
     verification_revision: int,
+    priority_coordinator: AiPriorityCoordinator | None = None,
 ) -> None:
+    priority = priority_coordinator or get_ai_priority_coordinator()
+    decision = await asyncio.to_thread(priority.try_start_verification, job_id)
+    if not decision.admitted:
+        raise AiPriorityAdmissionDeferred(
+            workload="verification",
+            reason=decision.reason,
+            retry_after_ms=decision.retry_after_ms,
+        )
+    async with MaintainPriorityLease(priority, decision.lease):
+        await _run_post_submission_verification_admitted(
+            job_id=job_id,
+            submission_id=submission_id,
+            verification_revision=verification_revision,
+        )
+
+
+async def _run_post_submission_verification_admitted(
+    *,
+    job_id: str,
+    submission_id: str,
+    verification_revision: int,
+) -> None:
+    from app.infrastructure.database.session import AsyncSessionFactory
+    from app.infrastructure.storage.minio_repository import MinioStorageRepository
+
     job_uuid = uuid.UUID(job_id)
     submission_uuid = uuid.UUID(submission_id)
     async with AsyncSessionFactory() as session:
@@ -189,23 +218,6 @@ async def run_post_submission_verification(
                         )
             await job_repo.mark_succeeded(job_uuid)
             await session.commit()
-        except TransientPostSubmissionVerificationError as exc:
-            await session.rollback()
-            should_retry = await _handle_job_failure(
-                session=session,
-                job_id=job_uuid,
-                submission_id=submission_uuid,
-                verification_revision=verification_revision,
-                error_code=(
-                    exc.verification.reason_code
-                    or exc.verification.provider_status
-                ),
-                terminal_verification=exc.verification,
-            )
-            if should_retry:
-                raise PostSubmissionVerificationRetryRequested() from exc
-            if should_retry is None:
-                raise
         except Exception as exc:
             await session.rollback()
             should_retry = await _handle_job_failure(
@@ -237,3 +249,5 @@ async def run_post_submission_verification_locally(
             return
         except PostSubmissionVerificationRetryRequested:
             await asyncio.sleep(2)
+        except AiPriorityAdmissionDeferred as exc:
+            await asyncio.sleep(exc.retry_after_ms / 1_000)

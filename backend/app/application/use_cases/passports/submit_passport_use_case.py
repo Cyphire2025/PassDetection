@@ -12,7 +12,8 @@ from app.application.dtos.passport_dtos import (
 )
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportSubmission
+from app.core.security.upload_session import is_valid_upload_credential
+from app.domain.entities.entities import ClientGroup, PassportSubmission, QualifierSelection
 from app.domain.exceptions.exceptions import (
     EntityNotFoundError,
     GroupClosedError,
@@ -24,6 +25,10 @@ from app.domain.repositories.interfaces import (
     IClientGroupRepository,
     IObjectStorageRepository,
     IPassportSubmissionRepository,
+    IQualifierSelectionRepository,
+)
+from app.domain.value_objects.qualifier_relations import (
+    hash_qualifier_selection_token,
 )
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
@@ -40,11 +45,13 @@ class SubmitPassportUseCase:
         passport_repo: IPassportSubmissionRepository,
         storage_repo: IObjectStorageRepository,
         processing_job_repo: PassportProcessingJobRepository | None = None,
+        qualifier_selection_repo: IQualifierSelectionRepository | None = None,
     ) -> None:
         self._client_group_repo = client_group_repo
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
         self._processing_job_repo = processing_job_repo
+        self._qualifier_selection_repo = qualifier_selection_repo
 
     async def execute(
         self,
@@ -58,42 +65,48 @@ class SubmitPassportUseCase:
         *,
         acquisition_mode: str = "file",
         upload_idempotency_key: str | None = None,
+        qualifier_selection_token: str | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(token)
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
 
         normalized_key = upload_idempotency_key.strip() if upload_idempotency_key else None
+        if normalized_key and not is_valid_upload_credential(normalized_key):
+            raise ValidationError(
+                "Upload recovery credential is invalid.",
+                field="upload_idempotency_key",
+            )
+        existing = None
         if normalized_key:
             existing = await self._passport_repo.get_by_upload_idempotency_key(
                 group.id,
                 normalized_key,
             )
-            if existing:
-                queued_job = None
-                if self._processing_job_repo is not None:
-                    active_job = await self._processing_job_repo.active_for_submission(
-                        existing.id,
-                        extraction_revision=existing.extraction_revision,
-                    )
-                    if active_job and active_job.status == ProcessingJobStatus.QUEUED:
-                        # A process may have stopped after the durable commit
-                        # but before dispatch. Re-delivery of the same queued
-                        # job is safe because workers claim it atomically.
-                        queued_job = active_job
-                logger.info(
-                    "passport_upload_idempotent_replay",
-                    submission_id=str(existing.id),
-                    group_id=str(group.id),
-                    agency_id=str(group.agency_id),
+
+        qualifier_selection = None
+        qualifier_replay = None
+        if getattr(group, "relation_with_qualifier_enabled", False):
+            qualifier_selection, qualifier_replay = (
+                await self._require_qualifier_selection(
+                    group_id=group.id,
+                    selection_token=qualifier_selection_token,
+                    upload_idempotency_key=normalized_key,
                 )
-                # Returning without a dispatchable job prevents a replayed
-                # request from starting the same OCR job a second time. The
-                # response layer still attaches the latest job for polling.
-                return passport_submission_output_from_entity(
-                    existing,
-                    job=queued_job,
+            )
+
+        if existing is not None:
+            if (
+                qualifier_selection is not None
+                and existing.qualifier_selection_id != qualifier_selection.id
+            ):
+                raise ValidationError(
+                    "This upload attempt belongs to a different qualifier selection.",
+                    field="qualifier_selection_token",
                 )
+            return await self._idempotent_replay_result(existing, group)
+        if qualifier_replay is not None:
+            return await self._idempotent_replay_result(qualifier_replay, group)
 
         if not group.is_active():
             raise GroupClosedError()
@@ -105,7 +118,7 @@ class SubmitPassportUseCase:
             raise ValidationError("Passport back image is required.", field="passport_back_file")
         if group.require_selfie and (not passport_photo or not passport_photo[0]):
             raise ValidationError(
-                "VISA selfie photo is required for this group.",
+                "Visa Photo is required for this upload link.",
                 field="passport_photo_file",
             )
 
@@ -180,6 +193,8 @@ class SubmitPassportUseCase:
                 acquisition_mode=acquisition_mode,
                 upload_idempotency_key=normalized_key,
             )
+            if qualifier_selection is not None:
+                submission.attach_qualifier_selection(qualifier_selection)
             for stored_document_type, _content, _content_type, upload_key in upload_specs:
                 if stored_document_type is None:
                     continue
@@ -192,6 +207,15 @@ class SubmitPassportUseCase:
 
             submission, created = await self._passport_repo.save_idempotent(submission)
             if not created:
+                if (
+                    qualifier_selection is not None
+                    and submission.qualifier_selection_id
+                    != qualifier_selection.id
+                ):
+                    raise ValidationError(
+                        "This upload attempt belongs to a different qualifier selection.",
+                        field="qualifier_selection_token",
+                    )
                 await self._cleanup_uploads(uploaded_keys)
                 logger.info(
                     "passport_upload_concurrent_replay_resolved",
@@ -225,7 +249,7 @@ class SubmitPassportUseCase:
             raise
         except Exception as exc:
             await self._cleanup_uploads(uploaded_keys)
-            logger.exception(
+            logger.error(
                 "passport_upload_persistence_failed",
                 group_id=str(group.id),
                 agency_id=str(group.agency_id),
@@ -234,6 +258,91 @@ class SubmitPassportUseCase:
             raise StorageError(
                 "Passport images could not be saved. Please try the upload again."
             ) from exc
+
+    async def _require_qualifier_selection(
+        self,
+        *,
+        group_id: uuid.UUID,
+        selection_token: str | None,
+        upload_idempotency_key: str | None,
+    ) -> tuple[QualifierSelection, PassportSubmission | None]:
+        if not selection_token:
+            raise ValidationError(
+                "Select Self or the passenger's relationship before uploading.",
+                field="qualifier_selection_token",
+            )
+        if self._qualifier_selection_repo is None:
+            raise ValidationError(
+                "The qualifier selection could not be verified.",
+                field="qualifier_selection_token",
+            )
+        selection = await self._qualifier_selection_repo.get_by_token_hash(
+            group_id,
+            hash_qualifier_selection_token(selection_token),
+            for_update=True,
+        )
+        if selection is None:
+            raise ValidationError(
+                "The qualifier selection is invalid.",
+                field="qualifier_selection_token",
+            )
+        if selection.group_id != group_id:
+            raise ValidationError(
+                "The qualifier selection does not belong to this upload link.",
+                field="qualifier_selection_token",
+            )
+        associated_submission_id = (
+            await self._qualifier_selection_repo.get_submission_id(selection.id)
+        )
+        if associated_submission_id is not None:
+            associated = await self._passport_repo.get_by_id(
+                associated_submission_id
+            )
+            if (
+                associated is not None
+                and associated.group_id == group_id
+                and upload_idempotency_key
+                and associated.upload_idempotency_key
+                == upload_idempotency_key
+            ):
+                return selection, associated
+            raise ValidationError(
+                "This qualifier selection has already been used.",
+                field="qualifier_selection_token",
+            )
+        if selection.is_expired():
+            raise ValidationError(
+                "This qualifier selection has expired. Please choose again.",
+                field="qualifier_selection_token",
+            )
+        return selection, None
+
+    async def _idempotent_replay_result(
+        self,
+        existing: PassportSubmission,
+        group: ClientGroup,
+    ) -> PassportSubmissionOutputDTO:
+        queued_job = None
+        if self._processing_job_repo is not None:
+            active_job = await self._processing_job_repo.active_for_submission(
+                existing.id,
+                extraction_revision=existing.extraction_revision,
+            )
+            if active_job and active_job.status == ProcessingJobStatus.QUEUED:
+                # A process may have stopped after the durable commit but
+                # before dispatch. Re-delivery is safe because workers claim
+                # durable jobs atomically.
+                queued_job = active_job
+        logger.info(
+            "passport_upload_idempotent_replay",
+            submission_id=str(existing.id),
+            group_id=str(group.id),
+            agency_id=str(group.agency_id),
+        )
+        return passport_submission_output_from_entity(
+            existing,
+            job=queued_job,
+        )
 
     async def _cleanup_uploads(self, keys: list[str]) -> None:
         if not keys:

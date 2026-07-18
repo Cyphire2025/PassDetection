@@ -84,7 +84,7 @@ class UserRepository(IUserRepository):
         model = self._to_model(user)
         self._session.add(model)
         await self._session.flush()
-        logger.info("user_created", user_id=str(user.id), email=user.email)
+        logger.info("user_created", user_id=str(user.id))
         return user
 
     async def update(self, user: User) -> User:

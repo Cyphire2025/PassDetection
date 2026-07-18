@@ -110,10 +110,12 @@ export function usePreviewWhatsAppMessage() {
     mutationFn: ({
       groupId,
       draft,
+      signal,
     }: {
       groupId: string;
       draft: Parameters<typeof whatsappApi.previewMessage>[1];
-    }) => whatsappApi.previewMessage(groupId, draft),
+      signal?: AbortSignal;
+    }) => whatsappApi.previewMessage(groupId, draft, signal),
   });
 }
 

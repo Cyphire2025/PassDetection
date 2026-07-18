@@ -286,16 +286,13 @@ async def run_whatsapp_broadcast(
 
                 parameters = template_parameters(
                     message_type=message_type,
-                    recipient_name=recipient.name or "Guest",
                     group_name=group.name,
-                    organizing_company_name=group.organizing_company_name or "your organisation",
                     support_contacts=support_block,
                     message_content=message_content,
                     passport_link=passport_link,
                 )
                 header_parameters = template_header_parameters(
                     message_type=message_type,
-                    recipient_name=recipient.name or "Guest",
                 )
                 for attempt in range(MAX_PROVIDER_ATTEMPTS):
                     recipient, claim_error = await _load_sendable_recipient(
@@ -322,14 +319,16 @@ async def run_whatsapp_broadcast(
                             settings=settings,
                             to_number=recipient.normalized_phone_number,
                             template_name=log.template_name or "",
+                            message_type=message_type,
                             parameters=parameters,
                             header_parameters=header_parameters,
                         )
                     except WhatsAppCloudApiError as exc:
+                        safe_error = exc.persistence_message[:2000]
                         if exc.delivery_unknown:
                             log.status = "delivery_unknown"
                             log.status_updated_at = datetime.now(tz=UTC)
-                            log.error_message = str(exc)[:2000]
+                            log.error_message = safe_error
                             await _set_message_state(
                                 session,
                                 log=log,
@@ -341,13 +340,15 @@ async def run_whatsapp_broadcast(
                         if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
                             log.status = "processing"
                             log.status_updated_at = datetime.now(tz=UTC)
-                            log.error_message = f"Temporary provider error; retrying: {exc}"[:2000]
+                            log.error_message = (
+                                f"{exc.code}: Temporary provider error; retrying"
+                            )[:2000]
                             await session.commit()
                             await asyncio.sleep(2**attempt)
                             continue
                         log.status = "failed"
                         log.status_updated_at = datetime.now(tz=UTC)
-                        log.error_message = str(exc)[:2000]
+                        log.error_message = safe_error
                         await _set_message_state(
                             session,
                             log=log,

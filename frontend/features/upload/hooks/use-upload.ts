@@ -11,6 +11,7 @@ export function useUploadPassport() {
       passportBackFile,
       acquisitionMode,
       uploadIdempotencyKey,
+      qualifierSelectionToken,
       signal,
     }: {
       token: string;
@@ -19,6 +20,7 @@ export function useUploadPassport() {
       passportBackFile: File;
       acquisitionMode: "camera" | "file";
       uploadIdempotencyKey: string;
+      qualifierSelectionToken?: string | null;
       passportPhotoFile?: File | null;
       signal?: AbortSignal;
     }) => uploadApi.uploadPassport(
@@ -29,6 +31,7 @@ export function useUploadPassport() {
       acquisitionMode,
       uploadIdempotencyKey,
       passportPhotoFile,
+      qualifierSelectionToken,
       signal,
     ),
   });
@@ -38,6 +41,7 @@ export function useSubmitClientPassportReview() {
   return useMutation({
     mutationFn: ({
       submissionId,
+      uploadSessionId,
       group_token,
       confirmed_fields,
       client_email,
@@ -57,6 +61,7 @@ export function useSubmitClientPassportReview() {
       family_head_phone,
     }: {
       submissionId: string;
+      uploadSessionId: string;
       group_token: string;
       confirmed_fields: Record<string, string>;
       client_email?: string | null;
@@ -75,7 +80,7 @@ export function useSubmitClientPassportReview() {
       family_head_email?: string | null;
       family_head_phone?: string | null;
     }) =>
-      uploadApi.submitClientReview(submissionId, {
+      uploadApi.submitClientReview(submissionId, uploadSessionId, {
         group_token,
         confirmed_fields,
         client_email,

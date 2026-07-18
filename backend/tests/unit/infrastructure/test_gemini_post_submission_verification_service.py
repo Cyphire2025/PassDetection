@@ -12,6 +12,11 @@ from app.core.config.settings import Settings
 from app.infrastructure.ai.gemini_post_submission_verification_service import (
     GeminiPostSubmissionVerificationService,
 )
+from app.infrastructure.ai_priority.metrics import (
+    AiPriorityMetrics,
+    InMemoryAiMetricsStore,
+)
+from app.infrastructure.observability.metrics import MetricsRegistry
 
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 
@@ -71,12 +76,36 @@ def _provider_fields(
     ]
 
 
+def _provider_document(
+    **overrides: object,
+) -> dict[str, object]:
+    document: dict[str, object] = {
+        "document_class": "passport_data_page",
+        "page_type": "data_page",
+        "image_quality": "acceptable",
+        "classification_confidence": 0.99,
+        "reason_code": "passport_confirmed",
+    }
+    document.update(overrides)
+    return document
+
+
 def _response(
     fields: list[dict[str, object]],
     *,
+    document: dict[str, object] | None = None,
     thought_signature: str | None = None,
 ) -> httpx.Response:
-    part = {"text": json.dumps({"fields": fields})}
+    part = {
+        "text": json.dumps(
+            {
+                "document": (
+                    document if document is not None else _provider_document()
+                ),
+                "fields": fields,
+            }
+        )
+    }
     if thought_signature is not None:
         part["thoughtSignature"] = thought_signature
     return httpx.Response(
@@ -115,6 +144,227 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(result.decision.value, "ai_approved")
         self.assertEqual(result.to_dict()["incorrect_fields"], [])
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
+        self.assertIsNone(result.reason_code)
+
+    async def test_request_uses_strict_document_and_field_schema(self) -> None:
+        async def handler(request: httpx.Request) -> httpx.Response:
+            payload = json.loads(request.content)
+            schema = payload["generationConfig"]["responseSchema"]
+            self.assertEqual(
+                set(schema["properties"]),
+                {"document", "fields"},
+            )
+            self.assertEqual(
+                schema["required"],
+                ["document", "fields"],
+            )
+            self.assertEqual(
+                set(schema["properties"]["document"]["required"]),
+                {
+                    "document_class",
+                    "page_type",
+                    "image_quality",
+                    "classification_confidence",
+                    "reason_code",
+                },
+            )
+            system_text = payload["systemInstruction"]["parts"][0]["text"]
+            self.assertIn("First classify the image", system_text)
+            self.assertIn("Never infer hidden values", system_text)
+            self.assertIn(
+                "Never infer hidden values or decide the application's final status",
+                system_text,
+            )
+            return _response(_provider_fields())
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        self.assertEqual(result.decision.value, "ai_approved")
+        self.assertEqual(result.provider_status, "verified")
+
+    async def test_document_classification_requires_exact_bounded_shape(
+        self,
+    ) -> None:
+        missing_key = _provider_document()
+        missing_key.pop("page_type")
+        extra_key = _provider_document(extra="not-allowed")
+        invalid_confidence = _provider_document(
+            classification_confidence=True,
+        )
+
+        for label, document in (
+            ("missing", missing_key),
+            ("extra", extra_key),
+            ("invalid-confidence", invalid_confidence),
+        ):
+            with self.subTest(label=label):
+                async def handler(
+                    _request: httpx.Request,
+                    response_document: dict[str, object] = document,
+                ) -> httpx.Response:
+                    return _response(
+                        _provider_fields(),
+                        document=response_document,
+                    )
+
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(handler)
+                ) as client:
+                    result = await GeminiPostSubmissionVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"passport-image",
+                        content_type="image/jpeg",
+                        submitted_fields=_submitted_fields(),
+                    )
+
+                self.assertEqual(result.decision.value, "needs_review")
+                self.assertEqual(result.provider_status, "invalid_response")
+                self.assertEqual(
+                    result.reason_code,
+                    "invalid_provider_response",
+                )
+
+    async def test_wrong_document_and_wrong_passport_page_override_field_matches(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "aadhaar",
+                _provider_document(
+                    document_class="aadhaar",
+                    page_type="not_applicable",
+                    classification_confidence=0.99,
+                    reason_code="wrong_document",
+                ),
+                "wrong_document",
+                "does not appear to be a passport information page",
+            ),
+            (
+                "cover",
+                _provider_document(
+                    document_class="passport_cover",
+                    page_type="cover",
+                    classification_confidence=0.98,
+                    reason_code="passport_cover",
+                ),
+                "passport_cover",
+                "appears to be a passport cover",
+            ),
+            (
+                "other-page",
+                _provider_document(
+                    document_class="passport_other_page",
+                    page_type="other_passport_page",
+                    classification_confidence=0.97,
+                    reason_code="wrong_passport_page",
+                ),
+                "wrong_passport_page",
+                "appears to be a different passport page",
+            ),
+        )
+
+        for label, document, reason_code, explanation in cases:
+            with self.subTest(label=label):
+                async def handler(
+                    _request: httpx.Request,
+                    response_document: dict[str, object] = document,
+                ) -> httpx.Response:
+                    return _response(
+                        _provider_fields(),
+                        document=response_document,
+                    )
+
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(handler)
+                ) as client:
+                    result = await GeminiPostSubmissionVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"passport-image",
+                        content_type="image/jpeg",
+                        submitted_fields=_submitted_fields(),
+                    )
+
+                self.assertEqual(result.decision.value, "needs_review")
+                self.assertEqual(result.provider_status, "verified")
+                self.assertEqual(result.reason_code, reason_code)
+                self.assertIn(explanation, result.explanation)
+
+    async def test_low_quality_unreadable_and_uncertain_images_require_review(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "low-quality",
+                _provider_document(
+                    image_quality="low_quality",
+                    reason_code="low_image_quality",
+                ),
+                "document_low_quality",
+                "too low quality",
+            ),
+            (
+                "unreadable",
+                _provider_document(
+                    image_quality="unreadable",
+                    reason_code="low_image_quality",
+                ),
+                "document_unreadable",
+                "is unreadable",
+            ),
+            (
+                "uncertain",
+                _provider_document(
+                    document_class="uncertain",
+                    page_type="unknown",
+                    classification_confidence=0.45,
+                    reason_code="classification_uncertain",
+                ),
+                "document_uncertain",
+                "classification is uncertain",
+            ),
+        )
+
+        for label, document, reason_code, explanation in cases:
+            with self.subTest(label=label):
+                async def handler(
+                    _request: httpx.Request,
+                    response_document: dict[str, object] = document,
+                ) -> httpx.Response:
+                    return _response(
+                        _provider_fields(),
+                        document=response_document,
+                    )
+
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(handler)
+                ) as client:
+                    result = await GeminiPostSubmissionVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"passport-image",
+                        content_type="image/jpeg",
+                        submitted_fields=_submitted_fields(),
+                    )
+
+                self.assertEqual(result.decision.value, "needs_review")
+                self.assertEqual(result.provider_status, "verified")
+                self.assertEqual(result.reason_code, reason_code)
+                self.assertIn(explanation, result.explanation)
 
     async def test_normalizes_common_printed_passport_date_formats(self) -> None:
         submitted = _submitted_fields()
@@ -337,7 +587,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(payload["suspicious_fields"], [])
         self.assertEqual(result.model, "gemini-3.5-flash")
 
-    async def test_suspicious_equal_value_cannot_be_upgraded_to_correct(self) -> None:
+    async def test_application_marks_normalized_equal_value_correct(self) -> None:
         fields = _provider_fields(
             override={
                 "passport_number": {
@@ -362,8 +612,79 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=_submitted_fields(),
             )
 
+        self.assertEqual(result.decision.value, "ai_approved")
+        self.assertEqual(result.to_dict()["suspicious_fields"], [])
+
+    async def test_indian_display_label_matches_ind_alpha3(self) -> None:
+        submitted = _submitted_fields()
+        submitted["nationality"] = "Indian"
+        fields = _provider_fields(
+            override={
+                "nationality": {
+                    "verdict": "suspicious",
+                    "observed_value": "IND",
+                    "confidence": 0.99,
+                    "reason_code": "ambiguous",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        nationality = next(
+            field for field in result.fields if field.field == "nationality"
+        )
+        self.assertEqual(result.decision.value, "ai_approved")
+        self.assertEqual(nationality.verdict.value, "correct")
+        self.assertEqual(nationality.reason_code, "match")
+
+    async def test_equal_value_with_low_visual_confidence_still_needs_review(
+        self,
+    ) -> None:
+        fields = _provider_fields(
+            override={
+                "passport_number": {
+                    "verdict": "suspicious",
+                    "confidence": 0.60,
+                    "reason_code": "ambiguous",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        passport_number = next(
+            field for field in result.fields if field.field == "passport_number"
+        )
         self.assertEqual(result.decision.value, "needs_review")
-        self.assertIn("passport_number", result.to_dict()["suspicious_fields"])
+        self.assertEqual(passport_number.verdict.value, "suspicious")
+        self.assertEqual(passport_number.reason_code, "low_confidence")
 
     async def test_schema_failure_marks_all_nine_fields_suspicious(self) -> None:
         invalid = _provider_fields()
@@ -435,11 +756,16 @@ class GeminiPostSubmissionVerificationServiceTests(
                 return _response(_provider_fields())
 
         client = Client()
+        shared_metrics = InMemoryAiMetricsStore()
         submitted = _submitted_fields()
         submitted["surname"] = "A" * 1000
         result = await GeminiPostSubmissionVerificationService(
             settings=_settings(),
             http_client=client,  # type: ignore[arg-type]
+            priority_metrics=AiPriorityMetrics(
+                MetricsRegistry(),
+                shared_metrics,
+            ),
         ).verify(
             b"passport-image",
             content_type="image/jpeg",
@@ -450,6 +776,21 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(len(set(client.payload_ids)), 1)
         self.assertEqual(client.prompt_lengths, [160, 160])
         self.assertEqual(result.decision.value, "needs_review")
+        counters = shared_metrics.snapshot()["counters"]
+        self.assertEqual(
+            counters[
+                "ai_provider.events.total.verification.upstream_failure"
+            ],
+            1,
+        )
+        self.assertEqual(
+            counters["ai_provider.events.total.verification.retry"],
+            1,
+        )
+        self.assertEqual(
+            counters["ai_provider.events.total.verification.success"],
+            1,
+        )
 
     async def test_transient_primary_failure_uses_configured_fallback_model(
         self,

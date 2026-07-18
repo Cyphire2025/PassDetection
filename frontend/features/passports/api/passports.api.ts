@@ -1,6 +1,15 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import type { PassportGroupSummary, PassportSubmission } from "@/types/passport.types";
+import type {
+  PassportGroupSummary,
+  PassportSubmission,
+  StaffApprovalRequest,
+  StaffApprovalResult,
+} from "@/types/passport.types";
+import {
+  parseStaffApprovalResponse,
+  serializeStaffApprovalRequest,
+} from "./staff-approval-contract";
 
 export interface PassportImportResult {
   imported_count: number;
@@ -88,13 +97,16 @@ export const passportsApi = {
 
   staffApprove: async (
     id: string,
-    confirmedFields?: Record<string, string>,
-  ): Promise<PassportSubmission> => {
-    const { data } = await apiClient.post<PassportSubmission>(
+    request: StaffApprovalRequest,
+  ): Promise<StaffApprovalResult> => {
+    const response = await apiClient.post<PassportSubmission>(
       API_ENDPOINTS.passports.staffApprove(id),
-      confirmedFields ? { confirmed_fields: confirmedFields } : {},
+      serializeStaffApprovalRequest(request),
     );
-    return data;
+    return parseStaffApprovalResponse(
+      response.data,
+      response.headers as Record<string, unknown>,
+    );
   },
 
   retryAiVerification: async (id: string): Promise<PassportSubmission> => {

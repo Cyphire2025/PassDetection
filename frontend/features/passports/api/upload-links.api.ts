@@ -6,6 +6,12 @@
 
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import type { PublicFlowTelemetryPayload } from "@/features/upload/services/public-flow-telemetry";
+import { getOrCreatePublicUploadSessionId } from "./public-upload-session";
+
+const publicUploadHeaders = (token: string) => ({
+  "X-Upload-Session-ID": getOrCreatePublicUploadSessionId(token),
+});
 
 export interface CreateUploadLinkRequest {
   name: string;
@@ -21,7 +27,13 @@ export interface CreateUploadLinkRequest {
   require_selfie: boolean;
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
+  relation_with_qualifier_enabled: boolean;
   notes?: string | null;
+}
+
+export interface QualifierRelationOption {
+  code: string;
+  label: string;
 }
 
 export interface UploadLinkResponse {
@@ -45,6 +57,8 @@ export interface UploadLinkResponse {
   require_selfie: boolean;
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
+  relation_with_qualifier_enabled: boolean;
+  qualifier_relation_options: QualifierRelationOption[];
   notes: string | null;
   deleted_at: string | null;
   deleted_passport_count: number;
@@ -91,7 +105,81 @@ export const uploadLinksApi = {
   },
 
   getByToken: async (token: string): Promise<UploadLinkResponse> => {
-    const response = await apiClient.get<UploadLinkResponse>(API_ENDPOINTS.uploadLinks.byToken(token));
+    const response = await apiClient.get<UploadLinkResponse>(
+      API_ENDPOINTS.uploadLinks.byToken(token),
+      { headers: publicUploadHeaders(token) },
+    );
+    return response.data;
+  },
+
+  recordTelemetry: async (
+    token: string,
+    payload: PublicFlowTelemetryPayload,
+    signal?: AbortSignal,
+  ): Promise<void> => {
+    await apiClient.post(
+      API_ENDPOINTS.uploadLinks.telemetry(token),
+      payload,
+      {
+        headers: publicUploadHeaders(token),
+        signal,
+      },
+    );
+  },
+
+  recordTelemetryKeepalive: (
+    token: string,
+    payload: PublicFlowTelemetryPayload,
+  ): Promise<Response> => fetch(
+    API_ENDPOINTS.uploadLinks.telemetry(token),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...publicUploadHeaders(token),
+      },
+      body: JSON.stringify(payload),
+      credentials: "same-origin",
+      cache: "no-store",
+      keepalive: true,
+    },
+  ),
+
+  createQualifierSelection: async (
+    token: string,
+    choice: { is_self: boolean; relation_code: string | null },
+  ): Promise<QualifierSelectionState & { selection_token: string }> => {
+    const response = await apiClient.post<QualifierSelectionState & { selection_token: string }>(
+      API_ENDPOINTS.uploadLinks.qualifierSelection(token),
+      choice,
+      { headers: publicUploadHeaders(token) },
+    );
+    return response.data;
+  },
+
+  getQualifierSelection: async (
+    token: string,
+    selectionToken: string,
+  ): Promise<QualifierSelectionState> => {
+    const response = await apiClient.get<QualifierSelectionState>(
+      API_ENDPOINTS.uploadLinks.qualifierSelection(token),
+      {
+        headers: {
+          ...publicUploadHeaders(token),
+          "X-Qualifier-Selection-Token": selectionToken,
+        },
+      },
+    );
     return response.data;
   },
 };
+
+export interface QualifierSelectionState {
+  is_self: boolean;
+  relation_code: string | null;
+  relation_label: string;
+  selected_at: string;
+  expires_at: string;
+  status: "active" | "expired" | "consumed";
+  submission_id: string | null;
+}

@@ -71,7 +71,10 @@ class JWTSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
 
-    algorithm: str = "HS256"
+    # The application uses one symmetric signing profile. Keeping this a
+    # literal prevents an environment change from activating an unreviewed
+    # JOSE/ECDSA implementation.
+    algorithm: Literal["HS256"] = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
     access_cookie_name: str = "access_token"
@@ -147,7 +150,34 @@ class Settings(BaseSettings):
 
         return value
 
-    rate_limit_per_minute: int = 60
+    rate_limit_per_minute: int = Field(default=60, ge=0, le=100_000)
+    public_upload_bootstrap_session_rate_limit_per_minute: int = Field(
+        default=30,
+        ge=1,
+        le=10_000,
+    )
+    public_upload_bootstrap_aggregate_rate_limit_per_minute: int = Field(
+        default=600,
+        ge=100,
+        le=100_000,
+    )
+    public_upload_session_rate_limit_per_minute: int = Field(default=6, ge=1, le=1_000)
+    public_upload_aggregate_rate_limit_per_minute: int = Field(
+        default=180,
+        ge=100,
+        le=100_000,
+    )
+    public_upload_followup_session_rate_limit_per_minute: int = Field(
+        default=120,
+        ge=1,
+        le=10_000,
+    )
+    public_upload_followup_aggregate_rate_limit_per_minute: int = Field(
+        default=6_000,
+        ge=100,
+        le=100_000,
+    )
+    public_upload_rate_limit_require_redis: bool = True
     sentry_dsn: str | None = None
     processing_backend: Literal["background", "celery"] = "background"
     processing_job_max_attempts: int = Field(default=3, ge=1, le=10)
@@ -155,6 +185,11 @@ class Settings(BaseSettings):
     passport_local_extraction_timeout_seconds: float = Field(default=10.0, ge=1.0, le=10.0)
     processing_watchdog_delay_seconds: float = Field(default=8.0, ge=3.0, le=30.0)
     processing_worker_ping_timeout_seconds: float = Field(default=1.0, ge=0.2, le=5.0)
+    processing_worker_readiness_cache_seconds: float = Field(
+        default=15.0,
+        ge=1.0,
+        le=300.0,
+    )
     roi_field_timeout_seconds: float = Field(default=8.0, ge=0.5, le=30.0)
     roi_max_concurrency: int = Field(default=4, ge=1, le=8)
     upload_max_file_size_bytes: int = Field(default=10 * 1024 * 1024, ge=1024 * 1024)
@@ -169,15 +204,41 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"
     gemini_fallback_model: str = "gemini-3.1-flash-lite"
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_project_alias: str = Field(
+        default="unconfigured",
+        min_length=1,
+        max_length=64,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    gemini_config_version: str = Field(
+        default="v1",
+        min_length=1,
+        max_length=32,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
     gemini_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
     gemini_max_retries: int = Field(default=1, ge=0, le=1)
     gemini_max_output_tokens: int = Field(default=512, ge=128, le=1024)
+    gemini_extraction_max_concurrency: int = Field(default=32, ge=1, le=64)
+    gemini_verification_max_concurrency: int = Field(default=1, ge=1, le=64)
+    gemini_extraction_timeout_ms: int = Field(
+        default=30_000,
+        ge=1_000,
+        le=300_000,
+    )
+    gemini_extraction_quiet_period_ms: int = Field(
+        default=2_000,
+        ge=0,
+        le=300_000,
+    )
+    gemini_retry_max_attempts: int = Field(default=3, ge=1, le=10)
+    gemini_priority_capacity_calibrated: bool = False
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_api_version: str = "v25.0"
     whatsapp_template_language: str = "en_US"
-    whatsapp_welcome_template_name: str = "global_connect_welcome_v1"
-    whatsapp_passport_link_template_name: str = "global_connect_passport_link_v1"
+    whatsapp_welcome_template_name: str = ""
+    whatsapp_passport_link_template_name: str = ""
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
 

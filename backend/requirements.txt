@@ -20,9 +20,9 @@ redis==5.0.7
 celery==5.4.0
 
 # ── Authentication & Security ─────────────────────────────────────────────────
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
-python-multipart==0.0.9  # file uploads
+python-multipart==0.0.32  # file uploads
 
 # ── HTTP Client (for webhooks, cloud APIs) ────────────────────────────────────
 httpx==0.27.0
@@ -33,8 +33,8 @@ botocore==1.34.131
 
 # ── Image Processing ──────────────────────────────────────────────────────────
 opencv-python-headless==4.10.0.84
-Pillow==10.3.0
-pillow-heif==0.22.0
+Pillow==12.3.0
+pillow-heif==1.4.0
 numpy==1.26.4
 
 # ── OCR Engines (pluggable — only what's available will be loaded) ────────────
@@ -47,11 +47,11 @@ passporteye==2.2.1
 openpyxl==3.1.4
 pycountry==26.2.16
 
-pypdf==4.3.1
+pypdf==6.14.2
 
 # ── Observability ─────────────────────────────────────────────────────────────
 structlog==24.2.0
-sentry-sdk[fastapi]==2.7.1
+sentry-sdk[fastapi]==2.66.0
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 python-dateutil==2.9.0

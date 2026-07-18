@@ -236,8 +236,16 @@ def _extract_status_error(status_payload: dict[str, Any]) -> str | None:
     first = errors[0]
     if not isinstance(first, dict):
         return None
-    message = first.get("message") or first.get("title") or first.get("details")
-    return str(message)[:2000] if message else None
+    provider_code = first.get("code")
+    code_suffix = (
+        f" ({provider_code})"
+        if isinstance(provider_code, (str, int)) and not isinstance(provider_code, bool)
+        else ""
+    )
+    return (
+        "WHATSAPP_PROVIDER_DELIVERY_FAILED: "
+        f"Meta reported that this message was not delivered{code_suffix}"
+    )
 
 
 def _parse_provider_status_at(value: Any) -> datetime | None:
@@ -518,17 +526,24 @@ def _as_message_type(value: str) -> WhatsAppMessageType:
     return "welcome" if value == "welcome" else "passport_link"
 
 
-def _resolve_message_content(message_type: WhatsAppMessageType, value: str | None) -> str:
+def _resolve_message_content(
+    message_type: WhatsAppMessageType,
+    value: str | None,
+    *,
+    group_name: str,
+) -> str:
     if value is None:
-        return default_message_content(message_type)
+        return default_message_content(message_type, group_name=group_name)
     return value.strip()
 
 
 def _resolve_send_message_content(
     message_type: WhatsAppMessageType,
     value: str | None,
+    *,
+    group_name: str,
 ) -> str:
-    content = _resolve_message_content(message_type, value)
+    content = _resolve_message_content(message_type, value, group_name=group_name)
     if not content:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -708,8 +723,9 @@ def _parse_excel_contact_bytes(
             detail="The uploaded Excel contact file could not be read",
         ) from exc
     except Exception as exc:
-        logger.exception(
-            "Unexpected error while reading a WhatsApp Excel contact file",
+        logger.error(
+            "whatsapp_excel_contact_file_read_failed",
+            extra={"error_type": type(exc).__name__},
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1120,35 +1136,33 @@ def _message_values(
     preview: bool = False,
 ) -> tuple[WhatsAppMessageType, str, str, str, list[str], list[str]]:
     message_type = _as_message_type(body.message_type)
-    message_content = _resolve_message_content(message_type, body.message_content)
+    message_content = _resolve_message_content(
+        message_type,
+        body.message_content,
+        group_name=group.name,
+    )
     passport_link = (
         _validate_passport_link(body.passport_link, allow_placeholder=preview)
         if message_type == "passport_link"
         else None
     )
     recipient_name = _clean_name(recipient.name) or "Guest"
-    company_name = _clean_name(group.organizing_company_name) or "your organisation"
     support_block = format_support_contacts(
         [(contact.name, contact.phone_number) for contact in support_contacts]
     )
     rendered = render_message(
         message_type=message_type,
-        recipient_name=recipient_name,
         group_name=group.name,
-        organizing_company_name=company_name,
         support_contacts=support_block,
         message_content=message_content,
         passport_link=passport_link,
     )
     header_parameters = template_header_parameters(
         message_type=message_type,
-        recipient_name=recipient_name,
     )
     parameters = template_parameters(
         message_type=message_type,
-        recipient_name=recipient_name,
         group_name=group.name,
-        organizing_company_name=company_name,
         support_contacts=support_block,
         message_content=message_content,
         passport_link=passport_link,
@@ -1311,7 +1325,7 @@ async def preview_broadcast_message(
 )
 async def create_broadcast_group(
     name: str = Form(...),
-    organizing_company_name: str = Form(...),
+    organizing_company_name: str | None = Form(None),
     contacts_json: str = Form("[]"),
     support_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
@@ -1333,7 +1347,7 @@ async def create_broadcast_group(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Group name must be 100 characters or fewer",
         )
-    company_name = _clean_required_name(organizing_company_name, "Organising company name")
+    company_name = _clean_name(organizing_company_name) or ""
     if len(company_name) > 100:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1790,7 +1804,11 @@ async def send_broadcast_message(
         )
 
     message_type = _as_message_type(body.message_type)
-    message_content = _resolve_send_message_content(message_type, body.message_content)
+    message_content = _resolve_send_message_content(
+        message_type,
+        body.message_content,
+        group_name=group.name,
+    )
     settings = get_settings()
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
         raise HTTPException(
@@ -2004,7 +2022,16 @@ async def send_broadcast_message(
             queue="whatsapp",
         )
     except Exception as exc:  # noqa: BLE001 - convert broker failures into a visible batch failure.
-        error_message = f"WhatsApp worker queue is unavailable: {exc}"[:2000]
+        logger.error(
+            "whatsapp_worker_queue_unavailable",
+            extra={
+                "batch_id": str(batch_id),
+                "error_type": type(exc).__name__,
+            },
+        )
+        error_message = (
+            "WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable"
+        )
         logs_result = await session.execute(
             select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.batch_id == batch_id)
         )

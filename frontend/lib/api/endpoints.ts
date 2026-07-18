@@ -46,6 +46,10 @@ export const API_ENDPOINTS = {
     root: "/api/v1/upload-links",
     detail: (id: string) => `/api/v1/upload-links/${id}`,
     byToken: (token: string) => `/api/v1/upload-links/token/${token}`,
+    telemetry: (token: string) =>
+      `/api/v1/upload-links/token/${token}/telemetry`,
+    qualifierSelection: (token: string) =>
+      `/api/v1/upload-links/token/${token}/qualifier-selection`,
     revoke: (id: string) => `/api/v1/upload-links/${id}/revoke`,
     restore: (id: string) => `/api/v1/upload-links/${id}/restore`,
     delete: (id: string) => `/api/v1/upload-links/${id}`,
@@ -77,6 +81,7 @@ export const API_ENDPOINTS = {
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
+    reconcileUpload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,
     uploadImage: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/image`,
     uploadDocumentImage: (

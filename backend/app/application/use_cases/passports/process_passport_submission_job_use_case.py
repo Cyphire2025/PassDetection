@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import mimetypes
 import uuid
+from typing import Any
 
 from app.application.interfaces.passport_extraction import (
     IPassportExtractionService,
@@ -20,6 +21,13 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.passport_document_classification import (
+    ACCEPTED_PASSPORT_DOCUMENT_STATUSES,
+)
+from app.infrastructure.observability.operational_events import (
+    OperationalEvent,
+    record_operational_event,
+)
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
@@ -29,13 +37,67 @@ PUBLIC_EXTRACTION_FAILURE = (
     "Some passport fields could not be read automatically. "
     "Please enter the missing details manually."
 )
+PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE = (
+    "We could not verify that this is a passport photo and details page right now. "
+    "Your upload was saved; please try again in a moment."
+)
 MAX_FIRST_PASS_SECONDS = 45.0
 MAX_GEMINI_SECONDS = 30.0
 RESULT_SAVE_RESERVE_SECONDS = 2.0
+DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES: dict[str, str] = {
+    "passport_cover": (
+        "A passport cover was detected. Open the passport to the photo and "
+        "details page, then scan again."
+    ),
+    "wrong_passport_page": (
+        "This is not the passport photo and details page. Open that page and "
+        "scan it again."
+    ),
+    "wrong_document": (
+        "This image is not a passport photo and details page. Scan the correct "
+        "passport page and try again."
+    ),
+    "document_low_quality": (
+        "The passport page is not clear enough to read. Use good lighting, "
+        "avoid glare, and scan it again."
+    ),
+    "document_unreadable": (
+        "The passport page could not be read. Place the full photo and details "
+        "page inside the guide and scan it again."
+    ),
+    "document_uncertain": (
+        "This image could not be confirmed as a passport photo and details "
+        "page. Check the page and scan it again."
+    ),
+}
+HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES: dict[str, str] = {
+    "aadhaar": (
+        "This appears to be an Aadhaar Card. Scan the passport photo and "
+        "details page and try again."
+    ),
+    "pan": (
+        "This appears to be a PAN Card. Scan the passport photo and details "
+        "page and try again."
+    ),
+}
+HIGH_CONFIDENCE_DOCUMENT_NAME_THRESHOLD = 0.90
 
 
 class ProcessingRetryRequested(Exception):
     """Raised when the queue backend should retry a transient extraction failure."""
+
+
+class ProcessingJobBusy(RuntimeError):
+    """Raised when another worker still owns the durable RUNNING claim."""
+
+    def __init__(
+        self,
+        message: str = "Another worker is still processing this passport",
+        *,
+        retry_after_ms: int = 5_000,
+    ) -> None:
+        super().__init__(message)
+        self.retry_after_ms = max(1, retry_after_ms)
 
 
 class ProcessPassportSubmissionJobUseCase:
@@ -62,7 +124,7 @@ class ProcessPassportSubmissionJobUseCase:
             return
         if not claimed:
             if job.status == ProcessingJobStatus.RUNNING:
-                raise ProcessingRetryRequested(
+                raise ProcessingJobBusy(
                     "Another worker is still processing this passport"
                 )
             logger.info(
@@ -183,6 +245,83 @@ class ProcessPassportSubmissionJobUseCase:
                     extracted_fields=extraction.extracted_fields,
                     timeout_seconds=verification_timeout,
                 )
+                classification = self._safe_document_classification(
+                    extracted_fields
+                )
+                classification_status = classification.get("status")
+                if classification_status in DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES:
+                    record_operational_event(
+                        OperationalEvent.DOCUMENT_CLASSIFICATION,
+                        str(classification_status),
+                    )
+                    public_message = self._document_classification_failure_message(
+                        classification
+                    )
+                    applied = await self._passport_repo.apply_extraction_failure(
+                        submission_id=submission.id,
+                        expected_revision=job.extraction_revision,
+                        public_message=public_message,
+                        diagnostics={"ai_verification": classification},
+                    )
+                    if not applied:
+                        await self._job_repo.mark_cancelled(
+                            job_id,
+                            "Superseded by newer passport changes",
+                        )
+                        return
+                    await self._job_repo.mark_dead_letter(
+                        job_id,
+                        public_message,
+                    )
+                    logger.warning(
+                        "passport_document_classification_rejected",
+                        job_id=str(job_id),
+                        submission_id=str(submission.id),
+                        status=classification_status,
+                        document_class=classification.get("document_class"),
+                        reason_code=classification.get("reason_code"),
+                    )
+                    return
+                classification_available = classification.get("available") is True
+                if (
+                    classification_status not in ACCEPTED_PASSPORT_DOCUMENT_STATUSES
+                    or not classification_available
+                ):
+                    record_operational_event(
+                        OperationalEvent.DOCUMENT_CLASSIFICATION,
+                        "provider_unavailable",
+                    )
+                    unavailable_diagnostics = classification or {
+                        "status": "unavailable",
+                        "available": False,
+                    }
+                    applied = await self._passport_repo.apply_extraction_failure(
+                        submission_id=submission.id,
+                        expected_revision=job.extraction_revision,
+                        public_message=PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE,
+                        diagnostics={"ai_verification": unavailable_diagnostics},
+                    )
+                    if not applied:
+                        await self._job_repo.mark_cancelled(
+                            job_id,
+                            "Superseded by newer passport changes",
+                        )
+                        return
+                    await self._job_repo.mark_dead_letter(
+                        job_id,
+                        PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE,
+                    )
+                    logger.warning(
+                        "passport_document_classification_unavailable",
+                        job_id=str(job_id),
+                        submission_id=str(submission.id),
+                        status=classification_status or "missing",
+                    )
+                    return
+                record_operational_event(
+                    OperationalEvent.DOCUMENT_CLASSIFICATION,
+                    "accepted",
+                )
                 await self._job_repo.update_progress(
                     job_id,
                     progress=0.90,
@@ -255,7 +394,7 @@ class ProcessPassportSubmissionJobUseCase:
                 retry_allowed=False,
             )
         except Exception as exc:
-            logger.exception(
+            logger.error(
                 "passport_processing_job_unexpected_failure",
                 job_id=str(job_id),
                 submission_id=str(submission_id),
@@ -329,6 +468,57 @@ class ProcessPassportSubmissionJobUseCase:
     @staticmethod
     def _guess_content_type(key: str) -> str:
         return mimetypes.guess_type(key)[0] or "image/jpeg"
+
+    @staticmethod
+    def _safe_document_classification(
+        extracted_fields: dict[str, Any],
+    ) -> dict[str, object]:
+        raw = extracted_fields.get("ai_verification")
+        if not isinstance(raw, dict):
+            return {}
+        allowed_keys = {
+            "status",
+            "available",
+            "model",
+            "provider_status",
+            "attempts",
+            "duration_ms",
+            "document_class",
+            "page_type",
+            "image_quality",
+            "classification_confidence",
+            "reason_code",
+        }
+        return {
+            key: value
+            for key, value in raw.items()
+            if key in allowed_keys
+            and isinstance(value, (str, int, float, bool, type(None)))
+        }
+
+    @staticmethod
+    def _document_classification_failure_message(
+        classification: dict[str, object],
+    ) -> str:
+        raw_status = classification.get("status")
+        status = raw_status if isinstance(raw_status, str) else "document_uncertain"
+        fallback = DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES.get(
+            status,
+            DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES["document_uncertain"],
+        )
+        if status != "wrong_document":
+            return fallback
+        document_class = classification.get("document_class")
+        confidence = classification.get("classification_confidence")
+        if (
+            isinstance(document_class, str)
+            and document_class in HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES
+            and isinstance(confidence, (int, float))
+            and not isinstance(confidence, bool)
+            and float(confidence) >= HIGH_CONFIDENCE_DOCUMENT_NAME_THRESHOLD
+        ):
+            return HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES[document_class]
+        return fallback
 
     @staticmethod
     def _local_timeout_result(timeout_seconds: float) -> PassportExtractionResult:

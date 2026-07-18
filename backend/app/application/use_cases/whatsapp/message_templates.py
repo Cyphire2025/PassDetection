@@ -7,18 +7,12 @@ from typing import Literal
 
 WhatsAppMessageType = Literal["welcome", "passport_link"]
 
-WELCOME_TEMPLATE_NAME = "global_connect_welcome_v1"
-PASSPORT_LINK_TEMPLATE_NAME = "global_connect_passport_link_v1"
-
-WELCOME_DEFAULT_MESSAGE_CONTENT = (
-    "All further information, important updates, and arrangements regarding your trip "
-    "will be shared with you here."
-)
+STATIC_TEMPLATE_HEADER = "Dear Delegates"
+GREETING = "Greetings from Global Connect Travels."
 
 PASSPORT_LINK_DEFAULT_MESSAGE_CONTENT = (
-    "Please complete all required fields, upload a clear scan of the passport information "
-    "page and a recent photograph with a plain white or light background, and carefully "
-    "verify every entry before submitting."
+    "Please fill in all required details, upload clear copies of the requested documents, "
+    "and review everything carefully before submitting."
 )
 
 AUTOMATED_NOTICE = (
@@ -26,10 +20,37 @@ AUTOMATED_NOTICE = (
     "message are not monitored and will not be treated as support requests."
 )
 
+PASSPORT_INFORMATION_NOTICE = (
+    "The information and documents submitted through this link will be used to make your "
+    "travel arrangements. Please ensure all details are accurate and complete, as incorrect "
+    "or missing information may delay the application process. Kindly complete the form at "
+    "your earliest convenience."
+)
 
-def default_message_content(message_type: WhatsAppMessageType) -> str:
+EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
+    "welcome": 2,
+    "passport_link": 4,
+}
+
+
+def welcome_default_message_content(group_name: str) -> str:
+    """Build approved BODY {{1}} using only the saved group name."""
+
+    return f'This message is regarding your upcoming trip to "{group_name}".'
+
+
+def passport_link_intro(group_name: str) -> str:
+    """Build approved passport BODY {{1}} using only the saved group name."""
+
+    return (
+        "Please use the secure link below to submit your travel documents required for "
+        f"your trip to {group_name}."
+    )
+
+
+def default_message_content(message_type: WhatsAppMessageType, *, group_name: str) -> str:
     if message_type == "welcome":
-        return WELCOME_DEFAULT_MESSAGE_CONTENT
+        return welcome_default_message_content(group_name)
     return PASSPORT_LINK_DEFAULT_MESSAGE_CONTENT
 
 
@@ -38,15 +59,13 @@ def format_support_contacts(contacts: Sequence[tuple[str, str]]) -> str:
 
     if not contacts:
         return "Please contact your company travel coordinator."
-    return "\n".join(f"- {name}: {phone_number}" for name, phone_number in contacts)
+    return "\n".join(f"{name}: {phone_number}" for name, phone_number in contacts)
 
 
 def render_message(
     *,
     message_type: WhatsAppMessageType,
-    recipient_name: str,
     group_name: str,
-    organizing_company_name: str,
     support_contacts: str,
     message_content: str,
     passport_link: str | None = None,
@@ -55,10 +74,8 @@ def render_message(
 
     if message_type == "welcome":
         return (
-            f"Dear {recipient_name},\n\n"
-            "Greetings from Global Connect Travels.\n\n"
-            f"This message concerns your upcoming trip under the group \"{group_name}\", "
-            f"organised by {organizing_company_name}.\n\n"
+            f"{STATIC_TEMPLATE_HEADER}\n\n"
+            f"{GREETING}\n\n"
             f"{message_content}\n\n"
             f"{AUTOMATED_NOTICE}\n\n"
             "For assistance, please contact:\n"
@@ -68,14 +85,12 @@ def render_message(
         )
 
     return (
-        f"Dear {recipient_name},\n\n"
-        "Please use the secure link below to submit the passport information and documents "
-        f"required for your group \"{group_name}\", organised by {organizing_company_name}:\n\n"
+        f"{STATIC_TEMPLATE_HEADER}\n\n"
+        f"{GREETING}\n\n"
+        f"{passport_link_intro(group_name)}\n\n"
         f"{passport_link or '[passport upload link]'}\n\n"
         f"{message_content}\n\n"
-        "The information and documents submitted through this link will be used for visa "
-        "processing and issuance. Incorrect or incomplete details may delay the application, "
-        "so please complete the form as soon as possible.\n\n"
+        f"{PASSPORT_INFORMATION_NOTICE}\n\n"
         "For assistance, please contact:\n"
         f"{support_contacts}\n\n"
         "Regards,\n"
@@ -86,9 +101,7 @@ def render_message(
 def template_parameters(
     *,
     message_type: WhatsAppMessageType,
-    recipient_name: str,
     group_name: str,
-    organizing_company_name: str,
     support_contacts: str,
     message_content: str,
     passport_link: str | None = None,
@@ -96,15 +109,9 @@ def template_parameters(
     """Return positional BODY variables in the exact Meta template order."""
 
     if message_type == "welcome":
-        return [
-            group_name,
-            organizing_company_name,
-            message_content,
-            support_contacts,
-        ]
+        return [message_content, support_contacts]
     return [
-        group_name,
-        organizing_company_name,
+        passport_link_intro(group_name),
         passport_link or "",
         message_content,
         support_contacts,
@@ -114,10 +121,27 @@ def template_parameters(
 def template_header_parameters(
     *,
     message_type: WhatsAppMessageType,
-    recipient_name: str,
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
-    if message_type in {"welcome", "passport_link"}:
-        return [recipient_name]
+    del message_type
     return []
+
+
+def validate_template_parameters(
+    *,
+    message_type: WhatsAppMessageType,
+    header_parameters: Sequence[str],
+    body_parameters: Sequence[str],
+) -> None:
+    """Reject payloads that cannot match the two approved Meta templates."""
+
+    if header_parameters:
+        raise ValueError("The approved WhatsApp templates use a static header")
+    expected_body_count = EXPECTED_BODY_PARAMETER_COUNTS[message_type]
+    if len(body_parameters) != expected_body_count:
+        raise ValueError(
+            f"{message_type} requires exactly {expected_body_count} body parameters"
+        )
+    if any(not isinstance(value, str) or not value.strip() for value in body_parameters):
+        raise ValueError("WhatsApp template parameters must contain non-empty text")

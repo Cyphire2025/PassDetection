@@ -39,6 +39,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.presentation.api.v1.schemas.operations_schemas import (
     AdminOverviewResponse,
     AssignManagerGroupsRequest,
@@ -476,12 +477,13 @@ async def delete_manager(
                 PassportSubmissionModel.id,
                 PassportSubmissionModel.image_s3_key,
                 PassportSubmissionModel.thumbnail_s3_key,
+                PassportSubmissionModel.passport_back_s3_key,
+                PassportSubmissionModel.passport_photo_s3_key,
             ).where(PassportSubmissionModel.group_id.in_(group_ids))
         ) if group_ids else None
         submissions = list(submission_rows.all()) if submission_rows else []
         submission_ids = [row.id for row in submissions]
-        storage_keys = [row.image_s3_key for row in submissions if row.image_s3_key]
-        storage_keys.extend(row.thumbnail_s3_key for row in submissions if row.thumbnail_s3_key)
+        storage_keys = passport_storage_keys(submissions)
 
         response.deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
         group_entity_ids = [str(group_id) for group_id in group_ids]
@@ -576,22 +578,27 @@ async def purge_passport_data(
         )
 
     group_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
-    passport_filter = [] if current_user.role == UserRole.SUPER_ADMIN else [PassportSubmissionModel.agency_id == current_user.agency_id]
 
     group_rows = await session.execute(select(ClientGroupModel.id).where(*group_filter))
     group_ids = list(group_rows.scalars().all())
+    passport_filter = (
+        []
+        if current_user.role == UserRole.SUPER_ADMIN
+        else [PassportSubmissionModel.group_id.in_(group_ids)]
+    )
 
     submission_rows = await session.execute(
         select(
             PassportSubmissionModel.id,
             PassportSubmissionModel.image_s3_key,
             PassportSubmissionModel.thumbnail_s3_key,
+            PassportSubmissionModel.passport_back_s3_key,
+            PassportSubmissionModel.passport_photo_s3_key,
         ).where(*passport_filter)
     )
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
-    storage_keys = [row.image_s3_key for row in submissions if row.image_s3_key]
-    storage_keys.extend(row.thumbnail_s3_key for row in submissions if row.thumbnail_s3_key)
+    storage_keys = passport_storage_keys(submissions)
 
     deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
 

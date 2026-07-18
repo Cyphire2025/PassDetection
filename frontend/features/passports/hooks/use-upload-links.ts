@@ -3,6 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { uploadLinksApi, type CreateUploadLinkRequest, type UploadLinkResponse } from "../api/upload-links.api";
 
 const QUERY_KEYS = {
@@ -24,7 +25,12 @@ export function useUploadLinkByToken(token: string) {
     queryKey: QUERY_KEYS.byToken(token),
     queryFn: () => uploadLinksApi.getByToken(token),
     enabled: Boolean(token),
-    retry: false, // Don't retry if token is invalid (404)
+    retry: (failureCount, error) => {
+      const status = isAxiosError(error) ? error.response?.status : undefined;
+      if (status && [400, 401, 403, 404, 410, 422].includes(status)) return false;
+      return failureCount < 2;
+    },
+    retryDelay: (attemptIndex) => Math.min(2_000, 500 * (2 ** attemptIndex)),
   });
 }
 

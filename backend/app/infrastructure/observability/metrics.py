@@ -1,9 +1,12 @@
-"""In-process metrics registry for demo and lightweight production diagnostics."""
+"""In-process metrics registry with safe hooks for shared metric providers."""
 
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
+from threading import RLock
+from typing import Any
 
 
 @dataclass
@@ -32,12 +35,34 @@ class MetricsRegistry:
     def __init__(self) -> None:
         self._counters: defaultdict[str, int] = defaultdict(int)
         self._histograms: defaultdict[str, Histogram] = defaultdict(Histogram)
+        self._gauges: dict[str, float] = {}
+        self._snapshot_providers: dict[str, Callable[[], dict[str, Any]]] = {}
+        self._lock = RLock()
 
     def increment(self, name: str, amount: int = 1) -> None:
-        self._counters[name] += amount
+        with self._lock:
+            self._counters[name] += amount
 
     def observe(self, name: str, value: float) -> None:
-        self._histograms[name].observe(value)
+        with self._lock:
+            self._histograms[name].observe(value)
+
+    def set_gauge(self, name: str, value: float) -> None:
+        with self._lock:
+            self._gauges[name] = value
+
+    def register_snapshot_provider(
+        self,
+        name: str,
+        provider: Callable[[], dict[str, Any]],
+    ) -> None:
+        """Register one bounded, non-authoritative shared metrics snapshot."""
+
+        normalized = name.strip().replace("-", "_").replace(".", "_")
+        if not normalized:
+            raise ValueError("Snapshot provider name cannot be empty")
+        with self._lock:
+            self._snapshot_providers[normalized] = provider
 
     def record_request(self, *, method: str, path: str, status_code: int, duration_ms: float) -> None:
         route = self._normalize_path(path)
@@ -57,11 +82,33 @@ class MetricsRegistry:
         normalized_stage = stage.strip().replace(".", "_").replace("-", "_") or "unknown"
         self.observe(f"ocr.stages.duration_ms.{normalized_stage}", duration_ms)
 
-    def snapshot(self) -> dict:
-        return {
-            "counters": dict(sorted(self._counters.items())),
-            "histograms": {name: hist.snapshot() for name, hist in sorted(self._histograms.items())},
-        }
+    def snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            snapshot = {
+                "counters": dict(sorted(self._counters.items())),
+                "gauges": dict(sorted(self._gauges.items())),
+                "histograms": {
+                    name: hist.snapshot()
+                    for name, hist in sorted(self._histograms.items())
+                },
+            }
+            providers = tuple(self._snapshot_providers.items())
+
+        shared: dict[str, Any] = {}
+        for name, provider in providers:
+            try:
+                shared[name] = provider()
+            except Exception:
+                # Diagnostics must remain available when an optional exporter
+                # fails. Provider implementations own their detailed,
+                # non-sensitive failure status.
+                shared[name] = {
+                    "status": "unavailable",
+                    "source": "snapshot_provider_error",
+                }
+        if shared:
+            snapshot["shared"] = shared
+        return snapshot
 
     def _normalize_path(self, path: str) -> str:
         if path.startswith("/api/v1/passports/upload/"):

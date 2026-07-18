@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  isPassportCorrectionContentSafe,
+  type PassportPageSide,
+} from "./passport-frame-detector";
+
 /**
  * Shared passport-page normalization used by both the front and back scanner.
  * Camera captures are already constrained by the on-screen guide. This module
@@ -36,28 +41,72 @@ interface FittedLine {
 const ANALYSIS_MAX_WIDTH = 520;
 const OUTPUT_MAX_DIMENSION = 1800;
 
-export async function normalizePassportFile(file: File): Promise<PassportNormalizationResult> {
-  return {
-    file,
-    corrected: false,
-  };
+export async function normalizePassportFile(
+  file: File,
+  pageSide: PassportPageSide = "front",
+): Promise<PassportNormalizationResult> {
+  if (!file.type.startsWith("image/")) {
+    return { file, corrected: false };
+  }
+
+  let bitmap: ImageBitmap | null = null;
+  try {
+    bitmap = await createImageBitmap(file);
+    if (bitmap.width < 640 || bitmap.height < 440) {
+      return { file, corrected: false };
+    }
+
+    const source = document.createElement("canvas");
+    source.width = bitmap.width;
+    source.height = bitmap.height;
+    const context = source.getContext("2d");
+    if (!context) return { file, corrected: false };
+    context.drawImage(bitmap, 0, 0);
+
+    await nextAnimationFrame();
+    const detectedQuad = detectDocumentQuad(source);
+    if (!detectedQuad) return { file, corrected: false };
+    const normalized = rectifyDocument(source, detectedQuad);
+    if (
+      normalized === source
+      || !isSafeCorrectedPage(normalized, pageSide)
+    ) {
+      return { file, corrected: false };
+    }
+
+    return {
+      file: await canvasToFile(normalized, file.name),
+      corrected: true,
+    };
+  } catch {
+    // File upload is an explicit fallback. If decoding or conservative
+    // rectification is unavailable, preserve the original instead of
+    // silently returning a damaged crop.
+    return { file, corrected: false };
+  } finally {
+    bitmap?.close();
+  }
 }
 
 export async function normalizePassportCanvasCapture(
   sourceCanvas: HTMLCanvasElement,
   fileName = "passport-capture.jpg",
+  pageSide: PassportPageSide = "front",
 ): Promise<PassportCanvasNormalizationResult> {
   await nextAnimationFrame();
   const detectedQuad = detectDocumentQuad(sourceCanvas);
-  const normalizedCanvas = detectedQuad
+  const correctionCandidate = detectedQuad
     ? rectifyDocument(sourceCanvas, detectedQuad)
     : sourceCanvas;
+  const corrected = correctionCandidate !== sourceCanvas
+    && isSafeCorrectedPage(correctionCandidate, pageSide);
+  const normalizedCanvas = corrected ? correctionCandidate : sourceCanvas;
   const file = await canvasToFile(normalizedCanvas, fileName);
 
   return {
     file,
     previewDataUrl: normalizedCanvas.toDataURL("image/jpeg", 0.95),
-    corrected: Boolean(detectedQuad),
+    corrected,
   };
 }
 
@@ -285,6 +334,41 @@ function rectifyDocument(source: HTMLCanvasElement, quad: DocumentQuad) {
 
   outputContext.putImageData(outputPixels, 0, 0);
   return output;
+}
+
+function isSafeCorrectedPage(
+  canvas: HTMLCanvasElement,
+  pageSide: PassportPageSide,
+) {
+  if (canvas.width < 640 || canvas.height < 440) return false;
+  const aspectRatio = canvas.width / Math.max(1, canvas.height);
+  if (aspectRatio < 1.08 || aspectRatio > 1.85) return false;
+
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return false;
+  const sampleWidth = Math.min(320, canvas.width);
+  const sampleHeight = Math.max(
+    1,
+    Math.round(sampleWidth / aspectRatio),
+  );
+  const sample = document.createElement("canvas");
+  sample.width = sampleWidth;
+  sample.height = sampleHeight;
+  const sampleContext = sample.getContext("2d", { willReadFrequently: true });
+  if (!sampleContext) return false;
+  sampleContext.drawImage(canvas, 0, 0, sampleWidth, sampleHeight);
+  const pixels = sampleContext.getImageData(
+    0,
+    0,
+    sampleWidth,
+    sampleHeight,
+  ).data;
+  return isPassportCorrectionContentSafe(
+    pixels,
+    sampleWidth,
+    sampleHeight,
+    pageSide,
+  );
 }
 
 function solveDestinationToSourceHomography(quad: DocumentQuad): number[] | null {

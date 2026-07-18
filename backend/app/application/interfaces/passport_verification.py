@@ -16,7 +16,7 @@ class PassportVerificationResult:
 
 
 class IPassportVerificationService(ABC):
-    """Verifies OCR fields against the passport front image without blocking review."""
+    """Classifies the submitted image and verifies OCR fields against it."""
 
     @abstractmethod
     async def verify(
@@ -27,5 +27,5 @@ class IPassportVerificationService(ABC):
         extracted_fields: dict[str, Any],
         timeout_seconds: float | None = None,
     ) -> PassportVerificationResult:
-        """Return conservatively merged fields within the caller's remaining budget."""
+        """Return conservatively merged fields plus a conclusive classification status."""
         ...

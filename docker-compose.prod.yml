@@ -1,0 +1,67 @@
+# Staging/production runtime override.
+#
+# Apply this file after docker-compose.yml. `command: null` restores the
+# backend runtime image CMD (Gunicorn with Uvicorn workers), while `!reset`
+# removes development-only source bind mounts and internal host publications so
+# deployed containers execute the baked image and are reachable only through
+# the private Compose network. Nginx remains the public entry point.
+#
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  db:
+    ports: !reset []
+
+  redis:
+    ports: !reset []
+
+  minio:
+    ports: !reset []
+
+  backend:
+    command: null
+    volumes: !reset []
+    ports: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      PROCESSING_BACKEND: celery
+      PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS: "true"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen(
+          'http://localhost:8000/api/v1/health/ready', timeout=5)
+
+  worker:
+    volumes: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
+  extraction-worker:
+    volumes: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
+  verification-worker:
+    volumes: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
+  frontend:
+    build:
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ""
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_DEV_APP_URL: ""
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ""
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_DEV_APP_URL: ""

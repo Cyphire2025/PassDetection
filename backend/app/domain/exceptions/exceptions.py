@@ -73,6 +73,36 @@ class ValidationError(PassDetectionError):
         self.field = field
 
 
+class StaffApprovalStaleError(PassDetectionError):
+    """Raised when staff reviewed an older extraction revision."""
+
+    def __init__(self, *, expected_revision: int, current_revision: int) -> None:
+        super().__init__(
+            (
+                "This passport changed after you opened it. Refresh the record, "
+                "review the latest extraction, and approve again."
+            ),
+            code="STAFF_APPROVAL_STALE",
+        )
+        self.expected_revision = expected_revision
+        self.current_revision = current_revision
+
+
+class StaffApprovalUnavailableError(PassDetectionError):
+    """Raised when the current workflow state cannot accept staff approval."""
+
+    def __init__(self, *, current_status: str, message: str | None = None) -> None:
+        super().__init__(
+            message
+            or (
+                "This passport is not available for staff approval in its current "
+                "state. Refresh the record and review its latest status."
+            ),
+            code="STAFF_APPROVAL_UNAVAILABLE",
+        )
+        self.current_status = current_status
+
+
 class DuplicateEntityError(PassDetectionError):
     """Raised when attempting to create an entity that already exists."""
 

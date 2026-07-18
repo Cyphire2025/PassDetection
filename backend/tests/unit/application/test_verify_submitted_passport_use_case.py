@@ -11,7 +11,6 @@ from app.application.interfaces.post_submission_verification import (
     PostSubmissionVerificationResult,
 )
 from app.application.use_cases.passports.verify_submitted_passport_use_case import (
-    TransientPostSubmissionVerificationError,
     VerifySubmittedPassportUseCase,
 )
 from app.domain.entities.entities import PassportSubmission
@@ -44,13 +43,15 @@ def _submitted_passport() -> PassportSubmission:
 
 
 class VerifySubmittedPassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
-    async def test_transient_provider_failure_is_not_persisted_as_a_decision(
+    async def test_exhausted_provider_attempts_persist_conservative_review_state(
         self,
     ) -> None:
         submission = _submitted_passport()
         passport_repo = SimpleNamespace(
             get_by_id=AsyncMock(return_value=submission),
-            apply_post_submission_verification=AsyncMock(),
+            apply_post_submission_verification=AsyncMock(
+                return_value=submission
+            ),
         )
         storage_repo = SimpleNamespace(
             get_file=AsyncMock(return_value=b"passport-image")
@@ -70,11 +71,15 @@ class VerifySubmittedPassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
             verification_service=verification_service,
         )
 
-        with self.assertRaises(TransientPostSubmissionVerificationError) as raised:
-            await use_case.execute(
-                submission_id=submission.id,
-                expected_revision=submission.post_submission_verification_revision,
-            )
+        result = await use_case.execute(
+            submission_id=submission.id,
+            expected_revision=submission.post_submission_verification_revision,
+        )
 
-        self.assertIs(raised.exception.verification, transient)
-        passport_repo.apply_post_submission_verification.assert_not_awaited()
+        self.assertIsNotNone(result)
+        passport_repo.apply_post_submission_verification.assert_awaited_once_with(
+            submission_id=submission.id,
+            expected_revision=submission.post_submission_verification_revision,
+            decision="needs_review",
+            verification=transient.to_dict(),
+        )

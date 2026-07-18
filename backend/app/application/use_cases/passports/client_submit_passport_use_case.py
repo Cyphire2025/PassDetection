@@ -23,12 +23,21 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.passport_document_classification import (
+    is_accepted_passport_information_page,
+    passport_document_classification,
+)
 from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
 
 logger = get_logger(__name__)
+
+PUBLIC_DOCUMENT_CLASSIFICATION_REQUIRED = (
+    "We could not confirm that this is a passport photo and details page. "
+    "Retry automatic reading or replace the saved passport pages before submitting."
+)
 
 
 class ClientSubmitPassportUseCase:
@@ -81,8 +90,29 @@ class ClientSubmitPassportUseCase:
         if not submission.passport_back_s3_key:
             raise ValidationError("Passport back image is required.", field="passport_back_file")
         if group.require_selfie and not submission.passport_photo_s3_key:
-            raise ValidationError("VISA selfie photo is required for this group.", field="passport_photo_file")
+            raise ValidationError(
+                "Visa Photo is required for this upload link.",
+                field="passport_photo_file",
+            )
+        if (
+            submission.status.value not in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+            and not is_accepted_passport_information_page(
+                passport_document_classification(submission.extracted_fields)
+            )
+        ):
+            # The browser cannot bypass the final server-side document gate by
+            # manually entering plausible passport fields. This also fails
+            # closed while Gemini classification is unavailable or incomplete.
+            raise ValidationError(
+                PUBLIC_DOCUMENT_CLASSIFICATION_REQUIRED,
+                field="file",
+            )
         normalized_mode = "family" if submission_mode == "family" else "single"
+        if submission.qualifier_enabled_snapshot and normalized_mode != "single":
+            raise ValidationError(
+                "Relation with Qualifier uploads support one passenger only.",
+                field="submission_mode",
+            )
         normalized_email = client_email.lower().strip() if client_email and client_email.strip() else None
         normalized_phone = self._normalize_phone(client_phone) if client_phone and client_phone.strip() else None
         normalized_head_email = family_head_email.lower().strip() if family_head_email and family_head_email.strip() else None

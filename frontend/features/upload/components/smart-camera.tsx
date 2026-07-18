@@ -2,14 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AlertTriangle, RefreshCcw, X, Check, Loader2 } from "lucide-react";
+import { AlertTriangle, X, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePassportFrameDetection } from "../hooks/use-passport-frame-detection";
 import { usePassportBlurDetection } from "../hooks/use-passport-blur-detection";
 import { usePassportLightingDetection } from "../hooks/use-passport-lighting-detection";
 import { usePassportGlareDetection } from "../hooks/use-passport-glare-detection";
+import { useStableTelemetryReason } from "../hooks/use-stable-telemetry-reason";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
-import type { PassportPageSide } from "../services/passport-frame-detector";
+import {
+  passportScannerRejectionReason,
+  type PassportScannerRejectionReason,
+} from "../services/public-flow-telemetry";
+import type {
+  PassportFrameStatus,
+  PassportPageSide,
+} from "../services/passport-frame-detector";
 import {
   getEmptyPassportAutoCaptureProgress,
   getPassportAutoCaptureProgress,
@@ -21,6 +29,7 @@ interface SmartCameraProps {
   onCancel: () => void;
   pageSide: PassportPageSide;
   allowFileFallback?: boolean;
+  onTelemetryReason?: (reason: PassportScannerRejectionReason) => void;
 }
 
 export function SmartCamera({
@@ -28,6 +37,7 @@ export function SmartCamera({
   onCancel,
   pageSide,
   allowFileFallback = true,
+  onTelemetryReason = () => undefined,
 }: SmartCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
@@ -37,13 +47,15 @@ export function SmartCamera({
   const blurCanvasRef = useRef<HTMLCanvasElement>(null);
   const lightingCanvasRef = useRef<HTMLCanvasElement>(null);
   const glareCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [cameraRestartGeneration, setCameraRestartGeneration] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [failureReason, setFailureReason] = useState<
+    "camera_unavailable" | "crop_validation_failed" | null
+  >(null);
   const [isProcessingCapture, setIsProcessingCapture] = useState(false);
   const [autoCaptureProgress, setAutoCaptureProgress] = useState(
     getEmptyPassportAutoCaptureProgress,
@@ -51,43 +63,74 @@ export function SmartCamera({
   const autoCaptureStableSinceRef = useRef<number | null>(null);
   const autoCaptureTimeoutRef = useRef<number | null>(null);
   const autoCaptureIntervalRef = useRef<number | null>(null);
+  const visibilityPausedRef = useRef(false);
   const mountedRef = useRef(true);
 
-  const { isDetected: isPassportDetected } = usePassportFrameDetection({
+  const {
+    isDetected: isPassportDetected,
+    status: passportFrameStatus,
+    isCriticalZoneObstructed,
+    hasDocumentCandidate,
+    detectionSequence: passportDetectionSequence,
+  } = usePassportFrameDetection({
     videoRef,
     canvasRef: analysisCanvasRef,
+    guideRef,
     enabled: isReady && !capturedImage && !cameraError,
     pageSide,
+    resetKey: cameraRestartGeneration,
   });
+  const qualityResetKey = `${cameraRestartGeneration}:${passportDetectionSequence}`;
 
   const { status: blurStatus, isSharp } = usePassportBlurDetection({
     videoRef,
     canvasRef: blurCanvasRef,
+    guideRef,
     enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
+    resetKey: qualityResetKey,
   });
 
   const { status: lightingStatus, isWellLit } = usePassportLightingDetection({
     videoRef,
     canvasRef: lightingCanvasRef,
+    guideRef,
     enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
+    resetKey: qualityResetKey,
   });
   const { status: glareStatus, hasGlare } = usePassportGlareDetection({
     videoRef,
     canvasRef: glareCanvasRef,
+    guideRef,
     enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
+    resetKey: qualityResetKey,
   });
 
-  const isCaptureReady = isPassportDetected && isSharp && isWellLit && !hasGlare && !isProcessingCapture;
+  const isCaptureReady = isPassportDetected
+    && isSharp
+    && isWellLit
+    && glareStatus === "clear"
+    && !hasGlare
+    && !isProcessingCapture;
+
+  const telemetryReason = passportScannerRejectionReason({
+    failureReason,
+    frameStatus: passportFrameStatus,
+    passportDetected: isPassportDetected,
+    glareStatus,
+    lightingStatus,
+    blurStatus,
+  });
+  useStableTelemetryReason(telemetryReason, onTelemetryReason);
 
   const guideToneClass = isCaptureReady
     ? "border-emerald-400"
-    : isPassportDetected
+    : hasDocumentCandidate
       ? "border-amber-400"
       : "border-white/60";
 
   const statusBannerClass = isCaptureReady
     ? "bg-emerald-500 text-white"
-    : isPassportDetected
+    : hasDocumentCandidate
       ? "bg-amber-500 text-slate-950"
       : "bg-black/55 text-white/90";
 
@@ -97,8 +140,10 @@ export function SmartCamera({
       ? "Stability confirmed - capturing now"
     : isCaptureReady
       ? `Hold steady - ${autoCaptureProgress.secondsRemaining || 1}s until automatic capture`
+    : isCriticalZoneObstructed
+      ? "Remove fingers from the passport photo, printed details, and MRZ"
     : !isPassportDetected
-    ? `Position the passport ${pageSide === "front" ? "data" : "back"} page within the frame`
+    ? passportFrameGuidance(passportFrameStatus, pageSide)
     : glareStatus === "checking"
       ? "Checking surface glare"
     : glareStatus === "glare"
@@ -138,9 +183,15 @@ export function SmartCamera({
       setIsLoading(true);
       setIsReady(false);
       setCameraError(null);
+      setFailureReason(null);
 
       try {
+        if (document.visibilityState === "hidden") {
+          visibilityPausedRef.current = true;
+          return;
+        }
         if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+          setFailureReason("camera_unavailable");
           setCameraError(
             "This custom passport scanner needs a secure camera session. Open the upload link over HTTPS to use the live detection frame, glare, blur, and lighting checks.",
           );
@@ -151,7 +202,7 @@ export function SmartCamera({
 
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { ideal: facingMode },
+            facingMode: { ideal: "environment" },
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
@@ -162,6 +213,11 @@ export function SmartCamera({
           mediaStream.getTracks().forEach((track) => track.stop());
           return;
         }
+        if (isPageHidden()) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          visibilityPausedRef.current = true;
+          return;
+        }
 
         streamRef.current = mediaStream;
         if (videoRef.current) {
@@ -170,6 +226,7 @@ export function SmartCamera({
         }
       } catch (error) {
         if (disposed) return;
+        setFailureReason("camera_unavailable");
         setCameraError(
           error instanceof DOMException && error.name === "NotAllowedError"
             ? "Camera access was blocked. Allow camera permission in your browser and try again."
@@ -188,7 +245,7 @@ export function SmartCamera({
       disposed = true;
       stopCamera();
     };
-  }, [allowFileFallback, cameraRestartGeneration, facingMode, stopCamera]);
+  }, [allowFileFallback, cameraRestartGeneration, stopCamera]);
 
   const clearAutoCaptureTimers = useCallback(() => {
     autoCaptureStableSinceRef.current = null;
@@ -203,15 +260,37 @@ export function SmartCamera({
     }
   }, []);
 
-  const toggleCamera = () => {
-    clearAutoCaptureTimers();
-    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
-    setIsReady(false);
-    setFacingMode((prev) => prev === "environment" ? "user" : "environment");
-  };
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        if (capturedImage) return;
+        visibilityPausedRef.current = true;
+        clearAutoCaptureTimers();
+        stopCamera();
+        setIsReady(false);
+        setIsLoading(false);
+        setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
+        return;
+      }
+      if (!visibilityPausedRef.current || capturedImage) return;
+      visibilityPausedRef.current = false;
+      setIsLoading(true);
+      setCameraRestartGeneration((generation) => generation + 1);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [capturedImage, clearAutoCaptureTimers, stopCamera]);
 
   const takePhoto = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current || !isReady) return;
+    if (
+      !videoRef.current
+      || !canvasRef.current
+      || !isReady
+      || !isCaptureReady
+    ) return;
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -245,14 +324,17 @@ export function SmartCamera({
         const normalized = await normalizePassportCanvasCapture(
           canvas,
           `passport-${pageSide}-capture.jpg`,
+          pageSide,
         );
         if (!mountedRef.current) return;
         setCapturedFile(normalized.file);
         setCapturedImage(normalized.previewDataUrl);
+        setFailureReason(null);
         stopCamera();
       } catch {
         stopCamera();
         if (mountedRef.current) {
+          setFailureReason("crop_validation_failed");
           setCameraError(
             `The passport ${pageSide} page could not be prepared. Try the camera again or go back and choose another capture method.`,
           );
@@ -261,12 +343,19 @@ export function SmartCamera({
         if (mountedRef.current) setIsProcessingCapture(false);
       }
     }
-  }, [clearAutoCaptureTimers, isReady, pageSide, stopCamera]);
+  }, [
+    clearAutoCaptureTimers,
+    isCaptureReady,
+    isReady,
+    pageSide,
+    stopCamera,
+  ]);
 
   const restartCamera = () => {
     clearAutoCaptureTimers();
     stopCamera();
     setCameraError(null);
+    setFailureReason(null);
     setCapturedImage(null);
     setCapturedFile(null);
     setIsReady(false);
@@ -342,7 +431,12 @@ export function SmartCamera({
   }, [clearAutoCaptureTimers]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="passport-camera-title"
+      className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white"
+    >
       <div className="flex h-16 items-center justify-between px-4 pt-[max(0.25rem,env(safe-area-inset-top))]">
         <button
           type="button"
@@ -352,7 +446,7 @@ export function SmartCamera({
         >
           <X className="h-6 w-6" />
         </button>
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 id="passport-camera-title" className="text-lg font-semibold tracking-tight">
           Passport {pageSide === "front" ? "Front" : "Back"} Scan
         </h2>
         <div className="w-10" aria-hidden="true" />
@@ -360,15 +454,29 @@ export function SmartCamera({
 
       <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black">
         {(isLoading || isProcessingCapture) && !capturedImage && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <div
+            role="status"
+            aria-live="polite"
+            className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950"
+          >
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" aria-hidden="true" />
+            <span className="sr-only">
+              {isProcessingCapture ? "Preparing passport image" : "Starting camera"}
+            </span>
           </div>
         )}
 
         {cameraError ? (
-          <div className="mx-6 max-w-md rounded-2xl border border-amber-400/30 bg-slate-900 p-6 text-center shadow-2xl">
-            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" />
-            <h3 className="mb-2 text-lg font-semibold">Camera unavailable</h3>
+          <div
+            role="alert"
+            className="mx-6 max-w-md rounded-2xl border border-amber-400/30 bg-slate-900 p-6 text-center shadow-2xl"
+          >
+            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" aria-hidden="true" />
+            <h3 className="mb-2 text-lg font-semibold">
+              {failureReason === "crop_validation_failed"
+                ? "Passport image needs another try"
+                : "Camera unavailable"}
+            </h3>
             <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
             <div className="flex flex-col gap-3">
               <Button onClick={restartCamera} className="w-full">
@@ -390,7 +498,7 @@ export function SmartCamera({
               playsInline
               muted
               onLoadedData={() => setIsReady(true)}
-              className={`h-full w-full object-cover ${capturedImage ? "opacity-0" : "opacity-100"} ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
+              className={`h-full w-full object-cover ${capturedImage ? "opacity-0" : "opacity-100"}`}
             />
 
             {capturedImage ? (
@@ -422,7 +530,7 @@ export function SmartCamera({
                   className={`absolute left-1/2 top-5 w-[min(92%,28rem)] -translate-x-1/2 rounded-2xl px-4 py-2.5 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
                 >
                   <div>{guidanceMessage}</div>
-                  {isPassportDetected && !isProcessingCapture && (
+                  {isCaptureReady && !isProcessingCapture && (
                     <div
                       className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/20"
                       role="progressbar"
@@ -439,27 +547,6 @@ export function SmartCamera({
                   )}
                 </div>
 
-                <div className="absolute bottom-28 left-1/2 flex max-w-[94%] -translate-x-1/2 flex-wrap items-center justify-center gap-2 sm:bottom-24">
-                  <QualityChip label="Passport" status={isPassportDetected ? "ready" : "pending"} />
-                  <QualityChip
-                    label="Focus"
-                    status={!isPassportDetected || blurStatus === "checking" ? "pending" : isSharp ? "ready" : "warning"}
-                  />
-                  <QualityChip
-                    label="Lighting"
-                    status={!isPassportDetected || lightingStatus === "checking" ? "pending" : lightingStatus === "good" ? "ready" : "warning"}
-                  />
-                  <QualityChip
-                    label="Glare"
-                    status={!isPassportDetected || glareStatus === "checking" ? "pending" : hasGlare ? "warning" : "ready"}
-                  />
-                  <QualityChip
-                    label={isCaptureReady
-                      ? `Auto ${autoCaptureProgress.secondsRemaining || "now"}`
-                      : "Auto"}
-                    status={!isPassportDetected ? "pending" : isCaptureReady ? "ready" : "pending"}
-                  />
-                </div>
               </div>
             )}
           </>
@@ -494,19 +581,16 @@ export function SmartCamera({
             </div>
           ) : (
             <>
-              <button
-                type="button"
-                onClick={toggleCamera}
-                aria-label="Switch camera"
-                className="rounded-full bg-white/10 p-3 transition-colors hover:bg-white/20"
-              >
-                <RefreshCcw className="h-6 w-6 text-white" />
-              </button>
+              <div className="h-12 w-12" aria-hidden="true" />
               <button
                 type="button"
                 onClick={() => void takePhoto()}
-                disabled={!isReady || isProcessingCapture}
-                aria-label="Take photo"
+                disabled={!isCaptureReady}
+                aria-label={
+                  isCaptureReady
+                    ? "Capture passport page"
+                    : "Passport capture is unavailable until every check passes"
+                }
                 className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-950 bg-white ring-2 ring-white transition-transform hover:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <div className="h-16 w-16 rounded-full border border-slate-200 bg-white"></div>
@@ -587,21 +671,41 @@ function addCaptureMargin(crop: CropBounds, maxWidth: number, maxHeight: number)
   );
 }
 
-interface QualityChipProps {
-  label: string;
-  status: "ready" | "warning" | "pending";
+function passportFrameGuidance(
+  status: PassportFrameStatus,
+  pageSide: PassportPageSide,
+): string {
+  switch (status) {
+    case "checking":
+      return "Hold steady while the passport page is checked";
+    case "no_document":
+      return pageSide === "front"
+        ? "Position the passport information page inside the frame"
+        : "Position the passport back page inside the frame";
+    case "incomplete_document":
+      return "Show all four page corners inside the frame";
+    case "too_small":
+      return "Move closer while keeping all four corners visible";
+    case "sideways":
+    case "upside_down":
+    case "excessive_skew":
+      return "Hold the passport upright and align it inside the frame";
+    case "multiple_documents":
+      return "Show only one passport page inside the frame";
+    case "screen_or_book":
+      return pageSide === "front"
+        ? "Show the physical passport information page, not a screen or book"
+        : "Show the physical passport back page, not a screen or book";
+    case "missing_mrz":
+    case "not_passport_page":
+      return pageSide === "front"
+        ? "Show the passport information page with the photo and MRZ"
+        : "Show the passport back page with its printed details";
+    case "ready":
+      return "Passport page detected - hold steady";
+  }
 }
 
-function QualityChip({ label, status }: QualityChipProps) {
-  const toneClass = status === "ready"
-    ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
-    : status === "warning"
-      ? "border-amber-300/40 bg-amber-400/15 text-amber-50"
-      : "border-white/10 bg-black/35 text-white/70";
-
-  return (
-    <div className={`rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur ${toneClass}`}>
-      {label}
-    </div>
-  );
+function isPageHidden() {
+  return document.visibilityState === "hidden";
 }

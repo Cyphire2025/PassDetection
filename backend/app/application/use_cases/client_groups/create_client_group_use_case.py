@@ -53,6 +53,9 @@ class CreateClientGroupUseCase:
             require_selfie=dto.require_selfie,
             allow_files_from_device=dto.allow_files_from_device,
             ask_nearest_domestic_airport=dto.ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=(
+                dto.relation_with_qualifier_enabled
+            ),
             notes=dto.notes,
         )
 
@@ -63,7 +66,6 @@ class CreateClientGroupUseCase:
             "client_group_created",
             group_id=str(link.id),
             agency_id=str(agency_id),
-            group_name=dto.name,
         )
 
         return client_group_output_from_entity(link)

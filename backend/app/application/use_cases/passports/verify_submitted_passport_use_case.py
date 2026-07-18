@@ -19,27 +19,12 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
-
-logger = get_logger(__name__)
-
-_TRANSIENT_PROVIDER_STATUSES = frozenset(
-    {
-        "network_error",
-        "provider_unavailable",
-        "rate_limited",
-        "timeout",
-    }
+from app.infrastructure.observability.operational_events import (
+    OperationalEvent,
+    record_operational_event,
 )
 
-
-class TransientPostSubmissionVerificationError(RuntimeError):
-    """Ask the durable worker to retry without persisting a false AI decision."""
-
-    def __init__(self, verification: PostSubmissionVerificationResult) -> None:
-        self.verification = verification
-        super().__init__(
-            verification.reason_code or verification.provider_status
-        )
+logger = get_logger(__name__)
 
 
 class VerifySubmittedPassportUseCase:
@@ -100,15 +85,19 @@ class VerifySubmittedPassportUseCase:
                     reason_code="verification_internal_error",
                     submitted_fields=submitted_fields,
                 )
-            if verification.provider_status in _TRANSIENT_PROVIDER_STATUSES:
+            if verification.provider_status in {
+                "network_error",
+                "provider_unavailable",
+                "rate_limited",
+                "timeout",
+            }:
                 logger.warning(
-                    "post_submission_verification_transient_provider_failure",
+                    "post_submission_verification_provider_attempts_exhausted",
                     submission_id=str(submission_id),
                     provider_status=verification.provider_status,
                     reason_code=verification.reason_code,
                     model=verification.model,
                 )
-                raise TransientPostSubmissionVerificationError(verification)
 
         applied = await self._passport_repo.apply_post_submission_verification(
             submission_id=submission_id,
@@ -116,7 +105,34 @@ class VerifySubmittedPassportUseCase:
             decision=verification.decision.value,
             verification=verification.to_dict(),
         )
-        return passport_submission_output_from_entity(applied) if applied else None
+        if applied is None:
+            record_operational_event(
+                OperationalEvent.POST_SUBMISSION_VERIFICATION,
+                "stale_result",
+            )
+            return None
+
+        provider_status = verification.provider_status
+        if verification.decision.value == PassportProcessingStatus.AI_APPROVED.value:
+            outcome = "ai_approved"
+        elif provider_status == "storage_unavailable":
+            outcome = "storage_unavailable"
+        elif provider_status == "internal_error":
+            outcome = "internal_error"
+        elif provider_status in {
+            "network_error",
+            "provider_unavailable",
+            "rate_limited",
+            "timeout",
+        }:
+            outcome = "provider_unavailable"
+        else:
+            outcome = "needs_review"
+        record_operational_event(
+            OperationalEvent.POST_SUBMISSION_VERIFICATION,
+            outcome,
+        )
+        return passport_submission_output_from_entity(applied)
 
     @staticmethod
     def _content_type(storage_key: str) -> str:

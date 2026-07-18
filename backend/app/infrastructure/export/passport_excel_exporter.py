@@ -52,6 +52,11 @@ _COLUMNS = (
     _ExportColumn("Base City", 20, "base_city_enabled"),
     _ExportColumn("Staff Code", 18, "staff_code_enabled"),
     _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
+    _ExportColumn(
+        "Relation with Qualifier",
+        24,
+        "relation_with_qualifier_enabled",
+    ),
     _ExportColumn("Surname", 20),
     _ExportColumn("Given Names", 24),
     _ExportColumn("Passport Number", 20),
@@ -191,6 +196,11 @@ class PassportExcelExporter:
                 "Staff Code": fields.get("staff_code") or staff_metadata.get("staff_code"),
                 "Meal Preference": (
                     fields.get("meal_preference") or staff_metadata.get("meal_preference")
+                ),
+                "Relation with Qualifier": (
+                    submission.qualifier_relation_label
+                    if submission.qualifier_enabled_snapshot
+                    else None
                 ),
                 "Surname": _uppercase(fields.get("surname")),
                 "Given Names": _uppercase(fields.get("given_names")),

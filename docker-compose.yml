@@ -1,6 +1,12 @@
 # ============================================================
 # Docker Compose — Full Development Stack
 # ============================================================
+# This base file intentionally keeps backend hot reload for local development.
+# Staging and production MUST also load docker-compose.prod.yml, which removes
+# application source mounts and restores the runtime image's Gunicorn command.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
 # Services:
 #   db        — PostgreSQL 16
 #   redis     — Redis 7
@@ -63,7 +69,7 @@ services:
 
   # ── MinIO (S3-compatible local storage) ─────────────────────────────────────
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     container_name: passdetection-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -157,13 +163,117 @@ services:
     command: >
       sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
       worker
+      --hostname=general@%h
       --loglevel=INFO
       --concurrency=${WORKER_CONCURRENCY:-2}
       -Q passport_ocr,whatsapp"
     networks:
       - passdetection-net
     healthcheck:
-      test: ["CMD-SHELL", "celery -A app.infrastructure.processing.celery_app:celery_app inspect ping | grep -q pong"]
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "general@$$(hostname)"
+          --queue passport_ocr
+          --queue whatsapp
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  extraction-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-extraction-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=extraction@%h
+      --loglevel=INFO
+      --concurrency=${GEMINI_EXTRACTION_MAX_CONCURRENCY:-32}
+      -Q interactive-passport-extraction"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "extraction@$$(hostname)"
+          --queue interactive-passport-extraction
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  verification-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-verification-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=verification@%h
+      --loglevel=INFO
+      --concurrency=${GEMINI_VERIFICATION_MAX_CONCURRENCY:-1}
+      -Q post-submission-ai-verification"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "verification@$$(hostname)"
+          --queue post-submission-ai-verification
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
       interval: 30s
       timeout: 10s
       retries: 3
@@ -181,8 +291,6 @@ services:
         NEXT_PUBLIC_API_BASE_URL: ""
     container_name: passdetection-frontend
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       NEXT_PUBLIC_API_BASE_URL: ""
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
@@ -195,7 +303,7 @@ services:
 
   # ── Nginx (Reverse Proxy) ───────────────────────────────────────────────────
   nginx:
-    image: nginx:1.25-alpine
+    image: nginx:1.30.4-alpine
     container_name: passdetection-nginx
     restart: unless-stopped
     ports:

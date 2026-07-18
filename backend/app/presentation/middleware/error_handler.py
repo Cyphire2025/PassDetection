@@ -95,12 +95,12 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(OCREngineError)
     async def ocr_engine_handler(request: Request, exc: OCREngineError) -> JSONResponse:
-        logger.error("ocr_engine_failed", engine=exc.engine, reason=str(exc))
+        logger.error("ocr_engine_failed", engine=exc.engine, code=exc.code)
         return _error_response(exc.code, exc.message, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @app.exception_handler(StorageError)
     async def storage_handler(request: Request, exc: StorageError) -> JSONResponse:
-        logger.error("storage_error", reason=str(exc))
+        logger.error("storage_error", code=exc.code)
         return _error_response(exc.code, exc.message, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @app.exception_handler(MRZParsingError)
@@ -113,7 +113,7 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(PassDetectionError)
     async def generic_domain_handler(request: Request, exc: PassDetectionError) -> JSONResponse:
-        logger.warning("unhandled_domain_error", code=exc.code, message=exc.message)
+        logger.warning("unhandled_domain_error", code=exc.code)
         return _error_response(exc.code, exc.message, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @app.exception_handler(RequestValidationError)
@@ -126,14 +126,21 @@ def register_exception_handlers(app: FastAPI) -> None:
                 "error": {
                     "code": "REQUEST_VALIDATION_ERROR",
                     "message": "Request validation failed",
-                    "details": exc.errors(),
+                    "details": [
+                        {
+                            "type": error.get("type"),
+                            "loc": error.get("loc"),
+                            "msg": error.get("msg"),
+                        }
+                        for error in exc.errors()
+                    ],
                 }
             },
         )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-        logger.exception("unhandled_exception", exc_info=exc)
+        logger.error("unhandled_exception", error_type=type(exc).__name__)
         return _error_response(
             "INTERNAL_SERVER_ERROR",
             "An unexpected error occurred. Please try again.",

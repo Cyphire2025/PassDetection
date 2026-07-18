@@ -1,4 +1,4 @@
-"""Safe application helper for optional passport image verification."""
+"""Safe application helper for mandatory passport image verification."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ async def verify_passport_fields(
     extracted_fields: dict[str, Any],
     timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
-    """Keep OCR usable even if an unexpected verifier implementation error escapes."""
+    """Preserve OCR diagnostics while making verifier availability explicit to the caller."""
 
     original = dict(extracted_fields)
     if service is None:
@@ -42,7 +42,9 @@ async def verify_passport_fields(
         else:
             async with asyncio.timeout(timeout_seconds):
                 result = await verify()
-        return result.merged_fields
+        merged = dict(result.merged_fields)
+        merged["ai_verification"] = dict(result.metadata)
+        return merged
     except TimeoutError:
         logger.warning("passport_ai_verification_deadline_exhausted")
         original["ai_verification"] = _unavailable_metadata("timeout")

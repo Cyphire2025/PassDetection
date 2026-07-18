@@ -417,11 +417,10 @@ export function WhatsAppPage() {
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[850px] text-left text-sm">
+              <table className="w-full min-w-[700px] text-left text-sm">
                 <thead className="border-b border-slate-200 bg-slate-50 font-medium text-slate-600">
                   <tr>
                     <th className="px-6 py-4">Group Name</th>
-                    <th className="px-6 py-4">Organising Company</th>
                     <th className="px-6 py-4">Recipients</th>
                     <th className="px-6 py-4">Updated</th>
                     <th className="px-6 py-4 text-right">Actions</th>
@@ -438,11 +437,8 @@ export function WhatsAppPage() {
                           {group.name}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">
-                          Shown inside client messages
+                          Used in approved trip wording
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-700">
-                        {group.organizing_company_name || "Not set"}
                       </td>
                       <td className="px-6 py-4 text-slate-700">
                         <span className="inline-flex items-center gap-1.5">
@@ -720,9 +716,6 @@ function RecipientListDialog({
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
   const [name, setName] = useState(group.name);
-  const [organizingCompanyName, setOrganizingCompanyName] = useState(
-    group.organizing_company_name,
-  );
   const [support, setSupport] = useState<ManualContact>({
     name: "",
     phone_number: "",
@@ -741,6 +734,8 @@ function RecipientListDialog({
     (WhatsAppRecipientInput & { id: string }) | null
   >(null);
   const initializedGroupRef = useRef<string | null>(null);
+  const detailsInFlightRef = useRef(false);
+  const recipientsInFlightRef = useRef(false);
   const { importState, previewFile, resetImport } = useRecipientExcelPreview({
     contacts,
     setContacts,
@@ -757,7 +752,6 @@ function RecipientListDialog({
     if (!detail || initializedGroupRef.current === detail.id) return;
     initializedGroupRef.current = detail.id;
     setName(detail.name);
-    setOrganizingCompanyName(detail.organizing_company_name);
     setSupportContacts(
       detail.support_contacts.map((contact) => ({
         name: contact.name,
@@ -782,23 +776,23 @@ function RecipientListDialog({
   const saveDetails = async () => {
     setDetailsError(null);
     setSuccessMessage(null);
-    if (!name.trim() || !organizingCompanyName.trim()) {
-      setDetailsError("Enter both the broadcast name and organising company.");
+    if (!name.trim()) {
+      setDetailsError("Enter the group name.");
       return;
     }
     if (supportContacts.length === 0) {
       setDetailsError("Keep at least one customer support contact.");
       return;
     }
+    if (updateGroup.isPending || detailsInFlightRef.current) return;
+    detailsInFlightRef.current = true;
     try {
       const updated = await updateGroup.mutateAsync({
         groupId: group.id,
         name: name.trim(),
-        organizingCompanyName: organizingCompanyName.trim(),
         supportContacts,
       });
       setName(updated.name);
-      setOrganizingCompanyName(updated.organizing_company_name);
       setSupportContacts(
         updated.support_contacts.map((contact) => ({
           name: contact.name,
@@ -813,6 +807,8 @@ function RecipientListDialog({
           "Could not update the broadcast details.",
         ),
       );
+    } finally {
+      detailsInFlightRef.current = false;
     }
   };
 
@@ -845,6 +841,11 @@ function RecipientListDialog({
       );
       return;
     }
+    if (
+      addRecipientsMutation.isPending
+      || recipientsInFlightRef.current
+    ) return;
+    recipientsInFlightRef.current = true;
     try {
       const updated = await addRecipientsMutation.mutateAsync({
         groupId: group.id,
@@ -861,6 +862,8 @@ function RecipientListDialog({
       setRecipientError(
         readErrorMessage(updateError, "Could not add these recipients."),
       );
+    } finally {
+      recipientsInFlightRef.current = false;
     }
   };
   const messageTypes = [
@@ -879,6 +882,12 @@ function RecipientListDialog({
       <DialogFrame
         title={`Recipient List - ${detail?.name ?? group.name}`}
         onClose={onClose}
+        isBusy={
+          updateGroup.isPending
+          || addRecipientsMutation.isPending
+          || deleteRecipient.isPending
+          || Boolean(recipientToRemove)
+        }
         widthClass="max-w-5xl"
       >
         {loadError ? (
@@ -896,23 +905,15 @@ function RecipientListDialog({
                   Broadcast details
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  These details appear in the approved messages sent to
-                  recipients.
+                  The group name and support contacts are used in the approved
+                  messages sent to recipients.
                 </p>
               </div>
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="mt-4 max-w-xl">
                 <Input
-                  label="Broadcast name"
+                  label="Group name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  maxLength={100}
-                />
-                <Input
-                  label="Organising company"
-                  value={organizingCompanyName}
-                  onChange={(event) =>
-                    setOrganizingCompanyName(event.target.value)
-                  }
                   maxLength={100}
                 />
               </div>
@@ -971,11 +972,8 @@ function RecipientListDialog({
                   isLoading={updateGroup.isPending}
                   disabled={
                     !name.trim() ||
-                    !organizingCompanyName.trim() ||
                     supportContacts.length === 0 ||
                     (name.trim() === detail.name &&
-                      organizingCompanyName.trim() ===
-                        detail.organizing_company_name &&
                       JSON.stringify(supportContacts) ===
                         JSON.stringify(
                           detail.support_contacts.map((contact) => ({
@@ -1085,7 +1083,7 @@ function RecipientListDialog({
 
               <ContactEditor
                 title="Manual recipients"
-                description="Names are required because each approved message is personalised."
+                description="Names are required so staff can identify each recipient and review delivery status."
                 value={manual}
                 contacts={contacts}
                 onValueChange={(value) => {
@@ -1244,14 +1242,12 @@ function CreateBroadcastDialog({
   onClose: () => void;
   onSubmit: (payload: {
     name: string;
-    organizingCompanyName: string;
     contacts: WhatsAppRecipientInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
   }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
-  const [organizingCompanyName, setOrganizingCompanyName] = useState("");
   const [manual, setManual] = useState<ManualContact>({
     name: "",
     phone_number: "",
@@ -1264,6 +1260,7 @@ function CreateBroadcastDialog({
   const [supportContacts, setSupportContacts] = useState<ManualContact[]>([]);
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const submitInFlightRef = useRef(false);
   const { importState, previewFile } = useRecipientExcelPreview({
     contacts,
     setContacts,
@@ -1299,10 +1296,6 @@ function CreateBroadcastDialog({
       setError("Enter a group name.");
       return;
     }
-    if (!organizingCompanyName.trim()) {
-      setError("Enter the organising company name.");
-      return;
-    }
     if (contacts.length === 0) {
       setError("Add at least one named recipient or upload an Excel file.");
       return;
@@ -1325,10 +1318,11 @@ function CreateBroadcastDialog({
       );
       return;
     }
+    if (isLoading || submitInFlightRef.current) return;
+    submitInFlightRef.current = true;
     try {
       await onSubmit({
         name: name.trim(),
-        organizingCompanyName: organizingCompanyName.trim(),
         contacts,
         supportContacts,
         recipientOptInConfirmed,
@@ -1337,38 +1331,37 @@ function CreateBroadcastDialog({
       setError(
         readErrorMessage(submitError, "Could not save this WhatsApp list."),
       );
+    } finally {
+      submitInFlightRef.current = false;
     }
   };
 
   return (
-    <DialogFrame title="Create WhatsApp Broadcast Group" onClose={onClose}>
+    <DialogFrame
+      title="Create WhatsApp Broadcast Group"
+      onClose={onClose}
+      isBusy={isLoading}
+    >
       <p className="text-sm text-slate-500">
         Each saved recipient receives a separate WhatsApp message; this does not
         create a shared WhatsApp chat group.
       </p>
       <form className="mt-5 space-y-5" onSubmit={handleSubmit}>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="max-w-xl">
           <Input
             label="Group name"
-            hint="This name will be visible to clients inside the message."
+            hint="Used to identify this broadcast and prefill the approved trip wording."
             placeholder="Vietnam Leadership Trip 2026"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            required
-          />
-          <Input
-            label="Organising company name"
-            hint="This company name will be visible to clients inside the message."
-            placeholder="Bluechip"
-            value={organizingCompanyName}
-            onChange={(event) => setOrganizingCompanyName(event.target.value)}
+            maxLength={100}
             required
           />
         </div>
 
         <ContactEditor
           title="Recipients"
-          description="Names are required because every message is personalised as Dear [Name]."
+          description="Names are required so staff can identify each recipient and review delivery status."
           value={manual}
           contacts={contacts}
           onValueChange={(value) => {
@@ -1490,10 +1483,12 @@ function MessagePreviewDialog({
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previewSequence = useRef(0);
+  const sendInFlightRef = useRef(false);
   const previewMutate = previewRequest.mutate;
 
   useEffect(() => {
     const sequence = ++previewSequence.current;
+    const controller = new AbortController();
     const timeout = window.setTimeout(() => {
       previewMutate(
         {
@@ -1505,16 +1500,23 @@ function MessagePreviewDialog({
             message_content: messageContent,
             recipient_id: previewRecipientId,
           },
+          signal: controller.signal,
         },
         {
           onSuccess: (response) => {
-            if (sequence !== previewSequence.current) return;
+            if (
+              controller.signal.aborted
+              || sequence !== previewSequence.current
+            ) return;
             setPreview(response);
             setMessageContent((current) => current ?? response.message_content);
             setError(null);
           },
           onError: (previewError) => {
-            if (sequence !== previewSequence.current) return;
+            if (
+              controller.signal.aborted
+              || sequence !== previewSequence.current
+            ) return;
             setError(
               readErrorMessage(
                 previewError,
@@ -1525,7 +1527,10 @@ function MessagePreviewDialog({
         },
       );
     }, 250);
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, [
     group.id,
     messageContent,
@@ -1567,6 +1572,8 @@ function MessagePreviewDialog({
       setError("Paste the passport upload link before sending.");
       return;
     }
+    if (isSending || sendInFlightRef.current) return;
+    sendInFlightRef.current = true;
     try {
       await onSend({
         passportLink: passportLink.trim(),
@@ -1579,6 +1586,8 @@ function MessagePreviewDialog({
           "WhatsApp could not submit this broadcast.",
         ),
       );
+    } finally {
+      sendInFlightRef.current = false;
     }
   };
 
@@ -1590,24 +1599,29 @@ function MessagePreviewDialog({
           : "Preview Passport Link Message"
       }
       onClose={onClose}
+      isBusy={isSending}
       widthClass="max-w-5xl"
     >
       <form className="space-y-5" onSubmit={handleSend}>
         <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-blue-900">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
-            This box supplies Meta Body variable{" "}
-            {messageType === "welcome" ? "{{3}}" : "{{4}}"} and can change
-            before each send. The remaining wording is fixed in the approved
-            Meta template; changing that fixed text requires Meta approval
-            again.
+            The approved Meta header is fixed as Dear Delegates. This field
+            supplies BODY variable{" "}
+            {messageType === "welcome" ? "{{1}}" : "{{3}}"} and can change
+            before each send.
+            {messageType === "passport_link" && (
+              <> The passport upload link supplies BODY variable {"{{2}}"}.</>
+            )}{" "}
+            The remaining wording is fixed in the approved Meta template;
+            changing that fixed text requires Meta approval again.
           </p>
         </div>
 
         {messageType === "passport_link" && (
           <Input
             label="Passport upload link"
-            hint="This secure link is inserted separately into every recipient's message."
+            hint="This secure link supplies Meta BODY variable {{2}} for every recipient."
             placeholder="https://..."
             value={passportLink}
             onChange={(event) => setPassportLink(event.target.value)}
@@ -1618,7 +1632,9 @@ function MessagePreviewDialog({
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="space-y-4">
             <label className="block text-sm font-medium text-slate-700">
-              Editable message section
+              {messageType === "welcome"
+                ? "Welcome trip message (BODY {{1}})"
+                : "Passport instructions (BODY {{3}})"}
               <textarea
                 className="mt-1.5 min-h-56 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 value={messageContent ?? preview?.message_content ?? ""}

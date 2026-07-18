@@ -14,6 +14,8 @@ Endpoints:
 
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
@@ -21,8 +23,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.domain.entities.entities import UserRole
+from app.infrastructure.ai_priority import get_ai_priority_coordinator
+from app.infrastructure.ai_priority.identity import gemini_configuration_readiness
+from app.infrastructure.ai_priority.worker_readiness import (
+    gemini_worker_readiness,
+)
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.observability import metrics
+from app.infrastructure.observability.metrics import metrics
+from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -46,7 +55,10 @@ async def liveness(settings: Settings = Depends(get_settings)) -> dict:
 @router.get(
     "/ready",
     summary="Readiness probe",
-    description="Returns 200 if the service can handle traffic (DB + Redis reachable).",
+    description=(
+        "Returns 200 when the database, AI scheduler/configuration, and "
+        "required Celery queue consumers are ready."
+    ),
     status_code=status.HTTP_200_OK,
 )
 async def readiness(
@@ -65,9 +77,34 @@ async def readiness(
         await db.execute(text("SELECT 1"))
         checks["database"] = "ok"
     except Exception as exc:
-        logger.error("health_check_db_failed", error=str(exc))
+        logger.error(
+            "health_check_db_failed",
+            error_type=type(exc).__name__,
+        )
         checks["database"] = "unreachable"
         overall_healthy = False
+
+    try:
+        await asyncio.to_thread(get_ai_priority_coordinator().snapshot)
+        checks["ai_priority_redis"] = "ok"
+    except Exception as exc:
+        logger.error(
+            "health_check_ai_priority_redis_failed",
+            error_type=type(exc).__name__,
+        )
+        checks["ai_priority_redis"] = "unreachable"
+        overall_healthy = False
+
+    gemini_checks, gemini_ready = gemini_configuration_readiness(settings)
+    checks.update(gemini_checks)
+    overall_healthy = overall_healthy and gemini_ready
+
+    worker_checks, workers_ready = await asyncio.to_thread(
+        gemini_worker_readiness,
+        settings,
+    )
+    checks.update(worker_checks)
+    overall_healthy = overall_healthy and workers_ready
 
     http_status = status.HTTP_200_OK if overall_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
 
@@ -84,8 +121,12 @@ async def readiness(
 @router.get(
     "/diagnostics",
     summary="Runtime diagnostics",
-    description="Returns dependency health and in-process operational metrics.",
+    description=(
+        "Returns dependency health, local process metrics, and shared AI "
+        "scheduler/provider metrics."
+    ),
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_role([UserRole.SUPER_ADMIN]))],
 )
 async def diagnostics(
     db: AsyncSession = Depends(get_db_session),
@@ -97,9 +138,13 @@ async def diagnostics(
         await db.execute(text("SELECT 1"))
         checks["database"] = "ok"
     except Exception as exc:
-        logger.error("diagnostics_db_failed", error=str(exc))
+        logger.error(
+            "diagnostics_db_failed",
+            error_type=type(exc).__name__,
+        )
         checks["database"] = "unreachable"
         http_status = status.HTTP_503_SERVICE_UNAVAILABLE
+    operational_metrics = await asyncio.to_thread(metrics.snapshot)
 
     return JSONResponse(
         status_code=http_status,
@@ -108,7 +153,7 @@ async def diagnostics(
             "version": settings.app_version,
             "environment": settings.app_env,
             "processing_backend": settings.processing_backend,
-            "metrics": metrics.snapshot(),
+            "metrics": operational_metrics,
             "checks": checks,
         },
     )
@@ -116,8 +161,9 @@ async def diagnostics(
 
 @router.get(
     "/metrics",
-    summary="In-process metrics snapshot",
+    summary="Local and shared metrics snapshot",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_role([UserRole.SUPER_ADMIN]))],
 )
 async def metrics_snapshot() -> dict:
-    return metrics.snapshot()
+    return await asyncio.to_thread(metrics.snapshot)

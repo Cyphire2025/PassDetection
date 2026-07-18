@@ -43,7 +43,69 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             image_s3_key=f"{group.agency_id}/{group.id}/passport.jpg",
         )
         submission.passport_back_s3_key = f"{group.agency_id}/{group.id}/passport-back.jpg"
+        submission.extracted_fields = {
+            "ai_verification": {
+                "status": "verified",
+                "available": True,
+            }
+        }
         return submission
+
+    async def test_final_submit_rejects_wrong_document_even_with_manual_fields(
+        self,
+    ) -> None:
+        group = self._group()
+        submission = self._submission(group)
+        submission.extracted_fields = {
+            "ai_verification": {
+                "status": "wrong_document",
+                "available": False,
+                "document_class": "aadhaar",
+            }
+        }
+        use_case, passport_repo = self._build_use_case(group, submission)
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                submission.id,
+                group_token=group.token,
+                confirmed_fields={
+                    "surname": "KUMAR",
+                    "given_names": "NIPUN",
+                    "passport_number": "P1234567",
+                },
+                client_email="person@example.com",
+                client_phone="9876543210",
+            )
+
+        self.assertEqual(context.exception.field, "file")
+        self.assertIn("passport photo and details page", str(context.exception))
+        passport_repo.update.assert_not_awaited()
+
+    async def test_final_submit_fails_closed_until_classification_is_available(
+        self,
+    ) -> None:
+        group = self._group()
+        submission = self._submission(group)
+        submission.extracted_fields = {
+            "ai_verification": {
+                "status": "provider_unavailable",
+                "available": False,
+            }
+        }
+        use_case, passport_repo = self._build_use_case(group, submission)
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email="person@example.com",
+                client_phone="9876543210",
+            )
+
+        self.assertEqual(context.exception.field, "file")
+        passport_repo.update.assert_not_awaited()
 
     async def test_enabled_fields_are_required_and_persisted_with_canonical_values(self) -> None:
         group = self._group(
@@ -182,6 +244,32 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         changed = {**request, "confirmed_fields": {"passport_number": "DIFFERENT"}}
         with self.assertRaises(ValidationError):
             await use_case.execute(submission.id, **changed)
+
+    async def test_qualifier_submission_cannot_be_changed_to_family_mode(self) -> None:
+        group = self._group()
+        submission = self._submission(group)
+        submission.qualifier_enabled_snapshot = True
+        use_case, passport_repo = self._build_use_case(group, submission)
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email=None,
+                client_phone=None,
+                submission_mode="family",
+                family_group_id=uuid.uuid4(),
+                family_member_index=0,
+                family_relation="Self",
+                family_gender="Male",
+                family_head_name="Family Head",
+                family_head_email="head@example.com",
+                family_head_phone="9876543210",
+            )
+
+        self.assertEqual(context.exception.field, "submission_mode")
+        passport_repo.update.assert_not_awaited()
 
     async def test_final_submit_requires_front_and_back_but_selfie_only_when_configured(self) -> None:
         optional_group = self._group()

@@ -72,6 +72,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     require_selfie: deletedGroup.require_selfie,
     allow_files_from_device: deletedGroup.allow_files_from_device ?? true,
     ask_nearest_domestic_airport: deletedGroup.ask_nearest_domestic_airport ?? false,
+    relation_with_qualifier_enabled:
+      deletedGroup.relation_with_qualifier_enabled ?? false,
     notes: deletedGroup.notes,
   } : undefined);
   const exportMutation = useExportPassportGroup();
@@ -103,6 +105,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     require_selfie: false,
     allow_files_from_device: true,
     ask_nearest_domestic_airport: false,
+    relation_with_qualifier_enabled: false,
     notes: "",
   });
 
@@ -365,6 +368,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     require_selfie: groupDetails.require_selfie,
                     allow_files_from_device: groupDetails.allow_files_from_device ?? true,
                     ask_nearest_domestic_airport: groupDetails.ask_nearest_domestic_airport ?? false,
+                    relation_with_qualifier_enabled:
+                      groupDetails.relation_with_qualifier_enabled ?? false,
                     notes: groupDetails.notes ?? "",
                   });
                   setIsEditingTrip(true);
@@ -382,9 +387,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
               <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="VISA Selfie Photo" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
+              <InfoPair label="Visa Photo Upload" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
               <InfoPair label="Files From Device" value={(groupDetails.allow_files_from_device ?? true) ? "Allowed" : "Live scanner only"} />
               <InfoPair label="Nearest Domestic Airport" value={(groupDetails.ask_nearest_domestic_airport ?? false) ? "Required" : "Disabled"} />
+              <InfoPair
+                label="Relation with Qualifier"
+                value={(groupDetails.relation_with_qualifier_enabled ?? false) ? "Enabled" : "Disabled"}
+              />
               <div className="sm:col-span-2">
                 <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
               </div>
@@ -707,6 +716,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 require_selfie: tripForm.require_selfie,
                 allow_files_from_device: tripForm.allow_files_from_device,
                 ask_nearest_domestic_airport: tripForm.ask_nearest_domestic_airport,
+                relation_with_qualifier_enabled:
+                  tripForm.relation_with_qualifier_enabled,
                 notes: tripForm.notes || null,
               },
               { onSuccess: () => setIsEditingTrip(false) },
@@ -783,6 +794,7 @@ function ReextractPassportControl({
     tone: "success" | "warning" | "error";
     message: string;
   } | null>(null);
+  const reextractInFlightRef = useRef(false);
   const isProcessing = passport.extraction_status === "processing";
   const backgroundFinished = feedback?.tone === "warning" && !isProcessing;
   const backgroundFailed = backgroundFinished
@@ -801,6 +813,8 @@ function ReextractPassportControl({
 
   const handleReextract = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    if (reextractMutation.isPending || reextractInFlightRef.current) return;
+    reextractInFlightRef.current = true;
     setFeedback(null);
     try {
       const result = await reextractMutation.mutateAsync(passport.id);
@@ -830,6 +844,8 @@ function ReextractPassportControl({
         tone: "error",
         message: error instanceof Error ? error.message : "Could not start re-extraction. Please try again.",
       });
+    } finally {
+      reextractInFlightRef.current = false;
     }
   };
 
@@ -1260,6 +1276,7 @@ function TripDetailsDialog({
     require_selfie: boolean;
     allow_files_from_device: boolean;
     ask_nearest_domestic_airport: boolean;
+    relation_with_qualifier_enabled: boolean;
     notes: string;
   };
   isLoading: boolean;
@@ -1276,6 +1293,7 @@ function TripDetailsDialog({
     require_selfie: boolean;
     allow_files_from_device: boolean;
     ask_nearest_domestic_airport: boolean;
+    relation_with_qualifier_enabled: boolean;
     notes: string;
   }) => void;
   onClose: () => void;
@@ -1320,8 +1338,8 @@ function TripDetailsDialog({
             <Input type="date" value={form.return_date} onChange={(event) => updateField("return_date", event.target.value)} />
           </label>
           <GroupOptionToggle
-            label="VISA Selfie Photo"
-            description="Require a passport-size selfie against a plain white wall."
+            label="Visa Photo Upload"
+            description="Require a Visa Photo against a plain white or off-white wall."
             checked={form.require_selfie}
             onChange={(checked) => onChange({ ...form, require_selfie: checked })}
           />
@@ -1336,6 +1354,15 @@ function TripDetailsDialog({
             description="Require each traveller to enter their nearest domestic airport."
             checked={form.ask_nearest_domestic_airport}
             onChange={(checked) => onChange({ ...form, ask_nearest_domestic_airport: checked })}
+          />
+          <GroupOptionToggle
+            label="Relation with Qualifier"
+            description="Require Self or one approved family relationship before a single-passenger upload."
+            checked={form.relation_with_qualifier_enabled}
+            onChange={(checked) => onChange({
+              ...form,
+              relation_with_qualifier_enabled: checked,
+            })}
           />
           <GroupOptionToggle
             label="Base City"

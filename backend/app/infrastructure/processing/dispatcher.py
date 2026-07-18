@@ -10,6 +10,11 @@ from fastapi import BackgroundTasks
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.infrastructure.ai_priority import (
+    EXTRACTION_QUEUE,
+    AiPriorityCoordinator,
+    get_ai_priority_coordinator,
+)
 from app.infrastructure.processing.delivery_watchdog import (
     run_passport_processing_job_watchdog,
 )
@@ -19,8 +24,14 @@ logger = get_logger(__name__)
 
 
 class PassportProcessingDispatcher:
-    def __init__(self, backend: str | None = None) -> None:
+    def __init__(
+        self,
+        backend: str | None = None,
+        *,
+        priority_coordinator: AiPriorityCoordinator | None = None,
+    ) -> None:
         self._backend = backend or get_settings().processing_backend
+        self._priority = priority_coordinator or get_ai_priority_coordinator()
 
     def dispatch(
         self,
@@ -29,6 +40,7 @@ class PassportProcessingDispatcher:
         submission_id: uuid.UUID,
         background_tasks: BackgroundTasks | None = None,
     ) -> str | None:
+        priority_lease = self._priority.queue_extraction(str(job_id))
         if self._backend == "celery":
             try:
                 task = self._send_celery(
@@ -40,6 +52,7 @@ class PassportProcessingDispatcher:
                     job_id=str(job_id),
                     celery_task_id=task.id,
                 )
+                self._priority.mark_extraction_dispatched(priority_lease)
                 if background_tasks is not None:
                     settings = get_settings()
                     background_tasks.add_task(
@@ -86,7 +99,7 @@ class PassportProcessingDispatcher:
 
         return process_passport_submission.apply_async(
             kwargs={"job_id": str(job_id), "submission_id": str(submission_id)},
-            queue="passport_ocr",
+            queue=EXTRACTION_QUEUE,
             countdown=1,
         )
 

@@ -45,7 +45,6 @@ export interface WhatsAppSupportContact {
 export interface WhatsAppBroadcastGroup {
   id: string;
   name: string;
-  organizing_company_name: string;
   recipient_count: number;
   recipient_opt_in_confirmed: boolean;
   created_at: string;
@@ -130,14 +129,12 @@ export const whatsappApi = {
 
   createGroup: async ({
     name,
-    organizingCompanyName,
     contacts,
     supportContacts,
     recipientOptInConfirmed,
     file,
   }: {
     name: string;
-    organizingCompanyName: string;
     contacts: WhatsAppRecipientInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
@@ -145,7 +142,6 @@ export const whatsappApi = {
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("organizing_company_name", organizingCompanyName);
     formData.append("contacts_json", JSON.stringify(contacts));
     formData.append("support_contacts_json", JSON.stringify(supportContacts));
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
@@ -159,19 +155,14 @@ export const whatsappApi = {
   updateGroup: async ({
     groupId,
     name,
-    organizingCompanyName,
     supportContacts,
   }: {
     groupId: string;
     name?: string;
-    organizingCompanyName?: string;
     supportContacts?: WhatsAppSupportContactInput[];
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
     if (name !== undefined) formData.append("name", name);
-    if (organizingCompanyName !== undefined) {
-      formData.append("organizing_company_name", organizingCompanyName);
-    }
     if (supportContacts !== undefined) {
       formData.append("support_contacts_json", JSON.stringify(supportContacts));
     }
@@ -223,10 +214,12 @@ export const whatsappApi = {
   previewMessage: async (
     groupId: string,
     draft: WhatsAppMessageDraft,
+    signal?: AbortSignal,
   ): Promise<WhatsAppPreviewResponse> => {
     const { data } = await apiClient.post<WhatsAppPreviewResponse>(
       API_ENDPOINTS.whatsapp.preview(groupId),
       draft,
+      { signal },
     );
     return data;
   },

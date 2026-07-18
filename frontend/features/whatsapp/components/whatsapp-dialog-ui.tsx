@@ -1,7 +1,14 @@
 "use client";
 
 import { X } from "lucide-react";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import {
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useEffect,
+  useId,
+  useRef,
+} from "react";
 import { Button, Card, CardContent, Input } from "@/components/ui";
 
 export type ManualContact = {
@@ -101,6 +108,7 @@ export function ContactEditor({
                 type="button"
                 className="justify-self-end text-xs font-medium text-red-600 hover:text-red-700"
                 onClick={() => onRemove(index)}
+                aria-label={`Remove ${contact.name || `contact ${index + 1}`}`}
               >
                 Remove
               </button>
@@ -115,24 +123,89 @@ export function ContactEditor({
 export function DialogFrame({
   title,
   onClose,
+  isBusy = false,
   widthClass = "max-w-3xl",
   children,
 }: {
   title: string;
   onClose: () => void;
+  isBusy?: boolean;
   widthClass?: string;
   children: ReactNode;
 }) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const isBusyRef = useRef(isBusy);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    isBusyRef.current = isBusy;
+    onCloseRef.current = onClose;
+  }, [isBusy, onClose]);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const dialog = dialogRef.current;
+    dialog?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (!isBusyRef.current) onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !dialog) return;
+      if (
+        document.activeElement !== dialog
+        && !dialog.contains(document.activeElement)
+      ) return;
+
+      const focusable = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("hidden"));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
-      <Card className={`max-h-[92vh] w-full overflow-auto shadow-2xl ${widthClass}`}>
+      <Card
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-busy={isBusy}
+        tabIndex={-1}
+        className={`max-h-[92vh] w-full overflow-auto shadow-2xl outline-none ${widthClass}`}
+      >
         <CardContent className="p-6">
           <div className="mb-5 flex items-start justify-between gap-4">
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+            <h2 id={titleId} className="text-lg font-semibold text-slate-900">{title}</h2>
             <button
               type="button"
               className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               onClick={onClose}
+              disabled={isBusy}
               aria-label="Close dialog"
             >
               <X className="h-5 w-5" />
@@ -146,7 +219,15 @@ export function DialogFrame({
 }
 
 export function ErrorBanner({ message }: { message: string }) {
-  return <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{message}</div>;
+  return (
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+    >
+      {message}
+    </div>
+  );
 }
 
 export function readErrorMessage(error: unknown, fallback: string): string {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
@@ -23,6 +23,7 @@ import type {
   ExtractedPassportFields,
   PassportExtractionConflict,
   PassportSubmission,
+  StaffApprovalResult,
 } from "@/types/passport.types";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
@@ -34,6 +35,8 @@ import {
 } from "../hooks/use-passports";
 import {
   canRetryPassportAiVerification,
+  buildStaffApprovalRequest,
+  cleanPassportReviewFields,
   formatPassportFieldReviewConfidence,
   formatPassportVerificationReason,
   getPassportFieldReview,
@@ -41,8 +44,11 @@ import {
   getPassportReviewerLabel,
   getPassportReviewActionState,
   getPassportVerificationConfidence,
+  getStaffApprovalErrorFeedback,
+  getStaffApprovalOutcomeFeedback,
   PASSPORT_REVIEW_FIELDS,
   type PassportFieldReview,
+  type StaffApprovalFeedback,
 } from "../utils/passport-review";
 
 interface PassportDetailProps {
@@ -64,7 +70,9 @@ export function PassportDetail({ id }: PassportDetailProps) {
   const reextractMutation = useReextractPassportSubmission();
   const currentUser = useAuthStore(selectUser);
   const [formError, setFormError] = useState<string | null>(null);
+  const [approvalFeedback, setApprovalFeedback] = useState<StaffApprovalFeedback | null>(null);
   const [reextractFeedback, setReextractFeedback] = useState<ReextractFeedback | null>(null);
+  const reextractInFlightRef = useRef(false);
 
   if (isLoading) {
     return (
@@ -90,6 +98,8 @@ export function PassportDetail({ id }: PassportDetailProps) {
   }
 
   const handleReextract = async () => {
+    if (reextractMutation.isPending || reextractInFlightRef.current) return;
+    reextractInFlightRef.current = true;
     setFormError(null);
     setReextractFeedback({
       tone: "processing",
@@ -126,6 +136,8 @@ export function PassportDetail({ id }: PassportDetailProps) {
           ? reextractError.message
           : "Could not start re-extraction. Please try again.",
       });
+    } finally {
+      reextractInFlightRef.current = false;
     }
   };
 
@@ -147,7 +159,7 @@ export function PassportDetail({ id }: PassportDetailProps) {
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="overflow-hidden rounded-3xl">
           <CardContent className="space-y-5 p-4">
-            <PassportImagePreview label="VISA selfie photo" url={data.passport_photo_url} clientName={data.client_name} />
+            <PassportImagePreview label="Visa Photo" url={data.passport_photo_url} clientName={data.client_name} />
             <PassportImagePreview label="Passport front" url={data.image_url} clientName={data.client_name} />
             <PassportImagePreview label="Passport back" url={data.passport_back_url} clientName={data.client_name} />
           </CardContent>
@@ -197,10 +209,24 @@ export function PassportDetail({ id }: PassportDetailProps) {
             canReextract={needsReextraction(data)}
             isReextracting={reextractMutation.isPending}
             reextractFeedback={reextractFeedback}
+            approvalFeedback={approvalFeedback}
             formError={formError}
             onFormError={setFormError}
             onConfirm={(fields) => confirmMutation.mutateAsync(fields)}
-            onStaffApprove={(fields) => staffApproveMutation.mutateAsync(fields)}
+            onStaffApprove={async (fields, reviewReason) => {
+              setApprovalFeedback(null);
+              const result = await staffApproveMutation.mutateAsync(
+                buildStaffApprovalRequest(
+                  fields,
+                  data.extraction_revision,
+                  reviewReason,
+                ),
+              );
+              setApprovalFeedback(
+                getStaffApprovalOutcomeFeedback(result.outcome),
+              );
+              return result;
+            }}
             onRetryAiVerification={() => retryAiVerificationMutation.mutateAsync()}
             reviewerLabel={getPassportReviewerLabel(data, currentUser)}
             onReextract={() => void handleReextract()}
@@ -297,10 +323,14 @@ interface ReviewFieldsCardProps {
   canReextract: boolean;
   isReextracting: boolean;
   reextractFeedback: ReextractFeedback | null;
+  approvalFeedback: StaffApprovalFeedback | null;
   formError: string | null;
   onFormError: (error: string | null) => void;
   onConfirm: (fields: Record<string, string>) => Promise<unknown>;
-  onStaffApprove: (fields: Record<string, string>) => Promise<unknown>;
+  onStaffApprove: (
+    fields: Record<string, string>,
+    reviewReason?: string,
+  ) => Promise<StaffApprovalResult>;
   onRetryAiVerification: () => Promise<unknown>;
   reviewerLabel: string | null;
   onReextract: () => void;
@@ -317,6 +347,7 @@ function ReviewFieldsCard({
   canReextract,
   isReextracting,
   reextractFeedback,
+  approvalFeedback,
   formError,
   onFormError,
   onConfirm,
@@ -334,21 +365,17 @@ function ReviewFieldsCard({
     [sourceFields],
   );
   const [reviewFields, setReviewFields] = useState<Record<string, string>>(initialFields);
+  const [reviewReason, setReviewReason] = useState("");
+  const reviewActionInFlightRef = useRef(false);
+  const verificationRetryInFlightRef = useRef(false);
 
   const handleFieldChange = (key: string, value: string) => {
     setReviewFields((current) => ({ ...current, [key]: value }));
   };
 
   const handleConfirm = async () => {
-    const cleanedFields: Record<string, string> = Object.fromEntries(
-      Object.entries(reviewFields)
-        .map(([key, value]) => [key, value.trim()])
-        .filter(([, value]) => value),
-    );
-    for (const key of ["base_city", "staff_code", "meal_preference"] as const) {
-      const value = getStringField(sourceFields, key);
-      if (value) cleanedFields[key] = value;
-    }
+    if (isSaving || reviewActionInFlightRef.current) return;
+    const cleanedFields = cleanPassportReviewFields(reviewFields);
 
     if (Object.keys(cleanedFields).length === 0) {
       onFormError("Add at least one reviewed field before confirming.");
@@ -360,24 +387,47 @@ function ReviewFieldsCard({
     }
 
     onFormError(null);
+    reviewActionInFlightRef.current = true;
     try {
       if (passport.status === "needs_review") {
-        await onStaffApprove(cleanedFields);
+        await onStaffApprove(cleanedFields, reviewReason.trim() || undefined);
       } else {
         await onConfirm(cleanedFields);
       }
     } catch (error) {
-      onFormError(readReviewActionError(
-        error,
+      onFormError(
         passport.status === "needs_review"
-          ? "Could not approve this passport. Your field edits were not saved, so it is safe to retry."
-          : "Could not save the reviewed passport fields. Please try again.",
-      ));
+          ? getStaffApprovalErrorFeedback(error).message
+          : readReviewActionError(
+            error,
+            "Could not save the reviewed passport fields. Please try again.",
+          ),
+      );
+    } finally {
+      reviewActionInFlightRef.current = false;
     }
   };
 
   const actionState = getPassportReviewActionState(passport.status, isSaving);
   const workflowStatusMessage = getWorkflowStatusMessage(passport.status);
+  const handleRetryAiVerification = async () => {
+    if (
+      isRetryingAiVerification
+      || verificationRetryInFlightRef.current
+    ) return;
+    verificationRetryInFlightRef.current = true;
+    onFormError(null);
+    try {
+      await onRetryAiVerification();
+    } catch (error) {
+      onFormError(readReviewActionError(
+        error,
+        "Could not retry AI verification. The existing review remains unchanged.",
+      ));
+    } finally {
+      verificationRetryInFlightRef.current = false;
+    }
+  };
 
   return (
     <Card className="rounded-3xl">
@@ -400,6 +450,14 @@ function ReviewFieldsCard({
               label="Expiry"
               value={formatPassportDateForUi(reviewFields.date_of_expiry) || "Not extracted"}
             />
+            {passport.qualifier_enabled_snapshot && (
+              <MetaItem
+                label="Relation with Qualifier"
+                value={passport.qualifier_is_self
+                  ? "Self"
+                  : passport.qualifier_relation_label || "Not selected"}
+              />
+            )}
             {passport.post_submission_verification && (
               <>
                 <MetaItem
@@ -440,6 +498,19 @@ function ReviewFieldsCard({
             <p className="text-sm leading-6 text-blue-700" role="status" aria-live="polite">
               {workflowStatusMessage}
             </p>
+          )}
+          {approvalFeedback && (
+            <div
+              className={
+                approvalFeedback.kind === "success"
+                  ? "rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800"
+                  : "rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800"
+              }
+              role="status"
+              aria-live="polite"
+            >
+              {approvalFeedback.message}
+            </div>
           )}
           {passport.post_submission_verification?.explanation && (
             <p className="text-sm leading-6 text-slate-600">
@@ -523,8 +594,25 @@ function ReviewFieldsCard({
           })}
         </div>
 
+        {passport.status === "needs_review" && (
+          <label className="block text-sm font-medium text-slate-700">
+            Review reason <span className="font-normal text-slate-400">(optional)</span>
+            <textarea
+              className="mt-1.5 min-h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50"
+              value={reviewReason}
+              maxLength={240}
+              disabled={isSaving}
+              onChange={(event) => setReviewReason(event.target.value)}
+              placeholder="Briefly describe why manual approval was required. Do not enter passport values."
+            />
+            <span className="mt-1 block text-xs font-normal text-slate-400">
+              {reviewReason.length}/240 characters
+            </span>
+          </label>
+        )}
+
         {formError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {formError}
           </div>
         )}
@@ -533,7 +621,12 @@ function ReviewFieldsCard({
           <Button
             variant="secondary"
             className="w-full gap-2"
-            disabled={isReextracting || passport.extraction_status === "processing"}
+            disabled={
+              isReextracting
+              || passport.extraction_status === "processing"
+              || isSaving
+              || isRetryingAiVerification
+            }
             onClick={onReextract}
             aria-busy={isReextracting || passport.extraction_status === "processing"}
           >
@@ -553,16 +646,8 @@ function ReviewFieldsCard({
             type="button"
             variant="secondary"
             className="w-full gap-2"
-            disabled={isRetryingAiVerification || isSaving}
-            onClick={() => {
-              onFormError(null);
-              void onRetryAiVerification().catch((error) => {
-                onFormError(readReviewActionError(
-                  error,
-                  "Could not retry AI verification. The existing review remains unchanged.",
-                ));
-              });
-            }}
+            disabled={isRetryingAiVerification || isSaving || isReextracting}
+            onClick={() => void handleRetryAiVerification()}
             aria-busy={isRetryingAiVerification}
           >
             {isRetryingAiVerification ? (
@@ -578,7 +663,11 @@ function ReviewFieldsCard({
 
         <Button
           onClick={() => void handleConfirm()}
-          disabled={actionState.disabled || isRetryingAiVerification}
+          disabled={
+            actionState.disabled
+            || isRetryingAiVerification
+            || isReextracting
+          }
           className="w-full gap-2 bg-blue-600 text-white hover:bg-blue-700"
           aria-busy={isSaving}
         >

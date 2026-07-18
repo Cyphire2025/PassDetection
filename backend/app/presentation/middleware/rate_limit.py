@@ -1,80 +1,395 @@
-"""Small Redis-backed fixed-window rate limiter with local fallback."""
+"""Redis-backed API rate limits with separate public-upload safety guards."""
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import ipaddress
+import re
 import time
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Any
 
 from fastapi import status
 from fastapi.responses import JSONResponse
 from redis.asyncio import Redis
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.core.security.upload_session import is_valid_upload_session_id
+from app.infrastructure.observability.operational_events import (
+    OperationalEvent,
+    record_operational_event,
+)
 
 logger = get_logger(__name__)
+
+_PUBLIC_UPLOAD_PATH_RE = re.compile(
+    r"^/api/v1/passports/upload/[^/]+(?:/([^/]+)(?:/.*)?)?/?$"
+)
+_PUBLIC_CLIENT_SUBMIT_PATH_RE = re.compile(
+    r"^/api/v1/passports/([^/]+)/client-submit/?$"
+)
+_PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE = re.compile(
+    r"^/api/v1/upload-links/token/[^/]+"
+    r"(?:/(?:qualifier-selection|telemetry))?/?$"
+)
+_RATE_LIMIT_METRIC_REASONS = {
+    "APP_RATE_LIMITED": "app_api",
+    "UPLOAD_BOOTSTRAP_SESSION_RATE_LIMITED": "upload_bootstrap_session",
+    "UPLOAD_BOOTSTRAP_AGGREGATE_RATE_LIMITED": "upload_bootstrap_aggregate",
+    "UPLOAD_SESSION_RATE_LIMITED": "upload_session",
+    "UPLOAD_AGGREGATE_RATE_LIMITED": "upload_aggregate",
+    "RATE_LIMIT_SERVICE_UNAVAILABLE": "rate_limit_backend_unavailable",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class _RateLimitGuard:
+    scope: str
+    identifier: str
+    limit: int
+    error_code: str
+    error_message: str
+
+
+class _RateLimitBackendUnavailable(RuntimeError):
+    """Raised when a distributed public-upload counter cannot be enforced."""
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     _local_counts: dict[str, tuple[int, float]] = defaultdict(lambda: (0, 0.0))
 
-    def __init__(self, app, *, window_seconds: int = 60) -> None:  # type: ignore[no-untyped-def]
+    def __init__(
+        self,
+        app: Any,
+        *,
+        window_seconds: int = 60,
+        settings: Any | None = None,
+        redis_client: Any | None = None,
+        initialize_redis: bool = True,
+    ) -> None:
         super().__init__(app)
-        self._settings = get_settings()
+        self._settings = settings or get_settings()
         self._window_seconds = window_seconds
-        self._redis: Redis | None = None
-        if self._settings.rate_limit_per_minute > 0:
+        self._key_secret = self._settings.app_secret_key.encode("utf-8")
+        self._redis: Redis | Any | None = redis_client
+        if initialize_redis and self._redis is None and self._has_enabled_policy():
             try:
-                self._redis = Redis.from_url(self._settings.redis.url, encoding="utf-8", decode_responses=True)
+                self._redis = Redis.from_url(
+                    self._settings.redis.url,
+                    encoding="utf-8",
+                    decode_responses=True,
+                )
             except Exception as exc:
-                logger.warning("rate_limit_redis_init_failed", error=str(exc))
+                logger.warning(
+                    "rate_limit_redis_init_failed",
+                    error_type=type(exc).__name__,
+                )
 
-    async def dispatch(self, request: Request, call_next: object) -> Response:
-        limit = self._limit_for(request)
-        if limit <= 0 or request.url.path.startswith("/api/v1/health"):
-            return await call_next(request)  # type: ignore[arg-type]
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        if (
+            request.method.upper() == "OPTIONS"
+            or request.url.path.startswith("/api/v1/health")
+        ):
+            return await call_next(request)
 
-        key = self._key_for(request)
-        count = await self._increment(key)
-        if count > limit:
-            return JSONResponse(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                content={"error": {"code": "RATE_LIMIT_EXCEEDED", "message": "Rate limit exceeded. Please try again later."}},
-                headers={"Retry-After": str(self._window_seconds)},
+        guards, requires_distributed, policy_error = self._guards_for(request)
+        if policy_error is not None:
+            policy_error_messages = {
+                "UPLOAD_SESSION_ID_REQUIRED": (
+                    "This upload request is missing its upload session identifier. "
+                    "Refresh the upload page and try again."
+                ),
+                "UPLOAD_SESSION_ID_INVALID": (
+                    "This upload request has an invalid upload session identifier. "
+                    "Refresh the upload page and try again."
+                ),
+                "UPLOAD_SESSION_ID_MISMATCH": (
+                    "The upload session identifier does not match this submission."
+                ),
+            }
+            return self._error_response(
+                request,
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code=policy_error,
+                message=policy_error_messages[policy_error],
+            )
+        if not guards:
+            return await call_next(request)
+
+        now = time.time()
+        bucket = int(now // self._window_seconds)
+        retry_after = max(1, self._window_seconds - int(now % self._window_seconds))
+        results: list[tuple[_RateLimitGuard, int]] = []
+        try:
+            for guard in guards:
+                key = self._counter_key(
+                    scope=guard.scope,
+                    identifier=guard.identifier,
+                    bucket=bucket,
+                )
+                count = await self._increment(
+                    key,
+                    require_distributed=requires_distributed,
+                )
+                results.append((guard, count))
+                if count > guard.limit:
+                    return self._error_response(
+                        request,
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        code=guard.error_code,
+                        message=guard.error_message,
+                        retry_after=retry_after,
+                        limit=guard.limit,
+                    )
+        except _RateLimitBackendUnavailable:
+            return self._error_response(
+                request,
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                code="RATE_LIMIT_SERVICE_UNAVAILABLE",
+                message="Upload protection is temporarily unavailable. Please try again shortly.",
+                retry_after=5,
             )
 
-        response: Response = await call_next(request)  # type: ignore[arg-type]
-        response.headers["X-RateLimit-Limit"] = str(limit)
-        response.headers["X-RateLimit-Remaining"] = str(max(0, limit - count))
+        response = await call_next(request)
+        tightest_guard, tightest_count = min(
+            results,
+            key=lambda item: item[0].limit - item[1],
+        )
+        response.headers["X-RateLimit-Limit"] = str(tightest_guard.limit)
+        response.headers["X-RateLimit-Remaining"] = str(
+            max(0, tightest_guard.limit - tightest_count)
+        )
+        response.headers["X-RateLimit-Policy"] = tightest_guard.scope
         return response
 
-    def _limit_for(self, request: Request) -> int:
-        base = self._settings.rate_limit_per_minute
-        if request.method == "POST" and "/api/v1/passports/upload/" in request.url.path:
-            return max(10, min(base, 30))
-        return base
+    def _has_enabled_policy(self) -> bool:
+        return any(
+            limit > 0
+            for limit in (
+                self._settings.rate_limit_per_minute,
+                self._settings.public_upload_bootstrap_session_rate_limit_per_minute,
+                self._settings.public_upload_bootstrap_aggregate_rate_limit_per_minute,
+                self._settings.public_upload_session_rate_limit_per_minute,
+                self._settings.public_upload_aggregate_rate_limit_per_minute,
+                self._settings.public_upload_followup_session_rate_limit_per_minute,
+                self._settings.public_upload_followup_aggregate_rate_limit_per_minute,
+            )
+        )
 
-    def _key_for(self, request: Request) -> str:
-        forwarded_for = request.headers.get("x-forwarded-for", "")
-        ip = forwarded_for.split(",", 1)[0].strip() or (request.client.host if request.client else "unknown")
-        bucket = int(time.time() // self._window_seconds)
-        path_group = "passport-upload" if "/api/v1/passports/upload/" in request.url.path else "api"
-        return f"rate-limit:{path_group}:{ip}:{bucket}"
+    def _guards_for(
+        self,
+        request: Request,
+    ) -> tuple[tuple[_RateLimitGuard, ...], bool, str | None]:
+        client_ip = self._trusted_client_ip(request)
+        is_upload_bootstrap = bool(
+            _PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE.match(request.url.path)
+            and request.method.upper() in {"GET", "POST"}
+        )
+        upload_match = _PUBLIC_UPLOAD_PATH_RE.match(request.url.path)
+        client_submit_match = _PUBLIC_CLIENT_SUBMIT_PATH_RE.match(request.url.path)
+        submission_id = (
+            upload_match.group(1)
+            if upload_match
+            else client_submit_match.group(1)
+            if client_submit_match
+            else None
+        )
+        is_initial_upload = bool(
+            upload_match
+            and submission_id is None
+            and request.method.upper() in {"POST", "PUT"}
+        )
+        is_upload_followup = bool(upload_match and submission_id is not None)
+        is_client_submit = bool(
+            client_submit_match and request.method.upper() == "POST"
+        )
 
-    async def _increment(self, key: str) -> int:
+        if is_upload_bootstrap:
+            session_id, session_error = self._upload_session_id(
+                request,
+                submission_id=None,
+                require_header=True,
+            )
+            if session_error is not None:
+                return (), True, session_error
+            if session_id is None:
+                return (), True, "UPLOAD_SESSION_ID_REQUIRED"
+            guards = (
+                _RateLimitGuard(
+                    scope="public-upload-bootstrap-session",
+                    identifier=session_id,
+                    limit=(
+                        self._settings
+                        .public_upload_bootstrap_session_rate_limit_per_minute
+                    ),
+                    error_code="UPLOAD_BOOTSTRAP_SESSION_RATE_LIMITED",
+                    error_message=(
+                        "This upload page is sending setup requests too quickly. "
+                        "Please wait briefly and try again."
+                    ),
+                ),
+                _RateLimitGuard(
+                    scope="public-upload-bootstrap-aggregate",
+                    identifier=client_ip,
+                    limit=(
+                        self._settings
+                        .public_upload_bootstrap_aggregate_rate_limit_per_minute
+                    ),
+                    error_code="UPLOAD_BOOTSTRAP_AGGREGATE_RATE_LIMITED",
+                    error_message=(
+                        "Too many upload pages are being opened from this network. "
+                        "Please wait briefly and try again."
+                    ),
+                ),
+            )
+            return (
+                tuple(guard for guard in guards if guard.limit > 0),
+                self._settings.public_upload_rate_limit_require_redis,
+                None,
+            )
+
+        if is_initial_upload or is_upload_followup or is_client_submit:
+            session_id, session_error = self._upload_session_id(
+                request,
+                submission_id=submission_id,
+                require_header=is_upload_followup or is_client_submit,
+            )
+            if session_error is not None:
+                return (), True, session_error
+            if session_id is None:
+                return (), True, "UPLOAD_SESSION_ID_REQUIRED"
+
+            if is_initial_upload:
+                session_limit = self._settings.public_upload_session_rate_limit_per_minute
+                aggregate_limit = (
+                    self._settings.public_upload_aggregate_rate_limit_per_minute
+                )
+                session_scope = "public-upload-session"
+                aggregate_scope = "public-upload-aggregate"
+            else:
+                session_limit = (
+                    self._settings.public_upload_followup_session_rate_limit_per_minute
+                )
+                aggregate_limit = (
+                    self._settings.public_upload_followup_aggregate_rate_limit_per_minute
+                )
+                session_scope = "public-upload-followup-session"
+                aggregate_scope = "public-upload-followup-aggregate"
+
+            guards = (
+                _RateLimitGuard(
+                    scope=session_scope,
+                    identifier=session_id,
+                    limit=session_limit,
+                    error_code="UPLOAD_SESSION_RATE_LIMITED",
+                    error_message=(
+                        "This upload session is sending requests too quickly. "
+                        "Please wait briefly and try again."
+                    ),
+                ),
+                _RateLimitGuard(
+                    scope=aggregate_scope,
+                    identifier=client_ip,
+                    limit=aggregate_limit,
+                    error_code="UPLOAD_AGGREGATE_RATE_LIMITED",
+                    error_message=(
+                        "Too many upload requests are arriving from this network. "
+                        "Please wait briefly and try again."
+                    ),
+                ),
+            )
+            return (
+                tuple(guard for guard in guards if guard.limit > 0),
+                self._settings.public_upload_rate_limit_require_redis,
+                None,
+            )
+
+        base_limit = self._settings.rate_limit_per_minute
+        if base_limit <= 0:
+            return (), False, None
+        return (
+            (
+                _RateLimitGuard(
+                    scope="api",
+                    identifier=client_ip,
+                    limit=base_limit,
+                    error_code="APP_RATE_LIMITED",
+                    error_message="Rate limit exceeded. Please try again later.",
+                ),
+            ),
+            False,
+            None,
+        )
+
+    @staticmethod
+    def _trusted_client_ip(request: Request) -> str:
+        candidates = (
+            request.headers.get("x-real-ip", "").strip(),
+            request.client.host if request.client else "",
+        )
+        for candidate in candidates:
+            try:
+                return ipaddress.ip_address(candidate).compressed
+            except ValueError:
+                continue
+        return "unknown"
+
+    @staticmethod
+    def _upload_session_id(
+        request: Request,
+        *,
+        submission_id: str | None,
+        require_header: bool = False,
+    ) -> tuple[str | None, str | None]:
+        header_value = request.headers.get("x-upload-session-id", "").strip()
+        if header_value and not is_valid_upload_session_id(header_value):
+            return None, "UPLOAD_SESSION_ID_INVALID"
+        if submission_id is not None:
+            if not is_valid_upload_session_id(submission_id):
+                return None, "UPLOAD_SESSION_ID_INVALID"
+            if require_header and not header_value:
+                return None, "UPLOAD_SESSION_ID_REQUIRED"
+            # The path UUID is public routing data, not an ownership proof.
+            # A separate high-entropy upload credential is used as the limiter
+            # identity here and is validated against the submission in the
+            # route before any data is returned or mutated.
+            return (header_value or None), None
+        return (header_value or None), None
+
+    def _counter_key(self, *, scope: str, identifier: str, bucket: int) -> str:
+        digest = hmac.new(
+            self._key_secret,
+            f"{scope}\0{identifier}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return f"rate-limit:v2:{scope}:{digest}:{bucket}"
+
+    async def _increment(self, key: str, *, require_distributed: bool) -> int:
         if self._redis is not None:
             try:
                 count = await self._redis.incr(key)
-                if count == 1:
-                    await self._redis.expire(key, self._window_seconds + 1)
+                # Refreshing this fixed-bucket key's short TTL also heals the
+                # narrow case where a prior INCR succeeded but EXPIRE failed.
+                await self._redis.expire(key, self._window_seconds + 1)
                 return int(count)
             except Exception as exc:
-                logger.warning("rate_limit_redis_failed_using_local", error=str(exc))
-                self._redis = None
+                logger.warning(
+                    "rate_limit_redis_counter_failed",
+                    error_type=type(exc).__name__,
+                )
 
+        if require_distributed:
+            raise _RateLimitBackendUnavailable
         count, expires_at = self._local_counts[key]
         now = time.time()
         if now > expires_at:
@@ -83,3 +398,38 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         count += 1
         self._local_counts[key] = (count, expires_at)
         return count
+
+    def _error_response(
+        self,
+        request: Request,
+        *,
+        status_code: int,
+        code: str,
+        message: str,
+        retry_after: int | None = None,
+        limit: int | None = None,
+    ) -> JSONResponse:
+        headers = {
+            "Cache-Control": "no-store",
+        }
+        if retry_after is not None:
+            headers["Retry-After"] = str(retry_after)
+        if limit is not None:
+            headers["X-RateLimit-Limit"] = str(limit)
+            headers["X-RateLimit-Remaining"] = "0"
+        origin = request.headers.get("origin", "")
+        if origin and origin in self._settings.allowed_origins:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = "true"
+            headers["Vary"] = "Origin"
+        metric_reason = _RATE_LIMIT_METRIC_REASONS.get(code)
+        if metric_reason is not None:
+            record_operational_event(
+                OperationalEvent.RATE_LIMIT,
+                metric_reason,
+            )
+        return JSONResponse(
+            status_code=status_code,
+            content={"error": {"code": code, "message": message}},
+            headers=headers,
+        )

@@ -50,6 +50,7 @@ class ClientGroupRepository(IClientGroupRepository):
             require_selfie=model.require_selfie,
             allow_files_from_device=model.allow_files_from_device,
             ask_nearest_domestic_airport=model.ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=model.relation_with_qualifier_enabled,
             notes=model.notes,
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
@@ -79,6 +80,7 @@ class ClientGroupRepository(IClientGroupRepository):
             require_selfie=entity.require_selfie,
             allow_files_from_device=entity.allow_files_from_device,
             ask_nearest_domestic_airport=entity.ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=entity.relation_with_qualifier_enabled,
             notes=entity.notes,
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
@@ -122,7 +124,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model = self._to_model(link)
         self._session.add(model)
         await self._session.flush()
-        logger.info("client_group_created", group_id=str(link.id), group_name=link.name)
+        logger.info("client_group_created", group_id=str(link.id))
         return link
 
     async def update(self, link: ClientGroup) -> ClientGroup:
@@ -150,6 +152,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.require_selfie = link.require_selfie
         model.allow_files_from_device = link.allow_files_from_device
         model.ask_nearest_domestic_airport = link.ask_nearest_domestic_airport
+        model.relation_with_qualifier_enabled = link.relation_with_qualifier_enabled
         model.notes = link.notes
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count

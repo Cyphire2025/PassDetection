@@ -57,6 +57,9 @@ class ListPassportGroupSummariesUseCase:
                 require_selfie=summary.require_selfie,
                 allow_files_from_device=summary.allow_files_from_device,
                 ask_nearest_domestic_airport=summary.ask_nearest_domestic_airport,
+                relation_with_qualifier_enabled=(
+                    summary.relation_with_qualifier_enabled
+                ),
                 notes=summary.notes,
             )
             for summary in summaries

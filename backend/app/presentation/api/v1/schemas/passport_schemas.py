@@ -22,6 +22,8 @@ class StaffApprovePassportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     confirmed_fields: dict[str, str] | None = Field(default=None, min_length=1)
+    expected_extraction_revision: int = Field(..., ge=0)
+    review_reason: str | None = Field(default=None, max_length=240)
 
 
 class ClientSubmitPassportRequest(BaseModel):
@@ -44,6 +46,23 @@ class ClientSubmitPassportRequest(BaseModel):
     family_head_name: str | None = Field(default=None, max_length=255)
     family_head_email: EmailStr | None = None
     family_head_phone: str | None = Field(default=None, min_length=7, max_length=32)
+
+
+class ReconcilePassportUploadRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    upload_idempotency_key: str = Field(
+        ...,
+        min_length=32,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9._:-]+$",
+    )
+
+
+class ReconcilePassportUploadResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID | None = None
 
 
 class ExportSelectedPassportsRequest(BaseModel):
@@ -160,7 +179,11 @@ class PassportSubmissionResponse(BaseModel):
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
     acquisition_mode: Literal["camera", "file"] = "file"
-    upload_idempotency_key: str | None = Field(default=None, max_length=128)
+    qualifier_enabled_snapshot: bool = False
+    qualifier_is_self: bool | None = None
+    qualifier_relation_code: str | None = Field(default=None, max_length=40)
+    qualifier_relation_label: str | None = Field(default=None, max_length=80)
+    qualifier_selected_at: datetime | None = None
     extraction_status: Literal[
         "not_started",
         "processing",
@@ -223,6 +246,7 @@ class PassportGroupSummaryResponse(BaseModel):
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None
 
     model_config = {"from_attributes": True}

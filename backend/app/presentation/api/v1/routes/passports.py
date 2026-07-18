@@ -18,11 +18,13 @@ from fastapi import (
     Depends,
     File,
     Form,
+    Header,
     HTTPException,
+    Response,
     UploadFile,
     status,
 )
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -49,6 +51,9 @@ from app.application.use_cases.passports.list_passport_submissions_by_group_use_
 from app.application.use_cases.passports.list_passport_submissions_use_case import (
     ListPassportSubmissionsUseCase,
 )
+from app.application.use_cases.passports.reconcile_passport_upload_use_case import (
+    ReconcilePassportUploadUseCase,
+)
 from app.application.use_cases.passports.reextract_passport_submission_use_case import (
     ReextractPassportSubmissionUseCase,
 )
@@ -59,12 +64,15 @@ from app.application.use_cases.passports.retry_public_passport_extraction_use_ca
     RetryPublicPassportExtractionUseCase,
 )
 from app.application.use_cases.passports.staff_approve_passport_use_case import (
+    StaffApprovalResult,
     StaffApprovePassportUseCase,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.core.logging.logger import get_logger
+from app.core.security.upload_session import upload_session_matches_identifier
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    StaffApprovalOutcome,
     User,
     UserRole,
 )
@@ -72,6 +80,8 @@ from app.domain.exceptions.exceptions import (
     AuthorizationError,
     EntityNotFoundError,
     PassDetectionError,
+    StaffApprovalStaleError,
+    StaffApprovalUnavailableError,
     StorageError,
 )
 from app.infrastructure.database.models import (
@@ -93,6 +103,10 @@ from app.infrastructure.imports.passport_document_importer import (
     RejectedPassportDocument,
 )
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
+from app.infrastructure.observability.operational_events import (
+    OperationalEvent,
+    record_operational_event,
+)
 from app.infrastructure.processing.dispatcher import (
     PassportProcessingDispatcher,
     queued_job_needs_redelivery,
@@ -106,6 +120,9 @@ from app.infrastructure.repositories.client_group_repository import ClientGroupR
 from app.infrastructure.repositories.notification_repository import NotificationRepository
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
+)
+from app.infrastructure.repositories.qualifier_selection_repository import (
+    QualifierSelectionRepository,
 )
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
@@ -126,6 +143,8 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportDocumentImportSaveResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
+    ReconcilePassportUploadRequest,
+    ReconcilePassportUploadResponse,
     StaffApprovePassportRequest,
 )
 from app.presentation.dependencies.auth import get_current_active_user
@@ -149,6 +168,25 @@ def _stream_binary_file(file_object, *, chunk_size: int = 1024 * 1024):  # type:
 
 def _submitted_statuses() -> tuple[str, ...]:
     return OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
+
+
+def _require_public_upload_credential(
+    submission: object,
+    upload_session_id: str,
+) -> None:
+    """Require a per-upload capability that is independent of the public UUID."""
+
+    expected = getattr(submission, "upload_idempotency_key", None)
+    if not isinstance(expected, str) or not upload_session_matches_identifier(
+        upload_session_id,
+        expected,
+    ):
+        # Use the same response as an unknown submission so this check does
+        # not become a capability-validation oracle.
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport submission was not found",
+        )
 
 
 async def _safe_presigned_url(
@@ -193,13 +231,26 @@ async def _response_from_dto(
     result: PassportSubmissionOutputDTO,
     *,
     session: AsyncSession,
+    include_document_urls: bool = True,
 ) -> PassportSubmissionResponse:
     storage = MinioStorageRepository()
     payload = {
         **result.__dict__,
-        "image_url": await _safe_presigned_url(storage, result.image_s3_key),
-        "passport_photo_url": await _safe_presigned_url(storage, result.passport_photo_s3_key),
-        "passport_back_url": await _safe_presigned_url(storage, result.passport_back_s3_key),
+        "image_url": (
+            await _safe_presigned_url(storage, result.image_s3_key)
+            if include_document_urls
+            else None
+        ),
+        "passport_photo_url": (
+            await _safe_presigned_url(storage, result.passport_photo_s3_key)
+            if include_document_urls
+            else None
+        ),
+        "passport_back_url": (
+            await _safe_presigned_url(storage, result.passport_back_s3_key)
+            if include_document_urls
+            else None
+        ),
         "qr_status": await _passport_qr_status(session, result.id),
     }
     if not payload.get("processing_job_id"):
@@ -297,6 +348,9 @@ def _group_export_details(
         "base_city_enabled": group.base_city_enabled,
         "staff_code_enabled": group.staff_code_enabled,
         "meal_preference_enabled": group.meal_preference_enabled,
+        "relation_with_qualifier_enabled": (
+            group.relation_with_qualifier_enabled
+        ),
     }
 
 
@@ -332,7 +386,7 @@ async def _dispatch_processing_job(
         # The submission and image keys are durable at this point. Dispatch is
         # best effort and must never turn persistence success into an upload
         # failure (or trigger compensation that deletes committed objects).
-        logger.exception(
+        logger.error(
             "passport_processing_dispatch_failed_after_persistence",
             job_id=str(result.processing_job_id),
             error_type=type(exc).__name__,
@@ -360,6 +414,10 @@ async def _validated_upload_file(file: UploadFile, *, label: str):
     try:
         content = await file.read()
     except Exception:
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            "read_error",
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to read {label} file content",
@@ -372,6 +430,10 @@ async def _validated_upload_file(file: UploadFile, *, label: str):
             declared_content_type=file.content_type,
         )
     except PassDetectionError as exc:
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            "validation_failed",
+        )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.message)
 
 
@@ -383,6 +445,16 @@ def _get_submit_passport_use_case(
         passport_repo=PassportSubmissionRepository(session),
         storage_repo=MinioStorageRepository(),
         processing_job_repo=PassportProcessingJobRepository(session),
+        qualifier_selection_repo=QualifierSelectionRepository(session),
+    )
+
+
+def _get_reconcile_passport_upload_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> ReconcilePassportUploadUseCase:
+    return ReconcilePassportUploadUseCase(
+        client_group_repo=ClientGroupRepository(session),
+        passport_repo=PassportSubmissionRepository(session),
     )
 
 
@@ -456,19 +528,51 @@ async def upload_passport(
     background_tasks: BackgroundTasks,
     client_name: str = Form(...),
     acquisition_mode: str = Form(..., pattern="^(camera|file)$"),
-    upload_idempotency_key: str = Form(..., min_length=8, max_length=128),
+    upload_idempotency_key: str = Form(..., min_length=32, max_length=128),
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
+    qualifier_selection_token: str | None = Form(
+        default=None,
+        min_length=32,
+        max_length=256,
+    ),
     file: UploadFile = File(...),
     passport_back_file: UploadFile = File(..., description="Required original passport back image"),
-    passport_photo_file: UploadFile | None = File(None, description="Optional original VISA selfie captured against a verified white background"),
+    passport_photo_file: UploadFile | None = File(
+        None,
+        description="Optional original Visa Photo captured against a verified plain light background",
+    ),
     use_case: SubmitPassportUseCase = Depends(_get_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
+    if not upload_session_matches_identifier(
+        upload_session_id,
+        upload_idempotency_key,
+    ):
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            "domain_rejected",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload session identifier does not match this upload attempt.",
+        )
+
     # 1. Read and validate file content using magic bytes + actual decoder.
     validated = await _validated_upload_file(file, label="passport front")
-    validated_photo = await _validated_upload_file(passport_photo_file, label="VISA selfie photo") if passport_photo_file else None
+    validated_photo = (
+        await _validated_upload_file(passport_photo_file, label="Visa Photo")
+        if passport_photo_file
+        else None
+    )
     validated_back = await _validated_upload_file(passport_back_file, label="passport back")
 
     # 2. Execute use case
+    failure_metric_recorded = False
     try:
         result = await use_case.execute(
             token=token,
@@ -480,6 +584,7 @@ async def upload_passport(
             passport_back=(validated_back.content, validated_back.content_type, validated_back.filename),
             acquisition_mode=acquisition_mode,
             upload_idempotency_key=upload_idempotency_key,
+            qualifier_selection_token=qualifier_selection_token,
         )
         try:
             await _dispatch_processing_job(
@@ -493,24 +598,105 @@ async def upload_passport(
             # committed before the connection failed, and this may also be an
             # idempotent replay of existing objects. Never delete durable image
             # keys here, because that could leave a committed row dangling.
-            logger.exception(
+            logger.error(
                 "passport_upload_database_commit_failed",
                 group_id=str(result.group_id),
                 error_type=type(exc).__name__,
             )
+            record_operational_event(
+                OperationalEvent.UPLOAD_RESULT,
+                "database_failed",
+            )
+            failure_metric_recorded = True
             raise StorageError(
                 "Passport images could not be saved. Please try the upload again."
             ) from exc
-        return await _response_from_dto(result, session=session)
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            (
+                "idempotent_replay"
+                if result.idempotent_replay
+                else "success"
+            ),
+        )
+        return await _response_from_dto(
+            result,
+            session=session,
+            include_document_urls=False,
+        )
     except EntityNotFoundError as e:
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            "domain_rejected",
+        )
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except StorageError as e:
+        if not failure_metric_recorded:
+            record_operational_event(
+                OperationalEvent.UPLOAD_RESULT,
+                "storage_failed",
+            )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=e.message,
         )
     except PassDetectionError as e:
+        record_operational_event(
+            OperationalEvent.UPLOAD_RESULT,
+            "domain_rejected",
+        )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+    except Exception:
+        if not failure_metric_recorded:
+            record_operational_event(
+                OperationalEvent.UPLOAD_RESULT,
+                "unexpected_failure",
+            )
+        raise
+
+
+@router.put(
+    "/upload/{token}",
+    response_model=ReconcilePassportUploadResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Recover a durable passport upload by its attempt identifier (Public)",
+)
+async def reconcile_passport_upload(
+    token: str,
+    body: ReconcilePassportUploadRequest,
+    response: Response,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
+    use_case: ReconcilePassportUploadUseCase = Depends(
+        _get_reconcile_passport_upload_use_case
+    ),
+) -> ReconcilePassportUploadResponse:
+    if not upload_session_matches_identifier(
+        upload_session_id,
+        body.upload_idempotency_key,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload session identifier does not match this upload attempt.",
+        )
+
+    submission_id = await use_case.execute(
+        token=token,
+        upload_idempotency_key=body.upload_idempotency_key,
+    )
+    record_operational_event(
+        OperationalEvent.UPLOAD_RESULT,
+        "reconciled" if submission_id is not None else "reconcile_miss",
+    )
+    # Unknown keys, tokens belonging to another group, and inactive links all
+    # deliberately share the same empty response. This prevents the endpoint
+    # from becoming an oracle for upload-link or attempt-key enumeration.
+    response.headers["Cache-Control"] = "private, no-store"
+    return ReconcilePassportUploadResponse(submission_id=submission_id)
 
 
 @router.get(
@@ -523,6 +709,12 @@ async def get_upload_passport_status(
     token: str,
     submission_id: uuid.UUID,
     background_tasks: BackgroundTasks,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     group = await ClientGroupRepository(session).get_by_token(token)
@@ -532,6 +724,7 @@ async def get_upload_passport_status(
     submission = await PassportSubmissionRepository(session).get_by_id(submission_id)
     if not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport submission was not found")
+    _require_public_upload_credential(submission, upload_session_id)
 
     # The job row is a durable outbox. If the process stopped after committing
     # it but before recording a delivery (or before an in-process background
@@ -555,7 +748,11 @@ async def get_upload_passport_status(
             background_tasks=background_tasks,
         )
 
-    return await _response_from_dto(response_result, session=session)
+    return await _response_from_dto(
+        response_result,
+        session=session,
+        include_document_urls=False,
+    )
 
 
 @router.post(
@@ -568,17 +765,41 @@ async def scan_again_public_upload(
     token: str,
     submission_id: uuid.UUID,
     background_tasks: BackgroundTasks,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     use_case: RetryPublicPassportExtractionUseCase = Depends(_get_retry_public_extraction_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
     try:
+        group = await ClientGroupRepository(session).get_by_token(token)
+        submission = await PassportSubmissionRepository(session).get_by_id(
+            submission_id
+        )
+        if (
+            not group
+            or not submission
+            or submission.group_id != group.id
+        ):
+            raise EntityNotFoundError(
+                "PassportSubmission",
+                submission_id,
+            )
+        _require_public_upload_credential(submission, upload_session_id)
         result = await use_case.execute(token=token, submission_id=submission_id)
         await _dispatch_processing_job(
             result,
             session=session,
             background_tasks=background_tasks,
         )
-        return await _response_from_dto(result, session=session)
+        return await _response_from_dto(
+            result,
+            session=session,
+            include_document_urls=False,
+        )
     except EntityNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except PassDetectionError as e:
@@ -593,6 +814,12 @@ async def scan_again_public_upload(
 async def get_public_upload_passport_image(
     token: str,
     submission_id: uuid.UUID,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     group = await ClientGroupRepository(session).get_by_token(token)
@@ -602,6 +829,7 @@ async def get_public_upload_passport_image(
     submission = await PassportSubmissionRepository(session).get_by_id(submission_id)
     if not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport submission was not found")
+    _require_public_upload_credential(submission, upload_session_id)
 
     try:
         content = await MinioStorageRepository().get_file(submission.image_s3_key)
@@ -628,6 +856,27 @@ def _get_staff_approve_passport_use_case(
     )
 
 
+def _staff_approval_conflict_response(
+    error: StaffApprovalStaleError | StaffApprovalUnavailableError,
+) -> JSONResponse:
+    details: dict[str, object] = {}
+    if isinstance(error, StaffApprovalStaleError):
+        details["current_revision"] = error.current_revision
+    else:
+        details["current_status"] = error.current_status
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content={
+            "error": {
+                "code": error.code,
+                "message": error.message,
+                "details": details,
+            }
+        },
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 def _get_retry_post_submission_verification_use_case(
     session: AsyncSession = Depends(get_db_session),
 ) -> RetryPostSubmissionVerificationUseCase:
@@ -645,6 +894,12 @@ async def get_public_upload_passport_document(
     token: str,
     submission_id: uuid.UUID,
     document_type: str,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     group = await ClientGroupRepository(session).get_by_token(token)
@@ -657,6 +912,7 @@ async def get_public_upload_passport_document(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Passport submission was not found",
         )
+    _require_public_upload_credential(submission, upload_session_id)
 
     keys = {
         "front": submission.image_s3_key,
@@ -699,6 +955,12 @@ async def get_public_upload_passport_document(
 async def discard_public_upload(
     token: str,
     submission_id: uuid.UUID,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, bool]:
     group = await ClientGroupRepository(session).get_by_token(token)
@@ -706,6 +968,13 @@ async def discard_public_upload(
     submission = await submission_repo.get_by_id_for_update(submission_id)
     if not group or not submission or submission.group_id != group.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passport draft was not found")
+    try:
+        _require_public_upload_credential(submission, upload_session_id)
+    except HTTPException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport draft was not found",
+        ) from exc
     if submission.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded")
 
@@ -730,6 +999,10 @@ async def discard_public_upload(
             object_count=len(keys),
             error_type=type(exc).__name__,
         )
+    record_operational_event(
+        OperationalEvent.PUBLIC_FLOW,
+        "upload_abandoned",
+    )
     return {"discarded": True}
 
 
@@ -1498,9 +1771,25 @@ async def client_submit_passport(
     submission_id: uuid.UUID,
     body: ClientSubmitPassportRequest,
     background_tasks: BackgroundTasks,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=32,
+        max_length=128,
+    ),
     use_case: ClientSubmitPassportUseCase = Depends(_get_client_submit_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:
+    existing = await PassportSubmissionRepository(session).get_by_id(
+        submission_id
+    )
+    if existing is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport submission was not found",
+        )
+    _require_public_upload_credential(existing, upload_session_id)
+
     result: PassportSubmissionOutputDTO | None = None
     verification_job = None
     committed = False
@@ -1541,6 +1830,9 @@ async def client_submit_passport(
                 metadata={
                     "group_id": str(result.group_id),
                     "submission_mode": result.submission_mode,
+                    "qualifier_enabled_snapshot": (
+                        result.qualifier_enabled_snapshot
+                    ),
                 },
             )
             await NotificationRepository(session).create(
@@ -1616,6 +1908,7 @@ async def client_submit_passport(
 async def staff_approve_passport(
     submission_id: uuid.UUID,
     body: StaffApprovePassportRequest,
+    response: Response,
     _csrf: None = Depends(require_cookie_csrf),
     current_user: User = Depends(get_current_active_user),
     get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
@@ -1623,51 +1916,101 @@ async def staff_approve_passport(
         _get_staff_approve_passport_use_case
     ),
     session: AsyncSession = Depends(get_db_session),
-) -> PassportSubmissionResponse:
+) -> PassportSubmissionResponse | JSONResponse:
     try:
         existing = await get_use_case.execute(submission_id)
         await AuthorizationPolicy(session).require_staff_approve_passport(
             current_user,
             existing,
         )
-        result, changed = await approve_use_case.execute(
+        approval: StaffApprovalResult = await approve_use_case.execute(
             submission_id,
             reviewer_id=current_user.id,
             reviewer_name=current_user.full_name,
             confirmed_fields=body.confirmed_fields,
+            expected_extraction_revision=body.expected_extraction_revision,
+            review_reason=body.review_reason,
         )
-        if changed:
+        result = approval.submission
+        if approval.outcome is StaffApprovalOutcome.APPROVED:
+            audit_metadata: dict[str, object] = {
+                "group_id": str(result.group_id),
+                "prior_status": approval.previous_status,
+                "new_status": result.status,
+                "corrected_field_names": list(approval.corrected_field_names),
+                "outcome": approval.outcome.value,
+                "extraction_revision": result.extraction_revision,
+                "verification_revision": (
+                    result.post_submission_verification_revision
+                ),
+            }
+            if approval.review_reason is not None:
+                audit_metadata["review_reason"] = approval.review_reason
             await AuditLogRepository(session).record(
                 action="passport_staff_approved",
                 entity_type="passport_submission",
                 entity_id=str(result.id),
                 agency_id=result.agency_id,
                 user_id=current_user.id,
-                metadata={
-                    "group_id": str(result.group_id),
-                    "fields_corrected": body.confirmed_fields is not None,
-                    "verification_revision": (
-                        result.post_submission_verification_revision
-                    ),
-                },
+                metadata=audit_metadata,
             )
             await _ensure_submission_qr(session, result.id, current_user.id)
+
+        # The locked transition, audit row, and first QR issuance are one
+        # transaction. Commit before presigned-URL work so the row lock is
+        # released and a lost response can be retried idempotently.
+        await session.commit()
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            (
+                "approved"
+                if approval.outcome is StaffApprovalOutcome.APPROVED
+                else "already_approved"
+            ),
+        )
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Staff-Approval-Outcome"] = approval.outcome.value
+        response.headers["X-Staff-Approval-Revision"] = str(
+            result.extraction_revision
+        )
         return await _response_from_dto(result, session=session)
+    except (StaffApprovalStaleError, StaffApprovalUnavailableError) as exc:
+        # The typed conflict is raised while the submission row is locked.
+        # Release that lock before returning the retry-safe 409 response.
+        await session.rollback()
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            (
+                "stale"
+                if isinstance(exc, StaffApprovalStaleError)
+                else "unavailable"
+            ),
+        )
+        return _staff_approval_conflict_response(exc)
     except EntityNotFoundError as exc:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "not_found",
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=exc.message,
         )
     except AuthorizationError as exc:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "forbidden",
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=exc.message,
         )
-    except PassDetectionError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=exc.message,
+    except Exception:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "unexpected_failure",
         )
+        raise
 
 
 @router.post(
@@ -1729,7 +2072,7 @@ async def retry_post_submission_verification(
             except Exception as exc:
                 # The recovery loop will publish the already-committed outbox
                 # row. A queue outage must not lose or duplicate the request.
-                logger.exception(
+                logger.error(
                     "post_submission_verification_retry_dispatch_deferred",
                     job_id=str(verification_job.id),
                     error_type=type(exc).__name__,

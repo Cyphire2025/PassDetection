@@ -6,6 +6,13 @@ import asyncio
 import uuid
 
 from app.core.logging.logger import get_logger
+from app.infrastructure.ai_priority import (
+    EXTRACTION_QUEUE,
+    get_ai_priority_coordinator,
+)
+from app.infrastructure.ai_priority.worker_readiness import (
+    celery_queue_available,
+)
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 logger = get_logger(__name__)
@@ -50,16 +57,16 @@ async def _worker_available(timeout_seconds: float) -> bool:
 
 def _celery_worker_available(timeout_seconds: float) -> bool:
     try:
-        from app.infrastructure.processing.celery_app import celery_app
-
-        replies = celery_app.control.ping(timeout=timeout_seconds)
+        return celery_queue_available(
+            EXTRACTION_QUEUE,
+            timeout_seconds=timeout_seconds,
+        )
     except Exception as exc:
         logger.warning(
             "passport_processing_worker_healthcheck_failed",
             error_type=type(exc).__name__,
         )
         return False
-    return bool(replies)
 
 
 async def _queued_job_status(job_id: str) -> ProcessingJobStatus | None:
@@ -104,7 +111,10 @@ async def _redeliver_to_worker(*, job_id: str, submission_id: str) -> None:
 def _send_to_worker(job_id: str, submission_id: str) -> None:
     from app.infrastructure.processing.tasks import process_passport_submission
 
+    priority = get_ai_priority_coordinator()
+    lease = priority.queue_extraction(job_id)
     process_passport_submission.apply_async(
         kwargs={"job_id": job_id, "submission_id": submission_id},
-        queue="passport_ocr",
+        queue=EXTRACTION_QUEUE,
     )
+    priority.mark_extraction_dispatched(lease)

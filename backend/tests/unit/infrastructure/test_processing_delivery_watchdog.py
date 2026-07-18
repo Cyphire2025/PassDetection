@@ -3,13 +3,28 @@ from __future__ import annotations
 import unittest
 from unittest.mock import AsyncMock, patch
 
+from app.infrastructure.ai_priority import EXTRACTION_QUEUE
 from app.infrastructure.processing.delivery_watchdog import (
+    _celery_worker_available,
     run_passport_processing_job_watchdog,
 )
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 
 class PassportProcessingDeliveryWatchdogTests(unittest.IsolatedAsyncioTestCase):
+    def test_worker_probe_requires_exact_extraction_queue(self) -> None:
+        with patch(
+            "app.infrastructure.processing.delivery_watchdog."
+            "celery_queue_available",
+            return_value=True,
+        ) as queue_available:
+            self.assertTrue(_celery_worker_available(0.75))
+
+        queue_available.assert_called_once_with(
+            EXTRACTION_QUEUE,
+            timeout_seconds=0.75,
+        )
+
     async def test_healthy_worker_keeps_queued_job_out_of_web_process(self) -> None:
         with (
             patch(

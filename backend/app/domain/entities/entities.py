@@ -18,8 +18,13 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 
-from app.domain.exceptions.exceptions import ValidationError
+from app.domain.exceptions.exceptions import (
+    StaffApprovalStaleError,
+    StaffApprovalUnavailableError,
+    ValidationError,
+)
 from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
+from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 
 
 def _utcnow() -> datetime:
@@ -74,6 +79,13 @@ class PassportProcessingStatus(str, Enum):
     AI_APPROVED = "ai_approved"
     NEEDS_REVIEW = "needs_review"
     STAFF_APPROVED = "staff_approved"
+
+
+class StaffApprovalOutcome(str, Enum):
+    """Stable staff-approval command outcomes."""
+
+    APPROVED = "approved"
+    ALREADY_APPROVED = "already_approved"
 
 
 OFFICE_VISIBLE_PASSPORT_STATUS_VALUES = (
@@ -391,6 +403,7 @@ class ClientGroup:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -415,6 +428,7 @@ class ClientGroup:
         require_selfie: bool = False,
         allow_files_from_device: bool = True,
         ask_nearest_domestic_airport: bool = False,
+        relation_with_qualifier_enabled: bool = False,
         notes: str | None = None,
     ) -> ClientGroup:
         normalized_name = " ".join(name.strip().split())
@@ -454,6 +468,7 @@ class ClientGroup:
             require_selfie=require_selfie,
             allow_files_from_device=allow_files_from_device,
             ask_nearest_domestic_airport=ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=relation_with_qualifier_enabled,
             notes=notes.strip() if notes else None,
         )
 
@@ -473,6 +488,7 @@ class ClientGroup:
         require_selfie: bool,
         allow_files_from_device: bool,
         ask_nearest_domestic_airport: bool,
+        relation_with_qualifier_enabled: bool,
         notes: str | None,
     ) -> None:
         """Apply editable group settings through one domain boundary."""
@@ -509,6 +525,7 @@ class ClientGroup:
         self.require_selfie = require_selfie
         self.allow_files_from_device = allow_files_from_device
         self.ask_nearest_domestic_airport = ask_nearest_domestic_airport
+        self.relation_with_qualifier_enabled = relation_with_qualifier_enabled
         self.notes = notes.strip() if notes else None
 
     def require_allowed_acquisition_mode(self, acquisition_mode: str) -> str:
@@ -558,6 +575,56 @@ class ClientGroup:
         self.deletion_retained_records = retain_records
 
 
+@dataclass
+class QualifierSelection:
+    """A short-lived, server-persisted choice made before document upload."""
+
+    id: uuid.UUID
+    group_id: uuid.UUID
+    token_hash: str
+    is_self: bool
+    relation_code: str | None
+    relation_label: str
+    selected_at: datetime
+    expires_at: datetime
+    created_at: datetime
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        group_id: uuid.UUID,
+        token_hash: str,
+        is_self: bool,
+        relation_code: str | None,
+        selected_at: datetime,
+        expires_at: datetime,
+    ) -> QualifierSelection:
+        if expires_at <= selected_at:
+            raise ValidationError(
+                "Qualifier selection expiry must be after selection time.",
+                field="expires_at",
+            )
+        canonical_self, canonical_code, label = normalize_qualifier_choice(
+            is_self=is_self,
+            relation_code=relation_code,
+        )
+        return cls(
+            id=_new_uuid(),
+            group_id=group_id,
+            token_hash=token_hash,
+            is_self=canonical_self,
+            relation_code=canonical_code,
+            relation_label=label,
+            selected_at=selected_at,
+            expires_at=expires_at,
+            created_at=selected_at,
+        )
+
+    def is_expired(self, *, now: datetime | None = None) -> bool:
+        return self.expires_at <= (now or _utcnow())
+
+
 # ── Passport Submission Entity ────────────────────────────────────────────────
 
 @dataclass
@@ -598,6 +665,12 @@ class PassportSubmission:
     confidence_score: dict | None              # Layered confidence breakdown
     mrz_raw: str | None                        # Raw MRZ string
     error_message: str | None
+    qualifier_enabled_snapshot: bool = False
+    qualifier_selection_id: uuid.UUID | None = None
+    qualifier_is_self: bool | None = None
+    qualifier_relation_code: str | None = None
+    qualifier_relation_label: str | None = None
+    qualifier_selected_at: datetime | None = None
     nearest_domestic_airport: str | None = None
     acquisition_mode: str = "file"
     upload_idempotency_key: str | None = None
@@ -682,6 +755,22 @@ class PassportSubmission:
             mrz_raw=None,
             error_message=None,
         )
+
+    def attach_qualifier_selection(self, selection: QualifierSelection) -> None:
+        """Snapshot one validated selection onto this single passenger."""
+
+        if selection.group_id != self.group_id:
+            raise ValidationError(
+                "The qualifier selection does not belong to this upload link.",
+                field="qualifier_selection_token",
+            )
+        self.qualifier_enabled_snapshot = True
+        self.qualifier_selection_id = selection.id
+        self.qualifier_is_self = selection.is_self
+        self.qualifier_relation_code = selection.relation_code
+        self.qualifier_relation_label = selection.relation_label
+        self.qualifier_selected_at = selection.selected_at
+        self.updated_at = _utcnow()
 
     def mark_processing(self) -> int:
         """Start a new extraction revision and return its immutable revision."""
@@ -909,8 +998,9 @@ class PassportSubmission:
         *,
         reviewer_id: uuid.UUID,
         reviewer_name: str,
+        expected_extraction_revision: int,
         confirmed_fields: dict | None = None,
-    ) -> bool:
+    ) -> StaffApprovalOutcome:
         """Atomically save optional corrections and transition Needs Review."""
 
         if self.status == PassportProcessingStatus.STAFF_APPROVED:
@@ -918,24 +1008,39 @@ class PassportSubmission:
                 (self.confirmed_fields or {}).get(key) != value
                 for key, value in confirmed_fields.items()
             ):
-                raise ValidationError(
-                    "This passport is already staff approved; new corrections require reopening review.",
-                    field="confirmed_fields",
+                raise StaffApprovalUnavailableError(
+                    current_status=self.status.value,
+                    message=(
+                        "This passport was already approved with different field "
+                        "values. Refresh the record before taking further action."
+                    ),
                 )
-            return False
+            return StaffApprovalOutcome.ALREADY_APPROVED
         if self.status != PassportProcessingStatus.NEEDS_REVIEW:
-            raise ValidationError(
-                "Only passports that need review can be staff approved.",
-                field="status",
+            raise StaffApprovalUnavailableError(
+                current_status=self.status.value,
+            )
+        if expected_extraction_revision != self.extraction_revision:
+            raise StaffApprovalStaleError(
+                expected_revision=expected_extraction_revision,
+                current_revision=self.extraction_revision,
             )
 
+        # Invalidate both extraction and post-submit AI work before publishing
+        # the canonical staff decision. Replays return above without incrementing.
+        self.extraction_revision += 1
+        self.post_submission_verification_revision += 1
         if confirmed_fields is not None:
-            self.extraction_revision += 1
             self.confirmed_fields = {
                 **dict(self.confirmed_fields or {}),
                 **dict(confirmed_fields),
             }
             self.extraction_conflicts = []
+            if self.post_submission_verification is not None:
+                self.post_submission_verification = {
+                    **self.post_submission_verification,
+                    "stale_after_staff_edit": True,
+                }
         now = _utcnow()
         self.status = PassportProcessingStatus.STAFF_APPROVED
         self.verification_reviewed_by_user_id = reviewer_id
@@ -943,7 +1048,7 @@ class PassportSubmission:
         self.verification_reviewed_at = now
         self.confirmed_at = now
         self.updated_at = now
-        return True
+        return StaffApprovalOutcome.APPROVED
 
     def update_reviewed_fields(self, confirmed_fields: dict) -> None:
         """Save staff edits without bypassing the canonical approval transition."""
@@ -998,6 +1103,7 @@ class PassportSubmission:
         ),
         *,
         expected_revision: int | None = None,
+        diagnostics: dict[str, object] | None = None,
     ) -> bool:
         """Keep stored images reviewable after OCR failure."""
 
@@ -1014,5 +1120,10 @@ class PassportSubmission:
             self.status = PassportProcessingStatus.READY_FOR_CLIENT_REVIEW
         self.extraction_status = PassportExtractionStatus.FAILED
         self.error_message = public_message
+        if diagnostics:
+            self.extracted_fields = {
+                **dict(self.extracted_fields or {}),
+                **dict(diagnostics),
+            }
         self.updated_at = _utcnow()
         return True

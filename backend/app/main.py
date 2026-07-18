@@ -25,6 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
+from app.infrastructure.ai_priority.identity import gemini_runtime_identity
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
     post_submission_verification_recovery_loop,
@@ -104,7 +105,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
     )
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(SecurityHeadersMiddleware)
-    app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(RateLimitMiddleware, settings=settings)
     app.add_middleware(MetricsMiddleware)
     app.add_middleware(RequestIDMiddleware)
 
@@ -123,6 +124,16 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             environment=settings.app_env,
             debug=settings.app_debug,
         )
+        identity = gemini_runtime_identity(settings)
+        logger.info(
+            "gemini_runtime_configuration",
+            **identity.to_safe_dict(),
+        )
+        if not identity.project_alias_configured:
+            logger.warning(
+                "gemini_project_alias_not_configured",
+                config_version=identity.config_version,
+            )
 
     @app.on_event("shutdown")
     async def on_shutdown() -> None:

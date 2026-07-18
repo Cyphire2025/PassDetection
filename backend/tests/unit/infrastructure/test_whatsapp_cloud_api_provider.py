@@ -41,13 +41,11 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             client=client,
             settings=settings,
             to_number="+919876543210",
-            template_name="global_connect_welcome_v1",
-            header_parameters=["Aarav"],
+            template_name="approved_welcome_template",
+            message_type="welcome",
             parameters=[
-                "Vietnam 2026",
-                "Bluechip",
-                "All further trip details will be shared here.",
-                "- Santosh: 9873536643",
+                'This message is regarding your upcoming trip to "Vietnam 2026".',
+                "Santosh: 9873536643",
             ],
         )
 
@@ -62,7 +60,7 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(kwargs["json"]["type"], "template")
         self.assertEqual(
             kwargs["json"]["template"]["name"],
-            "global_connect_welcome_v1",
+            "approved_welcome_template",
         )
         self.assertEqual(
             kwargs["json"]["template"]["language"],
@@ -70,23 +68,20 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(
             [component["type"] for component in kwargs["json"]["template"]["components"]],
-            ["header", "body"],
+            ["body"],
         )
         self.assertEqual(
             kwargs["json"]["template"]["components"][0]["parameters"],
-            [{"type": "text", "text": "Aarav"}],
-        )
-        self.assertEqual(
-            kwargs["json"]["template"]["components"][1]["parameters"],
             [
-                {"type": "text", "text": "Vietnam 2026"},
-                {"type": "text", "text": "Bluechip"},
-                {"type": "text", "text": "All further trip details will be shared here."},
-                {"type": "text", "text": "- Santosh: 9873536643"},
+                {
+                    "type": "text",
+                    "text": 'This message is regarding your upcoming trip to "Vietnam 2026".',
+                },
+                {"type": "text", "text": "Santosh: 9873536643"},
             ],
         )
 
-    async def test_exposes_safe_provider_error_details(self) -> None:
+    async def test_redacts_raw_provider_error_details(self) -> None:
         response = types.SimpleNamespace(
             status_code=400,
             json=lambda: {
@@ -104,14 +99,55 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             whatsapp_template_language="en_US",
         )
 
-        with self.assertRaisesRegex(WhatsAppCloudApiError, "Template is not approved"):
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
             await send_whatsapp_template(
                 client=client,
                 settings=settings,
                 to_number="+919876543210",
-                template_name="global_connect_welcome_v1",
-                parameters=["Aarav"],
+                template_name="approved_welcome_template",
+                message_type="welcome",
+                parameters=["Trip statement", "Support: 9876543210"],
             )
+        self.assertEqual(
+            raised.exception.code,
+            "WHATSAPP_PROVIDER_REJECTED",
+        )
+        self.assertNotIn("Template is not approved", str(raised.exception))
+        self.assertNotIn("Invalid parameter", str(raised.exception))
+        self.assertIn("Meta rejected this template message", str(raised.exception))
+
+    async def test_passport_payload_has_one_body_component_with_four_parameters(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=200,
+            json=lambda: {"messages": [{"id": "wamid.passport-123"}]},
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+        parameters = [
+            "Please use the secure link below for your trip to Thailand.",
+            "https://travel.example/upload/abc",
+            "Please fill in all required details and review everything carefully.",
+            "Support Desk: 9876543210",
+        ]
+
+        await send_whatsapp_template(
+            client=client,
+            settings=self._settings(),
+            to_number="+919876543210",
+            template_name="approved_passport_template",
+            message_type="passport_link",
+            parameters=parameters,
+            header_parameters=[],
+        )
+
+        template = client.post.await_args.kwargs["json"]["template"]
+        self.assertEqual(
+            [component["type"] for component in template["components"]],
+            ["body"],
+        )
+        self.assertEqual(
+            template["components"][0]["parameters"],
+            [{"type": "text", "text": value} for value in parameters],
+        )
 
     async def test_connect_failure_is_safe_to_retry(self) -> None:
         request = httpx.Request("POST", "https://graph.facebook.com")
@@ -125,7 +161,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 settings=self._settings(),
                 to_number="+919876543210",
                 template_name="welcome",
-                parameters=["Aarav"],
+                message_type="welcome",
+                parameters=["Trip statement", "Support: 9876543210"],
             )
 
         self.assertTrue(raised.exception.transient)
@@ -143,7 +180,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 settings=self._settings(),
                 to_number="+919876543210",
                 template_name="welcome",
-                parameters=["Aarav"],
+                message_type="welcome",
+                parameters=["Trip statement", "Support: 9876543210"],
             )
 
         self.assertFalse(raised.exception.transient)
@@ -162,7 +200,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 settings=self._settings(),
                 to_number="+919876543210",
                 template_name="welcome",
-                parameters=["Aarav"],
+                message_type="welcome",
+                parameters=["Trip statement", "Support: 9876543210"],
             )
 
         self.assertFalse(raised.exception.transient)
@@ -181,10 +220,36 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 settings=self._settings(),
                 to_number="+919876543210",
                 template_name="welcome",
-                parameters=["Aarav"],
+                message_type="welcome",
+                parameters=["Trip statement", "Support: 9876543210"],
             )
 
         self.assertTrue(raised.exception.delivery_unknown)
+
+    async def test_rejects_dynamic_header_or_wrong_body_count_before_http(self) -> None:
+        client = types.SimpleNamespace(post=AsyncMock())
+
+        with self.assertRaisesRegex(WhatsAppCloudApiError, "static header"):
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="approved_welcome_template",
+                message_type="welcome",
+                header_parameters=["Aarav"],
+                parameters=["Trip statement", "Support: 9876543210"],
+            )
+        with self.assertRaisesRegex(WhatsAppCloudApiError, "exactly 4"):
+            await send_whatsapp_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="approved_passport_template",
+                message_type="passport_link",
+                parameters=["intro", "https://example.test", "instructions"],
+            )
+
+        client.post.assert_not_awaited()
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date
 from typing import Any
 
@@ -28,15 +29,15 @@ MAX_REVIEWED_FIELDS_TOTAL_LENGTH = 1_440
 def validate_reviewed_passport_payload(fields: dict[str, str]) -> None:
     """Bound and allowlist untrusted client review dictionaries."""
 
-    if len(fields) > len(REVIEWABLE_PASSPORT_FIELDS):
-        raise ValidationError(
-            "Too many reviewed passport fields were supplied.",
-            field="confirmed_fields",
-        )
     unknown = sorted(set(fields) - set(REVIEWABLE_PASSPORT_FIELDS))
     if unknown:
         raise ValidationError(
             "Unsupported reviewed passport field.",
+            field="confirmed_fields",
+        )
+    if len(fields) > len(REVIEWABLE_PASSPORT_FIELDS):
+        raise ValidationError(
+            "Too many reviewed passport fields were supplied.",
             field="confirmed_fields",
         )
 
@@ -227,11 +228,11 @@ def _text_value(value: Any) -> str:
 
 
 def _comparable_passport_value(field: str, value: str) -> str:
-    normalized = " ".join(value.strip().split())
+    normalized = " ".join(unicodedata.normalize("NFKC", value).strip().split())
     if field == "passport_number":
         return re.sub(r"[^A-Z0-9]", "", normalized.upper())
     if field in {"nationality", "issuing_country"}:
-        return _country_identity(normalized)
+        return canonical_country_identity(normalized)
     if field == "sex":
         key = normalized.casefold()
         return {
@@ -246,16 +247,25 @@ def _comparable_passport_value(field: str, value: str) -> str:
     return normalized.casefold()
 
 
-def _country_identity(value: str) -> str:
+def canonical_country_identity(value: str) -> str:
+    """Return a conservative alpha-3 identity for an accepted country label."""
+
     key = re.sub(r"[^A-Z]", "", value.upper())
+    aliases = {
+        # The traveller UI historically stores the nationality display label
+        # while passports and Gemini commonly return the ISO alpha-3 code.
+        "INDIAN": "IND",
+    }
+    if key in aliases:
+        return aliases[key]
     # pycountry is a runtime dependency, but retaining the India fallback keeps
     # domain-only unit tests usable in minimal host Python environments.
     try:
         import pycountry
     except ImportError:
-        return {"IND": "IND", "INDIA": "IND"}.get(key, key)
+        return {"IND": "IND", "INDIA": "IND", **aliases}.get(key, key)
     try:
         country = pycountry.countries.lookup(value)
     except LookupError:
-        return {"IND": "IND", "INDIA": "IND"}.get(key, key)
+        return {"IND": "IND", "INDIA": "IND", **aliases}.get(key, key)
     return str(country.alpha_3).upper()

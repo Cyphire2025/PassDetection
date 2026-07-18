@@ -1,14 +1,103 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  buildStaffApprovalRequest,
   canRetryPassportAiVerification,
+  cleanPassportReviewFields,
   formatPassportFieldReviewConfidence,
   getPassportFieldReview,
   getPassportFieldReviewClassName,
   getPassportReviewerLabel,
   getPassportReviewActionState,
   getPassportVerificationConfidence,
+  getStaffApprovalErrorFeedback,
+  getStaffApprovalOutcomeFeedback,
 } from "./passport-review.ts";
+
+test("staff review payload keeps only the nine passport fields", () => {
+  assert.deepEqual(
+    cleanPassportReviewFields({
+      surname: "  KHAN ",
+      given_names: "IRFAN",
+      passport_number: " P7251478 ",
+      nationality: "Indian",
+      issuing_country: "India",
+      date_of_birth: "1988-06-28",
+      date_of_issue: "2017-01-16",
+      date_of_expiry: "2027-01-15",
+      sex: "M",
+      base_city: "Delhi",
+      staff_code: "GC-7",
+      meal_preference: "Vegetarian",
+      ai_verification: "must-not-leak",
+    }),
+    {
+      surname: "KHAN",
+      given_names: "IRFAN",
+      passport_number: "P7251478",
+      nationality: "Indian",
+      issuing_country: "India",
+      date_of_birth: "1988-06-28",
+      date_of_issue: "2017-01-16",
+      date_of_expiry: "2027-01-15",
+      sex: "M",
+    },
+  );
+});
+
+test("staff approval request carries the current revision and bounded optional reason", () => {
+  assert.deepEqual(
+    buildStaffApprovalRequest(
+      {
+        surname: "  KHAN ",
+        passport_number: " P7251478 ",
+        staff_code: "must-not-leak",
+      },
+      14,
+      "  Visual mismatch confirmed by staff.  ",
+    ),
+    {
+      confirmedFields: {
+        surname: "KHAN",
+        passport_number: "P7251478",
+      },
+      expectedExtractionRevision: 14,
+      reviewReason: "Visual mismatch confirmed by staff.",
+    },
+  );
+});
+
+test("maps staff approval outcomes and typed failures to actionable UI states", () => {
+  assert.deepEqual(getStaffApprovalOutcomeFeedback("approved"), {
+    kind: "success",
+    message: "Passport approved and reviewed corrections saved.",
+  });
+  assert.equal(
+    getStaffApprovalOutcomeFeedback("already_approved").kind,
+    "already_approved",
+  );
+  assert.equal(
+    getStaffApprovalErrorFeedback({
+      code: "STAFF_APPROVAL_STALE",
+      message: "Record changed.",
+    }).kind,
+    "record_changed",
+  );
+  assert.equal(
+    getStaffApprovalErrorFeedback({
+      code: "STAFF_APPROVAL_UNAVAILABLE",
+      message: "Approval unavailable.",
+    }).kind,
+    "unavailable",
+  );
+  assert.equal(
+    getStaffApprovalErrorFeedback({
+      code: "NETWORK_ERROR",
+      message: "Unable to reach the server.",
+    }).kind,
+    "temporary_error",
+  );
+});
 
 test("allows AI retry only for temporary provider failures", () => {
   for (const providerStatus of [
@@ -176,6 +265,10 @@ test("enables staff approval only while the passport needs review", () => {
   });
   assert.equal(getPassportReviewActionState("submitted", false).disabled, true);
   assert.equal(getPassportReviewActionState("ai_approved", false).disabled, true);
+  assert.deepEqual(getPassportReviewActionState("needs_review", true), {
+    disabled: true,
+    label: "Approving and saving corrections",
+  });
 });
 
 test("uses a display name and never exposes another reviewer's raw UUID", () => {

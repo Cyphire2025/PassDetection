@@ -75,7 +75,7 @@ class PostSubmissionVerificationJobRepository:
             verification_revision=verification_revision,
             status="queued",
             attempts=0,
-            max_attempts=3,
+            max_attempts=get_settings().processing_job_max_attempts,
             created_at=now,
             updated_at=now,
         )

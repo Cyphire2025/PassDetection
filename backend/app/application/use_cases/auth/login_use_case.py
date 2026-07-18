@@ -69,7 +69,7 @@ class LoginUseCase:
 
         # 2. Verify password
         if not verify_password(dto.password, user.hashed_password):
-            logger.warning("login_failed_bad_password", email=dto.email)
+            logger.warning("login_failed_bad_password", user_id=str(user.id))
             await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 

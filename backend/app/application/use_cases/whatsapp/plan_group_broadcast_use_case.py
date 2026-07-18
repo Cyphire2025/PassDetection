@@ -16,10 +16,7 @@ from app.application.dtos.whatsapp_dtos import (
     WhatsAppRecipient,
     WhatsAppTemplatePlan,
 )
-from app.application.use_cases.whatsapp.message_templates import (
-    PASSPORT_LINK_TEMPLATE_NAME,
-    WELCOME_TEMPLATE_NAME,
-)
+from app.core.config.settings import get_settings
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,7 +25,7 @@ class PlanGroupBroadcastInput:
     group_name: str
     recipients: list[WhatsAppRecipient]
     intent: WhatsAppBroadcastIntent
-    language_code: str = "en"
+    language_code: str | None = None
 
 
 class PlanGroupBroadcastUseCase:
@@ -51,26 +48,31 @@ class PlanGroupBroadcastUseCase:
         )
 
 
-def template_for_intent(intent: WhatsAppBroadcastIntent, language_code: str) -> WhatsAppTemplatePlan:
+def template_for_intent(
+    intent: WhatsAppBroadcastIntent,
+    language_code: str | None = None,
+) -> WhatsAppTemplatePlan:
+    settings = get_settings()
+    resolved_language_code = language_code or settings.whatsapp_template_language
     if intent == "welcome":
         return WhatsAppTemplatePlan(
             intent=intent,
             category="marketing",
-            template_name=WELCOME_TEMPLATE_NAME,
-            language_code=language_code,
+            template_name=settings.whatsapp_welcome_template_name,
+            language_code=resolved_language_code,
         )
     if intent == "passport_upload_link":
         return WhatsAppTemplatePlan(
             intent=intent,
             category="utility",
-            template_name=PASSPORT_LINK_TEMPLATE_NAME,
-            language_code=language_code,
+            template_name=settings.whatsapp_passport_link_template_name,
+            language_code=resolved_language_code,
         )
     return WhatsAppTemplatePlan(
         intent=intent,
         category="utility",
         template_name="tour_attendance_qr_v1",
-        language_code=language_code,
+        language_code=resolved_language_code,
     )
 
 

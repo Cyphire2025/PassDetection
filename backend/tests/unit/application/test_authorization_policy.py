@@ -5,9 +5,12 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from sqlalchemy import select
+from sqlalchemy.dialects import postgresql
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import User, UserRole
+from app.infrastructure.database.models import PassportSubmissionModel
 
 
 def _user(role: UserRole, agency_id: uuid.UUID | None = None) -> User:
@@ -70,6 +73,54 @@ async def test_manager_can_view_owned_and_assigned_groups_only() -> None:
 
 
 @pytest.mark.asyncio
+async def test_manager_direct_passport_access_respects_group_assignment() -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    agency_id = uuid.uuid4()
+    manager = _user(UserRole.AGENCY_MANAGER, agency_id)
+    assigned_group_id = uuid.uuid4()
+    unrelated_group_id = uuid.uuid4()
+    assigned_passport = _passport(agency_id, assigned_group_id)
+    unrelated_passport = _passport(agency_id, unrelated_group_id)
+
+    policy.manager_can_access_group = AsyncMock(
+        side_effect=lambda manager_id, group_id: (
+            manager_id == manager.id and group_id == assigned_group_id
+        )
+    )
+
+    assert await policy.can_view_passport(manager, assigned_passport) is True
+    assert await policy.can_view_passport(manager, unrelated_passport) is False
+    assert await policy.can_confirm_passport(manager, unrelated_passport) is False
+    assert (
+        await policy.can_staff_approve_passport(manager, unrelated_passport)
+        is False
+    )
+
+
+def test_manager_passport_query_scope_does_not_add_an_unjoined_group_table() -> None:
+    agency_id = uuid.uuid4()
+    manager = _user(UserRole.AGENCY_MANAGER, agency_id)
+
+    statement = AuthorizationPolicy.apply_passport_visibility_scope(
+        select(PassportSubmissionModel),
+        manager,
+    )
+    sql = str(
+        statement.compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+
+    assert [from_clause.name for from_clause in statement.get_final_froms()] == [
+        "passport_submissions"
+    ]
+    assert "passport_submissions.group_id IN" in sql
+    assert "client_groups.created_by_user_id" in sql
+    assert "manager_group_access.manager_id" in sql
+
+
+@pytest.mark.asyncio
 async def test_manager_can_manage_only_owned_groups() -> None:
     policy = AuthorizationPolicy(AsyncMock())
     agency_id = uuid.uuid4()
@@ -127,3 +178,9 @@ async def test_delete_policy_separates_archive_from_permanent_delete() -> None:
     assert await policy.can_delete_data(admin, group, permanent=True) is True
     assert await policy.can_delete_data(manager, group) is True
     assert await policy.can_delete_data(manager, group, permanent=True) is False
+
+    unrelated_group = _group(
+        agency_id,
+        created_by_user_id=uuid.uuid4(),
+    )
+    assert await policy.can_delete_data(manager, unrelated_group) is False

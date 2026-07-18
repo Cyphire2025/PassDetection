@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import httpx
 
+from app.application.use_cases.whatsapp.message_templates import (
+    WhatsAppMessageType,
+    validate_template_parameters,
+)
 from app.core.config.settings import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class WhatsAppCloudApiError(RuntimeError):
@@ -16,12 +23,20 @@ class WhatsAppCloudApiError(RuntimeError):
         self,
         message: str,
         *,
+        code: str = "WHATSAPP_PROVIDER_ERROR",
         transient: bool = False,
         delivery_unknown: bool = False,
     ) -> None:
         super().__init__(message)
+        self.code = code
         self.transient = transient
         self.delivery_unknown = delivery_unknown
+
+    @property
+    def persistence_message(self) -> str:
+        """Return a bounded diagnostic that is safe to expose to staff clients."""
+
+        return f"{self.code}: {self}"
 
 
 def _text_parameter(value: str) -> dict[str, str]:
@@ -34,11 +49,26 @@ async def send_whatsapp_template(
     settings: Settings,
     to_number: str,
     template_name: str,
+    message_type: WhatsAppMessageType,
     parameters: list[str],
     header_parameters: list[str] | None = None,
 ) -> str:
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
-        raise WhatsAppCloudApiError("WhatsApp Cloud API credentials are incomplete")
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API credentials are incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+    try:
+        validate_template_parameters(
+            message_type=message_type,
+            header_parameters=header_parameters or [],
+            body_parameters=parameters,
+        )
+    except ValueError as exc:
+        raise WhatsAppCloudApiError(
+            f"Invalid WhatsApp template payload: {exc}",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        ) from exc
 
     template: dict[str, Any] = {
         "name": template_name,
@@ -80,6 +110,7 @@ async def send_whatsapp_template(
     except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
         raise WhatsAppCloudApiError(
             "WhatsApp Cloud API could not be reached",
+            code="WHATSAPP_PROVIDER_UNREACHABLE",
             transient=True,
         ) from exc
     except httpx.HTTPError as exc:
@@ -88,6 +119,7 @@ async def send_whatsapp_template(
         # uncertain/suppressed outcome for manual reconciliation.
         raise WhatsAppCloudApiError(
             "WhatsApp delivery outcome is unknown after a provider connection interruption",
+            code="WHATSAPP_DELIVERY_UNKNOWN",
             delivery_unknown=True,
         ) from exc
     try:
@@ -96,10 +128,42 @@ async def send_whatsapp_template(
         data = {}
     if response.status_code >= 400:
         error = data.get("error", {}) if isinstance(data, dict) else {}
-        details = error.get("error_data", {}).get("details") if isinstance(error, dict) else None
-        message = details or (error.get("message") if isinstance(error, dict) else None)
+        provider_code = error.get("code") if isinstance(error, dict) else None
+        provider_subcode = error.get("error_subcode") if isinstance(error, dict) else None
+        if response.status_code == 429:
+            code = "WHATSAPP_PROVIDER_RATE_LIMITED"
+            message = "Meta temporarily rate-limited this template message"
+        elif response.status_code in {401, 403}:
+            code = "WHATSAPP_PROVIDER_AUTH_FAILED"
+            message = "Meta rejected the configured WhatsApp credentials"
+        elif response.status_code >= 500:
+            code = "WHATSAPP_DELIVERY_UNKNOWN"
+            message = "Meta returned a server error and delivery status is unknown"
+        else:
+            code = "WHATSAPP_PROVIDER_REJECTED"
+            message = (
+                "Meta rejected this template message; verify the approved template "
+                "configuration and recipient details"
+            )
+        logger.warning(
+            "whatsapp_cloud_api_request_rejected",
+            extra={
+                "status_code": response.status_code,
+                "provider_code": (
+                    provider_code
+                    if isinstance(provider_code, (str, int))
+                    else None
+                ),
+                "provider_subcode": (
+                    provider_subcode
+                    if isinstance(provider_subcode, (str, int))
+                    else None
+                ),
+            },
+        )
         raise WhatsAppCloudApiError(
-            str(message or f"WhatsApp API returned {response.status_code}")[:2000],
+            message,
+            code=code,
             transient=response.status_code == 429,
             delivery_unknown=response.status_code >= 500,
         )
@@ -107,12 +171,14 @@ async def send_whatsapp_template(
     if not isinstance(messages, list) or not messages:
         raise WhatsAppCloudApiError(
             "WhatsApp API accepted the request without returning a message ID",
+            code="WHATSAPP_PROVIDER_RESPONSE_INVALID",
             delivery_unknown=True,
         )
     provider_id = messages[0].get("id") if isinstance(messages[0], dict) else None
     if not provider_id:
         raise WhatsAppCloudApiError(
             "WhatsApp API accepted the request without returning a message ID",
+            code="WHATSAPP_PROVIDER_RESPONSE_INVALID",
             delivery_unknown=True,
         )
     return str(provider_id)

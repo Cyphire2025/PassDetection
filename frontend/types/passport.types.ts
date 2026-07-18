@@ -64,11 +64,18 @@ export interface ExtractedPassportFields {
   }>;
   ai_verification?: {
     status?: string;
+    available?: boolean;
     model?: string;
     provider_status?: string | null;
     corrected_fields?: string[];
     filled_fields?: string[];
     duration_ms?: number;
+    attempts?: number;
+    document_class?: string;
+    page_type?: string;
+    image_quality?: string;
+    classification_confidence?: number;
+    reason_code?: string;
   };
   manual_review_conflicts?: PassportExtractionConflict[];
   [key: string]: unknown;  // allow validation metadata and country-specific fields
@@ -157,7 +164,11 @@ export interface PassportSubmission extends TimestampedEntity {
   thumbnail_s3_key: string | null;
   staff_metadata?: Record<string, string> | null;
   acquisition_mode: "camera" | "file";
-  upload_idempotency_key?: string | null;
+  qualifier_enabled_snapshot?: boolean;
+  qualifier_is_self?: boolean | null;
+  qualifier_relation_code?: string | null;
+  qualifier_relation_label?: string | null;
+  qualifier_selected_at?: string | null;
   extraction_status: PassportExtractionStatus;
   extraction_revision: number;
   status: PassportStatus;
@@ -189,6 +200,20 @@ export interface PassportSubmission extends TimestampedEntity {
   } | null;
 }
 
+export type StaffApprovalOutcome = "approved" | "already_approved";
+
+export interface StaffApprovalRequest {
+  confirmedFields?: Record<string, string>;
+  expectedExtractionRevision: number;
+  reviewReason?: string;
+}
+
+export interface StaffApprovalResult {
+  submission: PassportSubmission;
+  outcome: StaffApprovalOutcome;
+  extractionRevision: number;
+}
+
 export interface PassportGroupSummary {
   group_id: string;
   group_name: string;
@@ -210,6 +235,7 @@ export interface PassportGroupSummary {
   require_selfie: boolean;
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
+  relation_with_qualifier_enabled: boolean;
   notes: string | null;
 }
 

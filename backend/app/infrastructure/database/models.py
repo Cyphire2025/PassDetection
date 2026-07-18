@@ -18,6 +18,7 @@ from sqlalchemy import (
     Enum,
     Float,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     String,
@@ -151,6 +152,9 @@ class ClientGroupModel(Base):
         Boolean, nullable=False, default=True, server_default="true"
     )
     ask_nearest_domestic_airport: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    relation_with_qualifier_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -420,6 +424,51 @@ class PassportSubmissionModel(Base):
             "post_submission_verification_revision >= 0",
             name="ck_passport_submissions_post_verification_revision",
         ),
+        CheckConstraint(
+            "("
+            "qualifier_enabled_snapshot = false AND "
+            "qualifier_selection_id IS NULL AND "
+            "qualifier_is_self IS NULL AND "
+            "qualifier_relation_code IS NULL AND "
+            "qualifier_relation_label IS NULL AND "
+            "qualifier_selected_at IS NULL"
+            ") OR ("
+            "qualifier_enabled_snapshot = true AND "
+            "qualifier_selection_id IS NOT NULL AND "
+            "qualifier_is_self IS NOT NULL AND "
+            "qualifier_relation_label IS NOT NULL AND "
+            "qualifier_selected_at IS NOT NULL AND ("
+            "(qualifier_is_self = true AND "
+            "qualifier_relation_code IS NULL AND "
+            "qualifier_relation_label = 'Self') OR "
+            "(qualifier_is_self = false AND "
+            "qualifier_relation_code IS NOT NULL AND "
+            "qualifier_relation_label <> 'Self')"
+            ")"
+            ")",
+            name="ck_passport_submissions_qualifier_snapshot",
+        ),
+        CheckConstraint(
+            "qualifier_relation_code IS NULL OR qualifier_relation_code IN ("
+            "'spouse', 'husband', 'wife', 'brother', 'sister', 'son', "
+            "'daughter', 'father', 'mother', 'parent', 'child', "
+            "'grandfather', 'grandmother', 'grandson', 'granddaughter', "
+            "'father_in_law', 'mother_in_law', 'brother_in_law', "
+            "'sister_in_law', 'son_in_law', 'daughter_in_law', "
+            "'legal_guardian'"
+            ")",
+            name="ck_passport_submissions_qualifier_relation_code",
+        ),
+        UniqueConstraint(
+            "qualifier_selection_id",
+            name="uq_passport_submissions_qualifier_selection",
+        ),
+        ForeignKeyConstraint(
+            ["qualifier_selection_id", "group_id"],
+            ["qualifier_selections.id", "qualifier_selections.group_id"],
+            name="fk_passport_submissions_qualifier_selection",
+            ondelete="RESTRICT",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -454,6 +503,23 @@ class PassportSubmissionModel(Base):
         String(16), nullable=False, default="file", server_default="file"
     )
     upload_idempotency_key: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    qualifier_enabled_snapshot: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+    qualifier_selection_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=True,
+    )
+    qualifier_is_self: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    qualifier_relation_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    qualifier_relation_label: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    qualifier_selected_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     extraction_status: Mapped[str] = mapped_column(
         String(32), nullable=False, default="not_started", server_default="not_started"
     )
@@ -512,6 +578,78 @@ class PassportSubmissionModel(Base):
     )
 
     group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
+
+
+class QualifierSelectionModel(Base):
+    __tablename__ = "qualifier_selections"
+    __table_args__ = (
+        CheckConstraint(
+            "("
+            "is_self = true AND relation_code IS NULL AND relation_label = 'Self'"
+            ") OR ("
+            "is_self = false AND relation_code IS NOT NULL AND relation_label <> 'Self'"
+            ")",
+            name="ck_qualifier_selections_choice",
+        ),
+        CheckConstraint(
+            "expires_at > selected_at",
+            name="ck_qualifier_selections_expiry",
+        ),
+        CheckConstraint(
+            "relation_code IS NULL OR relation_code IN ("
+            "'spouse', 'husband', 'wife', 'brother', 'sister', 'son', "
+            "'daughter', 'father', 'mother', 'parent', 'child', "
+            "'grandfather', 'grandmother', 'grandson', 'granddaughter', "
+            "'father_in_law', 'mother_in_law', 'brother_in_law', "
+            "'sister_in_law', 'son_in_law', 'daughter_in_law', "
+            "'legal_guardian'"
+            ")",
+            name="ck_qualifier_selections_relation_code",
+        ),
+        Index(
+            "ix_qualifier_selections_group_expires",
+            "group_id",
+            "expires_at",
+        ),
+        UniqueConstraint(
+            "id",
+            "group_id",
+            name="uq_qualifier_selections_id_group",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    token_hash: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        unique=True,
+    )
+    is_self: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    relation_code: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    relation_label: Mapped[str] = mapped_column(String(80), nullable=False)
+    selected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+    )
 
 
 class DocumentDistributionBatchModel(Base):

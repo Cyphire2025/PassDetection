@@ -40,6 +40,11 @@ class PassportSubmissionOutputDTO:
     staff_metadata: dict[str, Any] | None = None
     acquisition_mode: str = "file"
     upload_idempotency_key: str | None = None
+    qualifier_enabled_snapshot: bool = False
+    qualifier_is_self: bool | None = None
+    qualifier_relation_code: str | None = None
+    qualifier_relation_label: str | None = None
+    qualifier_selected_at: datetime | None = None
     extraction_status: str = "not_started"
     extraction_revision: int = 0
     extracted_fields: dict[str, Any] | None = None
@@ -101,6 +106,11 @@ def passport_submission_output_from_entity(
         staff_metadata=submission.staff_metadata,
         acquisition_mode=submission.acquisition_mode,
         upload_idempotency_key=submission.upload_idempotency_key,
+        qualifier_enabled_snapshot=submission.qualifier_enabled_snapshot,
+        qualifier_is_self=submission.qualifier_is_self,
+        qualifier_relation_code=submission.qualifier_relation_code,
+        qualifier_relation_label=submission.qualifier_relation_label,
+        qualifier_selected_at=submission.qualifier_selected_at,
         extraction_status=submission.extraction_status.value,
         extraction_revision=submission.extraction_revision,
         status=submission.status.value,
@@ -152,4 +162,5 @@ class PassportGroupSummaryDTO:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None

@@ -40,6 +40,7 @@ export function UploadLinkList() {
   const [renameValue, setRenameValue] = useState("");
   const [editAllowFilesFromDevice, setEditAllowFilesFromDevice] = useState(true);
   const [editAskNearestDomesticAirport, setEditAskNearestDomesticAirport] = useState(false);
+  const [editRelationWithQualifier, setEditRelationWithQualifier] = useState(false);
   const { data: activeLinks = [], isLoading: isLoadingActive } = useUploadLinks();
   const { data: archivedLinks = [], isLoading: isLoadingArchived } = useUploadLinks("archived");
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
@@ -53,6 +54,7 @@ export function UploadLinkList() {
     setRenameValue(link.name);
     setEditAllowFilesFromDevice(link.allow_files_from_device ?? true);
     setEditAskNearestDomesticAirport(link.ask_nearest_domestic_airport ?? false);
+    setEditRelationWithQualifier(link.relation_with_qualifier_enabled ?? false);
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -171,17 +173,21 @@ export function UploadLinkList() {
         name={renameValue}
         allowFilesFromDevice={editAllowFilesFromDevice}
         askNearestDomesticAirport={editAskNearestDomesticAirport}
+        relationWithQualifier={editRelationWithQualifier}
         isLoading={isRenaming}
         onNameChange={setRenameValue}
         onAllowFilesFromDeviceChange={setEditAllowFilesFromDevice}
         onAskNearestDomesticAirportChange={setEditAskNearestDomesticAirport}
+        onRelationWithQualifierChange={setEditRelationWithQualifier}
         onClose={() => setRenameTarget(null)}
         onConfirm={() => {
           if (!renameTarget) return;
           const nextName = renameValue.trim();
           const hasChanges = nextName !== renameTarget.name
             || editAllowFilesFromDevice !== (renameTarget.allow_files_from_device ?? true)
-            || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false);
+            || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false)
+            || editRelationWithQualifier
+              !== (renameTarget.relation_with_qualifier_enabled ?? false);
           if (!nextName || !hasChanges) {
             setRenameTarget(null);
             return;
@@ -202,6 +208,7 @@ export function UploadLinkList() {
               require_selfie: renameTarget.require_selfie,
               allow_files_from_device: editAllowFilesFromDevice,
               ask_nearest_domestic_airport: editAskNearestDomesticAirport,
+              relation_with_qualifier_enabled: editRelationWithQualifier,
               notes: renameTarget.notes,
             },
             { onSuccess: () => setRenameTarget(null) },
@@ -236,10 +243,12 @@ function EditGroupDialog({
   name,
   allowFilesFromDevice,
   askNearestDomesticAirport,
+  relationWithQualifier,
   isLoading,
   onNameChange,
   onAllowFilesFromDeviceChange,
   onAskNearestDomesticAirportChange,
+  onRelationWithQualifierChange,
   onConfirm,
   onClose,
 }: {
@@ -247,10 +256,12 @@ function EditGroupDialog({
   name: string;
   allowFilesFromDevice: boolean;
   askNearestDomesticAirport: boolean;
+  relationWithQualifier: boolean;
   isLoading: boolean;
   onNameChange: (value: string) => void;
   onAllowFilesFromDeviceChange: (checked: boolean) => void;
   onAskNearestDomesticAirportChange: (checked: boolean) => void;
+  onRelationWithQualifierChange: (checked: boolean) => void;
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -312,6 +323,13 @@ function EditGroupDialog({
             checked={askNearestDomesticAirport}
             disabled={isLoading}
             onChange={onAskNearestDomesticAirportChange}
+          />
+          <GroupOptionToggle
+            label="Relation with Qualifier"
+            description="Require Self or one approved family relationship before this single-passenger upload."
+            checked={relationWithQualifier}
+            disabled={isLoading}
+            onChange={onRelationWithQualifierChange}
           />
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">

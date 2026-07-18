@@ -1,47 +1,129 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { detectPassportFrame, type PassportPageSide } from "../services/passport-frame-detector";
+import {
+  detectPassportFrame,
+  PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD,
+  type FrameDetectionResult,
+  type PassportFrameStatus,
+  type PassportPageSide,
+} from "../services/passport-frame-detector";
 
 const ANALYSIS_INTERVAL_MS = 180;
-// A document must remain fully inside the guide for ~0.72 seconds before the
-// camera can advertise it as capture-ready. This avoids a false auto-click
-// while a hand, table edge, or partially-visible document crosses the guide.
+// A passport layout must remain valid for ~0.72 seconds before quality checks
+// can unlock capture. Invalid guidance is also stabilized briefly to avoid
+// flickering between instructions while the user moves the page.
 const REQUIRED_STABLE_FRAMES = 4;
+const REQUIRED_STATUS_FRAMES = 2;
 
 interface UsePassportFrameDetectionOptions {
   videoRef: RefObject<HTMLVideoElement | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  guideRef?: RefObject<HTMLElement | null>;
   enabled: boolean;
   pageSide?: PassportPageSide;
+  resetKey?: string | number;
 }
 
-/** Keeps frame analysis and stability rules outside the camera UI. */
+interface StabilizedFrameAnalysis extends FrameDetectionResult {
+  resetKey: string | number;
+  detectionSequence: number;
+}
+
+/** Keeps page analysis and multi-frame stability outside the camera UI. */
 export function usePassportFrameDetection({
   videoRef,
   canvasRef,
+  guideRef,
   enabled,
   pageSide = "front",
+  resetKey = 0,
 }: UsePassportFrameDetectionOptions) {
-  const [isDetected, setIsDetected] = useState(false);
-  const stableFramesRef = useRef(0);
+  const [analysis, setAnalysis] = useState<StabilizedFrameAnalysis | null>(null);
+  const readyFramesRef = useRef(0);
+  const readySequenceRef = useRef(0);
+  const lastStatusRef = useRef<PassportFrameStatus | null>(null);
+  const statusFramesRef = useRef(0);
 
   useEffect(() => {
+    readyFramesRef.current = 0;
+    readySequenceRef.current = 0;
+    lastStatusRef.current = null;
+    statusFramesRef.current = 0;
     if (!enabled) {
-      stableFramesRef.current = 0;
       return;
     }
 
     const interval = window.setInterval(() => {
       if (!videoRef.current || !canvasRef.current) return;
-      const result = detectPassportFrame(videoRef.current, canvasRef.current, pageSide);
-      const reliablyDetected = result.isDetected && result.confidence >= 0.64;
-      stableFramesRef.current = reliablyDetected
-        ? Math.min(REQUIRED_STABLE_FRAMES, stableFramesRef.current + 1)
-        : Math.max(0, stableFramesRef.current - 1);
-      setIsDetected(stableFramesRef.current >= REQUIRED_STABLE_FRAMES);
+      const result = detectPassportFrame(
+        videoRef.current,
+        canvasRef.current,
+        pageSide,
+        guideRef?.current ?? null,
+      );
+      const reliablyDetected = result.isDetected && result.confidence >= 0.69;
+
+      if (reliablyDetected) {
+        const wasStable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;
+        readyFramesRef.current = Math.min(
+          REQUIRED_STABLE_FRAMES,
+          readyFramesRef.current + 1,
+        );
+        lastStatusRef.current = "ready";
+        statusFramesRef.current = readyFramesRef.current;
+        const stable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;
+        if (stable && !wasStable) readySequenceRef.current += 1;
+        setAnalysis({
+          ...result,
+          isDetected: stable,
+          status: stable ? "ready" : "checking",
+          resetKey,
+          detectionSequence: readySequenceRef.current,
+        });
+        return;
+      }
+
+      readyFramesRef.current = 0;
+      if (lastStatusRef.current === result.status) {
+        statusFramesRef.current = Math.min(
+          REQUIRED_STATUS_FRAMES,
+          statusFramesRef.current + 1,
+        );
+      } else {
+        lastStatusRef.current = result.status;
+        statusFramesRef.current = 1;
+      }
+      setAnalysis({
+        ...result,
+        isDetected: false,
+        status: statusFramesRef.current >= REQUIRED_STATUS_FRAMES
+          ? result.status
+          : "checking",
+        resetKey,
+        detectionSequence: readySequenceRef.current,
+      });
     }, ANALYSIS_INTERVAL_MS);
 
     return () => window.clearInterval(interval);
-  }, [canvasRef, enabled, pageSide, videoRef]);
+  }, [canvasRef, enabled, guideRef, pageSide, resetKey, videoRef]);
 
-  return { isDetected: enabled && isDetected };
+  const isCurrentAnalysis = enabled && analysis?.resetKey === resetKey;
+  const hasStableDetection = isCurrentAnalysis && Boolean(analysis?.isDetected);
+  const status = isCurrentAnalysis
+    ? analysis?.status ?? "checking"
+    : "checking";
+  return {
+    isDetected: hasStableDetection,
+    status,
+    confidence: enabled ? analysis?.confidence ?? 0 : 0,
+    visibleEdges: enabled ? analysis?.visibleEdges ?? 0 : 0,
+    isCriticalZoneObstructed: isCurrentAnalysis
+      && (
+        analysis?.criticalZoneObstructionScore ?? 0
+      ) >= PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD,
+    hasDocumentCandidate: isCurrentAnalysis
+      && Boolean(analysis?.quad || (analysis?.visibleEdges ?? 0) >= 2),
+    detectionSequence: isCurrentAnalysis
+      ? analysis?.detectionSequence ?? 0
+      : 0,
+  };
 }

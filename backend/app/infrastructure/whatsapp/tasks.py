@@ -41,12 +41,19 @@ def process_whatsapp_broadcast(
             )
         )
     except Exception as exc:
-        logger.exception("whatsapp_broadcast_task_failed batch_id=%s", batch_id)
+        logger.error(
+            "whatsapp_broadcast_task_failed batch_id=%s error_type=%s",
+            batch_id,
+            type(exc).__name__,
+        )
         if self.request.retries >= self.max_retries:
             asyncio.run(
                 mark_whatsapp_batch_failed(
                     batch_id=batch_id,
-                    error_message=f"WhatsApp worker failed after retries: {exc}",
+                    error_message=(
+                        "WHATSAPP_WORKER_FAILED: WhatsApp delivery worker failed "
+                        "after bounded retries"
+                    ),
                 )
             )
             raise

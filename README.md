@@ -47,7 +47,7 @@ frontend/
 ### Prerequisites
 
 - Docker Desktop
-- Node.js 20+
+- Node.js 24+
 - Python 3.11+
 
 ### 1. Copy environment file
@@ -65,9 +65,9 @@ docker compose up --build
 
 Services:
 
-- Frontend: http://localhost
-- Backend API: http://localhost/api/v1
-- API Docs: http://localhost/docs
+- Frontend: https://localhost
+- Backend API: https://localhost/api/v1
+- API Docs: https://localhost/docs
 - MinIO Console: http://localhost:9001
 
 ### 3. Run database migrations
@@ -101,7 +101,7 @@ Services in hot-reload mode:
 
 - Frontend dev server: http://localhost:3000
 - Backend API: http://localhost:8000
-- Nginx reverse proxy: http://localhost
+- Nginx reverse proxy: https://localhost
 
 ### 6. Local development without Docker
 
@@ -185,8 +185,33 @@ cd frontend && npm run lint
 ## Production Deployment Notes
 
 1. Set strong values for every secret in `.env`; never reuse local defaults.
-2. Run migrations with `docker compose run --rm backend alembic upgrade head` or the equivalent CI step before serving traffic.
-3. Use TLS at Nginx or an upstream load balancer.
-4. Point object storage to durable S3-compatible storage and verify bucket lifecycle policies.
-5. Configure `SENTRY_DSN`, production CORS origins, and database backup/restore procedures.
-6. Keep `/openapi.json` available for generated clients and CI contract checks; expose `/docs` only in non-production environments.
+2. Always apply `docker-compose.prod.yml` after the development base file. It
+   removes backend source bind mounts and restores the built runtime image's
+   Gunicorn command. It also forces `APP_ENV=production` and
+   `APP_DEBUG=false` for backend workers, forces durable Celery dispatch, and
+   keeps the shared Redis public-upload limiter fail-closed; the frontend
+   receives only the explicitly listed `NEXT_PUBLIC_*` values, never the
+   server `.env`.
+   Production also clears the development URL at both build time and runtime:
+
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
+   python scripts/verify_compose_runtime.py
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml build
+   ```
+
+3. Run migrations before serving traffic:
+
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head
+   ```
+
+   Do not deploy with `docker-compose.yml` alone; that file intentionally
+   retains the local backend bind mount and Uvicorn hot reload.
+4. Provision a trusted certificate and private key at the configured Nginx
+   certificate paths before startup. Port 80 serves only `/nginx-health` and
+   redirects every application request to HTTPS; if TLS terminates at an
+   upstream load balancer, connect it to Nginx over TLS as well.
+5. Point object storage to durable S3-compatible storage and verify bucket lifecycle policies.
+6. Configure `SENTRY_DSN`, production CORS origins, and database backup/restore procedures.
+7. Keep `/openapi.json` available for generated clients and CI contract checks; expose `/docs` only in non-production environments.

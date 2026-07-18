@@ -69,6 +69,12 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             passport_back_s3_key=model.passport_back_s3_key,
             acquisition_mode=model.acquisition_mode,
             upload_idempotency_key=model.upload_idempotency_key,
+            qualifier_enabled_snapshot=model.qualifier_enabled_snapshot,
+            qualifier_selection_id=model.qualifier_selection_id,
+            qualifier_is_self=model.qualifier_is_self,
+            qualifier_relation_code=model.qualifier_relation_code,
+            qualifier_relation_label=model.qualifier_relation_label,
+            qualifier_selected_at=model.qualifier_selected_at,
             extraction_status=PassportExtractionStatus(model.extraction_status),
             extraction_revision=model.extraction_revision,
             staff_metadata=model.staff_metadata,
@@ -120,6 +126,12 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             passport_back_s3_key=entity.passport_back_s3_key,
             acquisition_mode=entity.acquisition_mode,
             upload_idempotency_key=entity.upload_idempotency_key,
+            qualifier_enabled_snapshot=entity.qualifier_enabled_snapshot,
+            qualifier_selection_id=entity.qualifier_selection_id,
+            qualifier_is_self=entity.qualifier_is_self,
+            qualifier_relation_code=entity.qualifier_relation_code,
+            qualifier_relation_label=entity.qualifier_relation_label,
+            qualifier_selected_at=entity.qualifier_selected_at,
             extraction_status=entity.extraction_status.value,
             extraction_revision=entity.extraction_revision,
             staff_metadata=entity.staff_metadata,
@@ -170,6 +182,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         self,
         submission_id: uuid.UUID,
     ) -> PassportSubmission | None:
+        """Lock one submission until the caller commits or rolls back."""
+
         result = await self._session.execute(
             select(PassportSubmissionModel)
             .where(PassportSubmissionModel.id == submission_id)
@@ -253,6 +267,12 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.passport_back_s3_key = submission.passport_back_s3_key
         model.acquisition_mode = submission.acquisition_mode
         model.upload_idempotency_key = submission.upload_idempotency_key
+        model.qualifier_enabled_snapshot = submission.qualifier_enabled_snapshot
+        model.qualifier_selection_id = submission.qualifier_selection_id
+        model.qualifier_is_self = submission.qualifier_is_self
+        model.qualifier_relation_code = submission.qualifier_relation_code
+        model.qualifier_relation_label = submission.qualifier_relation_label
+        model.qualifier_selected_at = submission.qualifier_selected_at
         model.extraction_status = submission.extraction_status.value
         model.extraction_revision = submission.extraction_revision
         model.staff_metadata = submission.staff_metadata
@@ -321,6 +341,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         submission_id: uuid.UUID,
         expected_revision: int,
         public_message: str,
+        diagnostics: dict[str, object] | None = None,
     ) -> PassportSubmission | None:
         result = await self._session.execute(
             select(PassportSubmissionModel)
@@ -337,6 +358,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if not submission.mark_extraction_failed(
             public_message,
             expected_revision=expected_revision,
+            diagnostics=diagnostics,
         ):
             return None
         self._apply_extraction_fields(model, submission)
@@ -539,6 +561,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.require_selfie.label("require_selfie"),
                 ClientGroupModel.allow_files_from_device.label("allow_files_from_device"),
                 ClientGroupModel.ask_nearest_domestic_airport.label("ask_nearest_domestic_airport"),
+                ClientGroupModel.relation_with_qualifier_enabled.label(
+                    "relation_with_qualifier_enabled"
+                ),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case(
@@ -602,6 +627,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.require_selfie,
                 ClientGroupModel.allow_files_from_device,
                 ClientGroupModel.ask_nearest_domestic_airport,
+                ClientGroupModel.relation_with_qualifier_enabled,
                 ClientGroupModel.created_at,
             )
             .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
@@ -631,6 +657,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 require_selfie=row.require_selfie,
                 allow_files_from_device=row.allow_files_from_device,
                 ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
+                relation_with_qualifier_enabled=(
+                    row.relation_with_qualifier_enabled
+                ),
                 notes=row.notes,
             )
             for row in result.all()

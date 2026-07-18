@@ -6,8 +6,10 @@ Upload Link Application DTOs
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
+
+from app.domain.value_objects.qualifier_relations import qualifier_relation_options
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class CreateClientGroupInputDTO:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None
 
 
@@ -43,6 +46,7 @@ class UpdateClientGroupInputDTO:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None
 
 
@@ -68,6 +72,8 @@ class ClientGroupOutputDTO:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
+    qualifier_relation_options: list[dict[str, str]] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -96,6 +102,8 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         require_selfie=link.require_selfie,
         allow_files_from_device=link.allow_files_from_device,
         ask_nearest_domestic_airport=link.ask_nearest_domestic_airport,
+        relation_with_qualifier_enabled=link.relation_with_qualifier_enabled,
+        qualifier_relation_options=qualifier_relation_options(),
         notes=link.notes,
         deleted_at=link.deleted_at,
         deleted_passport_count=link.deleted_passport_count,

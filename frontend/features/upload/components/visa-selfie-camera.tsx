@@ -5,31 +5,72 @@ import Image from "next/image";
 import { AlertTriangle, Check, Loader2, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Detection } from "@mediapipe/face_detection";
-import { evaluateWhiteBackground, isVisaSelfieFaceLargeEnough } from "./visa-selfie-quality";
+import { useStableTelemetryReason } from "../hooks/use-stable-telemetry-reason";
+import {
+  visaPhotoRejectionReason,
+  type VisaPhotoRejectionReason,
+} from "../services/public-flow-telemetry";
+import {
+  evaluateVisaPhotoFaceCount,
+  evaluateVisaPhotoClarity,
+  evaluateVisaPhotoEyewear,
+  evaluateVisaPhotoFacePlacement,
+  evaluateWhiteBackground,
+  hasStableVisaPhotoReadiness,
+  isVisaPhotoFallbackCaptureAllowed,
+  isVisaPhotoFrameCaptureReady,
+  requestVisaPhotoCamera,
+  stabilizeVisaPhotoEyewearStatus,
+  updateKnownVisaPhotoEyewearViolation,
+  visaPhotoEyewearGuidance,
+  type VisaPhotoClarityStatus,
+  type VisaPhotoEyewearStatus,
+  type VisaPhotoFaceGeometry,
+} from "./visa-selfie-quality";
 
 interface VisaSelfieCameraProps {
   onCapture: (file: File) => void;
   onCancel: () => void;
+  onTelemetryReason?: (reason: VisaPhotoRejectionReason) => void;
 }
 
-type FacingMode = "user" | "environment";
-type FaceStatus = "loading" | "no_face" | "multiple" | "too_far" | "too_close" | "off_center" | "ready" | "unavailable";
+type FaceStatus =
+  | "loading"
+  | "no_face"
+  | "multiple"
+  | "too_far"
+  | "too_close"
+  | "off_center"
+  | "head_tilt"
+  | "ready"
+  | "unavailable";
 type BackgroundStatus = "checking" | "white" | "not_white" | "not_plain";
 type ResolvedBackgroundStatus = Exclude<BackgroundStatus, "checking">;
+type ClarityStatus = "checking" | VisaPhotoClarityStatus;
+type EyewearStatus = "checking" | VisaPhotoEyewearStatus;
 
 interface PendingAnalysis {
   id: number;
   cameraGeneration: number;
+  timeoutId: number;
 }
+
+type CaptureMode = "validated" | "fallback";
 
 const OUTPUT_WIDTH = 826;
 const OUTPUT_HEIGHT = 1062;
 const STABLE_CAPTURE_MS = 2_000;
 const ANALYSIS_INTERVAL_MS = 160;
-const ANALYSIS_WIDTH = 72;
-const ANALYSIS_HEIGHT = 92;
+const ANALYSIS_TIMEOUT_MS = 6_000;
+const ANALYSIS_WIDTH = 112;
+const ANALYSIS_HEIGHT = 144;
+const READINESS_SAMPLE_COUNT = 4;
 
-export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps) {
+export function VisaSelfieCamera({
+  onCapture,
+  onCancel,
+  onTelemetryReason = () => undefined,
+}: VisaSelfieCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const guideRef = useRef<HTMLDivElement>(null);
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,7 +83,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   const stableSinceRef = useRef<number | null>(null);
   const captureStartedRef = useRef(false);
   const captureReadyRef = useRef(false);
-  const takePhotoRef = useRef<() => Promise<void>>(async () => undefined);
+  const takePhotoRef = useRef<(mode?: CaptureMode) => Promise<void>>(async () => undefined);
   const cameraGenerationRef = useRef(0);
   const detectorGenerationRef = useRef(0);
   const nextAnalysisIdRef = useRef(0);
@@ -51,13 +92,23 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   const faceStatusRef = useRef<FaceStatus>("loading");
   const backgroundStatusRef = useRef<BackgroundStatus>("checking");
   const backgroundSamplesRef = useRef<ResolvedBackgroundStatus[]>([]);
+  const eyewearSamplesRef = useRef<VisaPhotoEyewearStatus[]>([]);
+  const readinessSamplesRef = useRef<boolean[]>([]);
+  const knownEyewearViolationRef = useRef(false);
+  const visibilityPausedRef = useRef(false);
 
-  const [facingMode, setFacingMode] = useState<FacingMode>("user");
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [mirrorPreview, setMirrorPreview] = useState(false);
+  const [cameraAttempt, setCameraAttempt] = useState(0);
   const [isDetectorReady, setIsDetectorReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [faceStatus, setFaceStatus] = useState<FaceStatus>("loading");
   const [backgroundStatus, setBackgroundStatus] = useState<BackgroundStatus>("checking");
+  const [clarityStatus, setClarityStatus] = useState<ClarityStatus>("checking");
+  const [eyewearStatus, setEyewearStatus] = useState<EyewearStatus>("checking");
+  const [liveReady, setLiveReady] = useState(false);
+  const [knownEyewearViolation, setKnownEyewearViolation] = useState(false);
+  const [fallbackAcknowledged, setFallbackAcknowledged] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [initializationAttempt, setInitializationAttempt] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -66,18 +117,37 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
 
+  const telemetryReason = visaPhotoRejectionReason({
+    cameraUnavailable: Boolean(cameraError),
+    qualityModelUnavailable: Boolean(modelError),
+    faceStatus,
+    backgroundStatus,
+    clarityStatus,
+    eyewearStatus,
+  });
+  useStableTelemetryReason(telemetryReason, onTelemetryReason);
+
   const resetQualityState = useCallback((status: FaceStatus = "loading") => {
     faceStatusRef.current = status;
     backgroundStatusRef.current = "checking";
     captureReadyRef.current = false;
     stableSinceRef.current = null;
     backgroundSamplesRef.current = [];
+    eyewearSamplesRef.current = [];
+    readinessSamplesRef.current = [];
     setFaceStatus(status);
     setBackgroundStatus("checking");
+    setClarityStatus("checking");
+    setEyewearStatus("checking");
+    setLiveReady(false);
     setCountdown(null);
   }, []);
 
   const stopStream = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   }, []);
@@ -87,11 +157,28 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     animationFrameRef.current = null;
   }, []);
 
-  const takePhoto = useCallback(async () => {
+  const takePhoto = useCallback(async (mode: CaptureMode = "validated") => {
     const video = videoRef.current;
     const guide = guideRef.current;
     const canvas = captureCanvasRef.current;
-    if (!video || !guide || !canvas || !isCameraReady || !captureReadyRef.current || captureStartedRef.current) return;
+    const validatedCaptureAllowed = mode === "validated"
+      && !modelError
+      && captureReadyRef.current;
+    const fallbackCaptureAllowed = mode === "fallback"
+      && isVisaPhotoFallbackCaptureAllowed({
+        cameraReady: isCameraReady,
+        modelUnavailable: Boolean(modelError),
+        userAcknowledgedRequirements: fallbackAcknowledged,
+        knownEyewearViolation: knownEyewearViolationRef.current,
+      });
+    if (
+      !video
+      || !guide
+      || !canvas
+      || !isCameraReady
+      || (!validatedCaptureAllowed && !fallbackCaptureAllowed)
+      || captureStartedRef.current
+    ) return;
 
     captureStartedRef.current = true;
     captureReadyRef.current = false;
@@ -111,19 +198,28 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       // segmentation is applied; the live checks require a real white backdrop.
       context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
       const blob = await canvasToJpeg(canvas);
-      const file = new File([blob], `visa-selfie-${Date.now()}.jpg`, {
+      const file = new File([blob], `visa-photo-${Date.now()}.jpg`, {
         type: "image/jpeg",
         lastModified: Date.now(),
       });
+      stopAnalysis();
+      stopStream();
+      setIsCameraReady(false);
       setCapturedFile(file);
       setCapturedPreview(URL.createObjectURL(file));
     } catch (error) {
-      setProcessingError(error instanceof Error ? error.message : "The selfie could not be saved. Please retry.");
+      setProcessingError(error instanceof Error ? error.message : "The Visa Photo could not be saved. Please retry.");
     } finally {
       setIsProcessing(false);
       captureStartedRef.current = false;
     }
-  }, [isCameraReady]);
+  }, [
+    fallbackAcknowledged,
+    isCameraReady,
+    modelError,
+    stopAnalysis,
+    stopStream,
+  ]);
 
   useEffect(() => {
     takePhotoRef.current = takePhoto;
@@ -149,6 +245,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
         detector.onResults((results) => {
           const pending = pendingAnalyses.get(detectorGeneration)?.shift();
           if (!pending) return;
+          window.clearTimeout(pending.timeoutId);
           if (activeAnalysisIdRef.current === pending.id) {
             activeAnalysisIdRef.current = null;
             analysisBusyRef.current = false;
@@ -165,15 +262,58 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
           const analysisCanvas = analysisCanvasRef.current;
           if (!video || !guide || !analysisCanvas || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
 
-          const nextFaceStatus = classifyFace(results.detections, video, guide);
-          const nextBackgroundStatus = nextFaceStatus === "ready"
-            ? stabilizeBackgroundStatus(
-                analyzeWhiteBackground(video, guide, analysisCanvas),
-                backgroundSamplesRef.current,
-              )
-            : "checking";
-          if (nextFaceStatus !== "ready") backgroundSamplesRef.current = [];
-          const isReady = nextFaceStatus === "ready" && nextBackgroundStatus === "white";
+          const face = results.detections.length === 1
+            ? faceGeometryFromDetection(results.detections[0], video, guide)
+            : null;
+          const nextFaceStatus = classifyFace(results.detections, face);
+          let nextBackgroundStatus: BackgroundStatus = "checking";
+          let nextClarityStatus: ClarityStatus = "checking";
+          let nextEyewearStatus: EyewearStatus = "checking";
+          let currentFrameReady = false;
+
+          if (nextFaceStatus === "ready" && face) {
+            const frame = analyzeVisaPhotoFrame(
+              video,
+              guide,
+              analysisCanvas,
+              face,
+            );
+            nextBackgroundStatus = stabilizeBackgroundStatus(
+              frame.background,
+              backgroundSamplesRef.current,
+            );
+            nextClarityStatus = frame.clarity;
+            nextEyewearStatus = stabilizeVisaPhotoEyewearStatus(
+              frame.eyewear,
+              eyewearSamplesRef.current,
+            );
+            currentFrameReady = isVisaPhotoFrameCaptureReady(
+              nextBackgroundStatus,
+              nextClarityStatus,
+              nextEyewearStatus,
+            );
+          } else {
+            backgroundSamplesRef.current = [];
+            eyewearSamplesRef.current = [];
+          }
+
+          const nextKnownEyewearViolation = updateKnownVisaPhotoEyewearViolation(
+            knownEyewearViolationRef.current,
+            nextEyewearStatus,
+          );
+          if (knownEyewearViolationRef.current !== nextKnownEyewearViolation) {
+            knownEyewearViolationRef.current = nextKnownEyewearViolation;
+            setKnownEyewearViolation(nextKnownEyewearViolation);
+          }
+
+          readinessSamplesRef.current.push(currentFrameReady);
+          if (readinessSamplesRef.current.length > READINESS_SAMPLE_COUNT) {
+            readinessSamplesRef.current.shift();
+          }
+          const isReady = hasStableVisaPhotoReadiness(
+            readinessSamplesRef.current,
+            READINESS_SAMPLE_COUNT,
+          );
 
           if (faceStatusRef.current !== nextFaceStatus) {
             faceStatusRef.current = nextFaceStatus;
@@ -183,6 +323,13 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
             backgroundStatusRef.current = nextBackgroundStatus;
             setBackgroundStatus(nextBackgroundStatus);
           }
+          setClarityStatus((current) =>
+            current === nextClarityStatus ? current : nextClarityStatus
+          );
+          setEyewearStatus((current) =>
+            current === nextEyewearStatus ? current : nextEyewearStatus
+          );
+          setLiveReady((current) => current === isReady ? current : isReady);
           captureReadyRef.current = isReady;
 
           const now = performance.now();
@@ -206,19 +353,25 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
         detectorRef.current = detector;
         analysisBusyRef.current = false;
         setModelError(null);
+        setFallbackAcknowledged(false);
         setIsDetectorReady(true);
       } catch (error) {
-        console.error("VISA selfie face detection initialization failed", error);
+        console.error("Visa Photo face detection initialization failed", error);
         if (disposed) return;
         faceStatusRef.current = "unavailable";
         setFaceStatus("unavailable");
-        setModelError("Live face and background checks could not start. Retry before taking a photo.");
+        captureReadyRef.current = false;
+        setFallbackAcknowledged(false);
+        setModelError("Live photo checks could not start. Retry them, or use the guided fallback below.");
       }
     }
 
     void initializeDetector();
     return () => {
       disposed = true;
+      pendingAnalyses.get(detectorGeneration)?.forEach((pending) => {
+        window.clearTimeout(pending.timeoutId);
+      });
       pendingAnalyses.delete(detectorGeneration);
       const detector = detectorRef.current;
       detectorRef.current = null;
@@ -230,36 +383,44 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     let disposed = false;
 
     async function startCamera() {
+      setIsCameraReady(false);
+      setCameraError(null);
+      if (document.visibilityState === "hidden") {
+        visibilityPausedRef.current = true;
+        return;
+      }
       if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
         setCameraError("Camera access requires HTTPS, or localhost during development.");
         return;
       }
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: facingMode },
-            width: { ideal: 1920 },
-            height: { ideal: 1440 },
-          },
-          audio: false,
-        });
+        const stream = await requestVisaPhotoCamera((constraints) =>
+          navigator.mediaDevices.getUserMedia(constraints)
+        );
         if (disposed) {
           stream.getTracks().forEach((track) => track.stop());
           return;
         }
+        if (isPageHidden()) {
+          stream.getTracks().forEach((track) => track.stop());
+          visibilityPausedRef.current = true;
+          return;
+        }
         streamRef.current = stream;
+        const facingMode = stream.getVideoTracks()[0]?.getSettings?.().facingMode;
+        setMirrorPreview(facingMode === "user");
         const video = videoRef.current;
         if (video) {
           video.srcObject = stream;
           await video.play().catch(() => undefined);
         }
       } catch (error) {
-        console.error("Failed to start VISA selfie camera", error);
+        console.error("Failed to start Visa Photo camera", error);
         if (disposed) return;
         setCameraError(error instanceof DOMException && error.name === "NotAllowedError"
           ? "Camera permission was blocked. Allow camera access and try again."
-          : `The ${facingMode === "user" ? "front" : "back"} camera could not be started on this device.`);
+          : "A camera could not be started on this device. Retry or return to the upload page.");
       }
     }
 
@@ -268,10 +429,77 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       disposed = true;
       stopStream();
     };
-  }, [facingMode, stopStream]);
+  }, [cameraAttempt, stopStream]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        if (capturedPreview) return;
+        visibilityPausedRef.current = true;
+        cameraGenerationRef.current += 1;
+        activeAnalysisIdRef.current = null;
+        analysisBusyRef.current = false;
+        stopAnalysis();
+        stopStream();
+        setIsCameraReady(false);
+        setMirrorPreview(false);
+        resetQualityState(isDetectorReady ? "no_face" : "loading");
+        return;
+      }
+      if (!visibilityPausedRef.current || capturedPreview) return;
+      visibilityPausedRef.current = false;
+      setCameraAttempt((current) => current + 1);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [
+    capturedPreview,
+    isDetectorReady,
+    resetQualityState,
+    stopAnalysis,
+    stopStream,
+  ]);
 
   useEffect(() => {
     if (!isCameraReady || !isDetectorReady || capturedPreview || cameraError) return;
+
+    const failAnalysis = (
+      detectorGeneration: number,
+      cameraGeneration: number,
+      analysisId: number,
+      error: unknown,
+    ) => {
+      const queue = pendingAnalysesRef.current.get(detectorGeneration);
+      const pendingIndex = queue?.findIndex((item) => item.id === analysisId) ?? -1;
+      if (!queue || pendingIndex < 0) return;
+      const [pending] = queue.splice(pendingIndex, 1);
+      window.clearTimeout(pending.timeoutId);
+      if (activeAnalysisIdRef.current === analysisId) {
+        activeAnalysisIdRef.current = null;
+        analysisBusyRef.current = false;
+      }
+      if (
+        cameraGeneration !== cameraGenerationRef.current
+        || detectorGeneration !== detectorGenerationRef.current
+      ) return;
+      console.error("Visa Photo frame analysis failed", error);
+      captureReadyRef.current = false;
+      readinessSamplesRef.current = [];
+      faceStatusRef.current = "unavailable";
+      setFaceStatus("unavailable");
+      setBackgroundStatus("checking");
+      setClarityStatus("checking");
+      setEyewearStatus(
+        knownEyewearViolationRef.current ? "detected" : "checking",
+      );
+      setLiveReady(false);
+      setFallbackAcknowledged(false);
+      setModelError("Live photo checks stopped unexpectedly.");
+      setIsDetectorReady(false);
+    };
 
     const analyze = (now: number) => {
       const detector = detectorRef.current;
@@ -282,29 +510,30 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
         const cameraGeneration = cameraGenerationRef.current;
         const detectorGeneration = detectorGenerationRef.current;
         const analysisId = ++nextAnalysisIdRef.current;
-        const pending = { id: analysisId, cameraGeneration };
+        const timeoutId = window.setTimeout(() => {
+          failAnalysis(
+            detectorGeneration,
+            cameraGeneration,
+            analysisId,
+            new Error("Visa Photo analysis timed out."),
+          );
+        }, ANALYSIS_TIMEOUT_MS);
+        const pending: PendingAnalysis = {
+          id: analysisId,
+          cameraGeneration,
+          timeoutId,
+        };
         activeAnalysisIdRef.current = analysisId;
         const detectorQueue = pendingAnalysesRef.current.get(detectorGeneration) ?? [];
         detectorQueue.push(pending);
         pendingAnalysesRef.current.set(detectorGeneration, detectorQueue);
         void detector.send({ image: video }).catch((error) => {
-          const queue = pendingAnalysesRef.current.get(detectorGeneration);
-          const pendingIndex = queue?.findIndex((item) => item.id === analysisId) ?? -1;
-          if (queue && pendingIndex >= 0) queue.splice(pendingIndex, 1);
-          if (activeAnalysisIdRef.current === analysisId) {
-            activeAnalysisIdRef.current = null;
-            analysisBusyRef.current = false;
-          }
-          if (
-            cameraGeneration !== cameraGenerationRef.current
-            || detectorGeneration !== detectorGenerationRef.current
-          ) return;
-          console.error("VISA selfie frame analysis failed", error);
-          captureReadyRef.current = false;
-          faceStatusRef.current = "unavailable";
-          setFaceStatus("unavailable");
-          setModelError("Live photo checks stopped unexpectedly. Retry the checks to continue.");
-          setIsDetectorReady(false);
+          failAnalysis(
+            detectorGeneration,
+            cameraGeneration,
+            analysisId,
+            error,
+          );
         });
       }
       animationFrameRef.current = requestAnimationFrame(analyze);
@@ -329,11 +558,17 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
 
   const retake = () => {
     if (capturedPreview) URL.revokeObjectURL(capturedPreview);
+    cameraGenerationRef.current += 1;
+    activeAnalysisIdRef.current = null;
+    analysisBusyRef.current = false;
     setCapturedPreview(null);
     setCapturedFile(null);
     setProcessingError(null);
+    setFallbackAcknowledged(false);
     captureStartedRef.current = false;
+    setIsCameraReady(false);
     resetQualityState(isDetectorReady ? "no_face" : "loading");
+    setCameraAttempt((current) => current + 1);
   };
 
   const close = () => {
@@ -342,7 +577,7 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     onCancel();
   };
 
-  const toggleCamera = () => {
+  const retryCamera = () => {
     if (isProcessing) return;
     cameraGenerationRef.current += 1;
     activeAnalysisIdRef.current = null;
@@ -350,9 +585,11 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     stopAnalysis();
     stopStream();
     setIsCameraReady(false);
+    setMirrorPreview(false);
     setCameraError(null);
+    setFallbackAcknowledged(false);
     resetQualityState(isDetectorReady ? "no_face" : "loading");
-    setFacingMode((current) => current === "user" ? "environment" : "user");
+    setCameraAttempt((current) => current + 1);
   };
 
   const retryChecks = () => {
@@ -360,44 +597,76 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
     activeAnalysisIdRef.current = null;
     analysisBusyRef.current = false;
     setModelError(null);
+    setFallbackAcknowledged(false);
     setIsDetectorReady(false);
     resetQualityState("loading");
     setInitializationAttempt((value) => value + 1);
   };
 
-  const ready = faceStatus === "ready" && backgroundStatus === "white";
+  const ready = liveReady;
+  const fallbackCaptureAllowed = isVisaPhotoFallbackCaptureAllowed({
+    cameraReady: isCameraReady,
+    modelUnavailable: Boolean(modelError),
+    userAcknowledgedRequirements: fallbackAcknowledged,
+    knownEyewearViolation,
+  });
+  const eyewearGuidance = visaPhotoEyewearGuidance(eyewearStatus);
   const guidance = processingError
     ?? (isProcessing
-      ? "Saving the original camera photo..."
-      : countdown
+      ? "Saving your Visa Photo..."
+      : modelError
+        ? knownEyewearViolation
+          ? "Glasses were detected - remove them and retry the live checks"
+          : "Live checks unavailable - retry or use the guided fallback below"
+        : countdown
         ? `Hold still - capturing in ${countdown}`
-        : faceStatus === "ready" && backgroundStatus === "not_plain"
-          ? "The wall is not plain - avoid patterns and texture"
-          : faceStatus === "ready" && backgroundStatus === "not_white"
-            ? "Use a white or off-white wall - normal room lighting is okay"
-          : faceStatusMessage(faceStatus));
+        : faceStatus !== "ready"
+          ? faceStatusMessage(faceStatus)
+          : eyewearGuidance
+            ? eyewearGuidance
+            : clarityStatus === "too_dark" || clarityStatus === "too_bright"
+              ? "Improve the lighting on your face"
+              : clarityStatus === "blurry"
+                ? "Hold the camera steady and keep your face in focus"
+                : backgroundStatus === "not_plain"
+                  ? "Use a plain wall without handles, seams, shelves, or patterns"
+                  : backgroundStatus === "not_white"
+                    ? "Use a plain white or off-white wall"
+                    : ready
+                      ? "All checks passed - hold still"
+                      : "Hold steady while the photo checks finish");
 
   return (
-    <div className="fixed inset-0 z-50 flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-slate-50 text-slate-900">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="visa-photo-camera-title"
+      className="fixed inset-0 z-50 flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-slate-50 text-slate-900"
+    >
       <header className="z-10 flex min-h-[4.5rem] flex-none items-center justify-between border-b border-slate-200 bg-white px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-sm">
-        <button type="button" onClick={close} aria-label="Close selfie camera" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900">
+        <button type="button" onClick={close} aria-label="Close Visa Photo camera" className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900">
           <X className="h-6 w-6" />
         </button>
         <div className="text-center">
-          <h2 className="text-base font-semibold text-slate-950">VISA Selfie Photo</h2>
-          <p className="text-xs text-slate-500">Use a plain white or off-white wall</p>
+          <h2 id="visa-photo-camera-title" className="text-base font-semibold text-slate-950">
+            Visa Photo Upload
+          </h2>
+          <p className="text-xs text-slate-500">Live photo quality checks</p>
         </div>
         <div className="w-10" aria-hidden="true" />
       </header>
 
       <main className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-slate-100">
         {cameraError ? (
-          <div className="mx-6 max-w-md rounded-2xl border border-amber-200 bg-white p-6 text-center shadow-xl">
-            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
+          <div
+            role="alert"
+            className="mx-6 max-w-md rounded-2xl border border-amber-200 bg-white p-6 text-center shadow-xl"
+          >
+            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" aria-hidden="true" />
             <h3 className="mb-2 text-lg font-semibold text-slate-950">Camera unavailable</h3>
             <p className="mb-6 text-sm leading-6 text-slate-600">{cameraError}</p>
             <div className="flex flex-col gap-3">
-              <Button onClick={toggleCamera} className="w-full">Try the {facingMode === "user" ? "back" : "front"} camera</Button>
+              <Button onClick={retryCamera} className="w-full">Retry camera</Button>
               <Button variant="outline" onClick={close} className="w-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50">Back</Button>
             </div>
           </div>
@@ -409,10 +678,10 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
               muted
               playsInline
               onLoadedData={() => setIsCameraReady(true)}
-              className={`h-full w-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${capturedPreview ? "opacity-0" : "opacity-100"}`}
+              className={`h-full w-full object-cover ${mirrorPreview ? "scale-x-[-1]" : ""} ${capturedPreview ? "opacity-0" : "opacity-100"}`}
             />
             {capturedPreview ? (
-              <Image src={capturedPreview} alt="Captured VISA selfie" fill unoptimized className="bg-slate-100 object-contain" />
+              <Image src={capturedPreview} alt="Captured Visa Photo" fill unoptimized className="bg-slate-100 object-contain" />
             ) : (
               <div className="pointer-events-none absolute inset-0">
                 {/* Keep a dedicated lane for live guidance while allowing the crop
@@ -442,19 +711,24 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
                     />
                   </svg>
                 </div>
-                <div className={`absolute left-1/2 top-2 w-max max-w-[92%] -translate-x-1/2 rounded-full border px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur-md ${processingError ? "border-red-500 bg-red-600 text-white" : ready ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-200/80 bg-white/90 text-slate-800"}`}>
+                <div
+                  role={processingError ? "alert" : "status"}
+                  aria-live={processingError ? "assertive" : "polite"}
+                  aria-atomic="true"
+                  className={`absolute left-1/2 top-2 w-max max-w-[92%] -translate-x-1/2 rounded-full border px-4 py-2 text-center text-sm font-medium shadow-lg backdrop-blur-md ${processingError ? "border-red-500 bg-red-600 text-white" : ready ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-200/80 bg-white/90 text-slate-800"}`}
+                >
                   {guidance}
-                </div>
-                <div className="absolute left-1/2 top-[3.75rem] flex -translate-x-1/2 gap-2">
-                  <QualityChip label="One face" ready={faceStatus === "ready"} warning={faceStatus !== "loading" && faceStatus !== "ready"} />
-                  <QualityChip label="Plain light wall" ready={backgroundStatus === "white"} warning={backgroundStatus === "not_white" || backgroundStatus === "not_plain"} />
                 </div>
               </div>
             )}
             {isProcessing && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/90 px-6 text-center text-slate-900 backdrop-blur-sm">
-                <Loader2 className="h-9 w-9 animate-spin text-blue-600" />
-                <p className="text-sm font-medium">Saving your original camera photo</p>
+              <div
+                role="status"
+                aria-live="polite"
+                className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/90 px-6 text-center text-slate-900 backdrop-blur-sm"
+              >
+                <Loader2 className="h-9 w-9 animate-spin text-blue-600" aria-hidden="true" />
+                <p className="text-sm font-medium">Saving your Visa Photo</p>
               </div>
             )}
           </>
@@ -464,61 +738,99 @@ export function VisaSelfieCamera({ onCapture, onCancel }: VisaSelfieCameraProps)
       </main>
 
       {!cameraError && (
-        <footer className="z-10 flex min-h-[8.75rem] flex-none items-center justify-center border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+        <footer className="z-10 flex max-h-[52dvh] min-h-[8.75rem] flex-none items-center justify-center overflow-y-auto border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
           {capturedPreview ? (
             <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
               <Button variant="outline" size="lg" onClick={retake} className="flex-1 border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
                 <RefreshCcw className="mr-2 h-4 w-4" /> Retake
               </Button>
               <Button size="lg" onClick={() => capturedFile && onCapture(capturedFile)} className="flex-1 bg-blue-600 hover:bg-blue-700">
-                <Check className="mr-2 h-4 w-4" /> Use Selfie
+                <Check className="mr-2 h-4 w-4" /> Use Visa Photo
               </Button>
+            </div>
+          ) : modelError ? (
+            <div className="w-full max-w-lg space-y-3 py-1">
+              <div
+                role="alert"
+                className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-left"
+              >
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-950">Live checks unavailable</p>
+                  <p className="mt-1 text-xs leading-5 text-amber-900">
+                    {knownEyewearViolation
+                      ? "Glasses were detected before the checks stopped. Remove all eyewear, then retry. Guided fallback stays locked until stable clear checks pass."
+                      : `${modelError} Retry the automatic checks, or carefully confirm every requirement before using the guided fallback.`}
+                  </p>
+                </div>
+              </div>
+
+              {!knownEyewearViolation && (
+                <label
+                  htmlFor="visa-photo-fallback-confirmation"
+                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left"
+                >
+                  <input
+                    id="visa-photo-fallback-confirmation"
+                    type="checkbox"
+                    checked={fallbackAcknowledged}
+                    onChange={(event) => setFallbackAcknowledged(event.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                  />
+                  <span className="text-xs leading-5 text-slate-700">
+                    I confirm there is exactly one person, their face is centred
+                    and sharp, both eyes are visible with no glasses, sunglasses
+                    or tinted eyewear, and the background is a plain white or
+                    off-white wall with good lighting.
+                  </span>
+                </label>
+              )}
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={retryChecks}
+                  disabled={isProcessing}
+                  className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                >
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  Retry live checks
+                </Button>
+                {!knownEyewearViolation && (
+                  <Button
+                    type="button"
+                    onClick={() => void takePhoto("fallback")}
+                    disabled={!fallbackCaptureAllowed || isProcessing}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Capture with guided fallback
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="grid w-full max-w-sm grid-cols-[1fr_auto_1fr] items-center gap-6">
-              <button
-                type="button"
-                onClick={toggleCamera}
-                disabled={!isCameraReady || isProcessing}
-                aria-label={`Switch to ${facingMode === "user" ? "back" : "front"} camera`}
-                className="justify-self-end rounded-full border border-slate-200 bg-slate-50 p-3 text-slate-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-40"
-              >
-                <RefreshCcw className="h-6 w-6" />
-              </button>
+              <div aria-hidden="true" />
               <div className="flex flex-col items-center gap-2 text-center">
                 <button
                   type="button"
                   onClick={() => void takePhoto()}
                   disabled={!isCameraReady || isProcessing || !isDetectorReady || !ready}
-                  aria-label="Capture selfie manually"
+                  aria-label="Capture Visa Photo manually"
                   className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-white bg-blue-600 shadow-lg ring-2 ring-blue-600 transition-transform active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:ring-slate-300 disabled:opacity-60"
                 >
                   <span className="h-14 w-14 rounded-full border border-white/70" />
                 </button>
-                <p className="w-40 text-xs leading-4 text-slate-500">{ready ? "Auto-captures after 2 seconds" : "Capture unlocks when both checks pass"}</p>
+                <p className="w-40 text-xs leading-4 text-slate-500">{ready ? "Auto-captures after checks stay stable" : "Capture unlocks when all checks pass"}</p>
               </div>
-              <div className="justify-self-start">
-                {modelError && (
-                  <button type="button" onClick={retryChecks} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                    Retry checks
-                  </button>
-                )}
-              </div>
+              <div aria-hidden="true" />
             </div>
           )}
         </footer>
       )}
     </div>
   );
-}
-
-function QualityChip({ label, ready, warning }: { label: string; ready: boolean; warning: boolean }) {
-  const tone = ready
-    ? "border-emerald-300 bg-emerald-50/95 text-emerald-700"
-    : warning
-      ? "border-amber-300 bg-amber-50/95 text-amber-700"
-      : "border-slate-200 bg-white/90 text-slate-600";
-  return <span className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur ${tone}`}>{label}</span>;
 }
 
 function faceStatusMessage(status: FaceStatus): string {
@@ -529,40 +841,116 @@ function faceStatusMessage(status: FaceStatus): string {
     case "too_far": return "Move closer - your face is too small";
     case "too_close": return "Move back slightly";
     case "off_center": return "Center your head inside the guide";
+    case "head_tilt": return "Keep your head straight and look at the camera";
     case "ready": return "Checking the background...";
     case "unavailable": return "Live checks unavailable - retry to continue";
   }
 }
 
-function classifyFace(detections: Detection[], video: HTMLVideoElement, guide: HTMLDivElement): FaceStatus {
-  if (detections.length === 0) return "no_face";
-  if (detections.length > 1) return "multiple";
+function classifyFace(
+  detections: Detection[],
+  face: VisaPhotoFaceGeometry | null,
+): FaceStatus {
+  const faceCountStatus = evaluateVisaPhotoFaceCount(detections.length);
+  if (faceCountStatus === "no_face") return "no_face";
+  if (faceCountStatus === "multiple") return "multiple";
+  if (!face) return "no_face";
+  return evaluateVisaPhotoFacePlacement(face);
+}
 
-  const box = detections[0].boundingBox;
+function faceGeometryFromDetection(
+  detection: Detection,
+  video: HTMLVideoElement,
+  guide: HTMLDivElement,
+): VisaPhotoFaceGeometry | null {
+  const box = detection.boundingBox;
   const crop = getVisibleGuideCrop(video, guide);
   const relativeWidth = (box.width * video.videoWidth) / crop.width;
   const relativeHeight = (box.height * video.videoHeight) / crop.height;
-  const relativeX = (box.xCenter * video.videoWidth - crop.left) / crop.width;
-  const relativeY = (box.yCenter * video.videoHeight - crop.top) / crop.height;
+  const centerX = (box.xCenter * video.videoWidth - crop.left) / crop.width;
+  const centerY = (box.yCenter * video.videoHeight - crop.top) / crop.height;
+  if (![relativeWidth, relativeHeight, centerX, centerY].every(Number.isFinite)) {
+    return null;
+  }
 
-  if (!isVisaSelfieFaceLargeEnough(relativeWidth, relativeHeight)) return "too_far";
-  if (relativeHeight > 0.74 || relativeWidth > 0.72) return "too_close";
-  if (Math.abs(relativeX - 0.5) > 0.11 || relativeY < 0.27 || relativeY > 0.52) return "off_center";
-  return "ready";
+  const eyePoints = detection.landmarks.slice(0, 2).map((landmark) => ({
+    x: (landmark.x * video.videoWidth - crop.left) / crop.width,
+    y: (landmark.y * video.videoHeight - crop.top) / crop.height,
+  }));
+  const validEyes = eyePoints.length === 2
+    && eyePoints.every((eye) =>
+      Number.isFinite(eye.x)
+      && Number.isFinite(eye.y)
+      && eye.x >= 0
+      && eye.x <= 1
+      && eye.y >= 0
+      && eye.y <= 1
+    );
+  const orderedEyes = validEyes
+    ? [...eyePoints].sort((first, second) => first.x - second.x)
+    : [];
+
+  return {
+    centerX,
+    centerY,
+    width: relativeWidth,
+    height: relativeHeight,
+    ...(validEyes
+      ? { leftEye: orderedEyes[0], rightEye: orderedEyes[1] }
+      : {}),
+  };
 }
 
-function analyzeWhiteBackground(video: HTMLVideoElement, guide: HTMLDivElement, canvas: HTMLCanvasElement): ResolvedBackgroundStatus {
+function analyzeVisaPhotoFrame(
+  video: HTMLVideoElement,
+  guide: HTMLDivElement,
+  canvas: HTMLCanvasElement,
+  face: VisaPhotoFaceGeometry,
+): {
+  background: ResolvedBackgroundStatus;
+  clarity: VisaPhotoClarityStatus;
+  eyewear: VisaPhotoEyewearStatus;
+} {
   const crop = getVisibleGuideCrop(video, guide);
   canvas.width = ANALYSIS_WIDTH;
   canvas.height = ANALYSIS_HEIGHT;
   const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) return "not_white";
+  if (!context) {
+    return {
+      background: "not_white",
+      clarity: "blurry",
+      eyewear: "uncertain",
+    };
+  }
 
   context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
   const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
-  const result = evaluateWhiteBackground(pixels, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
-  if (result.isWhite) return "white";
-  return result.failureReason === "not_plain" ? "not_plain" : "not_white";
+  const backgroundMetrics = evaluateWhiteBackground(
+    pixels,
+    ANALYSIS_WIDTH,
+    ANALYSIS_HEIGHT,
+    face,
+  );
+  const background = backgroundMetrics.isWhite
+    ? "white"
+    : backgroundMetrics.failureReason === "not_plain"
+      ? "not_plain"
+      : "not_white";
+  return {
+    background,
+    clarity: evaluateVisaPhotoClarity(
+      pixels,
+      ANALYSIS_WIDTH,
+      ANALYSIS_HEIGHT,
+      face,
+    ).status,
+    eyewear: evaluateVisaPhotoEyewear(
+      pixels,
+      ANALYSIS_WIDTH,
+      ANALYSIS_HEIGHT,
+      face,
+    ).status,
+  };
 }
 
 function stabilizeBackgroundStatus(
@@ -570,18 +958,31 @@ function stabilizeBackgroundStatus(
   samples: ResolvedBackgroundStatus[],
 ): BackgroundStatus {
   samples.push(sample);
-  if (samples.length > 4) samples.shift();
+  if (samples.length > 5) samples.shift();
   if (samples.length < 4) return "checking";
 
-  const statuses: ResolvedBackgroundStatus[] = ["white", "not_white", "not_plain"];
-  return statuses.find((status) => samples.filter((value) => value === status).length >= 3)
-    ?? "checking";
+  const latestTwo = samples.slice(-2);
+  if (
+    latestTwo.every((value) => value === "white")
+    && samples.filter((value) => value === "white").length >= 4
+  ) {
+    return "white";
+  }
+  for (const failure of ["not_white", "not_plain"] as const) {
+    if (
+      latestTwo.every((value) => value === failure)
+      && samples.filter((value) => value === failure).length >= 3
+    ) {
+      return failure;
+    }
+  }
+  return "checking";
 }
 
 function canvasToJpeg(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
-      (value) => value ? resolve(value) : reject(new Error("Could not save the selfie.")),
+      (value) => value ? resolve(value) : reject(new Error("Could not save the Visa Photo.")),
       "image/jpeg",
       0.94,
     );
@@ -609,4 +1010,8 @@ function getVisibleGuideCrop(video: HTMLVideoElement, guide: HTMLDivElement): Cr
   const width = Math.min(video.videoWidth - left, guideRect.width / scale);
   const height = Math.min(video.videoHeight - top, guideRect.height / scale);
   return { left, top, width: Math.max(1, width), height: Math.max(1, height) };
+}
+
+function isPageHidden() {
+  return document.visibilityState === "hidden";
 }

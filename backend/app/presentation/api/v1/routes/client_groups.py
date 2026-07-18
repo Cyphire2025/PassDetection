@@ -7,20 +7,29 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.dtos.client_group_dtos import CreateClientGroupInputDTO
+from app.application.dtos.client_group_dtos import (
+    CreateClientGroupInputDTO,
+    client_group_output_from_entity,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.client_groups.create_client_group_use_case import (
     CreateClientGroupUseCase,
+)
+from app.application.use_cases.client_groups.create_qualifier_selection_use_case import (
+    CreateQualifierSelectionUseCase,
 )
 from app.application.use_cases.client_groups.delete_client_group_use_case import (
     DeleteClientGroupUseCase,
 )
 from app.application.use_cases.client_groups.get_client_group_by_token_use_case import (
     GetClientGroupByTokenUseCase,
+)
+from app.application.use_cases.client_groups.get_qualifier_selection_use_case import (
+    GetQualifierSelectionUseCase,
 )
 from app.application.use_cases.client_groups.list_client_groups_use_case import (
     ListClientGroupsUseCase,
@@ -31,6 +40,7 @@ from app.application.use_cases.client_groups.restore_client_group_use_case impor
 from app.application.use_cases.client_groups.revoke_client_group_use_case import (
     RevokeClientGroupUseCase,
 )
+from app.core.security.upload_session import is_valid_upload_session_id
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import (
     AuthorizationError,
@@ -43,15 +53,29 @@ from app.infrastructure.database.models import (
     PassengerQRTokenModel,
     PassportProcessingJobModel,
     PassportSubmissionModel,
+    QualifierSelectionModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.observability.operational_events import (
+    is_allowed_operational_reason,
+    parse_public_operational_event,
+    record_operational_event,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
+from app.infrastructure.repositories.qualifier_selection_repository import (
+    QualifierSelectionRepository,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_expires_at_for_group
 from app.presentation.api.v1.schemas.client_group_schemas import (
     ClientGroupResponse,
     CreateClientGroupRequest,
+    CreateQualifierSelectionRequest,
+    CreateQualifierSelectionResponse,
+    PublicFlowTelemetryRequest,
+    QualifierSelectionStateResponse,
     UpdateClientGroupRequest,
 )
 from app.presentation.dependencies.auth import get_current_active_user
@@ -67,6 +91,24 @@ def _get_create_use_case(session: AsyncSession = Depends(get_db_session)) -> Cre
 
 def _get_get_by_token_use_case(session: AsyncSession = Depends(get_db_session)) -> GetClientGroupByTokenUseCase:
     return GetClientGroupByTokenUseCase(ClientGroupRepository(session))
+
+
+def _get_create_qualifier_selection_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> CreateQualifierSelectionUseCase:
+    return CreateQualifierSelectionUseCase(
+        ClientGroupRepository(session),
+        QualifierSelectionRepository(session),
+    )
+
+
+def _get_qualifier_selection_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> GetQualifierSelectionUseCase:
+    return GetQualifierSelectionUseCase(
+        ClientGroupRepository(session),
+        QualifierSelectionRepository(session),
+    )
 
 
 def _get_list_use_case(session: AsyncSession = Depends(get_db_session)) -> ListClientGroupsUseCase:
@@ -122,6 +164,7 @@ async def create_client_group(
         require_selfie=request.require_selfie,
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
+        relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
         notes=request.notes,
     )
 
@@ -179,6 +222,126 @@ async def get_client_group_by_token(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except PassDetectionError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+
+
+@router.post(
+    "/token/{token}/telemetry",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Record a bounded public upload quality signal",
+)
+async def record_public_flow_telemetry(
+    token: str,
+    body: PublicFlowTelemetryRequest,
+    upload_session_id: str = Header(
+        ...,
+        alias="X-Upload-Session-ID",
+        min_length=8,
+        max_length=128,
+    ),
+    use_case: GetClientGroupByTokenUseCase = Depends(
+        _get_get_by_token_use_case
+    ),
+) -> Response:
+    """Accept only fixed, PII-free events for an active upload link."""
+
+    if not is_valid_upload_session_id(upload_session_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload session identifier is invalid.",
+        )
+    event = parse_public_operational_event(body.event)
+    if event is None or not is_allowed_operational_reason(
+        event,
+        body.reason,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported upload telemetry event.",
+        )
+
+    try:
+        await use_case.execute(token=token)
+    except (EntityNotFoundError, PassDetectionError):
+        # Match the upload reconciliation privacy contract: invalid, closed,
+        # and expired bearer links do not become a telemetry oracle.
+        return Response(
+            status_code=status.HTTP_204_NO_CONTENT,
+            headers={"Cache-Control": "private, no-store"},
+        )
+
+    record_operational_event(event, body.reason)
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
+        headers={"Cache-Control": "private, no-store"},
+    )
+
+
+@router.post(
+    "/token/{token}/qualifier-selection",
+    response_model=CreateQualifierSelectionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Persist a Relation with Qualifier choice before upload (Public)",
+)
+async def create_qualifier_selection(
+    token: str,
+    request: CreateQualifierSelectionRequest,
+    use_case: CreateQualifierSelectionUseCase = Depends(
+        _get_create_qualifier_selection_use_case
+    ),
+) -> CreateQualifierSelectionResponse:
+    try:
+        result = await use_case.execute(
+            group_token=token,
+            is_self=request.is_self,
+            relation_code=request.relation_code,
+        )
+        return CreateQualifierSelectionResponse.model_validate(result)
+    except EntityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=exc.message,
+        )
+    except PassDetectionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exc.message,
+        )
+
+
+@router.get(
+    "/token/{token}/qualifier-selection",
+    response_model=QualifierSelectionStateResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Resume a persisted Relation with Qualifier choice (Public)",
+)
+async def get_qualifier_selection(
+    token: str,
+    qualifier_selection_token: str = Header(
+        ...,
+        alias="X-Qualifier-Selection-Token",
+        min_length=32,
+        max_length=256,
+    ),
+    use_case: GetQualifierSelectionUseCase = Depends(
+        _get_qualifier_selection_use_case
+    ),
+) -> QualifierSelectionStateResponse:
+    try:
+        result = await use_case.execute(
+            group_token=token,
+            selection_token=qualifier_selection_token,
+        )
+        return QualifierSelectionStateResponse.model_validate(result)
+    except EntityNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=exc.message,
+        )
+    except PassDetectionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=exc.message,
+        )
 
 
 @router.post(
@@ -242,6 +405,7 @@ async def update_client_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
+    previous_qualifier_enabled = group.relation_with_qualifier_enabled
     group.update_configuration(
         name=request.name,
         destination=request.destination,
@@ -256,6 +420,7 @@ async def update_client_group(
         require_selfie=request.require_selfie,
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
+        relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
         notes=request.notes,
     )
     await repo.update(group)
@@ -281,7 +446,22 @@ async def update_client_group(
         actor_email=current_user.email,
         metadata={"name": group.name},
     )
-    return ClientGroupResponse.model_validate(group)
+    if previous_qualifier_enabled != group.relation_with_qualifier_enabled:
+        await AuditLogRepository(session).record(
+            action="client_group_qualifier_configuration_updated",
+            entity_type="client_group",
+            entity_id=str(group.id),
+            agency_id=group.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={
+                "previous_enabled": previous_qualifier_enabled,
+                "enabled": group.relation_with_qualifier_enabled,
+            },
+        )
+    return ClientGroupResponse.model_validate(
+        client_group_output_from_entity(group)
+    )
 
 
 @router.delete(
@@ -348,17 +528,19 @@ async def permanently_delete_client_group(
             PassportSubmissionModel.id,
             PassportSubmissionModel.image_s3_key,
             PassportSubmissionModel.thumbnail_s3_key,
+            PassportSubmissionModel.passport_back_s3_key,
+            PassportSubmissionModel.passport_photo_s3_key,
         ).where(PassportSubmissionModel.group_id == link_id)
     )
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
-    storage_keys = [row.image_s3_key for row in submissions if row.image_s3_key]
-    storage_keys.extend(row.thumbnail_s3_key for row in submissions if row.thumbnail_s3_key)
+    storage_keys = passport_storage_keys(submissions)
 
     await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id))
     deleted_storage_objects = 0
     deleted_processing_jobs = 0
     deleted_passport_submissions = 0
+    deleted_qualifier_selections = 0
     if not retain_records:
         deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
         deleted_processing_jobs = await _delete_by_ids(
@@ -372,6 +554,14 @@ async def permanently_delete_client_group(
             PassportSubmissionModel,
             PassportSubmissionModel.id,
             submission_ids,
+        )
+        qualifier_result = await session.execute(
+            delete(QualifierSelectionModel).where(
+                QualifierSelectionModel.group_id == link_id
+            )
+        )
+        deleted_qualifier_selections = int(
+            getattr(qualifier_result, "rowcount", 0) or 0
         )
     await session.execute(
         delete(NotificationModel).where(
@@ -394,6 +584,7 @@ async def permanently_delete_client_group(
             "historical_passport_count": len(submissions),
             "deleted_passport_submissions": deleted_passport_submissions,
             "deleted_processing_jobs": deleted_processing_jobs,
+            "deleted_qualifier_selections": deleted_qualifier_selections,
             "deleted_storage_objects": deleted_storage_objects,
         },
     )
@@ -403,6 +594,7 @@ async def permanently_delete_client_group(
         "historical_passport_count": len(submissions),
         "deleted_passport_submissions": deleted_passport_submissions,
         "deleted_processing_jobs": deleted_processing_jobs,
+        "deleted_qualifier_selections": deleted_qualifier_selections,
         "deleted_storage_objects": deleted_storage_objects,
     }
 

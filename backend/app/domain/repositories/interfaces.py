@@ -19,7 +19,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
 
-from app.domain.entities.entities import Agency, ClientGroup, PassportSubmission, User
+from app.domain.entities.entities import (
+    Agency,
+    ClientGroup,
+    PassportSubmission,
+    QualifierSelection,
+    User,
+)
 
 
 @dataclass(frozen=True)
@@ -44,6 +50,7 @@ class PassportSubmissionGroupSummary:
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = None
 
 
@@ -127,6 +134,28 @@ class IClientGroupRepository(ABC):
     ) -> int: ...
 
 
+class IQualifierSelectionRepository(ABC):
+    """Contract for short-lived public qualifier selections."""
+
+    @abstractmethod
+    async def get_by_token_hash(
+        self,
+        group_id: uuid.UUID,
+        token_hash: str,
+        *,
+        for_update: bool = False,
+    ) -> QualifierSelection | None: ...
+
+    @abstractmethod
+    async def save(self, selection: QualifierSelection) -> QualifierSelection: ...
+
+    @abstractmethod
+    async def get_submission_id(
+        self,
+        selection_id: uuid.UUID,
+    ) -> uuid.UUID | None: ...
+
+
 class IPassportSubmissionRepository(ABC):
     """Contract for passport submission persistence operations."""
 
@@ -137,7 +166,10 @@ class IPassportSubmissionRepository(ABC):
     async def get_by_id_for_update(
         self,
         submission_id: uuid.UUID,
-    ) -> PassportSubmission | None: ...
+    ) -> PassportSubmission | None:
+        """Return one submission under a transaction-scoped row lock."""
+
+        ...
 
     @abstractmethod
     async def get_by_upload_idempotency_key(
@@ -177,6 +209,7 @@ class IPassportSubmissionRepository(ABC):
         submission_id: uuid.UUID,
         expected_revision: int,
         public_message: str,
+        diagnostics: dict[str, object] | None = None,
     ) -> PassportSubmission | None: ...
 
     @abstractmethod

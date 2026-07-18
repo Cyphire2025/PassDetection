@@ -21,6 +21,20 @@ from app.infrastructure.processing.dispatcher import (
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 
+class _Priority:
+    def __init__(self) -> None:
+        self.queued: list[str] = []
+        self.dispatched: list[object] = []
+
+    def queue_extraction(self, job_reference: str) -> object:
+        self.queued.append(job_reference)
+        return object()
+
+    def mark_extraction_dispatched(self, lease: object) -> bool:
+        self.dispatched.append(lease)
+        return True
+
+
 class PassportProcessingDispatcherTests(unittest.TestCase):
     def test_celery_delivery_registers_a_local_queued_job_watchdog(self) -> None:
         job_id = uuid.uuid4()
@@ -41,13 +55,19 @@ class PassportProcessingDispatcherTests(unittest.TestCase):
                 ),
             ),
         ):
-            task_id = PassportProcessingDispatcher(backend="celery").dispatch(
+            priority = _Priority()
+            task_id = PassportProcessingDispatcher(
+                backend="celery",
+                priority_coordinator=priority,  # type: ignore[arg-type]
+            ).dispatch(
                 job_id=job_id,
                 submission_id=submission_id,
                 background_tasks=background_tasks,
         )
 
         self.assertEqual(task_id, "celery-task-id")
+        self.assertEqual(priority.queued, [str(job_id)])
+        self.assertEqual(len(priority.dispatched), 1)
         send_celery.assert_called_once()
         self.assertEqual(len(background_tasks.tasks), 1)
         watchdog = background_tasks.tasks[0]
@@ -67,13 +87,19 @@ class PassportProcessingDispatcherTests(unittest.TestCase):
             "PassportProcessingDispatcher._send_celery",
             side_effect=ConnectionError("broker unavailable"),
         ):
-            task_id = PassportProcessingDispatcher(backend="celery").dispatch(
+            priority = _Priority()
+            task_id = PassportProcessingDispatcher(
+                backend="celery",
+                priority_coordinator=priority,  # type: ignore[arg-type]
+            ).dispatch(
                 job_id=job_id,
                 submission_id=submission_id,
                 background_tasks=background_tasks,
             )
 
         self.assertIsNone(task_id)
+        self.assertEqual(priority.queued, [str(job_id)])
+        self.assertEqual(priority.dispatched, [])
         self.assertEqual(len(background_tasks.tasks), 1)
         fallback = background_tasks.tasks[0]
         self.assertIs(fallback.func, _run_passport_processing_job_locally)

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -44,6 +45,7 @@ class CreateClientGroupRequest(BaseModel):
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
@@ -78,6 +80,7 @@ class UpdateClientGroupRequest(BaseModel):
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
     notes: str | None = Field(default=None, max_length=2000)
 
     @field_validator("departure_cities", mode="before")
@@ -94,6 +97,13 @@ class UpdateClientGroupRequest(BaseModel):
         if self.travel_date and self.return_date and self.return_date < self.travel_date:
             raise ValueError("Return date cannot be before the travel date.")
         return self
+
+
+class QualifierRelationOptionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, max_length=40)
+    label: str = Field(..., min_length=1, max_length=80)
 
 
 class ClientGroupResponse(BaseModel):
@@ -117,9 +127,62 @@ class ClientGroupResponse(BaseModel):
     require_selfie: bool = False
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
+    relation_with_qualifier_enabled: bool = False
+    qualifier_relation_options: list[QualifierRelationOptionResponse] = Field(
+        default_factory=list
+    )
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
     deletion_retained_records: bool = False
 
     model_config = {"from_attributes": True}
+
+
+class CreateQualifierSelectionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    is_self: bool
+    relation_code: str | None = Field(default=None, max_length=40)
+
+    @model_validator(mode="after")
+    def validate_exactly_one_path(self) -> CreateQualifierSelectionRequest:
+        if self.is_self and self.relation_code:
+            raise ValueError("Choose either Self or a relationship, not both.")
+        if not self.is_self and not self.relation_code:
+            raise ValueError("Choose the passenger's relationship with the qualifier.")
+        return self
+
+
+class QualifierSelectionStateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
+
+    is_self: bool
+    relation_code: str | None = None
+    relation_label: str
+    selected_at: datetime
+    expires_at: datetime
+    status: Literal["active", "expired", "consumed"]
+    submission_id: uuid.UUID | None = None
+
+
+class CreateQualifierSelectionResponse(QualifierSelectionStateResponse):
+    selection_token: str = Field(..., min_length=32, max_length=256)
+
+
+class PublicFlowTelemetryRequest(BaseModel):
+    """Fixed-enum, PII-free client quality/flow signal."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    event: Literal[
+        "visa_photo_rejection",
+        "passport_scanner_rejection",
+        "public_flow",
+    ]
+    reason: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        pattern=r"^[a-z][a-z0-9_]*$",
+    )

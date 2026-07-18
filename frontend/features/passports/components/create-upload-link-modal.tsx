@@ -3,7 +3,7 @@
 import { X, Copy, Check } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
@@ -24,7 +24,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
   const [cityInput, setCityInput] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
   const copiedTimerRef = useRef<number | null>(null);
+  const titleId = useId();
+  const { tryEnter: tryEnterCreate, leave: leaveCreate } = useSingleFlightGate();
   const { mutateAsync: createUploadLink, isPending } = useCreateUploadLink();
 
   const {
@@ -49,6 +52,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       require_selfie: false,
       allow_files_from_device: true,
       ask_nearest_domestic_airport: false,
+      relation_with_qualifier_enabled: false,
       notes: "",
     },
   });
@@ -60,17 +64,50 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const requireSelfie = useWatch({ control, name: "require_selfie" }) ?? false;
   const allowFilesFromDevice = useWatch({ control, name: "allow_files_from_device" }) ?? true;
   const askNearestDomesticAirport = useWatch({ control, name: "ask_nearest_domestic_airport" }) ?? false;
+  const relationWithQualifierEnabled = useWatch({
+    control,
+    name: "relation_with_qualifier_enabled",
+  }) ?? false;
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
   }, []);
 
-  if (!isOpen) return null;
+  const handleClose = useCallback(() => {
+    if (isPending) return;
+    if (copiedTimerRef.current !== null) {
+      window.clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = null;
+    }
+    reset();
+    setGeneratedTargets([]);
+    setCopiedTargetKey(null);
+    setCityInput("");
+    setActionError(null);
+    onClose();
+  }, [isPending, onClose, reset]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isPending) handleClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [handleClose, isOpen, isPending]);
 
   const onSubmit = async (data: CreateUploadLinkFormData) => {
+    if (isPending || !tryEnterCreate()) return;
+    setActionError(null);
     try {
       const result = await createUploadLink({
         ...data,
+        name: data.name.trim(),
         destination: data.destination || null,
         travel_date: data.travel_date || null,
         return_date: data.return_date || null,
@@ -80,21 +117,13 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         notes: data.notes || null,
       });
       setGeneratedTargets(getPassportUploadTargets(result.token));
-    } catch (error) {
-      console.error("Failed to create link", error);
+    } catch {
+      setActionError(
+        "The upload link could not be created. Check your connection and try again.",
+      );
+    } finally {
+      leaveCreate();
     }
-  };
-
-  const handleClose = () => {
-    if (copiedTimerRef.current !== null) {
-      window.clearTimeout(copiedTimerRef.current);
-      copiedTimerRef.current = null;
-    }
-    reset();
-    setGeneratedTargets([]);
-    setCopiedTargetKey(null);
-    setCityInput("");
-    onClose();
   };
 
   const addCity = () => {
@@ -114,29 +143,45 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   };
 
   const copyTarget = async (target: PassportUploadTarget) => {
-    await copyTextToClipboard(target.url);
-    setCopiedTargetKey(target.key);
-    if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
-    copiedTimerRef.current = window.setTimeout(() => {
-      setCopiedTargetKey((current) => current === target.key ? null : current);
-      copiedTimerRef.current = null;
-    }, 2000);
+    setActionError(null);
+    try {
+      await copyTextToClipboard(target.url);
+      setCopiedTargetKey(target.key);
+      if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = window.setTimeout(() => {
+        setCopiedTargetKey((current) => current === target.key ? null : current);
+        copiedTimerRef.current = null;
+      }, 2000);
+    } catch {
+      setActionError(
+        "The link could not be copied automatically. Select the link text and copy it manually.",
+      );
+    }
   };
 
   const hasGeneratedTargets = generatedTargets.length > 0;
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-busy={isPending}
+        className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-800">
+          <h2 id={titleId} className="text-lg font-semibold text-slate-800">
             {hasGeneratedTargets ? "Links Generated" : "Create Upload Link"}
           </h2>
           <button
             type="button"
             onClick={handleClose}
+            disabled={isPending}
             aria-label="Close create upload link dialog"
-            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
@@ -145,7 +190,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
           {hasGeneratedTargets ? (
             <div className="space-y-6">
-              <div className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
+              <div role="status" className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
                 Success. The public client link is ready for sharing.
               </div>
 
@@ -174,10 +219,21 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                         )}
                       </Button>
                     </div>
-                    <Input readOnly value={target.url} className="bg-white" />
+                    <Input
+                      readOnly
+                      value={target.url}
+                      aria-label={`${target.label} upload link`}
+                      className="bg-white"
+                    />
                   </div>
                 ))}
               </div>
+
+              {actionError && (
+                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {actionError}
+                </div>
+              )}
 
               <Button onClick={handleClose} className="w-full">
                 Done
@@ -185,36 +241,24 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Group Name</label>
-                <Input
-                  placeholder="e.g. Summer Europe Tour 2026"
-                  {...register("name")}
-                  className={errors.name ? "border-red-500" : ""}
-                />
-                {errors.name && (
-                  <p className="text-xs text-red-500">{errors.name.message}</p>
-                )}
-              </div>
+              <Input
+                label="Group Name"
+                placeholder="e.g. Summer Europe Tour 2026"
+                {...register("name")}
+                error={errors.name?.message}
+                autoFocus
+              />
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Destination</label>
-                  <Input placeholder="e.g. Dubai" {...register("destination")} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Travel Date</label>
-                  <Input type="date" {...register("travel_date")} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Return Date</label>
-                  <Input type="date" {...register("return_date")} />
-                </div>
+                <Input label="Destination" placeholder="e.g. Dubai" {...register("destination")} />
+                <Input label="Travel Date" type="date" {...register("travel_date")} />
+                <Input label="Return Date" type="date" {...register("return_date")} />
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Notes</label>
+                <label htmlFor="create-upload-link-notes" className="text-sm font-medium text-slate-700">Notes</label>
                 <textarea
+                  id="create-upload-link-notes"
                   {...register("notes")}
                   rows={3}
                   placeholder="Internal notes for this group"
@@ -236,10 +280,20 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   onChange={(checked) => setValue("ask_nearest_domestic_airport", checked, { shouldDirty: true })}
                 />
                 <GroupOptionToggle
-                  label="VISA Selfie Photo"
-                  description="Require each client to capture a passport-size selfie against a plain white wall."
+                  label="Visa Photo Upload"
+                  description="Require each traveller to capture a Visa Photo against a plain white or off-white wall."
                   checked={requireSelfie}
                   onChange={(checked) => setValue("require_selfie", checked, { shouldDirty: true })}
+                />
+                <GroupOptionToggle
+                  label="Relation with Qualifier"
+                  description="Enable a required Self or approved family-relationship choice before this single-passenger upload flow begins."
+                  checked={relationWithQualifierEnabled}
+                  onChange={(checked) => setValue(
+                    "relation_with_qualifier_enabled",
+                    checked,
+                    { shouldDirty: true },
+                  )}
                 />
                 <GroupOptionToggle
                   label="Base City"
@@ -319,8 +373,14 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 <div className="mt-2">1. An upload link for clients on phones or browsers</div>
               </div>
 
+              {actionError && (
+                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {actionError}
+                </div>
+              )}
+
               <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="secondary" onClick={handleClose}>
+                <Button type="button" variant="secondary" onClick={handleClose} disabled={isPending}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isPending}>
@@ -351,4 +411,17 @@ function normalizeCities(values: string[]) {
     cities.push(city);
   }
   return cities;
+}
+
+function useSingleFlightGate() {
+  const inFlightRef = useRef(false);
+  const tryEnter = useCallback(() => {
+    if (inFlightRef.current) return false;
+    inFlightRef.current = true;
+    return true;
+  }, []);
+  const leave = useCallback(() => {
+    inFlightRef.current = false;
+  }, []);
+  return { tryEnter, leave };
 }
