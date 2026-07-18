@@ -155,11 +155,11 @@ export function evaluatePassportLightingPixels(
   const contrast = Math.sqrt(variance);
   const darkPixelRatio = darkPixels / samples;
   const brightPixelRatio = brightPixels / samples;
-  const status: LightingStatus = meanLuminance < 92
-    || darkPixelRatio > 0.42
-    || (meanLuminance < 112 && contrast < 36)
+  const status: LightingStatus = meanLuminance < 86
+    || darkPixelRatio > 0.48
+    || (meanLuminance < 106 && contrast < 32)
       ? "too_dark"
-      : meanLuminance > 198 || brightPixelRatio > 0.2
+      : meanLuminance > 210 || brightPixelRatio > 0.28
         ? "too_bright"
         : "good";
 

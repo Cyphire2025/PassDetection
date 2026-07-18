@@ -49,9 +49,6 @@ async def _run_passport_processing_job_admitted(
 ) -> None:
     from app.infrastructure.ai import GeminiPassportVerificationService
     from app.infrastructure.database.session import AsyncSessionFactory
-    from app.infrastructure.ocr.passport_extraction_service import (
-        PassportExtractionService,
-    )
     from app.infrastructure.processing.job_repository import (
         PassportProcessingJobRepository,
     )
@@ -67,7 +64,10 @@ async def _run_passport_processing_job_admitted(
             use_case = ProcessPassportSubmissionJobUseCase(
                 passport_repo=PassportSubmissionRepository(session),
                 storage_repo=MinioStorageRepository(),
-                extraction_service=PassportExtractionService(),
+                # Local OCR/MRZ remains implemented in
+                # infrastructure.ocr.passport_extraction_service, but is not
+                # constructed or invoked by the active Gemini-first pipeline.
+                extraction_service=None,
                 job_repo=PassportProcessingJobRepository(session),
                 verification_service=GeminiPassportVerificationService(),
                 allow_retry=allow_retry,

@@ -62,3 +62,9 @@ test("a stale approval refreshes the record and remounts review state by revisio
   );
   assert.match(source, /\{formError && \(\s*<div role="alert"/);
 });
+
+test("review fields show verification confidence without extraction confidence", () => {
+  assert.doesNotMatch(source, /label="Extraction confidence"/);
+  assert.match(source, /label="Verification confidence"/);
+  assert.match(source, /getPassportVerificationConfidence/);
+});

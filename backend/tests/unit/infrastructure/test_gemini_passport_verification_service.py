@@ -235,6 +235,11 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.merged_fields["passport_number"], "C9391041")
         self.assertEqual(result.merged_fields["given_names"], "KHUSHI")
         self.assertEqual(len(result.metadata["filled_fields"]), 9)
+        self.assertEqual(
+            result.metadata["field_confidences"]["passport_number"],
+            0.99,
+        )
+        self.assertEqual(len(result.metadata["field_confidences"]), 9)
         self.assertEqual(result.merged_fields["date_of_issue"], "2025-03-18")
         self.assertEqual(result.merged_fields["field_validation"]["status"], "valid")
 

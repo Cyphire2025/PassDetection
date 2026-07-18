@@ -16,6 +16,7 @@ import {
   formatPassportNationality,
 } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
+import { getPassportVerificationConfidence } from "../utils/passport-review";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
@@ -149,8 +150,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const filteredPassports = useMemo(() => {
     return (data ?? []).filter((passport) => {
       if (statusFilter !== "all" && passport.status !== statusFilter) return false;
-      const confidence = passport.overall_confidence ?? 0;
-      if (qualityFilter === "low_confidence" && confidence > 0.5) return false;
+      const confidence = getGroupVerificationConfidence(passport);
+      if (
+        qualityFilter === "low_confidence"
+        && (confidence === null || confidence > 0.5)
+      ) return false;
       if (qualityFilter === "missing_passport" && getStringField(passport.extracted_fields, "passport_number")) return false;
       if (qualityFilter === "expiry_alert" && getExpiryStatus(passport) === "valid") return false;
       if (qualityFilter === "complete" && needsReextraction(passport)) return false;
@@ -669,7 +673,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                             {getDashboardCountry(passport) || "Manual review"}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-slate-700">{formatConfidence(passport.overall_confidence)}</td>
+                        <td className="px-6 py-4 text-slate-700">
+                          {formatConfidence(getGroupVerificationConfidence(passport))}
+                        </td>
                         <td className="px-6 py-4 text-slate-500">{formatDateTime(passport.updated_at)}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
@@ -764,7 +770,10 @@ function PassportMobileCard({
             label="Nationality"
             value={getDashboardCountry(passport) || "Manual review"}
           />
-          <InfoPair label="Confidence" value={formatConfidence(passport.overall_confidence)} />
+          <InfoPair
+            label="Confidence"
+            value={formatConfidence(getGroupVerificationConfidence(passport))}
+          />
           <InfoPair label="Updated" value={formatDateTime(passport.updated_at)} />
         </div>
 
@@ -1020,6 +1029,11 @@ function getDashboardCountry(passport: PassportSubmission) {
   const nationality = getStringField(fields, "nationality");
   if (nationality) return formatPassportNationality(nationality);
   return formatPassportCountry(getStringField(fields, "issuing_country"));
+}
+
+function getGroupVerificationConfidence(passport: PassportSubmission) {
+  const verification = passport.post_submission_verification;
+  return verification ? getPassportVerificationConfidence(verification) : null;
 }
 
 function getExtractionConflictCount(passport: PassportSubmission) {

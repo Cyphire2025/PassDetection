@@ -443,7 +443,6 @@ function ReviewFieldsCard({
             </Badge>
           </div>
           <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
-            <MetaItem label="Extraction confidence" value={formatConfidence(passport.overall_confidence)} />
             <MetaItem label="Submitted" value={formatDateTime(passport.created_at)} />
             <MetaItem label="Updated" value={formatDateTime(passport.updated_at)} />
             <MetaItem

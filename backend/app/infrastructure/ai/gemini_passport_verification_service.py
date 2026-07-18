@@ -260,7 +260,10 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                     merged_fields=merged,
                     metadata=metadata,
                 )
-            merged, corrected, filled = self._merge(original, provider_result)
+            merged, corrected, filled, field_confidences = self._merge(
+                original,
+                provider_result,
+            )
         except (KeyError, TypeError, ValueError, json.JSONDecodeError):
             logger.warning(
                 "gemini_passport_verification_fallback",
@@ -286,6 +289,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             started=started,
             corrected_fields=corrected,
             filled_fields=filled,
+            field_confidences=field_confidences,
             provider_status=provider_status,
             attempts=attempts,
             model=provider_model,
@@ -610,10 +614,11 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         self,
         original: dict[str, Any],
         provider_result: dict[str, Any],
-    ) -> tuple[dict[str, Any], list[str], list[str]]:
+    ) -> tuple[dict[str, Any], list[str], list[str], dict[str, float]]:
         merged = dict(original)
         corrected: list[str] = []
         filled: list[str] = []
+        field_confidences: dict[str, float] = {}
         seen: set[str] = set()
 
         for item in provider_result["f"]:
@@ -646,9 +651,13 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             if action == "fill" and not current and value and confidence >= 0.75:
                 merged[field] = value
                 filled.append(field)
+                field_confidences[field] = round(confidence, 4)
             elif action == "replace" and current and value and value != current and confidence >= 0.90:
                 merged[field] = value
                 corrected.append(field)
+                field_confidences[field] = round(confidence, 4)
+            elif action == "keep" and current and value == current:
+                field_confidences[field] = round(confidence, 4)
 
         accepted = corrected + filled
         if accepted:
@@ -672,7 +681,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 for issue in validation.issues
             ],
         }
-        return merged, corrected, filled
+        return merged, corrected, filled, field_confidences
 
     def _normalize(self, field: str, raw_value: Any) -> str:
         value = self._string_value(raw_value)
@@ -739,6 +748,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         started: float,
         corrected_fields: list[str] | None = None,
         filled_fields: list[str] | None = None,
+        field_confidences: dict[str, float] | None = None,
         provider_status: str | None = None,
         attempts: int = 0,
         model: str | None = None,
@@ -756,6 +766,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             "attempts": attempts,
             "corrected_fields": corrected_fields or [],
             "filled_fields": filled_fields or [],
+            "field_confidences": field_confidences or {},
             "duration_ms": round((time.perf_counter() - started) * 1000, 2),
         }
         if document_class is not None:

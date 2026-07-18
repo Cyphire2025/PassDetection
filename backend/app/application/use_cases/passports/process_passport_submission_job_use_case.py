@@ -81,6 +81,17 @@ HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES: dict[str, str] = {
     ),
 }
 HIGH_CONFIDENCE_DOCUMENT_NAME_THRESHOLD = 0.90
+GEMINI_EXTRACTION_FIELDS: tuple[str, ...] = (
+    "surname",
+    "given_names",
+    "passport_number",
+    "nationality",
+    "issuing_country",
+    "date_of_birth",
+    "date_of_issue",
+    "date_of_expiry",
+    "sex",
+)
 
 
 class ProcessingRetryRequested(Exception):
@@ -106,14 +117,17 @@ class ProcessPassportSubmissionJobUseCase:
         *,
         passport_repo: IPassportSubmissionRepository,
         storage_repo: IObjectStorageRepository,
-        extraction_service: IPassportExtractionService,
+        extraction_service: IPassportExtractionService | None,
         job_repo: PassportProcessingJobRepository,
         allow_retry: bool = True,
         verification_service: IPassportVerificationService | None = None,
     ) -> None:
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
-        self._extraction_service = extraction_service
+        # Keep the local OCR/MRZ implementation dependency available for a
+        # future opt-in fallback. The active first pass intentionally does not
+        # invoke it: Gemini reads the persisted passport image directly.
+        self._dormant_local_extraction_service = extraction_service
         self._job_repo = job_repo
         self._allow_retry = allow_retry
         self._verification_service = verification_service
@@ -163,7 +177,7 @@ class ProcessPassportSubmissionJobUseCase:
             )
             return
 
-        local_extraction_started = False
+        extraction_started = False
         try:
             settings = get_settings()
             job_timeout = min(
@@ -189,44 +203,10 @@ class ProcessPassportSubmissionJobUseCase:
                 )
                 await self._job_repo.checkpoint()
                 content_type = self._guess_content_type(submission.image_s3_key)
-                local_timeout = min(
-                    float(
-                        getattr(
-                            settings,
-                            "passport_local_extraction_timeout_seconds",
-                            10.0,
-                        )
-                    ),
-                    10.0,
-                    budget.remaining(),
-                )
-                local_extraction_started = True
-                try:
-                    async with asyncio.timeout(local_timeout):
-                        extraction = await self._extraction_service.extract(
-                            file_content,
-                            filename=submission.image_s3_key.rsplit("/", 1)[-1],
-                            content_type=content_type,
-                        )
-                except TimeoutError:
-                    logger.warning(
-                        "passport_local_extraction_hard_timeout",
-                        job_id=str(job_id),
-                        submission_id=str(submission_id),
-                        timeout_seconds=local_timeout,
-                    )
-                    extraction = self._local_timeout_result(local_timeout)
-                except Exception as exc:
-                    logger.error(
-                        "passport_local_extraction_unexpected_fallback",
-                        job_id=str(job_id),
-                        submission_id=str(submission_id),
-                        error_type=type(exc).__name__,
-                    )
-                    extraction = self._local_failure_result(local_timeout)
-                if await self._cancel_if_requested(job_id, submission_id, job.extraction_revision):
-                    return
-
+                # Local OCR/MRZ is deliberately unwired for now. Its service,
+                # implementation, and dependency injection remain in place so
+                # it can be re-enabled later without reconstructing the stack.
+                # await self._dormant_local_extraction_service.extract(...)
                 await self._job_repo.update_progress(
                     job_id,
                     progress=0.70,
@@ -238,13 +218,21 @@ class ProcessPassportSubmissionJobUseCase:
                     MAX_GEMINI_SECONDS,
                     max(0.0, budget.remaining() - RESULT_SAVE_RESERVE_SECONDS),
                 )
+                extraction_started = True
                 extracted_fields = await verify_passport_fields(
                     self._verification_service,
                     image_content=file_content,
                     content_type=content_type,
-                    extracted_fields=extraction.extracted_fields,
+                    extracted_fields={},
                     timeout_seconds=verification_timeout,
                 )
+                extraction = self._gemini_extraction_result(extracted_fields)
+                if await self._cancel_if_requested(
+                    job_id,
+                    submission_id,
+                    job.extraction_revision,
+                ):
+                    return
                 classification = self._safe_document_classification(
                     extracted_fields
                 )
@@ -365,7 +353,7 @@ class ProcessPassportSubmissionJobUseCase:
                 job_id,
                 submission_id,
                 job.extraction_revision,
-                retry_allowed=not local_extraction_started,
+                retry_allowed=not extraction_started,
             )
         except StorageError as exc:
             logger.warning(
@@ -378,7 +366,7 @@ class ProcessPassportSubmissionJobUseCase:
                 job_id,
                 submission_id,
                 job.extraction_revision,
-                retry_allowed=not local_extraction_started,
+                retry_allowed=not extraction_started,
             )
         except PassDetectionError as exc:
             logger.warning(
@@ -519,6 +507,63 @@ class ProcessPassportSubmissionJobUseCase:
         ):
             return HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES[document_class]
         return fallback
+
+    @staticmethod
+    def _gemini_extraction_result(
+        extracted_fields: dict[str, Any],
+    ) -> PassportExtractionResult:
+        raw_metadata = extracted_fields.get("ai_verification")
+        metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
+        raw_field_confidences = metadata.get("field_confidences")
+        field_confidences = (
+            raw_field_confidences
+            if isinstance(raw_field_confidences, dict)
+            else {}
+        )
+        bounded_confidences: dict[str, float] = {}
+        for field in GEMINI_EXTRACTION_FIELDS:
+            raw_confidence = field_confidences.get(field)
+            if (
+                isinstance(raw_confidence, (int, float))
+                and not isinstance(raw_confidence, bool)
+                and 0.0 <= float(raw_confidence) <= 1.0
+                and extracted_fields.get(field)
+            ):
+                bounded_confidences[field] = round(float(raw_confidence), 4)
+
+        confidence_total = sum(bounded_confidences.values())
+        overall_confidence = round(
+            confidence_total / len(GEMINI_EXTRACTION_FIELDS),
+            4,
+        )
+        classification_confidence = metadata.get("classification_confidence")
+        if (
+            isinstance(classification_confidence, (int, float))
+            and not isinstance(classification_confidence, bool)
+        ):
+            overall_confidence = min(
+                overall_confidence,
+                round(max(0.0, min(1.0, float(classification_confidence))), 4),
+            )
+
+        return PassportExtractionResult(
+            extracted_fields=extracted_fields,
+            overall_confidence=overall_confidence,
+            confidence_score={
+                "overall": overall_confidence,
+                "source": "gemini_image_extraction",
+                "field_confidences": bounded_confidences,
+                "field_coverage": round(
+                    len(bounded_confidences) / len(GEMINI_EXTRACTION_FIELDS),
+                    4,
+                ),
+                "pipeline": {
+                    "name": "gemini_image_primary",
+                    "local_ocr_mrz_invoked": False,
+                },
+            },
+            mrz_raw=None,
+        )
 
     @staticmethod
     def _local_timeout_result(timeout_seconds: float) -> PassportExtractionResult:
