@@ -8,10 +8,10 @@ import {
 } from "../services/passport-frame-detector";
 
 const ANALYSIS_INTERVAL_MS = 180;
-// A passport layout must remain valid for ~0.72 seconds before quality checks
-// can unlock capture. Invalid guidance is also stabilized briefly to avoid
-// flickering between instructions while the user moves the page.
-const REQUIRED_STABLE_FRAMES = 4;
+// Two agreeing frames (~0.36 seconds) are enough once the detector has already
+// established MRZ + portrait + text layout. Four frames made a correctly
+// aligned handheld page feel unresponsive on mobile Safari.
+const REQUIRED_STABLE_FRAMES = 2;
 const REQUIRED_STATUS_FRAMES = 2;
 
 interface UsePassportFrameDetectionOptions {
@@ -60,7 +60,8 @@ export function usePassportFrameDetection({
         pageSide,
         guideRef?.current ?? null,
       );
-      const reliablyDetected = result.isDetected && result.confidence >= 0.69;
+      const reliablyDetected = result.isDetected
+        && result.confidence >= (pageSide === "front" ? 0.69 : 0.62);
 
       if (reliablyDetected) {
         const wasStable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;

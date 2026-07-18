@@ -13,18 +13,13 @@ import {
 import {
   evaluateVisaPhotoFaceCount,
   evaluateVisaPhotoClarity,
-  evaluateVisaPhotoEyewear,
   evaluateVisaPhotoFacePlacement,
   evaluateWhiteBackground,
   hasStableVisaPhotoReadiness,
   isVisaPhotoFallbackCaptureAllowed,
   isVisaPhotoFrameCaptureReady,
   requestVisaPhotoCamera,
-  stabilizeVisaPhotoEyewearStatus,
-  updateKnownVisaPhotoEyewearViolation,
-  visaPhotoEyewearGuidance,
   type VisaPhotoClarityStatus,
-  type VisaPhotoEyewearStatus,
   type VisaPhotoFaceGeometry,
 } from "./visa-selfie-quality";
 
@@ -47,7 +42,6 @@ type FaceStatus =
 type BackgroundStatus = "checking" | "white" | "not_white" | "not_plain";
 type ResolvedBackgroundStatus = Exclude<BackgroundStatus, "checking">;
 type ClarityStatus = "checking" | VisaPhotoClarityStatus;
-type EyewearStatus = "checking" | VisaPhotoEyewearStatus;
 
 interface PendingAnalysis {
   id: number;
@@ -92,9 +86,7 @@ export function VisaSelfieCamera({
   const faceStatusRef = useRef<FaceStatus>("loading");
   const backgroundStatusRef = useRef<BackgroundStatus>("checking");
   const backgroundSamplesRef = useRef<ResolvedBackgroundStatus[]>([]);
-  const eyewearSamplesRef = useRef<VisaPhotoEyewearStatus[]>([]);
   const readinessSamplesRef = useRef<boolean[]>([]);
-  const knownEyewearViolationRef = useRef(false);
   const visibilityPausedRef = useRef(false);
 
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -105,9 +97,7 @@ export function VisaSelfieCamera({
   const [faceStatus, setFaceStatus] = useState<FaceStatus>("loading");
   const [backgroundStatus, setBackgroundStatus] = useState<BackgroundStatus>("checking");
   const [clarityStatus, setClarityStatus] = useState<ClarityStatus>("checking");
-  const [eyewearStatus, setEyewearStatus] = useState<EyewearStatus>("checking");
   const [liveReady, setLiveReady] = useState(false);
-  const [knownEyewearViolation, setKnownEyewearViolation] = useState(false);
   const [fallbackAcknowledged, setFallbackAcknowledged] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [initializationAttempt, setInitializationAttempt] = useState(0);
@@ -123,7 +113,6 @@ export function VisaSelfieCamera({
     faceStatus,
     backgroundStatus,
     clarityStatus,
-    eyewearStatus,
   });
   useStableTelemetryReason(telemetryReason, onTelemetryReason);
 
@@ -133,12 +122,10 @@ export function VisaSelfieCamera({
     captureReadyRef.current = false;
     stableSinceRef.current = null;
     backgroundSamplesRef.current = [];
-    eyewearSamplesRef.current = [];
     readinessSamplesRef.current = [];
     setFaceStatus(status);
     setBackgroundStatus("checking");
     setClarityStatus("checking");
-    setEyewearStatus("checking");
     setLiveReady(false);
     setCountdown(null);
   }, []);
@@ -169,7 +156,6 @@ export function VisaSelfieCamera({
         cameraReady: isCameraReady,
         modelUnavailable: Boolean(modelError),
         userAcknowledgedRequirements: fallbackAcknowledged,
-        knownEyewearViolation: knownEyewearViolationRef.current,
       });
     if (
       !video
@@ -268,7 +254,6 @@ export function VisaSelfieCamera({
           const nextFaceStatus = classifyFace(results.detections, face);
           let nextBackgroundStatus: BackgroundStatus = "checking";
           let nextClarityStatus: ClarityStatus = "checking";
-          let nextEyewearStatus: EyewearStatus = "checking";
           let currentFrameReady = false;
 
           if (nextFaceStatus === "ready" && face) {
@@ -283,27 +268,12 @@ export function VisaSelfieCamera({
               backgroundSamplesRef.current,
             );
             nextClarityStatus = frame.clarity;
-            nextEyewearStatus = stabilizeVisaPhotoEyewearStatus(
-              frame.eyewear,
-              eyewearSamplesRef.current,
-            );
             currentFrameReady = isVisaPhotoFrameCaptureReady(
               nextBackgroundStatus,
               nextClarityStatus,
-              nextEyewearStatus,
             );
           } else {
             backgroundSamplesRef.current = [];
-            eyewearSamplesRef.current = [];
-          }
-
-          const nextKnownEyewearViolation = updateKnownVisaPhotoEyewearViolation(
-            knownEyewearViolationRef.current,
-            nextEyewearStatus,
-          );
-          if (knownEyewearViolationRef.current !== nextKnownEyewearViolation) {
-            knownEyewearViolationRef.current = nextKnownEyewearViolation;
-            setKnownEyewearViolation(nextKnownEyewearViolation);
           }
 
           readinessSamplesRef.current.push(currentFrameReady);
@@ -325,9 +295,6 @@ export function VisaSelfieCamera({
           }
           setClarityStatus((current) =>
             current === nextClarityStatus ? current : nextClarityStatus
-          );
-          setEyewearStatus((current) =>
-            current === nextEyewearStatus ? current : nextEyewearStatus
           );
           setLiveReady((current) => current === isReady ? current : isReady);
           captureReadyRef.current = isReady;
@@ -492,9 +459,6 @@ export function VisaSelfieCamera({
       setFaceStatus("unavailable");
       setBackgroundStatus("checking");
       setClarityStatus("checking");
-      setEyewearStatus(
-        knownEyewearViolationRef.current ? "detected" : "checking",
-      );
       setLiveReady(false);
       setFallbackAcknowledged(false);
       setModelError("Live photo checks stopped unexpectedly.");
@@ -608,33 +572,27 @@ export function VisaSelfieCamera({
     cameraReady: isCameraReady,
     modelUnavailable: Boolean(modelError),
     userAcknowledgedRequirements: fallbackAcknowledged,
-    knownEyewearViolation,
   });
-  const eyewearGuidance = visaPhotoEyewearGuidance(eyewearStatus);
   const guidance = processingError
     ?? (isProcessing
       ? "Saving your Visa Photo..."
       : modelError
-        ? knownEyewearViolation
-          ? "Glasses were detected - remove them and retry the live checks"
-          : "Live checks unavailable - retry or use the guided fallback below"
+        ? "Live checks unavailable - retry or use the guided fallback below"
         : countdown
         ? `Hold still - capturing in ${countdown}`
         : faceStatus !== "ready"
           ? faceStatusMessage(faceStatus)
-          : eyewearGuidance
-            ? eyewearGuidance
-            : clarityStatus === "too_dark" || clarityStatus === "too_bright"
-              ? "Improve the lighting on your face"
-              : clarityStatus === "blurry"
-                ? "Hold the camera steady and keep your face in focus"
-                : backgroundStatus === "not_plain"
-                  ? "Use a plain wall without handles, seams, shelves, or patterns"
-                  : backgroundStatus === "not_white"
-                    ? "Use a plain white or off-white wall"
-                    : ready
-                      ? "All checks passed - hold still"
-                      : "Hold steady while the photo checks finish");
+          : clarityStatus === "too_dark" || clarityStatus === "too_bright"
+            ? "Improve the lighting on your face"
+            : clarityStatus === "blurry"
+              ? "Hold the camera steady and keep your face in focus"
+              : backgroundStatus === "not_plain"
+                ? "Use a plain wall without handles, seams, shelves, or patterns"
+                : backgroundStatus === "not_white"
+                  ? "Use a plain white or off-white wall"
+                  : ready
+                    ? "All checks passed - hold still"
+                    : "Hold steady while the photo checks finish");
 
   return (
     <div
@@ -758,33 +716,29 @@ export function VisaSelfieCamera({
                 <div>
                   <p className="text-sm font-semibold text-amber-950">Live checks unavailable</p>
                   <p className="mt-1 text-xs leading-5 text-amber-900">
-                    {knownEyewearViolation
-                      ? "Glasses were detected before the checks stopped. Remove all eyewear, then retry. Guided fallback stays locked until stable clear checks pass."
-                      : `${modelError} Retry the automatic checks, or carefully confirm every requirement before using the guided fallback.`}
+                    {modelError} Retry the automatic checks, or carefully
+                    confirm every requirement before using the guided fallback.
                   </p>
                 </div>
               </div>
 
-              {!knownEyewearViolation && (
-                <label
-                  htmlFor="visa-photo-fallback-confirmation"
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left"
-                >
-                  <input
-                    id="visa-photo-fallback-confirmation"
-                    type="checkbox"
-                    checked={fallbackAcknowledged}
-                    onChange={(event) => setFallbackAcknowledged(event.target.checked)}
-                    className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
-                  />
-                  <span className="text-xs leading-5 text-slate-700">
-                    I confirm there is exactly one person, their face is centred
-                    and sharp, both eyes are visible with no glasses, sunglasses
-                    or tinted eyewear, and the background is a plain white or
-                    off-white wall with good lighting.
-                  </span>
-                </label>
-              )}
+              <label
+                htmlFor="visa-photo-fallback-confirmation"
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left"
+              >
+                <input
+                  id="visa-photo-fallback-confirmation"
+                  type="checkbox"
+                  checked={fallbackAcknowledged}
+                  onChange={(event) => setFallbackAcknowledged(event.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                />
+                <span className="text-xs leading-5 text-slate-700">
+                  I confirm there is exactly one person, their face is centred,
+                  fully visible and sharp, and the background is a plain white
+                  or off-white wall with good lighting.
+                </span>
+              </label>
 
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Button
@@ -797,16 +751,14 @@ export function VisaSelfieCamera({
                   <RefreshCcw className="mr-2 h-4 w-4" />
                   Retry live checks
                 </Button>
-                {!knownEyewearViolation && (
-                  <Button
-                    type="button"
-                    onClick={() => void takePhoto("fallback")}
-                    disabled={!fallbackCaptureAllowed || isProcessing}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Capture with guided fallback
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  onClick={() => void takePhoto("fallback")}
+                  disabled={!fallbackCaptureAllowed || isProcessing}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Capture with guided fallback
+                </Button>
               </div>
             </div>
           ) : (
@@ -909,7 +861,6 @@ function analyzeVisaPhotoFrame(
 ): {
   background: ResolvedBackgroundStatus;
   clarity: VisaPhotoClarityStatus;
-  eyewear: VisaPhotoEyewearStatus;
 } {
   const crop = getVisibleGuideCrop(video, guide);
   canvas.width = ANALYSIS_WIDTH;
@@ -919,7 +870,6 @@ function analyzeVisaPhotoFrame(
     return {
       background: "not_white",
       clarity: "blurry",
-      eyewear: "uncertain",
     };
   }
 
@@ -939,12 +889,6 @@ function analyzeVisaPhotoFrame(
   return {
     background,
     clarity: evaluateVisaPhotoClarity(
-      pixels,
-      ANALYSIS_WIDTH,
-      ANALYSIS_HEIGHT,
-      face,
-    ).status,
-    eyewear: evaluateVisaPhotoEyewear(
       pixels,
       ANALYSIS_WIDTH,
       ANALYSIS_HEIGHT,

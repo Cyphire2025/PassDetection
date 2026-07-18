@@ -31,6 +31,8 @@ export interface WhatsAppRecipientMessageStatus {
   message_type: string;
   status: string;
   already_sent: boolean;
+  latest_resend_status: string | null;
+  resend_blocked: boolean;
   submitted_at: string | null;
   status_updated_at: string;
 }
@@ -209,6 +211,22 @@ export const whatsappApi = {
     recipientId: string;
   }): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.whatsapp.recipient(groupId, recipientId));
+  },
+
+  resendRecipientMessage: async ({
+    groupId,
+    recipientId,
+    messageType,
+  }: {
+    groupId: string;
+    recipientId: string;
+    messageType: WhatsAppMessageType;
+  }): Promise<WhatsAppSendResponse> => {
+    const { data } = await apiClient.post<WhatsAppSendResponse>(
+      API_ENDPOINTS.whatsapp.resendRecipientMessage(groupId, recipientId),
+      { message_type: messageType },
+    );
+    return data;
   },
 
   previewMessage: async (

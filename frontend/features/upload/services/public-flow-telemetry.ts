@@ -5,8 +5,6 @@ export const VISA_PHOTO_REJECTION_REASONS = [
   "too_close",
   "off_center",
   "head_tilt",
-  "eyewear_detected",
-  "eyewear_uncertain",
   "too_dark",
   "too_bright",
   "blurry",
@@ -150,7 +148,6 @@ export function visaPhotoRejectionReason(input: {
     | "unavailable";
   backgroundStatus: "checking" | "white" | "not_white" | "not_plain";
   clarityStatus: "checking" | "good" | "too_dark" | "too_bright" | "blurry";
-  eyewearStatus: "checking" | "clear" | "detected" | "uncertain";
 }): VisaPhotoRejectionReason | null {
   if (input.cameraUnavailable) return "camera_unavailable";
   if (
@@ -173,9 +170,6 @@ export function visaPhotoRejectionReason(input: {
   if (faceReason) return faceReason;
   if (input.faceStatus !== "ready") return null;
 
-  if (input.eyewearStatus === "detected") return "eyewear_detected";
-  if (input.eyewearStatus === "uncertain") return "eyewear_uncertain";
-  if (input.eyewearStatus !== "clear") return null;
   if (input.clarityStatus === "too_dark") return "too_dark";
   if (input.clarityStatus === "too_bright") return "too_bright";
   if (input.clarityStatus === "blurry") return "blurry";

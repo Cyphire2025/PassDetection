@@ -58,6 +58,35 @@ test("accepts a complete page under modest perspective shear", () => {
   assert.equal(result.status, "ready", JSON.stringify(result));
 });
 
+test("accepts a guide-aligned passport when the open-booklet edge is indistinct", () => {
+  const result = analyzePassportFramePixels(
+    makeGuideAlignedPassportFrame({ visibleTopEdge: false }),
+    WIDTH,
+    HEIGHT,
+    "front",
+  );
+
+  assert.equal(result.status, "ready", JSON.stringify(result));
+  assert.equal(result.isDetected, true);
+  assert.ok(result.documentAreaRatio >= 0.65, JSON.stringify(result));
+  assert.ok(result.mrzScore >= 0.72, JSON.stringify(result));
+  assert.ok(result.layoutScore >= 0.66, JSON.stringify(result));
+});
+
+test("accepts a near-frame passport when low-contrast page edges blend into the booklet", () => {
+  const result = analyzePassportFramePixels(
+    makeGuideAlignedPassportFrame({ lowContrastEdges: true }),
+    WIDTH,
+    HEIGHT,
+    "front",
+  );
+
+  assert.equal(result.status, "ready", JSON.stringify(result));
+  assert.equal(result.isDetected, true);
+  assert.ok(result.documentAreaRatio >= 0.65, JSON.stringify(result));
+  assert.ok(result.confidence >= 0.69, JSON.stringify(result));
+});
+
 test("rejects a passport information page rotated 180 degrees", () => {
   const upsideDown = makePassportFrame();
   rotateRegion180(upsideDown, PAGE);
@@ -452,6 +481,73 @@ function makePassportFrame({
       [38, 38, 38],
     );
   }
+  return pixels;
+}
+
+function makeGuideAlignedPassportFrame({
+  visibleTopEdge = true,
+  lowContrastEdges = false,
+} = {}) {
+  const background = lowContrastEdges
+    ? [210, 207, 200]
+    : [38, 42, 48];
+  const pageColor = [226, 222, 212];
+  const edgeColor = lowContrastEdges
+    ? [205, 202, 196]
+    : [28, 28, 28];
+  const page = {
+    left: 22,
+    right: 298,
+    top: 16,
+    bottom: 190,
+  };
+  const pixels = makeSolidFrame(background);
+  drawRect(
+    pixels,
+    page.left,
+    page.top,
+    page.right,
+    page.bottom,
+    pageColor,
+  );
+  drawRect(
+    pixels,
+    page.left,
+    page.bottom - 2,
+    page.right,
+    page.bottom,
+    edgeColor,
+  );
+  drawRect(
+    pixels,
+    page.left,
+    page.top,
+    page.left + 2,
+    page.bottom,
+    edgeColor,
+  );
+  drawRect(
+    pixels,
+    page.right - 2,
+    page.top,
+    page.right,
+    page.bottom,
+    edgeColor,
+  );
+  if (visibleTopEdge) {
+    drawRect(
+      pixels,
+      page.left,
+      page.top,
+      page.right,
+      page.top + 2,
+      edgeColor,
+    );
+  }
+  drawPassportContent(pixels, page, {
+    portraitSide: "left",
+    includeMrz: true,
+  });
   return pixels;
 }
 

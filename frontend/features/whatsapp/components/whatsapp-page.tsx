@@ -8,6 +8,7 @@ import {
   MessageCircle,
   MoreVertical,
   Plus,
+  RotateCw,
   Send,
   Trash2,
   Upload,
@@ -54,6 +55,7 @@ import {
   useDeleteWhatsAppGroup,
   useDeleteWhatsAppRecipient,
   usePreviewWhatsAppMessage,
+  useResendWhatsAppRecipientMessage,
   useSendWhatsAppPassportLink,
   useSendWhatsAppWelcome,
   useUpdateWhatsAppGroup,
@@ -64,6 +66,7 @@ import {
 import {
   countEligibleRecipients,
   getMessageStatus,
+  hasAlreadySentMessage,
 } from "../utils/recipient-delivery";
 import { mergeRecipientImportContacts } from "../utils/recipient-import";
 import { mergeWhatsAppSendProgress } from "../utils/send-progress";
@@ -79,6 +82,13 @@ type PersistedBatch = {
   skipped_already_sent?: number;
   skipped_in_progress?: number;
   skipped_delivery_unknown?: number;
+};
+
+type RecipientResendTarget = {
+  recipientId: string;
+  recipientName: string;
+  phoneNumber: string;
+  messageType: WhatsAppMessageType;
 };
 
 const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
@@ -711,10 +721,12 @@ function RecipientListDialog({
     data: detail,
     isLoading,
     error: loadError,
+    refetch: refetchGroup,
   } = useWhatsAppGroup(group.id);
   const updateGroup = useUpdateWhatsAppGroup();
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
+  const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
     name: "",
@@ -730,12 +742,19 @@ function RecipientListDialog({
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [resendNotice, setResendNotice] = useState<string | null>(null);
+  const [lastResendTarget, setLastResendTarget] =
+    useState<RecipientResendTarget | null>(null);
+  const [recipientToResend, setRecipientToResend] =
+    useState<RecipientResendTarget | null>(null);
   const [recipientToRemove, setRecipientToRemove] = useState<
     (WhatsAppRecipientInput & { id: string }) | null
   >(null);
   const initializedGroupRef = useRef<string | null>(null);
   const detailsInFlightRef = useRef(false);
   const recipientsInFlightRef = useRef(false);
+  const resendInFlightRef = useRef(false);
   const { importState, previewFile, resetImport } = useRecipientExcelPreview({
     contacts,
     setContacts,
@@ -866,6 +885,56 @@ function RecipientListDialog({
       recipientsInFlightRef.current = false;
     }
   };
+
+  const resendSelectedMessage = async () => {
+    if (
+      !recipientToResend
+      || resendRecipientMessage.isPending
+      || resendInFlightRef.current
+    ) return;
+
+    const target = recipientToResend;
+    resendInFlightRef.current = true;
+    setResendError(null);
+    setResendNotice(null);
+    setLastResendTarget(null);
+    try {
+      const result = await resendRecipientMessage.mutateAsync({
+        groupId: group.id,
+        recipientId: target.recipientId,
+        messageType: target.messageType,
+      });
+      setRecipientToResend(null);
+      await refetchGroup();
+      setLastResendTarget(target);
+
+      if (result.queued > 0) {
+        setResendNotice(
+          `${formatMessageType(target.messageType)} resend queued for ${target.recipientName} only.`,
+        );
+      } else if (result.sent > 0) {
+        setResendNotice(
+          `${formatMessageType(target.messageType)} resent to ${target.recipientName} only.`,
+        );
+      } else {
+        setResendError(
+          `${formatMessageType(target.messageType)} was not resent. Refresh the recipient status before trying again.`,
+        );
+      }
+    } catch (resendRequestError) {
+      setRecipientToResend(null);
+      setLastResendTarget(null);
+      setResendError(
+        readErrorMessage(
+          resendRequestError,
+          `Could not resend the ${formatMessageType(target.messageType).toLowerCase()} to ${target.recipientName}.`,
+        ),
+      );
+    } finally {
+      resendInFlightRef.current = false;
+    }
+  };
+
   const messageTypes = [
     "welcome",
     "passport_link",
@@ -876,6 +945,37 @@ function RecipientListDialog({
   ].filter(
     (messageType, index, allTypes) => allTypes.indexOf(messageType) === index,
   );
+  const lastResendMessageStatus =
+    lastResendTarget && detail
+      ? getMessageStatus(
+          detail.recipients.find(
+            (recipient) => recipient.id === lastResendTarget.recipientId,
+          ) ?? { message_statuses: [] },
+          lastResendTarget.messageType,
+        )
+      : null;
+  const lastResendStatus = lastResendMessageStatus?.latest_resend_status;
+  const displayedResendError =
+    lastResendTarget && lastResendStatus === "failed"
+      ? `${formatMessageType(lastResendTarget.messageType)} could not be resent to ${lastResendTarget.recipientName}.`
+      : lastResendTarget && lastResendStatus === "delivery_unknown"
+        ? `${formatMessageType(lastResendTarget.messageType)} delivery to ${lastResendTarget.recipientName} is unknown. Review it before trying again.`
+        : resendError;
+  const displayedResendNotice =
+    lastResendTarget
+    && (
+      lastResendStatus === "sent"
+      || lastResendStatus === "delivered"
+      || lastResendStatus === "read"
+    )
+      ? `${formatMessageType(lastResendTarget.messageType)} resent to ${lastResendTarget.recipientName} only.`
+      : lastResendTarget
+          && (
+            lastResendStatus === "failed"
+            || lastResendStatus === "delivery_unknown"
+          )
+        ? null
+        : resendNotice;
 
   return (
     <>
@@ -886,7 +986,9 @@ function RecipientListDialog({
           updateGroup.isPending
           || addRecipientsMutation.isPending
           || deleteRecipient.isPending
+          || resendRecipientMessage.isPending
           || Boolean(recipientToRemove)
+          || Boolean(recipientToResend)
         }
         widthClass="max-w-5xl"
       >
@@ -997,7 +1099,9 @@ function RecipientListDialog({
                   </h3>
                   <p className="mt-1 text-sm text-slate-500">
                     Delivery checks prevent a successfully sent message type
-                    from being sent to the same person twice.
+                    from being sent to the same person twice. Use Resend on a
+                    sent message only when you intentionally want to send it
+                    again to that one person.
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
@@ -1005,8 +1109,22 @@ function RecipientListDialog({
                 </span>
               </div>
 
+              {displayedResendError && (
+                <div className="mt-3">
+                  <ErrorBanner message={displayedResendError} />
+                </div>
+              )}
+              {displayedResendNotice && (
+                <div
+                  className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
+                  role="status"
+                >
+                  {displayedResendNotice}
+                </div>
+              )}
+
               <div className="mt-3 max-h-72 overflow-auto rounded-xl border border-slate-200">
-                <table className="w-full min-w-[680px] text-left text-sm">
+                <table className="w-full min-w-[820px] text-left text-sm">
                   <thead className="sticky top-0 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <tr>
                       <th className="px-4 py-3">Recipient</th>
@@ -1029,16 +1147,99 @@ function RecipientListDialog({
                           <td className="px-4 py-3 text-slate-600">
                             {recipient.normalized_phone_number}
                           </td>
-                          {messageTypes.map((messageType) => (
-                            <td key={messageType} className="px-4 py-3">
-                              <DeliveryBadge
-                                status={getMessageStatus(
-                                  recipient,
-                                  messageType,
-                                )}
-                              />
-                            </td>
-                          ))}
+                          {messageTypes.map((messageType) => {
+                            const messageStatus = getMessageStatus(
+                              recipient,
+                              messageType,
+                            );
+                            const knownMessageType =
+                              isWhatsAppMessageType(messageType);
+                            const canResend =
+                              knownMessageType
+                              && hasAlreadySentMessage(recipient, messageType);
+                            const resendBlocked =
+                              messageStatus?.resend_blocked ?? false;
+                            const latestResendStatus =
+                              messageStatus?.latest_resend_status;
+                            const isResendProcessing =
+                              latestResendStatus === "queued"
+                              || latestResendStatus === "processing";
+                            const needsResendReview =
+                              latestResendStatus === "delivery_unknown";
+                            const isSelectedResend =
+                              recipientToResend?.recipientId === recipient.id
+                              && recipientToResend.messageType === messageType;
+
+                            return (
+                              <td key={messageType} className="px-4 py-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <DeliveryBadge status={messageStatus} />
+                                  {canResend && (
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                      disabled={
+                                        resendRecipientMessage.isPending
+                                        || resendBlocked
+                                      }
+                                      title={
+                                        needsResendReview
+                                          ? "The latest resend outcome is unknown. Review it before sending another duplicate."
+                                          : isResendProcessing
+                                            ? "A resend is already in progress for this person."
+                                            : undefined
+                                      }
+                                      aria-label={`Resend ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
+                                      onClick={() => {
+                                        setResendError(null);
+                                        setResendNotice(null);
+                                        setLastResendTarget(null);
+                                        setRecipientToResend({
+                                          recipientId: recipient.id,
+                                          recipientName:
+                                            recipient.name
+                                            || "Unnamed recipient",
+                                          phoneNumber:
+                                            recipient.normalized_phone_number,
+                                          messageType,
+                                        });
+                                      }}
+                                    >
+                                      {isSelectedResend
+                                        && resendRecipientMessage.isPending
+                                        ? (
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <RotateCw className="h-3.5 w-3.5" />
+                                      )}
+                                      {isSelectedResend
+                                            && resendRecipientMessage.isPending
+                                          ? "Sending..."
+                                          : needsResendReview
+                                            ? "Review required"
+                                            : isResendProcessing
+                                              ? "Resending..."
+                                              : "Resend"}
+                                    </button>
+                                  )}
+                                  {latestResendStatus === "failed" && (
+                                    <span className="text-xs font-medium text-red-600">
+                                      Last resend failed
+                                    </span>
+                                  )}
+                                  {(
+                                    latestResendStatus === "sent"
+                                    || latestResendStatus === "delivered"
+                                    || latestResendStatus === "read"
+                                  ) && (
+                                    <span className="text-xs font-medium text-emerald-700">
+                                      Resent
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                            );
+                          })}
                           <td className="px-4 py-3 text-right">
                             <button
                               type="button"
@@ -1156,6 +1357,22 @@ function RecipientListDialog({
       </DialogFrame>
 
       <ConfirmDialog
+        isOpen={Boolean(recipientToResend)}
+        title={`Resend ${formatMessageType(recipientToResend?.messageType ?? "welcome")}?`}
+        description={getResendConfirmationDescription(recipientToResend)}
+        confirmLabel="Resend Message"
+        isLoading={resendRecipientMessage.isPending}
+        onClose={() => {
+          if (!resendRecipientMessage.isPending && !resendInFlightRef.current) {
+            setRecipientToResend(null);
+          }
+        }}
+        onConfirm={() => {
+          void resendSelectedMessage();
+        }}
+      />
+
+      <ConfirmDialog
         isOpen={Boolean(recipientToRemove)}
         title="Remove recipient?"
         description={`${recipientToRemove?.name || recipientToRemove?.phone_number || "This recipient"} will be removed from this broadcast. Their existing delivery records remain available for audit purposes.`}
@@ -1231,6 +1448,24 @@ function formatMessageType(messageType: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function isWhatsAppMessageType(
+  messageType: string,
+): messageType is WhatsAppMessageType {
+  return messageType === "welcome" || messageType === "passport_link";
+}
+
+function getResendConfirmationDescription(
+  target: RecipientResendTarget | null,
+): string {
+  if (!target) return "";
+  const recipient = `${target.recipientName} (${target.phoneNumber})`;
+  const linkWarning =
+    target.messageType === "passport_link"
+      ? " This reuses the same passport link that was previously sent; ensure that link is still active."
+      : "";
+  return `Send the ${formatMessageType(target.messageType)} again to ${recipient}? This intentionally sends only this message to this person. No other recipient will receive it.${linkWarning}`;
 }
 
 function CreateBroadcastDialog({

@@ -35,15 +35,22 @@ from openpyxl.utils.exceptions import InvalidFileException
 from pydantic import BaseModel, Field
 from sqlalchemy import and_, delete, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.message_templates import (
+    AUTOMATED_NOTICE,
+    GREETING,
+    PASSPORT_INFORMATION_NOTICE,
+    STATIC_TEMPLATE_HEADER,
     WhatsAppMessageType,
     default_message_content,
     format_support_contacts,
+    passport_link_intro,
     render_message,
     template_header_parameters,
     template_parameters,
+    validate_template_parameters,
 )
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
@@ -55,6 +62,7 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
@@ -77,6 +85,9 @@ WHATSAPP_ACCEPTED_STATUS_RANK = {
 WHATSAPP_WEBHOOK_STATUSES = frozenset({"sent", "delivered", "read", "failed"})
 WHATSAPP_IN_PROGRESS_STATUSES = frozenset({"queued", "processing"})
 WHATSAPP_UNCERTAIN_STATUSES = frozenset({"delivery_unknown"})
+WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES = (
+    WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
+)
 WHATSAPP_SUPPRESSED_STATUSES = (
     WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
 )
@@ -125,6 +136,8 @@ class WhatsAppRecipientMessageStatusResponse(BaseModel):
     status: str
     already_sent: bool
     send_suppressed: bool
+    latest_resend_status: str | None = None
+    resend_blocked: bool = False
     submitted_at: datetime | None
     status_updated_at: datetime
 
@@ -155,6 +168,10 @@ class WhatsAppSendRequest(BaseModel):
     message_type: str = Field(pattern="^(welcome|passport_link)$")
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
+
+
+class WhatsAppResendRequest(BaseModel):
+    message_type: str = Field(pattern="^(welcome|passport_link)$")
 
 
 class WhatsAppPreviewRequest(WhatsAppSendRequest):
@@ -443,24 +460,25 @@ async def receive_whatsapp_webhook(
                 provider_status_at=provider_status_at,
                 now=now,
             )
-            state_result = await session.execute(
-                select(WhatsAppRecipientMessageStateModel)
-                .where(
-                    *_provider_status_state_predicates(
-                        log,
-                        provider_status=provider_status,
+            if not getattr(log, "is_explicit_resend", False):
+                state_result = await session.execute(
+                    select(WhatsAppRecipientMessageStateModel)
+                    .where(
+                        *_provider_status_state_predicates(
+                            log,
+                            provider_status=provider_status,
+                        )
                     )
+                    .with_for_update()
                 )
-                .with_for_update()
-            )
-            delivery_state = state_result.scalar_one_or_none()
-            if delivery_state:
-                _apply_provider_status_to_delivery_state(
-                    delivery_state,
-                    provider_status=provider_status,
-                    provider_status_at=provider_status_at,
-                    now=now,
-                )
+                delivery_state = state_result.scalar_one_or_none()
+                if delivery_state:
+                    _apply_provider_status_to_delivery_state(
+                        delivery_state,
+                        provider_status=provider_status,
+                        provider_status_at=provider_status_at,
+                        now=now,
+                    )
             processed_statuses += 1
     if processed_statuses:
         await session.commit()
@@ -972,8 +990,10 @@ def _parse_support_contacts(value: str) -> list[WhatsAppSupportContactInput]:
 def _recipient_response(
     model: WhatsAppBroadcastRecipientModel,
     states: list[WhatsAppRecipientMessageStateModel] | None = None,
+    resend_statuses: dict[str, str] | None = None,
 ) -> WhatsAppRecipientResponse:
     ordered_states = sorted(states or [], key=lambda state: state.message_type)
+    latest_resend_statuses = resend_statuses or {}
     return WhatsAppRecipientResponse(
         id=model.id,
         name=model.name,
@@ -990,6 +1010,9 @@ def _recipient_response(
                 status=state.status,
                 already_sent=state.status in WHATSAPP_ACCEPTED_STATUSES,
                 send_suppressed=state.status in WHATSAPP_SUPPRESSED_STATUSES,
+                latest_resend_status=latest_resend_statuses.get(state.message_type),
+                resend_blocked=latest_resend_statuses.get(state.message_type)
+                in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
                 submitted_at=state.submitted_at,
                 status_updated_at=state.status_updated_at,
             )
@@ -1040,6 +1063,7 @@ async def _group_detail(
     )
     recipients = list(recipients_result.scalars().all())
     states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
+    resend_statuses_by_recipient: dict[uuid.UUID, dict[str, str]] = {}
     if recipients:
         states_result = await session.execute(
             select(WhatsAppRecipientMessageStateModel)
@@ -1052,6 +1076,22 @@ async def _group_detail(
         )
         for state_model in states_result.scalars().all():
             states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
+        resend_result = await session.execute(
+            select(WhatsAppMessageLogModel)
+            .where(
+                WhatsAppMessageLogModel.recipient_id.in_(
+                    [recipient.id for recipient in recipients]
+                ),
+                WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            )
+            .order_by(WhatsAppMessageLogModel.created_at.desc())
+        )
+        for resend_log in resend_result.scalars().all():
+            recipient_statuses = resend_statuses_by_recipient.setdefault(
+                resend_log.recipient_id,
+                {},
+            )
+            recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
     support_contacts = await _support_contacts_for_group(session, group.id)
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
@@ -1065,6 +1105,7 @@ async def _group_detail(
             _recipient_response(
                 recipient,
                 states_by_recipient.get(recipient.id, []),
+                resend_statuses_by_recipient.get(recipient.id, {}),
             )
             for recipient in recipients
         ],
@@ -1168,6 +1209,126 @@ def _message_values(
         passport_link=passport_link,
     )
     return message_type, message_content, recipient_name, rendered, header_parameters, parameters
+
+
+def _split_rendered_support_block(rendered_body: str) -> tuple[str, str]:
+    assistance_marker = "\n\nFor assistance, please contact:\n"
+    footer = "\n\nRegards,\nTeam Global Connect Travels"
+    before_support, marker, support_and_footer = rendered_body.rpartition(assistance_marker)
+    if not marker:
+        raise ValueError("The saved WhatsApp message has an unknown assistance layout")
+    support_contacts, footer_marker, trailing = support_and_footer.rpartition(footer)
+    if not footer_marker or trailing or not support_contacts.strip():
+        raise ValueError("The saved WhatsApp message has an unknown footer layout")
+    return before_support, support_contacts
+
+
+def _decode_legacy_template_snapshot(
+    *,
+    message_type: WhatsAppMessageType,
+    rendered_message: str | None,
+) -> tuple[list[str], list[str]]:
+    """Decode only messages that exactly match our deterministic approved layout."""
+
+    if not rendered_message:
+        raise ValueError("The saved WhatsApp message has no reusable content")
+    prefix = f"{STATIC_TEMPLATE_HEADER}\n\n{GREETING}\n\n"
+    if not rendered_message.startswith(prefix):
+        raise ValueError("The saved WhatsApp message has an unknown header layout")
+    before_support, support_contacts = _split_rendered_support_block(
+        rendered_message[len(prefix) :]
+    )
+
+    if message_type == "welcome":
+        notice_suffix = f"\n\n{AUTOMATED_NOTICE}"
+        if not before_support.endswith(notice_suffix):
+            raise ValueError("The saved welcome message has an unknown notice layout")
+        message_content = before_support[: -len(notice_suffix)]
+        header_parameters: list[str] = []
+        parameters = [message_content, support_contacts]
+        reconstructed = render_message(
+            message_type=message_type,
+            group_name="",
+            support_contacts=support_contacts,
+            message_content=message_content,
+        )
+    else:
+        notice_suffix = f"\n\n{PASSPORT_INFORMATION_NOTICE}"
+        if not before_support.endswith(notice_suffix):
+            raise ValueError("The saved passport message has an unknown notice layout")
+        variable_area = before_support[: -len(notice_suffix)]
+        try:
+            intro, passport_link, message_content = variable_area.split("\n\n", 2)
+        except ValueError as exc:
+            raise ValueError(
+                "The saved passport message does not contain the approved variables"
+            ) from exc
+        intro_prefix = (
+            "Please use the secure link below to submit your travel documents required for "
+            "your trip to "
+        )
+        if (
+            not intro.startswith(intro_prefix)
+            or not intro.endswith(".")
+            or not intro[len(intro_prefix) : -1].strip()
+        ):
+            raise ValueError("The saved passport message has an unknown trip introduction")
+        original_group_name = intro[len(intro_prefix) : -1]
+        parsed_link = urlparse(passport_link)
+        if parsed_link.scheme not in {"http", "https"} or not parsed_link.netloc:
+            raise ValueError("The saved passport message has an invalid upload link")
+        if intro != passport_link_intro(original_group_name):
+            raise ValueError("The saved passport message trip introduction is inconsistent")
+        header_parameters = []
+        parameters = [
+            intro,
+            passport_link,
+            message_content,
+            support_contacts,
+        ]
+        reconstructed = render_message(
+            message_type=message_type,
+            group_name=original_group_name,
+            support_contacts=support_contacts,
+            message_content=message_content,
+            passport_link=passport_link,
+        )
+
+    validate_template_parameters(
+        message_type=message_type,
+        header_parameters=header_parameters,
+        body_parameters=parameters,
+    )
+    if reconstructed != rendered_message:
+        raise ValueError("The saved WhatsApp message could not be verified exactly")
+    return header_parameters, parameters
+
+
+def _template_snapshot_from_log(
+    log: WhatsAppMessageLogModel,
+) -> tuple[list[str], list[str]]:
+    if log.message_type not in {"welcome", "passport_link"}:
+        raise ValueError("The saved WhatsApp message type cannot be resent")
+    message_type = _as_message_type(log.message_type)
+    saved_header = log.header_parameter_values
+    saved_body = log.template_parameter_values
+    if saved_header is None and saved_body is None:
+        return _decode_legacy_template_snapshot(
+            message_type=message_type,
+            rendered_message=log.rendered_message,
+        )
+    if not isinstance(saved_header, list) or not isinstance(saved_body, list):
+        raise ValueError("The saved WhatsApp message parameters are incomplete")
+    if any(not isinstance(value, str) for value in [*saved_header, *saved_body]):
+        raise ValueError("The saved WhatsApp message parameters are invalid")
+    header_parameters = list(saved_header)
+    parameters = list(saved_body)
+    validate_template_parameters(
+        message_type=message_type,
+        header_parameters=header_parameters,
+        body_parameters=parameters,
+    )
+    return header_parameters, parameters
 
 
 @router.post(
@@ -1695,6 +1856,275 @@ async def remove_broadcast_recipient(
     return {"deleted": True}
 
 
+@router.post(
+    "/groups/{group_id}/recipients/{recipient_id}/resend",
+    response_model=WhatsAppSendResponse,
+)
+async def resend_recipient_message(
+    group_id: uuid.UUID,
+    recipient_id: uuid.UUID,
+    body: WhatsAppResendRequest,
+    request: Request,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppSendResponse:
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+    if group.recipient_opt_in_confirmed_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient WhatsApp opt-in has not been confirmed for this list",
+        )
+
+    recipient_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.id == recipient_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+        .with_for_update()
+    )
+    recipient = recipient_result.scalar_one_or_none()
+    if not recipient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp recipient not found",
+        )
+
+    message_type = _as_message_type(body.message_type)
+    state_result = await session.execute(
+        select(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.recipient_id == recipient.id,
+            WhatsAppRecipientMessageStateModel.message_type == message_type,
+        )
+        .with_for_update()
+    )
+    delivery_state = state_result.scalar_one_or_none()
+    if not delivery_state or delivery_state.status not in WHATSAPP_ACCEPTED_STATUSES:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Only a successfully submitted WhatsApp message can be resent. "
+                "Use the normal send action for an unsent or failed message."
+            ),
+        )
+
+    now = datetime.now(tz=UTC)
+    stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status == "queued",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="failed",
+            status_updated_at=now,
+            error_message="Explicit resend claim expired before provider submission",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status == "processing",
+            WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=now,
+            error_message=(
+                "Explicit resend outcome is unknown after a worker interruption; "
+                "another resend is blocked"
+            ),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    active_resend_result = await session.execute(
+        select(WhatsAppMessageLogModel).where(
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status.in_(
+                WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+            ),
+        )
+    )
+    active_resend = active_resend_result.scalar_one_or_none()
+    if active_resend:
+        detail = (
+            "The previous resend has an unknown delivery outcome. "
+            "Verify it with the recipient before attempting another resend."
+            if active_resend.status == "delivery_unknown"
+            else "A resend of this message is already in progress for this recipient."
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=detail,
+        )
+
+    source_result = await session.execute(
+        select(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group.id,
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.message_type == message_type,
+            WhatsAppMessageLogModel.status.in_(WHATSAPP_ACCEPTED_STATUSES),
+        )
+        .order_by(
+            WhatsAppMessageLogModel.status_updated_at.desc(),
+            WhatsAppMessageLogModel.created_at.desc(),
+        )
+        .limit(1)
+    )
+    source_log = source_result.scalar_one_or_none()
+    if not source_log:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The previously submitted WhatsApp message could not be found",
+        )
+    try:
+        header_parameters, parameters = _template_snapshot_from_log(source_log)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This older WhatsApp message cannot be safely reconstructed for resend. "
+                "Send a fresh message from the normal preview instead."
+            ),
+        ) from exc
+
+    settings = get_settings()
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="WhatsApp Cloud API credentials are incomplete",
+        )
+    configured_template_name = (
+        settings.whatsapp_welcome_template_name
+        if message_type == "welcome"
+        else settings.whatsapp_passport_link_template_name
+    )
+    template_name = (source_log.template_name or configured_template_name).strip()
+    if not template_name:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"WhatsApp {message_type} template name is not configured",
+        )
+
+    batch_id = uuid.uuid4()
+    resend_log = WhatsAppMessageLogModel(
+        batch_id=batch_id,
+        broadcast_group_id=group.id,
+        recipient_id=recipient.id,
+        agency_id=recipient.agency_id,
+        message_type=message_type,
+        status="queued",
+        status_updated_at=now,
+        provider_message_id=None,
+        error_message=None,
+        template_name=template_name,
+        rendered_message=source_log.rendered_message,
+        header_parameter_values=header_parameters,
+        template_parameter_values=parameters,
+        is_explicit_resend=True,
+        created_at=now,
+    )
+    session.add(resend_log)
+    try:
+        await session.flush()
+    except IntegrityError as exc:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A resend of this message is already active for this recipient.",
+        ) from exc
+
+    await AuditLogRepository(session).record(
+        action="whatsapp_recipient_message_resend_requested",
+        entity_type="whatsapp_broadcast_recipient",
+        entity_id=str(recipient.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        ip_address=request.client.host if request.client else None,
+        metadata={
+            "broadcast_group_id": str(group.id),
+            "message_type": message_type,
+            "source_message_log_id": str(source_log.id),
+            "resend_batch_id": str(batch_id),
+            "source_status": source_log.status,
+        },
+    )
+    await session.commit()
+
+    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
+
+    try:
+        process_whatsapp_broadcast.apply_async(
+            kwargs={
+                "batch_id": str(batch_id),
+                "message_type": message_type,
+                "message_content": parameters[0] if message_type == "welcome" else parameters[2],
+                "passport_link": parameters[1] if message_type == "passport_link" else None,
+            },
+            queue="whatsapp",
+        )
+    except Exception as exc:  # noqa: BLE001 - broker failure is surfaced and persisted.
+        logger.error(
+            "whatsapp_resend_queue_unavailable",
+            extra={
+                "batch_id": str(batch_id),
+                "recipient_id": str(recipient.id),
+                "error_type": type(exc).__name__,
+            },
+        )
+        resend_log.status = "failed"
+        resend_log.status_updated_at = datetime.now(tz=UTC)
+        resend_log.error_message = (
+            "WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable"
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="WhatsApp delivery queue is unavailable",
+        ) from exc
+
+    return WhatsAppSendResponse(
+        batch_id=batch_id,
+        queued=1,
+        sent=0,
+        failed=0,
+        results=[
+            WhatsAppSendResult(
+                recipient_id=recipient.id,
+                phone_number=recipient.normalized_phone_number,
+                status="queued",
+            )
+        ],
+    )
+
+
 @router.delete("/groups/{group_id}", status_code=status.HTTP_200_OK)
 async def delete_broadcast_group(
     group_id: uuid.UUID,
@@ -1722,7 +2152,19 @@ async def delete_broadcast_group(
             WhatsAppRecipientMessageStateModel.status == "processing",
         )
     )
-    if int(processing_result.scalar_one()) > 0:
+    explicit_processing_result = await session.execute(
+        select(func.count())
+        .select_from(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.broadcast_group_id == group.id,
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status == "processing",
+        )
+    )
+    if (
+        int(processing_result.scalar_one()) > 0
+        or int(explicit_processing_result.scalar_one()) > 0
+    ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
@@ -1978,7 +2420,7 @@ async def send_broadcast_message(
 
     results: list[WhatsAppSendResult] = []
     for recipient in claimed_recipients:
-        _, _, _, rendered, _, _ = _message_values(
+        _, _, _, rendered, header_parameters, parameters = _message_values(
             group=group,
             recipient=recipient,
             support_contacts=support_contacts,
@@ -1997,6 +2439,9 @@ async def send_broadcast_message(
                 error_message=None,
                 template_name=template_name,
                 rendered_message=rendered,
+                header_parameter_values=header_parameters,
+                template_parameter_values=parameters,
+                is_explicit_resend=False,
                 created_at=now,
             )
         )

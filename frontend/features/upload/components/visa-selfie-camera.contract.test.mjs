@@ -21,14 +21,8 @@ test("guided fallback requires an explicit accessible acknowledgement", () => {
   assert.match(source, /takePhoto\("fallback"\)/);
 });
 
-test("known eyewear keeps fallback locked and gives a retry instruction", () => {
-  assert.match(
-    source,
-    /setEyewearStatus\(\s*knownEyewearViolationRef\.current \? "detected" : "checking"/,
-  );
-  assert.match(
-    source,
-    /Guided fallback stays locked until stable clear checks pass\./,
-  );
-  assert.match(source, /\{!knownEyewearViolation && \(/);
+test("eyewear never gates or warns in the Visa Photo live camera", () => {
+  assert.doesNotMatch(source, /eyewear/i);
+  assert.doesNotMatch(source, /glasses/i);
+  assert.match(source, /isVisaPhotoFrameCaptureReady\(\s*nextBackgroundStatus,\s*nextClarityStatus,\s*\)/);
 });

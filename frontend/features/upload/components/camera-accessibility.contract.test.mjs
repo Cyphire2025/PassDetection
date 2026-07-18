@@ -47,6 +47,14 @@ test("passport capture is manual after all scanner checks pass", () => {
   );
 });
 
+test("passport scanner uses light dashboard chrome and clear manual-capture states", () => {
+  assert.match(passportCameraSource, /bg-slate-50 text-slate-950/);
+  assert.match(passportCameraSource, /border-slate-200 bg-white/);
+  assert.match(passportCameraSource, /border-emerald-500/);
+  assert.match(passportCameraSource, /Tap to capture/);
+  assert.match(passportCameraSource, /Align the passport to enable capture/);
+});
+
 test("Visa Photo preview releases the live camera before acceptance or retake", () => {
   const capturedFileStart = visaPhotoCameraSource.indexOf("const file = new File");
   const previewStart = visaPhotoCameraSource.indexOf(

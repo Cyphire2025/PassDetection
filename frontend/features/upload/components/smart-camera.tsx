@@ -112,16 +112,22 @@ export function SmartCamera({
   useStableTelemetryReason(telemetryReason, onTelemetryReason);
 
   const guideToneClass = isCaptureReady
-    ? "border-emerald-400"
+    ? "border-emerald-500"
     : hasDocumentCandidate
       ? "border-amber-400"
-      : "border-white/60";
+      : "border-blue-500";
+
+  const guideCornerToneClass = isCaptureReady
+    ? "border-emerald-500"
+    : hasDocumentCandidate
+      ? "border-amber-400"
+      : "border-blue-500";
 
   const statusBannerClass = isCaptureReady
-    ? "bg-emerald-500 text-white"
+    ? "border-emerald-300 bg-emerald-50/95 text-emerald-900"
     : hasDocumentCandidate
-      ? "bg-amber-500 text-slate-950"
-      : "bg-black/55 text-white/90";
+      ? "border-amber-300 bg-amber-50/95 text-amber-950"
+      : "border-blue-200 bg-white/95 text-slate-800";
 
   const guidanceMessage = isProcessingCapture
     ? `Straightening and saving the passport ${pageSide} page`
@@ -356,14 +362,14 @@ export function SmartCamera({
       role="dialog"
       aria-modal="true"
       aria-labelledby="passport-camera-title"
-      className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white"
+      className="fixed inset-0 z-50 flex min-h-[100dvh] flex-col overscroll-none bg-slate-50 text-slate-950"
     >
-      <div className="flex h-16 items-center justify-between px-4 pt-[max(0.25rem,env(safe-area-inset-top))]">
+      <div className="z-20 flex min-h-16 items-center justify-between border-b border-slate-200 bg-white px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] shadow-sm">
         <button
           type="button"
           onClick={close}
           aria-label="Close camera"
-          className="rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-full border border-slate-200 bg-white p-2 text-slate-600 shadow-sm transition-colors hover:bg-slate-100 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
           <X className="h-6 w-6" />
         </button>
@@ -373,14 +379,14 @@ export function SmartCamera({
         <div className="w-10" aria-hidden="true" />
       </div>
 
-      <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-black">
+      <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-slate-200">
         {(isLoading || isProcessingCapture) && !capturedImage && (
           <div
             role="status"
             aria-live="polite"
-            className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950"
+            className="absolute inset-0 z-10 flex items-center justify-center bg-slate-50"
           >
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" aria-hidden="true" />
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" aria-hidden="true" />
             <span className="sr-only">
               {isProcessingCapture ? "Preparing passport image" : "Starting camera"}
             </span>
@@ -390,23 +396,23 @@ export function SmartCamera({
         {cameraError ? (
           <div
             role="alert"
-            className="mx-6 max-w-md rounded-2xl border border-amber-400/30 bg-slate-900 p-6 text-center shadow-2xl"
+            className="mx-6 max-w-md rounded-2xl border border-amber-200 bg-white p-6 text-center shadow-xl"
           >
-            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-400" aria-hidden="true" />
+            <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" aria-hidden="true" />
             <h3 className="mb-2 text-lg font-semibold">
               {failureReason === "crop_validation_failed"
                 ? "Passport image needs another try"
                 : "Camera unavailable"}
             </h3>
-            <p className="mb-6 text-sm leading-6 text-slate-300">{cameraError}</p>
+            <p className="mb-6 text-sm leading-6 text-slate-600">{cameraError}</p>
             <div className="flex flex-col gap-3">
               <Button onClick={restartCamera} className="w-full">
                 Try Camera Again
               </Button>
-              <Button variant="outline" onClick={close} className="w-full border-white/20 bg-white/10 text-white hover:bg-white/20">
+              <Button variant="outline" onClick={close} className="w-full">
                 Back
               </Button>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 The custom scanner works only when the page is opened from a secure origin.
               </p>
             </div>
@@ -436,11 +442,11 @@ export function SmartCamera({
                   ref={guideRef}
                   className="absolute left-1/2 top-1/2 h-auto w-[min(88vw,34rem)] -translate-x-1/2 -translate-y-1/2 aspect-[1.42/1] max-h-[56vh]"
                 >
-                  <div className={`absolute inset-0 rounded-[22px] border-2 transition-colors shadow-[0_0_0_9999px_rgba(2,6,23,0.44)] ${guideToneClass}`}>
-                    <div className="absolute -left-1 -top-1 h-8 w-8 rounded-tl-lg border-l-4 border-t-4 border-blue-500"></div>
-                    <div className="absolute -right-1 -top-1 h-8 w-8 rounded-tr-lg border-r-4 border-t-4 border-blue-500"></div>
-                    <div className="absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-lg border-b-4 border-l-4 border-blue-500"></div>
-                    <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-br-lg border-b-4 border-r-4 border-blue-500"></div>
+                  <div className={`absolute inset-0 rounded-[22px] border-2 transition-colors duration-200 shadow-[0_0_0_9999px_rgba(15,23,42,0.34)] ${guideToneClass}`}>
+                    <div className={`absolute -left-1 -top-1 h-8 w-8 rounded-tl-lg border-l-4 border-t-4 transition-colors duration-200 ${guideCornerToneClass}`}></div>
+                    <div className={`absolute -right-1 -top-1 h-8 w-8 rounded-tr-lg border-r-4 border-t-4 transition-colors duration-200 ${guideCornerToneClass}`}></div>
+                    <div className={`absolute -bottom-1 -left-1 h-8 w-8 rounded-bl-lg border-b-4 border-l-4 transition-colors duration-200 ${guideCornerToneClass}`}></div>
+                    <div className={`absolute -bottom-1 -right-1 h-8 w-8 rounded-br-lg border-b-4 border-r-4 transition-colors duration-200 ${guideCornerToneClass}`}></div>
                   </div>
                 </div>
 
@@ -448,7 +454,7 @@ export function SmartCamera({
                   role="status"
                   aria-live="polite"
                   aria-atomic="true"
-                  className={`absolute left-1/2 top-5 w-[min(92%,28rem)] -translate-x-1/2 rounded-2xl px-4 py-2.5 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
+                  className={`absolute left-1/2 top-4 w-[min(92%,30rem)] -translate-x-1/2 rounded-2xl border px-4 py-2.5 text-center text-sm font-medium shadow-lg backdrop-blur transition-colors duration-200 sm:top-5 ${statusBannerClass}`}
                 >
                   <div>{guidanceMessage}</div>
                 </div>
@@ -466,14 +472,14 @@ export function SmartCamera({
       </div>
 
       {!cameraError && (
-        <div className="flex min-h-28 items-center justify-center gap-8 bg-slate-950/85 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:min-h-32 sm:gap-10 sm:px-6 sm:py-6">
+        <div className="z-20 flex min-h-32 items-center justify-center border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-6px_18px_rgba(15,23,42,0.08)] sm:min-h-36 sm:px-6 sm:pt-5">
           {capturedImage ? (
             <div className="mx-auto flex w-full max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={retake}
-                className="flex-1 border-white/20 bg-white/10 text-white hover:bg-white/20"
+                className="flex-1"
               >
                 Retake
               </Button>
@@ -486,8 +492,7 @@ export function SmartCamera({
               </Button>
             </div>
           ) : (
-            <>
-              <div className="h-12 w-12" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-2">
               <button
                 type="button"
                 onClick={() => void takePhoto()}
@@ -497,12 +502,27 @@ export function SmartCamera({
                     ? "Capture passport page"
                     : "Passport capture is unavailable until every check passes"
                 }
-                className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-slate-950 bg-white ring-2 ring-white transition-transform hover:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                className={`flex h-20 w-20 items-center justify-center rounded-full border-4 bg-white shadow-lg ring-4 transition-all focus-visible:outline-none focus-visible:ring-offset-2 ${
+                  isCaptureReady
+                    ? "border-emerald-600 ring-emerald-100 hover:scale-95 focus-visible:ring-emerald-500"
+                    : "cursor-not-allowed border-slate-300 ring-slate-100"
+                }`}
               >
-                <div className="h-16 w-16 rounded-full border border-slate-200 bg-white"></div>
+                <div
+                  className={`h-14 w-14 rounded-full transition-colors ${
+                    isCaptureReady ? "bg-emerald-600" : "bg-slate-200"
+                  }`}
+                ></div>
               </button>
-              <div className="h-12 w-12" aria-hidden="true" />
-            </>
+              <p
+                aria-hidden="true"
+                className={`text-xs font-medium ${
+                  isCaptureReady ? "text-emerald-700" : "text-slate-500"
+                }`}
+              >
+                {isCaptureReady ? "Tap to capture" : "Align the passport to enable capture"}
+              </p>
+            </div>
           )}
         </div>
       )}

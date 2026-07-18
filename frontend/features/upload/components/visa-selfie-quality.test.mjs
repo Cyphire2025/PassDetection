@@ -4,7 +4,6 @@ import {
   buildVisaPhotoCameraConstraints,
   evaluateVisaPhotoFaceCount,
   evaluateVisaPhotoClarity,
-  evaluateVisaPhotoEyewear,
   evaluateVisaPhotoFacePlacement,
   evaluateWhiteBackground,
   hasStableVisaPhotoReadiness,
@@ -13,9 +12,6 @@ import {
   isVisaPhotoFrameCaptureReady,
   isVisaSelfieFaceLargeEnough,
   requestVisaPhotoCamera,
-  stabilizeVisaPhotoEyewearStatus,
-  updateKnownVisaPhotoEyewearViolation,
-  visaPhotoEyewearGuidance,
 } from "./visa-selfie-quality.ts";
 
 const WIDTH = 72;
@@ -344,185 +340,25 @@ test("rejects a flat, blurry face region", () => {
   assert.equal(result.status, "blurry", JSON.stringify(result));
 });
 
-test("does not report eyewear for an unobstructed face", () => {
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame(),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.equal(result.status, "clear");
-});
-
-test("detects thin transparent frames", () => {
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({ eyewear: "thin" }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.equal(result.status, "detected");
-  assert.equal(
-    isVisaPhotoFrameCaptureReady("white", "good", result.status),
-    false,
-  );
-  assert.equal(
-    visaPhotoEyewearGuidance(result.status),
-    "Please remove your glasses before taking the Visa Photo",
-  );
-});
-
-test("detects thick frames and sunglasses", () => {
-  const thickFrames = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({ eyewear: "thick" }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  const sunglasses = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({ eyewear: "sunglasses" }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.equal(thickFrames.status, "detected");
-  assert.equal(sunglasses.status, "detected");
-});
-
-test("detects frames despite bright lens glare", () => {
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({ eyewear: "glare" }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.equal(result.status, "detected");
-});
-
-test("blocks one-sided partial or side-angle frame evidence as uncertain", () => {
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({ eyewear: "partial" }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.equal(result.status, "uncertain");
-  assert.equal(
-    isVisaPhotoFrameCaptureReady("white", "good", result.status),
-    false,
-  );
-  assert.equal(
-    visaPhotoEyewearGuidance(result.status),
-    "Face the camera directly and keep both eyes clearly visible while we check for glasses",
-  );
-});
-
-test("blocks missing eye landmarks with controlled uncertain guidance", () => {
-  const faceWithoutEyes = {
-    centerX: FACE.centerX,
-    centerY: FACE.centerY,
-    width: FACE.width,
-    height: FACE.height,
-  };
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame(),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    faceWithoutEyes,
-  );
-  assert.equal(result.status, "uncertain");
-  assert.equal(
-    isVisaPhotoFrameCaptureReady("white", "good", result.status),
-    false,
-  );
-  assert.equal(
-    visaPhotoEyewearGuidance(result.status),
-    "Face the camera directly and keep both eyes clearly visible while we check for glasses",
-  );
-});
-
-test("low-light facial evidence is not misreported as definite eyewear", () => {
-  const result = evaluateVisaPhotoEyewear(
-    makeVisaPhotoFrame({
-      faceColor: [48, 45, 42],
-      featureColor: [31, 29, 27],
-    }),
-    PHOTO_WIDTH,
-    PHOTO_HEIGHT,
-    FACE,
-  );
-  assert.notEqual(result.status, "detected");
-});
-
 test("requires consecutive readiness samples before capture", () => {
   assert.equal(hasStableVisaPhotoReadiness([true, true, true], 4), false);
   assert.equal(hasStableVisaPhotoReadiness([true, true, false, true], 4), false);
   assert.equal(hasStableVisaPhotoReadiness([false, true, true, true, true], 4), true);
 });
 
-test("unlocks capture only after stable clear eye evidence", () => {
-  const eyewearSamples = [];
+test("capture readiness depends only on background and image clarity", () => {
   const readinessSamples = [];
-  const statuses = [];
 
-  for (let index = 0; index < 6; index += 1) {
-    const status = stabilizeVisaPhotoEyewearStatus("clear", eyewearSamples);
-    statuses.push(status);
-    readinessSamples.push(
-      isVisaPhotoFrameCaptureReady("white", "good", status),
-    );
-  }
-
-  assert.deepEqual(statuses, [
-    "uncertain",
-    "uncertain",
-    "clear",
-    "clear",
-    "clear",
-    "clear",
-  ]);
-  assert.deepEqual(readinessSamples, [false, false, true, true, true, true]);
-  assert.equal(hasStableVisaPhotoReadiness(readinessSamples.slice(0, 5), 4), false);
-  assert.equal(hasStableVisaPhotoReadiness(readinessSamples, 4), true);
-  assert.equal(visaPhotoEyewearGuidance(statuses.at(-1)), null);
-});
-
-test("keeps definite eyewear blocking through brief detector dropouts", () => {
-  const samples = [];
-  assert.equal(
-    stabilizeVisaPhotoEyewearStatus("detected", samples),
-    "detected",
-  );
   for (let index = 0; index < 4; index += 1) {
-    assert.equal(
-      stabilizeVisaPhotoEyewearStatus("clear", samples),
-      "detected",
+    readinessSamples.push(
+      isVisaPhotoFrameCaptureReady("white", "good"),
     );
   }
-  assert.equal(stabilizeVisaPhotoEyewearStatus("clear", samples), "clear");
-});
 
-test("keeps a known eyewear violation latched through uncertain or unavailable checks", () => {
-  let knownViolation = updateKnownVisaPhotoEyewearViolation(false, "detected");
-  assert.equal(knownViolation, true);
-
-  knownViolation = updateKnownVisaPhotoEyewearViolation(
-    knownViolation,
-    "uncertain",
-  );
-  assert.equal(knownViolation, true);
-
-  knownViolation = updateKnownVisaPhotoEyewearViolation(
-    knownViolation,
-    "checking",
-  );
-  assert.equal(knownViolation, true);
-
-  knownViolation = updateKnownVisaPhotoEyewearViolation(
-    knownViolation,
-    "clear",
-  );
-  assert.equal(knownViolation, false);
+  assert.deepEqual(readinessSamples, [true, true, true, true]);
+  assert.equal(hasStableVisaPhotoReadiness(readinessSamples, 4), true);
+  assert.equal(isVisaPhotoFrameCaptureReady("not_white", "good"), false);
+  assert.equal(isVisaPhotoFrameCaptureReady("white", "blurry"), false);
 });
 
 test("allows the guided fallback only for an available camera and unavailable model after acknowledgement", () => {
@@ -530,7 +366,6 @@ test("allows the guided fallback only for an available camera and unavailable mo
     cameraReady: true,
     modelUnavailable: true,
     userAcknowledgedRequirements: true,
-    knownEyewearViolation: false,
   };
   assert.equal(isVisaPhotoFallbackCaptureAllowed(fallbackState), true);
   assert.equal(
@@ -551,18 +386,6 @@ test("allows the guided fallback only for an available camera and unavailable mo
     isVisaPhotoFallbackCaptureAllowed({
       ...fallbackState,
       userAcknowledgedRequirements: false,
-    }),
-    false,
-  );
-});
-
-test("never allows the guided fallback to override a known eyewear violation", () => {
-  assert.equal(
-    isVisaPhotoFallbackCaptureAllowed({
-      cameraReady: true,
-      modelUnavailable: true,
-      userAcknowledgedRequirements: true,
-      knownEyewearViolation: true,
     }),
     false,
   );
@@ -636,7 +459,6 @@ function makeVisaPhotoFrame({
   faceColor = [184, 140, 112],
   featureColor = [54, 42, 36],
   omitFaceDetail = false,
-  eyewear = "none",
 } = {}) {
   const pixels = new Uint8ClampedArray(PHOTO_WIDTH * PHOTO_HEIGHT * 4);
   for (let y = 0; y < PHOTO_HEIGHT; y += 1) {
@@ -713,73 +535,7 @@ function makeVisaPhotoFrame({
     );
   }
 
-  drawEyewear(pixels, eyewear);
   return pixels;
-}
-
-function drawEyewear(pixels, eyewear) {
-  if (eyewear === "none") return;
-  const leftEye = normalizedPixel(FACE.leftEye);
-  const rightEye = normalizedPixel(FACE.rightEye);
-  const frameColor = [35, 35, 35];
-  const thickness = eyewear === "thin" || eyewear === "partial" ? 1 : 2;
-  drawFrame(pixels, leftEye.x, leftEye.y, 8, 6, frameColor, thickness);
-  if (eyewear !== "partial") {
-    drawFrame(pixels, rightEye.x, rightEye.y, 8, 6, frameColor, thickness);
-    drawHorizontalLine(
-      pixels,
-      Math.round((leftEye.y + rightEye.y) / 2),
-      frameColor,
-      thickness,
-      leftEye.x + 8,
-      rightEye.x - 8,
-    );
-  }
-  if (eyewear === "sunglasses") {
-    drawRect(pixels, leftEye.x - 6, leftEye.y - 4, leftEye.x + 6, leftEye.y + 4, [34, 39, 43]);
-    drawRect(pixels, rightEye.x - 6, rightEye.y - 4, rightEye.x + 6, rightEye.y + 4, [34, 39, 43]);
-  }
-  if (eyewear === "glare") {
-    drawRect(pixels, leftEye.x - 3, leftEye.y - 3, leftEye.x - 1, leftEye.y + 3, [250, 250, 248]);
-    drawRect(pixels, rightEye.x + 1, rightEye.y - 3, rightEye.x + 3, rightEye.y + 3, [250, 250, 248]);
-  }
-}
-
-function drawFrame(pixels, centerX, centerY, halfWidth, halfHeight, color, thickness) {
-  for (let offset = 0; offset < thickness; offset += 1) {
-    drawHorizontalLine(
-      pixels,
-      centerY - halfHeight + offset,
-      color,
-      1,
-      centerX - halfWidth,
-      centerX + halfWidth,
-    );
-    drawHorizontalLine(
-      pixels,
-      centerY + halfHeight - offset,
-      color,
-      1,
-      centerX - halfWidth,
-      centerX + halfWidth,
-    );
-    drawVerticalLine(
-      pixels,
-      centerX - halfWidth + offset,
-      color,
-      1,
-      centerY - halfHeight,
-      centerY + halfHeight,
-    );
-    drawVerticalLine(
-      pixels,
-      centerX + halfWidth - offset,
-      color,
-      1,
-      centerY - halfHeight,
-      centerY + halfHeight,
-    );
-  }
 }
 
 function drawHorizontalLine(

@@ -87,6 +87,12 @@ interface QuadMetrics {
   touchesFrame: boolean;
 }
 
+interface GuideAlignedCandidate {
+  content: PassportContentAnalysis;
+  quad: PixelQuad;
+  score: number;
+}
+
 interface TextBand {
   start: number;
   end: number;
@@ -115,6 +121,16 @@ const CANONICAL_HEIGHT = 126;
 const BOUNDARY_EDGE_THRESHOLD = 28;
 const MIN_BOUNDARY_SUPPORT = 0.34;
 export const PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD = 0.62;
+// detectPassportFrame samples the visible guide with 10% context on each
+// side. These crops cover the guide itself plus small vertical variations
+// caused by an open booklet's crease or a page sitting just above/below the
+// overlay. They are only used when the passport layout is substantially
+// stronger than the normal acceptance threshold.
+const GUIDE_ALIGNED_PAGE_REGIONS: readonly Region[] = [
+  { left: 0.07, right: 0.93, top: 0.06, bottom: 0.94 },
+  { left: 0.07, right: 0.93, top: 0.09, bottom: 0.97 },
+  { left: 0.09, right: 0.91, top: 0.05, bottom: 0.93 },
+];
 
 const EMPTY_CONTENT_ANALYSIS: PassportContentAnalysis = {
   mrzScore: 0,
@@ -217,6 +233,14 @@ export function analyzePassportFramePixels(
   const gray = toGrayscale(pixels, width, height);
   const quadDetection = detectDocumentQuad(gray, width, height);
   if (!quadDetection.quad) {
+    const guideAligned = analyzeGuideAlignedPassportCandidate(
+      pixels,
+      width,
+      height,
+      pageSide,
+      quadDetection.visibleEdges,
+    );
+    if (guideAligned) return guideAligned;
     return {
       ...emptyFrameResult(
         quadDetection.visibleEdges > 0
@@ -243,6 +267,14 @@ export function analyzePassportFramePixels(
   };
 
   if (quadDetection.visibleEdges < 4 || quadMetrics.touchesFrame) {
+    const guideAligned = analyzeGuideAlignedPassportCandidate(
+      pixels,
+      width,
+      height,
+      pageSide,
+      quadDetection.visibleEdges,
+    );
+    if (guideAligned) return guideAligned;
     return resultWithContent(base, EMPTY_CONTENT_ANALYSIS, {
       status: "incomplete_document",
       confidence: geometryConfidence * 0.4,
@@ -255,6 +287,18 @@ export function analyzePassportFramePixels(
     });
   }
   if (quadMetrics.areaRatio < 0.36) {
+    // Dense portrait/text regions can occasionally form a smaller internal
+    // quadrilateral when the real page edge has little contrast against an
+    // open booklet. Permit the guide-aligned path only when its much stricter
+    // passport-layout gates independently agree.
+    const guideAligned = analyzeGuideAlignedPassportCandidate(
+      pixels,
+      width,
+      height,
+      pageSide,
+      quadDetection.visibleEdges,
+    );
+    if (guideAligned) return guideAligned;
     return resultWithContent(base, EMPTY_CONTENT_ANALYSIS, {
       status: "too_small",
       confidence: geometryConfidence * 0.45,
@@ -359,6 +403,148 @@ export function analyzePassportFramePixels(
     isDetected: status === "ready",
     confidence: roundMetric(confidence),
     status,
+  };
+}
+
+/**
+ * A real passport information page can nearly fill the camera guide while its
+ * top edge blends into the open booklet crease. In that case a strict
+ * quadrilateral is unreliable even though MRZ, portrait and printed-data
+ * structure all strongly agree. This fallback evaluates only the known guide
+ * area and uses deliberately higher content thresholds than the normal
+ * four-edge path. It cannot turn a plain rectangle or a generic identity card
+ * into a valid passport.
+ */
+function analyzeGuideAlignedPassportCandidate(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+  pageSide: PassportPageSide,
+  visibleEdges: number,
+): FrameDetectionResult | null {
+  let best: GuideAlignedCandidate | null = null;
+
+  for (const region of GUIDE_ALIGNED_PAGE_REGIONS) {
+    const quad = pixelQuadForRegion(region, width, height);
+    const canonicalColor = rectifyQuadColorForAnalysis(
+      pixels,
+      width,
+      height,
+      quad,
+      CANONICAL_WIDTH,
+      CANONICAL_HEIGHT,
+    );
+    const canonical = toGrayscale(
+      canonicalColor,
+      CANONICAL_WIDTH,
+      CANONICAL_HEIGHT,
+    );
+    const content = analyzeCanonicalPassportPage(
+      canonical,
+      CANONICAL_WIDTH,
+      CANONICAL_HEIGHT,
+      pageSide,
+      detectCriticalZoneObstruction(
+        canonicalColor,
+        CANONICAL_WIDTH,
+        CANONICAL_HEIGHT,
+        pageSide,
+      ),
+    );
+    if (!isStrongGuideAlignedPassport(content, pageSide, visibleEdges)) {
+      continue;
+    }
+    const score = pageSide === "front"
+      ? (
+          content.layoutScore * 0.58
+          + content.mrzScore * 0.24
+          + content.portraitScore * 0.1
+          + content.textBlockScore * 0.08
+        )
+      : (
+          content.textBlockScore * 0.72
+          + Math.min(1, content.textureRatio / 0.12) * 0.28
+        );
+    if (!best || score > best.score) {
+      best = { content, quad, score };
+    }
+  }
+
+  if (!best) return null;
+
+  const metrics = measureQuad(best.quad, width, height);
+  const guideGeometryConfidence = clamp01(
+    0.76 + Math.min(3, visibleEdges) * 0.04,
+  );
+  const contentConfidence = pageSide === "front"
+    ? best.content.layoutScore
+    : clamp01(
+        best.content.textBlockScore * 0.72
+        + Math.min(1, best.content.textureRatio / 0.12) * 0.28,
+      );
+  const confidence = clamp01(
+    guideGeometryConfidence * 0.36
+    + contentConfidence * 0.64,
+  );
+
+  return {
+    ...best.content,
+    isDetected: true,
+    confidence: roundMetric(confidence),
+    visibleEdges,
+    status: "ready",
+    documentAreaRatio: roundMetric(metrics.areaRatio),
+    aspectRatio: roundMetric(metrics.aspectRatio),
+    skewDegrees: 0,
+    quad: normalizeQuad(best.quad, width, height),
+  };
+}
+
+function isStrongGuideAlignedPassport(
+  content: PassportContentAnalysis,
+  pageSide: PassportPageSide,
+  visibleEdges: number,
+): boolean {
+  if (
+    content.screenLike
+    || content.internalSeparator
+    || content.criticalZoneObstructionScore
+      >= PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD
+    || content.meanLuminance < 64
+    || content.meanLuminance > 240
+  ) {
+    return false;
+  }
+  if (pageSide === "back") {
+    // A back page has no MRZ/portrait combination, so retain strong physical
+    // edge evidence before using this fallback to avoid accepting generic
+    // printed paper.
+    return visibleEdges >= 3
+      && content.textBlockScore >= 0.64
+      && content.textureRatio >= 0.045;
+  }
+  return content.upsideDownLikelihood < 0.5
+    && content.mrzScore >= 0.72
+    && content.portraitScore >= 0.34
+    && content.textBlockScore >= 0.34
+    && content.layoutScore >= 0.66
+    && content.textureRatio >= 0.03;
+}
+
+function pixelQuadForRegion(
+  region: Region,
+  width: number,
+  height: number,
+): PixelQuad {
+  const left = region.left * (width - 1);
+  const right = region.right * (width - 1);
+  const top = region.top * (height - 1);
+  const bottom = region.bottom * (height - 1);
+  return {
+    topLeft: { x: left, y: top },
+    topRight: { x: right, y: top },
+    bottomRight: { x: right, y: bottom },
+    bottomLeft: { x: left, y: bottom },
   };
 }
 

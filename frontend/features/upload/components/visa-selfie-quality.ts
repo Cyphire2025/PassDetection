@@ -46,22 +46,10 @@ export interface VisaPhotoClarityMetrics {
   highGradientRatio: number;
 }
 
-export type VisaPhotoEyewearStatus = "clear" | "detected" | "uncertain";
-
-export interface VisaPhotoEyewearMetrics {
-  status: VisaPhotoEyewearStatus;
-  confidence: number;
-  leftFrameEdgeRatio: number;
-  rightFrameEdgeRatio: number;
-  bridgeDarkRatio: number;
-  lensDarknessDelta: number;
-}
-
 export interface VisaPhotoFallbackCaptureState {
   cameraReady: boolean;
   modelUnavailable: boolean;
   userAcknowledgedRequirements: boolean;
-  knownEyewearViolation: boolean;
 }
 
 export type VisaPhotoFaceCountStatus = "no_face" | "one_face" | "multiple";
@@ -449,96 +437,6 @@ export function evaluateVisaPhotoClarity(
   };
 }
 
-/**
- * Detects only strong, symmetric eyewear evidence around MediaPipe's eye
- * landmarks. Low-confidence or one-sided evidence is reported as uncertain so
- * callers can request a controlled reposition without falsely labelling normal
- * eyebrows, shadows, hair, or compression artifacts as glasses.
- */
-export function evaluateVisaPhotoEyewear(
-  pixels: Uint8ClampedArray,
-  width: number,
-  height: number,
-  face: VisaPhotoFaceGeometry,
-): VisaPhotoEyewearMetrics {
-  if (
-    width <= 0
-    || height <= 0
-    || pixels.length < width * height * 4
-    || !face.leftEye
-    || !face.rightEye
-    || face.width * width < 22
-    || face.height * height < 28
-  ) {
-    return uncertainEyewearMetrics();
-  }
-
-  const referenceLuminance = faceReferenceLuminance(pixels, width, height, face);
-  const left = eyeRegionMetrics(
-    pixels,
-    width,
-    height,
-    face.leftEye,
-    face,
-    referenceLuminance,
-  );
-  const right = eyeRegionMetrics(
-    pixels,
-    width,
-    height,
-    face.rightEye,
-    face,
-    referenceLuminance,
-  );
-  const bridgeDarkRatio = bridgeRatio(
-    pixels,
-    width,
-    height,
-    face.leftEye,
-    face.rightEye,
-    face,
-    referenceLuminance,
-  );
-  const lensDarknessDelta = Math.max(
-    0,
-    referenceLuminance - (left.innerLuminance + right.innerLuminance) / 2,
-  );
-  const symmetricFrames = left.frameEdgeRatio >= 0.28
-    && right.frameEdgeRatio >= 0.28
-    && Math.abs(left.frameEdgeRatio - right.frameEdgeRatio) <= 0.24;
-  const strongFrames = left.frameEdgeRatio >= 0.38 && right.frameEdgeRatio >= 0.38;
-  const darkFrames = left.frameDarkRatio >= 0.18 && right.frameDarkRatio >= 0.18;
-  const tintedLenses = lensDarknessDelta >= 38
-    && left.innerDarkRatio >= 0.48
-    && right.innerDarkRatio >= 0.48;
-  const detected = tintedLenses
-    || (symmetricFrames && (strongFrames || darkFrames || bridgeDarkRatio >= 0.22));
-  const partialEvidence = left.frameEdgeRatio >= 0.30
-    || right.frameEdgeRatio >= 0.30
-    || bridgeDarkRatio >= 0.16
-    || lensDarknessDelta >= 28;
-  const confidence = detected
-    ? Math.min(
-        1,
-        0.5
-        + (left.frameEdgeRatio + right.frameEdgeRatio) * 0.35
-        + bridgeDarkRatio * 0.25
-        + lensDarknessDelta / 220,
-      )
-    : partialEvidence
-      ? 0.45
-      : 0.18;
-
-  return {
-    status: detected ? "detected" : partialEvidence ? "uncertain" : "clear",
-    confidence,
-    leftFrameEdgeRatio: left.frameEdgeRatio,
-    rightFrameEdgeRatio: right.frameEdgeRatio,
-    bridgeDarkRatio,
-    lensDarknessDelta,
-  };
-}
-
 export function hasStableVisaPhotoReadiness(
   readinessSamples: readonly boolean[],
   requiredConsecutiveSamples = 4,
@@ -557,68 +455,19 @@ export function hasStableVisaPhotoReadiness(
 export function isVisaPhotoFrameCaptureReady(
   backgroundStatus: "checking" | "white" | "not_white" | "not_plain",
   clarityStatus: "checking" | VisaPhotoClarityStatus,
-  eyewearStatus: "checking" | VisaPhotoEyewearStatus,
 ): boolean {
   return backgroundStatus === "white"
-    && clarityStatus === "good"
-    && eyewearStatus === "clear";
-}
-
-export function visaPhotoEyewearGuidance(
-  status: "checking" | VisaPhotoEyewearStatus,
-): string | null {
-  if (status === "detected") {
-    return "Please remove your glasses before taking the Visa Photo";
-  }
-  if (status === "uncertain") {
-    return "Face the camera directly and keep both eyes clearly visible while we check for glasses";
-  }
-  return null;
-}
-
-export function stabilizeVisaPhotoEyewearStatus(
-  sample: VisaPhotoEyewearStatus,
-  samples: VisaPhotoEyewearStatus[],
-  historySize = 5,
-): VisaPhotoEyewearStatus {
-  samples.push(sample);
-  if (samples.length > historySize) samples.shift();
-  if (samples.includes("detected")) return "detected";
-  const recentSamples = samples.slice(-3);
-  if (
-    recentSamples.length === 3
-    && recentSamples.every((value) => value === "clear")
-  ) {
-    return "clear";
-  }
-  return "uncertain";
-}
-
-/**
- * Keeps a positive eyewear observation latched through uncertain detector
- * output or detector failure. Only stable clear output from the normal live
- * pipeline may clear it; an unavailable model and a user acknowledgement may
- * never override a known violation.
- */
-export function updateKnownVisaPhotoEyewearViolation(
-  knownViolation: boolean,
-  status: "checking" | VisaPhotoEyewearStatus,
-): boolean {
-  if (status === "detected") return true;
-  if (status === "clear") return false;
-  return knownViolation;
+    && clarityStatus === "good";
 }
 
 export function isVisaPhotoFallbackCaptureAllowed({
   cameraReady,
   modelUnavailable,
   userAcknowledgedRequirements,
-  knownEyewearViolation,
 }: VisaPhotoFallbackCaptureState): boolean {
   return cameraReady
     && modelUnavailable
-    && userAcknowledgedRequirements
-    && !knownEyewearViolation;
+    && userAcknowledgedRequirements;
 }
 
 export function buildVisaPhotoCameraConstraints(
@@ -761,150 +610,10 @@ function pixelLuminance(
     + 0.0722 * pixels[index + 2];
 }
 
-interface EyeRegionMetrics {
-  frameEdgeRatio: number;
-  frameDarkRatio: number;
-  innerDarkRatio: number;
-  innerLuminance: number;
-}
-
-function eyeRegionMetrics(
-  pixels: Uint8ClampedArray,
-  width: number,
-  height: number,
-  eye: NormalizedPoint,
-  face: VisaPhotoFaceGeometry,
-  referenceLuminance: number,
-): EyeRegionMetrics {
-  const radiusX = Math.max(3, face.width * width * 0.19);
-  const radiusY = Math.max(2, face.height * height * 0.105);
-  const centerX = eye.x * width;
-  const centerY = eye.y * height;
-  const left = Math.max(1, Math.floor(centerX - radiusX));
-  const right = Math.min(width - 2, Math.ceil(centerX + radiusX));
-  const top = Math.max(1, Math.floor(centerY - radiusY));
-  const bottom = Math.min(height - 2, Math.ceil(centerY + radiusY));
-  let frameSamples = 0;
-  let frameEdges = 0;
-  let frameDark = 0;
-  let innerSamples = 0;
-  let innerDark = 0;
-  let innerLuminanceTotal = 0;
-  const darkThreshold = Math.max(36, referenceLuminance - 38);
-
-  for (let y = top; y <= bottom; y += 1) {
-    for (let x = left; x <= right; x += 1) {
-      const normalizedX = Math.abs(x - centerX) / radiusX;
-      const normalizedY = Math.abs(y - centerY) / radiusY;
-      if (normalizedX > 1 || normalizedY > 1) continue;
-      const luminance = pixelLuminance(pixels, width, x, y);
-      const isFrameRing = normalizedX >= 0.58 || normalizedY >= 0.55;
-      if (isFrameRing) {
-        const horizontal = Math.abs(
-          pixelLuminance(pixels, width, x + 1, y)
-          - pixelLuminance(pixels, width, x - 1, y),
-        );
-        const vertical = Math.abs(
-          pixelLuminance(pixels, width, x, y + 1)
-          - pixelLuminance(pixels, width, x, y - 1),
-        );
-        frameSamples += 1;
-        if (Math.max(horizontal, vertical) >= 36) frameEdges += 1;
-        if (luminance <= darkThreshold) frameDark += 1;
-      } else if (normalizedX <= 0.5 && normalizedY <= 0.46) {
-        innerSamples += 1;
-        innerLuminanceTotal += luminance;
-        if (luminance <= darkThreshold) innerDark += 1;
-      }
-    }
-  }
-
-  return {
-    frameEdgeRatio: frameEdges / Math.max(1, frameSamples),
-    frameDarkRatio: frameDark / Math.max(1, frameSamples),
-    innerDarkRatio: innerDark / Math.max(1, innerSamples),
-    innerLuminance: innerLuminanceTotal / Math.max(1, innerSamples),
-  };
-}
-
-function faceReferenceLuminance(
-  pixels: Uint8ClampedArray,
-  width: number,
-  height: number,
-  face: VisaPhotoFaceGeometry,
-): number {
-  const bounds = facePixelBounds(face, width, height, 0.34, 0.4);
-  const eyeMeanY = ((face.leftEye?.y ?? face.centerY) + (face.rightEye?.y ?? face.centerY)) / 2;
-  let samples = 0;
-  let total = 0;
-  for (let y = bounds.top; y <= bounds.bottom; y += 1) {
-    const normalizedY = y / height;
-    if (normalizedY < eyeMeanY + face.height * 0.1) continue;
-    for (let x = bounds.left; x <= bounds.right; x += 1) {
-      total += pixelLuminance(pixels, width, x, y);
-      samples += 1;
-    }
-  }
-  return samples > 0 ? total / samples : 128;
-}
-
-function bridgeRatio(
-  pixels: Uint8ClampedArray,
-  width: number,
-  height: number,
-  firstEye: NormalizedPoint,
-  secondEye: NormalizedPoint,
-  face: VisaPhotoFaceGeometry,
-  referenceLuminance: number,
-): number {
-  const leftEye = firstEye.x <= secondEye.x ? firstEye : secondEye;
-  const rightEye = firstEye.x <= secondEye.x ? secondEye : firstEye;
-  const inset = face.width * 0.045;
-  const left = clampPixel((leftEye.x + inset) * width, width);
-  const right = clampPixel((rightEye.x - inset) * width, width);
-  const centerY = ((leftEye.y + rightEye.y) / 2) * height;
-  const halfHeight = Math.max(1, face.height * height * 0.035);
-  const top = Math.max(1, Math.floor(centerY - halfHeight));
-  const bottom = Math.min(height - 2, Math.ceil(centerY + halfHeight));
-  const darkThreshold = Math.max(36, referenceLuminance - 34);
-  let samples = 0;
-  let darkOrEdgeSamples = 0;
-
-  for (let y = top; y <= bottom; y += 1) {
-    for (let x = left; x <= right; x += 1) {
-      const luminance = pixelLuminance(pixels, width, x, y);
-      const horizontal = Math.abs(
-        pixelLuminance(pixels, width, x + 1, y)
-        - pixelLuminance(pixels, width, x - 1, y),
-      );
-      const vertical = Math.abs(
-        pixelLuminance(pixels, width, x, y + 1)
-        - pixelLuminance(pixels, width, x, y - 1),
-      );
-      samples += 1;
-      if (luminance <= darkThreshold || Math.max(horizontal, vertical) >= 38) {
-        darkOrEdgeSamples += 1;
-      }
-    }
-  }
-  return darkOrEdgeSamples / Math.max(1, samples);
-}
-
 function cameraErrorName(error: unknown): string | null {
   if (!error || typeof error !== "object" || !("name" in error)) return null;
   const name = (error as { name?: unknown }).name;
   return typeof name === "string" ? name : null;
-}
-
-function uncertainEyewearMetrics(): VisaPhotoEyewearMetrics {
-  return {
-    status: "uncertain",
-    confidence: 0,
-    leftFrameEdgeRatio: 0,
-    rightFrameEdgeRatio: 0,
-    bridgeDarkRatio: 0,
-    lensDarknessDelta: 0,
-  };
 }
 
 function failedMetrics(): WhiteBackgroundMetrics {

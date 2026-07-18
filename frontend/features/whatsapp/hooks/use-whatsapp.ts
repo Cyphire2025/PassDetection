@@ -19,6 +19,20 @@ export function useWhatsAppGroup(groupId: string | null) {
     queryKey: groupId ? WHATSAPP_QUERY_KEYS.group(groupId) : ["whatsapp", "groups", "none"],
     queryFn: () => whatsappApi.group(groupId as string),
     enabled: Boolean(groupId),
+    refetchInterval: (query) => (
+      query.state.data?.recipients.some((recipient) =>
+        recipient.message_statuses.some(
+          (status) =>
+            status.resend_blocked
+            && (
+              status.latest_resend_status === "queued"
+              || status.latest_resend_status === "processing"
+            ),
+        ),
+      )
+        ? 2_000
+        : false
+    ),
   });
 }
 
@@ -84,6 +98,21 @@ export function useDeleteWhatsAppRecipient() {
       );
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    },
+  });
+}
+
+export function useResendWhatsAppRecipientMessage() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.resendRecipientMessage,
+    onSuccess: async (_, { groupId }) => {
+      await queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.groups,
+      });
     },
   });
 }

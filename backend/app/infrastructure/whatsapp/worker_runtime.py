@@ -15,6 +15,7 @@ from app.application.use_cases.whatsapp.message_templates import (
     format_support_contacts,
     template_header_parameters,
     template_parameters,
+    validate_template_parameters,
 )
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
@@ -36,6 +37,33 @@ ACCEPTED_DELIVERY_STATUSES = frozenset(
 )
 
 
+def _resolve_log_template_snapshot(
+    *,
+    log: WhatsAppMessageLogModel,
+    message_type: WhatsAppMessageType,
+    fallback_header_parameters: list[str],
+    fallback_parameters: list[str],
+) -> tuple[list[str], list[str]]:
+    saved_header = getattr(log, "header_parameter_values", None)
+    saved_body = getattr(log, "template_parameter_values", None)
+    if saved_header is None and saved_body is None:
+        if getattr(log, "is_explicit_resend", False):
+            raise ValueError("Explicit resend is missing its frozen template parameters")
+        return fallback_header_parameters, fallback_parameters
+    if not isinstance(saved_header, list) or not isinstance(saved_body, list):
+        raise ValueError("Saved WhatsApp template parameters are incomplete")
+    if any(not isinstance(value, str) for value in [*saved_header, *saved_body]):
+        raise ValueError("Saved WhatsApp template parameters are invalid")
+    header_parameters = list(saved_header)
+    parameters = list(saved_body)
+    validate_template_parameters(
+        message_type=message_type,
+        header_parameters=header_parameters,
+        body_parameters=parameters,
+    )
+    return header_parameters, parameters
+
+
 async def _set_message_state(
     session: AsyncSession,
     *,
@@ -45,6 +73,8 @@ async def _set_message_state(
     release_claim: bool = False,
     submitted: bool = False,
 ) -> None:
+    if getattr(log, "is_explicit_resend", False):
+        return
     now = datetime.now(tz=UTC)
     values: dict[str, object] = {
         "status": state_status,
@@ -113,6 +143,19 @@ async def _load_sendable_recipient(
         return None, "WhatsApp recipient no longer exists"
     if recipient.removed_at is not None:
         return None, "WhatsApp recipient was removed"
+
+    if getattr(log, "is_explicit_resend", False):
+        resend_claim_result = await session.execute(
+            select(WhatsAppMessageLogModel.id).where(
+                WhatsAppMessageLogModel.id == log.id,
+                WhatsAppMessageLogModel.batch_id == expected_batch_id,
+                WhatsAppMessageLogModel.status == "processing",
+                WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            )
+        )
+        if not resend_claim_result.scalar_one_or_none():
+            return None, "Explicit resend claim was superseded before provider submission"
+        return recipient, None
 
     state_result = await session.execute(
         select(WhatsAppRecipientMessageStateModel).where(
@@ -229,41 +272,42 @@ async def run_whatsapp_broadcast(
                         )
                         await session.commit()
                     continue
-                state_claim_result = await session.execute(
-                    update(WhatsAppRecipientMessageStateModel)
-                    .where(
-                        WhatsAppRecipientMessageStateModel.recipient_id
-                        == log.recipient_id,
-                        WhatsAppRecipientMessageStateModel.message_type
-                        == log.message_type,
-                        WhatsAppRecipientMessageStateModel.batch_id
-                        == parsed_batch_id,
-                        WhatsAppRecipientMessageStateModel.status == "queued",
-                    )
-                    .values(
-                        status="processing",
-                        status_updated_at=claim_time,
-                        updated_at=claim_time,
-                    )
-                    .returning(WhatsAppRecipientMessageStateModel.id)
-                    .execution_options(synchronize_session=False)
-                )
-                state_claimed_id = state_claim_result.scalar_one_or_none()
-                if not state_claimed_id:
-                    await session.execute(
-                        update(WhatsAppMessageLogModel)
-                        .where(WhatsAppMessageLogModel.id == log.id)
-                        .values(
-                            status="failed",
-                            status_updated_at=claim_time,
-                            error_message=(
-                                "Delivery claim was superseded before provider submission"
-                            ),
+                if not getattr(log, "is_explicit_resend", False):
+                    state_claim_result = await session.execute(
+                        update(WhatsAppRecipientMessageStateModel)
+                        .where(
+                            WhatsAppRecipientMessageStateModel.recipient_id
+                            == log.recipient_id,
+                            WhatsAppRecipientMessageStateModel.message_type
+                            == log.message_type,
+                            WhatsAppRecipientMessageStateModel.batch_id
+                            == parsed_batch_id,
+                            WhatsAppRecipientMessageStateModel.status == "queued",
                         )
+                        .values(
+                            status="processing",
+                            status_updated_at=claim_time,
+                            updated_at=claim_time,
+                        )
+                        .returning(WhatsAppRecipientMessageStateModel.id)
                         .execution_options(synchronize_session=False)
                     )
-                    await session.commit()
-                    continue
+                    state_claimed_id = state_claim_result.scalar_one_or_none()
+                    if not state_claimed_id:
+                        await session.execute(
+                            update(WhatsAppMessageLogModel)
+                            .where(WhatsAppMessageLogModel.id == log.id)
+                            .values(
+                                status="failed",
+                                status_updated_at=claim_time,
+                                error_message=(
+                                    "Delivery claim was superseded before provider submission"
+                                ),
+                            )
+                            .execution_options(synchronize_session=False)
+                        )
+                        await session.commit()
+                        continue
                 await session.commit()
                 recipient, claim_error = await _load_sendable_recipient(
                     session,
@@ -284,16 +328,36 @@ async def run_whatsapp_broadcast(
                     await session.commit()
                     continue
 
-                parameters = template_parameters(
+                fallback_parameters = template_parameters(
                     message_type=message_type,
                     group_name=group.name,
                     support_contacts=support_block,
                     message_content=message_content,
                     passport_link=passport_link,
                 )
-                header_parameters = template_header_parameters(
+                fallback_header_parameters = template_header_parameters(
                     message_type=message_type,
                 )
+                try:
+                    header_parameters, parameters = _resolve_log_template_snapshot(
+                        log=log,
+                        message_type=message_type,
+                        fallback_header_parameters=fallback_header_parameters,
+                        fallback_parameters=fallback_parameters,
+                    )
+                except ValueError as exc:
+                    log.status = "failed"
+                    log.status_updated_at = datetime.now(tz=UTC)
+                    log.error_message = f"Invalid saved WhatsApp template payload: {exc}"[:2000]
+                    await _set_message_state(
+                        session,
+                        log=log,
+                        expected_batch_id=parsed_batch_id,
+                        state_status="failed",
+                        release_claim=True,
+                    )
+                    await session.commit()
+                    continue
                 for attempt in range(MAX_PROVIDER_ATTEMPTS):
                     recipient, claim_error = await _load_sendable_recipient(
                         session,

@@ -260,6 +260,16 @@ class WhatsAppMessageLogModel(Base):
     __tablename__ = "whatsapp_message_logs"
     __table_args__ = (
         Index("ix_whatsapp_message_logs_group_created", "broadcast_group_id", "created_at"),
+        Index(
+            "uq_whatsapp_active_explicit_resend",
+            "recipient_id",
+            "message_type",
+            unique=True,
+            postgresql_where=text(
+                "is_explicit_resend = true "
+                "AND status IN ('queued', 'processing', 'delivery_unknown')"
+            ),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -281,6 +291,14 @@ class WhatsAppMessageLogModel(Base):
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     template_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     rendered_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    header_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    template_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    is_explicit_resend: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=text("false"),
+        nullable=False,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
 

@@ -51,7 +51,6 @@ test("visa mapping follows visible guidance precedence", () => {
     faceStatus: "ready",
     backgroundStatus: "white",
     clarityStatus: "good",
-    eyewearStatus: "clear",
   };
 
   assert.equal(visaPhotoRejectionReason({
@@ -65,9 +64,8 @@ test("visa mapping follows visible guidance precedence", () => {
   }), "multiple_faces");
   assert.equal(visaPhotoRejectionReason({
     ...base,
-    eyewearStatus: "uncertain",
     clarityStatus: "too_dark",
-  }), "eyewear_uncertain");
+  }), "too_dark");
   assert.equal(visaPhotoRejectionReason({
     ...base,
     clarityStatus: "blurry",
