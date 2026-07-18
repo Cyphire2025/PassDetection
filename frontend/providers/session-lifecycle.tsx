@@ -7,6 +7,7 @@ import { SENSITIVE_STATE_RESET_EVENT } from "@/features/auth/services/session-st
 type RecoveryState = "online" | "offline" | "recovering" | "error";
 
 const RECOVERY_THROTTLE_MS = 1_500;
+const OFFLINE_RECHECK_MS = 2_000;
 const WAKE_GAP_MS = 60_000;
 const HEARTBEAT_MS = 30_000;
 
@@ -115,37 +116,15 @@ export function SessionLifecycle({ queryClient }: { queryClient: QueryClient }) 
     };
   }, [queryClient, recover]);
 
-  if (state === "online") return null;
+  useEffect(() => {
+    if (state !== "offline") return;
 
-  const isOffline = state === "offline";
-  const isRecovering = state === "recovering";
+    const reconcile = window.setInterval(() => {
+      if (navigator.onLine) void recover(true);
+    }, OFFLINE_RECHECK_MS);
 
-  return (
-    <div
-      role={state === "error" ? "alert" : "status"}
-      aria-live="polite"
-      className={`fixed inset-x-3 bottom-3 z-[100] mx-auto flex max-w-xl items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm shadow-lg ${
-        state === "error"
-          ? "border-red-200 bg-red-50 text-red-800"
-          : "border-amber-200 bg-amber-50 text-amber-900"
-      }`}
-    >
-      <span>
-        {isOffline
-          ? "You are offline. Saved data may be stale; changes will resume when the connection returns."
-          : isRecovering
-            ? "Connection restored. Refreshing current data..."
-            : "Current data could not be refreshed. Check the connection and try again."}
-      </span>
-      {state === "error" && (
-        <button
-          type="button"
-          onClick={() => void recover(true)}
-          className="shrink-0 rounded-md border border-red-300 bg-white px-3 py-1.5 font-medium text-red-800 hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-        >
-          Retry
-        </button>
-      )}
-    </div>
-  );
+    return () => window.clearInterval(reconcile);
+  }, [recover, state]);
+
+  return null;
 }
