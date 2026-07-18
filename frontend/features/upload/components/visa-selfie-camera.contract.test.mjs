@@ -21,8 +21,13 @@ test("guided fallback requires an explicit accessible acknowledgement", () => {
   assert.match(source, /takePhoto\("fallback"\)/);
 });
 
-test("eyewear never gates or warns in the Visa Photo live camera", () => {
+test("the live camera uses only the compatibility face and wall checks for readiness", () => {
   assert.doesNotMatch(source, /eyewear/i);
   assert.doesNotMatch(source, /glasses/i);
-  assert.match(source, /isVisaPhotoFrameCaptureReady\(\s*nextBackgroundStatus,\s*nextClarityStatus,\s*\)/);
+  assert.match(source, /\bevaluateCompatibilityVisaPhotoFace\b/);
+  assert.match(source, /\bevaluatePermissiveWhiteBackground\b/);
+  assert.match(source, /currentFrameReady = nextBackgroundStatus === "white";/);
+  assert.match(source, /clarity: evaluateVisaPhotoClarity\(/);
+  assert.doesNotMatch(source, /\bisVisaPhotoFrameCaptureReady\b/);
+  assert.doesNotMatch(source, /\bevaluateWhiteBackground\b/);
 });

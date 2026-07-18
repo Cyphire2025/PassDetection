@@ -11,17 +11,17 @@ import {
   type VisaPhotoRejectionReason,
 } from "../services/public-flow-telemetry";
 import {
-  evaluateVisaPhotoFaceCount,
   evaluateVisaPhotoClarity,
-  evaluateVisaPhotoFacePlacement,
-  evaluateWhiteBackground,
   hasStableVisaPhotoReadiness,
   isVisaPhotoFallbackCaptureAllowed,
-  isVisaPhotoFrameCaptureReady,
   requestVisaPhotoCamera,
   type VisaPhotoClarityStatus,
   type VisaPhotoFaceGeometry,
 } from "./visa-selfie-quality";
+import {
+  evaluateCompatibilityVisaPhotoFace,
+  evaluatePermissiveWhiteBackground,
+} from "./visa-selfie-compatibility";
 
 interface VisaSelfieCameraProps {
   onCapture: (file: File) => void;
@@ -268,10 +268,7 @@ export function VisaSelfieCamera({
               backgroundSamplesRef.current,
             );
             nextClarityStatus = frame.clarity;
-            currentFrameReady = isVisaPhotoFrameCaptureReady(
-              nextBackgroundStatus,
-              nextClarityStatus,
-            );
+            currentFrameReady = nextBackgroundStatus === "white";
           } else {
             backgroundSamplesRef.current = [];
           }
@@ -803,11 +800,7 @@ function classifyFace(
   detections: Detection[],
   face: VisaPhotoFaceGeometry | null,
 ): FaceStatus {
-  const faceCountStatus = evaluateVisaPhotoFaceCount(detections.length);
-  if (faceCountStatus === "no_face") return "no_face";
-  if (faceCountStatus === "multiple") return "multiple";
-  if (!face) return "no_face";
-  return evaluateVisaPhotoFacePlacement(face);
+  return evaluateCompatibilityVisaPhotoFace(detections.length, face);
 }
 
 function faceGeometryFromDetection(
@@ -875,17 +868,12 @@ function analyzeVisaPhotoFrame(
 
   context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
   const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
-  const backgroundMetrics = evaluateWhiteBackground(
+  const backgroundMetrics = evaluatePermissiveWhiteBackground(
     pixels,
     ANALYSIS_WIDTH,
     ANALYSIS_HEIGHT,
-    face,
   );
-  const background = backgroundMetrics.isWhite
-    ? "white"
-    : backgroundMetrics.failureReason === "not_plain"
-      ? "not_plain"
-      : "not_white";
+  const background = backgroundMetrics.isLightNeutral ? "white" : "not_white";
   return {
     background,
     clarity: evaluateVisaPhotoClarity(

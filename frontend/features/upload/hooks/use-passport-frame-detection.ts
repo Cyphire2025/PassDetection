@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import {
-  detectPassportFrame,
-  PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD,
-  type FrameDetectionResult,
   type PassportFrameStatus,
   type PassportPageSide,
 } from "../services/passport-frame-detector";
+import {
+  detectRectangularPassportFrame,
+  type RectangularPassportFrameResult,
+} from "../services/passport-rectangular-frame-detector";
 
 const ANALYSIS_INTERVAL_MS = 180;
-// Two agreeing frames (~0.36 seconds) are enough once the detector has already
-// established MRZ + portrait + text layout. Four frames made a correctly
-// aligned handheld page feel unresponsive on mobile Safari.
+// Two agreeing edge-only frames (~0.36 seconds) keep the guide responsive
+// without turning a single transient boundary into a capture-ready state.
 const REQUIRED_STABLE_FRAMES = 2;
 const REQUIRED_STATUS_FRAMES = 2;
 
@@ -23,7 +23,7 @@ interface UsePassportFrameDetectionOptions {
   resetKey?: string | number;
 }
 
-interface StabilizedFrameAnalysis extends FrameDetectionResult {
+interface StabilizedFrameAnalysis extends RectangularPassportFrameResult {
   resetKey: string | number;
   detectionSequence: number;
 }
@@ -54,14 +54,12 @@ export function usePassportFrameDetection({
 
     const interval = window.setInterval(() => {
       if (!videoRef.current || !canvasRef.current) return;
-      const result = detectPassportFrame(
+      const result = detectRectangularPassportFrame(
         videoRef.current,
         canvasRef.current,
-        pageSide,
         guideRef?.current ?? null,
       );
-      const reliablyDetected = result.isDetected
-        && result.confidence >= (pageSide === "front" ? 0.69 : 0.62);
+      const reliablyDetected = result.isDetected;
 
       if (reliablyDetected) {
         const wasStable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;
@@ -117,12 +115,9 @@ export function usePassportFrameDetection({
     status,
     confidence: enabled ? analysis?.confidence ?? 0 : 0,
     visibleEdges: enabled ? analysis?.visibleEdges ?? 0 : 0,
-    isCriticalZoneObstructed: isCurrentAnalysis
-      && (
-        analysis?.criticalZoneObstructionScore ?? 0
-      ) >= PASSPORT_CRITICAL_ZONE_OBSTRUCTION_THRESHOLD,
+    isCriticalZoneObstructed: false,
     hasDocumentCandidate: isCurrentAnalysis
-      && Boolean(analysis?.quad || (analysis?.visibleEdges ?? 0) >= 2),
+      && (analysis?.visibleEdges ?? 0) >= 2,
     detectionSequence: isCurrentAnalysis
       ? analysis?.detectionSequence ?? 0
       : 0,
