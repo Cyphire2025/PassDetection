@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import json
 import logging
+import math
 import re
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -82,8 +83,24 @@ MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
 MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
+MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
 WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
 PHONE_ALLOWED_RE = re.compile(r"^(?:\+|00)?[\d\s().-]+$")
+WHATSAPP_EXCEL_PHONE_HEADER_TERMS = (
+    "phone",
+    "mobile",
+    "whatsapp",
+    "contact",
+    "telephone",
+)
+WHATSAPP_EXCEL_NAME_HEADER_TERMS = (
+    "name",
+    "client",
+    "passenger",
+    "recipient",
+    "employee",
+    "staff",
+)
 
 
 class WhatsAppRecipientInput(BaseModel):
@@ -548,6 +565,100 @@ def _validate_excel_archive(payload: bytes) -> None:
                 )
 
 
+def _excel_cell_text(value: Any) -> str:
+    if value is None or isinstance(value, bool):
+        return ""
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            return ""
+        if value.is_integer():
+            return str(int(value))
+    return str(value).strip()
+
+
+def _excel_header_label(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", _excel_cell_text(value).casefold()).strip()
+
+
+def _excel_header_columns(
+    row: tuple[Any, ...],
+) -> tuple[list[int], list[int]]:
+    labels = [_excel_header_label(cell) for cell in row]
+    phone_columns = [
+        index
+        for index, label in enumerate(labels)
+        if label
+        and any(
+            term in label
+            for term in WHATSAPP_EXCEL_PHONE_HEADER_TERMS
+        )
+    ]
+    name_columns = [
+        index
+        for index, label in enumerate(labels)
+        if label
+        and any(
+            term in label
+            for term in WHATSAPP_EXCEL_NAME_HEADER_TERMS
+        )
+        and index not in phone_columns
+    ]
+    return phone_columns, name_columns
+
+
+def _find_excel_contact_header(
+    rows: list[tuple[Any, ...]],
+) -> tuple[int, list[int], list[int]] | None:
+    best_match: tuple[tuple[int, int, int], int, list[int], list[int]] | None = None
+    for row_index, row in enumerate(
+        rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]
+    ):
+        phone_columns, name_columns = _excel_header_columns(row)
+        if not phone_columns:
+            continue
+        score = (
+            1 if name_columns else 0,
+            len(phone_columns) + len(name_columns),
+            -row_index,
+        )
+        if best_match is None or score > best_match[0]:
+            best_match = (
+                score,
+                row_index,
+                phone_columns,
+                name_columns,
+            )
+    if best_match is None:
+        return None
+    _, row_index, phone_columns, name_columns = best_match
+    return row_index, phone_columns, name_columns
+
+
+def _excel_name_from_row(
+    row_values: list[Any],
+    *,
+    name_columns: list[int],
+    phone_columns: list[int],
+) -> str | None:
+    for index in name_columns:
+        if index >= len(row_values):
+            continue
+        name = _clean_name(row_values[index])
+        if name:
+            return name
+    for index, value in enumerate(row_values):
+        if index in phone_columns:
+            continue
+        name = _clean_name(value)
+        if (
+            name
+            and any(character.isalpha() for character in name)
+            and not PHONE_RE.search(name)
+        ):
+            return name
+    return None
+
+
 def _parse_excel_contact_bytes(
     payload: bytes,
     *,
@@ -573,7 +684,11 @@ def _parse_excel_contact_bytes(
         rows = list(
             islice(
                 sheet.iter_rows(values_only=True),
-                MAX_WHATSAPP_RECIPIENTS + 2,
+                (
+                    MAX_WHATSAPP_RECIPIENTS
+                    + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
+                    + 1
+                ),
             )
         )
     except HTTPException:
@@ -595,10 +710,14 @@ def _parse_excel_contact_bytes(
     if not rows:
         return []
 
-    header = [str(cell or "").strip().lower() for cell in rows[0]]
-    phone_columns = [idx for idx, label in enumerate(header) if any(term in label for term in ("phone", "mobile", "whatsapp", "contact"))]
-    name_columns = [idx for idx, label in enumerate(header) if any(term in label for term in ("name", "client", "passenger"))]
-    data_rows = rows[1:] if phone_columns else rows
+    header_match = _find_excel_contact_header(rows)
+    if header_match:
+        header_row_index, phone_columns, name_columns = header_match
+        data_rows = rows[header_row_index + 1 :]
+    else:
+        phone_columns = []
+        name_columns = []
+        data_rows = rows
     if len(data_rows) > MAX_WHATSAPP_RECIPIENTS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -615,14 +734,30 @@ def _parse_excel_contact_bytes(
         row_values = list(row)
         candidates: list[tuple[str | None, str]] = []
         if phone_columns:
-            name = next((_clean_name(row_values[idx]) for idx in name_columns if idx < len(row_values) and _clean_name(row_values[idx])), None)
-            for idx in phone_columns:
-                if idx < len(row_values) and row_values[idx] is not None:
-                    candidates.append((name, str(row_values[idx])))
+            name = _excel_name_from_row(
+                row_values,
+                name_columns=name_columns,
+                phone_columns=phone_columns,
+            )
+            for index in phone_columns:
+                if index >= len(row_values):
+                    continue
+                phone = _excel_cell_text(row_values[index])
+                if phone:
+                    candidates.append((name, phone))
         else:
-            row_text = " ".join(str(cell) for cell in row_values if cell is not None)
+            row_text = " ".join(
+                text
+                for cell in row_values
+                if (text := _excel_cell_text(cell))
+            )
+            name = _excel_name_from_row(
+                row_values,
+                name_columns=[],
+                phone_columns=[],
+            )
             for match in PHONE_RE.findall(row_text):
-                candidates.append((None, match))
+                candidates.append((name, match))
 
         for name, phone in candidates:
             normalized = _normalize_phone(phone)

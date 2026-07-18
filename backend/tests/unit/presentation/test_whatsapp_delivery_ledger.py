@@ -590,6 +590,33 @@ async def test_excel_contact_upload_enforces_compressed_byte_limit(
 
 
 @pytest.mark.asyncio
+async def test_excel_contact_upload_detects_headers_below_title_row() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append([None, "GC Staff List", None, None])
+    sheet.append([None, "S.no", "NAME", "Phone"])
+    sheet.append([None, 1, "Aarav Sharma", 9873361557])
+    sheet.append([None, 2, "Meera Patel", 9355926411])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+    upload = UploadFile(file=payload, filename="contacts.xlsx")
+
+    contacts = await _parse_excel_contacts(upload)
+    normalized = _normalized_recipient_inputs(contacts)
+
+    assert [(contact.name, contact.phone_number) for contact in contacts] == [
+        ("Aarav Sharma", "9873361557"),
+        ("Meera Patel", "9355926411"),
+    ]
+    assert set(normalized) == {
+        "+919873361557",
+        "+919355926411",
+    }
+
+
+@pytest.mark.asyncio
 async def test_excel_contact_upload_stops_after_recipient_row_limit() -> None:
     workbook = Workbook()
     sheet = workbook.active
