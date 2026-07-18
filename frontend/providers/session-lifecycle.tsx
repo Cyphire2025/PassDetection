@@ -97,6 +97,10 @@ export function SessionLifecycle({ queryClient }: { queryClient: QueryClient }) 
     window.addEventListener("pageshow", handleUsable);
     window.addEventListener(SENSITIVE_STATE_RESET_EVENT, handleSensitiveStateReset);
     document.addEventListener("visibilitychange", handleVisibility);
+    // Reconcile immediately in case the browser came back online before the
+    // event listeners were attached. Otherwise the initial offline state can
+    // remain stuck until another focus, visibility, or online event occurs.
+    handleUsable();
 
     return () => {
       mountedRef.current = false;
