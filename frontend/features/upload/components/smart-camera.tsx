@@ -18,11 +18,6 @@ import type {
   PassportFrameStatus,
   PassportPageSide,
 } from "../services/passport-frame-detector";
-import {
-  getEmptyPassportAutoCaptureProgress,
-  getPassportAutoCaptureProgress,
-  PASSPORT_AUTO_CAPTURE_TICK_MS,
-} from "./passport-auto-capture";
 
 interface SmartCameraProps {
   onCapture: (file: File) => void;
@@ -57,12 +52,6 @@ export function SmartCamera({
     "camera_unavailable" | "crop_validation_failed" | null
   >(null);
   const [isProcessingCapture, setIsProcessingCapture] = useState(false);
-  const [autoCaptureProgress, setAutoCaptureProgress] = useState(
-    getEmptyPassportAutoCaptureProgress,
-  );
-  const autoCaptureStableSinceRef = useRef<number | null>(null);
-  const autoCaptureTimeoutRef = useRef<number | null>(null);
-  const autoCaptureIntervalRef = useRef<number | null>(null);
   const visibilityPausedRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -136,10 +125,8 @@ export function SmartCamera({
 
   const guidanceMessage = isProcessingCapture
     ? `Straightening and saving the passport ${pageSide} page`
-    : isCaptureReady && autoCaptureProgress.isComplete
-      ? "Stability confirmed - capturing now"
     : isCaptureReady
-      ? `Hold steady - ${autoCaptureProgress.secondsRemaining || 1}s until automatic capture`
+      ? "All checks passed - tap the shutter button to capture"
     : isCriticalZoneObstructed
       ? "Remove fingers from the passport photo, printed details, and MRZ"
     : !isPassportDetected
@@ -247,29 +234,14 @@ export function SmartCamera({
     };
   }, [allowFileFallback, cameraRestartGeneration, stopCamera]);
 
-  const clearAutoCaptureTimers = useCallback(() => {
-    autoCaptureStableSinceRef.current = null;
-    if (autoCaptureTimeoutRef.current !== null) {
-      window.clearTimeout(autoCaptureTimeoutRef.current);
-      autoCaptureTimeoutRef.current = null;
-    }
-
-    if (autoCaptureIntervalRef.current !== null) {
-      window.clearInterval(autoCaptureIntervalRef.current);
-      autoCaptureIntervalRef.current = null;
-    }
-  }, []);
-
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         if (capturedImage) return;
         visibilityPausedRef.current = true;
-        clearAutoCaptureTimers();
         stopCamera();
         setIsReady(false);
         setIsLoading(false);
-        setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
         return;
       }
       if (!visibilityPausedRef.current || capturedImage) return;
@@ -282,7 +254,7 @@ export function SmartCamera({
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [capturedImage, clearAutoCaptureTimers, stopCamera]);
+  }, [capturedImage, stopCamera]);
 
   const takePhoto = useCallback(async () => {
     if (
@@ -306,7 +278,6 @@ export function SmartCamera({
     const context = canvas.getContext("2d");
     if (context) {
       setIsProcessingCapture(true);
-      clearAutoCaptureTimers();
 
       try {
         context.drawImage(
@@ -344,7 +315,6 @@ export function SmartCamera({
       }
     }
   }, [
-    clearAutoCaptureTimers,
     isCaptureReady,
     isReady,
     pageSide,
@@ -352,22 +322,18 @@ export function SmartCamera({
   ]);
 
   const restartCamera = () => {
-    clearAutoCaptureTimers();
     stopCamera();
     setCameraError(null);
     setFailureReason(null);
     setCapturedImage(null);
     setCapturedFile(null);
     setIsReady(false);
-    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
     setCameraRestartGeneration((generation) => generation + 1);
   };
 
   const retake = () => {
-    clearAutoCaptureTimers();
     setCapturedImage(null);
     setCapturedFile(null);
-    setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
     setIsProcessingCapture(false);
     setIsReady(false);
 
@@ -381,54 +347,9 @@ export function SmartCamera({
   };
 
   const close = () => {
-    clearAutoCaptureTimers();
     stopCamera();
     onCancel();
   };
-
-  useEffect(() => {
-    if (!isCaptureReady || capturedImage || cameraError) {
-      clearAutoCaptureTimers();
-      autoCaptureTimeoutRef.current = window.setTimeout(() => {
-        if (mountedRef.current) {
-          setAutoCaptureProgress(getEmptyPassportAutoCaptureProgress());
-        }
-      }, 0);
-      return () => {
-        clearAutoCaptureTimers();
-      };
-    }
-
-    clearAutoCaptureTimers();
-    const stableSince = window.performance.now();
-    autoCaptureStableSinceRef.current = stableSince;
-    const updateProgress = () => {
-      if (autoCaptureStableSinceRef.current !== stableSince || !mountedRef.current) return;
-      const nextProgress = getPassportAutoCaptureProgress(
-        stableSince,
-        window.performance.now(),
-      );
-      setAutoCaptureProgress(nextProgress);
-      if (!nextProgress.isComplete) return;
-      clearAutoCaptureTimers();
-      void takePhoto();
-    };
-    autoCaptureTimeoutRef.current = window.setTimeout(updateProgress, 0);
-    autoCaptureIntervalRef.current = window.setInterval(
-      updateProgress,
-      PASSPORT_AUTO_CAPTURE_TICK_MS,
-    );
-
-    return () => {
-      clearAutoCaptureTimers();
-    };
-  }, [cameraError, capturedImage, clearAutoCaptureTimers, isCaptureReady, takePhoto]);
-
-  useEffect(() => {
-    return () => {
-      clearAutoCaptureTimers();
-    };
-  }, [clearAutoCaptureTimers]);
 
   return (
     <div
@@ -530,21 +451,6 @@ export function SmartCamera({
                   className={`absolute left-1/2 top-5 w-[min(92%,28rem)] -translate-x-1/2 rounded-2xl px-4 py-2.5 text-center text-sm font-medium shadow-lg backdrop-blur ${statusBannerClass}`}
                 >
                   <div>{guidanceMessage}</div>
-                  {isCaptureReady && !isProcessingCapture && (
-                    <div
-                      className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/20"
-                      role="progressbar"
-                      aria-label="Passport stability before automatic capture"
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-valuenow={Math.round(autoCaptureProgress.progress * 100)}
-                    >
-                      <div
-                        className="h-full rounded-full bg-white transition-[width] duration-150 ease-out"
-                        style={{ width: `${Math.round(autoCaptureProgress.progress * 100)}%` }}
-                      />
-                    </div>
-                  )}
                 </div>
 
               </div>

@@ -35,6 +35,18 @@ test("hidden tabs release camera streams and restart only after becoming visible
   assert.match(visaPhotoCameraSource, /stopStream\(\)/);
 });
 
+test("passport capture is manual after all scanner checks pass", () => {
+  assert.match(
+    passportCameraSource,
+    /All checks passed - tap the shutter button to capture/,
+  );
+  assert.match(passportCameraSource, /onClick=\{\(\) => void takePhoto\(\)\}/);
+  assert.doesNotMatch(
+    passportCameraSource,
+    /passport-auto-capture|automatic capture|getPassportAutoCaptureProgress/,
+  );
+});
+
 test("Visa Photo preview releases the live camera before acceptance or retake", () => {
   const capturedFileStart = visaPhotoCameraSource.indexOf("const file = new File");
   const previewStart = visaPhotoCameraSource.indexOf(
