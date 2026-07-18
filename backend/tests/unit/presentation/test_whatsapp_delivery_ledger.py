@@ -23,15 +23,21 @@ from app.infrastructure.whatsapp.worker_runtime import (
     run_whatsapp_broadcast,
 )
 from app.presentation.api.v1.routes.whatsapp import (
+    WhatsAppContactPreviewResponse,
     WhatsAppRecipientInput,
     _activate_recipient_models,
     _apply_provider_status_to_delivery_state,
+    _excel_contact_preview_response,
     _normalized_recipient_inputs,
     _parse_excel_contacts,
     _provider_status_state_predicates,
     _recipient_delivery_counts,
     _recipient_response,
     get_broadcast_batch_status,
+    preview_excel_contacts,
+)
+from app.presentation.api.v1.routes.whatsapp import (
+    router as whatsapp_router,
 )
 
 
@@ -82,9 +88,10 @@ def test_recipient_checklist_only_marks_provider_accepted_states_as_sent() -> No
         "passport_link",
         "welcome",
     ]
-    assert {
-        item.message_type: item.already_sent for item in response.message_statuses
-    } == {"passport_link": False, "welcome": True}
+    assert {item.message_type: item.already_sent for item in response.message_statuses} == {
+        "passport_link": False,
+        "welcome": True,
+    }
 
 
 @pytest.mark.asyncio
@@ -614,6 +621,134 @@ async def test_excel_contact_upload_detects_headers_below_title_row() -> None:
         "+919873361557",
         "+919355926411",
     }
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_upload_distinguishes_contact_name_from_phone() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Contact Name", "Mobile Number"])
+    sheet.append(["Aarav Sharma", 9873361557])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    contacts = await _parse_excel_contacts(
+        UploadFile(file=payload, filename="contacts.xlsx"),
+    )
+
+    assert [(contact.name, contact.phone_number) for contact in contacts] == [
+        ("Aarav Sharma", "9873361557"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_upload_converts_unexpected_parser_error_to_400(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp._validate_excel_archive",
+        lambda _payload: None,
+    )
+
+    def raise_malformed_workbook(*_args: object, **_kwargs: object) -> None:
+        raise KeyError("missing OOXML workbook relationship")
+
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp.load_workbook",
+        raise_malformed_workbook,
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await _parse_excel_contacts(
+            UploadFile(file=BytesIO(b"malformed"), filename="contacts.xlsx"),
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "The uploaded Excel contact file could not be read"
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_returns_named_normalized_recipients() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append([None, "GCT Staff Mobile Number Detail", None, None])
+    sheet.append([None, "S.no", "NAME", "Phone"])
+    sheet.append([None, 1, "  Aarav   Sharma  ", 9873361557])
+    sheet.append([None, 2, "Meera Patel", "+91 93559 26411"])
+    sheet.append([None, 3, "Duplicate Aarav", "+91-9873361557"])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    response = await preview_excel_contacts(
+        contacts_file=UploadFile(file=payload, filename="contacts.xlsx"),
+        current_user=SimpleNamespace(),
+    )
+
+    assert response.model_dump() == {
+        "recipient_count": 2,
+        "recipients": [
+            {
+                "name": "Aarav Sharma",
+                "phone_number": "+919873361557",
+            },
+            {
+                "name": "Meera Patel",
+                "phone_number": "+919355926411",
+            },
+        ],
+    }
+
+
+def test_excel_contact_preview_rejects_empty_or_unnamed_contacts() -> None:
+    with pytest.raises(HTTPException) as empty_error:
+        _excel_contact_preview_response([])
+
+    assert empty_error.value.status_code == 400
+    assert "No recipients were found" in str(empty_error.value.detail)
+
+    with pytest.raises(HTTPException) as unnamed_error:
+        _excel_contact_preview_response(
+            [
+                WhatsAppRecipientInput(
+                    name=None,
+                    phone_number="9873361557",
+                )
+            ]
+        )
+
+    assert unnamed_error.value.status_code == 400
+    assert "Missing names for 1 contact" in str(unnamed_error.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_rejects_invalid_file_type() -> None:
+    upload = UploadFile(
+        file=BytesIO(b"name,phone\nAarav,9873361557"),
+        filename="contacts.csv",
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await preview_excel_contacts(
+            contacts_file=upload,
+            current_user=SimpleNamespace(),
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Upload an .xlsx or .xlsm contact file"
+
+
+def test_excel_contact_preview_route_is_role_gated_and_has_stable_contract() -> None:
+    route = next(item for item in whatsapp_router.routes if item.path == "/contacts/preview")
+
+    assert route.methods == {"POST"}
+    assert route.response_model is WhatsAppContactPreviewResponse
+    assert [dependency.call.__name__ for dependency in route.dependant.dependencies] == [
+        "_check_role"
+    ]
 
 
 @pytest.mark.asyncio

@@ -60,7 +60,12 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-WHATSAPP_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
+WHATSAPP_ROLES = [
+    UserRole.SUPER_ADMIN,
+    UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
+    UserRole.AGENCY_STAFF,
+]
 PHONE_RE = re.compile(r"(?:\+|00)?\d[\d\s().-]{7,}\d")
 WHATSAPP_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 WHATSAPP_ACCEPTED_STATUS_RANK = {
@@ -73,9 +78,7 @@ WHATSAPP_WEBHOOK_STATUSES = frozenset({"sent", "delivered", "read", "failed"})
 WHATSAPP_IN_PROGRESS_STATUSES = frozenset({"queued", "processing"})
 WHATSAPP_UNCERTAIN_STATUSES = frozenset({"delivery_unknown"})
 WHATSAPP_SUPPRESSED_STATUSES = (
-    WHATSAPP_ACCEPTED_STATUSES
-    | WHATSAPP_IN_PROGRESS_STATUSES
-    | WHATSAPP_UNCERTAIN_STATUSES
+    WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
 )
 WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
 MAX_WHATSAPP_RECIPIENTS = 500
@@ -86,26 +89,21 @@ MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
 WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
 PHONE_ALLOWED_RE = re.compile(r"^(?:\+|00)?[\d\s().-]+$")
-WHATSAPP_EXCEL_PHONE_HEADER_TERMS = (
-    "phone",
-    "mobile",
-    "whatsapp",
-    "contact",
-    "telephone",
-)
-WHATSAPP_EXCEL_NAME_HEADER_TERMS = (
-    "name",
-    "client",
-    "passenger",
-    "recipient",
-    "employee",
-    "staff",
-)
 
 
 class WhatsAppRecipientInput(BaseModel):
     name: str | None = None
     phone_number: str = Field(min_length=6, max_length=64)
+
+
+class WhatsAppContactPreviewRecipient(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    phone_number: str = Field(min_length=9, max_length=16)
+
+
+class WhatsAppContactPreviewResponse(BaseModel):
+    recipient_count: int
+    recipients: list[WhatsAppContactPreviewRecipient]
 
 
 class WhatsAppSupportContactInput(BaseModel):
@@ -220,7 +218,11 @@ def _verify_meta_signature(raw_body: bytes, signature_header: str | None) -> boo
 def _iter_webhook_values(payload: dict[str, Any]) -> list[dict[str, Any]]:
     values: list[dict[str, Any]] = []
     for entry in payload.get("entry", []) if isinstance(payload.get("entry"), list) else []:
-        for change in entry.get("changes", []) if isinstance(entry, dict) and isinstance(entry.get("changes"), list) else []:
+        for change in (
+            entry.get("changes", [])
+            if isinstance(entry, dict) and isinstance(entry.get("changes"), list)
+            else []
+        ):
             value = change.get("value") if isinstance(change, dict) else None
             if isinstance(value, dict):
                 values.append(value)
@@ -273,9 +275,7 @@ def _apply_provider_status_to_delivery_state(
             delivery_state.status = provider_status
         delivery_state.submitted_at = delivery_state.submitted_at or now
         delivery_state.status_updated_at = now
-        delivery_state.provider_status_at = (
-            provider_status_at or delivery_state.provider_status_at
-        )
+        delivery_state.provider_status_at = provider_status_at or delivery_state.provider_status_at
         delivery_state.updated_at = now
     elif provider_status == "failed" and delivery_state.status not in {
         "delivered",
@@ -285,9 +285,7 @@ def _apply_provider_status_to_delivery_state(
         # delivery. Delivered/read are monotonic and never move backwards.
         delivery_state.status = "failed"
         delivery_state.status_updated_at = now
-        delivery_state.provider_status_at = (
-            provider_status_at or delivery_state.provider_status_at
-        )
+        delivery_state.provider_status_at = provider_status_at or delivery_state.provider_status_at
         delivery_state.updated_at = now
 
 
@@ -331,9 +329,7 @@ def _provider_status_state_predicates(
         # A failed receipt is only authoritative for the matching attempt. A
         # delayed failure from an older provider message must never release a
         # newer claim for retry.
-        predicates.append(
-            WhatsAppRecipientMessageStateModel.batch_id == log.batch_id
-        )
+        predicates.append(WhatsAppRecipientMessageStateModel.batch_id == log.batch_id)
     # Provider acceptance is authoritative for this recipient and message
     # type even if a later retry has already claimed the ledger. Omitting the
     # batch predicate promotes the ledger and suppresses that duplicate send
@@ -350,10 +346,19 @@ async def verify_whatsapp_webhook(
     settings = get_settings()
     expected_token = (settings.whatsapp_webhook_verify_token or "").strip()
     if not expected_token:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="WhatsApp webhook verify token is not configured")
-    if mode == "subscribe" and challenge and hmac.compare_digest(verify_token or "", expected_token):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="WhatsApp webhook verify token is not configured",
+        )
+    if (
+        mode == "subscribe"
+        and challenge
+        and hmac.compare_digest(verify_token or "", expected_token)
+    ):
         return PlainTextResponse(challenge, status_code=status.HTTP_200_OK)
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="WhatsApp webhook verification failed")
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN, detail="WhatsApp webhook verification failed"
+    )
 
 
 @router.post("/webhook", response_model=WhatsAppWebhookAck)
@@ -364,20 +369,26 @@ async def receive_whatsapp_webhook(
 ) -> WhatsAppWebhookAck:
     raw_body = await request.body()
     if not _verify_meta_signature(raw_body, x_hub_signature_256):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WhatsApp webhook signature")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WhatsApp webhook signature"
+        )
     try:
         payload = json.loads(raw_body.decode("utf-8") or "{}")
     except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid WhatsApp webhook JSON") from exc
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid WhatsApp webhook JSON"
+        ) from exc
     if not isinstance(payload, dict):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid WhatsApp webhook payload")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid WhatsApp webhook payload"
+        )
 
-    provider_statuses: list[
-        tuple[str, str, str | None, datetime | None]
-    ] = []
+    provider_statuses: list[tuple[str, str, str | None, datetime | None]] = []
     received_messages = 0
     for value in _iter_webhook_values(payload):
-        for status_payload in value.get("statuses", []) if isinstance(value.get("statuses"), list) else []:
+        for status_payload in (
+            value.get("statuses", []) if isinstance(value.get("statuses"), list) else []
+        ):
             if not isinstance(status_payload, dict):
                 continue
             provider_id = status_payload.get("id")
@@ -403,9 +414,7 @@ async def receive_whatsapp_webhook(
             received_messages += len(messages)
 
     processed_statuses = 0
-    provider_statuses.sort(
-        key=lambda item: item[3] or datetime.min.replace(tzinfo=UTC)
-    )
+    provider_statuses.sort(key=lambda item: item[3] or datetime.min.replace(tzinfo=UTC))
     for (
         provider_id,
         provider_status,
@@ -413,7 +422,9 @@ async def receive_whatsapp_webhook(
         provider_status_at,
     ) in provider_statuses:
         result = await session.execute(
-            select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.provider_message_id == provider_id)
+            select(WhatsAppMessageLogModel).where(
+                WhatsAppMessageLogModel.provider_message_id == provider_id
+            )
         )
         for log in result.scalars().all():
             now = datetime.now(tz=UTC)
@@ -448,14 +459,18 @@ async def receive_whatsapp_webhook(
 
     if received_messages:
         logger.info("Received %s WhatsApp inbound message webhook event(s)", received_messages)
-    return WhatsAppWebhookAck(processed_statuses=processed_statuses, received_messages=received_messages)
+    return WhatsAppWebhookAck(
+        processed_statuses=processed_statuses, received_messages=received_messages
+    )
 
 
 def _agency_filter(current_user: User) -> list[Any]:
     if current_user.role == UserRole.SUPER_ADMIN:
         return []
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
+        )
     return [WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id]
 
 
@@ -556,8 +571,7 @@ def _validate_excel_archive(payload: bytes) -> None:
             if (
                 member.file_size > WHATSAPP_UPLOAD_READ_CHUNK_BYTES
                 and member.compress_size > 0
-                and member.file_size / member.compress_size
-                > MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
+                and member.file_size / member.compress_size > MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
             ):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -580,28 +594,33 @@ def _excel_header_label(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", " ", _excel_cell_text(value).casefold()).strip()
 
 
+def _is_excel_phone_header(label: str) -> bool:
+    tokens = set(label.split())
+    if tokens.intersection({"phone", "mobile", "whatsapp", "telephone"}):
+        return True
+    return "contact" in tokens and (
+        len(tokens) == 1 or bool(tokens.intersection({"number", "no", "phone", "mobile"}))
+    )
+
+
+def _is_excel_name_header(label: str) -> bool:
+    tokens = set(label.split())
+    if "name" in tokens:
+        return True
+    return label in {"client", "passenger", "recipient", "employee", "staff"}
+
+
 def _excel_header_columns(
     row: tuple[Any, ...],
 ) -> tuple[list[int], list[int]]:
     labels = [_excel_header_label(cell) for cell in row]
     phone_columns = [
-        index
-        for index, label in enumerate(labels)
-        if label
-        and any(
-            term in label
-            for term in WHATSAPP_EXCEL_PHONE_HEADER_TERMS
-        )
+        index for index, label in enumerate(labels) if label and _is_excel_phone_header(label)
     ]
     name_columns = [
         index
         for index, label in enumerate(labels)
-        if label
-        and any(
-            term in label
-            for term in WHATSAPP_EXCEL_NAME_HEADER_TERMS
-        )
-        and index not in phone_columns
+        if label and _is_excel_name_header(label) and index not in phone_columns
     ]
     return phone_columns, name_columns
 
@@ -610,9 +629,7 @@ def _find_excel_contact_header(
     rows: list[tuple[Any, ...]],
 ) -> tuple[int, list[int], list[int]] | None:
     best_match: tuple[tuple[int, int, int], int, list[int], list[int]] | None = None
-    for row_index, row in enumerate(
-        rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]
-    ):
+    for row_index, row in enumerate(rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]):
         phone_columns, name_columns = _excel_header_columns(row)
         if not phone_columns:
             continue
@@ -650,11 +667,7 @@ def _excel_name_from_row(
         if index in phone_columns:
             continue
         name = _clean_name(value)
-        if (
-            name
-            and any(character.isalpha() for character in name)
-            and not PHONE_RE.search(name)
-        ):
+        if name and any(character.isalpha() for character in name) and not PHONE_RE.search(name):
             return name
     return None
 
@@ -684,21 +697,20 @@ def _parse_excel_contact_bytes(
         rows = list(
             islice(
                 sheet.iter_rows(values_only=True),
-                (
-                    MAX_WHATSAPP_RECIPIENTS
-                    + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
-                    + 1
-                ),
+                (MAX_WHATSAPP_RECIPIENTS + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS + 1),
             )
         )
     except HTTPException:
         raise
-    except (
-        BadZipFile,
-        InvalidFileException,
-        OSError,
-        ValueError,
-    ) as exc:
+    except (BadZipFile, InvalidFileException, OSError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The uploaded Excel contact file could not be read",
+        ) from exc
+    except Exception as exc:
+        logger.exception(
+            "Unexpected error while reading a WhatsApp Excel contact file",
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="The uploaded Excel contact file could not be read",
@@ -722,8 +734,7 @@ def _parse_excel_contact_bytes(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                "The Excel contact file can contain at most "
-                f"{MAX_WHATSAPP_RECIPIENTS} data rows"
+                f"The Excel contact file can contain at most {MAX_WHATSAPP_RECIPIENTS} data rows"
             ),
         )
 
@@ -746,11 +757,7 @@ def _parse_excel_contact_bytes(
                 if phone:
                     candidates.append((name, phone))
         else:
-            row_text = " ".join(
-                text
-                for cell in row_values
-                if (text := _excel_cell_text(cell))
-            )
+            row_text = " ".join(text for cell in row_values if (text := _excel_cell_text(cell)))
             name = _excel_name_from_row(
                 row_values,
                 name_columns=[],
@@ -796,6 +803,32 @@ async def _parse_excel_contacts(
         _parse_excel_contact_bytes,
         bytes(payload),
         filename=filename,
+    )
+
+
+def _excel_contact_preview_response(
+    contacts: list[WhatsAppRecipientInput],
+) -> WhatsAppContactPreviewResponse:
+    if not contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "No recipients were found. Include name and phone/WhatsApp "
+                "columns with at least one contact."
+            ),
+        )
+
+    normalized_contacts = _normalized_recipient_inputs(contacts)
+    recipients = [
+        WhatsAppContactPreviewRecipient(
+            name=_clean_required_name(contact.name, "Recipient name"),
+            phone_number=normalized_phone,
+        )
+        for normalized_phone, contact in normalized_contacts.items()
+    ]
+    return WhatsAppContactPreviewResponse(
+        recipient_count=len(recipients),
+        recipients=recipients,
     )
 
 
@@ -849,10 +882,7 @@ def _normalized_recipient_inputs(
                 f"Missing names for {len(unnamed_numbers)} contact(s)."
             ),
         )
-    if any(
-        len(_clean_name(contact.name) or "") > 100
-        for contact in normalized_contacts.values()
-    ):
+    if any(len(_clean_name(contact.name) or "") > 100 for contact in normalized_contacts.values()):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Recipient names must be 100 characters or fewer",
@@ -978,14 +1008,19 @@ async def _support_contacts_for_group(
     return list(result.scalars().all())
 
 
-async def _group_detail(session: AsyncSession, group: WhatsAppBroadcastGroupModel) -> WhatsAppBroadcastGroupDetailResponse:
+async def _group_detail(
+    session: AsyncSession, group: WhatsAppBroadcastGroupModel
+) -> WhatsAppBroadcastGroupDetailResponse:
     recipients_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel)
         .where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
             WhatsAppBroadcastRecipientModel.removed_at.is_(None),
         )
-        .order_by(WhatsAppBroadcastRecipientModel.name.asc().nullslast(), WhatsAppBroadcastRecipientModel.created_at.asc())
+        .order_by(
+            WhatsAppBroadcastRecipientModel.name.asc().nullslast(),
+            WhatsAppBroadcastRecipientModel.created_at.asc(),
+        )
     )
     recipients = list(recipients_result.scalars().all())
     states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
@@ -1060,16 +1095,13 @@ async def _recipient_delivery_counts(
     )
     statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
     already_sent = sum(
-        1 for state_status in statuses.values()
-        if state_status in WHATSAPP_ACCEPTED_STATUSES
+        1 for state_status in statuses.values() if state_status in WHATSAPP_ACCEPTED_STATUSES
     )
     in_progress = sum(
-        1 for state_status in statuses.values()
-        if state_status in WHATSAPP_IN_PROGRESS_STATUSES
+        1 for state_status in statuses.values() if state_status in WHATSAPP_IN_PROGRESS_STATUSES
     )
     uncertain = sum(
-        1 for state_status in statuses.values()
-        if state_status in WHATSAPP_UNCERTAIN_STATUSES
+        1 for state_status in statuses.values() if state_status in WHATSAPP_UNCERTAIN_STATUSES
     )
     return (
         len(recipients) - already_sent - in_progress - uncertain,
@@ -1124,6 +1156,19 @@ def _message_values(
     return message_type, message_content, recipient_name, rendered, header_parameters, parameters
 
 
+@router.post(
+    "/contacts/preview",
+    response_model=WhatsAppContactPreviewResponse,
+)
+async def preview_excel_contacts(
+    contacts_file: UploadFile = File(...),
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+) -> WhatsAppContactPreviewResponse:
+    del current_user
+    contacts = await _parse_excel_contacts(contacts_file)
+    return _excel_contact_preview_response(contacts)
+
+
 @router.get("/groups", response_model=list[WhatsAppBroadcastGroupResponse])
 async def list_broadcast_groups(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
@@ -1137,7 +1182,8 @@ async def list_broadcast_groups(
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
             and_(
-                WhatsAppBroadcastRecipientModel.broadcast_group_id == WhatsAppBroadcastGroupModel.id,
+                WhatsAppBroadcastRecipientModel.broadcast_group_id
+                == WhatsAppBroadcastGroupModel.id,
                 WhatsAppBroadcastRecipientModel.removed_at.is_(None),
             ),
         )
@@ -1166,15 +1212,16 @@ async def get_broadcast_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
     result = await session.execute(
-        select(WhatsAppBroadcastGroupModel)
-        .where(
+        select(WhatsAppBroadcastGroupModel).where(
             WhatsAppBroadcastGroupModel.id == group_id,
             *_agency_filter(current_user),
         )
     )
     group = result.scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
+        )
     return await _group_detail(session, group)
 
 
@@ -1215,12 +1262,14 @@ async def preview_broadcast_message(
         recipient = selected
 
     support_contacts = await _support_contacts_for_group(session, group.id)
-    message_type, message_content, recipient_name, rendered, header_parameters, parameters = _message_values(
-        group=group,
-        recipient=recipient,
-        support_contacts=support_contacts,
-        body=body,
-        preview=True,
+    message_type, message_content, recipient_name, rendered, header_parameters, parameters = (
+        _message_values(
+            group=group,
+            recipient=recipient,
+            support_contacts=support_contacts,
+            body=body,
+            preview=True,
+        )
     )
     (
         eligible_count,
@@ -1255,7 +1304,11 @@ async def preview_broadcast_message(
     )
 
 
-@router.post("/groups", response_model=WhatsAppBroadcastGroupDetailResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/groups",
+    response_model=WhatsAppBroadcastGroupDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_broadcast_group(
     name: str = Form(...),
     organizing_company_name: str = Form(...),
@@ -1267,10 +1320,14 @@ async def create_broadcast_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
+        )
     group_name = name.strip()
     if not group_name:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Group name is required")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Group name is required"
+        )
     if len(group_name) > 100:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1289,9 +1346,13 @@ async def create_broadcast_group(
         )
 
     try:
-        manual_contacts = [WhatsAppRecipientInput(**item) for item in json.loads(contacts_json or "[]")]
+        manual_contacts = [
+            WhatsAppRecipientInput(**item) for item in json.loads(contacts_json or "[]")
+        ]
     except (TypeError, ValueError) as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid manual contact list") from exc
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid manual contact list"
+        ) from exc
 
     try:
         support_contacts = [
@@ -1309,18 +1370,13 @@ async def create_broadcast_group(
             detail="Add at least one customer support contact",
         )
 
-    excel_contacts = (
-        await _parse_excel_contacts(contacts_file) if contacts_file else []
-    )
+    excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
     contacts = manual_contacts + excel_contacts
     normalized_contacts = _normalized_recipient_inputs(contacts)
     if len(normalized_contacts) > MAX_WHATSAPP_RECIPIENTS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "A WhatsApp list can contain at most "
-                f"{MAX_WHATSAPP_RECIPIENTS} recipients"
-            ),
+            detail=(f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients"),
         )
     unnamed_numbers = [
         contact.phone_number
@@ -1515,9 +1571,7 @@ async def add_broadcast_recipients(
         )
 
     manual_contacts = _parse_manual_contacts(contacts_json)
-    excel_contacts = (
-        await _parse_excel_contacts(contacts_file) if contacts_file else []
-    )
+    excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
     normalized_contacts = _normalized_recipient_inputs(manual_contacts + excel_contacts)
 
     existing_result = await session.execute(
@@ -1530,8 +1584,7 @@ async def add_broadcast_recipients(
         for recipient in existing_result.scalars().all()
     }
     active_count = sum(
-        1 for recipient in existing_by_phone.values()
-        if recipient.removed_at is None
+        1 for recipient in existing_by_phone.values() if recipient.removed_at is None
     )
     activating_count = sum(
         1
@@ -1554,9 +1607,7 @@ async def add_broadcast_recipients(
         now=now,
     )
 
-    group.recipient_opt_in_confirmed_at = (
-        group.recipient_opt_in_confirmed_at or now
-    )
+    group.recipient_opt_in_confirmed_at = group.recipient_opt_in_confirmed_at or now
     group.updated_at = now
     await session.flush()
     return await _group_detail(session, group)
@@ -1576,8 +1627,7 @@ async def remove_broadcast_recipient(
         select(WhatsAppBroadcastRecipientModel)
         .join(
             WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id
-            == WhatsAppBroadcastRecipientModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.id == WhatsAppBroadcastRecipientModel.broadcast_group_id,
         )
         .where(
             WhatsAppBroadcastRecipientModel.id == recipient_id,
@@ -1647,7 +1697,9 @@ async def delete_broadcast_group(
     )
     group = result.scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
+        )
     processing_result = await session.execute(
         select(func.count())
         .select_from(WhatsAppRecipientMessageStateModel)
@@ -1692,7 +1744,9 @@ async def delete_broadcast_group(
         )
         .execution_options(synchronize_session=False)
     )
-    await session.execute(delete(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group.id))
+    await session.execute(
+        delete(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group.id)
+    )
     return {"deleted": True}
 
 
@@ -1713,7 +1767,9 @@ async def send_broadcast_message(
     )
     group = result.scalar_one_or_none()
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
+        )
     if group.recipient_opt_in_confirmed_at is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -1753,9 +1809,7 @@ async def send_broadcast_message(
         )
 
     passport_link = (
-        _validate_passport_link(body.passport_link)
-        if message_type == "passport_link"
-        else None
+        _validate_passport_link(body.passport_link) if message_type == "passport_link" else None
     )
     resolved_body = WhatsAppSendRequest(
         message_type=message_type,
@@ -1834,9 +1888,7 @@ async def send_broadcast_message(
         }
         for recipient in recipients
     ]
-    claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(
-        claim_values
-    )
+    claim_insert = pg_insert(WhatsAppRecipientMessageStateModel).values(claim_values)
     claim_statement = (
         claim_insert.on_conflict_do_update(
             constraint="uq_whatsapp_recipient_message_state",
@@ -1848,13 +1900,10 @@ async def send_broadcast_message(
                 "updated_at": now,
             },
             where=or_(
-                ~WhatsAppRecipientMessageStateModel.status.in_(
-                    WHATSAPP_SUPPRESSED_STATUSES
-                ),
+                ~WhatsAppRecipientMessageStateModel.status.in_(WHATSAPP_SUPPRESSED_STATUSES),
                 and_(
                     WhatsAppRecipientMessageStateModel.status == "queued",
-                    WhatsAppRecipientMessageStateModel.status_updated_at
-                    < stale_cutoff,
+                    WhatsAppRecipientMessageStateModel.status_updated_at < stale_cutoff,
                 ),
             ),
         )
@@ -1864,14 +1913,10 @@ async def send_broadcast_message(
     claimed_result = await session.execute(claim_statement)
     claimed_recipient_ids = set(claimed_result.scalars().all())
     claimed_recipients = [
-        recipient
-        for recipient in recipients
-        if recipient.id in claimed_recipient_ids
+        recipient for recipient in recipients if recipient.id in claimed_recipient_ids
     ]
     unclaimed_recipient_ids = [
-        recipient.id
-        for recipient in recipients
-        if recipient.id not in claimed_recipient_ids
+        recipient.id for recipient in recipients if recipient.id not in claimed_recipient_ids
     ]
     skipped_already_sent = 0
     skipped_in_progress = 0
@@ -1879,9 +1924,7 @@ async def send_broadcast_message(
     if unclaimed_recipient_ids:
         skipped_result = await session.execute(
             select(WhatsAppRecipientMessageStateModel.status).where(
-                WhatsAppRecipientMessageStateModel.recipient_id.in_(
-                    unclaimed_recipient_ids
-                ),
+                WhatsAppRecipientMessageStateModel.recipient_id.in_(unclaimed_recipient_ids),
                 WhatsAppRecipientMessageStateModel.message_type == message_type,
             )
         )
@@ -1963,9 +2006,7 @@ async def send_broadcast_message(
     except Exception as exc:  # noqa: BLE001 - convert broker failures into a visible batch failure.
         error_message = f"WhatsApp worker queue is unavailable: {exc}"[:2000]
         logs_result = await session.execute(
-            select(WhatsAppMessageLogModel).where(
-                WhatsAppMessageLogModel.batch_id == batch_id
-            )
+            select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.batch_id == batch_id)
         )
         for log in logs_result.scalars().all():
             log.status = "failed"
@@ -1976,9 +2017,7 @@ async def send_broadcast_message(
             update(WhatsAppRecipientMessageStateModel)
             .where(
                 WhatsAppRecipientMessageStateModel.batch_id == batch_id,
-                WhatsAppRecipientMessageStateModel.status.in_(
-                    WHATSAPP_IN_PROGRESS_STATUSES
-                ),
+                WhatsAppRecipientMessageStateModel.status.in_(WHATSAPP_IN_PROGRESS_STATUSES),
             )
             .values(
                 status="failed",
@@ -2065,11 +2104,8 @@ async def get_broadcast_batch_status(
         failed=sum(
             1
             for item in results
-            if item.status
-            not in queued_statuses | successful_statuses | uncertain_statuses
+            if item.status not in queued_statuses | successful_statuses | uncertain_statuses
         ),
-        delivery_unknown=sum(
-            1 for item in results if item.status in uncertain_statuses
-        ),
+        delivery_unknown=sum(1 for item in results if item.status in uncertain_statuses),
         results=results,
     )

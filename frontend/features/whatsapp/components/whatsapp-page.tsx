@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  CheckCircle2,
   FileSpreadsheet,
   Info,
+  Loader2,
   MessageCircle,
   MoreVertical,
   Plus,
@@ -11,7 +13,14 @@ import {
   Upload,
   Users,
 } from "lucide-react";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import {
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   Button,
@@ -29,14 +38,15 @@ import {
   type ManualContact,
   readErrorMessage,
 } from "./whatsapp-dialog-ui";
-import type {
-  WhatsAppBroadcastGroup,
-  WhatsAppMessageType,
-  WhatsAppPreviewResponse,
-  WhatsAppRecipientInput,
-  WhatsAppRecipientMessageStatus,
-  WhatsAppSendResponse,
-  WhatsAppSupportContactInput,
+import {
+  whatsappApi,
+  type WhatsAppBroadcastGroup,
+  type WhatsAppMessageType,
+  type WhatsAppPreviewResponse,
+  type WhatsAppRecipientInput,
+  type WhatsAppRecipientMessageStatus,
+  type WhatsAppSendResponse,
+  type WhatsAppSupportContactInput,
 } from "../api/whatsapp.api";
 import {
   useAddWhatsAppRecipients,
@@ -55,6 +65,7 @@ import {
   countEligibleRecipients,
   getMessageStatus,
 } from "../utils/recipient-delivery";
+import { mergeRecipientImportContacts } from "../utils/recipient-import";
 import { mergeWhatsAppSendProgress } from "../utils/send-progress";
 
 type MessageTarget = {
@@ -71,6 +82,180 @@ type PersistedBatch = {
 };
 
 const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
+
+type RecipientImportState =
+  | { status: "idle" }
+  | { status: "loading"; fileName: string }
+  | {
+      status: "success";
+      fileName: string;
+      importedCount: number;
+      addedCount: number;
+      duplicateCount: number;
+    }
+  | { status: "error"; fileName: string; message: string };
+
+function useRecipientExcelPreview({
+  contacts,
+  setContacts,
+  excludedPhoneNumbers = [],
+  onStart,
+}: {
+  contacts: ManualContact[];
+  setContacts: Dispatch<SetStateAction<ManualContact[]>>;
+  excludedPhoneNumbers?: string[];
+  onStart: () => void;
+}) {
+  const [importState, setImportState] = useState<RecipientImportState>({
+    status: "idle",
+  });
+  const requestIdRef = useRef(0);
+  const controllerRef = useRef<AbortController | null>(null);
+  const contactsRef = useRef(contacts);
+  const excludedPhoneNumbersRef = useRef(excludedPhoneNumbers);
+
+  useEffect(() => {
+    contactsRef.current = contacts;
+  }, [contacts]);
+
+  useEffect(() => {
+    excludedPhoneNumbersRef.current = excludedPhoneNumbers;
+  }, [excludedPhoneNumbers]);
+
+  useEffect(
+    () => () => {
+      requestIdRef.current += 1;
+      controllerRef.current?.abort();
+    },
+    [],
+  );
+
+  const previewFile = async (file: File) => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    onStart();
+    setImportState({ status: "loading", fileName: file.name });
+
+    try {
+      const preview = await whatsappApi.previewContacts(file, controller.signal);
+      if (requestId !== requestIdRef.current || controller.signal.aborted) return;
+
+      const merged = mergeRecipientImportContacts(
+        contactsRef.current,
+        preview.recipients,
+        excludedPhoneNumbersRef.current,
+      );
+      contactsRef.current = merged.contacts;
+      setContacts(merged.contacts);
+      setImportState({
+        status: "success",
+        fileName: file.name,
+        importedCount: preview.recipient_count,
+        addedCount: merged.addedCount,
+        duplicateCount: merged.duplicateCount,
+      });
+    } catch (previewError) {
+      if (requestId !== requestIdRef.current || controller.signal.aborted) return;
+      setImportState({
+        status: "error",
+        fileName: file.name,
+        message: readErrorMessage(
+          previewError,
+          "The Excel contacts could not be read. Check the columns and try again.",
+        ),
+      });
+    } finally {
+      if (requestId === requestIdRef.current) controllerRef.current = null;
+    }
+  };
+
+  const resetImport = () => {
+    requestIdRef.current += 1;
+    controllerRef.current?.abort();
+    controllerRef.current = null;
+    setImportState({ status: "idle" });
+  };
+
+  return { importState, previewFile, resetImport };
+}
+
+function ExcelRecipientImport({
+  state,
+  onFile,
+  label,
+}: {
+  state: RecipientImportState;
+  onFile: (file: File) => Promise<void>;
+  label: string;
+}) {
+  const isLoading = state.status === "loading";
+  const fileName = state.status === "idle" ? null : state.fileName;
+
+  return (
+    <div className="space-y-2">
+      <label
+        className={`flex items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
+          isLoading
+            ? "cursor-wait border-blue-300 bg-blue-50/60"
+            : "cursor-pointer border-slate-300 bg-white hover:bg-slate-50"
+        }`}
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+            {isLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : state.status === "success" ? (
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+            ) : (
+              <FileSpreadsheet className="h-5 w-5" />
+            )}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-medium text-slate-900">
+              {fileName ?? label}
+            </span>
+            <span className="block text-sm text-slate-500">
+              {isLoading
+                ? "Reading and validating recipients..."
+                : "Use .xlsx or .xlsm with name and phone/WhatsApp columns."}
+            </span>
+          </span>
+        </span>
+        <Upload className="h-5 w-5 shrink-0 text-slate-400" />
+        <input
+          type="file"
+          accept=".xlsx,.xlsm"
+          className="sr-only"
+          disabled={isLoading}
+          onChange={(event) => {
+            const selectedFile = event.currentTarget.files?.[0] ?? null;
+            event.currentTarget.value = "";
+            if (selectedFile) void onFile(selectedFile);
+          }}
+        />
+      </label>
+
+      <div aria-live="polite">
+        {state.status === "success" && (
+          <p className="text-sm text-emerald-700">
+            {state.addedCount} recipient{state.addedCount === 1 ? "" : "s"} added
+            from {state.importedCount} validated spreadsheet contact
+            {state.importedCount === 1 ? "" : "s"}.
+            {state.duplicateCount > 0
+              ? ` ${state.duplicateCount} duplicate${state.duplicateCount === 1 ? " was" : "s were"} skipped.`
+              : " You can edit or remove them above before saving."}
+          </p>
+        )}
+        {state.status === "error" && (
+          <p className="text-sm text-red-700">{state.message}</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function WhatsAppPage() {
   const { data: groups = [], isLoading, error } = useWhatsAppGroups();
@@ -548,7 +733,6 @@ function RecipientListDialog({
     phone_number: "",
   });
   const [contacts, setContacts] = useState<ManualContact[]>([]);
-  const [file, setFile] = useState<File | null>(null);
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
@@ -557,6 +741,17 @@ function RecipientListDialog({
     (WhatsAppRecipientInput & { id: string }) | null
   >(null);
   const initializedGroupRef = useRef<string | null>(null);
+  const { importState, previewFile, resetImport } = useRecipientExcelPreview({
+    contacts,
+    setContacts,
+    excludedPhoneNumbers:
+      detail?.recipients.map((recipient) => recipient.normalized_phone_number) ??
+      [],
+    onStart: () => {
+      setRecipientError(null);
+      setSuccessMessage(null);
+    },
+  });
 
   useEffect(() => {
     if (!detail || initializedGroupRef.current === detail.id) return;
@@ -624,9 +819,23 @@ function RecipientListDialog({
   const addRecipients = async () => {
     setRecipientError(null);
     setSuccessMessage(null);
-    if (contacts.length === 0 && !file) {
+    if (importState.status === "loading") {
+      setRecipientError("Wait for the Excel contacts to finish loading.");
+      return;
+    }
+    if (contacts.length === 0) {
       setRecipientError(
         "Add at least one named recipient or select an Excel file.",
+      );
+      return;
+    }
+    if (
+      contacts.some(
+        (contact) => !contact.name.trim() || !contact.phone_number.trim(),
+      )
+    ) {
+      setRecipientError(
+        "Every new recipient needs both a name and WhatsApp number.",
       );
       return;
     }
@@ -641,10 +850,9 @@ function RecipientListDialog({
         groupId: group.id,
         contacts,
         recipientOptInConfirmed,
-        file,
       });
       setContacts([]);
-      setFile(null);
+      resetImport();
       setRecipientOptInConfirmed(false);
       setSuccessMessage(
         `Recipient list updated. It now contains ${updated.recipient_count} recipient${updated.recipient_count === 1 ? "" : "s"}.`,
@@ -880,37 +1088,32 @@ function RecipientListDialog({
                 description="Names are required because each approved message is personalised."
                 value={manual}
                 contacts={contacts}
-                onValueChange={setManual}
+                onValueChange={(value) => {
+                  setRecipientError(null);
+                  setManual(value);
+                }}
                 onAdd={addManualContact}
-                onRemove={(index) =>
+                onRemove={(index) => {
+                  setRecipientError(null);
                   setContacts((current) =>
                     current.filter((_, itemIndex) => itemIndex !== index),
-                  )
-                }
+                  );
+                }}
+                onContactChange={(index, contact) => {
+                  setRecipientError(null);
+                  setContacts((current) =>
+                    current.map((item, itemIndex) =>
+                      itemIndex === index ? contact : item,
+                    ),
+                  );
+                }}
               />
 
-              <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-4 hover:bg-slate-50">
-                <span className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-                    <FileSpreadsheet className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate font-medium text-slate-900">
-                      {file ? file.name : "Upload additional Excel contacts"}
-                    </span>
-                    <span className="block text-sm text-slate-500">
-                      Use .xlsx or .xlsm with name and phone/WhatsApp columns.
-                    </span>
-                  </span>
-                </span>
-                <Upload className="h-5 w-5 shrink-0 text-slate-400" />
-                <input
-                  type="file"
-                  accept=".xlsx,.xlsm"
-                  className="sr-only"
-                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                />
-              </label>
+              <ExcelRecipientImport
+                state={importState}
+                onFile={previewFile}
+                label="Upload additional Excel contacts"
+              />
 
               <label className="flex items-start gap-3 rounded-xl border border-blue-100 bg-white p-4 text-sm text-slate-700">
                 <input
@@ -933,7 +1136,9 @@ function RecipientListDialog({
                   type="button"
                   isLoading={addRecipientsMutation.isPending}
                   disabled={
-                    (contacts.length === 0 && !file) || !recipientOptInConfirmed
+                    contacts.length === 0 ||
+                    !recipientOptInConfirmed ||
+                    importState.status === "loading"
                   }
                   onClick={addRecipients}
                 >
@@ -1043,7 +1248,6 @@ function CreateBroadcastDialog({
     contacts: WhatsAppRecipientInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
-    file: File | null;
   }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
@@ -1058,9 +1262,13 @@ function CreateBroadcastDialog({
     phone_number: "",
   });
   const [supportContacts, setSupportContacts] = useState<ManualContact[]>([]);
-  const [file, setFile] = useState<File | null>(null);
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { importState, previewFile } = useRecipientExcelPreview({
+    contacts,
+    setContacts,
+    onStart: () => setError(null),
+  });
 
   const addContact = (
     value: ManualContact,
@@ -1083,6 +1291,10 @@ function CreateBroadcastDialog({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    if (importState.status === "loading") {
+      setError("Wait for the Excel contacts to finish loading.");
+      return;
+    }
     if (!name.trim()) {
       setError("Enter a group name.");
       return;
@@ -1091,8 +1303,16 @@ function CreateBroadcastDialog({
       setError("Enter the organising company name.");
       return;
     }
-    if (contacts.length === 0 && !file) {
+    if (contacts.length === 0) {
       setError("Add at least one named recipient or upload an Excel file.");
+      return;
+    }
+    if (
+      contacts.some(
+        (contact) => !contact.name.trim() || !contact.phone_number.trim(),
+      )
+    ) {
+      setError("Every recipient needs both a name and WhatsApp number.");
       return;
     }
     if (supportContacts.length === 0) {
@@ -1112,7 +1332,6 @@ function CreateBroadcastDialog({
         contacts,
         supportContacts,
         recipientOptInConfirmed,
-        file,
       });
     } catch (submitError) {
       setError(
@@ -1152,39 +1371,32 @@ function CreateBroadcastDialog({
           description="Names are required because every message is personalised as Dear [Name]."
           value={manual}
           contacts={contacts}
-          onValueChange={setManual}
+          onValueChange={(value) => {
+            setError(null);
+            setManual(value);
+          }}
           onAdd={() => addContact(manual, setContacts, setManual, "recipient")}
-          onRemove={(index) =>
+          onRemove={(index) => {
+            setError(null);
             setContacts((current) =>
               current.filter((_, itemIndex) => itemIndex !== index),
-            )
-          }
+            );
+          }}
+          onContactChange={(index, contact) => {
+            setError(null);
+            setContacts((current) =>
+              current.map((item, itemIndex) =>
+                itemIndex === index ? contact : item,
+              ),
+            );
+          }}
         />
 
-        <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed border-slate-300 px-4 py-4 hover:bg-slate-50">
-          <span className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
-              <FileSpreadsheet className="h-5 w-5" />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate font-medium text-slate-900">
-                {file ? file.name : "Upload Excel contacts"}
-              </span>
-              <span className="block text-sm text-slate-500">
-                Use .xlsx or .xlsm with name and phone/WhatsApp columns. Bare
-                10-digit numbers use India (+91); include country codes for all
-                others.
-              </span>
-            </span>
-          </span>
-          <Upload className="h-5 w-5 shrink-0 text-slate-400" />
-          <input
-            type="file"
-            accept=".xlsx,.xlsm"
-            className="sr-only"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          />
-        </label>
+        <ExcelRecipientImport
+          state={importState}
+          onFile={previewFile}
+          label="Upload Excel contacts"
+        />
 
         <ContactEditor
           title="Customer support contacts"
@@ -1237,7 +1449,11 @@ function CreateBroadcastDialog({
           >
             Cancel
           </Button>
-          <Button type="submit" isLoading={isLoading}>
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            disabled={importState.status === "loading"}
+          >
             Save List
           </Button>
         </div>

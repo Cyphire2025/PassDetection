@@ -19,6 +19,14 @@ export interface WhatsAppRecipient {
   message_statuses: WhatsAppRecipientMessageStatus[];
 }
 
+export interface WhatsAppContactPreviewResponse {
+  recipient_count: number;
+  recipients: Array<{
+    name: string;
+    phone_number: string;
+  }>;
+}
+
 export interface WhatsAppRecipientMessageStatus {
   message_type: string;
   status: string;
@@ -93,6 +101,23 @@ export interface WhatsAppSendResponse {
 }
 
 export const whatsappApi = {
+  previewContacts: async (
+    file: File,
+    signal?: AbortSignal,
+  ): Promise<WhatsAppContactPreviewResponse> => {
+    const formData = new FormData();
+    formData.append("contacts_file", file);
+    const { data } = await apiClient.post<WhatsAppContactPreviewResponse>(
+      API_ENDPOINTS.whatsapp.contactsPreview,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        signal,
+      },
+    );
+    return data;
+  },
+
   groups: async (): Promise<WhatsAppBroadcastGroup[]> => {
     const { data } = await apiClient.get<WhatsAppBroadcastGroup[]>(API_ENDPOINTS.whatsapp.groups);
     return data;

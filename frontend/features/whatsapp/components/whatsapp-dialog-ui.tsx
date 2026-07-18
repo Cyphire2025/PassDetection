@@ -17,6 +17,7 @@ export function ContactEditor({
   onValueChange,
   onAdd,
   onRemove,
+  onContactChange,
 }: {
   title: string;
   description: string;
@@ -25,6 +26,7 @@ export function ContactEditor({
   onValueChange: Dispatch<SetStateAction<ManualContact>>;
   onAdd: () => void;
   onRemove: (index: number) => void;
+  onContactChange?: (index: number, contact: ManualContact) => void;
 }) {
   return (
     <section className="space-y-3 rounded-xl border border-slate-200 p-4">
@@ -46,19 +48,58 @@ export function ContactEditor({
           onChange={(event) => onValueChange((current) => ({ ...current, phone_number: event.target.value }))}
         />
         <div className="flex items-end">
-          <Button type="button" variant="secondary" onClick={onAdd}>Add</Button>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={!value.name.trim() || !value.phone_number.trim()}
+            onClick={onAdd}
+          >
+            Add
+          </Button>
         </div>
       </div>
       {contacts.length > 0 && (
-        <div className="divide-y divide-slate-100 rounded-lg border border-slate-200">
+        <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-200">
           {contacts.map((contact, index) => (
-            <div key={`${contact.phone_number}-${index}`} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-              <span className="min-w-0 truncate text-slate-700">
-                {contact.name} - {contact.phone_number}
-              </span>
+            <div
+              key={index}
+              className={`gap-2 px-3 py-2 text-sm ${
+                onContactChange
+                  ? "grid items-center md:grid-cols-[1fr_1fr_auto]"
+                  : "flex items-center justify-between"
+              }`}
+            >
+              {onContactChange ? (
+                <>
+                  <Input
+                    aria-label={`Recipient ${index + 1} name`}
+                    value={contact.name}
+                    onChange={(event) =>
+                      onContactChange(index, {
+                        ...contact,
+                        name: event.target.value,
+                      })
+                    }
+                  />
+                  <Input
+                    aria-label={`Recipient ${index + 1} WhatsApp number`}
+                    value={contact.phone_number}
+                    onChange={(event) =>
+                      onContactChange(index, {
+                        ...contact,
+                        phone_number: event.target.value,
+                      })
+                    }
+                  />
+                </>
+              ) : (
+                <span className="min-w-0 truncate text-slate-700">
+                  {contact.name} - {contact.phone_number}
+                </span>
+              )}
               <button
                 type="button"
-                className="text-xs font-medium text-red-600 hover:text-red-700"
+                className="justify-self-end text-xs font-medium text-red-600 hover:text-red-700"
                 onClick={() => onRemove(index)}
               >
                 Remove
