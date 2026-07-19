@@ -2,12 +2,19 @@ export type RectangularPassportFrameStatus =
   | "checking"
   | "no_document"
   | "incomplete_document"
+  | "excessive_skew"
+  | "not_passport_page"
   | "ready";
 
 export interface RectangularPassportFrameResult {
   isDetected: boolean;
   confidence: number;
   visibleEdges: number;
+  strongEdges: number;
+  documentAreaRatio: number;
+  skewDegrees: number;
+  detailTileRatio: number;
+  detailRowCoverage: number;
   status: RectangularPassportFrameStatus;
   lightingStatus: "good" | "too_dark" | "too_bright";
   meanLuminance: number;
@@ -23,13 +30,61 @@ interface VideoCrop {
   height: number;
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface BoundaryEvidence {
+  slope: number;
+  intercept: number;
+  support: number;
+  segmentCoverage: number;
+  averageContrast: number;
+  polarityConsistency: number;
+  score: number;
+  strength: "strong" | "plausible";
+}
+
+interface DocumentQuad {
+  topLeft: Point;
+  topRight: Point;
+  bottomRight: Point;
+  bottomLeft: Point;
+}
+
 const PASSPORT_LIVE_THRESHOLDS = {
   sampleWidth: 320,
   sampleHeight: 200,
   guideContextMarginRatio: 0.1,
-  edgeSearchRatio: 0.075,
-  edgeGradient: 18,
-  minimumEdgeSupport: 0.24,
+  edgePositionToleranceRatio: 0.075,
+  edgeStepContrast: 8,
+  maximumSearchSlope: 0.32,
+  searchSlopeStep: 0.04,
+  strongEdgeSupport: 0.72,
+  strongSegmentCoverage: 0.75,
+  strongPolarityConsistency: 0.7,
+  strongAverageContrast: 14,
+  plausibleEdgeSupport: 0.28,
+  plausibleSegmentCoverage: 0.5,
+  plausiblePolarityConsistency: 0.62,
+  plausibleAverageContrast: 8,
+  minimumStrongEdges: 3,
+  minimumDocumentSpanRatio: 0.68,
+  maximumDocumentSpanRatio: 0.94,
+  minimumDocumentAreaRatio: 0.5,
+  maximumDocumentAreaRatio: 0.84,
+  maximumCenterOffsetRatio: 0.075,
+  maximumReadySkewDegrees: 8,
+  maximumOppositeEdgeAngleDelta: 7,
+  maximumAxisAngleDelta: 8,
+  detailColumns: 4,
+  detailRows: 3,
+  detailGradient: 26,
+  minimumDetailEdgeRatio: 0.045,
+  minimumDetailDeviation: 8,
+  minimumDetailedTileRatio: 7 / 12,
+  minimumDetailedRowCoverage: 2 / 3,
   extremeDarkLuminance: 22,
   extremeBrightLuminance: 248,
   extremeDarkMean: 30,
@@ -46,15 +101,15 @@ const GUIDE_EDGE_MIN_RATIO = (
   GUIDE_CONTEXT_MARGIN_RATIO / (1 + GUIDE_CONTEXT_MARGIN_RATIO * 2)
 );
 const GUIDE_EDGE_MAX_RATIO = 1 - GUIDE_EDGE_MIN_RATIO;
-const EDGE_SEARCH_RATIO = PASSPORT_LIVE_THRESHOLDS.edgeSearchRatio;
-const EDGE_GRADIENT_THRESHOLD = PASSPORT_LIVE_THRESHOLDS.edgeGradient;
-const MIN_EDGE_SUPPORT = PASSPORT_LIVE_THRESHOLDS.minimumEdgeSupport;
 
 /**
- * Permissive live-camera gate that checks only whether a page-sized rectangle
- * is aligned with the visible guide. Passport-layout and MRZ analysis remain
- * available in the strict detector, but are intentionally not part of this
- * capture-unlock decision.
+ * Lightweight live-camera gate for a complete, near-level physical page.
+ *
+ * The detector deliberately does not inspect passport layout or MRZ content.
+ * It instead requires three strong coherent boundaries plus a plausible fourth
+ * boundary, and checks that their quadrilateral fills and aligns with the
+ * visible guide. This keeps a weak open-book edge usable without allowing
+ * unrelated texture, a partial page, or a rotated page to unlock capture.
  */
 export function detectRectangularPassportFrame(
   video: HTMLVideoElement,
@@ -218,37 +273,102 @@ export function analyzeRectangularPassportFramePixels(
   }
 
   const gray = toGrayscale(pixels, width, height);
-  const sideScores = [
-    verticalEdgeSupport(gray, width, height, GUIDE_EDGE_MIN_RATIO),
-    verticalEdgeSupport(gray, width, height, GUIDE_EDGE_MAX_RATIO),
-    horizontalEdgeSupport(gray, width, height, GUIDE_EDGE_MIN_RATIO),
-    horizontalEdgeSupport(gray, width, height, GUIDE_EDGE_MAX_RATIO),
-  ];
-  const visibleEdges = sideScores.filter(
-    (score) => score >= MIN_EDGE_SUPPORT,
-  ).length;
-  const strongestThree = [...sideScores]
-    .sort((first, second) => second - first)
-    .slice(0, 3);
-  const confidence = Math.min(
-    1,
-    strongestThree.reduce((sum, score) => sum + score, 0) / 2.1,
+  const left = findVerticalBoundary(
+    gray,
+    width,
+    height,
+    "left",
   );
-  const isDetected = visibleEdges >= 3;
+  const right = findVerticalBoundary(
+    gray,
+    width,
+    height,
+    "right",
+  );
+  const top = findHorizontalBoundary(
+    gray,
+    width,
+    height,
+    "top",
+  );
+  const bottom = findHorizontalBoundary(
+    gray,
+    width,
+    height,
+    "bottom",
+  );
+  const boundaries = [left, right, top, bottom];
+  const visibleEdges = boundaries.filter(Boolean).length;
+  const strongEdges = boundaries.filter(
+    (boundary) => boundary?.strength === "strong",
+  ).length;
+  const quad = left && right && top && bottom
+    ? createDocumentQuad(left, right, top, bottom)
+    : null;
+  const geometry = quad && left && right && top && bottom
+    ? measureDocumentGeometry(
+        quad,
+        left,
+        right,
+        top,
+        bottom,
+        width,
+        height,
+      )
+    : null;
+  const detail = quad
+    ? analyzeInteriorDetail(gray, width, height, quad)
+    : { tileRatio: 0, rowCoverage: 0 };
+  const hasCompleteBoundaryEvidence = visibleEdges === 4
+    && strongEdges >= PASSPORT_LIVE_THRESHOLDS.minimumStrongEdges;
+  const hasDistributedInteriorDetail = (
+    detail.tileRatio
+      >= PASSPORT_LIVE_THRESHOLDS.minimumDetailedTileRatio
+    && detail.rowCoverage
+      >= PASSPORT_LIVE_THRESHOLDS.minimumDetailedRowCoverage
+  );
+  const isDetected = hasCompleteBoundaryEvidence
+    && Boolean(geometry?.isGuideAligned)
+    && hasDistributedInteriorDetail;
+  const boundaryConfidence = boundaries.reduce(
+    (sum, boundary) => sum + (boundary?.score ?? 0),
+    0,
+  ) / 4;
+  const confidence = isDetected
+    ? Math.min(
+        1,
+        boundaryConfidence * 0.67
+          + Math.min(1, detail.tileRatio / 0.5) * 0.13
+          + 0.2,
+      )
+    : Math.min(0.82, boundaryConfidence * 0.68);
   const exposure = analyzeExposure(gray);
   const motionSignature = createMotionSignature(gray, width, height);
+  const status: RectangularPassportFrameStatus = isDetected
+    ? "ready"
+    : hasCompleteBoundaryEvidence
+      && geometry?.hasExcessiveSkew
+      ? "excessive_skew"
+      : hasCompleteBoundaryEvidence
+        && geometry?.isGuideAligned
+        && !hasDistributedInteriorDetail
+        ? "not_passport_page"
+      : visibleEdges >= 1
+        ? "incomplete_document"
+        : "no_document";
 
   return {
     isDetected,
     confidence: roundMetric(confidence),
     visibleEdges,
+    strongEdges,
+    documentAreaRatio: roundMetric(geometry?.areaRatio ?? 0),
+    skewDegrees: roundMetric(geometry?.skewDegrees ?? 0),
+    detailTileRatio: roundMetric(detail.tileRatio),
+    detailRowCoverage: roundMetric(detail.rowCoverage),
     ...exposure,
     motionSignature,
-    status: isDetected
-      ? "ready"
-      : visibleEdges >= 1
-        ? "incomplete_document"
-        : "no_document",
+    status,
   };
 }
 
@@ -329,68 +449,586 @@ function analyzeExposure(gray: Uint8Array) {
   } as const;
 }
 
-function verticalEdgeSupport(
+function findVerticalBoundary(
   gray: Uint8Array,
   width: number,
   height: number,
-  centerRatio: number,
-): number {
-  const center = Math.round((width - 1) * centerRatio);
-  const radius = Math.max(3, Math.round(width * EDGE_SEARCH_RATIO));
-  const minimumX = Math.max(1, center - radius);
-  const maximumX = Math.min(width - 2, center + radius);
-  const minimumY = Math.max(1, Math.round(height * 0.08));
-  const maximumY = Math.min(height - 2, Math.round(height * 0.92));
-  let supportedRows = 0;
-  let sampledRows = 0;
-
-  for (let y = minimumY; y <= maximumY; y += 2) {
-    let strongestGradient = 0;
-    for (let x = minimumX; x <= maximumX; x += 1) {
-      const offset = y * width + x;
-      strongestGradient = Math.max(
-        strongestGradient,
-        Math.abs(gray[offset + 1] - gray[offset - 1]),
-      );
-    }
-    if (strongestGradient >= EDGE_GRADIENT_THRESHOLD) supportedRows += 1;
-    sampledRows += 1;
-  }
-
-  return supportedRows / Math.max(1, sampledRows);
+  side: "left" | "right",
+): BoundaryEvidence | null {
+  return findBoundary(
+    gray,
+    width,
+    height,
+    "vertical",
+    side,
+    side === "left" ? GUIDE_EDGE_MIN_RATIO : GUIDE_EDGE_MAX_RATIO,
+  );
 }
 
-function horizontalEdgeSupport(
+function findHorizontalBoundary(
   gray: Uint8Array,
   width: number,
   height: number,
-  centerRatio: number,
-): number {
-  const center = Math.round((height - 1) * centerRatio);
-  const radius = Math.max(3, Math.round(height * EDGE_SEARCH_RATIO));
-  const minimumY = Math.max(1, center - radius);
-  const maximumY = Math.min(height - 2, center + radius);
-  const minimumX = Math.max(1, Math.round(width * 0.08));
-  const maximumX = Math.min(width - 2, Math.round(width * 0.92));
-  let supportedColumns = 0;
-  let sampledColumns = 0;
+  side: "top" | "bottom",
+): BoundaryEvidence | null {
+  return findBoundary(
+    gray,
+    width,
+    height,
+    "horizontal",
+    side,
+    side === "top" ? GUIDE_EDGE_MIN_RATIO : GUIDE_EDGE_MAX_RATIO,
+  );
+}
 
-  for (let x = minimumX; x <= maximumX; x += 2) {
-    let strongestGradient = 0;
-    for (let y = minimumY; y <= maximumY; y += 1) {
-      const offset = y * width + x;
-      strongestGradient = Math.max(
-        strongestGradient,
-        Math.abs(gray[offset + width] - gray[offset - width]),
+function findBoundary(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+  orientation: "vertical" | "horizontal",
+  side: "left" | "right" | "top" | "bottom",
+  expectedPositionRatio: number,
+): BoundaryEvidence | null {
+  const dependentSize = orientation === "vertical" ? width : height;
+  const independentSize = orientation === "vertical" ? height : width;
+  const expectedPosition = expectedPositionRatio * (dependentSize - 1);
+  const positionTolerance = Math.max(
+    4,
+    dependentSize
+      * PASSPORT_LIVE_THRESHOLDS.edgePositionToleranceRatio,
+  );
+  const minimumIntercept = Math.max(
+    7,
+    Math.floor(expectedPosition - positionTolerance),
+  );
+  const maximumIntercept = Math.min(
+    dependentSize - 8,
+    Math.ceil(expectedPosition + positionTolerance),
+  );
+  const segmentSamples = new Uint16Array(8);
+  const segmentSupported = new Uint16Array(8);
+  let best: BoundaryEvidence | null = null;
+
+  for (
+    let slope = -PASSPORT_LIVE_THRESHOLDS.maximumSearchSlope;
+    slope <= PASSPORT_LIVE_THRESHOLDS.maximumSearchSlope + 0.0001;
+    slope += PASSPORT_LIVE_THRESHOLDS.searchSlopeStep
+  ) {
+    for (
+      let intercept = minimumIntercept;
+      intercept <= maximumIntercept;
+      intercept += 2
+    ) {
+      const evidence = evaluateBoundaryCandidate(
+        gray,
+        width,
+        height,
+        orientation,
+        side,
+        slope,
+        intercept,
+        expectedPosition,
+        positionTolerance,
+        independentSize,
+        segmentSamples,
+        segmentSupported,
       );
+      if (!best || evidence.score > best.score) best = evidence;
     }
-    if (strongestGradient >= EDGE_GRADIENT_THRESHOLD) {
-      supportedColumns += 1;
-    }
-    sampledColumns += 1;
   }
 
-  return supportedColumns / Math.max(1, sampledColumns);
+  if (!best) return null;
+  // Candidate search stores the boundary position at the frame centre to make
+  // guide alignment independent of slope. Geometry uses the standard line
+  // equation, so fold the centre offset into the intercept before returning.
+  const standardBoundary = {
+    ...best,
+    intercept: roundMetric(
+      best.intercept - best.slope * ((independentSize - 1) / 2),
+    ),
+  };
+  if (
+    best.support >= PASSPORT_LIVE_THRESHOLDS.strongEdgeSupport
+    && best.segmentCoverage
+      >= PASSPORT_LIVE_THRESHOLDS.strongSegmentCoverage
+    && best.polarityConsistency
+      >= PASSPORT_LIVE_THRESHOLDS.strongPolarityConsistency
+    && best.averageContrast
+      >= PASSPORT_LIVE_THRESHOLDS.strongAverageContrast
+  ) {
+    return { ...standardBoundary, strength: "strong" };
+  }
+  if (
+    best.support >= PASSPORT_LIVE_THRESHOLDS.plausibleEdgeSupport
+    && best.segmentCoverage
+      >= PASSPORT_LIVE_THRESHOLDS.plausibleSegmentCoverage
+    && best.polarityConsistency
+      >= PASSPORT_LIVE_THRESHOLDS.plausiblePolarityConsistency
+    && best.averageContrast
+      >= PASSPORT_LIVE_THRESHOLDS.plausibleAverageContrast
+  ) {
+    return { ...standardBoundary, strength: "plausible" };
+  }
+  return null;
+}
+
+function evaluateBoundaryCandidate(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+  orientation: "vertical" | "horizontal",
+  side: "left" | "right" | "top" | "bottom",
+  slope: number,
+  intercept: number,
+  expectedPosition: number,
+  positionTolerance: number,
+  independentSize: number,
+  segmentSamples: Uint16Array,
+  segmentSupported: Uint16Array,
+): BoundaryEvidence {
+  const firstIndependent = Math.round(independentSize * 0.08);
+  const lastIndependent = Math.round(independentSize * 0.92);
+  segmentSamples.fill(0);
+  segmentSupported.fill(0);
+  const segmentCount = segmentSamples.length;
+  let samples = 0;
+  let supported = 0;
+  let positive = 0;
+  let negative = 0;
+  let contrastTotal = 0;
+
+  for (
+    let independent = firstIndependent;
+    independent <= lastIndependent;
+    independent += 2
+  ) {
+    const centeredIndependent = independent - (independentSize - 1) / 2;
+    const dependent = Math.round(
+      intercept + slope * centeredIndependent,
+    );
+    const contrast = boundaryStepContrast(
+      gray,
+      width,
+      height,
+      orientation,
+      side,
+      dependent,
+      independent,
+    );
+    const segment = Math.min(
+      segmentCount - 1,
+      Math.floor(
+        ((independent - firstIndependent)
+          / Math.max(1, lastIndependent - firstIndependent + 1))
+          * segmentCount,
+      ),
+    );
+    segmentSamples[segment] += 1;
+    samples += 1;
+    if (
+      Math.abs(contrast)
+        < PASSPORT_LIVE_THRESHOLDS.edgeStepContrast
+    ) {
+      continue;
+    }
+    supported += 1;
+    contrastTotal += Math.abs(contrast);
+    segmentSupported[segment] += 1;
+    if (contrast >= 0) positive += 1;
+    else negative += 1;
+  }
+
+  let coveredSegments = 0;
+  for (let segment = 0; segment < segmentCount; segment += 1) {
+    if (
+      segmentSupported[segment]
+        / Math.max(1, segmentSamples[segment]) >= 0.3
+    ) {
+      coveredSegments += 1;
+    }
+  }
+  const support = supported / Math.max(1, samples);
+  const segmentCoverage = coveredSegments / segmentCount;
+  const averageContrast = contrastTotal / Math.max(1, supported);
+  const polarityConsistency = Math.max(positive, negative)
+    / Math.max(1, supported);
+  const alignment = Math.max(
+    0,
+    1 - Math.abs(intercept - expectedPosition) / positionTolerance,
+  );
+  const score = (
+    support * 0.48
+    + segmentCoverage * 0.22
+    + Math.min(1, averageContrast / 34) * 0.18
+    + polarityConsistency * 0.08
+    + alignment * 0.04
+  );
+  return {
+    slope: roundMetric(slope),
+    intercept,
+    support: roundMetric(support),
+    segmentCoverage: roundMetric(segmentCoverage),
+    averageContrast: roundMetric(averageContrast),
+    polarityConsistency: roundMetric(polarityConsistency),
+    score: roundMetric(score),
+    strength: "plausible",
+  };
+}
+
+/**
+ * Measures a broad luminance step across a candidate boundary. Thin text,
+ * keyboard legends, and seams normally brighten and darken within this span,
+ * while a physical page edge keeps one side consistently different.
+ */
+function boundaryStepContrast(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+  orientation: "vertical" | "horizontal",
+  side: "left" | "right" | "top" | "bottom",
+  dependent: number,
+  independent: number,
+): number {
+  const nearOffset = 3;
+  const farOffset = 6;
+  let negativeTotal = 0;
+  let positiveTotal = 0;
+  let samples = 0;
+
+  for (let offset = nearOffset; offset <= farOffset; offset += 1) {
+    if (orientation === "vertical") {
+      if (
+        dependent - offset < 0
+        || dependent + offset >= width
+        || independent < 0
+        || independent >= height
+      ) {
+        continue;
+      }
+      negativeTotal += gray[independent * width + dependent - offset];
+      positiveTotal += gray[independent * width + dependent + offset];
+    } else {
+      if (
+        dependent - offset < 0
+        || dependent + offset >= height
+        || independent < 0
+        || independent >= width
+      ) {
+        continue;
+      }
+      negativeTotal += gray[(dependent - offset) * width + independent];
+      positiveTotal += gray[(dependent + offset) * width + independent];
+    }
+    samples += 1;
+  }
+  if (samples === 0) return 0;
+  const directionalContrast = (
+    positiveTotal - negativeTotal
+  ) / samples;
+  const positiveDirectionIsInside = side === "left" || side === "top";
+  return positiveDirectionIsInside
+    ? directionalContrast
+    : -directionalContrast;
+}
+
+/**
+ * Looks only for useful visual detail distributed through the page interior.
+ * It does not recognize text, fields, faces, or MRZ structure. Requiring
+ * several low-resolution tiles across more than one row prevents a blank
+ * booklet page with a narrow strip of the real information page from passing.
+ */
+function analyzeInteriorDetail(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+  quad: DocumentQuad,
+) {
+  const columns = PASSPORT_LIVE_THRESHOLDS.detailColumns;
+  const rows = PASSPORT_LIVE_THRESHOLDS.detailRows;
+  const detailedByRow = new Uint8Array(rows);
+  let detailedTiles = 0;
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      const tile = sampleInteriorTile(
+        gray,
+        width,
+        height,
+        quad,
+        column,
+        row,
+        columns,
+        rows,
+      );
+      if (
+        tile.edgeRatio
+          < PASSPORT_LIVE_THRESHOLDS.minimumDetailEdgeRatio
+        || tile.deviation
+          < PASSPORT_LIVE_THRESHOLDS.minimumDetailDeviation
+      ) {
+        continue;
+      }
+      detailedTiles += 1;
+      detailedByRow[row] = 1;
+    }
+  }
+  const detailedRows = detailedByRow.reduce(
+    (sum, detailed) => sum + detailed,
+    0,
+  );
+  return {
+    tileRatio: detailedTiles / Math.max(1, columns * rows),
+    rowCoverage: detailedRows / Math.max(1, rows),
+  };
+}
+
+function sampleInteriorTile(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+  quad: DocumentQuad,
+  column: number,
+  row: number,
+  columns: number,
+  rows: number,
+) {
+  // Stay well inside the fitted quadrilateral so page/background transitions
+  // or an open-book crease cannot masquerade as distributed printed detail.
+  const insetStart = 0.14;
+  const insetSpan = 0.72;
+  const samplesAcross = 18;
+  const samplesDown = 14;
+  let total = 0;
+  let squaredTotal = 0;
+  let edgeSamples = 0;
+  let samples = 0;
+
+  for (let sampleY = 0; sampleY < samplesDown; sampleY += 1) {
+    const v = insetStart + insetSpan * (
+      (row + (sampleY + 0.5) / samplesDown) / rows
+    );
+    for (let sampleX = 0; sampleX < samplesAcross; sampleX += 1) {
+      const u = insetStart + insetSpan * (
+        (column + (sampleX + 0.5) / samplesAcross) / columns
+      );
+      const point = pointInsideQuad(quad, u, v);
+      const x = Math.max(1, Math.min(width - 2, Math.round(point.x)));
+      const y = Math.max(1, Math.min(height - 2, Math.round(point.y)));
+      const offset = y * width + x;
+      const value = gray[offset];
+      const gradient = (
+        Math.abs(gray[offset + 1] - gray[offset - 1])
+        + Math.abs(gray[offset + width] - gray[offset - width])
+      );
+      total += value;
+      squaredTotal += value * value;
+      if (gradient >= PASSPORT_LIVE_THRESHOLDS.detailGradient) {
+        edgeSamples += 1;
+      }
+      samples += 1;
+    }
+  }
+  const mean = total / Math.max(1, samples);
+  return {
+    edgeRatio: edgeSamples / Math.max(1, samples),
+    deviation: Math.sqrt(
+      Math.max(0, squaredTotal / Math.max(1, samples) - mean * mean),
+    ),
+  };
+}
+
+function pointInsideQuad(
+  quad: DocumentQuad,
+  u: number,
+  v: number,
+): Point {
+  const top = {
+    x: quad.topLeft.x * (1 - u) + quad.topRight.x * u,
+    y: quad.topLeft.y * (1 - u) + quad.topRight.y * u,
+  };
+  const bottom = {
+    x: quad.bottomLeft.x * (1 - u) + quad.bottomRight.x * u,
+    y: quad.bottomLeft.y * (1 - u) + quad.bottomRight.y * u,
+  };
+  return {
+    x: top.x * (1 - v) + bottom.x * v,
+    y: top.y * (1 - v) + bottom.y * v,
+  };
+}
+
+function createDocumentQuad(
+  left: BoundaryEvidence,
+  right: BoundaryEvidence,
+  top: BoundaryEvidence,
+  bottom: BoundaryEvidence,
+): DocumentQuad {
+  return {
+    topLeft: intersectBoundaries(left, top),
+    topRight: intersectBoundaries(right, top),
+    bottomRight: intersectBoundaries(right, bottom),
+    bottomLeft: intersectBoundaries(left, bottom),
+  };
+}
+
+function intersectBoundaries(
+  vertical: BoundaryEvidence,
+  horizontal: BoundaryEvidence,
+): Point {
+  const denominator = 1 - vertical.slope * horizontal.slope;
+  const x = Math.abs(denominator) < 0.0001
+    ? vertical.intercept
+    : (
+        vertical.slope * horizontal.intercept
+        + vertical.intercept
+      ) / denominator;
+  return {
+    x,
+    y: horizontal.slope * x + horizontal.intercept,
+  };
+}
+
+function measureDocumentGeometry(
+  quad: DocumentQuad,
+  left: BoundaryEvidence,
+  right: BoundaryEvidence,
+  top: BoundaryEvidence,
+  bottom: BoundaryEvidence,
+  width: number,
+  height: number,
+) {
+  const points = [
+    quad.topLeft,
+    quad.topRight,
+    quad.bottomRight,
+    quad.bottomLeft,
+  ];
+  if (
+    !points.every(
+      (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+    )
+  ) {
+    return {
+      areaRatio: 0,
+      skewDegrees: 0,
+      hasExcessiveSkew: false,
+      isGuideAligned: false,
+    };
+  }
+  const topSpan = distance(quad.topLeft, quad.topRight);
+  const bottomSpan = distance(quad.bottomLeft, quad.bottomRight);
+  const leftSpan = distance(quad.topLeft, quad.bottomLeft);
+  const rightSpan = distance(quad.topRight, quad.bottomRight);
+  const horizontalSpanRatio = (
+    (topSpan + bottomSpan) / 2
+  ) / Math.max(1, width);
+  const verticalSpanRatio = (
+    (leftSpan + rightSpan) / 2
+  ) / Math.max(1, height);
+  const areaRatio = polygonArea(points) / Math.max(1, width * height);
+  const centerX = points.reduce((sum, point) => sum + point.x, 0) / 4;
+  const centerY = points.reduce((sum, point) => sum + point.y, 0) / 4;
+  const leftAngle = radiansToDegrees(Math.atan(-left.slope));
+  const rightAngle = radiansToDegrees(Math.atan(-right.slope));
+  const topAngle = radiansToDegrees(Math.atan(top.slope));
+  const bottomAngle = radiansToDegrees(Math.atan(bottom.slope));
+  const verticalAngle = (leftAngle + rightAngle) / 2;
+  const horizontalAngle = (topAngle + bottomAngle) / 2;
+  const skewDegrees = Math.abs(
+    (verticalAngle + horizontalAngle) / 2,
+  );
+  const oppositeVerticalDelta = Math.abs(leftAngle - rightAngle);
+  const oppositeHorizontalDelta = Math.abs(topAngle - bottomAngle);
+  const axisAngleDelta = Math.abs(verticalAngle - horizontalAngle);
+  const hasExcessiveSkew = (
+    skewDegrees > PASSPORT_LIVE_THRESHOLDS.maximumReadySkewDegrees
+    || oppositeVerticalDelta
+      > PASSPORT_LIVE_THRESHOLDS.maximumOppositeEdgeAngleDelta
+    || oppositeHorizontalDelta
+      > PASSPORT_LIVE_THRESHOLDS.maximumOppositeEdgeAngleDelta
+    || axisAngleDelta
+      > PASSPORT_LIVE_THRESHOLDS.maximumAxisAngleDelta
+  );
+  const spansFitGuide = (
+    horizontalSpanRatio
+      >= PASSPORT_LIVE_THRESHOLDS.minimumDocumentSpanRatio
+    && horizontalSpanRatio
+      <= PASSPORT_LIVE_THRESHOLDS.maximumDocumentSpanRatio
+    && verticalSpanRatio
+      >= PASSPORT_LIVE_THRESHOLDS.minimumDocumentSpanRatio
+    && verticalSpanRatio
+      <= PASSPORT_LIVE_THRESHOLDS.maximumDocumentSpanRatio
+  );
+  const centerFitsGuide = (
+    Math.abs(centerX / width - 0.5)
+      <= PASSPORT_LIVE_THRESHOLDS.maximumCenterOffsetRatio
+    && Math.abs(centerY / height - 0.5)
+      <= PASSPORT_LIVE_THRESHOLDS.maximumCenterOffsetRatio
+  );
+  const areaFitsGuide = (
+    areaRatio >= PASSPORT_LIVE_THRESHOLDS.minimumDocumentAreaRatio
+    && areaRatio <= PASSPORT_LIVE_THRESHOLDS.maximumDocumentAreaRatio
+  );
+  const oppositeSpansAgree = (
+    Math.min(topSpan, bottomSpan) / Math.max(1, Math.max(topSpan, bottomSpan))
+      >= 0.78
+    && Math.min(leftSpan, rightSpan) / Math.max(1, Math.max(leftSpan, rightSpan))
+      >= 0.78
+  );
+
+  return {
+    areaRatio,
+    skewDegrees,
+    hasExcessiveSkew,
+    isGuideAligned: (
+      !hasExcessiveSkew
+      && spansFitGuide
+      && centerFitsGuide
+      && areaFitsGuide
+      && oppositeSpansAgree
+      && isConvexQuad(quad)
+    ),
+  };
+}
+
+function isConvexQuad(quad: DocumentQuad): boolean {
+  const points = [
+    quad.topLeft,
+    quad.topRight,
+    quad.bottomRight,
+    quad.bottomLeft,
+  ];
+  let sign = 0;
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index];
+    const next = points[(index + 1) % points.length];
+    const after = points[(index + 2) % points.length];
+    const cross = (
+      (next.x - current.x) * (after.y - next.y)
+      - (next.y - current.y) * (after.x - next.x)
+    );
+    if (Math.abs(cross) < 0.001) continue;
+    const nextSign = Math.sign(cross);
+    if (sign !== 0 && nextSign !== sign) return false;
+    sign = nextSign;
+  }
+  return sign !== 0;
+}
+
+function polygonArea(points: Point[]): number {
+  let area = 0;
+  for (let index = 0; index < points.length; index += 1) {
+    const next = points[(index + 1) % points.length];
+    area += points[index].x * next.y - next.x * points[index].y;
+  }
+  return Math.abs(area) / 2;
+}
+
+function distance(first: Point, second: Point): number {
+  return Math.hypot(second.x - first.x, second.y - first.y);
+}
+
+function radiansToDegrees(radians: number): number {
+  return radians * (180 / Math.PI);
 }
 
 function toGrayscale(
@@ -420,6 +1058,11 @@ function emptyResult(
     isDetected: false,
     confidence: 0,
     visibleEdges: 0,
+    strongEdges: 0,
+    documentAreaRatio: 0,
+    skewDegrees: 0,
+    detailTileRatio: 0,
+    detailRowCoverage: 0,
     status,
     lightingStatus: "good",
     meanLuminance: 0,

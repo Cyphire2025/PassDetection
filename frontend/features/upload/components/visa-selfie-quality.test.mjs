@@ -5,6 +5,7 @@ import {
   encodeVisaJpegUnderLimit,
   evaluateFallbackFinalVisaPhoto,
   evaluateFinalVisaPhoto,
+  evaluateLiveVisaPhotoBackground,
   evaluateVisaPhotoFaceCount,
   evaluateVisaPhotoClarity,
   evaluateVisaPhotoFacePlacement,
@@ -183,6 +184,54 @@ test("accepts an off-white wall with mild natural texture around a detected pers
     FACE,
   );
   assert.equal(result.isWhite, true);
+});
+
+test("live guidance tolerates a small edge socket on an otherwise plain wall", () => {
+  const pixels = makeVisaPhotoFrame();
+  drawRect(pixels, 0, 36, 10, 65, [198, 198, 194]);
+  drawRect(pixels, 1, 42, 5, 57, [68, 68, 66]);
+  drawRect(pixels, 7, 45, 10, 53, [44, 44, 42]);
+
+  const result = evaluateLiveVisaPhotoBackground(
+    pixels,
+    PHOTO_WIDTH,
+    PHOTO_HEIGHT,
+    FACE,
+  );
+
+  assert.equal(result.status, "white", JSON.stringify(result.metrics));
+});
+
+test("live guidance still rejects widespread screen-like structure", () => {
+  const pixels = makeVisaPhotoFrame({
+    backgroundAt: (x, y) => (
+      (Math.floor(x / 4) + Math.floor(y / 4)) % 2 === 0
+        ? [242, 240, 236]
+        : [168, 166, 162]
+    ),
+  });
+
+  const result = evaluateLiveVisaPhotoBackground(
+    pixels,
+    PHOTO_WIDTH,
+    PHOTO_HEIGHT,
+    FACE,
+  );
+
+  assert.equal(result.status, "not_plain", JSON.stringify(result.metrics));
+});
+
+test("live guidance still rejects a dark wall", () => {
+  const result = evaluateLiveVisaPhotoBackground(
+    makeVisaPhotoFrame({
+      backgroundAt: () => [108, 108, 106],
+    }),
+    PHOTO_WIDTH,
+    PHOTO_HEIGHT,
+    FACE,
+  );
+
+  assert.equal(result.status, "not_white", JSON.stringify(result.metrics));
 });
 
 test("allows one mildly failing background tile but rejects two", () => {
@@ -445,6 +494,23 @@ test("final validation hard-rejects severe face blur and obvious wall patterns",
   assert.match(blurred.message, /blurred/i);
   assert.equal(patterned.outcome, "hard_failure", JSON.stringify(patterned));
   assert.match(patterned.message, /background/i);
+});
+
+test("final validation keeps a small peripheral socket reviewable", () => {
+  const pixels = makeVisaPhotoFrame();
+  drawRect(pixels, 0, 36, 10, 65, [198, 198, 194]);
+  drawRect(pixels, 1, 42, 5, 57, [68, 68, 66]);
+  drawRect(pixels, 7, 45, 10, 53, [44, 44, 42]);
+
+  const result = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: FACE,
+    pixels,
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.notEqual(result.outcome, "hard_failure", JSON.stringify(result));
 });
 
 test("final validation hard-rejects missing and multiple faces", () => {

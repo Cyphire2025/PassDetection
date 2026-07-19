@@ -22,6 +22,16 @@ export interface WhiteBackgroundMetrics {
   extremeZoneCount: number;
 }
 
+export type VisaPhotoLiveBackgroundStatus =
+  | "white"
+  | "not_white"
+  | "not_plain";
+
+export interface VisaPhotoLiveBackgroundEvaluation {
+  status: VisaPhotoLiveBackgroundStatus;
+  metrics: WhiteBackgroundMetrics;
+}
+
 export interface NormalizedPoint {
   x: number;
   y: number;
@@ -127,8 +137,23 @@ const FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO = 0.35;
 const FINAL_HARD_MAX_STRONG_EDGE_RATIO = 0.16;
 const FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO = 0.32;
 const FINAL_HARD_MAX_LINE_COVERAGE = 0.58;
-const FINAL_HARD_MAX_REGIONAL_EDGE_RATIO = 0.42;
+const FINAL_HARD_MAX_REGIONAL_EDGE_RATIO = 0.48;
 const FINAL_HARD_MAX_REGIONAL_DARK_RATIO = 0.55;
+const FINAL_HARD_MIN_FAILING_LIGHT_NEUTRAL_ZONES = 4;
+const FINAL_HARD_MIN_STRUCTURED_ZONES = 6;
+const FINAL_HARD_MIN_EXTREME_ZONES = 3;
+const LIVE_MIN_BACKGROUND_LUMINANCE = 145;
+const LIVE_MIN_LIGHT_NEUTRAL_RATIO = 0.58;
+const LIVE_MAX_FAILING_LIGHT_NEUTRAL_ZONES = 3;
+const LIVE_MAX_LUMINANCE_DEVIATION = 76;
+const LIVE_MAX_ZONE_MEAN_SPREAD = 165;
+const LIVE_MAX_STRONG_EDGE_RATIO = 0.18;
+const LIVE_MAX_ROUGH_TEXTURE_RATIO = 0.32;
+const LIVE_MAX_LINE_COVERAGE = 0.66;
+const LIVE_MAX_STRUCTURED_ZONES = 6;
+const LIVE_MAX_EXTREME_ZONES = 2;
+const LIVE_MAX_REGIONAL_EDGE_RATIO = 0.50;
+const LIVE_MAX_REGIONAL_DARK_RATIO = 0.82;
 export const VISA_JPEG_QUALITY_STEPS = [
   0.94,
   0.9,
@@ -416,6 +441,51 @@ export function evaluateWhiteBackground(
     failingLightNeutralZoneCount,
     structuredZoneCount,
     extremeZoneCount,
+  };
+}
+
+/**
+ * Converts face-aware, multi-tile wall evidence into a forgiving live gate.
+ *
+ * A small fixture, soft shadow, hair spill, or one noisy tile should not keep
+ * the manual shutter locked. Dark/coloured walls and widespread structure
+ * still block readiness. The exact encoded JPEG is evaluated separately by
+ * evaluateFinalVisaPhoto, where mild residual defects become borderline and
+ * definite defects remain hard failures.
+ */
+export function evaluateLiveVisaPhotoBackground(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+  face: VisaPhotoFaceGeometry,
+): VisaPhotoLiveBackgroundEvaluation {
+  const metrics = evaluateWhiteBackground(pixels, width, height, face);
+  const isBroadlyLightNeutral = (
+    metrics.averageLuminance >= LIVE_MIN_BACKGROUND_LUMINANCE
+    && metrics.lightNeutralRatio >= LIVE_MIN_LIGHT_NEUTRAL_RATIO
+    && metrics.failingLightNeutralZoneCount
+      <= LIVE_MAX_FAILING_LIGHT_NEUTRAL_ZONES
+    && metrics.luminanceDeviation <= LIVE_MAX_LUMINANCE_DEVIATION
+    && metrics.zoneMeanSpread <= LIVE_MAX_ZONE_MEAN_SPREAD
+  );
+  if (!isBroadlyLightNeutral) {
+    return { status: "not_white", metrics };
+  }
+
+  const hasWidespreadStructure = (
+    metrics.strongEdgeRatio > LIVE_MAX_STRONG_EDGE_RATIO
+    || metrics.roughTextureRatio > LIVE_MAX_ROUGH_TEXTURE_RATIO
+    || metrics.maxLineCoverage > LIVE_MAX_LINE_COVERAGE
+    || metrics.structuredZoneCount > LIVE_MAX_STRUCTURED_ZONES
+    || metrics.extremeZoneCount > LIVE_MAX_EXTREME_ZONES
+    || (
+      metrics.maxRegionalEdgeRatio > LIVE_MAX_REGIONAL_EDGE_RATIO
+      && metrics.maxRegionalDarkRatio > LIVE_MAX_REGIONAL_DARK_RATIO
+    )
+  );
+  return {
+    status: hasWidespreadStructure ? "not_plain" : "white",
+    metrics,
   };
 }
 
@@ -816,7 +886,11 @@ function isDefinitelyInvalidBackground(
     && (
       background.averageLuminance < FINAL_HARD_MIN_BACKGROUND_LUMINANCE
       || background.lightNeutralRatio < FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO
-      || background.failingLightNeutralZoneCount >= 2
+      || (
+        background.failingLightNeutralZoneCount
+          >= FINAL_HARD_MIN_FAILING_LIGHT_NEUTRAL_ZONES
+        && background.lightNeutralRatio < LIVE_MIN_LIGHT_NEUTRAL_RATIO
+      )
     )
   ) {
     return true;
@@ -825,8 +899,8 @@ function isDefinitelyInvalidBackground(
     background.strongEdgeRatio > FINAL_HARD_MAX_STRONG_EDGE_RATIO
     || background.roughTextureRatio > FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO
     || background.maxLineCoverage > FINAL_HARD_MAX_LINE_COVERAGE
-    || background.structuredZoneCount >= 2
-    || background.extremeZoneCount >= 1
+    || background.structuredZoneCount >= FINAL_HARD_MIN_STRUCTURED_ZONES
+    || background.extremeZoneCount >= FINAL_HARD_MIN_EXTREME_ZONES
     || (
       background.maxRegionalEdgeRatio
         > FINAL_HARD_MAX_REGIONAL_EDGE_RATIO

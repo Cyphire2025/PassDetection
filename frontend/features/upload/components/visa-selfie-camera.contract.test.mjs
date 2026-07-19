@@ -23,14 +23,39 @@ test("guided fallback requires an explicit accessible acknowledgement", () => {
 
 test("live readiness uses face-aware wall, face clarity, and rolling checks", () => {
   assert.match(source, /Remove glasses/);
+  assert.match(source, /Use a light, uncluttered wall/);
+  assert.doesNotMatch(
+    source,
+    /Use a plain wall without handles, seams, shelves, or patterns/,
+  );
   assert.doesNotMatch(source, /detect(?:s|ion)?Glasses|eyewearDetector/i);
   assert.match(source, /\bevaluateVisaPhotoFacePlacement\b/);
-  assert.match(source, /\bevaluateWhiteBackground\b/);
+  assert.match(source, /\bevaluateLiveVisaPhotoBackground\b/);
+  assert.doesNotMatch(source, /\bevaluatePermissiveWhiteBackground\b/);
   assert.match(source, /clarity: evaluateVisaPhotoClarity\(/);
   assert.match(source, /\bisVisaPhotoFrameCaptureReady\b/);
   assert.match(source, /\bisVisaPhotoFaceStable\b/);
   assert.match(source, /\bupdateRollingCameraReadiness\b/);
   assert.match(source, /CAMERA_QUALITY_POLICY\.liveAnalysisIntervalMs/);
+  assert.match(source, /const LIVE_FACE_DETECTION_CONFIDENCE = 0\.55;/);
+  assert.match(
+    source,
+    /minDetectionConfidence: LIVE_FACE_DETECTION_CONFIDENCE/,
+  );
+});
+
+test("human-proportioned placement guide exposes the exact inner output crop", () => {
+  assert.match(source, /data-testid="visa-photo-placement-guide"/);
+  assert.match(source, /aspect-\[35\/45\]/);
+  assert.match(source, /data-testid="visa-photo-output-crop"/);
+  assert.match(source, /aspect-\[2\/3\]/);
+  assert.match(source, /preserveAspectRatio="xMidYMax meet"/);
+  assert.doesNotMatch(source, /preserveAspectRatio="none"/);
+  assert.match(source, /\bgetVisaOutputCrop\b/);
+  assert.match(
+    source,
+    /CAMERA_QUALITY_POLICY\.visaOutputWidth\s*\/\s*CAMERA_QUALITY_POLICY\.visaOutputHeight/,
+  );
 });
 
 test("Visa Photo capture stays manual after the guide becomes ready", () => {

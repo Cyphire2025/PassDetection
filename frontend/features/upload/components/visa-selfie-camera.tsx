@@ -14,9 +14,9 @@ import {
   encodeVisaJpegUnderLimit,
   evaluateFallbackFinalVisaPhoto,
   evaluateFinalVisaPhoto,
+  evaluateLiveVisaPhotoBackground,
   evaluateVisaPhotoFacePlacement,
   evaluateVisaPhotoClarity,
-  evaluateWhiteBackground,
   isVisaPhotoFrameCaptureReady,
   isVisaPhotoFaceStable,
   isVisaPhotoFallbackCaptureAllowed,
@@ -71,6 +71,7 @@ type CaptureMode = "validated" | "fallback";
 const ANALYSIS_TIMEOUT_MS = 6_000;
 const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
+const LIVE_FACE_DETECTION_CONFIDENCE = 0.55;
 
 export function VisaSelfieCamera({
   onCapture,
@@ -225,10 +226,7 @@ export function VisaSelfieCamera({
     setBorderlineConfirmed(false);
 
     try {
-      const videoCrop = fitCropToAspect(
-        getVisibleGuideCrop(video, guide),
-        2 / 3,
-      );
+      const videoCrop = getVisaOutputCrop(video, guide);
       const source = await captureBestCameraSource(video, streamRef.current);
       const sourceCrop = remapVideoCropToSource(
         videoCrop,
@@ -362,7 +360,11 @@ export function VisaSelfieCamera({
         detector.setOptions({
           model: "short",
           selfieMode: false,
-          minDetectionConfidence: 0.68,
+          // The short-range model is right for a portrait, but 0.68 produced
+          // avoidable misses in Safari and in-app browsers. Final validation
+          // still reruns face count, placement, clarity, and background checks
+          // on the exact encoded JPEG.
+          minDetectionConfidence: LIVE_FACE_DETECTION_CONFIDENCE,
         });
         detector.onResults((results) => {
           const pendingFinal = pendingFinalAnalysisRef.current;
@@ -730,7 +732,7 @@ export function VisaSelfieCamera({
             : clarityStatus === "blurry"
               ? "Hold the camera steady and keep your face in focus"
               : backgroundStatus === "not_plain"
-                ? "Use a plain wall without handles, seams, shelves, or patterns"
+                ? "Use a light, uncluttered wall"
                 : backgroundStatus === "not_white"
                   ? "Use a plain white or off-white wall"
                   : ready
@@ -790,32 +792,36 @@ export function VisaSelfieCamera({
               <Image src={capturedPreview} alt="Captured Visa Photo" fill unoptimized className="bg-slate-100 object-contain" />
             ) : (
               <div className="pointer-events-none absolute inset-0">
-                {/* Keep a dedicated lane for live guidance while allowing the crop
-                    to grow on taller phones. Safe-area insets are removed from
-                    the vertical budget so Safari controls never crowd the frame. */}
+                {/* The outer frame is a familiar portrait-placement guide. The
+                    inner dashed rails are the exact central 2:3 area used for
+                    both live analysis and the final 800x1200 capture. */}
                 <div
-                  ref={guideRef}
-                  className="absolute bottom-[clamp(0.75rem,1.75dvh,1.25rem)] left-1/2 aspect-[2/3] -translate-x-1/2"
-                  style={{
-                    width: "max(min(68vw, 45dvh, 27rem), min(84vw, calc(77.7778dvh - 15.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)), 31rem))",
-                  }}
+                  data-testid="visa-photo-placement-guide"
+                  className="absolute bottom-[clamp(0.75rem,1.75dvh,1.25rem)] left-1/2 aspect-[35/45] w-[72vw] max-w-[26rem] -translate-x-1/2"
+                  style={{ width: "min(72vw, 42dvh, 26rem)" }}
                 >
                   <div className={`absolute inset-0 rounded-[1.75rem] border-[3px] shadow-[0_0_0_9999px_rgba(248,250,252,0.42)] transition-colors ${ready ? "border-emerald-500" : "border-white"}`} />
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 100 126"
-                    className="absolute inset-x-[3.5%] bottom-0 top-[3%] h-[97%] w-[93%]"
-                    preserveAspectRatio="none"
+                  <div
+                    ref={guideRef}
+                    data-testid="visa-photo-output-crop"
+                    className={`absolute left-1/2 top-0 h-full w-[85.7143%] aspect-[2/3] -translate-x-1/2 border-x border-dashed transition-colors ${ready ? "border-emerald-500/70" : "border-white/55"}`}
                   >
-                    <path
-                      d="M50 3 C32 3 22 19 22 41 C22 59 28 73 38 80 L38 87 C20 89 8 99 5 126 L95 126 C92 99 80 89 62 87 L62 80 C72 73 78 59 78 41 C78 19 68 3 50 3 Z"
-                      fill="none"
-                      strokeWidth="1.7"
-                      strokeDasharray="4 3"
-                      vectorEffect="non-scaling-stroke"
-                      className={`transition-colors ${ready ? "stroke-emerald-500" : "stroke-white"}`}
-                    />
-                  </svg>
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 100 126"
+                      className="absolute inset-x-[4%] bottom-[1%] h-[88%] w-[92%]"
+                      preserveAspectRatio="xMidYMax meet"
+                    >
+                      <path
+                        d="M50 3 C32 3 22 19 22 41 C22 59 28 73 38 80 L38 87 C20 89 8 99 5 126 L95 126 C92 99 80 89 62 87 L62 80 C72 73 78 59 78 41 C78 19 68 3 50 3 Z"
+                        fill="none"
+                        strokeWidth="1.7"
+                        strokeDasharray="4 3"
+                        vectorEffect="non-scaling-stroke"
+                        className={`transition-colors ${ready ? "stroke-emerald-500" : "stroke-white"}`}
+                      />
+                    </svg>
+                  </div>
                 </div>
                 <div
                   role={processingError ? "alert" : "status"}
@@ -1022,7 +1028,7 @@ function faceGeometryFromDetection(
   guide: HTMLDivElement,
 ): VisaPhotoFaceGeometry | null {
   const box = detection.boundingBox;
-  const crop = getVisibleGuideCrop(video, guide);
+  const crop = getVisaOutputCrop(video, guide);
   const relativeWidth = (box.width * video.videoWidth) / crop.width;
   const relativeHeight = (box.height * video.videoHeight) / crop.height;
   const centerX = (box.xCenter * video.videoWidth - crop.left) / crop.width;
@@ -1101,7 +1107,7 @@ function analyzeVisaPhotoFrame(
   background: ResolvedBackgroundStatus;
   clarity: VisaPhotoClarityStatus;
 } {
-  const crop = getVisibleGuideCrop(video, guide);
+  const crop = getVisaOutputCrop(video, guide);
   canvas.width = ANALYSIS_WIDTH;
   canvas.height = ANALYSIS_HEIGHT;
   const context = canvas.getContext("2d", { willReadFrequently: true });
@@ -1114,19 +1120,18 @@ function analyzeVisaPhotoFrame(
 
   context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
   const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
-  const backgroundMetrics = evaluateWhiteBackground(
+  // Live guidance uses the same detected-person-excluded, multi-tile evidence
+  // as final validation, but only definite colour or widespread-structure
+  // failures block the shutter. The exact encoded photo is reclassified with
+  // stricter pass/borderline/hard-failure rules after capture.
+  const backgroundEvaluation = evaluateLiveVisaPhotoBackground(
     pixels,
     ANALYSIS_WIDTH,
     ANALYSIS_HEIGHT,
     face,
   );
-  const background: ResolvedBackgroundStatus = backgroundMetrics.isWhite
-    ? "white"
-    : backgroundMetrics.failureReason === "not_plain"
-      ? "not_plain"
-      : "not_white";
   return {
-    background,
+    background: backgroundEvaluation.status,
     clarity: evaluateVisaPhotoClarity(
       pixels,
       ANALYSIS_WIDTH,
@@ -1193,6 +1198,17 @@ function fitCropToAspect(
     width: crop.width,
     height,
   };
+}
+
+function getVisaOutputCrop(
+  video: HTMLVideoElement,
+  guide: HTMLDivElement,
+): CropBounds {
+  return fitCropToAspect(
+    getVisibleGuideCrop(video, guide),
+    CAMERA_QUALITY_POLICY.visaOutputWidth
+      / CAMERA_QUALITY_POLICY.visaOutputHeight,
+  );
 }
 
 async function decodeVisaPhoto(blob: Blob): Promise<{
