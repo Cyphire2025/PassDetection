@@ -26,6 +26,10 @@ import {
   type VisaPhotoFaceGeometry,
 } from "./visa-selfie-quality";
 import {
+  evaluateCompatibilityVisaPhotoFace,
+  evaluatePermissiveWhiteBackground,
+} from "./visa-selfie-compatibility";
+import {
   captureBestCameraSource,
   remapVideoCropToSource,
 } from "../services/camera-capture";
@@ -67,11 +71,19 @@ interface PendingFinalAnalysis {
 }
 
 type CaptureMode = "validated" | "fallback";
+type VisaCameraProfile = "relaxed" | "strict";
 
 const ANALYSIS_TIMEOUT_MS = 6_000;
 const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
 const LIVE_FACE_DETECTION_CONFIDENCE = 0.55;
+/**
+ * The relaxed profile restores the forgiving Visa camera behavior that was
+ * active before 9f0e751: one reasonably positioned face plus a white or
+ * off-white wall. The newer strict implementation remains fully wired behind
+ * this switch so it can be refined and enabled again later.
+ */
+const ACTIVE_VISA_CAMERA_PROFILE: VisaCameraProfile = "relaxed";
 
 export function VisaSelfieCamera({
   onCapture,
@@ -126,7 +138,9 @@ export function VisaSelfieCamera({
     qualityModelUnavailable: Boolean(modelError),
     faceStatus,
     backgroundStatus,
-    clarityStatus,
+    clarityStatus: ACTIVE_VISA_CAMERA_PROFILE === "strict"
+      ? clarityStatus
+      : "checking",
   });
   useStableTelemetryReason(telemetryReason, onTelemetryReason);
 
@@ -269,6 +283,12 @@ export function VisaSelfieCamera({
         type: "image/jpeg",
         lastModified: Date.now(),
       });
+      if (ACTIVE_VISA_CAMERA_PROFILE === "relaxed") {
+        setCapturedFile(file);
+        setCapturedPreview(URL.createObjectURL(file));
+        return;
+      }
+
       const decoded = await decodeVisaPhoto(blob);
       let validation: VisaPhotoFinalValidation;
       try {
@@ -398,9 +418,11 @@ export function VisaSelfieCamera({
             ? faceGeometryFromDetection(results.detections[0], video, guide)
             : null;
           const nextFaceStatus = classifyFace(results.detections, face);
-          const faceIsStable = nextFaceStatus === "ready" && face
-            ? isVisaPhotoFaceStable(previousFaceRef.current, face)
-            : false;
+          const faceIsStable = ACTIVE_VISA_CAMERA_PROFILE === "relaxed"
+            ? true
+            : nextFaceStatus === "ready" && face
+              ? isVisaPhotoFaceStable(previousFaceRef.current, face)
+              : false;
           previousFaceRef.current = nextFaceStatus === "ready"
             ? face
             : null;
@@ -417,10 +439,12 @@ export function VisaSelfieCamera({
             );
             nextBackgroundStatus = frame.background;
             nextClarityStatus = frame.clarity;
-            currentFrameReady = isVisaPhotoFrameCaptureReady(
-              nextBackgroundStatus,
-              nextClarityStatus,
-            ) && faceIsStable;
+            currentFrameReady = ACTIVE_VISA_CAMERA_PROFILE === "relaxed"
+              ? nextBackgroundStatus === "white"
+              : isVisaPhotoFrameCaptureReady(
+                  nextBackgroundStatus,
+                  nextClarityStatus,
+                ) && faceIsStable;
           }
 
           const readiness = updateRollingCameraReadiness(
@@ -720,6 +744,11 @@ export function VisaSelfieCamera({
     modelUnavailable: Boolean(modelError),
     userAcknowledgedRequirements: fallbackAcknowledged,
   });
+  const canUseCapturedPhoto = ACTIVE_VISA_CAMERA_PROFILE === "relaxed"
+    || (
+      finalValidation !== null
+      && finalValidation.outcome !== "hard_failure"
+    );
   const guidance = processingError
     ?? (isProcessing
       ? "Saving your Visa Photo..."
@@ -727,17 +756,23 @@ export function VisaSelfieCamera({
         ? "Live checks unavailable - retry or use the guided fallback below"
         : faceStatus !== "ready"
           ? faceStatusMessage(faceStatus)
-          : clarityStatus === "too_dark" || clarityStatus === "too_bright"
-            ? "Improve the lighting on your face"
-            : clarityStatus === "blurry"
-              ? "Hold the camera steady and keep your face in focus"
-              : backgroundStatus === "not_plain"
-                ? "Use a light, uncluttered wall"
-                : backgroundStatus === "not_white"
-                  ? "Use a plain white or off-white wall"
-                  : ready
-                    ? "Ready to capture"
-                    : "Hold steady while the photo checks finish");
+          : ACTIVE_VISA_CAMERA_PROFILE === "relaxed"
+            ? backgroundStatus === "not_white"
+              ? "Use a plain white or off-white wall"
+              : ready
+                ? "Ready to capture"
+                : "Checking the wall behind you..."
+            : clarityStatus === "too_dark" || clarityStatus === "too_bright"
+              ? "Improve the lighting on your face"
+              : clarityStatus === "blurry"
+                ? "Hold the camera steady and keep your face in focus"
+                : backgroundStatus === "not_plain"
+                  ? "Use a light, uncluttered wall"
+                  : backgroundStatus === "not_white"
+                    ? "Use a plain white or off-white wall"
+                    : ready
+                      ? "Ready to capture"
+                      : "Hold steady while the photo checks finish");
 
   return (
     <div
@@ -755,7 +790,9 @@ export function VisaSelfieCamera({
             Visa Photo Upload
           </h2>
           <p className="text-xs text-slate-500">
-            Remove glasses, keep eyes open, and use a plain light wall
+            {ACTIVE_VISA_CAMERA_PROFILE === "relaxed"
+              ? "Use one face and a plain white or off-white wall"
+              : "Remove glasses, keep eyes open, and use a plain light wall"}
           </p>
         </div>
         <div className="w-10" aria-hidden="true" />
@@ -899,12 +936,11 @@ export function VisaSelfieCamera({
                 <Button variant="outline" size="lg" onClick={retake} className="flex-1 border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
                   <RefreshCcw className="mr-2 h-4 w-4" /> Retake
                 </Button>
-                {finalValidation
-                  && finalValidation.outcome !== "hard_failure" && (
+                {canUseCapturedPhoto && (
                   <Button
                     size="lg"
                     disabled={
-                      finalValidation.outcome === "borderline"
+                      finalValidation?.outcome === "borderline"
                       && !borderlineConfirmed
                     }
                     onClick={() => capturedFile && onCapture(capturedFile)}
@@ -1016,6 +1052,9 @@ function classifyFace(
   detections: Detection[],
   face: VisaPhotoFaceGeometry | null,
 ): FaceStatus {
+  if (ACTIVE_VISA_CAMERA_PROFILE === "relaxed") {
+    return evaluateCompatibilityVisaPhotoFace(detections.length, face);
+  }
   if (detections.length > 1) return "multiple";
   if (detections.length === 0 || !face) return "no_face";
   if (face.centerY - face.height / 2 < 0.02) return "too_close";
@@ -1120,10 +1159,26 @@ function analyzeVisaPhotoFrame(
 
   context.drawImage(video, crop.left, crop.top, crop.width, crop.height, 0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT);
   const pixels = context.getImageData(0, 0, ANALYSIS_WIDTH, ANALYSIS_HEIGHT).data;
-  // Live guidance uses the same detected-person-excluded, multi-tile evidence
-  // as final validation, but only definite colour or widespread-structure
-  // failures block the shutter. The exact encoded photo is reclassified with
-  // stricter pass/borderline/hard-failure rules after capture.
+  if (ACTIVE_VISA_CAMERA_PROFILE === "relaxed") {
+    const background = evaluatePermissiveWhiteBackground(
+      pixels,
+      ANALYSIS_WIDTH,
+      ANALYSIS_HEIGHT,
+    );
+    return {
+      background: background.isLightNeutral ? "white" : "not_white",
+      clarity: evaluateVisaPhotoClarity(
+        pixels,
+        ANALYSIS_WIDTH,
+        ANALYSIS_HEIGHT,
+        face,
+      ).status,
+    };
+  }
+
+  // Strict live guidance uses the same detected-person-excluded, multi-tile
+  // evidence as final validation. The exact encoded photo is then reclassified
+  // with stricter pass/borderline/hard-failure rules after capture.
   const backgroundEvaluation = evaluateLiveVisaPhotoBackground(
     pixels,
     ANALYSIS_WIDTH,

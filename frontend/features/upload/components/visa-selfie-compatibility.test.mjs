@@ -99,6 +99,20 @@ test("does not turn wall texture or clutter into a capture gate", () => {
   assert.equal(stripedNeutralWall.isLightNeutral, true);
 });
 
+test("tolerates a small dark socket at the edge of an off-white wall", () => {
+  const wallWithSocket = evaluatePermissiveWhiteBackground(
+    makeFrame((x, y) => (
+      x < 6 && y >= 28 && y < 40
+        ? [55, 55, 55]
+        : [205, 200, 194]
+    )),
+    WIDTH,
+    HEIGHT,
+  );
+
+  assert.equal(wallWithSocket.isLightNeutral, true);
+});
+
 test("fails closed for an invalid frame buffer", () => {
   const result = evaluatePermissiveWhiteBackground(
     new Uint8ClampedArray(),

@@ -1,12 +1,11 @@
 /**
- * Dormant compatibility checks retained for diagnostics and future opt-in use.
+ * Relaxed compatibility checks restored for the active Visa camera.
  *
  * These deliberately preserve the earlier, forgiving capture behavior:
  * one reasonably positioned face and narrow light-neutral wall strips. The
- * active camera now uses the selected lightweight, face-aware background,
- * placement, and clarity pieces in visa-selfie-quality.ts; these older narrow
- * strip checks remain unwired so they can be compared without weakening the
- * production capture gate.
+ * newer face-aware background, placement, clarity, stability, and final-image
+ * checks remain available in visa-selfie-quality.ts behind the camera profile
+ * switch so they can be refined and enabled again later.
  */
 
 export type VisaPhotoCompatibilityFaceStatus =
