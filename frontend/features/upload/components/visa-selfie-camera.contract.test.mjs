@@ -21,24 +21,11 @@ test("guided fallback requires an explicit accessible acknowledgement", () => {
   assert.match(source, /takePhoto\("fallback"\)/);
 });
 
-test("the restored relaxed profile checks one face and a white or off-white wall", () => {
+test("the advanced strict Visa profile is active", () => {
   assert.match(
     source,
-    /const ACTIVE_VISA_CAMERA_PROFILE: VisaCameraProfile = "relaxed"/,
+    /const ACTIVE_VISA_CAMERA_PROFILE: VisaCameraProfile = "strict"/,
   );
-  assert.match(source, /\bevaluateCompatibilityVisaPhotoFace\b/);
-  assert.match(source, /\bevaluatePermissiveWhiteBackground\b/);
-  assert.match(
-    source,
-    /ACTIVE_VISA_CAMERA_PROFILE === "relaxed"\s*\?\s*nextBackgroundStatus === "white"/,
-  );
-  assert.match(source, /Use one face and a plain white or off-white wall/);
-  assert.match(source, /Checking the wall behind you/);
-  assert.match(source, /Use a plain white or off-white wall/);
-  assert.doesNotMatch(source, /detect(?:s|ion)?Glasses|eyewearDetector/i);
-});
-
-test("the newer strict checks remain dormant behind the profile switch", () => {
   assert.match(source, /\bevaluateVisaPhotoFacePlacement\b/);
   assert.match(source, /\bevaluateLiveVisaPhotoBackground\b/);
   assert.match(source, /clarity: evaluateVisaPhotoClarity\(/);
@@ -51,14 +38,31 @@ test("the newer strict checks remain dormant behind the profile switch", () => {
     source,
     /minDetectionConfidence: LIVE_FACE_DETECTION_CONFIDENCE/,
   );
+  assert.doesNotMatch(source, /detect(?:s|ion)?Glasses|eyewearDetector/i);
 });
 
-test("human-proportioned placement guide exposes the exact inner output crop", () => {
+test("the relaxed face and white-wall checks remain dormant behind the switch", () => {
+  assert.match(source, /\bevaluateCompatibilityVisaPhotoFace\b/);
+  assert.match(source, /\bevaluatePermissiveWhiteBackground\b/);
+  assert.match(
+    source,
+    /ACTIVE_VISA_CAMERA_PROFILE === "relaxed"\s*\?\s*nextBackgroundStatus === "white"/,
+  );
+  assert.match(source, /Use one face and a plain white or off-white wall/);
+  assert.match(source, /Checking the wall behind you/);
+});
+
+test("human guide is lifted above the bottom and crop side rails stay invisible", () => {
   assert.match(source, /data-testid="visa-photo-placement-guide"/);
   assert.match(source, /aspect-\[35\/45\]/);
   assert.match(source, /data-testid="visa-photo-output-crop"/);
+  assert.match(source, /ref=\{guideRef\}/);
   assert.match(source, /aspect-\[2\/3\]/);
+  assert.match(source, /bottom-\[5%\] h-\[88%\]/);
+  assert.doesNotMatch(source, /\bborder-x\b/);
+  assert.doesNotMatch(source, /\bborder-dashed\b/);
   assert.match(source, /preserveAspectRatio="xMidYMax meet"/);
+  assert.match(source, /strokeDasharray="4 3"/);
   assert.doesNotMatch(source, /preserveAspectRatio="none"/);
   assert.match(source, /\bgetVisaOutputCrop\b/);
   assert.match(
@@ -74,7 +78,7 @@ test("Visa Photo capture stays manual after the guide becomes ready", () => {
   assert.doesNotMatch(source, /STABLE_CAPTURE_MS|takePhotoRef|Auto-captures/);
 });
 
-test("high-quality capture stays active while strict final validation is bypassed", () => {
+test("high-quality capture stays active and the relaxed bypass remains available", () => {
   assert.match(source, /\bcaptureBestCameraSource\b/);
   assert.match(source, /CAMERA_QUALITY_POLICY\.visaOutputWidth/);
   assert.match(source, /CAMERA_QUALITY_POLICY\.visaOutputHeight/);
@@ -89,7 +93,7 @@ test("high-quality capture stays active while strict final validation is bypasse
   );
 });
 
-test("strict exact-JPEG recheck remains available for later refinement", () => {
+test("the active strict profile retains the exact-JPEG recheck", () => {
   assert.match(source, /detectFinalFaces\(decoded\.image\)/);
   assert.match(source, /\bevaluateFinalVisaPhoto\b/);
   assert.match(source, /\bevaluateFallbackFinalVisaPhoto\b/);

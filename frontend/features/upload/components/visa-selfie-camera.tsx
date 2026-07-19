@@ -78,12 +78,11 @@ const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
 const LIVE_FACE_DETECTION_CONFIDENCE = 0.55;
 /**
- * The relaxed profile restores the forgiving Visa camera behavior that was
- * active before 9f0e751: one reasonably positioned face plus a white or
- * off-white wall. The newer strict implementation remains fully wired behind
- * this switch so it can be refined and enabled again later.
+ * The strict profile is active. The earlier relaxed face and white/off-white
+ * wall checks remain fully wired behind this switch so they can be enabled
+ * again without recovering code from Git history.
  */
-const ACTIVE_VISA_CAMERA_PROFILE: VisaCameraProfile = "relaxed";
+const ACTIVE_VISA_CAMERA_PROFILE: VisaCameraProfile = "strict";
 
 export function VisaSelfieCamera({
   onCapture,
@@ -830,8 +829,8 @@ export function VisaSelfieCamera({
             ) : (
               <div className="pointer-events-none absolute inset-0">
                 {/* The outer frame is a familiar portrait-placement guide. The
-                    inner dashed rails are the exact central 2:3 area used for
-                    both live analysis and the final 800x1200 capture. */}
+                    invisible inner element keeps the exact central 2:3 area
+                    used for live analysis and the final 800x1200 capture. */}
                 <div
                   data-testid="visa-photo-placement-guide"
                   className="absolute bottom-[clamp(0.75rem,1.75dvh,1.25rem)] left-1/2 aspect-[35/45] w-[72vw] max-w-[26rem] -translate-x-1/2"
@@ -841,12 +840,12 @@ export function VisaSelfieCamera({
                   <div
                     ref={guideRef}
                     data-testid="visa-photo-output-crop"
-                    className={`absolute left-1/2 top-0 h-full w-[85.7143%] aspect-[2/3] -translate-x-1/2 border-x border-dashed transition-colors ${ready ? "border-emerald-500/70" : "border-white/55"}`}
+                    className="absolute left-1/2 top-0 h-full w-[85.7143%] aspect-[2/3] -translate-x-1/2"
                   >
                     <svg
                       aria-hidden="true"
                       viewBox="0 0 100 126"
-                      className="absolute inset-x-[4%] bottom-[1%] h-[88%] w-[92%]"
+                      className="absolute inset-x-[4%] bottom-[5%] h-[88%] w-[92%]"
                       preserveAspectRatio="xMidYMax meet"
                     >
                       <path
