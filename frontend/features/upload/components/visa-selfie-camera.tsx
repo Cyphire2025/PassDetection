@@ -845,7 +845,7 @@ export function VisaSelfieCamera({
                     <svg
                       aria-hidden="true"
                       viewBox="0 0 100 126"
-                      className="absolute inset-x-[4%] bottom-[20%] h-[88%] w-[92%]"
+                      className="absolute inset-x-[4%] bottom-[15%] h-[88%] w-[92%]"
                       preserveAspectRatio="xMidYMax meet"
                     >
                       <path
