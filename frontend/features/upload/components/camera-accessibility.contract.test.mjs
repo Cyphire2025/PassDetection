@@ -38,7 +38,7 @@ test("hidden tabs release camera streams and restart only after becoming visible
 test("passport capture is manual after all scanner checks pass", () => {
   assert.match(
     passportCameraSource,
-    /All checks passed - tap the shutter button to capture/,
+    /Ready to capture/,
   );
   assert.match(passportCameraSource, /onClick=\{\(\) => void takePhoto\(\)\}/);
   assert.doesNotMatch(
@@ -56,18 +56,40 @@ test("passport scanner uses light dashboard chrome and clear manual-capture stat
 });
 
 test("Visa Photo preview releases the live camera before acceptance or retake", () => {
-  const capturedFileStart = visaPhotoCameraSource.indexOf("const file = new File");
+  const captureStart = visaPhotoCameraSource.indexOf(
+    "const source = await captureBestCameraSource",
+  );
+  const sourceDraw = visaPhotoCameraSource.indexOf(
+    "context.drawImage(",
+    captureStart,
+  );
+  const stopStream = visaPhotoCameraSource.indexOf(
+    "stopStream();",
+    sourceDraw,
+  );
   const previewStart = visaPhotoCameraSource.indexOf(
     "setCapturedPreview(URL.createObjectURL(file))",
-    capturedFileStart,
+    stopStream,
   );
-  const stopStream = visaPhotoCameraSource.indexOf("stopStream();", capturedFileStart);
 
-  assert.ok(capturedFileStart >= 0);
-  assert.ok(stopStream > capturedFileStart);
+  assert.ok(captureStart >= 0);
+  assert.ok(sourceDraw > captureStart);
+  assert.ok(stopStream > sourceDraw);
   assert.ok(previewStart > stopStream);
   assert.match(
     visaPhotoCameraSource,
     /const retake = \(\) => \{[\s\S]*?setCameraAttempt\(\(current\) => current \+ 1\)/,
+  );
+});
+
+test("Visa Photo capture remains manual and only green means ready", () => {
+  assert.match(visaPhotoCameraSource, /Ready to capture/);
+  assert.match(
+    visaPhotoCameraSource,
+    /onClick=\{\(\) => void takePhoto\(\)\}/,
+  );
+  assert.doesNotMatch(
+    visaPhotoCameraSource,
+    /STABLE_CAPTURE_MS|takePhotoRef|Auto-captures/,
   );
 });

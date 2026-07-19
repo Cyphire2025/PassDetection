@@ -184,6 +184,50 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.extraction_service.extract.assert_not_awaited()
         self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
 
+    def test_verified_absent_surname_counts_toward_gemini_field_coverage(
+        self,
+    ) -> None:
+        fields = {
+            "surname": "",
+            "given_names": "MOHIT",
+            "passport_number": "W6905713",
+            "nationality": "IND",
+            "issuing_country": "IND",
+            "date_of_birth": "1998-09-08",
+            "date_of_issue": "2023-04-13",
+            "date_of_expiry": "2033-04-12",
+            "sex": "M",
+            "ai_verification": {
+                "absent_fields": ["surname"],
+                "classification_confidence": 0.99,
+                "field_confidences": {
+                    field: 0.99
+                    for field in (
+                        "surname",
+                        "given_names",
+                        "passport_number",
+                        "nationality",
+                        "issuing_country",
+                        "date_of_birth",
+                        "date_of_issue",
+                        "date_of_expiry",
+                        "sex",
+                    )
+                },
+            },
+        }
+
+        result = ProcessPassportSubmissionJobUseCase._gemini_extraction_result(
+            fields
+        )
+
+        self.assertEqual(result.overall_confidence, 0.99)
+        self.assertEqual(result.confidence_score["field_coverage"], 1.0)
+        self.assertEqual(
+            result.confidence_score["field_confidences"]["surname"],
+            0.99,
+        )
+
     async def test_wrong_document_is_persisted_as_safe_recapture_failure(self) -> None:
         self.storage_repo.get_file.return_value = b"not-a-passport"
         self.extraction_service.extract.return_value = PassportExtractionResult(

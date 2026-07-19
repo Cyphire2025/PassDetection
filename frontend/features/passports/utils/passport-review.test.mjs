@@ -67,6 +67,32 @@ test("staff approval request carries the current revision and bounded optional r
   );
 });
 
+test("staff review preserves an explicit empty surname correction", () => {
+  assert.deepEqual(
+    cleanPassportReviewFields({
+      surname: "   ",
+      given_names: "MOHIT",
+      passport_number: "W6905713",
+    }),
+    {
+      surname: "",
+      given_names: "MOHIT",
+      passport_number: "W6905713",
+    },
+  );
+});
+
+test("partial staff review objects do not inject an absent surname correction", () => {
+  assert.deepEqual(
+    cleanPassportReviewFields({
+      passport_number: " W6905713 ",
+    }),
+    {
+      passport_number: "W6905713",
+    },
+  );
+});
+
 test("maps staff approval outcomes and typed failures to actionable UI states", () => {
   assert.deepEqual(getStaffApprovalOutcomeFeedback("approved"), {
     kind: "success",

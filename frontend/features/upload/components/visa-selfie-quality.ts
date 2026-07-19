@@ -1,3 +1,7 @@
+import type {
+  CameraValidationOutcome,
+} from "../services/camera-quality-policy";
+
 export interface WhiteBackgroundMetrics {
   isWhite: boolean;
   isLightNeutral: boolean;
@@ -12,6 +16,10 @@ export interface WhiteBackgroundMetrics {
   maxLineCoverage: number;
   maxRegionalEdgeRatio: number;
   maxRegionalDarkRatio: number;
+  evaluatedZoneCount: number;
+  failingLightNeutralZoneCount: number;
+  structuredZoneCount: number;
+  extremeZoneCount: number;
 }
 
 export interface NormalizedPoint {
@@ -54,6 +62,20 @@ export interface VisaPhotoFallbackCaptureState {
 
 export type VisaPhotoFaceCountStatus = "no_face" | "one_face" | "multiple";
 
+export interface VisaPhotoFinalValidation {
+  outcome: CameraValidationOutcome;
+  message: string;
+  faceCount: VisaPhotoFaceCountStatus;
+  facePlacement: VisaPhotoFacePlacementStatus | null;
+  clarity: VisaPhotoClarityMetrics | null;
+  background: WhiteBackgroundMetrics | null;
+}
+
+export interface VisaJpegEncoding {
+  blob: Blob;
+  quality: number;
+}
+
 const SAMPLE_STEP = 2;
 // A photographed white wall can land well below paper-white (255) under normal
 // home/office lighting. These limits intentionally judge "light and neutral",
@@ -71,9 +93,11 @@ const MAX_STRONG_EDGE_RATIO = 0.08;
 const MAX_ROUGH_TEXTURE_RATIO = 0.20;
 const MAX_DIRECTIONAL_ROUGH_TEXTURE_RATIO = 0.14;
 const MAX_DARK_PIXEL_RATIO = 0.16;
-const MAX_LINE_COVERAGE = 0.46;
+const MAX_LINE_COVERAGE = 0.58;
 const MAX_REGIONAL_EDGE_RATIO = 0.25;
 const MAX_REGIONAL_DARK_RATIO = 0.36;
+const EXTREME_REGIONAL_EDGE_RATIO = 0.55;
+const EXTREME_REGIONAL_DARK_RATIO = 0.72;
 // The guide itself is 10% smaller, so retaining these guide-relative minima
 // produces an approximately 10% smaller on-screen face requirement overall.
 const MIN_FACE_WIDTH_RATIO = 0.31;
@@ -84,6 +108,34 @@ const MAX_FACE_CENTER_X_OFFSET = 0.11;
 const MIN_FACE_CENTER_Y = 0.27;
 const MAX_FACE_CENTER_Y = 0.52;
 const MAX_EYE_LINE_TILT_DEGREES = 12;
+const MAX_STABLE_FACE_CENTER_DELTA = 0.045;
+const MAX_STABLE_FACE_SIZE_DELTA = 0.055;
+const FINAL_HARD_MIN_FACE_WIDTH_RATIO = 0.23;
+const FINAL_HARD_MIN_FACE_HEIGHT_RATIO = 0.29;
+const FINAL_HARD_MAX_FACE_WIDTH_RATIO = 0.82;
+const FINAL_HARD_MAX_FACE_HEIGHT_RATIO = 0.86;
+const FINAL_HARD_MAX_FACE_CENTER_X_OFFSET = 0.18;
+const FINAL_HARD_MIN_FACE_CENTER_Y = 0.20;
+const FINAL_HARD_MAX_FACE_CENTER_Y = 0.62;
+const FINAL_HARD_HEAD_EDGE_MARGIN = 0.02;
+const FINAL_BORDERLINE_MIN_FACE_GRADIENT = 3.8;
+const FINAL_BORDERLINE_MIN_FACE_EDGE_RATIO = 0.028;
+const FINAL_BORDERLINE_MIN_FACE_LUMINANCE = 70;
+const FINAL_BORDERLINE_MAX_FACE_LUMINANCE = 216;
+const FINAL_HARD_MIN_BACKGROUND_LUMINANCE = 115;
+const FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO = 0.35;
+const FINAL_HARD_MAX_STRONG_EDGE_RATIO = 0.16;
+const FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO = 0.32;
+const FINAL_HARD_MAX_LINE_COVERAGE = 0.58;
+const FINAL_HARD_MAX_REGIONAL_EDGE_RATIO = 0.42;
+const FINAL_HARD_MAX_REGIONAL_DARK_RATIO = 0.55;
+export const VISA_JPEG_QUALITY_STEPS = [
+  0.94,
+  0.9,
+  0.85,
+  0.8,
+  0.74,
+] as const;
 
 /**
  * Evaluates wall pixels around the detected head and shoulders.
@@ -116,6 +168,8 @@ export function evaluateWhiteBackground(
   const zoneLightNeutralSamples = [0, 0, 0, 0];
   const zoneLuminance = [0, 0, 0, 0];
   const regionalSamples = new Uint32Array(16);
+  const regionalLightNeutralSamples = new Uint32Array(16);
+  const regionalLuminance = new Float64Array(16);
   const regionalDarkSamples = new Uint32Array(16);
   const regionalPairs = new Uint32Array(16);
   const regionalStrongEdges = new Uint32Array(16);
@@ -157,6 +211,7 @@ export function evaluateWhiteBackground(
       if (luminance < 105) darkSamples += 1;
       const region = regionalIndex(normalizedX, normalizedY);
       regionalSamples[region] += 1;
+      regionalLuminance[region] += luminance;
       if (luminance < 125) regionalDarkSamples[region] += 1;
 
       // Permit a little more warm/cool cast as exposure rises, while rejecting
@@ -165,6 +220,7 @@ export function evaluateWhiteBackground(
       if (luminance >= MIN_LIGHT_LUMINANCE && chroma <= neutralChromaLimit) {
         lightNeutralSamples += 1;
         zoneLightNeutralSamples[zone] += 1;
+        regionalLightNeutralSamples[region] += 1;
       }
     }
   }
@@ -244,8 +300,16 @@ export function evaluateWhiteBackground(
     verticalRoughTextureRatio,
   );
   const maxLineCoverage = Math.max(
-    maximumSupportedRatio(columnStrongEdges, columnPairs, 8),
-    maximumSupportedRatio(rowStrongEdges, rowPairs, 8),
+    maximumSupportedRatio(
+      columnStrongEdges,
+      columnPairs,
+      Math.max(12, Math.floor(gridHeight * 0.35)),
+    ),
+    maximumSupportedRatio(
+      rowStrongEdges,
+      rowPairs,
+      Math.max(8, Math.floor(gridWidth * 0.35)),
+    ),
   );
   const maxRegionalEdgeRatio = maximumSupportedRatio(
     regionalStrongEdges,
@@ -255,6 +319,41 @@ export function evaluateWhiteBackground(
     regionalDarkSamples,
     regionalSamples,
   );
+  let evaluatedZoneCount = 0;
+  let failingLightNeutralZoneCount = 0;
+  let structuredZoneCount = 0;
+  let extremeZoneCount = 0;
+  for (let region = 0; region < regionalSamples.length; region += 1) {
+    const regionSamples = regionalSamples[region];
+    if (regionSamples < 8) continue;
+    evaluatedZoneCount += 1;
+    const lightNeutralRatio = (
+      regionalLightNeutralSamples[region] / regionSamples
+    );
+    const meanLuminance = regionalLuminance[region] / regionSamples;
+    const edgeRatio = regionalPairs[region] >= 4
+      ? regionalStrongEdges[region] / regionalPairs[region]
+      : 0;
+    const darkRatio = regionalDarkSamples[region] / regionSamples;
+    if (
+      lightNeutralRatio < 0.48
+      || meanLuminance < MIN_ZONE_LUMINANCE
+    ) {
+      failingLightNeutralZoneCount += 1;
+    }
+    if (
+      edgeRatio > MAX_REGIONAL_EDGE_RATIO
+      || darkRatio > MAX_REGIONAL_DARK_RATIO
+    ) {
+      structuredZoneCount += 1;
+    }
+    if (
+      edgeRatio > EXTREME_REGIONAL_EDGE_RATIO
+      || darkRatio > EXTREME_REGIONAL_DARK_RATIO
+    ) {
+      extremeZoneCount += 1;
+    }
+  }
   let withinZoneSquaredTotal = 0;
   for (let gridY = 0; gridY < gridHeight; gridY += 1) {
     const normalizedY = (gridY * SAMPLE_STEP + 0.5) / height;
@@ -268,24 +367,31 @@ export function evaluateWhiteBackground(
     }
   }
   const withinZoneDeviation = Math.sqrt(withinZoneSquaredTotal / samples);
-  const everyZoneIsLightNeutral = zoneSamples.every((count, zone) =>
-    count > 0
-    && zoneLightNeutralSamples[zone] / count >= MIN_ZONE_LIGHT_NEUTRAL_RATIO
-    && zoneMeans[zone] >= MIN_ZONE_LUMINANCE,
+  const availableQuadrantsAreMostlyLightNeutral = zoneSamples.every(
+    (count, zone) => (
+      count === 0
+      || (
+        zoneLightNeutralSamples[zone] / count
+          >= MIN_ZONE_LIGHT_NEUTRAL_RATIO
+        && zoneMeans[zone] >= MIN_ZONE_LUMINANCE
+      )
+    ),
   );
   const isLightNeutral = lightNeutralRatio >= MIN_LIGHT_NEUTRAL_RATIO
     && averageLuminance >= MIN_AVERAGE_LUMINANCE
-    && everyZoneIsLightNeutral
+    && availableQuadrantsAreMostlyLightNeutral
+    && evaluatedZoneCount > 0
+    && failingLightNeutralZoneCount <= 1
     && zoneMeanSpread <= MAX_ZONE_MEAN_SPREAD
     && luminanceDeviation <= MAX_LUMINANCE_DEVIATION
     && darkSamples / samples <= MAX_DARK_PIXEL_RATIO;
-  const isPlain = withinZoneDeviation <= MAX_WITHIN_ZONE_DEVIATION
+  const isPlain = withinZoneDeviation <= MAX_WITHIN_ZONE_DEVIATION + 4
     && strongEdgeRatio <= MAX_STRONG_EDGE_RATIO
     && roughTextureRatio <= MAX_ROUGH_TEXTURE_RATIO
     && directionalRoughTextureRatio <= MAX_DIRECTIONAL_ROUGH_TEXTURE_RATIO
     && maxLineCoverage <= MAX_LINE_COVERAGE
-    && maxRegionalEdgeRatio <= MAX_REGIONAL_EDGE_RATIO
-    && maxRegionalDarkRatio <= MAX_REGIONAL_DARK_RATIO;
+    && structuredZoneCount <= 1
+    && extremeZoneCount === 0;
   const failureReason = !isPlain
     ? "not_plain"
     : !isLightNeutral
@@ -306,6 +412,10 @@ export function evaluateWhiteBackground(
     maxLineCoverage,
     maxRegionalEdgeRatio,
     maxRegionalDarkRatio,
+    evaluatedZoneCount,
+    failingLightNeutralZoneCount,
+    structuredZoneCount,
+    extremeZoneCount,
   };
 }
 
@@ -340,6 +450,23 @@ export function evaluateVisaPhotoFacePlacement(
     if (eyeLineAngle > MAX_EYE_LINE_TILT_DEGREES) return "head_tilt";
   }
   return "ready";
+}
+
+export function isVisaPhotoFaceStable(
+  previous: VisaPhotoFaceGeometry | null,
+  current: VisaPhotoFaceGeometry,
+): boolean {
+  if (!previous) return false;
+  return (
+    Math.abs(previous.centerX - current.centerX)
+      <= MAX_STABLE_FACE_CENTER_DELTA
+    && Math.abs(previous.centerY - current.centerY)
+      <= MAX_STABLE_FACE_CENTER_DELTA
+    && Math.abs(previous.width - current.width)
+      <= MAX_STABLE_FACE_SIZE_DELTA
+    && Math.abs(previous.height - current.height)
+      <= MAX_STABLE_FACE_SIZE_DELTA
+  );
 }
 
 export function evaluateVisaPhotoClarity(
@@ -437,19 +564,294 @@ export function evaluateVisaPhotoClarity(
   };
 }
 
-export function hasStableVisaPhotoReadiness(
-  readinessSamples: readonly boolean[],
-  requiredConsecutiveSamples = 4,
+/**
+ * Classifies the exact, encoded Visa Photo pixels after a fresh face-detection
+ * pass. Only definite capture failures are hard stops; near-threshold quality
+ * remains reviewable after an explicit user confirmation.
+ */
+export function evaluateFinalVisaPhoto({
+  faceCount,
+  face,
+  pixels,
+  width,
+  height,
+}: {
+  faceCount: number;
+  face: VisaPhotoFaceGeometry | null;
+  pixels: Uint8ClampedArray;
+  width: number;
+  height: number;
+}): VisaPhotoFinalValidation {
+  const countStatus = evaluateVisaPhotoFaceCount(faceCount);
+  if (countStatus === "no_face") {
+    return finalValidation(
+      "hard_failure",
+      "No face was found in the captured photo. Retake with your full head inside the guide.",
+      countStatus,
+    );
+  }
+  if (countStatus === "multiple") {
+    return finalValidation(
+      "hard_failure",
+      "More than one face is visible. Retake the photo with only one person in frame.",
+      countStatus,
+    );
+  }
+  if (!face) {
+    return finalValidation(
+      "hard_failure",
+      "The captured face position could not be checked. Retake the photo.",
+      countStatus,
+    );
+  }
+
+  const liveFacePlacement = evaluateVisaPhotoFacePlacement(face);
+  const hardFacePlacement = definiteFinalFacePlacementFailure(face);
+  const facePlacement = hardFacePlacement ?? liveFacePlacement;
+  const clarity = evaluateVisaPhotoClarity(pixels, width, height, face);
+  const background = evaluateWhiteBackground(
+    pixels,
+    width,
+    height,
+    face,
+  );
+  if (hardFacePlacement) {
+    const message = hardFacePlacement === "too_far"
+      ? "Your face is too small in the captured photo. Move closer and retake it."
+      : hardFacePlacement === "too_close"
+        ? "Part of your head may be cut off. Move back slightly and retake the photo."
+        : "Your head moved outside the centre of the guide. Retake the photo.";
+    return finalValidation(
+      "hard_failure",
+      message,
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+  if (clarity.status === "blurry") {
+    return finalValidation(
+      "hard_failure",
+      "Your face is severely blurred in the captured photo. Hold steady and retake it.",
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+  if (clarity.status === "too_dark") {
+    return finalValidation(
+      "hard_failure",
+      "Your face is too dark in the captured photo. Move into brighter, even light and retake it.",
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+  if (clarity.status === "too_bright") {
+    return finalValidation(
+      "hard_failure",
+      "Your face is severely overexposed. Move away from harsh light and retake the photo.",
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+  if (isDefinitelyInvalidBackground(background)) {
+    return finalValidation(
+      "hard_failure",
+      background.isLightNeutral
+        ? "The captured background contains a strong pattern, line, or object. Use a plain light wall and retake the photo."
+        : "The captured background is too dark or strongly coloured. Use a white, off-white, or light-neutral wall and retake the photo.",
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+
+  const slightlySoft = (
+    clarity.averageGradient < FINAL_BORDERLINE_MIN_FACE_GRADIENT
+    && clarity.highGradientRatio < FINAL_BORDERLINE_MIN_FACE_EDGE_RATIO
+  );
+  const unevenFaceLighting = (
+    clarity.averageLuminance < FINAL_BORDERLINE_MIN_FACE_LUMINANCE
+    || clarity.averageLuminance > FINAL_BORDERLINE_MAX_FACE_LUMINANCE
+  );
+  if (
+    facePlacement !== "ready"
+    || !background.isWhite
+    || slightlySoft
+    || unevenFaceLighting
+  ) {
+    const message = facePlacement !== "ready"
+      ? facePlacement === "head_tilt"
+        ? "Your head is slightly tilted. Confirm the photo is clear and acceptable, or retake it."
+        : "Your face moved close to the placement limit. Confirm your full head is visible and centred, or retake the photo."
+      : !background.isWhite
+        ? "The background is close to the limit for colour or texture. Confirm it is a plain light wall, or retake the photo."
+        : slightlySoft
+          ? "Your face is slightly soft. Confirm your eyes and facial details are clear, or retake the photo."
+          : "The facial lighting is uneven. Confirm all facial details remain clear, or retake the photo.";
+    return finalValidation(
+      "borderline",
+      message,
+      countStatus,
+      facePlacement,
+      clarity,
+      background,
+    );
+  }
+
+  return finalValidation(
+    "pass",
+    "Visa Photo checks passed.",
+    countStatus,
+    facePlacement,
+    clarity,
+    background,
+  );
+}
+
+/**
+ * When the face model is unavailable, validate every pixel signal that remains
+ * measurable on the exact JPEG. Face count and geometry stay explicitly
+ * unverified, so a non-failing result can only be borderline.
+ */
+export function evaluateFallbackFinalVisaPhoto({
+  pixels,
+  width,
+  height,
+}: {
+  pixels: Uint8ClampedArray;
+  width: number;
+  height: number;
+}): VisaPhotoFinalValidation {
+  const approximateGuideFace: VisaPhotoFaceGeometry = {
+    centerX: 0.5,
+    centerY: 0.4,
+    width: 0.4,
+    height: 0.5,
+  };
+  const availableChecks = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: approximateGuideFace,
+    pixels,
+    width,
+    height,
+  });
+  if (availableChecks.outcome === "hard_failure") {
+    return {
+      ...availableChecks,
+      faceCount: "no_face",
+      facePlacement: null,
+    };
+  }
+  return finalValidation(
+    "borderline",
+    "Automatic face count and placement checks were unavailable. The exact photo passed the available lighting, clarity, and background checks; confirm there is one clear, centred face with open eyes.",
+    "no_face",
+    null,
+    availableChecks.clarity,
+    availableChecks.background,
+  );
+}
+
+function definiteFinalFacePlacementFailure(
+  face: VisaPhotoFaceGeometry,
+): Exclude<VisaPhotoFacePlacementStatus, "head_tilt" | "ready"> | null {
+  const top = face.centerY - face.height / 2;
+  const bottom = face.centerY + face.height / 2;
+  if (
+    top < FINAL_HARD_HEAD_EDGE_MARGIN
+    || bottom > 1 - FINAL_HARD_HEAD_EDGE_MARGIN
+    || face.width > FINAL_HARD_MAX_FACE_WIDTH_RATIO
+    || face.height > FINAL_HARD_MAX_FACE_HEIGHT_RATIO
+  ) {
+    return "too_close";
+  }
+  if (
+    face.width < FINAL_HARD_MIN_FACE_WIDTH_RATIO
+    || face.height < FINAL_HARD_MIN_FACE_HEIGHT_RATIO
+  ) {
+    return "too_far";
+  }
+  if (
+    Math.abs(face.centerX - 0.5)
+      > FINAL_HARD_MAX_FACE_CENTER_X_OFFSET
+    || face.centerY < FINAL_HARD_MIN_FACE_CENTER_Y
+    || face.centerY > FINAL_HARD_MAX_FACE_CENTER_Y
+  ) {
+    return "off_center";
+  }
+  return null;
+}
+
+/**
+ * Tries progressively smaller JPEG encodings of the same already-sized canvas.
+ * The exclusive byte cap is checked against the actual Blob returned by the
+ * browser; no second crop, resize, smoothing, or sharpening is performed.
+ */
+export async function encodeVisaJpegUnderLimit(
+  encode: (quality: number) => Promise<Blob>,
+  byteLimit: number,
+): Promise<VisaJpegEncoding> {
+  for (const quality of VISA_JPEG_QUALITY_STEPS) {
+    const blob = await encode(quality);
+    if (blob.size > 0 && blob.size < byteLimit) {
+      return { blob, quality };
+    }
+  }
+  throw new Error("The Visa Photo could not be kept below 2 MB. Retake it in steadier lighting.");
+}
+
+function isDefinitelyInvalidBackground(
+  background: WhiteBackgroundMetrics,
 ): boolean {
   if (
-    requiredConsecutiveSamples <= 0
-    || readinessSamples.length < requiredConsecutiveSamples
+    !background.isLightNeutral
+    && (
+      background.averageLuminance < FINAL_HARD_MIN_BACKGROUND_LUMINANCE
+      || background.lightNeutralRatio < FINAL_HARD_MIN_LIGHT_NEUTRAL_RATIO
+      || background.failingLightNeutralZoneCount >= 2
+    )
   ) {
-    return false;
+    return true;
   }
-  return readinessSamples
-    .slice(-requiredConsecutiveSamples)
-    .every(Boolean);
+  return (
+    background.strongEdgeRatio > FINAL_HARD_MAX_STRONG_EDGE_RATIO
+    || background.roughTextureRatio > FINAL_HARD_MAX_ROUGH_TEXTURE_RATIO
+    || background.maxLineCoverage > FINAL_HARD_MAX_LINE_COVERAGE
+    || background.structuredZoneCount >= 2
+    || background.extremeZoneCount >= 1
+    || (
+      background.maxRegionalEdgeRatio
+        > FINAL_HARD_MAX_REGIONAL_EDGE_RATIO
+      && background.maxRegionalDarkRatio
+        > FINAL_HARD_MAX_REGIONAL_DARK_RATIO
+    )
+  );
+}
+
+function finalValidation(
+  outcome: CameraValidationOutcome,
+  message: string,
+  faceCount: VisaPhotoFaceCountStatus,
+  facePlacement: VisaPhotoFacePlacementStatus | null = null,
+  clarity: VisaPhotoClarityMetrics | null = null,
+  background: WhiteBackgroundMetrics | null = null,
+): VisaPhotoFinalValidation {
+  return {
+    outcome,
+    message,
+    faceCount,
+    facePlacement,
+    clarity,
+    background,
+  };
 }
 
 export function isVisaPhotoFrameCaptureReady(
@@ -631,5 +1033,9 @@ function failedMetrics(): WhiteBackgroundMetrics {
     maxLineCoverage: 1,
     maxRegionalEdgeRatio: 1,
     maxRegionalDarkRatio: 1,
+    evaluatedZoneCount: 0,
+    failingLightNeutralZoneCount: 0,
+    structuredZoneCount: 0,
+    extremeZoneCount: 0,
   };
 }

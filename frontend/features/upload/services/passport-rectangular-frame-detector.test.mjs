@@ -18,6 +18,7 @@ test("accepts a guide-aligned page from three visible rectangle edges", () => {
   assert.equal(result.isDetected, true, JSON.stringify(result));
   assert.equal(result.status, "ready");
   assert.equal(result.visibleEdges, 3);
+  assert.equal(result.motionSignature.length, 96);
 });
 
 test("accepts low-contrast guide-aligned page edges without passport layout checks", () => {
@@ -56,7 +57,24 @@ test("does not detect a rectangle in a uniform frame", () => {
   assert.equal(result.visibleEdges, 0);
 });
 
-test("passport hook uses the permissive detector while capture stays manual", () => {
+test("live analysis rejects only extreme exposure and keeps low contrast usable", () => {
+  const dark = analyzeRectangularPassportFramePixels(
+    makeFrame(["left", "right", "bottom"], 22, 8),
+    WIDTH,
+    HEIGHT,
+  );
+  const normal = analyzeRectangularPassportFramePixels(
+    makeFrame(["left", "right", "bottom"], 22, 48),
+    WIDTH,
+    HEIGHT,
+  );
+
+  assert.equal(dark.isDetected, true);
+  assert.equal(dark.lightingStatus, "too_dark");
+  assert.equal(normal.lightingStatus, "good");
+});
+
+test("passport hook uses the permissive rolling detector while capture stays manual", () => {
   const hookSource = readFileSync(
     new URL("../hooks/use-passport-frame-detection.ts", import.meta.url),
     "utf8",
@@ -68,6 +86,8 @@ test("passport hook uses the permissive detector while capture stays manual", ()
 
   assert.match(hookSource, /detectRectangularPassportFrame\(/);
   assert.doesNotMatch(hookSource, /\bdetectPassportFrame\(/);
+  assert.match(hookSource, /CAMERA_QUALITY_POLICY\.liveAnalysisIntervalMs/);
+  assert.match(hookSource, /updateRollingCameraReadiness\(/);
   assert.match(cameraSource, /onClick=\{\(\) => void takePhoto\(\)\}/);
   assert.doesNotMatch(
     cameraSource,
@@ -75,8 +95,7 @@ test("passport hook uses the permissive detector while capture stays manual", ()
   );
 });
 
-function makeFrame(edges, contrast = 140) {
-  const background = 48;
+function makeFrame(edges, contrast = 140, background = 48) {
   const pixels = new Uint8ClampedArray(WIDTH * HEIGHT * 4);
   for (let offset = 0; offset < pixels.length; offset += 4) {
     pixels[offset] = background;

@@ -834,9 +834,27 @@ class PassportSubmission:
             "date_of_birth",
             "date_of_expiry",
         )
+        raw_verification = extracted_fields.get("ai_verification")
+        raw_absent_fields = (
+            raw_verification.get("absent_fields")
+            if isinstance(raw_verification, dict)
+            else None
+        )
+        absent_fields = {
+            field
+            for field in (
+                raw_absent_fields
+                if isinstance(raw_absent_fields, list)
+                else []
+            )
+            if field == "surname"
+        }
         self.extraction_status = (
             PassportExtractionStatus.COMPLETE
-            if all(extracted_fields.get(key) for key in required_fields)
+            if all(
+                extracted_fields.get(key) or key in absent_fields
+                for key in required_fields
+            )
             else PassportExtractionStatus.PARTIAL
         )
         self.extracted_fields = extracted_fields

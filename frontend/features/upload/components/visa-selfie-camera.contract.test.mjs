@@ -21,13 +21,46 @@ test("guided fallback requires an explicit accessible acknowledgement", () => {
   assert.match(source, /takePhoto\("fallback"\)/);
 });
 
-test("the live camera uses only the compatibility face and wall checks for readiness", () => {
-  assert.doesNotMatch(source, /eyewear/i);
-  assert.doesNotMatch(source, /glasses/i);
-  assert.match(source, /\bevaluateCompatibilityVisaPhotoFace\b/);
-  assert.match(source, /\bevaluatePermissiveWhiteBackground\b/);
-  assert.match(source, /currentFrameReady = nextBackgroundStatus === "white";/);
+test("live readiness uses face-aware wall, face clarity, and rolling checks", () => {
+  assert.match(source, /Remove glasses/);
+  assert.doesNotMatch(source, /detect(?:s|ion)?Glasses|eyewearDetector/i);
+  assert.match(source, /\bevaluateVisaPhotoFacePlacement\b/);
+  assert.match(source, /\bevaluateWhiteBackground\b/);
   assert.match(source, /clarity: evaluateVisaPhotoClarity\(/);
-  assert.doesNotMatch(source, /\bisVisaPhotoFrameCaptureReady\b/);
-  assert.doesNotMatch(source, /\bevaluateWhiteBackground\b/);
+  assert.match(source, /\bisVisaPhotoFrameCaptureReady\b/);
+  assert.match(source, /\bisVisaPhotoFaceStable\b/);
+  assert.match(source, /\bupdateRollingCameraReadiness\b/);
+  assert.match(source, /CAMERA_QUALITY_POLICY\.liveAnalysisIntervalMs/);
+});
+
+test("Visa Photo capture stays manual after the guide becomes ready", () => {
+  assert.match(source, /onClick=\{\(\) => void takePhoto\(\)\}/);
+  assert.match(source, /Ready to capture/);
+  assert.match(source, /Tap the shutter to capture/);
+  assert.doesNotMatch(source, /STABLE_CAPTURE_MS|takePhotoRef|Auto-captures/);
+});
+
+test("exact 800 by 1200 JPEG output is rechecked before preview", () => {
+  assert.match(source, /\bcaptureBestCameraSource\b/);
+  assert.match(source, /CAMERA_QUALITY_POLICY\.visaOutputWidth/);
+  assert.match(source, /CAMERA_QUALITY_POLICY\.visaOutputHeight/);
+  assert.match(source, /\bencodeVisaJpegUnderLimit\b/);
+  assert.match(source, /detectFinalFaces\(decoded\.image\)/);
+  assert.match(source, /\bevaluateFinalVisaPhoto\b/);
+  assert.match(source, /\bevaluateFallbackFinalVisaPhoto\b/);
+  assert.match(source, /const ANALYSIS_WIDTH = 96/);
+  assert.match(source, /const ANALYSIS_HEIGHT = 144/);
+});
+
+test("borderline preview needs confirmation and hard failure never exposes Use", () => {
+  assert.match(source, /id="visa-photo-borderline-confirmation"/);
+  assert.match(source, /checked=\{borderlineConfirmed\}/);
+  assert.match(
+    source,
+    /finalValidation[\s\S]*?finalValidation\.outcome !== "hard_failure"/,
+  );
+  assert.match(
+    source,
+    /finalValidation\.outcome === "borderline"[\s\S]*?!borderlineConfirmed/,
+  );
 });

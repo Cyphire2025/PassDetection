@@ -73,6 +73,12 @@ def normalize_reviewed_passport_fields(fields: dict[str, str]) -> dict[str, str]
             )
         value = " ".join(raw_value.strip().split())
         if not value:
+            # An explicitly empty surname is meaningful: some passports have
+            # no surname. Preserve that key so client and staff review can
+            # clear a mistaken extraction; Gemini still verifies the visible
+            # absence before AI approval.
+            if key == "surname":
+                normalized[key] = ""
             continue
         if key in PASSPORT_DATE_FIELDS:
             value = normalize_passport_date(value, field=key)
@@ -128,6 +134,20 @@ def reconcile_confirmed_with_extraction(
     for field in REVIEWABLE_PASSPORT_FIELDS:
         manual_value = _text_value(merged.get(field))
         extracted_value = _text_value(extracted_fields.get(field))
+        if field == "surname" and field in merged and not manual_value:
+            # An explicit blank surname is a reviewed value, not an extraction
+            # gap. Preserve it and surface any later non-empty extraction for
+            # staff review instead of silently copying that value over it.
+            if extracted_value:
+                conflicts.append(
+                    {
+                        "field": field,
+                        "manual_value": "",
+                        "extracted_value": extracted_value,
+                        "status": "mismatch",
+                    }
+                )
+            continue
         if not manual_value:
             if extracted_value:
                 merged[field] = extracted_value

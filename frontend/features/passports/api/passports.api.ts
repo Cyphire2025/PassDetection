@@ -52,6 +52,14 @@ export interface PassportDocumentImportChunkRequest extends PassportDocumentImpo
   maxChunkFiles?: number;
 }
 
+export interface BulkDeletePassportSubmissionsResult {
+  deleted_count: number;
+  deleted_submission_ids: string[];
+  deleted_storage_objects: number;
+  deleted_notifications: number;
+  storage_cleanup_deferred: boolean;
+}
+
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
 export type PassportReextractOutcome = "completed" | "failed" | "timed_out";
 
@@ -249,6 +257,17 @@ export const passportsApi = {
       { responseType: "blob" },
     );
     downloadBlob(response.data, "selected-passports.xlsx");
+  },
+
+  bulkDelete: async (
+    groupId: string,
+    submissionIds: string[],
+  ): Promise<BulkDeletePassportSubmissionsResult> => {
+    const { data } = await apiClient.post<BulkDeletePassportSubmissionsResult>(
+      API_ENDPOINTS.passports.bulkDelete(groupId),
+      { submission_ids: submissionIds },
+    );
+    return data;
   },
 
   exportSelectedGroups: async (groupIds: string[]): Promise<void> => {

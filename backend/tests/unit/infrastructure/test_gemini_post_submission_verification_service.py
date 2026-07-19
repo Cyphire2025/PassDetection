@@ -146,6 +146,196 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
         self.assertIsNone(result.reason_code)
 
+    async def test_visibly_absent_surname_is_correct_and_ai_approved(self) -> None:
+        submitted = _submitted_fields()
+        submitted["surname"] = ""
+        fields = _provider_fields(
+            override={
+                "surname": {
+                    "verdict": "correct",
+                    "observed_value": "",
+                    "confidence": 0.99,
+                    "reason_code": "not_present",
+                }
+            }
+        )
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            payload = json.loads(request.content)
+            reason_codes = payload["generationConfig"]["responseSchema"][
+                "properties"
+            ]["fields"]["items"]["properties"]["reason_code"]["enum"]
+            self.assertIn("not_present", reason_codes)
+            system_text = payload["systemInstruction"]["parts"][0]["text"]
+            self.assertIn("Never copy given names into surname", system_text)
+            self.assertIn("reason_code not_present", system_text)
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        surname = next(field for field in result.fields if field.field == "surname")
+        self.assertEqual(result.decision.value, "ai_approved")
+        self.assertEqual(result.to_dict()["suspicious_fields"], [])
+        self.assertEqual(surname.verdict.value, "correct")
+        self.assertIsNone(surname.observed_value)
+        self.assertEqual(surname.reason_code, "not_present")
+        self.assertEqual(surname.confidence, 0.99)
+
+    async def test_empty_surname_with_unreadable_evidence_still_needs_review(
+        self,
+    ) -> None:
+        submitted = _submitted_fields()
+        submitted["surname"] = ""
+        fields = _provider_fields(
+            override={
+                "surname": {
+                    "verdict": "suspicious",
+                    "observed_value": "",
+                    "confidence": 0.99,
+                    "reason_code": "unreadable",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        surname = next(field for field in result.fields if field.field == "surname")
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(result.to_dict()["suspicious_fields"], ["surname"])
+        self.assertEqual(surname.reason_code, "unreadable")
+        self.assertEqual(surname.confidence, 0.0)
+
+    async def test_omitted_surname_that_is_visibly_present_is_incorrect(
+        self,
+    ) -> None:
+        submitted = _submitted_fields()
+        submitted["surname"] = ""
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(_provider_fields())
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        surname = next(field for field in result.fields if field.field == "surname")
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(result.to_dict()["incorrect_fields"], ["surname"])
+        self.assertEqual(surname.reason_code, "different_value")
+
+    async def test_low_confidence_absent_surname_still_needs_review(self) -> None:
+        submitted = _submitted_fields()
+        submitted["surname"] = ""
+        fields = _provider_fields(
+            override={
+                "surname": {
+                    "verdict": "correct",
+                    "observed_value": "",
+                    "confidence": 0.70,
+                    "reason_code": "not_present",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        surname = next(field for field in result.fields if field.field == "surname")
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(surname.verdict.value, "suspicious")
+        self.assertEqual(surname.reason_code, "low_confidence")
+
+    async def test_invalid_not_present_combinations_fail_closed(self) -> None:
+        cases = (
+            {
+                "given_names": {
+                    "verdict": "correct",
+                    "observed_value": "",
+                    "confidence": 0.99,
+                    "reason_code": "not_present",
+                }
+            },
+            {
+                "surname": {
+                    "verdict": "correct",
+                    "observed_value": "SHARMA",
+                    "confidence": 0.99,
+                    "reason_code": "not_present",
+                }
+            },
+        )
+        for override in cases:
+            with self.subTest(override=override):
+                async def handler(
+                    _request: httpx.Request,
+                    provider_override: dict[
+                        str,
+                        dict[str, object],
+                    ] = override,
+                ) -> httpx.Response:
+                    return _response(
+                        _provider_fields(override=provider_override)
+                    )
+
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(handler)
+                ) as client:
+                    result = await GeminiPostSubmissionVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"passport-image",
+                        content_type="image/jpeg",
+                        submitted_fields=_submitted_fields(),
+                    )
+
+                self.assertEqual(result.decision.value, "needs_review")
+                self.assertEqual(result.provider_status, "invalid_response")
+                self.assertEqual(len(result.to_dict()["suspicious_fields"]), 9)
+
     async def test_request_uses_strict_document_and_field_schema(self) -> None:
         async def handler(request: httpx.Request) -> httpx.Response:
             payload = json.loads(request.content)

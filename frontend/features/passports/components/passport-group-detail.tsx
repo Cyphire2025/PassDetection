@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
@@ -16,12 +16,14 @@ import {
   formatPassportNationality,
 } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import { getPassportVerificationConfidence } from "../utils/passport-review";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
   useExportPassportGroupImages,
   useExportSelectedPassports,
+  useBulkDeletePassportSubmissions,
   useImportPassportGroup,
   usePassportGroups,
   usePassportsByGroup,
@@ -39,6 +41,8 @@ interface PassportGroupDetailProps {
 export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const searchParams = useSearchParams();
   const includeDeleted = searchParams.get("old_data") === "1";
+  const role = useAuthStore(selectUserRole);
+  const canPermanentlyDelete = role === "super_admin" || role === "agency_admin";
   const [search, setSearch] = useState("");
   const [selectedPassports, setSelectedPassports] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -83,12 +87,18 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const passportPreviewMutation = usePreviewPassportDocuments(groupId);
   const passportSaveMutation = useSavePassportDocuments(groupId);
   const exportSelected = useExportSelectedPassports();
+  const bulkDelete = useBulkDeletePassportSubmissions(groupId);
   const updateGroup = useUpdateUploadLink();
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
   const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [bulkDeleteFeedback, setBulkDeleteFeedback] = useState<{
+    tone: "success" | "warning" | "error";
+    message: string;
+  } | null>(null);
+  const [isBulkDeleteConfirmationOpen, setIsBulkDeleteConfirmationOpen] = useState(false);
   const [passportImportFiles, setPassportImportFiles] = useState<File[]>([]);
   const [passportImportPreview, setPassportImportPreview] = useState<PassportDocumentImportPreview | null>(null);
   const [passportImportProgress, setPassportImportProgress] = useState<{ processed: number; total: number; label: string } | null>(null);
@@ -412,6 +422,21 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         </div>
       )}
 
+      {bulkDeleteFeedback && (
+        <div
+          role={bulkDeleteFeedback.tone === "error" ? "alert" : "status"}
+          className={
+            bulkDeleteFeedback.tone === "error"
+              ? "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              : bulkDeleteFeedback.tone === "warning"
+                ? "rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                : "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+          }
+        >
+          {bulkDeleteFeedback.message}
+        </div>
+      )}
+
       {passportImportProgress && (
         <PassportDocumentImportProgress
           processed={passportImportProgress.processed}
@@ -574,6 +599,21 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           <Download className="h-4 w-4" />
           Export Selected ({selectedPassports.length})
         </Button>
+        {canPermanentlyDelete && !includeDeleted && (
+          <Button
+            type="button"
+            variant="danger"
+            disabled={selectedPassports.length === 0 || bulkDelete.isPending}
+            isLoading={bulkDelete.isPending}
+            onClick={() => {
+              setBulkDeleteFeedback(null);
+              setIsBulkDeleteConfirmationOpen(true);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Selected ({selectedPassports.length})
+          </Button>
+        )}
         {selectedPassports.length > 0 && (
           <Button type="button" variant="ghost" onClick={() => setSelectedPassports([])}>
             Clear selection
@@ -731,6 +771,42 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           }}
         />
       )}
+      <ConfirmDialog
+        isOpen={isBulkDeleteConfirmationOpen}
+        title="Delete selected submissions?"
+        description={`Permanently delete ${selectedPassports.length} selected passport submission${selectedPassports.length === 1 ? "" : "s"}, including uploaded passport and Visa Photo files? This cannot be undone.`}
+        confirmLabel={`Delete ${selectedPassports.length} submission${selectedPassports.length === 1 ? "" : "s"}`}
+        variant="danger"
+        isLoading={bulkDelete.isPending}
+        onClose={() => {
+          if (!bulkDelete.isPending) setIsBulkDeleteConfirmationOpen(false);
+        }}
+        onConfirm={() => {
+          if (selectedPassports.length === 0 || bulkDelete.isPending) return;
+          bulkDelete.mutate(selectedPassports, {
+            onSuccess: (result) => {
+              setSelectedPassports([]);
+              setIsBulkDeleteConfirmationOpen(false);
+              setBulkDeleteFeedback({
+                tone: result.storage_cleanup_deferred ? "warning" : "success",
+                message: result.storage_cleanup_deferred
+                  ? `Deleted ${result.deleted_count} passport submission${result.deleted_count === 1 ? "" : "s"}. Stored-file cleanup could not finish and was logged for administrator follow-up.`
+                  : `Deleted ${result.deleted_count} passport submission${result.deleted_count === 1 ? "" : "s"} and ${result.deleted_storage_objects} stored file${result.deleted_storage_objects === 1 ? "" : "s"}.`,
+              });
+            },
+            onError: (deleteError) => {
+              setIsBulkDeleteConfirmationOpen(false);
+              setBulkDeleteFeedback({
+                tone: "error",
+                message: mutationErrorMessage(
+                  deleteError,
+                  "The selected passport submissions could not be deleted.",
+                ),
+              });
+            },
+          });
+        }}
+      />
     </div>
   );
 }
@@ -1251,6 +1327,20 @@ function formatBytes(bytes: number) {
   const mb = bytes / (1024 * 1024);
   if (mb < 1) return `${Math.round(bytes / 1024)} KB`;
   return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;
+}
+
+function mutationErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  if (
+    error
+    && typeof error === "object"
+    && "message" in error
+    && typeof error.message === "string"
+    && error.message
+  ) {
+    return error.message;
+  }
+  return fallback;
 }
 
 function InfoPair({ label, value }: { label: string; value: string }) {

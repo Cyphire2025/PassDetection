@@ -2,21 +2,24 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildVisaPhotoCameraConstraints,
+  encodeVisaJpegUnderLimit,
+  evaluateFallbackFinalVisaPhoto,
+  evaluateFinalVisaPhoto,
   evaluateVisaPhotoFaceCount,
   evaluateVisaPhotoClarity,
   evaluateVisaPhotoFacePlacement,
   evaluateWhiteBackground,
-  hasStableVisaPhotoReadiness,
   isInsidePersonGuide,
   isVisaPhotoFallbackCaptureAllowed,
   isVisaPhotoFrameCaptureReady,
+  isVisaPhotoFaceStable,
   isVisaSelfieFaceLargeEnough,
   requestVisaPhotoCamera,
 } from "./visa-selfie-quality.ts";
 
 const WIDTH = 72;
 const HEIGHT = 92;
-const PHOTO_WIDTH = 112;
+const PHOTO_WIDTH = 96;
 const PHOTO_HEIGHT = 144;
 const FACE = {
   centerX: 0.5,
@@ -182,6 +185,45 @@ test("accepts an off-white wall with mild natural texture around a detected pers
   assert.equal(result.isWhite, true);
 });
 
+test("allows one mildly failing background tile but rejects two", () => {
+  const oneMildTile = makeVisaPhotoFrame({
+    backgroundAt: (x, y) => (
+      x < PHOTO_WIDTH * 0.25 && y < PHOTO_HEIGHT * 0.25
+        ? [205, 173, 154]
+        : [224, 222, 218]
+    ),
+  });
+  const twoMildTiles = makeVisaPhotoFrame({
+    backgroundAt: (x, y) => (
+      y < PHOTO_HEIGHT * 0.25
+        && (
+          x < PHOTO_WIDTH * 0.25
+          || x >= PHOTO_WIDTH * 0.75
+        )
+        ? [205, 173, 154]
+        : [224, 222, 218]
+    ),
+  });
+
+  const one = evaluateWhiteBackground(
+    oneMildTile,
+    PHOTO_WIDTH,
+    PHOTO_HEIGHT,
+    FACE,
+  );
+  const two = evaluateWhiteBackground(
+    twoMildTiles,
+    PHOTO_WIDTH,
+    PHOTO_HEIGHT,
+    FACE,
+  );
+
+  assert.equal(one.failingLightNeutralZoneCount, 1, JSON.stringify(one));
+  assert.equal(one.isWhite, true, JSON.stringify(one));
+  assert.ok(two.failingLightNeutralZoneCount >= 2, JSON.stringify(two));
+  assert.equal(two.isWhite, false, JSON.stringify(two));
+});
+
 test("rejects white drawers with panel lines and handles", () => {
   const pixels = makeVisaPhotoFrame();
   drawHorizontalLine(pixels, 24, [132, 132, 132], 2);
@@ -340,25 +382,164 @@ test("rejects a flat, blurry face region", () => {
   assert.equal(result.status, "blurry", JSON.stringify(result));
 });
 
-test("requires consecutive readiness samples before capture", () => {
-  assert.equal(hasStableVisaPhotoReadiness([true, true, true], 4), false);
-  assert.equal(hasStableVisaPhotoReadiness([true, true, false, true], 4), false);
-  assert.equal(hasStableVisaPhotoReadiness([false, true, true, true, true], 4), true);
-});
-
-test("capture readiness depends only on background and image clarity", () => {
-  const readinessSamples = [];
-
-  for (let index = 0; index < 4; index += 1) {
-    readinessSamples.push(
-      isVisaPhotoFrameCaptureReady("white", "good"),
-    );
-  }
-
-  assert.deepEqual(readinessSamples, [true, true, true, true]);
-  assert.equal(hasStableVisaPhotoReadiness(readinessSamples, 4), true);
+test("capture readiness uses current background and face clarity signals", () => {
+  assert.equal(isVisaPhotoFrameCaptureReady("white", "good"), true);
   assert.equal(isVisaPhotoFrameCaptureReady("not_white", "good"), false);
   assert.equal(isVisaPhotoFrameCaptureReady("white", "blurry"), false);
+});
+
+test("face stability tolerates small detector noise but rejects movement", () => {
+  assert.equal(isVisaPhotoFaceStable(null, FACE), false);
+  assert.equal(isVisaPhotoFaceStable(FACE, {
+    ...FACE,
+    centerX: 0.52,
+    centerY: 0.38,
+    width: 0.43,
+    height: 0.47,
+  }), true);
+  assert.equal(isVisaPhotoFaceStable(FACE, {
+    ...FACE,
+    centerX: 0.62,
+  }), false);
+});
+
+test("final validation passes a clear face against a plain light-neutral wall", () => {
+  const pixels = makeVisaPhotoFrame();
+  const result = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: FACE,
+    pixels,
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.equal(result.outcome, "pass", JSON.stringify(result));
+});
+
+test("final validation hard-rejects severe face blur and obvious wall patterns", () => {
+  const blurred = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: FACE,
+    pixels: makeVisaPhotoFrame({
+      faceColor: [176, 140, 116],
+      omitFaceDetail: true,
+    }),
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+  const patterned = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: FACE,
+    pixels: makeVisaPhotoFrame({
+      backgroundAt: (x, y) => (
+        (Math.floor(x / 4) + Math.floor(y / 4)) % 2 === 0
+          ? [242, 240, 236]
+          : [168, 166, 162]
+      ),
+    }),
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.equal(blurred.outcome, "hard_failure", JSON.stringify(blurred));
+  assert.match(blurred.message, /blurred/i);
+  assert.equal(patterned.outcome, "hard_failure", JSON.stringify(patterned));
+  assert.match(patterned.message, /background/i);
+});
+
+test("final validation hard-rejects missing and multiple faces", () => {
+  const pixels = makeVisaPhotoFrame();
+  for (const faceCount of [0, 2]) {
+    const result = evaluateFinalVisaPhoto({
+      faceCount,
+      face: null,
+      pixels,
+      width: PHOTO_WIDTH,
+      height: PHOTO_HEIGHT,
+    });
+    assert.equal(result.outcome, "hard_failure", JSON.stringify(result));
+  }
+});
+
+test("final placement keeps near-threshold movement borderline and definite clipping hard", () => {
+  const pixels = makeVisaPhotoFrame();
+  const nearThreshold = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: {
+      ...FACE,
+      width: 0.29,
+      height: 0.36,
+    },
+    pixels,
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+  const topClipped = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: {
+      ...FACE,
+      centerY: 0.26,
+      height: 0.5,
+    },
+    pixels,
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.equal(nearThreshold.outcome, "borderline", JSON.stringify(nearThreshold));
+  assert.equal(topClipped.outcome, "hard_failure", JSON.stringify(topClipped));
+  assert.match(topClipped.message, /cut off/i);
+});
+
+test("model fallback still hard-fails exact-pixel defects and otherwise stays borderline", () => {
+  const usable = evaluateFallbackFinalVisaPhoto({
+    pixels: makeVisaPhotoFrame(),
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+  const blurred = evaluateFallbackFinalVisaPhoto({
+    pixels: makeVisaPhotoFrame({
+      faceColor: [176, 140, 116],
+      omitFaceDetail: true,
+    }),
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.equal(usable.outcome, "borderline", JSON.stringify(usable));
+  assert.equal(usable.faceCount, "no_face");
+  assert.equal(blurred.outcome, "hard_failure", JSON.stringify(blurred));
+});
+
+test("final validation keeps a weak background-texture signal borderline", () => {
+  const result = evaluateFinalVisaPhoto({
+    faceCount: 1,
+    face: FACE,
+    pixels: makeVisaPhotoFrame({
+      backgroundAt: (x) => Math.floor(x / 8) % 2 === 0
+        ? [224, 222, 218]
+        : [207, 205, 201],
+    }),
+    width: PHOTO_WIDTH,
+    height: PHOTO_HEIGHT,
+  });
+
+  assert.equal(result.outcome, "borderline", JSON.stringify(result));
+});
+
+test("JPEG selection rejects the exact two-MiB boundary and uses actual Blob sizes", async () => {
+  const byteLimit = 2 * 1024 * 1024;
+  const calls = [];
+  const result = await encodeVisaJpegUnderLimit(async (quality) => {
+    calls.push(quality);
+    return {
+      size: quality === 0.94 ? byteLimit : byteLimit - 1,
+    };
+  }, byteLimit);
+
+  assert.deepEqual(calls, [0.94, 0.9]);
+  assert.equal(result.quality, 0.9);
+  assert.equal(result.blob.size, byteLimit - 1);
 });
 
 test("allows the guided fallback only for an available camera and unavailable model after acknowledgement", () => {

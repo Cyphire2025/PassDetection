@@ -1,10 +1,12 @@
 /**
- * Compatibility checks used by the live Visa Photo camera.
+ * Dormant compatibility checks retained for diagnostics and future opt-in use.
  *
  * These deliberately preserve the earlier, forgiving capture behavior:
- * one reasonably positioned face and a light neutral wall. The newer strict
- * quality engine remains available for diagnostics and future opt-in use, but
- * furniture-line, texture, head-tilt, and clarity signals do not block capture.
+ * one reasonably positioned face and narrow light-neutral wall strips. The
+ * active camera now uses the selected lightweight, face-aware background,
+ * placement, and clarity pieces in visa-selfie-quality.ts; these older narrow
+ * strip checks remain unwired so they can be compared without weakening the
+ * production capture gate.
  */
 
 export type VisaPhotoCompatibilityFaceStatus =

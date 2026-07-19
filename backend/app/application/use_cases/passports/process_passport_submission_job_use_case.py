@@ -520,6 +520,16 @@ class ProcessPassportSubmissionJobUseCase:
             if isinstance(raw_field_confidences, dict)
             else {}
         )
+        raw_absent_fields = metadata.get("absent_fields")
+        absent_fields = {
+            field
+            for field in (
+                raw_absent_fields
+                if isinstance(raw_absent_fields, list)
+                else []
+            )
+            if field == "surname"
+        }
         bounded_confidences: dict[str, float] = {}
         for field in GEMINI_EXTRACTION_FIELDS:
             raw_confidence = field_confidences.get(field)
@@ -527,7 +537,10 @@ class ProcessPassportSubmissionJobUseCase:
                 isinstance(raw_confidence, (int, float))
                 and not isinstance(raw_confidence, bool)
                 and 0.0 <= float(raw_confidence) <= 1.0
-                and extracted_fields.get(field)
+                and (
+                    extracted_fields.get(field)
+                    or field in absent_fields
+                )
             ):
                 bounded_confidences[field] = round(float(raw_confidence), 4)
 

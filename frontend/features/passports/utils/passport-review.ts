@@ -45,8 +45,11 @@ export function cleanPassportReviewFields(
 ): Record<string, string> {
   return Object.fromEntries(
     PASSPORT_REVIEW_FIELDS.flatMap((field) => {
-      const value = fields[field]?.trim();
-      return value ? [[field, value] as const] : [];
+      if (!Object.prototype.hasOwnProperty.call(fields, field)) return [];
+      const value = fields[field]?.trim() ?? "";
+      return value || field === "surname"
+        ? [[field, value] as const]
+        : [];
     }),
   );
 }

@@ -69,6 +69,20 @@ class ExportSelectedPassportsRequest(BaseModel):
     submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=500)
 
 
+class BulkDeletePassportSubmissionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
+
+
+class BulkDeletePassportSubmissionsResponse(BaseModel):
+    deleted_count: int
+    deleted_submission_ids: list[uuid.UUID]
+    deleted_storage_objects: int
+    deleted_notifications: int
+    storage_cleanup_deferred: bool
+
+
 class ExportSelectedGroupsRequest(BaseModel):
     group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
 

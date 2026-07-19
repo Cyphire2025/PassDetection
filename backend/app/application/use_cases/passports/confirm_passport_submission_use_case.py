@@ -37,7 +37,7 @@ class ConfirmPassportSubmissionUseCase:
         validate_reviewed_passport_payload(confirmed_fields)
         clean_fields = normalize_reviewed_passport_fields(confirmed_fields)
 
-        if not clean_fields:
+        if not any(clean_fields.values()):
             raise ValidationError("At least one confirmed field is required", field="confirmed_fields")
 
         if submission.status in {

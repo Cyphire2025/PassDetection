@@ -83,6 +83,20 @@ export function useExportSelectedPassports() {
   });
 }
 
+export function useBulkDeletePassportSubmissions(groupId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (submissionIds: string[]) => (
+      passportsApi.bulkDelete(groupId, submissionIds)
+    ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
 export function useExportSelectedGroups() {
   return useMutation({
     mutationFn: (groupIds: string[]) => passportsApi.exportSelectedGroups(groupIds),

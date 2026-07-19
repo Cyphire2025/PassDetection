@@ -81,6 +81,27 @@ class PostSubmissionVerificationWorkflowTests(unittest.TestCase):
             PassportProcessingStatus.READY_FOR_CLIENT_REVIEW,
         )
 
+    def test_verified_absent_surname_does_not_make_extraction_partial(self) -> None:
+        submission = _submission()
+        revision = submission.mark_processing()
+        fields = {
+            **_reviewed_fields(),
+            "surname": "",
+            "ai_verification": {"absent_fields": ["surname"]},
+        }
+
+        submission.mark_review_required(
+            fields,
+            0.99,
+            expected_revision=revision,
+        )
+
+        self.assertEqual(
+            submission.extraction_status.value,
+            "extraction_complete",
+        )
+        self.assertEqual(submission.extracted_fields["surname"], "")
+
     def test_ai_result_never_changes_client_confirmed_fields(self) -> None:
         submission = _submission()
         fields = _reviewed_fields()
@@ -331,6 +352,40 @@ class PostSubmissionVerificationWorkflowTests(unittest.TestCase):
 
 
 class StaffApprovePassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
+    async def test_staff_can_clear_an_incorrect_surname_to_explicit_empty(
+        self,
+    ) -> None:
+        submission = _submission()
+        submission.submit_client_review(
+            _reviewed_fields(),
+            client_email="traveller@example.com",
+            client_phone="+919999999999",
+        )
+        submission.apply_post_submission_verification(
+            expected_revision=submission.post_submission_verification_revision,
+            decision="needs_review",
+            verification={
+                "verification_status": "needs_review",
+                "suspicious_fields": ["surname"],
+            },
+        )
+        repo = AsyncMock()
+        repo.get_by_id_for_update.return_value = submission
+
+        result = await StaffApprovePassportUseCase(repo).execute(
+            submission.id,
+            reviewer_id=uuid.uuid4(),
+            reviewer_name="Agency Reviewer",
+            expected_extraction_revision=submission.extraction_revision,
+            confirmed_fields={"surname": ""},
+        )
+
+        self.assertEqual(result.outcome, StaffApprovalOutcome.APPROVED)
+        self.assertEqual(result.corrected_field_names, ("surname",))
+        self.assertIn("surname", submission.confirmed_fields)
+        self.assertEqual(submission.confirmed_fields["surname"], "")
+        repo.update.assert_awaited_once_with(submission)
+
     async def test_nine_review_fields_preserve_existing_staff_metadata(self) -> None:
         submission = _submission()
         passport_fields = {

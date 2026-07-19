@@ -20,6 +20,21 @@ from app.infrastructure.export.passport_excel_exporter import PassportExcelExpor
 
 
 class PassportCaptureFieldTests(unittest.TestCase):
+    def test_explicit_empty_surname_is_preserved_for_ai_and_staff_review(
+        self,
+    ) -> None:
+        fields = normalize_reviewed_passport_fields(
+            {
+                "surname": "   ",
+                "given_names": "MOHIT",
+                "passport_number": "W6905713",
+            }
+        )
+
+        self.assertIn("surname", fields)
+        self.assertEqual(fields["surname"], "")
+        self.assertEqual(fields["given_names"], "MOHIT")
+
     def test_reviewed_date_of_issue_is_optional_and_canonical(self) -> None:
         fields = normalize_reviewed_passport_fields(
             {

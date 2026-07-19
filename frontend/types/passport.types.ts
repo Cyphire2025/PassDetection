@@ -69,6 +69,7 @@ export interface ExtractedPassportFields {
     provider_status?: string | null;
     corrected_fields?: string[];
     filled_fields?: string[];
+    absent_fields?: string[];
     duration_ms?: number;
     attempts?: number;
     document_class?: string;

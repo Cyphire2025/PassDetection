@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   type PassportFrameStatus,
-  type PassportPageSide,
 } from "../services/passport-frame-detector";
 import {
   detectRectangularPassportFrame,
   type RectangularPassportFrameResult,
 } from "../services/passport-rectangular-frame-detector";
+import {
+  CAMERA_QUALITY_POLICY,
+  isCameraMotionStable,
+  updateRollingCameraReadiness,
+} from "../services/camera-quality-policy";
 
-const ANALYSIS_INTERVAL_MS = 180;
-// Two agreeing edge-only frames (~0.36 seconds) keep the guide responsive
-// without turning a single transient boundary into a capture-ready state.
-const REQUIRED_STABLE_FRAMES = 2;
 const REQUIRED_STATUS_FRAMES = 2;
 
 interface UsePassportFrameDetectionOptions {
@@ -19,7 +19,6 @@ interface UsePassportFrameDetectionOptions {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   guideRef?: RefObject<HTMLElement | null>;
   enabled: boolean;
-  pageSide?: PassportPageSide;
   resetKey?: string | number;
 }
 
@@ -34,17 +33,20 @@ export function usePassportFrameDetection({
   canvasRef,
   guideRef,
   enabled,
-  pageSide = "front",
   resetKey = 0,
 }: UsePassportFrameDetectionOptions) {
   const [analysis, setAnalysis] = useState<StabilizedFrameAnalysis | null>(null);
-  const readyFramesRef = useRef(0);
+  const readinessSamplesRef = useRef<boolean[]>([]);
+  const previousMotionSignatureRef = useRef<Uint8Array | null>(null);
+  const readyRef = useRef(false);
   const readySequenceRef = useRef(0);
   const lastStatusRef = useRef<PassportFrameStatus | null>(null);
   const statusFramesRef = useRef(0);
 
   useEffect(() => {
-    readyFramesRef.current = 0;
+    readinessSamplesRef.current = [];
+    previousMotionSignatureRef.current = null;
+    readyRef.current = false;
     readySequenceRef.current = 0;
     lastStatusRef.current = null;
     statusFramesRef.current = 0;
@@ -59,29 +61,24 @@ export function usePassportFrameDetection({
         canvasRef.current,
         guideRef?.current ?? null,
       );
-      const reliablyDetected = result.isDetected;
+      const motionStable = isCameraMotionStable(
+        previousMotionSignatureRef.current,
+        result.motionSignature,
+      );
+      previousMotionSignatureRef.current = result.motionSignature;
+      const passing = result.isDetected
+        && result.lightingStatus === "good"
+        && motionStable;
+      const readiness = updateRollingCameraReadiness(
+        readinessSamplesRef.current,
+        passing,
+        readyRef.current,
+      );
+      const wasReady = readyRef.current;
+      readinessSamplesRef.current = readiness.samples;
+      readyRef.current = readiness.ready;
+      if (readiness.ready && !wasReady) readySequenceRef.current += 1;
 
-      if (reliablyDetected) {
-        const wasStable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;
-        readyFramesRef.current = Math.min(
-          REQUIRED_STABLE_FRAMES,
-          readyFramesRef.current + 1,
-        );
-        lastStatusRef.current = "ready";
-        statusFramesRef.current = readyFramesRef.current;
-        const stable = readyFramesRef.current >= REQUIRED_STABLE_FRAMES;
-        if (stable && !wasStable) readySequenceRef.current += 1;
-        setAnalysis({
-          ...result,
-          isDetected: stable,
-          status: stable ? "ready" : "checking",
-          resetKey,
-          detectionSequence: readySequenceRef.current,
-        });
-        return;
-      }
-
-      readyFramesRef.current = 0;
       if (lastStatusRef.current === result.status) {
         statusFramesRef.current = Math.min(
           REQUIRED_STATUS_FRAMES,
@@ -91,19 +88,25 @@ export function usePassportFrameDetection({
         lastStatusRef.current = result.status;
         statusFramesRef.current = 1;
       }
+      const stableFailureStatus = statusFramesRef.current
+        >= REQUIRED_STATUS_FRAMES
+        ? result.status
+        : "checking";
       setAnalysis({
         ...result,
-        isDetected: false,
-        status: statusFramesRef.current >= REQUIRED_STATUS_FRAMES
-          ? result.status
-          : "checking",
+        isDetected: readiness.ready,
+        status: readiness.ready
+          ? "ready"
+          : passing || result.isDetected
+            ? "checking"
+            : stableFailureStatus,
         resetKey,
         detectionSequence: readySequenceRef.current,
       });
-    }, ANALYSIS_INTERVAL_MS);
+    }, CAMERA_QUALITY_POLICY.liveAnalysisIntervalMs);
 
     return () => window.clearInterval(interval);
-  }, [canvasRef, enabled, guideRef, pageSide, resetKey, videoRef]);
+  }, [canvasRef, enabled, guideRef, resetKey, videoRef]);
 
   const isCurrentAnalysis = enabled && analysis?.resetKey === resetKey;
   const hasStableDetection = isCurrentAnalysis && Boolean(analysis?.isDetected);
@@ -115,6 +118,10 @@ export function usePassportFrameDetection({
     status,
     confidence: enabled ? analysis?.confidence ?? 0 : 0,
     visibleEdges: enabled ? analysis?.visibleEdges ?? 0 : 0,
+    lightingStatus: isCurrentAnalysis
+      ? analysis?.lightingStatus ?? "good"
+      : "good",
+    meanLuminance: enabled ? analysis?.meanLuminance ?? 0 : 0,
     isCriticalZoneObstructed: false,
     hasDocumentCandidate: isCurrentAnalysis
       && (analysis?.visibleEdges ?? 0) >= 2,

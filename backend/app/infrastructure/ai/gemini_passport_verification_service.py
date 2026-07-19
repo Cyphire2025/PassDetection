@@ -56,7 +56,7 @@ _FIELD_CODES: Final[dict[str, str]] = {
     "sx": "sex",
 }
 _REVERSE_FIELD_CODES: Final[dict[str, str]] = {value: key for key, value in _FIELD_CODES.items()}
-_ACTIONS: Final[set[str]] = {"keep", "replace", "fill", "unknown"}
+_ACTIONS: Final[set[str]] = {"keep", "replace", "fill", "unknown", "absent"}
 _DOCUMENT_CLASSES: Final[set[str]] = {
     "passport_data_page",
     "passport_other_page",
@@ -129,7 +129,11 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "Read exactly these codes: sn surname, gn given names, pn passport number, na nationality "
     "ISO-3, ic issuing country ISO-3, db birth YYYY-MM-DD, di issue YYYY-MM-DD, "
     "de expiry YYYY-MM-DD, sx M/F/X. "
-    "For every readable field return keep, replace, or fill; use unknown with empty v when unreadable. "
+    "For every readable field return keep, replace, or fill. A surname can be genuinely absent: "
+    "only when the printed surname field is visibly blank and the passport name structure or MRZ "
+    "clearly confirms there is no surname, return sn with empty v, action absent, and confidence c. "
+    "Never copy the given names into surname. Do not use absent for an unreadable, obscured, or "
+    "ambiguous surname; use unknown with empty v in those cases. "
     "Never infer a value that is not visibly printed. Set confidence c from 0 to 1."
 )
 
@@ -260,7 +264,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                     merged_fields=merged,
                     metadata=metadata,
                 )
-            merged, corrected, filled, field_confidences = self._merge(
+            merged, corrected, filled, absent, field_confidences = self._merge(
                 original,
                 provider_result,
             )
@@ -281,7 +285,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         provider_status = str(provider_result["s"])
         accepted_status = (
             "verified"
-            if provider_status == "match" and not corrected and not filled
+            if provider_status == "match" and not corrected and not filled and not absent
             else "enhanced"
         )
         metadata = self._metadata(
@@ -289,6 +293,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             started=started,
             corrected_fields=corrected,
             filled_fields=filled,
+            absent_fields=absent,
             field_confidences=field_confidences,
             provider_status=provider_status,
             attempts=attempts,
@@ -614,12 +619,38 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         self,
         original: dict[str, Any],
         provider_result: dict[str, Any],
-    ) -> tuple[dict[str, Any], list[str], list[str], dict[str, float]]:
+    ) -> tuple[
+        dict[str, Any],
+        list[str],
+        list[str],
+        list[str],
+        dict[str, float],
+    ]:
         merged = dict(original)
         corrected: list[str] = []
         filled: list[str] = []
+        absent: list[str] = []
         field_confidences: dict[str, float] = {}
         seen: set[str] = set()
+        current_given_names = self._normalize(
+            "given_names",
+            merged.get("given_names"),
+        )
+        proposed_name_values: dict[str, str] = {}
+        proposed_name_actions: dict[str, str] = {}
+        for candidate in provider_result["f"]:
+            if (
+                isinstance(candidate, dict)
+                and candidate.get("k") in {"sn", "gn"}
+                and isinstance(candidate.get("v"), str)
+                and isinstance(candidate.get("a"), str)
+            ):
+                candidate_field = _FIELD_CODES[str(candidate["k"])]
+                proposed_name_values[candidate_field] = self._normalize(
+                    candidate_field,
+                    candidate["v"],
+                )
+                proposed_name_actions[candidate_field] = str(candidate["a"])
 
         for item in provider_result["f"]:
             if not isinstance(item, dict) or set(item) != {"k", "v", "a", "c"}:
@@ -648,7 +679,35 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             value = self._normalize(field, raw_value)
             current = self._string_value(merged.get(field))
 
-            if action == "fill" and not current and value and confidence >= 0.75:
+            if action == "absent":
+                if field != "surname" or self._string_value(raw_value):
+                    raise ValueError("Only an empty surname can be explicitly absent")
+                if confidence >= 0.90:
+                    merged["surname"] = ""
+                    absent.append("surname")
+                    field_confidences["surname"] = round(confidence, 4)
+                    if current:
+                        corrected.append("surname")
+            elif (
+                action == "fill"
+                and field == "surname"
+                and not current
+                and value
+                and (
+                    current_given_names == value
+                    or (
+                        proposed_name_actions.get("given_names")
+                        in {"fill", "keep", "replace"}
+                        and proposed_name_values.get("given_names") == value
+                    )
+                )
+            ):
+                # Fail closed when the provider duplicates its given-name
+                # extraction into a blank surname. A real absent surname must
+                # use the explicit `absent` action; a readable surname must be
+                # independently supported.
+                continue
+            elif action == "fill" and not current and value and confidence >= 0.75:
                 merged[field] = value
                 filled.append(field)
                 field_confidences[field] = round(confidence, 4)
@@ -659,7 +718,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             elif action == "keep" and current and value == current:
                 field_confidences[field] = round(confidence, 4)
 
-        accepted = corrected + filled
+        accepted = list(dict.fromkeys(corrected + filled + absent))
         if accepted:
             sources = dict(merged.get("extraction_sources") or {})
             for field in accepted:
@@ -674,14 +733,23 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             if (value := self._string_value(merged.get(field)))
         }
         validation = self._validator.validate(validated_fields)
+        validation_issues = [
+            issue
+            for issue in validation.issues
+            if not (
+                issue.field == "surname"
+                and "surname" in absent
+                and issue.message == "Required field was not extracted."
+            )
+        ]
         merged["field_validation"] = {
-            "status": validation.status,
+            "status": "valid" if not validation_issues else "review_required",
             "issues": [
                 {"field": issue.field, "message": issue.message, "severity": issue.severity}
-                for issue in validation.issues
+                for issue in validation_issues
             ],
         }
-        return merged, corrected, filled, field_confidences
+        return merged, corrected, filled, absent, field_confidences
 
     def _normalize(self, field: str, raw_value: Any) -> str:
         value = self._string_value(raw_value)
@@ -748,6 +816,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         started: float,
         corrected_fields: list[str] | None = None,
         filled_fields: list[str] | None = None,
+        absent_fields: list[str] | None = None,
         field_confidences: dict[str, float] | None = None,
         provider_status: str | None = None,
         attempts: int = 0,
@@ -766,6 +835,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             "attempts": attempts,
             "corrected_fields": corrected_fields or [],
             "filled_fields": filled_fields or [],
+            "absent_fields": absent_fields or [],
             "field_confidences": field_confidences or {},
             "duration_ms": round((time.perf_counter() - started) * 1000, 2),
         }

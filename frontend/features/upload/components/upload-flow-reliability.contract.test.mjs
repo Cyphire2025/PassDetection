@@ -124,3 +124,28 @@ test("loading, failure, processing, and completion states are announced", () => 
     /step === "SUCCESS"[\s\S]*?role="status"[\s\S]*?aria-live="polite"/,
   );
 });
+
+test("surname may be blank while every other canonical field remains required", () => {
+  assert.match(
+    source,
+    /field !== "date_of_issue" && field !== "surname"/,
+  );
+  assert.match(
+    source,
+    /const isOptional = key === "date_of_issue" \|\| key === "surname";/,
+  );
+  assert.match(
+    source,
+    /placeholder=\{key === "surname" \? "Leave blank if not present" : "Not extracted"\}/,
+  );
+  assert.match(source, /required=\{!isOptional\}/);
+  assert.match(
+    source,
+    /cleanPassportReviewFields as cleanReviewFields/,
+  );
+  assert.equal(
+    source.match(/confirmed_fields: cleanReviewFields\(/g)?.length,
+    2,
+    "single and family submissions must use the explicit-empty-aware cleaner",
+  );
+});

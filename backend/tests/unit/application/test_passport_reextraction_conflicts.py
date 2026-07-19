@@ -4,9 +4,42 @@ import unittest
 import uuid
 
 from app.domain.entities.entities import PassportProcessingStatus, PassportSubmission
+from app.domain.value_objects.passport_fields import (
+    reconcile_confirmed_with_extraction,
+)
 
 
 class PassportReextractionConflictTests(unittest.TestCase):
+    def test_explicit_blank_surname_is_preserved_and_conflicts_with_new_value(
+        self,
+    ) -> None:
+        merged, conflicts = reconcile_confirmed_with_extraction(
+            {"surname": "", "given_names": "MOHIT"},
+            {"surname": "MOHIT", "given_names": "MOHIT"},
+        )
+
+        self.assertEqual(merged["surname"], "")
+        self.assertEqual(
+            conflicts,
+            [
+                {
+                    "field": "surname",
+                    "manual_value": "",
+                    "extracted_value": "MOHIT",
+                    "status": "mismatch",
+                }
+            ],
+        )
+
+    def test_genuinely_missing_surname_key_is_still_filled(self) -> None:
+        merged, conflicts = reconcile_confirmed_with_extraction(
+            {"given_names": "AMAN"},
+            {"surname": "SHARMA", "given_names": "AMAN"},
+        )
+
+        self.assertEqual(merged["surname"], "SHARMA")
+        self.assertEqual(conflicts, [])
+
     def _manually_submitted_passport(self) -> PassportSubmission:
         submission = PassportSubmission.create(
             group_id=uuid.uuid4(),

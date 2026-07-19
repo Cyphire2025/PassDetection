@@ -5,11 +5,16 @@ import Image from "next/image";
 import { AlertTriangle, X, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePassportFrameDetection } from "../hooks/use-passport-frame-detection";
-import { usePassportBlurDetection } from "../hooks/use-passport-blur-detection";
-import { usePassportLightingDetection } from "../hooks/use-passport-lighting-detection";
-import { usePassportGlareDetection } from "../hooks/use-passport-glare-detection";
 import { useStableTelemetryReason } from "../hooks/use-stable-telemetry-reason";
 import { normalizePassportCanvasCapture } from "../services/passport-perspective-correction";
+import {
+  captureBestCameraSource,
+  remapVideoCropToSource,
+} from "../services/camera-capture";
+import {
+  validatePassportFinalFile,
+  type PassportFinalQualityResult,
+} from "../services/passport-final-quality";
 import {
   passportScannerRejectionReason,
   type PassportScannerRejectionReason,
@@ -39,12 +44,13 @@ export function SmartCamera({
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analysisCanvasRef = useRef<HTMLCanvasElement>(null);
-  const blurCanvasRef = useRef<HTMLCanvasElement>(null);
-  const lightingCanvasRef = useRef<HTMLCanvasElement>(null);
-  const glareCanvasRef = useRef<HTMLCanvasElement>(null);
+  const captureStartedRef = useRef(false);
   const [cameraRestartGeneration, setCameraRestartGeneration] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
+  const [finalQuality, setFinalQuality] =
+    useState<PassportFinalQualityResult | null>(null);
+  const [borderlineConfirmed, setBorderlineConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -58,56 +64,26 @@ export function SmartCamera({
   const {
     isDetected: isPassportDetected,
     status: passportFrameStatus,
-    isCriticalZoneObstructed,
     hasDocumentCandidate,
-    detectionSequence: passportDetectionSequence,
+    lightingStatus,
   } = usePassportFrameDetection({
     videoRef,
     canvasRef: analysisCanvasRef,
     guideRef,
     enabled: isReady && !capturedImage && !cameraError,
-    pageSide,
     resetKey: cameraRestartGeneration,
-  });
-  const qualityResetKey = `${cameraRestartGeneration}:${passportDetectionSequence}`;
-
-  const { status: blurStatus, isSharp } = usePassportBlurDetection({
-    videoRef,
-    canvasRef: blurCanvasRef,
-    guideRef,
-    enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
-    resetKey: qualityResetKey,
-  });
-
-  const { status: lightingStatus, isWellLit } = usePassportLightingDetection({
-    videoRef,
-    canvasRef: lightingCanvasRef,
-    guideRef,
-    enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
-    resetKey: qualityResetKey,
-  });
-  const { status: glareStatus, hasGlare } = usePassportGlareDetection({
-    videoRef,
-    canvasRef: glareCanvasRef,
-    guideRef,
-    enabled: isReady && isPassportDetected && !capturedImage && !cameraError,
-    resetKey: qualityResetKey,
   });
 
   const isCaptureReady = isPassportDetected
-    && isSharp
-    && isWellLit
-    && glareStatus === "clear"
-    && !hasGlare
     && !isProcessingCapture;
 
   const telemetryReason = passportScannerRejectionReason({
     failureReason,
     frameStatus: passportFrameStatus,
     passportDetected: isPassportDetected,
-    glareStatus,
+    glareStatus: "clear",
     lightingStatus,
-    blurStatus,
+    blurStatus: "sharp",
   });
   useStableTelemetryReason(telemetryReason, onTelemetryReason);
 
@@ -130,28 +106,16 @@ export function SmartCamera({
       : "border-blue-200 bg-white/95 text-slate-800";
 
   const guidanceMessage = isProcessingCapture
-    ? `Straightening and saving the passport ${pageSide} page`
+    ? `Preparing and checking the passport ${pageSide} page`
     : isCaptureReady
-      ? "All checks passed - tap the shutter button to capture"
-    : isCriticalZoneObstructed
-      ? "Remove fingers from the passport photo, printed details, and MRZ"
+      ? "Ready to capture"
+    : lightingStatus === "too_dark"
+      ? "Move into brighter, even lighting"
+    : lightingStatus === "too_bright"
+      ? "Reduce harsh light on the passport"
     : !isPassportDetected
     ? passportFrameGuidance(passportFrameStatus, pageSide)
-    : glareStatus === "checking"
-      ? "Checking surface glare"
-    : glareStatus === "glare"
-      ? "Tilt the passport to remove screen glare"
-    : lightingStatus === "checking"
-      ? "Checking lighting quality"
-    : hasGlare
-      ? "Tilt the passport to remove screen glare"
-      : lightingStatus === "too_dark"
-      ? "Move into brighter, even lighting"
-      : lightingStatus === "too_bright"
-        ? "Reduce harsh light on the passport"
-        : blurStatus !== "sharp"
-          ? "Hold steady - image is blurry"
-          : "Passport detected - image is ready";
+    : "Hold the passport steady inside the guide";
 
   const stopCamera = useCallback(() => {
     if (videoRef.current) {
@@ -168,6 +132,12 @@ export function SmartCamera({
       mountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => () => {
+    if (capturedImage?.startsWith("blob:")) {
+      URL.revokeObjectURL(capturedImage);
+    }
+  }, [capturedImage]);
 
   useEffect(() => {
     let disposed = false;
@@ -186,7 +156,7 @@ export function SmartCamera({
         if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
           setFailureReason("camera_unavailable");
           setCameraError(
-            "This custom passport scanner needs a secure camera session. Open the upload link over HTTPS to use the live detection frame, glare, blur, and lighting checks.",
+            "This custom passport scanner needs a secure camera session. Open the upload link over HTTPS to use the live positioning and lighting checks.",
           );
           return;
         }
@@ -268,6 +238,7 @@ export function SmartCamera({
       || !canvasRef.current
       || !isReady
       || !isCaptureReady
+      || captureStartedRef.current
     ) return;
 
     const video = videoRef.current;
@@ -275,50 +246,85 @@ export function SmartCamera({
     // Keep minimal context around every side of the guide so the shared
     // normalizer has enough boundary pixels for perspective rectification.
     const crop = addCaptureMargin(getVisibleGuideCrop(video, guideRef.current), video.videoWidth, video.videoHeight);
-    const cropWidth = Math.max(1, Math.round(crop.width));
-    const cropHeight = Math.max(1, Math.round(crop.height));
+    captureStartedRef.current = true;
+    setIsProcessingCapture(true);
+    setBorderlineConfirmed(false);
+    setFinalQuality(null);
 
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
-
-    const context = canvas.getContext("2d");
-    if (context) {
-      setIsProcessingCapture(true);
-
+    try {
+      const source = await captureBestCameraSource(
+        video,
+        streamRef.current,
+      );
       try {
-        context.drawImage(
-          video,
-          crop.left,
-          crop.top,
-          cropWidth,
-          cropHeight,
-          0,
-          0,
-          cropWidth,
-          cropHeight,
+        const sourceCrop = remapVideoCropToSource(
+          crop,
+          video.videoWidth,
+          video.videoHeight,
+          source.width,
+          source.height,
         );
-
-        const normalized = await normalizePassportCanvasCapture(
-          canvas,
-          `passport-${pageSide}-capture.jpg`,
-          pageSide,
+        const maximumCaptureDimension = 2400;
+        const captureScale = Math.min(
+          1,
+          maximumCaptureDimension
+            / Math.max(sourceCrop.width, sourceCrop.height),
         );
-        if (!mountedRef.current) return;
-        setCapturedFile(normalized.file);
-        setCapturedImage(normalized.previewDataUrl);
-        setFailureReason(null);
-        stopCamera();
-      } catch {
-        stopCamera();
-        if (mountedRef.current) {
-          setFailureReason("crop_validation_failed");
-          setCameraError(
-            `The passport ${pageSide} page could not be prepared. Try the camera again or go back and choose another capture method.`,
-          );
+        const cropWidth = Math.max(
+          1,
+          Math.round(sourceCrop.width * captureScale),
+        );
+        const cropHeight = Math.max(
+          1,
+          Math.round(sourceCrop.height * captureScale),
+        );
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+        const context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("This browser cannot prepare a camera image.");
         }
+        context.drawImage(
+          source.image,
+          sourceCrop.left,
+          sourceCrop.top,
+          sourceCrop.width,
+          sourceCrop.height,
+          0,
+          0,
+          cropWidth,
+          cropHeight,
+        );
       } finally {
-        if (mountedRef.current) setIsProcessingCapture(false);
+        source.close();
       }
+
+      const normalized = await normalizePassportCanvasCapture(
+        canvas,
+        `passport-${pageSide}-capture.jpg`,
+        pageSide,
+      );
+      const quality = await validatePassportFinalFile(
+        normalized.file,
+        pageSide,
+      );
+      if (!mountedRef.current) return;
+      setCapturedFile(normalized.file);
+      setCapturedImage(URL.createObjectURL(normalized.file));
+      setFinalQuality(quality);
+      setFailureReason(null);
+      stopCamera();
+    } catch {
+      stopCamera();
+      if (mountedRef.current) {
+        setFailureReason("crop_validation_failed");
+        setCameraError(
+          `The passport ${pageSide} page could not be prepared. Try the camera again or go back and choose another capture method.`,
+        );
+      }
+    } finally {
+      captureStartedRef.current = false;
+      if (mountedRef.current) setIsProcessingCapture(false);
     }
   }, [
     isCaptureReady,
@@ -333,6 +339,8 @@ export function SmartCamera({
     setFailureReason(null);
     setCapturedImage(null);
     setCapturedFile(null);
+    setFinalQuality(null);
+    setBorderlineConfirmed(false);
     setIsReady(false);
     setCameraRestartGeneration((generation) => generation + 1);
   };
@@ -340,6 +348,8 @@ export function SmartCamera({
   const retake = () => {
     setCapturedImage(null);
     setCapturedFile(null);
+    setFinalQuality(null);
+    setBorderlineConfirmed(false);
     setIsProcessingCapture(false);
     setIsReady(false);
 
@@ -347,7 +357,12 @@ export function SmartCamera({
   };
 
   const confirm = () => {
-    if (!capturedFile) return;
+    if (!capturedFile || !finalQuality) return;
+    if (finalQuality.outcome === "hard_failure") return;
+    if (
+      finalQuality.outcome === "borderline"
+      && !borderlineConfirmed
+    ) return;
     stopCamera();
     onCapture(capturedFile);
   };
@@ -466,30 +481,67 @@ export function SmartCamera({
 
         <canvas ref={canvasRef} className="hidden" />
         <canvas ref={analysisCanvasRef} className="hidden" />
-        <canvas ref={blurCanvasRef} className="hidden" />
-        <canvas ref={lightingCanvasRef} className="hidden" />
-        <canvas ref={glareCanvasRef} className="hidden" />
       </div>
 
       {!cameraError && (
         <div className="z-20 flex min-h-32 items-center justify-center border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-6px_18px_rgba(15,23,42,0.08)] sm:min-h-36 sm:px-6 sm:pt-5">
           {capturedImage ? (
-            <div className="mx-auto flex w-full max-w-md flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={retake}
-                className="flex-1"
-              >
-                Retake
-              </Button>
-              <Button
-                size="lg"
-                onClick={confirm}
-                className="flex-1 bg-blue-600 font-medium text-white hover:bg-blue-500"
-              >
-                <Check className="mr-2 h-4 w-4" /> Use Photo
-              </Button>
+            <div className="mx-auto flex w-full max-w-md flex-col gap-3">
+              {finalQuality && finalQuality.outcome !== "pass" && (
+                <div
+                  role={finalQuality.outcome === "hard_failure"
+                    ? "alert"
+                    : "status"}
+                  className={`rounded-xl border px-4 py-3 text-sm leading-5 ${
+                    finalQuality.outcome === "hard_failure"
+                      ? "border-red-200 bg-red-50 text-red-900"
+                      : "border-amber-200 bg-amber-50 text-amber-950"
+                  }`}
+                >
+                  <p className="font-medium">
+                    {finalQuality.message}
+                  </p>
+                  {finalQuality.outcome === "borderline" && (
+                    <label className="mt-3 flex cursor-pointer items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={borderlineConfirmed}
+                        onChange={(event) => {
+                          setBorderlineConfirmed(event.target.checked);
+                        }}
+                        className="mt-0.5 h-4 w-4 rounded border-amber-400 text-blue-600 focus:ring-blue-600"
+                      />
+                      <span>
+                        {finalQuality.confirmationPrompt}
+                      </span>
+                    </label>
+                  )}
+                </div>
+              )}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={retake}
+                  className="flex-1"
+                >
+                  Retake
+                </Button>
+                {finalQuality
+                  && finalQuality.outcome !== "hard_failure" && (
+                  <Button
+                    size="lg"
+                    onClick={confirm}
+                    disabled={
+                      finalQuality.outcome === "borderline"
+                      && !borderlineConfirmed
+                    }
+                    className="flex-1 bg-blue-600 font-medium text-white hover:bg-blue-500"
+                  >
+                    <Check className="mr-2 h-4 w-4" /> Use Photo
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">

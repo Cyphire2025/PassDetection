@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
 import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
+import {
+  cleanPassportReviewFields as cleanReviewFields,
+} from "@/features/passports/utils/passport-review";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,7 +131,9 @@ const REVIEW_FIELDS = [
   "sex",
 ] as const;
 
-const REQUIRED_REVIEW_FIELDS = REVIEW_FIELDS.filter((field) => field !== "date_of_issue");
+const REQUIRED_REVIEW_FIELDS = REVIEW_FIELDS.filter(
+  (field) => field !== "date_of_issue" && field !== "surname",
+);
 const RELATIONS = ["Head", "Spouse", "Son", "Daughter", "Father", "Mother", "Brother", "Sister", "Other"];
 const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
 const PASSPORT_IMAGE_ACCEPT = [
@@ -581,6 +586,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       documentBundle.front,
       documentBundle.back,
       acquisitionMode,
+      documentBundle.frontSource ?? "file",
       activeVisaSelfie,
     );
   };
@@ -622,6 +628,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     file: File,
     passportBackFile: File,
     acquisitionMode: "camera" | "file",
+    frontSource: "camera" | "file",
     passportPhotoFile?: File | null,
   ) => {
     if (operationInFlightRef.current) return;
@@ -656,7 +663,13 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setExtractionNotice(null);
       setCanRetryExtraction(false);
       setIsPreparingFile(true);
-      const normalized = await normalizePassportFile(file);
+      // Live camera files have already passed their single perspective
+      // correction and exact-final-image validation. Mixed camera/file bundles
+      // still report acquisitionMode "file", so use the front-page source
+      // rather than the aggregate mode to avoid correcting that JPEG twice.
+      const preparedFrontFile = frontSource === "camera"
+        ? file
+        : (await normalizePassportFile(file)).file;
       if (!mountedRef.current || controller.signal.aborted) return;
       setIsPreparingFile(false);
       setProcessingProgress(null);
@@ -675,7 +688,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       persisted = await uploadPassport({
         token,
         client_name: uploadName.trim(),
-        file: normalized.file,
+        file: preparedFrontFile,
         passportPhotoFile,
         passportBackFile,
         acquisitionMode,
@@ -2656,7 +2669,7 @@ function ReviewFields({ fields, onChange }: { fields: Record<string, string>; on
     <div className="grid gap-4 sm:grid-cols-2">
       {REVIEW_FIELDS.map((key) => {
         const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
-        const isOptional = key === "date_of_issue";
+        const isOptional = key === "date_of_issue" || key === "surname";
         return (
           <div key={key} className="space-y-1.5">
             <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -2677,8 +2690,8 @@ function ReviewFields({ fields, onChange }: { fields: Record<string, string>; on
                 type="text"
                 value={formatReviewFieldValue(key, fields[key] ?? "")}
                 onChange={(event) => onChange(key, event.target.value)}
-                placeholder="Not extracted"
-                required
+                placeholder={key === "surname" ? "Leave blank if not present" : "Not extracted"}
+                required={!isOptional}
                 aria-label={toLabel(key)}
                 className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
               />
@@ -2840,10 +2853,6 @@ function hasValidReviewDates(fields: Record<string, string>) {
   if (dateOfIssue && dateOfExpiry && dateOfIssue >= dateOfExpiry) return false;
   if (dateOfExpiry <= dateOfBirth) return false;
   return true;
-}
-
-function cleanReviewFields(fields: Record<string, string>) {
-  return Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, value.trim()]).filter(([, value]) => value));
 }
 
 function isValidIsoDate(value: string) {

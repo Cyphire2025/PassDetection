@@ -207,6 +207,224 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result.merged_fields["surname"], "KHANNA")
 
+    async def test_explicit_absent_surname_stays_empty_and_never_copies_given_name(
+        self,
+    ) -> None:
+        provider = {
+            "s": "changes",
+            "f": [
+                {"k": "sn", "v": "", "a": "absent", "c": 0.99},
+                {"k": "gn", "v": "MOHIT", "a": "fill", "c": 0.99},
+                {"k": "pn", "v": "W6905713", "a": "fill", "c": 0.99},
+                {"k": "na", "v": "IND", "a": "fill", "c": 0.99},
+                {"k": "ic", "v": "IND", "a": "fill", "c": 0.99},
+                {"k": "db", "v": "1998-09-08", "a": "fill", "c": 0.99},
+                {"k": "di", "v": "2023-04-13", "a": "fill", "c": 0.99},
+                {"k": "de", "v": "2033-04-12", "a": "fill", "c": 0.99},
+                {"k": "sx", "v": "M", "a": "fill", "c": 0.99},
+            ],
+        }
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            payload = json.loads(request.content)
+            actions = payload["generationConfig"]["responseSchema"][
+                "properties"
+            ]["f"]["items"]["properties"]["a"]["enum"]
+            self.assertIn("absent", actions)
+            system_text = payload["systemInstruction"]["parts"][0]["text"]
+            self.assertIn("Never copy the given names into surname", system_text)
+            self.assertIn("unreadable, obscured, or ambiguous", system_text)
+            return _gemini_response(provider)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": "MOHIT"},
+            )
+
+        self.assertIn("surname", result.merged_fields)
+        self.assertEqual(result.merged_fields["surname"], "")
+        self.assertEqual(result.merged_fields["given_names"], "MOHIT")
+        self.assertEqual(result.metadata["absent_fields"], ["surname"])
+        self.assertIn("surname", result.metadata["corrected_fields"])
+        self.assertNotIn(
+            "surname",
+            {
+                issue["field"]
+                for issue in result.merged_fields["field_validation"]["issues"]
+            },
+        )
+
+    async def test_provider_cannot_copy_filled_given_name_into_blank_surname(
+        self,
+    ) -> None:
+        provider = {
+            "s": "changes",
+            "f": [
+                {"k": "sn", "v": "MOHIT", "a": "fill", "c": 0.99},
+                {"k": "gn", "v": "MOHIT", "a": "fill", "c": 0.99},
+                {"k": "pn", "v": "W6905713", "a": "fill", "c": 0.99},
+            ],
+        }
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(provider)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": ""},
+            )
+
+        self.assertIn("surname", result.merged_fields)
+        self.assertEqual(result.merged_fields["surname"], "")
+        self.assertEqual(result.merged_fields["given_names"], "MOHIT")
+        self.assertNotIn("surname", result.metadata["filled_fields"])
+        self.assertEqual(result.metadata["absent_fields"], [])
+        self.assertIn(
+            "surname",
+            {
+                issue["field"]
+                for issue in result.merged_fields["field_validation"]["issues"]
+            },
+        )
+
+    async def test_reextraction_cannot_copy_kept_given_name_into_blank_surname(
+        self,
+    ) -> None:
+        provider = {
+            "s": "changes",
+            "f": [
+                {"k": "sn", "v": "MOHIT", "a": "fill", "c": 0.99},
+                {"k": "gn", "v": "MOHIT", "a": "keep", "c": 0.99},
+            ],
+        }
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(provider)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={
+                    "surname": "",
+                    "given_names": "MOHIT",
+                },
+            )
+
+        self.assertEqual(result.merged_fields["surname"], "")
+        self.assertEqual(result.merged_fields["given_names"], "MOHIT")
+        self.assertNotIn("surname", result.metadata["filled_fields"])
+        self.assertEqual(result.metadata["absent_fields"], [])
+
+    async def test_reextraction_cannot_copy_replaced_given_name_into_blank_surname(
+        self,
+    ) -> None:
+        provider = {
+            "s": "changes",
+            "f": [
+                {"k": "sn", "v": "ANITA", "a": "fill", "c": 0.99},
+                {"k": "gn", "v": "ANITA", "a": "replace", "c": 0.99},
+            ],
+        }
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(provider)
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={
+                    "surname": "",
+                    "given_names": "MOHIT",
+                },
+            )
+
+        self.assertEqual(result.merged_fields["surname"], "")
+        self.assertEqual(result.merged_fields["given_names"], "ANITA")
+        self.assertNotIn("surname", result.metadata["filled_fields"])
+        self.assertEqual(result.metadata["absent_fields"], [])
+
+    async def test_low_confidence_absent_surname_does_not_clear_existing_value(
+        self,
+    ) -> None:
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(
+                {
+                    "s": "changes",
+                    "f": [{"k": "sn", "v": "", "a": "absent", "c": 0.70}],
+                }
+            )
+
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler)
+        ) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": "KHANNA"},
+            )
+
+        self.assertEqual(result.merged_fields["surname"], "KHANNA")
+        self.assertEqual(result.metadata["absent_fields"], [])
+
+    async def test_invalid_absent_action_combinations_fail_closed(self) -> None:
+        invalid_fields = (
+            {"k": "gn", "v": "", "a": "absent", "c": 0.99},
+            {"k": "sn", "v": "MOHIT", "a": "absent", "c": 0.99},
+        )
+        for invalid in invalid_fields:
+            with self.subTest(invalid=invalid):
+                async def handler(
+                    _request: httpx.Request,
+                    item: dict[str, object] = invalid,
+                ) -> httpx.Response:
+                    return _gemini_response(
+                        {"s": "changes", "f": [item]}
+                    )
+
+                async with httpx.AsyncClient(
+                    transport=httpx.MockTransport(handler)
+                ) as client:
+                    result = await GeminiPassportVerificationService(
+                        settings=_settings(),
+                        http_client=client,
+                    ).verify(
+                        b"image",
+                        content_type="image/jpeg",
+                        extracted_fields={"surname": "KHANNA"},
+                    )
+
+                self.assertEqual(result.metadata["status"], "invalid_response")
+                self.assertEqual(result.merged_fields["surname"], "KHANNA")
+
     async def test_all_empty_ocr_fields_are_filled_from_readable_image_values(self) -> None:
         provider = {
             "s": "changes",

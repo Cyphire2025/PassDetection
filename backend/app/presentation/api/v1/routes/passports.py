@@ -25,7 +25,7 @@ from fastapi import (
     status,
 )
 from fastapi.responses import JSONResponse, StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.passport_dtos import (
@@ -86,6 +86,7 @@ from app.domain.exceptions.exceptions import (
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
+    NotificationModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
 )
@@ -126,6 +127,7 @@ from app.infrastructure.repositories.qualifier_selection_repository import (
 )
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.infrastructure.verification.dispatcher import (
     PostSubmissionVerificationDispatcher,
 )
@@ -133,6 +135,8 @@ from app.infrastructure.verification.job_repository import (
     PostSubmissionVerificationJobRepository,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
+    BulkDeletePassportSubmissionsRequest,
+    BulkDeletePassportSubmissionsResponse,
     ClientSubmitPassportRequest,
     ConfirmPassportSubmissionRequest,
     ExportSelectedGroupsRequest,
@@ -1062,6 +1066,148 @@ async def list_passports_by_group(
         visible_to_user=None if include_deleted else current_user,
     )
     return [PassportSubmissionResponse.model_validate(item) for item in result]
+
+
+@router.post(
+    "/groups/{group_id}/bulk-delete",
+    response_model=BulkDeletePassportSubmissionsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Permanently delete selected passport submissions from a group",
+)
+async def bulk_delete_passport_submissions(
+    group_id: uuid.UUID,
+    body: BulkDeletePassportSubmissionsRequest,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> BulkDeletePassportSubmissionsResponse:
+    if current_user.role != UserRole.SUPER_ADMIN and not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_delete_data(
+            current_user,
+            group,
+            permanent=True,
+        )
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        ) from exc
+
+    submission_ids = list(dict.fromkeys(body.submission_ids))
+    selected_rows = await session.execute(
+        select(
+            PassportSubmissionModel.id,
+            PassportSubmissionModel.image_s3_key,
+            PassportSubmissionModel.thumbnail_s3_key,
+            PassportSubmissionModel.passport_back_s3_key,
+            PassportSubmissionModel.passport_photo_s3_key,
+        )
+        .where(
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.id.in_(submission_ids),
+        )
+        .with_for_update()
+    )
+    submissions = list(selected_rows.all())
+    found_ids = {row.id for row in submissions}
+    missing_ids = [
+        submission_id
+        for submission_id in submission_ids
+        if submission_id not in found_ids
+    ]
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "One or more selected passport submissions were not found "
+                "in this group. Refresh the page and try again."
+            ),
+        )
+
+    storage_keys = passport_storage_keys(submissions)
+    notification_result = await session.execute(
+        delete(NotificationModel).where(
+            NotificationModel.agency_id == group.agency_id,
+            NotificationModel.entity_type == "passport_submission",
+            NotificationModel.entity_id.in_(
+                [str(submission_id) for submission_id in submission_ids]
+            ),
+        )
+    )
+    deleted_notifications = int(
+        getattr(notification_result, "rowcount", 0) or 0
+    )
+    delete_result = await session.execute(
+        delete(PassportSubmissionModel).where(
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.id.in_(submission_ids),
+        )
+    )
+    deleted_count = int(getattr(delete_result, "rowcount", 0) or 0)
+    if deleted_count != len(submission_ids):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "The selected submissions changed while deletion was in "
+                "progress. Refresh the page and try again."
+            ),
+        )
+
+    await AuditLogRepository(session).record(
+        action="passport_submissions_bulk_deleted",
+        entity_type="client_group",
+        entity_id=str(group_id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "deleted_count": deleted_count,
+            "deleted_submission_ids": [
+                str(submission_id) for submission_id in submission_ids
+            ],
+            "storage_objects_scheduled_for_cleanup": len(storage_keys),
+            "deleted_notifications": deleted_notifications,
+        },
+    )
+    # Commit the authoritative database deletion before touching object
+    # storage. A failed commit therefore leaves every passport file intact.
+    await session.commit()
+
+    deleted_storage_objects = 0
+    storage_cleanup_deferred = False
+    try:
+        deleted_storage_objects = (
+            await MinioStorageRepository().delete_files(storage_keys)
+        )
+    except StorageError as exc:
+        storage_cleanup_deferred = True
+        logger.warning(
+            "passport_bulk_delete_storage_cleanup_deferred",
+            group_id=str(group_id),
+            submission_count=deleted_count,
+            object_count=len(storage_keys),
+            error_type=type(exc).__name__,
+        )
+
+    return BulkDeletePassportSubmissionsResponse(
+        deleted_count=deleted_count,
+        deleted_submission_ids=submission_ids,
+        deleted_storage_objects=deleted_storage_objects,
+        deleted_notifications=deleted_notifications,
+        storage_cleanup_deferred=storage_cleanup_deferred,
+    )
 
 
 @router.get(

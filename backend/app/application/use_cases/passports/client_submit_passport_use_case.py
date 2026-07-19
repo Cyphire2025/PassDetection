@@ -205,7 +205,7 @@ class ClientSubmitPassportUseCase:
         }
         validate_reviewed_passport_payload(passport_fields)
         clean_fields = normalize_reviewed_passport_fields(passport_fields)
-        if not clean_fields:
+        if not any(clean_fields.values()):
             raise ValidationError("At least one reviewed field is required.", field="confirmed_fields")
         if normalized_base_city:
             clean_fields["base_city"] = normalized_base_city

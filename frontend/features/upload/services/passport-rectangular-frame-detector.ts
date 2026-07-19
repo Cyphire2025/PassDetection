@@ -9,6 +9,11 @@ export interface RectangularPassportFrameResult {
   confidence: number;
   visibleEdges: number;
   status: RectangularPassportFrameStatus;
+  lightingStatus: "good" | "too_dark" | "too_bright";
+  meanLuminance: number;
+  darkPixelRatio: number;
+  brightPixelRatio: number;
+  motionSignature: Uint8Array;
 }
 
 interface VideoCrop {
@@ -18,16 +23,32 @@ interface VideoCrop {
   height: number;
 }
 
-const SAMPLE_WIDTH = 320;
-const SAMPLE_HEIGHT = 200;
-const GUIDE_CONTEXT_MARGIN_RATIO = 0.1;
+const PASSPORT_LIVE_THRESHOLDS = {
+  sampleWidth: 320,
+  sampleHeight: 200,
+  guideContextMarginRatio: 0.1,
+  edgeSearchRatio: 0.075,
+  edgeGradient: 18,
+  minimumEdgeSupport: 0.24,
+  extremeDarkLuminance: 22,
+  extremeBrightLuminance: 248,
+  extremeDarkMean: 30,
+  extremeBrightMean: 241,
+  extremePixelRatio: 0.72,
+} as const;
+
+const SAMPLE_WIDTH = PASSPORT_LIVE_THRESHOLDS.sampleWidth;
+const SAMPLE_HEIGHT = PASSPORT_LIVE_THRESHOLDS.sampleHeight;
+const GUIDE_CONTEXT_MARGIN_RATIO = (
+  PASSPORT_LIVE_THRESHOLDS.guideContextMarginRatio
+);
 const GUIDE_EDGE_MIN_RATIO = (
   GUIDE_CONTEXT_MARGIN_RATIO / (1 + GUIDE_CONTEXT_MARGIN_RATIO * 2)
 );
 const GUIDE_EDGE_MAX_RATIO = 1 - GUIDE_EDGE_MIN_RATIO;
-const EDGE_SEARCH_RATIO = 0.075;
-const EDGE_GRADIENT_THRESHOLD = 18;
-const MIN_EDGE_SUPPORT = 0.24;
+const EDGE_SEARCH_RATIO = PASSPORT_LIVE_THRESHOLDS.edgeSearchRatio;
+const EDGE_GRADIENT_THRESHOLD = PASSPORT_LIVE_THRESHOLDS.edgeGradient;
+const MIN_EDGE_SUPPORT = PASSPORT_LIVE_THRESHOLDS.minimumEdgeSupport;
 
 /**
  * Permissive live-camera gate that checks only whether a page-sized rectangle
@@ -214,17 +235,98 @@ export function analyzeRectangularPassportFramePixels(
     strongestThree.reduce((sum, score) => sum + score, 0) / 2.1,
   );
   const isDetected = visibleEdges >= 3;
+  const exposure = analyzeExposure(gray);
+  const motionSignature = createMotionSignature(gray, width, height);
 
   return {
     isDetected,
     confidence: roundMetric(confidence),
     visibleEdges,
+    ...exposure,
+    motionSignature,
     status: isDetected
       ? "ready"
       : visibleEdges >= 1
         ? "incomplete_document"
         : "no_document",
   };
+}
+
+function createMotionSignature(
+  gray: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array {
+  const columns = 12;
+  const rows = 8;
+  const signature = new Uint8Array(columns * rows);
+  for (let row = 0; row < rows; row += 1) {
+    const startY = Math.floor((row * height) / rows);
+    const endY = Math.max(
+      startY + 1,
+      Math.floor(((row + 1) * height) / rows),
+    );
+    for (let column = 0; column < columns; column += 1) {
+      const startX = Math.floor((column * width) / columns);
+      const endX = Math.max(
+        startX + 1,
+        Math.floor(((column + 1) * width) / columns),
+      );
+      let total = 0;
+      let samples = 0;
+      for (let y = startY; y < endY; y += 2) {
+        for (let x = startX; x < endX; x += 2) {
+          total += gray[y * width + x];
+          samples += 1;
+        }
+      }
+      signature[row * columns + column] = Math.round(
+        total / Math.max(1, samples),
+      );
+    }
+  }
+  return signature;
+}
+
+function analyzeExposure(gray: Uint8Array) {
+  let luminanceTotal = 0;
+  let darkPixels = 0;
+  let brightPixels = 0;
+  for (let index = 0; index < gray.length; index += 2) {
+    const luminance = gray[index];
+    luminanceTotal += luminance;
+    if (
+      luminance <= PASSPORT_LIVE_THRESHOLDS.extremeDarkLuminance
+    ) {
+      darkPixels += 1;
+    }
+    if (
+      luminance >= PASSPORT_LIVE_THRESHOLDS.extremeBrightLuminance
+    ) {
+      brightPixels += 1;
+    }
+  }
+  const samples = Math.max(1, Math.ceil(gray.length / 2));
+  const meanLuminance = luminanceTotal / samples;
+  const darkPixelRatio = darkPixels / samples;
+  const brightPixelRatio = brightPixels / samples;
+  const lightingStatus = (
+    meanLuminance < PASSPORT_LIVE_THRESHOLDS.extremeDarkMean
+    && darkPixelRatio > PASSPORT_LIVE_THRESHOLDS.extremePixelRatio
+  )
+    ? "too_dark"
+    : (
+        meanLuminance > PASSPORT_LIVE_THRESHOLDS.extremeBrightMean
+        && brightPixelRatio > PASSPORT_LIVE_THRESHOLDS.extremePixelRatio
+      )
+      ? "too_bright"
+      : "good";
+  return {
+    lightingStatus,
+    meanLuminance: roundMetric(meanLuminance),
+    darkPixelRatio: roundMetric(darkPixelRatio),
+    brightPixelRatio: roundMetric(brightPixelRatio),
+  } as const;
 }
 
 function verticalEdgeSupport(
@@ -319,6 +421,11 @@ function emptyResult(
     confidence: 0,
     visibleEdges: 0,
     status,
+    lightingStatus: "good",
+    meanLuminance: 0,
+    darkPixelRatio: 0,
+    brightPixelRatio: 0,
+    motionSignature: new Uint8Array(0),
   };
 }
 

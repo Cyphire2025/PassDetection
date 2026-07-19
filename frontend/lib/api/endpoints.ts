@@ -80,6 +80,7 @@ export const API_ENDPOINTS = {
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
     passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
     passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,
+    bulkDelete: (groupId: string) => `/api/v1/passports/groups/${groupId}/bulk-delete`,
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,

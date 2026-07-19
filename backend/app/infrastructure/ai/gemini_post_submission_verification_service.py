@@ -52,6 +52,7 @@ _REASON_CODES: Final[tuple[str, ...]] = (
     "different_value",
     "ambiguous",
     "unreadable",
+    "not_present",
     "missing_submitted_value",
 )
 _DOCUMENT_CLASSES: Final[tuple[str, ...]] = (
@@ -164,7 +165,8 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
                         "type": "STRING",
                         "description": (
                             "Visible field value; dates must use YYYY-MM-DD; "
-                            "empty only when unreadable"
+                            "empty only when unreadable or when surname is "
+                            "visibly not present"
                         ),
                     },
                     "confidence": {
@@ -202,7 +204,12 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "passport data page. Return exactly one result for every schema field even when the "
     "document is wrong or unreadable, and return nothing outside the JSON schema. Use correct "
     "only for a clear normalized match, incorrect for a clear different value, and suspicious "
-    "when unreadable or ambiguous. Put an empty observed_value when unreadable. For date "
+    "when unreadable or ambiguous. A passport may genuinely have no surname. Only when the "
+    "printed surname field is visibly blank and the passport name structure or MRZ clearly "
+    "confirms that no surname is present, return surname as correct with empty observed_value "
+    "and reason_code not_present. Never copy given names into surname. If the surname area is "
+    "unreadable, obscured, or ambiguous, return suspicious with reason_code unreadable or "
+    "ambiguous instead. Put an empty observed_value when unreadable. For date "
     "fields, convert any visibly printed date format to YYYY-MM-DD in observed_value. "
     "Confidence measures visible value evidence; set it to zero when the value is unreadable. "
     "Never infer hidden values or decide the application's final status."
@@ -456,8 +463,37 @@ class PostSubmissionFieldAgent:
                 observed = _normalize_passport_value(field, raw_observed)
             verdict = PostSubmissionFieldVerdict(raw["verdict"])
             reason_code = str(raw["reason_code"])
+            if reason_code == "not_present" and (
+                field != "surname" or _string_value(raw_observed)
+            ):
+                raise ValueError(
+                    "Only an empty surname can use not_present evidence"
+                )
 
-            if not submitted:
+            surname_confirmed_absent = (
+                field == "surname"
+                and not submitted
+                and not observed
+                and not _string_value(raw_observed)
+                and verdict == PostSubmissionFieldVerdict.CORRECT
+                and reason_code == "not_present"
+            )
+            if surname_confirmed_absent:
+                # Absence is provider-supplied visual evidence, not a missing
+                # extraction. Confidence calibration below still fails closed
+                # when that evidence is weak.
+                verdict = PostSubmissionFieldVerdict.CORRECT
+            elif not submitted and field == "surname" and observed:
+                verdict = PostSubmissionFieldVerdict.INCORRECT
+                reason_code = "different_value"
+            elif not submitted and field == "surname":
+                verdict = PostSubmissionFieldVerdict.SUSPICIOUS
+                reason_code = (
+                    "unreadable"
+                    if reason_code == "unreadable"
+                    else "ambiguous"
+                )
+            elif not submitted:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "missing_submitted_value"
             elif date_evidence_ambiguous:
@@ -501,7 +537,10 @@ class PostSubmissionConfidenceAgent:
             verdict = result.verdict
             reason_code = result.reason_code
             confidence = result.confidence
-            if result.observed_value is None or reason_code in {
+            if (
+                result.observed_value is None
+                and reason_code != "not_present"
+            ) or reason_code in {
                 "unreadable",
                 "missing_submitted_value",
             }:
@@ -534,9 +573,21 @@ class PostSubmissionDecisionAgent:
     ) -> PostSubmissionVerificationDecision:
         by_field = {field.field: field for field in fields}
         for field in REQUIRED_POST_SUBMISSION_FIELDS:
-            if not _normalize_passport_value(field, submitted_fields.get(field)):
+            submitted = _normalize_passport_value(
+                field,
+                submitted_fields.get(field),
+            )
+            result = by_field[field]
+            if (
+                field == "surname"
+                and not submitted
+                and result.verdict == PostSubmissionFieldVerdict.CORRECT
+                and result.reason_code == "not_present"
+            ):
+                continue
+            if not submitted:
                 return PostSubmissionVerificationDecision.NEEDS_REVIEW
-            if by_field[field].verdict != PostSubmissionFieldVerdict.CORRECT:
+            if result.verdict != PostSubmissionFieldVerdict.CORRECT:
                 return PostSubmissionVerificationDecision.NEEDS_REVIEW
         for field in POST_SUBMISSION_PASSPORT_FIELDS:
             if (
