@@ -49,7 +49,11 @@ test("only permanent-delete roles receive the selected-row delete control", () =
   );
   assert.match(
     component,
-    /disabled=\{selectedPassports\.length === 0 \|\| bulkDelete\.isPending\}/,
+    /\{selectedPassports\.length > 0 && \(/,
+  );
+  assert.match(
+    component,
+    /disabled=\{bulkDelete\.isPending\}/,
   );
 });
 

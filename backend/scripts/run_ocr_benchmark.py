@@ -22,7 +22,7 @@ async def _run(manifest: Path, output: Path | None) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the PassDetection OCR benchmark suite")
+    parser = argparse.ArgumentParser(description="Run the Global Connects Dashboard OCR benchmark suite")
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()

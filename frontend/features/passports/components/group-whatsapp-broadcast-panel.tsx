@@ -40,10 +40,12 @@ import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 type MatchFilter = "all" | GroupWhatsAppMatchStatus;
 
 const MATCH_FILTERS: Array<{ value: MatchFilter; label: string }> = [
-  { value: "all", label: "All people" },
-  { value: "submitted", label: "Submitted" },
+  { value: "all", label: "All records" },
+  { value: "submitted", label: "Identified" },
   { value: "not_submitted", label: "Not submitted" },
   { value: "multiple_submissions", label: "Multiple submissions" },
+  { value: "needs_review", label: "Needs review" },
+  { value: "unmatched_submission", label: "Unidentified uploads" },
 ];
 
 interface GroupWhatsAppBroadcastPanelProps {
@@ -264,8 +266,10 @@ function GroupWhatsAppBroadcastWorkspace({
                   WhatsApp broadcast tracking
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Compare people who received the broadcast with passport submissions.
-                  The same phone number is counted once even when it appears in several broadcasts.
+                  Imported phone numbers, emails, passport numbers, staff codes,
+                  names entered in the form, and names read from passports are
+                  compared together. Uncertain matches are kept for review
+                  instead of being guessed.
                 </p>
               </div>
             </div>
@@ -314,17 +318,17 @@ function GroupWhatsAppBroadcastWorkspace({
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
                 <TrackingStat
-                  label="All recipients"
+                  label="Broadcast recipients"
                   value={totalRecipientCount}
                   icon={<Users className="h-4 w-4" aria-hidden="true" />}
                 />
                 <TrackingStat
-                  label="Submitted"
+                  label="Identified"
                   value={submittedRecipientCount}
                   detail={matchesQuery.data && submissionRate !== null
-                    ? `${submissionRate}% rate · ${matchesQuery.data.counts.matched_submission_count.toLocaleString()} matched submission records`
+                    ? `${submissionRate}% of recipients · ${matchesQuery.data.counts.matched_submission_count.toLocaleString()} uploads`
                     : undefined}
                   tone="success"
                   icon={<CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
@@ -336,10 +340,26 @@ function GroupWhatsAppBroadcastWorkspace({
                   icon={<AlertCircle className="h-4 w-4" aria-hidden="true" />}
                 />
                 <TrackingStat
-                  label="Submitted more than once"
+                  label="Needs review"
+                  value={matchesQuery.data?.counts.needs_review_count ?? null}
+                  detail={matchesQuery.data
+                    ? `${matchesQuery.data.counts.needs_review_submission_count.toLocaleString()} possible uploads`
+                    : undefined}
+                  tone="warning"
+                  icon={<AlertCircle className="h-4 w-4" aria-hidden="true" />}
+                />
+                <TrackingStat
+                  label="Multiple uploads"
                   value={matchesQuery.data?.counts.multiple_submission_count ?? null}
                   tone="info"
                   icon={<MessageCircle className="h-4 w-4" aria-hidden="true" />}
+                />
+                <TrackingStat
+                  label="Unidentified uploads"
+                  value={matchesQuery.data?.counts.unmatched_submission_count ?? null}
+                  detail="Not linked to a broadcast recipient"
+                  tone="danger"
+                  icon={<AlertCircle className="h-4 w-4" aria-hidden="true" />}
                 />
               </div>
 
@@ -582,7 +602,7 @@ function TrackingStat({
 }: {
   label: string;
   value: number | null;
-  tone?: "default" | "success" | "warning" | "info";
+  tone?: "default" | "success" | "warning" | "info" | "danger";
   icon: React.ReactNode;
   detail?: string;
 }) {
@@ -591,6 +611,7 @@ function TrackingStat({
     success: "border-emerald-200 bg-emerald-50 text-emerald-800",
     warning: "border-amber-200 bg-amber-50 text-amber-800",
     info: "border-blue-200 bg-blue-50 text-blue-800",
+    danger: "border-red-200 bg-red-50 text-red-800",
   }[tone];
   return (
     <div className={`rounded-xl border p-4 ${classes}`}>
@@ -638,77 +659,169 @@ function BroadcastMatchTable({
   if (rows.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500">
-        No recipients match the “{MATCH_FILTERS.find((item) => item.value === filter)?.label}” filter.
+        No records match the “{MATCH_FILTERS.find((item) => item.value === filter)?.label}” filter.
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200">
-      <table className="w-full min-w-[820px] text-left text-sm">
+      <table className="w-full min-w-[1180px] text-left text-sm">
         <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
-            <th className="px-4 py-3">Broadcast recipient</th>
+            <th className="px-4 py-3">Person / upload</th>
+            <th className="px-4 py-3">Imported details</th>
             <th className="px-4 py-3">Broadcasts</th>
-            <th className="px-4 py-3">Submission status</th>
-            <th className="px-4 py-3">Matched submissions</th>
+            <th className="px-4 py-3">Identification</th>
+            <th className="px-4 py-3">Submissions</th>
             <th className="px-4 py-3">Updated</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {rows.map((row, index) => (
-            <tr
-              key={`${row.normalized_phone ?? "recipient"}-${index}`}
-              className="align-top"
-            >
-              <td className="px-4 py-3">
-                <div className="font-semibold text-slate-900">
-                  {firstDisplayValue(row.recipient_names) || "Unnamed recipient"}
-                </div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {row.normalized_phone || "No comparable phone number"}
-                </div>
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex max-w-sm flex-wrap gap-1.5">
-                  {row.broadcast_names.map((name, broadcastIndex) => (
-                    <span
-                      key={`${row.broadcast_ids[broadcastIndex] ?? name}-${broadcastIndex}`}
-                      className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800"
-                    >
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="px-4 py-3">
-                <MatchStatusBadge status={row.status} />
-                <div className="mt-1 text-xs text-slate-500">
-                  {row.status === "not_submitted"
-                    ? "No exact phone match"
-                    : "Matched by exact phone number"}
-                </div>
-              </td>
-              <td className="px-4 py-3">
-                {row.submission_names.length > 0 ? (
-                  <div>
-                    <div className="font-medium text-slate-800">
-                      {row.submission_names.join(", ")}
-                    </div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      {row.submission_ids.length} submission
-                      {row.submission_ids.length === 1 ? "" : "s"}
-                    </div>
+          {rows.map((row, index) => {
+            const importedDetails = uniqueImportedDetails(row);
+            const linkedSubmissionIds = row.status === "needs_review"
+              ? row.candidate_submission_ids
+              : row.submission_ids;
+            const isUnidentifiedUpload = row.status === "unmatched_submission";
+            return (
+              <tr
+                key={`${row.normalized_phone ?? "record"}-${row.recipient_ids[0] ?? row.submission_ids[0] ?? index}`}
+                className="align-top"
+              >
+                <td className="px-4 py-3">
+                  <div className="font-semibold text-slate-900">
+                    {firstDisplayValue(
+                      isUnidentifiedUpload
+                        ? row.submission_names
+                        : row.recipient_names,
+                    ) || (
+                      isUnidentifiedUpload
+                        ? "Unidentified submission"
+                        : "Unnamed recipient"
+                    )}
                   </div>
-                ) : (
-                  <span className="text-slate-400">None</span>
-                )}
-              </td>
-              <td className="px-4 py-3 text-slate-500">
-                {row.updated_at ? formatDateTime(row.updated_at) : "—"}
-              </td>
-            </tr>
-          ))}
+                  <div className="mt-1 text-xs text-slate-500">
+                    {row.normalized_phone || (
+                      isUnidentifiedUpload
+                        ? "No submitted phone number"
+                        : "No usable WhatsApp number"
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  {importedDetails.length > 0 ? (
+                    <details>
+                      <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+                        View {importedDetails.length} imported detail
+                        {importedDetails.length === 1 ? "" : "s"}
+                      </summary>
+                      <dl className="mt-2 grid max-w-sm gap-2 rounded-lg bg-slate-50 p-3">
+                        {importedDetails.map(([key, value]) => (
+                          <div key={`${key}:${value}`} className="min-w-0">
+                            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                              {fieldLabel(key)}
+                            </dt>
+                            <dd className="break-words text-xs text-slate-700">
+                              {value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </details>
+                  ) : (
+                    <span className="text-xs text-slate-400">
+                      {isUnidentifiedUpload
+                        ? "Not a broadcast recipient"
+                        : "No extra fields"}
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {row.broadcast_names.length > 0 ? (
+                    <div className="flex max-w-sm flex-wrap gap-1.5">
+                      {row.broadcast_names.map((name, broadcastIndex) => (
+                        <span
+                          key={`${row.broadcast_ids[broadcastIndex] ?? name}-${broadcastIndex}`}
+                          className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400">
+                      No linked broadcast
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <MatchStatusBadge status={row.status} />
+                  <div className="mt-2 max-w-xs text-xs leading-5 text-slate-500">
+                    {matchExplanation(row)}
+                  </div>
+                  {row.match_evidence.length > 0 && (
+                    <div className="mt-2 flex max-w-xs flex-wrap gap-1">
+                      {uniqueEvidenceKinds(row).map((kind) => (
+                        <span
+                          key={kind}
+                          className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600"
+                        >
+                          {evidenceLabel(kind)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {row.submission_names.length > 0 ? (
+                    <div>
+                      <div className="font-medium text-slate-800">
+                        {row.submission_names.join(", ")}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {linkedSubmissionIds.length}{" "}
+                        {row.status === "needs_review"
+                          ? "candidate"
+                          : "submission"}
+                        {linkedSubmissionIds.length === 1 ? "" : "s"}
+                      </div>
+                      {linkedSubmissionIds.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {linkedSubmissionIds.map(
+                            (submissionId, submissionIndex) => (
+                              <Link
+                                key={submissionId}
+                                href={
+                                  ROUTES.dashboard.passportDetail(
+                                    submissionId,
+                                  ) as never
+                                }
+                                className="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+                              >
+                                Open{" "}
+                                {row.status === "needs_review"
+                                  ? "candidate"
+                                  : "submission"}
+                                {linkedSubmissionIds.length > 1
+                                  ? ` ${submissionIndex + 1}`
+                                  : ""}
+                              </Link>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-slate-400">None</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-slate-500">
+                  {row.updated_at ? formatDateTime(row.updated_at) : "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -720,11 +833,80 @@ function MatchStatusBadge({ status }: { status: GroupWhatsAppMatchStatus }) {
     return <Badge variant="warning">Multiple submissions</Badge>;
   }
   if (status === "submitted") {
-    return <Badge variant="success">Submitted</Badge>;
+    return <Badge variant="success">Identified</Badge>;
+  }
+  if (status === "needs_review") {
+    return <Badge variant="warning">Needs review</Badge>;
+  }
+  if (status === "unmatched_submission") {
+    return <Badge variant="destructive">Unidentified upload</Badge>;
   }
   return <Badge variant="secondary">Not submitted</Badge>;
 }
 
 function firstDisplayValue(values: string[]) {
   return values.find((value) => value.trim()) ?? "";
+}
+
+function fieldLabel(value: string): string {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function evidenceLabel(
+  value: GroupWhatsAppMatch["match_evidence"][number]["kind"],
+): string {
+  const labels = {
+    phone: "Phone number",
+    email: "Email",
+    passport_number: "Passport number",
+    staff_code: "Staff code",
+    entered_name: "Name entered in form",
+    passport_name: "Name read from passport",
+  };
+  return labels[value];
+}
+
+function uniqueEvidenceKinds(
+  row: GroupWhatsAppMatch,
+): GroupWhatsAppMatch["match_evidence"][number]["kind"][] {
+  return Array.from(new Set(row.match_evidence.map((item) => item.kind)));
+}
+
+function uniqueImportedDetails(
+  row: GroupWhatsAppMatch,
+): Array<[string, string]> {
+  const unique = new Map<string, [string, string]>();
+  for (const recipient of row.recipient_fields) {
+    for (const [key, value] of Object.entries(recipient.fields)) {
+      const normalizedValue = value.trim();
+      if (!normalizedValue) continue;
+      unique.set(
+        `${key.toLowerCase()}:${normalizedValue.toLowerCase()}`,
+        [key, normalizedValue],
+      );
+    }
+  }
+  return Array.from(unique.values()).sort(([left], [right]) =>
+    fieldLabel(left).localeCompare(fieldLabel(right)),
+  );
+}
+
+function matchExplanation(row: GroupWhatsAppMatch): string {
+  if (row.status === "submitted") {
+    return "Automatically linked using reliable matching details.";
+  }
+  if (row.status === "multiple_submissions") {
+    return "Reliable details link this recipient to more than one upload.";
+  }
+  if (row.status === "needs_review") {
+    return "Some details match, but the result is not unique or strong enough to assign automatically.";
+  }
+  if (row.status === "unmatched_submission") {
+    return "This upload could not be linked reliably to anyone in the selected broadcasts.";
+  }
+  return "No submission could be linked reliably to this broadcast recipient.";
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TourGroupAttendancePage } from "@/features/operations/components/tour-group-attendance-page";
 
 export const metadata: Metadata = {
-  title: "Tour Attendance | PassDetection",
+  title: "Tour Attendance | Global Connects Dashboard",
 };
 
 interface TourGroupAttendanceRouteProps {

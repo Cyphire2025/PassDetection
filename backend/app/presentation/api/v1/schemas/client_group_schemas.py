@@ -220,6 +220,33 @@ class WhatsAppSubmissionMatchCountsResponse(BaseModel):
     not_submitted_count: int = Field(ge=0)
     multiple_submission_count: int = Field(ge=0)
     matched_submission_count: int = Field(ge=0)
+    needs_review_count: int = Field(default=0, ge=0)
+    needs_review_submission_count: int = Field(default=0, ge=0)
+    unmatched_submission_count: int = Field(default=0, ge=0)
+
+
+class WhatsAppSubmissionMatchEvidenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    kind: Literal[
+        "phone",
+        "email",
+        "passport_number",
+        "staff_code",
+        "entered_name",
+        "passport_name",
+    ]
+    recipient_value: str
+    submission_value: str
+    weight: int = Field(ge=0)
+
+
+class WhatsAppRecipientImportedFieldsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recipient_id: uuid.UUID
+    fields: dict[str, str] = Field(default_factory=dict)
 
 
 class WhatsAppSubmissionMatchRowResponse(BaseModel):
@@ -229,8 +256,10 @@ class WhatsAppSubmissionMatchRowResponse(BaseModel):
         "submitted",
         "not_submitted",
         "multiple_submissions",
+        "needs_review",
+        "unmatched_submission",
     ]
-    match_basis: Literal["phone"] | None = None
+    match_basis: str | None = None
     normalized_phone: str | None = None
     recipient_ids: list[uuid.UUID] = Field(default_factory=list)
     submission_ids: list[uuid.UUID] = Field(default_factory=list)
@@ -238,6 +267,14 @@ class WhatsAppSubmissionMatchRowResponse(BaseModel):
     broadcast_names: list[str] = Field(default_factory=list)
     recipient_names: list[str] = Field(default_factory=list)
     submission_names: list[str] = Field(default_factory=list)
+    confidence: Literal["high", "medium", "none"] = "none"
+    match_evidence: list[WhatsAppSubmissionMatchEvidenceResponse] = Field(
+        default_factory=list
+    )
+    candidate_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    recipient_fields: list[WhatsAppRecipientImportedFieldsResponse] = Field(
+        default_factory=list
+    )
     updated_at: datetime
 
 

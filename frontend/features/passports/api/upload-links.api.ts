@@ -51,7 +51,9 @@ export interface GroupWhatsAppLinksResponse {
 export type GroupWhatsAppMatchStatus =
   | "submitted"
   | "not_submitted"
-  | "multiple_submissions";
+  | "multiple_submissions"
+  | "needs_review"
+  | "unmatched_submission";
 
 export interface GroupWhatsAppMatchCounts {
   total_recipients: number;
@@ -59,11 +61,33 @@ export interface GroupWhatsAppMatchCounts {
   not_submitted_count: number;
   multiple_submission_count: number;
   matched_submission_count: number;
+  needs_review_count: number;
+  needs_review_submission_count: number;
+  unmatched_submission_count: number;
+}
+
+export interface GroupWhatsAppMatchEvidence {
+  submission_id: string;
+  kind:
+    | "phone"
+    | "email"
+    | "passport_number"
+    | "staff_code"
+    | "entered_name"
+    | "passport_name";
+  recipient_value: string;
+  submission_value: string;
+  weight: number;
+}
+
+export interface GroupWhatsAppRecipientFields {
+  recipient_id: string;
+  fields: Record<string, string>;
 }
 
 export interface GroupWhatsAppMatch {
   status: GroupWhatsAppMatchStatus;
-  match_basis: "phone" | null;
+  match_basis: string | null;
   normalized_phone: string | null;
   recipient_ids: string[];
   submission_ids: string[];
@@ -71,6 +95,10 @@ export interface GroupWhatsAppMatch {
   broadcast_names: string[];
   recipient_names: string[];
   submission_names: string[];
+  confidence: "high" | "medium" | "none";
+  match_evidence: GroupWhatsAppMatchEvidence[];
+  candidate_submission_ids: string[];
+  recipient_fields: GroupWhatsAppRecipientFields[];
   updated_at: string | null;
 }
 

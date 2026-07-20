@@ -65,7 +65,7 @@ class PurgePassportDataResponse(BaseModel):
 
 
 class PlatformSettingsResponse(BaseModel):
-    platform_name: str = Field(default="PassDetection", min_length=2, max_length=80)
+    platform_name: str = Field(default="Global Connects Dashboard", min_length=2, max_length=80)
     require_client_email: bool = False
     require_client_phone: bool = False
     duplicate_contact_policy: str = Field(default="block_same_group", pattern="^(block_same_group|allow|block_all)$")

@@ -65,6 +65,7 @@ def test_delivery_ledger_schema_is_generic_and_unique_per_recipient_type() -> No
     assert WhatsAppRecipientMessageStateModel.__table__.c.message_type.type.length == 64
     assert WhatsAppMessageLogModel.__table__.c.message_type.type.length == 64
     assert "removed_at" in WhatsAppBroadcastRecipientModel.__table__.c
+    assert "imported_fields" in WhatsAppBroadcastRecipientModel.__table__.c
 
 
 def test_webhook_delivery_error_redacts_raw_meta_message() -> None:
@@ -161,6 +162,7 @@ def test_readding_removed_phone_reactivates_same_row_and_preserves_identity() ->
         name="Old Name",
         phone_number="9876543210",
         normalized_phone_number="+919876543210",
+        imported_fields={"old": "value"},
         removed_at=datetime.now(tz=UTC),
     )
     normalized = _normalized_recipient_inputs(
@@ -168,6 +170,7 @@ def test_readding_removed_phone_reactivates_same_row_and_preserves_identity() ->
             WhatsAppRecipientInput(
                 name="Updated Name",
                 phone_number="+91 98765 43210",
+                imported_fields={"email": "updated@example.com"},
             )
         ]
     )
@@ -184,7 +187,45 @@ def test_readding_removed_phone_reactivates_same_row_and_preserves_identity() ->
     assert existing.id == recipient_id
     assert existing.removed_at is None
     assert existing.name == "Updated Name"
+    assert existing.imported_fields == {"email": "updated@example.com"}
     session.add.assert_not_called()
+
+
+def test_manual_reactivation_does_not_erase_imported_fields() -> None:
+    group = SimpleNamespace(id=uuid.uuid4(), agency_id=uuid.uuid4())
+    existing = SimpleNamespace(
+        id=uuid.uuid4(),
+        name="Imported Name",
+        phone_number="9876543210",
+        normalized_phone_number="+919876543210",
+        imported_fields={
+            "email": "imported@example.com",
+            "staff_code": "GC42",
+        },
+        removed_at=datetime.now(tz=UTC),
+    )
+    normalized = _normalized_recipient_inputs(
+        [
+            WhatsAppRecipientInput(
+                name="Edited Name",
+                phone_number="+91 98765 43210",
+            )
+        ]
+    )
+
+    _activate_recipient_models(
+        session=MagicMock(),
+        group=group,
+        existing_by_phone={existing.normalized_phone_number: existing},
+        normalized_contacts=normalized,
+        now=datetime.now(tz=UTC),
+    )
+
+    assert existing.name == "Edited Name"
+    assert existing.imported_fields == {
+        "email": "imported@example.com",
+        "staff_code": "GC42",
+    }
 
 
 @pytest.mark.asyncio
@@ -328,16 +369,14 @@ async def test_worker_success_exits_retry_loop_and_remains_submitted(
         message_type="welcome",
         message_content="Welcome aboard",
         passport_link=None,
+        header_image_id="media-123",
     )
 
     assert send_template.await_count == 1
     send_kwargs = send_template.await_args.kwargs
     assert send_kwargs["message_type"] == "welcome"
-    assert send_kwargs["header_parameters"] == []
-    assert send_kwargs["parameters"] == [
-        "Welcome aboard",
-        "Please contact your company travel coordinator.",
-    ]
+    assert send_kwargs["header_parameters"] == ["media-123"]
+    assert send_kwargs["parameters"] == ["Welcome aboard"]
     assert "Aarav" not in " ".join(send_kwargs["parameters"])
     assert "Bluechip" not in " ".join(send_kwargs["parameters"])
     assert load_recipient.await_count == 2
@@ -686,6 +725,129 @@ async def test_excel_contact_upload_distinguishes_contact_name_from_phone() -> N
 
 
 @pytest.mark.asyncio
+async def test_excel_contact_upload_preserves_bounded_fields_across_sheets() -> None:
+    workbook = Workbook()
+    first = workbook.active
+    first.title = "North"
+    first.append(
+        [
+            "Staffname",
+            "Mobile",
+            "Email",
+            "StaffCode",
+            "PASSPORT_NO",
+            "Agent Company",
+        ]
+    )
+    first.append(
+        [
+            "Irfan Khan",
+            9355926412,
+            "IRFAN@EXAMPLE.COM",
+            25523,
+            "Z4160891",
+            "Bluechip",
+        ]
+    )
+    second = workbook.create_sheet("South")
+    second.append(["NAME", "Phone", "Custom Field", "Empty Field"])
+    second.append(["Meera Patel", 9355926411, "Useful value", "NULL"])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    contacts = await _parse_excel_contacts(
+        UploadFile(file=payload, filename="contacts.xlsx"),
+    )
+
+    assert [contact.name for contact in contacts] == [
+        "Irfan Khan",
+        "Meera Patel",
+    ]
+    assert contacts[0].imported_fields == {
+        "name": "Irfan Khan",
+        "phone_number": "+919355926412",
+        "email": "irfan@example.com",
+        "staff_code": "25523",
+        "passport_number": "Z4160891",
+        "agent_company": "Bluechip",
+        "source_sheet": "North",
+    }
+    assert contacts[1].imported_fields == {
+        "name": "Meera Patel",
+        "phone_number": "+919355926411",
+        "custom_field": "Useful value",
+        "source_sheet": "South",
+    }
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_name_prefers_staffname_over_zone_name() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(
+        [
+            "Region",
+            "Zonecode",
+            "Zone Name",
+            "BdmCode",
+            "Brname",
+            "Staffname",
+            "StaffCode",
+            "SURNAME",
+            "GIVEN_NAME",
+            "Email",
+            "Mobile",
+        ]
+    )
+    sheet.append(
+        [
+            "T03",
+            "Z017",
+            "ASSAM",
+            0,
+            "GUWAHATI",
+            "BIPLAB DAS",
+            25523,
+            "DAS",
+            "BIPLOB",
+            "biplab@example.com",
+            9435734892,
+        ]
+    )
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    contacts = await _parse_excel_contacts(
+        UploadFile(file=payload, filename="zone-list.xlsx"),
+    )
+
+    assert contacts[0].name == "BIPLAB DAS"
+    assert contacts[0].name != contacts[0].imported_fields["zone_name"]
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_name_composes_given_names_and_surname() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Zone Name", "GIVEN_NAME", "SURNAME", "Mobile"])
+    sheet.append(["ASSAM", "Irfan", "Khan", 9355926412])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    contacts = await _parse_excel_contacts(
+        UploadFile(file=payload, filename="passengers.xlsx"),
+    )
+
+    assert contacts[0].name == "Irfan Khan"
+
+
+@pytest.mark.asyncio
 async def test_excel_contact_upload_converts_unexpected_parser_error_to_400(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -736,10 +898,23 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
             {
                 "name": "Aarav Sharma",
                 "phone_number": "+919873361557",
+                "imported_fields": {
+                    "name": "Aarav Sharma",
+                    "phone_number": "+919873361557",
+                    "s_no": "1",
+                    "name_2": "Duplicate Aarav",
+                    "s_no_2": "3",
+                    "duplicate_conflicting_fields": "name, s_no",
+                },
             },
             {
                 "name": "Meera Patel",
                 "phone_number": "+919355926411",
+                "imported_fields": {
+                    "name": "Meera Patel",
+                    "phone_number": "+919355926411",
+                    "s_no": "2",
+                },
             },
         ],
     }
@@ -810,7 +985,7 @@ async def test_excel_contact_upload_stops_after_recipient_row_limit() -> None:
         await _parse_excel_contacts(upload)
 
     assert exc_info.value.status_code == 400
-    assert "at most 500 data rows" in str(exc_info.value.detail)
+    assert "at most 500 recipients" in str(exc_info.value.detail)
 
 
 def test_explicit_resend_schema_freezes_payload_and_has_single_active_guard() -> None:
@@ -823,12 +998,25 @@ def test_explicit_resend_schema_freezes_payload_and_has_single_active_guard() ->
     assert indexes["uq_whatsapp_active_explicit_resend"].unique is True
 
 
+def _legacy_welcome_rendered(message_content: str, support_contacts: str) -> str:
+    return (
+        "Dear Delegates\n\n"
+        "Greetings from Global Connect Travels.\n\n"
+        f"{message_content}\n\n"
+        "This is an automated notification sent individually to you. Replies to this "
+        "WhatsApp message are not monitored and will not be treated as support requests."
+        "\n\n"
+        "For assistance, please contact:\n"
+        f"{support_contacts}\n\n"
+        "Regards,\n"
+        "Team Global Connect Travels"
+    )
+
+
 def test_legacy_welcome_snapshot_is_byte_exact_and_keeps_original_support() -> None:
-    rendered = render_message(
-        message_type="welcome",
-        group_name="Original group",
-        support_contacts="Aman: +919876543211",
-        message_content='This message is regarding your upcoming trip to "THAILAND".',
+    rendered = _legacy_welcome_rendered(
+        'This message is regarding your upcoming trip to "THAILAND".',
+        "Aman: +919876543211",
     )
 
     header, body = _decode_legacy_template_snapshot(
@@ -873,11 +1061,9 @@ def test_legacy_passport_snapshot_survives_later_group_and_support_edits() -> No
 
 
 def test_legacy_decoder_fails_closed_when_saved_render_is_modified() -> None:
-    rendered = render_message(
-        message_type="welcome",
-        group_name="Thailand",
-        support_contacts="Aman: +919876543211",
-        message_content="Welcome to the trip.",
+    rendered = _legacy_welcome_rendered(
+        "Welcome to the trip.",
+        "Aman: +919876543211",
     ).replace("Team Global Connect Travels", "Unknown sender")
 
     with pytest.raises(ValueError, match="footer layout"):

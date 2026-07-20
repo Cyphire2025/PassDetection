@@ -33,9 +33,9 @@ RUN pip install --upgrade pip && \
 # ── Stage 2: Production Runtime ──────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
-LABEL maintainer="PassDetection Team"
+LABEL maintainer="Global Connects Dashboard Team"
 LABEL version="1.0.0"
-LABEL description="PassDetection MRZ Platform - Backend API"
+LABEL description="Global Connects Dashboard - Backend API"
 
 # Runtime system libraries only
 RUN apt-get update && apt-get install -y --no-install-recommends \

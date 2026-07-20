@@ -43,6 +43,76 @@ def _text_parameter(value: str) -> dict[str, str]:
     return {"type": "text", "text": value}
 
 
+def _image_parameter(media_id: str) -> dict[str, Any]:
+    return {"type": "image", "image": {"id": media_id}}
+
+
+async def upload_whatsapp_image(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    file_name: str,
+    file_content: bytes,
+    content_type: str,
+) -> str:
+    """Upload a validated image to Meta and return its reusable media ID."""
+
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API credentials are incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+
+    try:
+        response = await client.post(
+            (
+                f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
+                f"{settings.whatsapp_phone_number_id}/media"
+            ),
+            data={
+                "messaging_product": "whatsapp",
+                "type": content_type,
+            },
+            files={
+                "file": (
+                    file_name,
+                    file_content,
+                    content_type,
+                ),
+            },
+            headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
+        )
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
+        raise WhatsAppCloudApiError(
+            "The Welcome image could not be uploaded to WhatsApp",
+            code="WHATSAPP_MEDIA_UPLOAD_UNREACHABLE",
+            transient=True,
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise WhatsAppCloudApiError(
+            "The Welcome image upload was interrupted",
+            code="WHATSAPP_MEDIA_UPLOAD_INTERRUPTED",
+            transient=True,
+        ) from exc
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {}
+    media_id = data.get("id") if isinstance(data, dict) else None
+    if response.status_code >= 400 or not isinstance(media_id, str) or not media_id.strip():
+        logger.warning(
+            "whatsapp_media_upload_rejected",
+            extra={"status_code": response.status_code},
+        )
+        raise WhatsAppCloudApiError(
+            "Meta rejected the Welcome image; use a clear JPEG or PNG and try again",
+            code="WHATSAPP_MEDIA_UPLOAD_REJECTED",
+            transient=response.status_code == 429 or response.status_code >= 500,
+        )
+    return media_id.strip()
+
+
 async def send_whatsapp_template(
     *,
     client: httpx.AsyncClient,
@@ -79,7 +149,11 @@ async def send_whatsapp_template(
         components.append(
             {
                 "type": "header",
-                "parameters": [_text_parameter(parameter) for parameter in header_parameters],
+                "parameters": (
+                    [_image_parameter(header_parameters[0])]
+                    if message_type == "welcome"
+                    else [_text_parameter(parameter) for parameter in header_parameters]
+                ),
             }
         )
     if parameters:

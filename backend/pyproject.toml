@@ -7,7 +7,7 @@ name = "passport-ocr-backend"
 version = "1.0.0"
 description = "Enterprise-grade Passport OCR Processing Platform — Backend API"
 requires-python = ">=3.11"
-authors = [{ name = "PassDetection Team" }]
+authors = [{ name = "Global Connects Dashboard Team" }]
 
 [project.optional-dependencies]
 dev = [

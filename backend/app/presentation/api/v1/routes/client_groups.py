@@ -108,7 +108,9 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
     ReplaceWhatsAppBroadcastLinksRequest,
     UpdateClientGroupRequest,
     WhatsAppBroadcastSummaryResponse,
+    WhatsAppRecipientImportedFieldsResponse,
     WhatsAppSubmissionMatchCountsResponse,
+    WhatsAppSubmissionMatchEvidenceResponse,
     WhatsAppSubmissionMatchRowResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
@@ -800,7 +802,12 @@ async def get_client_group_whatsapp_matches(
     link_id: uuid.UUID,
     broadcast_id: uuid.UUID | None = None,
     match_status: Literal[
-        "all", "submitted", "not_submitted", "multiple_submissions"
+        "all",
+        "submitted",
+        "not_submitted",
+        "multiple_submissions",
+        "needs_review",
+        "unmatched_submission",
     ] = Query(default="all", alias="status"),
     sort_by: Literal[
         "name", "phone", "status", "broadcast", "updated_at"
@@ -870,6 +877,7 @@ async def get_client_group_whatsapp_matches(
                 name=recipient.name,
                 phone=recipient.normalized_phone_number,
                 updated_at=recipient.created_at,
+                imported_fields=dict(recipient.imported_fields or {}),
             )
             for recipient in recipient_result.scalars().all()
         ]
@@ -890,6 +898,11 @@ async def get_client_group_whatsapp_matches(
             client_phone=submission.client_phone,
             family_head_phone=submission.family_head_phone,
             updated_at=submission.updated_at,
+            client_email=submission.client_email,
+            family_head_email=submission.family_head_email,
+            confirmed_fields=dict(submission.confirmed_fields or {}),
+            extracted_fields=dict(submission.extracted_fields or {}),
+            staff_metadata=dict(submission.staff_metadata or {}),
         )
         for submission in submission_result.scalars().all()
     ]
@@ -918,6 +931,11 @@ async def get_client_group_whatsapp_matches(
             not_submitted_count=counts.not_submitted_count,
             multiple_submission_count=counts.multiple_submission_count,
             matched_submission_count=counts.matched_submission_count,
+            needs_review_count=counts.needs_review_count,
+            needs_review_submission_count=(
+                counts.needs_review_submission_count
+            ),
+            unmatched_submission_count=counts.unmatched_submission_count,
         ),
         matches=[
             WhatsAppSubmissionMatchRowResponse(
@@ -930,6 +948,27 @@ async def get_client_group_whatsapp_matches(
                 broadcast_names=list(row.broadcast_names),
                 recipient_names=list(row.recipient_names),
                 submission_names=list(row.submission_names),
+                confidence=row.confidence,
+                match_evidence=[
+                    WhatsAppSubmissionMatchEvidenceResponse(
+                        submission_id=evidence.submission_id,
+                        kind=evidence.kind,
+                        recipient_value=evidence.recipient_value,
+                        submission_value=evidence.submission_value,
+                        weight=evidence.weight,
+                    )
+                    for evidence in row.match_evidence
+                ],
+                candidate_submission_ids=list(
+                    row.candidate_submission_ids
+                ),
+                recipient_fields=[
+                    WhatsAppRecipientImportedFieldsResponse(
+                        recipient_id=field_set.recipient_id,
+                        fields=field_set.fields,
+                    )
+                    for field_set in row.recipient_fields
+                ],
                 updated_at=row.updated_at,
             )
             for row in page_rows

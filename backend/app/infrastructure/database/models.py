@@ -238,6 +238,12 @@ class WhatsAppBroadcastRecipientModel(Base):
     name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
     normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    imported_fields: Mapped[dict[str, str]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=dict,
+        server_default="{}",
+    )
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
 

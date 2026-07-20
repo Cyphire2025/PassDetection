@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DocumentHub } from "@/features/documents/components/document-hub";
 
 export const metadata: Metadata = {
-  title: "Documents | PassDetection",
+  title: "Documents | Global Connects Dashboard",
 };
 
 export default function DocumentsPage() {

@@ -1,5 +1,5 @@
 /**
- * Next.js Configuration — PassDetection Platform
+ * Next.js Configuration — Global Connects Dashboard
  */
 
 import type { NextConfig } from "next";

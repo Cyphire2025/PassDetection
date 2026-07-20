@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 export interface WhatsAppRecipientInput {
   name?: string | null;
   phone_number: string;
+  imported_fields?: Record<string, string>;
 }
 
 export interface WhatsAppSupportContactInput {
@@ -16,6 +17,7 @@ export interface WhatsAppRecipient {
   name: string | null;
   phone_number: string;
   normalized_phone_number: string;
+  imported_fields: Record<string, string>;
   message_statuses: WhatsAppRecipientMessageStatus[];
 }
 
@@ -24,6 +26,7 @@ export interface WhatsAppContactPreviewResponse {
   recipients: Array<{
     name: string;
     phone_number: string;
+    imported_fields: Record<string, string>;
   }>;
 }
 
@@ -99,6 +102,26 @@ export interface WhatsAppSendResponse {
     provider_message_id?: string | null;
     error_message?: string | null;
   }>;
+}
+
+export interface WhatsAppWelcomeMediaResponse {
+  media_id: string;
+  file_name: string;
+  content_type: string;
+}
+
+async function uploadWelcomeImage(
+  groupId: string,
+  image: File,
+): Promise<WhatsAppWelcomeMediaResponse> {
+  const formData = new FormData();
+  formData.append("image", image);
+  const { data } = await apiClient.post<WhatsAppWelcomeMediaResponse>(
+    API_ENDPOINTS.whatsapp.welcomeMedia(groupId),
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return data;
 }
 
 export const whatsappApi = {
@@ -242,10 +265,18 @@ export const whatsappApi = {
     return data;
   },
 
-  sendWelcome: async (groupId: string, messageContent: string): Promise<WhatsAppSendResponse> => {
+  uploadWelcomeImage,
+
+  sendWelcome: async (
+    groupId: string,
+    messageContent: string,
+    image: File,
+  ): Promise<WhatsAppSendResponse> => {
+    const uploadedImage = await uploadWelcomeImage(groupId, image);
     const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
       message_type: "welcome",
       message_content: messageContent,
+      header_image_id: uploadedImage.media_id,
     });
     return data;
   },

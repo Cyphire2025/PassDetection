@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import { DashboardOverview } from "@/features/dashboard/components/dashboard-overview";
 
 export const metadata: Metadata = {
-  title: "Dashboard | PassDetection",
+  title: "Dashboard | Global Connects Dashboard",
 };
 
 export default function DashboardPage() {

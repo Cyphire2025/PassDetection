@@ -56,3 +56,21 @@ test("deduplicates repeated rows inside the same spreadsheet preview", () => {
   assert.equal(result.addedCount, 1);
   assert.equal(result.duplicateCount, 1);
 });
+
+test("preserves imported spreadsheet fields for review and persistence", () => {
+  const result = mergeRecipientImportContacts([], [
+    {
+      name: "Aarav",
+      phone_number: "+91 9818752221",
+      imported_fields: {
+        email: "aarav@example.com",
+        staff_code: "GC-42",
+      },
+    },
+  ]);
+
+  assert.deepEqual(result.contacts[0].imported_fields, {
+    email: "aarav@example.com",
+    staff_code: "GC-42",
+  });
+});

@@ -55,18 +55,18 @@ test("broadcast creation asks for group name without an organisation field", () 
   );
 });
 
-test("approved-template guidance exposes the exact fixed header and body positions", () => {
+test("approved-template guidance exposes the required image and body positions", () => {
   assert.match(
     pageSource,
-    /approved Meta header is fixed as Dear Delegates/,
+    /uploaded picture is the required Meta IMAGE header/,
   );
   assert.match(
     pageSource,
-    /messageType === "welcome" \? "\{\{1\}\}" : "\{\{3\}\}"/,
+    /text\s+below supplies BODY variable \{"\{\{1\}\}"\}/,
   );
   assert.match(
     pageSource,
-    /passport upload link supplies BODY variable \{"\{\{2\}\}"\}/,
+    /passport upload link\s+supplies BODY variable \{"\{\{2\}\}"\}/,
   );
   assert.match(
     pageSource,
@@ -76,6 +76,17 @@ test("approved-template guidance exposes the exact fixed header and body positio
     pageSource,
     /Passport instructions \(BODY \{\{3\}\}\)/,
   );
+  assert.match(pageSource, /Welcome image <span className="text-red-600">\*<\/span>/);
+  assert.match(pageSource, /messageType !== "welcome" \|\| welcomeImage/);
+  assert.match(apiSource, /header_image_id: uploadedImage\.media_id/);
+});
+
+test("recipient lists retain and expose imported spreadsheet details", () => {
+  assert.match(apiSource, /imported_fields: Record<string, string>/);
+  assert.match(pageSource, /recipient\.imported_fields/);
+  assert.match(pageSource, /importedFieldLabel/);
+  assert.match(pageSource, /imported detail/);
+  assert.match(dialogSource, /contact\.imported_fields/);
 });
 
 test("message preview remains unsendable while the latest approved rendering loads", () => {
@@ -85,5 +96,8 @@ test("message preview remains unsendable while the latest approved rendering loa
   );
   assert.match(pageSource, /eligibleRecipientCount > 0/);
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
-  assert.match(pageSource, /detail\.support_contacts\.length > 0/);
+  assert.match(
+    pageSource,
+    /messageType === "welcome" \|\| detail\.support_contacts\.length > 0/,
+  );
 });

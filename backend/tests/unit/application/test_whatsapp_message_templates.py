@@ -46,8 +46,6 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
             "This is an automated notification sent individually to you. Replies to this "
             "WhatsApp message are not monitored and will not be treated as support requests."
             "\n\n"
-            "For assistance, please contact:\n"
-            "Yogesh Kumar Vashistha: +91 98187 52221\n\n"
             "Regards,\n"
             "Team Global Connect Travels",
         )
@@ -57,6 +55,7 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
     def test_welcome_template_parameter_order_matches_meta_template(self) -> None:
         header_parameters = template_header_parameters(
             message_type="welcome",
+            welcome_image_id="media-123",
         )
         parameters = template_parameters(
             message_type="welcome",
@@ -65,12 +64,11 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
             message_content='This message is regarding your upcoming trip to "Thailand".',
         )
 
-        self.assertEqual(header_parameters, [])
+        self.assertEqual(header_parameters, ["media-123"])
         self.assertEqual(
             parameters,
             [
                 'This message is regarding your upcoming trip to "Thailand".',
-                "Raman Jha: +91 98187 52221",
             ],
         )
         validate_template_parameters(
@@ -153,12 +151,12 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
             "Raman Jha: +91 98187 52221\nHelpdesk: 9876543211",
         )
 
-    def test_parameter_validation_rejects_dynamic_headers_and_wrong_body_count(self) -> None:
-        with self.assertRaisesRegex(ValueError, "static header"):
+    def test_parameter_validation_requires_welcome_image_and_exact_body_counts(self) -> None:
+        with self.assertRaisesRegex(ValueError, "one image header"):
             validate_template_parameters(
                 message_type="welcome",
-                header_parameters=["Aarav"],
-                body_parameters=["Trip message", "Support: 9876543210"],
+                header_parameters=[],
+                body_parameters=["Trip message"],
             )
         with self.assertRaisesRegex(ValueError, "exactly 4"):
             validate_template_parameters(

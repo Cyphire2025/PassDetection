@@ -150,8 +150,15 @@ export function usePreviewWhatsAppMessage() {
 
 export function useSendWhatsAppWelcome() {
   return useMutation({
-    mutationFn: ({ groupId, messageContent }: { groupId: string; messageContent: string }) =>
-      whatsappApi.sendWelcome(groupId, messageContent),
+    mutationFn: ({
+      groupId,
+      messageContent,
+      image,
+    }: {
+      groupId: string;
+      messageContent: string;
+      image: File;
+    }) => whatsappApi.sendWelcome(groupId, messageContent, image),
   });
 }
 

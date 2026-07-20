@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "PassDetection Tour Operations",
+    name: "Global Connects Dashboard",
     short_name: "Tour Ops",
     description: "Mobile coordinator workflow for tour attendance.",
     start_url: "/coordinator",

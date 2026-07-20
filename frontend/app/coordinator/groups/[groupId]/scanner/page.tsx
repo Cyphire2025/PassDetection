@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CoordinatorGroupScanner } from "@/features/tour-operations/components/coordinator-group-scanner";
 
 export const metadata: Metadata = {
-  title: "Activity Scanner | PassDetection",
+  title: "Activity Scanner | Global Connects Dashboard",
 };
 
 interface CoordinatorGroupScannerPageProps {

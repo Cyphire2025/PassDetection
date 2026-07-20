@@ -14,7 +14,16 @@ import { Button, Card, CardContent, Input } from "@/components/ui";
 export type ManualContact = {
   name: string;
   phone_number: string;
+  imported_fields?: Record<string, string>;
 };
+
+function importedFieldLabel(value: string): string {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export function ContactEditor({
   title,
@@ -112,6 +121,32 @@ export function ContactEditor({
               >
                 Remove
               </button>
+              {contact.imported_fields &&
+                Object.keys(contact.imported_fields).length > 0 && (
+                  <details className="md:col-span-3">
+                    <summary className="cursor-pointer text-xs font-medium text-blue-700">
+                      View {Object.keys(contact.imported_fields).length} imported
+                      detail
+                      {Object.keys(contact.imported_fields).length === 1
+                        ? ""
+                        : "s"}
+                    </summary>
+                    <dl className="mt-2 grid gap-x-4 gap-y-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
+                      {Object.entries(contact.imported_fields).map(
+                        ([key, fieldValue]) => (
+                          <div key={key} className="min-w-0">
+                            <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                              {importedFieldLabel(key)}
+                            </dt>
+                            <dd className="truncate text-xs text-slate-700">
+                              {fieldValue}
+                            </dd>
+                          </div>
+                        ),
+                      )}
+                    </dl>
+                  </details>
+                )}
             </div>
           ))}
         </div>

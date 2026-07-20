@@ -11,6 +11,7 @@ import httpx
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
+    upload_whatsapp_image,
 )
 
 
@@ -45,8 +46,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             message_type="welcome",
             parameters=[
                 'This message is regarding your upcoming trip to "Vietnam 2026".',
-                "Santosh: 9873536643",
             ],
+            header_parameters=["media-123"],
         )
 
         self.assertEqual(provider_id, "wamid.test-123")
@@ -68,18 +69,46 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(
             [component["type"] for component in kwargs["json"]["template"]["components"]],
-            ["body"],
+            ["header", "body"],
         )
         self.assertEqual(
             kwargs["json"]["template"]["components"][0]["parameters"],
+            [{"type": "image", "image": {"id": "media-123"}}],
+        )
+        self.assertEqual(
+            kwargs["json"]["template"]["components"][1]["parameters"],
             [
                 {
                     "type": "text",
                     "text": 'This message is regarding your upcoming trip to "Vietnam 2026".',
                 },
-                {"type": "text", "text": "Santosh: 9873536643"},
             ],
         )
+
+    async def test_uploads_welcome_image_and_returns_meta_media_id(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=200,
+            json=lambda: {"id": "media-456"},
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        media_id = await upload_whatsapp_image(
+            client=client,
+            settings=self._settings(),
+            file_name="welcome.jpg",
+            file_content=b"jpeg-bytes",
+            content_type="image/jpeg",
+        )
+
+        self.assertEqual(media_id, "media-456")
+        args, kwargs = client.post.await_args
+        self.assertEqual(
+            args[0],
+            "https://graph.facebook.com/v25.0/123456789/media",
+        )
+        self.assertEqual(kwargs["data"]["messaging_product"], "whatsapp")
+        self.assertEqual(kwargs["data"]["type"], "image/jpeg")
+        self.assertEqual(kwargs["files"]["file"][1], b"jpeg-bytes")
 
     async def test_redacts_raw_provider_error_details(self) -> None:
         response = types.SimpleNamespace(
@@ -106,7 +135,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 to_number="+919876543210",
                 template_name="approved_welcome_template",
                 message_type="welcome",
-                parameters=["Trip statement", "Support: 9876543210"],
+                parameters=["Trip statement"],
+                header_parameters=["media-123"],
             )
         self.assertEqual(
             raised.exception.code,
@@ -162,7 +192,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 to_number="+919876543210",
                 template_name="welcome",
                 message_type="welcome",
-                parameters=["Trip statement", "Support: 9876543210"],
+                parameters=["Trip statement"],
+                header_parameters=["media-123"],
             )
 
         self.assertTrue(raised.exception.transient)
@@ -181,7 +212,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 to_number="+919876543210",
                 template_name="welcome",
                 message_type="welcome",
-                parameters=["Trip statement", "Support: 9876543210"],
+                parameters=["Trip statement"],
+                header_parameters=["media-123"],
             )
 
         self.assertFalse(raised.exception.transient)
@@ -201,7 +233,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 to_number="+919876543210",
                 template_name="welcome",
                 message_type="welcome",
-                parameters=["Trip statement", "Support: 9876543210"],
+                parameters=["Trip statement"],
+                header_parameters=["media-123"],
             )
 
         self.assertFalse(raised.exception.transient)
@@ -221,23 +254,24 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 to_number="+919876543210",
                 template_name="welcome",
                 message_type="welcome",
-                parameters=["Trip statement", "Support: 9876543210"],
+                parameters=["Trip statement"],
+                header_parameters=["media-123"],
             )
 
         self.assertTrue(raised.exception.delivery_unknown)
 
-    async def test_rejects_dynamic_header_or_wrong_body_count_before_http(self) -> None:
+    async def test_rejects_missing_media_header_or_wrong_body_count_before_http(self) -> None:
         client = types.SimpleNamespace(post=AsyncMock())
 
-        with self.assertRaisesRegex(WhatsAppCloudApiError, "static header"):
+        with self.assertRaisesRegex(WhatsAppCloudApiError, "one image header"):
             await send_whatsapp_template(
                 client=client,
                 settings=self._settings(),
                 to_number="+919876543210",
                 template_name="approved_welcome_template",
                 message_type="welcome",
-                header_parameters=["Aarav"],
-                parameters=["Trip statement", "Support: 9876543210"],
+                header_parameters=[],
+                parameters=["Trip statement"],
             )
         with self.assertRaisesRegex(WhatsAppCloudApiError, "exactly 4"):
             await send_whatsapp_template(

@@ -17,6 +17,7 @@ from typing import Any
 from urllib.parse import urlparse
 from zipfile import BadZipFile, ZipFile
 
+import httpx
 from fastapi import (
     APIRouter,
     Depends,
@@ -58,6 +59,7 @@ from app.application.use_cases.whatsapp.message_templates import (
 )
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
+from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -67,6 +69,11 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.security.upload_validator import UploadValidator
+from app.infrastructure.whatsapp.cloud_api_provider import (
+    WhatsAppCloudApiError,
+    upload_whatsapp_image,
+)
 from app.presentation.dependencies.auth import require_role
 
 router = APIRouter()
@@ -98,21 +105,29 @@ WHATSAPP_SUPPRESSED_STATUSES = (
 WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
 MAX_WHATSAPP_RECIPIENTS = 500
 MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
+MAX_WHATSAPP_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
 MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
+MAX_WHATSAPP_EXCEL_SHEETS = 50
+MAX_WHATSAPP_IMPORTED_FIELDS = 32
+MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
+MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
+MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = 8 * 1024
 WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
 
 
 class WhatsAppRecipientInput(BaseModel):
     name: str | None = None
     phone_number: str = Field(min_length=6, max_length=64)
+    imported_fields: dict[str, str] = Field(default_factory=dict)
 
 
 class WhatsAppContactPreviewRecipient(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     phone_number: str = Field(min_length=9, max_length=16)
+    imported_fields: dict[str, str] = Field(default_factory=dict)
 
 
 class WhatsAppContactPreviewResponse(BaseModel):
@@ -130,6 +145,7 @@ class WhatsAppRecipientResponse(BaseModel):
     name: str | None
     phone_number: str
     normalized_phone_number: str
+    imported_fields: dict[str, str] = Field(default_factory=dict)
     sent_message_types: list[str] = Field(default_factory=list)
     message_statuses: list["WhatsAppRecipientMessageStatusResponse"] = Field(default_factory=list)
 
@@ -171,6 +187,7 @@ class WhatsAppSendRequest(BaseModel):
     message_type: str = Field(pattern="^(welcome|passport_link)$")
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
+    header_image_id: str | None = Field(default=None, max_length=255)
 
 
 class WhatsAppResendRequest(BaseModel):
@@ -195,6 +212,12 @@ class WhatsAppPreviewResponse(BaseModel):
     rendered_message: str
     header_parameter_values: list[str]
     parameter_values: list[str]
+
+
+class WhatsAppWelcomeMediaResponse(BaseModel):
+    media_id: str
+    file_name: str
+    content_type: str
 
 
 class WhatsAppSendResult(BaseModel):
@@ -608,6 +631,126 @@ def _excel_header_label(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", " ", _excel_cell_text(value).casefold()).strip()
 
 
+_EXCEL_FIELD_ALIASES = {
+    "contact name": "name",
+    "employee": "name",
+    "employee name": "name",
+    "full name": "name",
+    "passenger": "name",
+    "passenger name": "name",
+    "recipient": "name",
+    "recipient name": "name",
+    "staff": "name",
+    "staff name": "name",
+    "staffname": "name",
+    "contact": "phone_number",
+    "contact no": "phone_number",
+    "contact number": "phone_number",
+    "mobile": "phone_number",
+    "mobile no": "phone_number",
+    "mobile number": "phone_number",
+    "phone": "phone_number",
+    "phone no": "phone_number",
+    "phone number": "phone_number",
+    "telephone": "phone_number",
+    "whatsapp": "phone_number",
+    "whatsapp no": "phone_number",
+    "whatsapp number": "phone_number",
+    "email address": "email",
+    "e mail": "email",
+    "mail": "email",
+    "passport": "passport_number",
+    "passport no": "passport_number",
+    "passport number": "passport_number",
+    "passport_no": "passport_number",
+    "staff code": "staff_code",
+    "staffcode": "staff_code",
+    "employee code": "staff_code",
+    "agent code": "agent_code",
+    "agentcode": "agent_code",
+    "agent company": "agent_company",
+    "company name": "company",
+    "given name": "given_names",
+    "given names": "given_names",
+}
+_EMPTY_EXCEL_VALUES = frozenset(
+    {"-", "--", "n a", "na", "none", "null", "#n/a"}
+)
+
+
+def _excel_field_key(value: Any) -> str:
+    label = _excel_header_label(value)
+    if not label:
+        return ""
+    alias = _EXCEL_FIELD_ALIASES.get(label)
+    if alias:
+        return alias
+    return re.sub(r"_+", "_", label.replace(" ", "_"))[
+        :MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH
+    ]
+
+
+def _safe_imported_fields(value: Any) -> dict[str, str]:
+    if value in (None, {}):
+        return {}
+    if not isinstance(value, dict):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient imported fields must be a key/value object",
+        )
+
+    cleaned: dict[str, str] = {}
+    total_size = 0
+    for raw_key, raw_value in value.items():
+        key = _excel_field_key(raw_key)
+        text_value = _excel_cell_text(raw_value)
+        if (
+            not key
+            or not text_value
+            or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES
+        ):
+            continue
+        if key == "name":
+            text_value = _clean_name(text_value) or ""
+        elif key == "phone_number":
+            text_value = _normalize_phone(text_value) or text_value
+        elif key == "email":
+            text_value = text_value.casefold()
+        elif key in {
+            "agent_code",
+            "passport_number",
+            "staff_code",
+        }:
+            text_value = re.sub(
+                r"[^A-Z0-9]+",
+                "",
+                text_value.upper(),
+            )
+        else:
+            text_value = " ".join(text_value.split())
+        if not text_value:
+            continue
+        if len(cleaned) >= MAX_WHATSAPP_IMPORTED_FIELDS and key not in cleaned:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "Each WhatsApp recipient can contain at most "
+                    f"{MAX_WHATSAPP_IMPORTED_FIELDS} imported fields"
+                ),
+            )
+        text_value = text_value[:MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH]
+        if key in cleaned:
+            continue
+        total_size += len(key.encode("utf-8")) + len(text_value.encode("utf-8"))
+        if total_size > MAX_WHATSAPP_IMPORTED_FIELDS_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A WhatsApp recipient's imported fields are too large",
+            )
+        cleaned[key] = text_value
+    return cleaned
+
+
 def _is_excel_phone_header(label: str) -> bool:
     tokens = set(label.split())
     if tokens.intersection({"phone", "mobile", "whatsapp", "telephone"}):
@@ -618,16 +761,14 @@ def _is_excel_phone_header(label: str) -> bool:
 
 
 def _is_excel_name_header(label: str) -> bool:
-    tokens = set(label.split())
-    if "name" in tokens:
-        return True
-    return label in {"client", "passenger", "recipient", "employee", "staff"}
+    return _excel_field_key(label) == "name"
 
 
 def _excel_header_columns(
     row: tuple[Any, ...],
-) -> tuple[list[int], list[int]]:
+) -> tuple[list[int], list[int], list[int], list[int]]:
     labels = [_excel_header_label(cell) for cell in row]
+    field_keys = [_excel_field_key(cell) for cell in row]
     phone_columns = [
         index for index, label in enumerate(labels) if label and _is_excel_phone_header(label)
     ]
@@ -636,20 +777,50 @@ def _excel_header_columns(
         for index, label in enumerate(labels)
         if label and _is_excel_name_header(label) and index not in phone_columns
     ]
-    return phone_columns, name_columns
+    given_name_columns = [
+        index
+        for index, key in enumerate(field_keys)
+        if key == "given_names"
+    ]
+    surname_columns = [
+        index for index, key in enumerate(field_keys) if key == "surname"
+    ]
+    return (
+        phone_columns,
+        name_columns,
+        given_name_columns,
+        surname_columns,
+    )
 
 
 def _find_excel_contact_header(
     rows: list[tuple[Any, ...]],
-) -> tuple[int, list[int], list[int]] | None:
-    best_match: tuple[tuple[int, int, int], int, list[int], list[int]] | None = None
+) -> tuple[int, list[int], list[int], list[int], list[int]] | None:
+    best_match: tuple[
+        tuple[int, int, int],
+        int,
+        list[int],
+        list[int],
+        list[int],
+        list[int],
+    ] | None = None
     for row_index, row in enumerate(rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]):
-        phone_columns, name_columns = _excel_header_columns(row)
+        (
+            phone_columns,
+            name_columns,
+            given_name_columns,
+            surname_columns,
+        ) = _excel_header_columns(row)
         if not phone_columns:
             continue
         score = (
-            1 if name_columns else 0,
-            len(phone_columns) + len(name_columns),
+            1 if name_columns or given_name_columns else 0,
+            (
+                len(phone_columns)
+                + len(name_columns)
+                + len(given_name_columns)
+                + len(surname_columns)
+            ),
             -row_index,
         )
         if best_match is None or score > best_match[0]:
@@ -658,17 +829,34 @@ def _find_excel_contact_header(
                 row_index,
                 phone_columns,
                 name_columns,
+                given_name_columns,
+                surname_columns,
             )
     if best_match is None:
         return None
-    _, row_index, phone_columns, name_columns = best_match
-    return row_index, phone_columns, name_columns
+    (
+        _,
+        row_index,
+        phone_columns,
+        name_columns,
+        given_name_columns,
+        surname_columns,
+    ) = best_match
+    return (
+        row_index,
+        phone_columns,
+        name_columns,
+        given_name_columns,
+        surname_columns,
+    )
 
 
 def _excel_name_from_row(
     row_values: list[Any],
     *,
     name_columns: list[int],
+    given_name_columns: list[int],
+    surname_columns: list[int],
     phone_columns: list[int],
 ) -> str | None:
     for index in name_columns:
@@ -677,6 +865,29 @@ def _excel_name_from_row(
         name = _clean_name(row_values[index])
         if name:
             return name
+    given_name = next(
+        (
+            _clean_name(row_values[index])
+            for index in given_name_columns
+            if index < len(row_values) and _clean_name(row_values[index])
+        ),
+        None,
+    )
+    surname = next(
+        (
+            _clean_name(row_values[index])
+            for index in surname_columns
+            if index < len(row_values) and _clean_name(row_values[index])
+        ),
+        None,
+    )
+    composed = " ".join(
+        part for part in (given_name, surname) if part
+    )
+    if composed:
+        return composed
+    if name_columns or given_name_columns or surname_columns:
+        return None
     for index, value in enumerate(row_values):
         if index in phone_columns:
             continue
@@ -684,6 +895,62 @@ def _excel_name_from_row(
         if name and any(character.isalpha() for character in name) and not PHONE_RE.search(name):
             return name
     return None
+
+
+def _excel_fields_from_row(
+    *,
+    header_row: tuple[Any, ...],
+    row_values: list[Any],
+    sheet_name: str,
+) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for index, raw_header in enumerate(header_row):
+        if index >= len(row_values):
+            continue
+        key = _excel_field_key(raw_header)
+        text_value = _excel_cell_text(row_values[index])
+        if (
+            not key
+            or not text_value
+            or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES
+        ):
+            continue
+        fields.setdefault(key, text_value)
+    if sheet_name:
+        fields.setdefault("source_sheet", sheet_name)
+    return _safe_imported_fields(fields)
+
+
+def _merge_recipient_inputs(
+    existing: WhatsAppRecipientInput,
+    incoming: WhatsAppRecipientInput,
+) -> WhatsAppRecipientInput:
+    merged_fields = dict(existing.imported_fields)
+    conflicting_keys: set[str] = set()
+    for key, value in incoming.imported_fields.items():
+        current = merged_fields.get(key)
+        if current is None:
+            merged_fields[key] = value
+        elif current.casefold() != value.casefold():
+            conflicting_keys.add(key)
+            suffix = 2
+            alternate_key = f"{key}_{suffix}"
+            while alternate_key in merged_fields:
+                if merged_fields[alternate_key].casefold() == value.casefold():
+                    break
+                suffix += 1
+                alternate_key = f"{key}_{suffix}"
+            else:
+                merged_fields[alternate_key] = value
+    if conflicting_keys:
+        merged_fields["duplicate_conflicting_fields"] = ", ".join(
+            sorted(conflicting_keys)
+        )
+    return WhatsAppRecipientInput(
+        name=existing.name or incoming.name,
+        phone_number=existing.phone_number,
+        imported_fields=_safe_imported_fields(merged_fields),
+    )
 
 
 def _parse_excel_contact_bytes(
@@ -707,13 +974,31 @@ def _parse_excel_contact_bytes(
             read_only=True,
             data_only=True,
         )
-        sheet = workbook.active
-        rows = list(
-            islice(
-                sheet.iter_rows(values_only=True),
-                (MAX_WHATSAPP_RECIPIENTS + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS + 1),
+        worksheets = workbook.worksheets
+        if len(worksheets) > MAX_WHATSAPP_EXCEL_SHEETS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "The Excel contact file contains too many worksheets; "
+                    f"use at most {MAX_WHATSAPP_EXCEL_SHEETS}"
+                ),
             )
-        )
+        sheet_rows = [
+            (
+                sheet.title,
+                list(
+                    islice(
+                        sheet.iter_rows(values_only=True),
+                        (
+                            MAX_WHATSAPP_RECIPIENTS
+                            + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
+                            + 1
+                        ),
+                    )
+                ),
+            )
+            for sheet in worksheets
+        ]
     except HTTPException:
         raise
     except (BadZipFile, InvalidFileException, OSError, ValueError) as exc:
@@ -734,60 +1019,103 @@ def _parse_excel_contact_bytes(
         if workbook is not None:
             workbook.close()
 
-    if not rows:
+    if not any(rows for _, rows in sheet_rows):
         return []
 
-    header_match = _find_excel_contact_header(rows)
-    if header_match:
-        header_row_index, phone_columns, name_columns = header_match
-        data_rows = rows[header_row_index + 1 :]
-    else:
-        phone_columns = []
-        name_columns = []
-        data_rows = rows
-    if len(data_rows) > MAX_WHATSAPP_RECIPIENTS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"The Excel contact file can contain at most {MAX_WHATSAPP_RECIPIENTS} data rows"
-            ),
-        )
-
-    contacts: list[WhatsAppRecipientInput] = []
-    seen: set[str] = set()
+    contacts_by_phone: dict[str, WhatsAppRecipientInput] = {}
     invalid_phone_count = 0
-    for row in data_rows:
-        row_values = list(row)
-        candidates: list[tuple[str | None, str]] = []
-        if phone_columns:
-            name = _excel_name_from_row(
-                row_values,
-                name_columns=name_columns,
-                phone_columns=phone_columns,
-            )
-            for index in phone_columns:
-                if index >= len(row_values):
-                    continue
-                phone = _excel_cell_text(row_values[index])
-                if phone:
-                    candidates.append((name, phone))
+    for sheet_index, (sheet_name, rows) in enumerate(sheet_rows):
+        if not rows:
+            continue
+        header_match = _find_excel_contact_header(rows)
+        if header_match:
+            (
+                header_row_index,
+                phone_columns,
+                name_columns,
+                given_name_columns,
+                surname_columns,
+            ) = header_match
+            header_row = rows[header_row_index]
+            data_rows = rows[header_row_index + 1 :]
+        elif sheet_index == 0:
+            header_row = ()
+            phone_columns = []
+            name_columns = []
+            given_name_columns = []
+            surname_columns = []
+            data_rows = rows
         else:
-            row_text = " ".join(text for cell in row_values if (text := _excel_cell_text(cell)))
-            name = _excel_name_from_row(
-                row_values,
-                name_columns=[],
-                phone_columns=[],
-            )
-            for match in PHONE_RE.findall(row_text):
-                candidates.append((name, match))
+            # A multi-sheet workbook often contains notes or lookup sheets.
+            # Never scan those heuristically for phone-like numbers.
+            continue
 
-        for name, phone in candidates:
-            normalized = _normalize_phone(phone)
-            if not normalized:
-                invalid_phone_count += 1
-            elif normalized not in seen:
-                seen.add(normalized)
-                contacts.append(WhatsAppRecipientInput(name=name, phone_number=phone))
+        for row in data_rows:
+            row_values = list(row)
+            candidates: list[tuple[str | None, str, dict[str, str]]] = []
+            imported_fields = (
+                _excel_fields_from_row(
+                    header_row=header_row,
+                    row_values=row_values,
+                    sheet_name=sheet_name if len(sheet_rows) > 1 else "",
+                )
+                if header_row
+                else {}
+            )
+            if phone_columns:
+                name = _excel_name_from_row(
+                    row_values,
+                    name_columns=name_columns,
+                    given_name_columns=given_name_columns,
+                    surname_columns=surname_columns,
+                    phone_columns=phone_columns,
+                )
+                for index in phone_columns:
+                    if index >= len(row_values):
+                        continue
+                    phone = _excel_cell_text(row_values[index])
+                    if phone:
+                        candidates.append((name, phone, imported_fields))
+            else:
+                row_text = " ".join(
+                    text
+                    for cell in row_values
+                    if (text := _excel_cell_text(cell))
+                )
+                name = _excel_name_from_row(
+                    row_values,
+                    name_columns=[],
+                    given_name_columns=[],
+                    surname_columns=[],
+                    phone_columns=[],
+                )
+                for match in PHONE_RE.findall(row_text):
+                    candidates.append((name, match, {}))
+
+            for name, phone, fields in candidates:
+                normalized = _normalize_phone(phone)
+                if not normalized:
+                    invalid_phone_count += 1
+                    continue
+                incoming = WhatsAppRecipientInput(
+                    name=name,
+                    phone_number=phone,
+                    imported_fields=fields,
+                )
+                existing = contacts_by_phone.get(normalized)
+                contacts_by_phone[normalized] = (
+                    _merge_recipient_inputs(existing, incoming)
+                    if existing
+                    else incoming
+                )
+                if len(contacts_by_phone) > MAX_WHATSAPP_RECIPIENTS:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=(
+                            "The Excel contact file can contain at most "
+                            f"{MAX_WHATSAPP_RECIPIENTS} recipients"
+                        ),
+                    )
     if invalid_phone_count:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -796,7 +1124,7 @@ def _parse_excel_contact_bytes(
                 "are invalid. Use 8 to 15 digits with an optional country code."
             ),
         )
-    return contacts
+    return list(contacts_by_phone.values())
 
 
 async def _parse_excel_contacts(
@@ -838,6 +1166,7 @@ def _excel_contact_preview_response(
         WhatsAppContactPreviewRecipient(
             name=_clean_required_name(contact.name, "Recipient name"),
             phone_number=normalized_phone,
+            imported_fields=contact.imported_fields,
         )
         for normalized_phone, contact in normalized_contacts.items()
     ]
@@ -869,8 +1198,18 @@ def _normalized_recipient_inputs(
         normalized = _normalize_phone(contact.phone_number)
         if not normalized:
             invalid_numbers.append(contact.phone_number)
-        elif normalized not in normalized_contacts:
-            normalized_contacts[normalized] = contact
+            continue
+        sanitized = WhatsAppRecipientInput(
+            name=contact.name,
+            phone_number=contact.phone_number,
+            imported_fields=_safe_imported_fields(contact.imported_fields),
+        )
+        existing = normalized_contacts.get(normalized)
+        normalized_contacts[normalized] = (
+            _merge_recipient_inputs(existing, sanitized)
+            if existing
+            else sanitized
+        )
     if invalid_numbers:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -920,6 +1259,8 @@ def _activate_recipient_models(
         if existing:
             existing.name = _clean_name(contact.name)
             existing.phone_number = contact.phone_number.strip()
+            if contact.imported_fields:
+                existing.imported_fields = contact.imported_fields
             existing.removed_at = None
             continue
         session.add(
@@ -929,6 +1270,7 @@ def _activate_recipient_models(
                 name=_clean_name(contact.name),
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
+                imported_fields=contact.imported_fields,
                 removed_at=None,
                 created_at=now,
             )
@@ -980,6 +1322,7 @@ def _recipient_response(
         name=model.name,
         phone_number=model.phone_number,
         normalized_phone_number=model.normalized_phone_number,
+        imported_fields=dict(getattr(model, "imported_fields", {}) or {}),
         sent_message_types=[
             state.message_type
             for state in ordered_states
@@ -1181,6 +1524,7 @@ def _message_values(
     )
     header_parameters = template_header_parameters(
         message_type=message_type,
+        welcome_image_id=body.header_image_id,
     )
     parameters = template_parameters(
         message_type=message_type,
@@ -1227,11 +1571,15 @@ def _decode_legacy_template_snapshot(
         message_content = before_support[: -len(notice_suffix)]
         header_parameters: list[str] = []
         parameters = [message_content, support_contacts]
-        reconstructed = render_message(
-            message_type=message_type,
-            group_name="",
-            support_contacts=support_contacts,
-            message_content=message_content,
+        reconstructed = (
+            f"{STATIC_TEMPLATE_HEADER}\n\n"
+            f"{GREETING}\n\n"
+            f"{message_content}\n\n"
+            f"{AUTOMATED_NOTICE}\n\n"
+            "For assistance, please contact:\n"
+            f"{support_contacts}\n\n"
+            "Regards,\n"
+            "Team Global Connect Travels"
         )
     else:
         notice_suffix = f"\n\n{PASSPORT_INFORMATION_NOTICE}"
@@ -1379,6 +1727,84 @@ async def get_broadcast_group(
             status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
         )
     return await _group_detail(session, group)
+
+
+@router.post(
+    "/groups/{group_id}/welcome-media",
+    response_model=WhatsAppWelcomeMediaResponse,
+)
+async def upload_welcome_media(
+    group_id: uuid.UUID,
+    image: UploadFile = File(...),
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppWelcomeMediaResponse:
+    result = await session.execute(
+        select(WhatsAppBroadcastGroupModel.id).where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+    if image.content_type not in {"image/jpeg", "image/png"}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Use a JPEG or PNG image for the Welcome message",
+        )
+
+    payload = bytearray()
+    while chunk := await image.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
+        payload.extend(chunk)
+        if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail="The Welcome image must be 5 MB or smaller",
+            )
+    try:
+        validated = await asyncio.to_thread(
+            UploadValidator().validate,
+            content=bytes(payload),
+            filename=image.filename,
+            declared_content_type=image.content_type,
+        )
+    except ImageValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    settings = get_settings()
+    try:
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(30.0, connect=5.0)
+        ) as client:
+            media_id = await upload_whatsapp_image(
+                client=client,
+                settings=settings,
+                file_name=validated.filename,
+                file_content=validated.content,
+                content_type=validated.content_type,
+            )
+    except WhatsAppCloudApiError as exc:
+        response_status = (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+            if exc.transient or exc.code == "WHATSAPP_PROVIDER_NOT_CONFIGURED"
+            else status.HTTP_502_BAD_GATEWAY
+        )
+        raise HTTPException(
+            status_code=response_status,
+            detail=str(exc),
+        ) from exc
+
+    return WhatsAppWelcomeMediaResponse(
+        media_id=media_id,
+        file_name=validated.filename,
+        content_type=validated.content_type,
+    )
 
 
 @router.post("/groups/{group_id}/preview", response_model=WhatsAppPreviewResponse)
@@ -1593,6 +2019,7 @@ async def create_broadcast_group(
                 name=_clean_name(contact.name),
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
+                imported_fields=contact.imported_fields,
                 created_at=datetime.now(tz=UTC),
             )
         )
@@ -2068,6 +2495,11 @@ async def resend_recipient_message(
                 "message_type": message_type,
                 "message_content": parameters[0] if message_type == "welcome" else parameters[2],
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
+                "header_image_id": (
+                    header_parameters[0]
+                    if message_type == "welcome" and header_parameters
+                    else None
+                ),
             },
             queue="whatsapp",
         )
@@ -2219,14 +2651,23 @@ async def send_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This WhatsApp list has no recipients",
         )
+    message_type = _as_message_type(body.message_type)
     support_contacts = await _support_contacts_for_group(session, group.id)
-    if not support_contacts:
+    if message_type == "passport_link" and not support_contacts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Add customer support contacts before sending this message",
         )
-
-    message_type = _as_message_type(body.message_type)
+    if message_type == "welcome" and not (body.header_image_id or "").strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload the required Welcome image before sending",
+        )
+    if message_type == "passport_link" and body.header_image_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The passport-link template does not accept a header image",
+        )
     message_content = _resolve_send_message_content(
         message_type,
         body.message_content,
@@ -2256,6 +2697,11 @@ async def send_broadcast_message(
         message_type=message_type,
         passport_link=passport_link,
         message_content=message_content,
+        header_image_id=(
+            body.header_image_id.strip()
+            if message_type == "welcome" and body.header_image_id
+            else None
+        ),
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
@@ -2444,6 +2890,7 @@ async def send_broadcast_message(
                 "message_type": message_type,
                 "message_content": message_content,
                 "passport_link": passport_link,
+                "header_image_id": resolved_body.header_image_id,
             },
             queue="whatsapp",
         )

@@ -4,22 +4,15 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 export default function RootPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <rect x="4" y="4" width="24" height="24" rx="3" fill="white" fillOpacity="0.2" />
-            <rect x="8" y="10" width="16" height="2" rx="1" fill="white" />
-            <rect x="8" y="14" width="12" height="2" rx="1" fill="white" />
-            <rect x="8" y="18" width="16" height="2" rx="1" fill="white" />
-            <rect x="8" y="22" width="8" height="2" rx="1" fill="white" />
-          </svg>
-        </div>
+        <BrandLogo className="mx-auto mb-6 h-20 w-[300px]" priority />
 
-        <h1 className="mb-1 text-2xl font-bold text-slate-900">PassDetection</h1>
+        <h1 className="mb-1 text-2xl font-bold text-slate-900">Global Connects Dashboard</h1>
         <p className="mb-8 text-sm text-slate-500">Enterprise Passport MRZ Platform</p>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-left shadow-sm">
@@ -64,7 +57,7 @@ export default function RootPage() {
           </Link>
         </div>
 
-        <p className="mt-6 text-xs text-slate-400">PassDetection v1.0.0 - Phase 13</p>
+        <p className="mt-6 text-xs text-slate-400">Global Connects Dashboard v1.0.0 - Phase 13</p>
       </div>
     </main>
   );

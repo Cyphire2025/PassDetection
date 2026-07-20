@@ -62,17 +62,27 @@ test("existing groups replace linked broadcasts through an explicit PUT", () => 
   assert.match(hooks, /useUpdateGroupWhatsAppLinks/);
 });
 
-test("comparison keeps unique recipient counts and full broadcast provenance", () => {
+test("comparison exposes multi-field identity evidence and review outcomes", () => {
   assert.match(api, /total_recipients: number/);
   assert.match(api, /submitted_count: number/);
   assert.match(api, /not_submitted_count: number/);
   assert.match(api, /multiple_submission_count: number/);
   assert.match(api, /matched_submission_count: number/);
-  assert.match(panel, /same phone number is counted once/i);
+  assert.match(api, /needs_review_count: number/);
+  assert.match(api, /unmatched_submission_count: number/);
+  assert.match(api, /match_evidence: GroupWhatsAppMatchEvidence\[\]/);
+  assert.match(api, /recipient_fields: GroupWhatsAppRecipientFields\[\]/);
+  assert.match(
+    panel,
+    /phone numbers, emails, passport numbers, staff codes/,
+  );
   assert.match(panel, /broadcast_names\.map/);
   assert.match(panel, /submission_names\.join/);
-  assert.match(panel, /Matched by exact phone number/);
-  assert.doesNotMatch(panel, /matched by name/i);
+  assert.match(panel, /Name entered in form/);
+  assert.match(panel, /Name read from passport/);
+  assert.match(panel, /Unidentified uploads/);
+  assert.match(panel, /Needs review/);
+  assert.doesNotMatch(panel, /Matched by exact phone number/);
 });
 
 test("comparison rows are paginated while aggregate counts remain visible", () => {

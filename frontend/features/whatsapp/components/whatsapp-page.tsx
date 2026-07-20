@@ -14,6 +14,7 @@ import {
   Upload,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import {
   type Dispatch,
   type FormEvent,
@@ -92,6 +93,16 @@ type RecipientResendTarget = {
 };
 
 const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
+const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
+const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+
+function importedFieldLabel(value: string): string {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 type RecipientImportState =
   | { status: "idle" }
@@ -518,12 +529,13 @@ export function WhatsAppPage() {
           messageType={messageTarget.messageType}
           isSending={sendWelcome.isPending || sendPassportLink.isPending}
           onClose={() => setMessageTarget(null)}
-          onSend={async ({ passportLink, messageContent }) => {
+          onSend={async ({ passportLink, messageContent, welcomeImage }) => {
             const result =
               messageTarget.messageType === "welcome"
                 ? await sendWelcome.mutateAsync({
                     groupId: messageTarget.group.id,
                     messageContent,
+                    image: welcomeImage as File,
                   })
                 : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
@@ -1007,8 +1019,8 @@ function RecipientListDialog({
                   Broadcast details
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  The group name and support contacts are used in the approved
-                  messages sent to recipients.
+                  The group name is used in both approved messages. Support
+                  contacts are used only in the Passport Link message.
                 </p>
               </div>
               <div className="mt-4 max-w-xl">
@@ -1021,8 +1033,8 @@ function RecipientListDialog({
               </div>
               <div className="mt-4">
                 <ContactEditor
-                  title="Customer support contacts"
-                  description="These contacts appear at the end of both approved messages. You can keep up to three."
+                  title="Passport-link support contacts"
+                  description="These contacts appear only at the end of the Passport Link message. Welcome messages do not include them."
                   value={support}
                   contacts={supportContacts}
                   onValueChange={setSupport}
@@ -1141,8 +1153,40 @@ function RecipientListDialog({
                     {detail.recipients.map((recipient) => {
                       return (
                         <tr key={recipient.id}>
-                          <td className="px-4 py-3 font-medium text-slate-900">
-                            {recipient.name || "Unnamed recipient"}
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-slate-900">
+                              {recipient.name || "Unnamed recipient"}
+                            </div>
+                            {Object.keys(recipient.imported_fields).length > 0 && (
+                              <details className="mt-1">
+                                <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+                                  View{" "}
+                                  {Object.keys(recipient.imported_fields).length}{" "}
+                                  imported detail
+                                  {Object.keys(recipient.imported_fields).length === 1
+                                    ? ""
+                                    : "s"}
+                                </summary>
+                                <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
+                                  {Object.entries(recipient.imported_fields)
+                                    .sort(([left], [right]) =>
+                                      importedFieldLabel(left).localeCompare(
+                                        importedFieldLabel(right),
+                                      ),
+                                    )
+                                    .map(([key, value]) => (
+                                      <div key={key} className="min-w-0">
+                                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                          {importedFieldLabel(key)}
+                                        </dt>
+                                        <dd className="break-words text-xs font-normal text-slate-700">
+                                          {value}
+                                        </dd>
+                                      </div>
+                                    ))}
+                                </dl>
+                              </details>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-slate-600">
                             {recipient.normalized_phone_number}
@@ -1627,8 +1671,8 @@ function CreateBroadcastDialog({
         />
 
         <ContactEditor
-          title="Customer support contacts"
-          description="Every contact added here appears at the end of both messages. You can add up to three."
+          title="Passport-link support contacts"
+          description="These contacts appear only at the end of the Passport Link message. Welcome messages do not include them."
           value={support}
           contacts={supportContacts}
           onValueChange={setSupport}
@@ -1704,6 +1748,7 @@ function MessagePreviewDialog({
   onSend: (payload: {
     passportLink: string;
     messageContent: string;
+    welcomeImage: File | null;
   }) => Promise<void>;
 }) {
   const { data: detail, isLoading: isLoadingDetail } = useWhatsAppGroup(
@@ -1712,6 +1757,10 @@ function MessagePreviewDialog({
   const previewRequest = usePreviewWhatsAppMessage();
   const [passportLink, setPassportLink] = useState("");
   const [messageContent, setMessageContent] = useState<string | null>(null);
+  const [welcomeImage, setWelcomeImage] = useState<File | null>(null);
+  const [welcomeImagePreview, setWelcomeImagePreview] = useState<string | null>(
+    null,
+  );
   const [previewRecipientId, setPreviewRecipientId] = useState<string | null>(
     null,
   );
@@ -1719,7 +1768,26 @@ function MessagePreviewDialog({
   const [error, setError] = useState<string | null>(null);
   const previewSequence = useRef(0);
   const sendInFlightRef = useRef(false);
+  const welcomeImagePreviewUrlRef = useRef<string | null>(null);
   const previewMutate = previewRequest.mutate;
+
+  useEffect(() => {
+    return () => {
+      if (welcomeImagePreviewUrlRef.current) {
+        URL.revokeObjectURL(welcomeImagePreviewUrlRef.current);
+      }
+    };
+  }, []);
+
+  const replaceWelcomeImage = (image: File | null) => {
+    if (welcomeImagePreviewUrlRef.current) {
+      URL.revokeObjectURL(welcomeImagePreviewUrlRef.current);
+    }
+    const previewUrl = image ? URL.createObjectURL(image) : null;
+    welcomeImagePreviewUrlRef.current = previewUrl;
+    setWelcomeImage(image);
+    setWelcomeImagePreview(previewUrl);
+  };
 
   useEffect(() => {
     const sequence = ++previewSequence.current;
@@ -1788,9 +1856,10 @@ function MessagePreviewDialog({
     group.recipient_count;
   const canSend = Boolean(
     detail?.recipient_opt_in_confirmed &&
-    detail.support_contacts.length > 0 &&
+    (messageType === "welcome" || detail.support_contacts.length > 0) &&
     resolvedMessageContent &&
     eligibleRecipientCount > 0 &&
+    (messageType !== "welcome" || welcomeImage) &&
     (messageType === "welcome" || passportLink.trim()),
   );
 
@@ -1803,6 +1872,10 @@ function MessagePreviewDialog({
       );
       return;
     }
+    if (messageType === "welcome" && !welcomeImage) {
+      setError("Upload the required Welcome image before sending.");
+      return;
+    }
     if (messageType === "passport_link" && !passportLink.trim()) {
       setError("Paste the passport upload link before sending.");
       return;
@@ -1813,6 +1886,7 @@ function MessagePreviewDialog({
       await onSend({
         passportLink: passportLink.trim(),
         messageContent: resolvedMessageContent,
+        welcomeImage,
       });
     } catch (sendError) {
       setError(
@@ -1840,18 +1914,70 @@ function MessagePreviewDialog({
       <form className="space-y-5" onSubmit={handleSend}>
         <div className="flex gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-blue-900">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>
-            The approved Meta header is fixed as Dear Delegates. This field
-            supplies BODY variable{" "}
-            {messageType === "welcome" ? "{{1}}" : "{{3}}"} and can change
-            before each send.
-            {messageType === "passport_link" && (
-              <> The passport upload link supplies BODY variable {"{{2}}"}.</>
-            )}{" "}
-            The remaining wording is fixed in the approved Meta template;
-            changing that fixed text requires Meta approval again.
-          </p>
+          {messageType === "welcome" ? (
+            <p>
+              The uploaded picture is the required Meta IMAGE header. The text
+              below supplies BODY variable {"{{1}}"}. Dear Delegates and the
+              remaining wording stay fixed in the approved template.
+            </p>
+          ) : (
+            <p>
+              The approved Meta header is fixed as Dear Delegates. This field
+              supplies BODY variable {"{{3}}"} and the passport upload link
+              supplies BODY variable {"{{2}}"}. The remaining wording is fixed
+              in the approved Meta template.
+            </p>
+          )}
         </div>
+
+        {messageType === "welcome" && (
+          <div className="space-y-2">
+            <label
+              className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
+                welcomeImage
+                  ? "border-emerald-300 bg-emerald-50/50"
+                  : "border-blue-300 bg-blue-50/40"
+              }`}
+            >
+              <span className="min-w-0">
+                <span className="block font-medium text-slate-900">
+                  Welcome image <span className="text-red-600">*</span>
+                </span>
+                <span className="block truncate text-sm text-slate-500">
+                  {welcomeImage?.name ??
+                    "Upload the approved JPEG or PNG shown above the message."}
+                </span>
+              </span>
+              <Upload className="h-5 w-5 shrink-0 text-blue-600" />
+              <input
+                type="file"
+                accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                className="sr-only"
+                required
+                onChange={(event) => {
+                  const selected = event.currentTarget.files?.[0] ?? null;
+                  event.currentTarget.value = "";
+                  if (!selected) return;
+                  if (!WELCOME_IMAGE_TYPES.has(selected.type)) {
+                    replaceWelcomeImage(null);
+                    setError("Use a JPEG or PNG image for the Welcome message.");
+                    return;
+                  }
+                  if (selected.size > MAX_WELCOME_IMAGE_BYTES) {
+                    replaceWelcomeImage(null);
+                    setError("The Welcome image must be 5 MB or smaller.");
+                    return;
+                  }
+                  setError(null);
+                  replaceWelcomeImage(selected);
+                }}
+              />
+            </label>
+            <p className="text-xs text-slate-500">
+              Required for every Welcome send. Maximum size: 5 MB.
+            </p>
+          </div>
+        )}
 
         {messageType === "passport_link" && (
           <Input
@@ -1916,6 +2042,17 @@ function MessagePreviewDialog({
             </div>
             <div className="mt-1.5 min-h-96 rounded-2xl bg-[#e5ddd5] p-4 shadow-inner">
               <div className="ml-auto max-w-[94%] rounded-xl rounded-tr-sm bg-[#dcf8c6] p-3 text-sm leading-5 text-slate-900 shadow-sm">
+                {messageType === "welcome" && welcomeImagePreview && (
+                  <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-lg bg-white">
+                    <Image
+                      src={welcomeImagePreview}
+                      alt="Selected Welcome message header"
+                      fill
+                      unoptimized
+                      className="object-contain"
+                    />
+                  </div>
+                )}
                 {preview ? (
                   <p className="whitespace-pre-wrap">
                     {preview.rendered_message}
@@ -1965,15 +2102,18 @@ function MessagePreviewDialog({
 
         {isLoadingDetail && (
           <p className="text-sm text-slate-500">
-            Loading recipient and support details...
+            Loading recipient
+            {messageType === "passport_link" ? " and support" : ""} details...
           </p>
         )}
         {detail && !detail.recipient_opt_in_confirmed && (
           <ErrorBanner message="This older list has no recorded recipient opt-in confirmation. Create a new list before sending." />
         )}
-        {detail && detail.support_contacts.length === 0 && (
+        {messageType === "passport_link" &&
+          detail &&
+          detail.support_contacts.length === 0 && (
           <ErrorBanner message="This older list has no customer support contacts. Create a new list before sending." />
-        )}
+          )}
         {preview &&
           eligibleRecipientCount === 0 &&
           preview.already_sent_count === preview.recipient_count && (

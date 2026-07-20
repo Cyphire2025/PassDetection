@@ -35,8 +35,16 @@ import {
 } from "../services/camera-capture";
 import {
   CAMERA_QUALITY_POLICY,
-  updateRollingCameraReadiness,
 } from "../services/camera-quality-policy";
+import {
+  INITIAL_VISA_READINESS,
+  SerializedVisaInferenceQueue,
+  VISA_CAMERA_SAFE_RETRY_MESSAGE,
+  VisaDetectorInferenceError,
+  updateVisaReadinessHysteresis,
+  waitForVisaInferenceDrain,
+  type VisaReadinessHysteresis,
+} from "../services/visa-selfie-runtime";
 
 interface VisaSelfieCameraProps {
   onCapture: (file: File) => void;
@@ -65,6 +73,7 @@ interface PendingAnalysis {
 }
 
 interface PendingFinalAnalysis {
+  detectorGeneration: number;
   timeoutId: number;
   resolve: (detections: Detection[]) => void;
   reject: (error: Error) => void;
@@ -74,9 +83,11 @@ type CaptureMode = "validated" | "fallback";
 type VisaCameraProfile = "relaxed" | "strict";
 
 const ANALYSIS_TIMEOUT_MS = 6_000;
+const CAMERA_STOP_DRAIN_TIMEOUT_MS = 1_500;
 const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
 const LIVE_FACE_DETECTION_CONFIDENCE = 0.55;
+const VISA_CAPTURE_MARGIN_RATIO = 0.02;
 /**
  * The strict profile is active. The earlier relaxed face and white/off-white
  * wall checks remain fully wired behind this switch so they can be enabled
@@ -95,9 +106,10 @@ export function VisaSelfieCamera({
   const analysisCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<import("@mediapipe/face_detection").FaceDetection | null>(null);
+  const detectorInferenceQueueRef =
+    useRef(new SerializedVisaInferenceQueue());
   const animationFrameRef = useRef<number | null>(null);
   const lastAnalysisRef = useRef(0);
-  const analysisBusyRef = useRef(false);
   const captureStartedRef = useRef(false);
   const captureReadyRef = useRef(false);
   const cameraGenerationRef = useRef(0);
@@ -109,7 +121,9 @@ export function VisaSelfieCamera({
   const faceStatusRef = useRef<FaceStatus>("loading");
   const previousFaceRef = useRef<VisaPhotoFaceGeometry | null>(null);
   const backgroundStatusRef = useRef<BackgroundStatus>("checking");
-  const readinessSamplesRef = useRef<boolean[]>([]);
+  const visaReadinessRef = useRef<VisaReadinessHysteresis>({
+    ...INITIAL_VISA_READINESS,
+  });
   const visibilityPausedRef = useRef(false);
 
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -148,7 +162,7 @@ export function VisaSelfieCamera({
     previousFaceRef.current = null;
     backgroundStatusRef.current = "checking";
     captureReadyRef.current = false;
-    readinessSamplesRef.current = [];
+    visaReadinessRef.current = { ...INITIAL_VISA_READINESS };
     setFaceStatus(status);
     setBackgroundStatus("checking");
     setClarityStatus("checking");
@@ -170,43 +184,88 @@ export function VisaSelfieCamera({
   }, []);
 
   const waitForLiveAnalysis = useCallback(async () => {
-    const deadline = performance.now() + 1_000;
-    while (analysisBusyRef.current && performance.now() < deadline) {
-      await nextAnimationFrame();
-    }
-    if (analysisBusyRef.current) {
-      throw new Error("The final face check could not start. Please retake the photo.");
+    const drained = await waitForVisaInferenceDrain(
+      detectorInferenceQueueRef.current,
+      CAMERA_STOP_DRAIN_TIMEOUT_MS,
+    );
+    if (!drained) {
+      detectorGenerationRef.current += 1;
+      detectorRef.current = null;
+      throw new VisaDetectorInferenceError(
+        new Error("Live face analysis did not settle before capture."),
+      );
     }
   }, []);
+
+  const stopCameraAfterAnalysis = useCallback(async () => {
+    stopAnalysis();
+    const detectorGeneration = detectorGenerationRef.current;
+    const drained = await waitForVisaInferenceDrain(
+      detectorInferenceQueueRef.current,
+      CAMERA_STOP_DRAIN_TIMEOUT_MS,
+    );
+    if (!drained && detectorGeneration === detectorGenerationRef.current) {
+      detectorGenerationRef.current += 1;
+      detectorRef.current = null;
+      activeAnalysisIdRef.current = null;
+      captureReadyRef.current = false;
+      visaReadinessRef.current = { ...INITIAL_VISA_READINESS };
+      setLiveReady(false);
+      setIsDetectorReady(false);
+      setModelError(VISA_CAMERA_SAFE_RETRY_MESSAGE);
+      setInitializationAttempt((current) => current + 1);
+    }
+    stopStream();
+  }, [stopAnalysis, stopStream]);
 
   const detectFinalFaces = useCallback(async (
     image: HTMLImageElement | HTMLCanvasElement,
   ): Promise<Detection[]> => {
     await waitForLiveAnalysis();
     const detector = detectorRef.current;
+    const inferenceQueue = detectorInferenceQueueRef.current;
+    const detectorGeneration = detectorGenerationRef.current;
     if (!detector) {
       throw new Error("The final face check is unavailable.");
     }
 
-    return new Promise<Detection[]>((resolve, reject) => {
-      const timeoutId = window.setTimeout(() => {
-        if (pendingFinalAnalysisRef.current?.timeoutId !== timeoutId) return;
-        pendingFinalAnalysisRef.current = null;
-        analysisBusyRef.current = false;
-        reject(new Error("The final face check timed out. Please retake the photo."));
-      }, ANALYSIS_TIMEOUT_MS);
-      pendingFinalAnalysisRef.current = { timeoutId, resolve, reject };
-      analysisBusyRef.current = true;
-      void detector.send({ image }).catch((error) => {
-        if (pendingFinalAnalysisRef.current?.timeoutId !== timeoutId) return;
-        window.clearTimeout(timeoutId);
-        pendingFinalAnalysisRef.current = null;
-        analysisBusyRef.current = false;
-        reject(error instanceof Error
-          ? error
-          : new Error("The final face check failed."));
-      });
+    let resolveDetections!: (detections: Detection[]) => void;
+    let rejectDetections!: (error: Error) => void;
+    const detectionsPromise = new Promise<Detection[]>((resolve, reject) => {
+      resolveDetections = resolve;
+      rejectDetections = reject;
     });
+    const timeoutId = window.setTimeout(() => {
+      if (pendingFinalAnalysisRef.current?.timeoutId !== timeoutId) return;
+      pendingFinalAnalysisRef.current = null;
+      rejectDetections(new VisaDetectorInferenceError(
+        new Error("The final face check timed out."),
+      ));
+    }, ANALYSIS_TIMEOUT_MS);
+    pendingFinalAnalysisRef.current = {
+      detectorGeneration,
+      timeoutId,
+      resolve: resolveDetections,
+      reject: rejectDetections,
+    };
+    const finalSend = inferenceQueue.run(() => detector.send({ image }));
+    void finalSend.catch((error) => {
+      if (pendingFinalAnalysisRef.current?.timeoutId !== timeoutId) return;
+      window.clearTimeout(timeoutId);
+      pendingFinalAnalysisRef.current = null;
+      rejectDetections(new VisaDetectorInferenceError(error));
+    });
+    const detections = await detectionsPromise;
+    try {
+      await finalSend;
+    } catch (error) {
+      throw new VisaDetectorInferenceError(error);
+    }
+    // MediaPipe may invoke onResults just before send() finishes unwinding.
+    // Do not let capture tear down the video until the serialized native call
+    // itself has settled as well.
+    await inferenceQueue.drain();
+    return detections;
   }, [waitForLiveAnalysis]);
 
   const takePhoto = useCallback(async (mode: CaptureMode = "validated") => {
@@ -239,7 +298,15 @@ export function VisaSelfieCamera({
     setBorderlineConfirmed(false);
 
     try {
-      const videoCrop = getVisaOutputCrop(video, guide);
+      // Stop scheduling before touching the camera source, then wait for the
+      // one serialized live inference to finish while its video is still
+      // alive. The final JPEG check uses the same queue below.
+      stopAnalysis();
+      if (mode === "validated") {
+        await waitForLiveAnalysis();
+      }
+
+      const videoCrop = getVisaCaptureCrop(video, guide);
       const source = await captureBestCameraSource(video, streamRef.current);
       const sourceCrop = remapVideoCropToSource(
         videoCrop,
@@ -271,9 +338,6 @@ export function VisaSelfieCamera({
         source.close();
       }
 
-      stopAnalysis();
-      stopStream();
-      setIsCameraReady(false);
       const { blob } = await encodeVisaJpegUnderLimit(
         (quality) => canvasToJpeg(canvas, quality),
         CAMERA_QUALITY_POLICY.maxVisaOutputBytes,
@@ -283,6 +347,8 @@ export function VisaSelfieCamera({
         lastModified: Date.now(),
       });
       if (ACTIVE_VISA_CAMERA_PROFILE === "relaxed") {
+        stopStream();
+        setIsCameraReady(false);
         setCapturedFile(file);
         setCapturedPreview(URL.createObjectURL(file));
         return;
@@ -339,13 +405,37 @@ export function VisaSelfieCamera({
         decoded.close();
       }
 
+      // Keep the video/stream alive until MediaPipe has completed the final
+      // serialized JPEG inference. Stopping it earlier can fault legacy WASM
+      // runtimes in Safari and embedded iPhone browsers.
+      stopStream();
+      setIsCameraReady(false);
       setCapturedFile(file);
       setCapturedPreview(URL.createObjectURL(file));
       setFinalValidation(validation);
     } catch (error) {
-      setProcessingError(error instanceof Error ? error.message : "The Visa Photo could not be saved. Please retry.");
-      stopAnalysis();
-      stopStream();
+      const detectorError = error instanceof VisaDetectorInferenceError
+        ? error
+        : null;
+      setProcessingError(
+        detectorError?.message
+          ?? (error instanceof Error
+            ? error.message
+            : "The Visa Photo could not be saved. Please retry."),
+      );
+      const failedDetectorGeneration = detectorGenerationRef.current;
+      await stopCameraAfterAnalysis();
+      if (
+        detectorError?.resetDetector
+        && failedDetectorGeneration === detectorGenerationRef.current
+      ) {
+        detectorGenerationRef.current += 1;
+        detectorRef.current = null;
+        activeAnalysisIdRef.current = null;
+        setIsDetectorReady(false);
+        setModelError(VISA_CAMERA_SAFE_RETRY_MESSAGE);
+        setInitializationAttempt((current) => current + 1);
+      }
       setIsCameraReady(false);
       resetQualityState(isDetectorReady ? "no_face" : "loading");
       setCameraAttempt((current) => current + 1);
@@ -361,21 +451,34 @@ export function VisaSelfieCamera({
     modelError,
     resetQualityState,
     stopAnalysis,
+    stopCameraAfterAnalysis,
     stopStream,
+    waitForLiveAnalysis,
   ]);
 
   useEffect(() => {
     let disposed = false;
+    let detectorInstance:
+      | import("@mediapipe/face_detection").FaceDetection
+      | null = null;
+    let detectorInitialized = false;
+    const inferenceQueue = detectorInferenceQueueRef.current;
     const detectorGeneration = ++detectorGenerationRef.current;
     const pendingAnalyses = pendingAnalysesRef.current;
     pendingAnalyses.set(detectorGeneration, []);
 
     async function initializeDetector() {
       try {
+        // One queue is shared across detector generations. A replacement is
+        // never initialized while an abandoned generation may still be inside
+        // legacy MediaPipe WASM.
+        await inferenceQueue.drain();
+        if (disposed) return;
         const { FaceDetection } = await import("@mediapipe/face_detection");
         if (disposed) return;
 
         const detector = new FaceDetection({ locateFile: (file) => `/mediapipe/face_detection/${file}` });
+        detectorInstance = detector;
         detector.setOptions({
           model: "short",
           selfieMode: false,
@@ -387,10 +490,9 @@ export function VisaSelfieCamera({
         });
         detector.onResults((results) => {
           const pendingFinal = pendingFinalAnalysisRef.current;
-          if (pendingFinal) {
+          if (pendingFinal?.detectorGeneration === detectorGeneration) {
             window.clearTimeout(pendingFinal.timeoutId);
             pendingFinalAnalysisRef.current = null;
-            analysisBusyRef.current = false;
             pendingFinal.resolve(results.detections);
             return;
           }
@@ -399,7 +501,6 @@ export function VisaSelfieCamera({
           window.clearTimeout(pending.timeoutId);
           if (activeAnalysisIdRef.current === pending.id) {
             activeAnalysisIdRef.current = null;
-            analysisBusyRef.current = false;
           }
           if (
             detectorGeneration !== detectorGenerationRef.current
@@ -446,12 +547,11 @@ export function VisaSelfieCamera({
                 ) && faceIsStable;
           }
 
-          const readiness = updateRollingCameraReadiness(
-            readinessSamplesRef.current,
+          const readiness = updateVisaReadinessHysteresis(
+            visaReadinessRef.current,
             currentFrameReady,
-            captureReadyRef.current,
           );
-          readinessSamplesRef.current = readiness.samples;
+          visaReadinessRef.current = readiness;
           const isReady = readiness.ready;
 
           if (faceStatusRef.current !== nextFaceStatus) {
@@ -469,17 +569,21 @@ export function VisaSelfieCamera({
           captureReadyRef.current = isReady;
         });
         await detector.initialize();
+        detectorInitialized = true;
         if (disposed) {
           await detector.close();
           return;
         }
         detectorRef.current = detector;
-        analysisBusyRef.current = false;
+        activeAnalysisIdRef.current = null;
         setModelError(null);
         setFallbackAcknowledged(false);
         setIsDetectorReady(true);
       } catch (error) {
         console.error("Visa Photo face detection initialization failed", error);
+        if (detectorInstance && !detectorInitialized) {
+          await detectorInstance.close().catch(() => undefined);
+        }
         if (disposed) return;
         faceStatusRef.current = "unavailable";
         setFaceStatus("unavailable");
@@ -496,15 +600,25 @@ export function VisaSelfieCamera({
         window.clearTimeout(pending.timeoutId);
       });
       const pendingFinal = pendingFinalAnalysisRef.current;
-      if (pendingFinal) {
+      if (pendingFinal?.detectorGeneration === detectorGeneration) {
         window.clearTimeout(pendingFinal.timeoutId);
         pendingFinalAnalysisRef.current = null;
-        pendingFinal.reject(new Error("The final face check was interrupted."));
+        pendingFinal.reject(new VisaDetectorInferenceError(
+          new Error("The final face check was interrupted."),
+        ));
       }
       pendingAnalyses.delete(detectorGeneration);
-      const detector = detectorRef.current;
-      detectorRef.current = null;
-      void detector?.close();
+      if (detectorRef.current === detectorInstance) {
+        detectorRef.current = null;
+      }
+      if (detectorInstance && detectorInitialized) {
+        const detector = detectorInstance;
+        void inferenceQueue.drain()
+          .then(() => detector.close())
+          .catch((error) => {
+            console.error("Visa Photo face detector cleanup failed", error);
+          });
+      }
     };
   }, [initializationAttempt]);
 
@@ -556,9 +670,9 @@ export function VisaSelfieCamera({
     void startCamera();
     return () => {
       disposed = true;
-      stopStream();
+      void stopCameraAfterAnalysis();
     };
-  }, [cameraAttempt, stopStream]);
+  }, [cameraAttempt, stopCameraAfterAnalysis]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -567,9 +681,7 @@ export function VisaSelfieCamera({
         visibilityPausedRef.current = true;
         cameraGenerationRef.current += 1;
         activeAnalysisIdRef.current = null;
-        analysisBusyRef.current = false;
-        stopAnalysis();
-        stopStream();
+        void stopCameraAfterAnalysis();
         setIsCameraReady(false);
         setMirrorPreview(false);
         resetQualityState(isDetectorReady ? "no_face" : "loading");
@@ -588,8 +700,7 @@ export function VisaSelfieCamera({
     capturedPreview,
     isDetectorReady,
     resetQualityState,
-    stopAnalysis,
-    stopStream,
+    stopCameraAfterAnalysis,
   ]);
 
   useEffect(() => {
@@ -608,7 +719,6 @@ export function VisaSelfieCamera({
       window.clearTimeout(pending.timeoutId);
       if (activeAnalysisIdRef.current === analysisId) {
         activeAnalysisIdRef.current = null;
-        analysisBusyRef.current = false;
       }
       if (
         cameraGeneration !== cameraGenerationRef.current
@@ -616,29 +726,32 @@ export function VisaSelfieCamera({
       ) return;
       console.error("Visa Photo frame analysis failed", error);
       captureReadyRef.current = false;
-      readinessSamplesRef.current = [];
+      visaReadinessRef.current = { ...INITIAL_VISA_READINESS };
       faceStatusRef.current = "unavailable";
       setFaceStatus("unavailable");
       setBackgroundStatus("checking");
       setClarityStatus("checking");
       setLiveReady(false);
       setFallbackAcknowledged(false);
-      setModelError("Live photo checks stopped unexpectedly.");
+      setModelError(VISA_CAMERA_SAFE_RETRY_MESSAGE);
       setIsDetectorReady(false);
+      setInitializationAttempt((current) => current + 1);
     };
 
     const analyze = (now: number) => {
       const detector = detectorRef.current;
+      const inferenceQueue = detectorInferenceQueueRef.current;
       const video = videoRef.current;
       if (
         detector
+        && inferenceQueue
         && video
-        && !analysisBusyRef.current
+        && !inferenceQueue.busy
+        && activeAnalysisIdRef.current === null
         && now - lastAnalysisRef.current
           >= CAMERA_QUALITY_POLICY.liveAnalysisIntervalMs
       ) {
         lastAnalysisRef.current = now;
-        analysisBusyRef.current = true;
         const cameraGeneration = cameraGenerationRef.current;
         const detectorGeneration = detectorGenerationRef.current;
         const analysisId = ++nextAnalysisIdRef.current;
@@ -659,7 +772,7 @@ export function VisaSelfieCamera({
         const detectorQueue = pendingAnalysesRef.current.get(detectorGeneration) ?? [];
         detectorQueue.push(pending);
         pendingAnalysesRef.current.set(detectorGeneration, detectorQueue);
-        void detector.send({ image: video }).catch((error) => {
+        void inferenceQueue.run(() => detector.send({ image: video })).catch((error) => {
           failAnalysis(
             detectorGeneration,
             cameraGeneration,
@@ -677,10 +790,9 @@ export function VisaSelfieCamera({
 
   useEffect(() => {
     return () => {
-      stopAnalysis();
-      stopStream();
+      void stopCameraAfterAnalysis();
     };
-  }, [stopAnalysis, stopStream]);
+  }, [stopCameraAfterAnalysis]);
 
   useEffect(() => {
     return () => {
@@ -692,7 +804,6 @@ export function VisaSelfieCamera({
     if (capturedPreview) URL.revokeObjectURL(capturedPreview);
     cameraGenerationRef.current += 1;
     activeAnalysisIdRef.current = null;
-    analysisBusyRef.current = false;
     setCapturedPreview(null);
     setCapturedFile(null);
     setFinalValidation(null);
@@ -706,8 +817,7 @@ export function VisaSelfieCamera({
   };
 
   const close = () => {
-    stopAnalysis();
-    stopStream();
+    void stopCameraAfterAnalysis();
     onCancel();
   };
 
@@ -715,9 +825,7 @@ export function VisaSelfieCamera({
     if (isProcessing) return;
     cameraGenerationRef.current += 1;
     activeAnalysisIdRef.current = null;
-    analysisBusyRef.current = false;
-    stopAnalysis();
-    stopStream();
+    void stopCameraAfterAnalysis();
     setIsCameraReady(false);
     setMirrorPreview(false);
     setCameraError(null);
@@ -729,7 +837,6 @@ export function VisaSelfieCamera({
   const retryChecks = () => {
     detectorGenerationRef.current += 1;
     activeAnalysisIdRef.current = null;
-    analysisBusyRef.current = false;
     setModelError(null);
     setFallbackAcknowledged(false);
     setIsDetectorReady(false);
@@ -1265,6 +1372,35 @@ function getVisaOutputCrop(
   );
 }
 
+function getVisaCaptureCrop(
+  video: HTMLVideoElement,
+  guide: HTMLDivElement,
+): CropBounds {
+  const crop = getVisaOutputCrop(video, guide);
+  const centerX = crop.left + crop.width / 2;
+  const centerY = crop.top + crop.height / 2;
+  const requestedScale = 1 + VISA_CAPTURE_MARGIN_RATIO * 2;
+  const horizontalScaleLimit = (
+    2 * Math.min(centerX, video.videoWidth - centerX)
+  ) / crop.width;
+  const verticalScaleLimit = (
+    2 * Math.min(centerY, video.videoHeight - centerY)
+  ) / crop.height;
+  const scale = Math.max(
+    1,
+    Math.min(requestedScale, horizontalScaleLimit, verticalScaleLimit),
+  );
+  const width = crop.width * scale;
+  const height = crop.height * scale;
+
+  return {
+    left: centerX - width / 2,
+    top: centerY - height / 2,
+    width,
+    height,
+  };
+}
+
 async function decodeVisaPhoto(blob: Blob): Promise<{
   image: HTMLImageElement;
   close: () => void;
@@ -1288,12 +1424,6 @@ async function decodeVisaPhoto(blob: Blob): Promise<{
     URL.revokeObjectURL(objectUrl);
     throw error;
   }
-}
-
-function nextAnimationFrame(): Promise<void> {
-  return new Promise((resolve) => {
-    window.requestAnimationFrame(() => resolve());
-  });
 }
 
 function isPageHidden() {

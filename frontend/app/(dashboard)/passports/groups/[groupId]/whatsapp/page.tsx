@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GroupWhatsAppBroadcastTrackingPage } from "@/features/passports/components/group-whatsapp-broadcast-panel";
 
 export const metadata: Metadata = {
-  title: "WhatsApp Submission Tracking | PassDetection",
+  title: "WhatsApp Submission Tracking | Global Connects Dashboard",
 };
 
 interface WhatsAppSubmissionTrackingPageProps {

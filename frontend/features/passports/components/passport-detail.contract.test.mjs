@@ -68,3 +68,8 @@ test("review fields show verification confidence without extraction confidence",
   assert.match(source, /label="Verification confidence"/);
   assert.match(source, /getPassportVerificationConfidence/);
 });
+
+test("client-provided details show the submitted email and phone", () => {
+  assert.match(source, /\["Email entered by client", passport\.client_email\]/);
+  assert.match(source, /\["Phone entered by client", passport\.client_phone\]/);
+});

@@ -88,7 +88,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             "passport MRZ extraction, client review, Excel export, analytics, "
             "audit logging, and agency notifications."
         ),
-        contact={"name": "PassDetection Engineering"},
+        contact={"name": "Global Connects Dashboard Engineering"},
         license_info={"name": "Proprietary"},
         openapi_tags=OPENAPI_TAGS,
         docs_url="/docs" if not settings.is_production else None,

@@ -31,6 +31,7 @@ import { ROUTES } from "@/constants/routes";
 import { Button } from "@/components/ui";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { UserRole } from "@/types";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 interface NavItem {
   label: string;
@@ -81,15 +82,8 @@ export function Sidebar() {
       aria-label="Main navigation"
     >
       {/* Brand */}
-      <div className="flex h-[60px] items-center border-b border-slate-200 px-4 shrink-0">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600">
-          <Shield className="h-4 w-4 text-white" aria-hidden="true" />
-        </div>
-        {!isCollapsed && (
-          <span className="ml-2.5 text-sm font-bold text-slate-900 tracking-tight truncate">
-            PassDetection
-          </span>
-        )}
+      <div className="flex h-[60px] shrink-0 items-center justify-center overflow-hidden border-b border-slate-200 px-2">
+        <BrandLogo compact={isCollapsed} priority />
       </div>
 
       {/* Nav Items */}

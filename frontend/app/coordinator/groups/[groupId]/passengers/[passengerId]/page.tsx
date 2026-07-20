@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CoordinatorPassengerDetailPage } from "@/features/tour-operations/components/coordinator-passenger-detail-page";
 
 export const metadata: Metadata = {
-  title: "Passenger Details | PassDetection",
+  title: "Passenger Details | Global Connects Dashboard",
 };
 
 interface CoordinatorPassengerPageProps {

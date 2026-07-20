@@ -28,7 +28,7 @@ PASSPORT_INFORMATION_NOTICE = (
 )
 
 EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
-    "welcome": 2,
+    "welcome": 1,
     "passport_link": 4,
 }
 
@@ -78,8 +78,6 @@ def render_message(
             f"{GREETING}\n\n"
             f"{message_content}\n\n"
             f"{AUTOMATED_NOTICE}\n\n"
-            "For assistance, please contact:\n"
-            f"{support_contacts}\n\n"
             "Regards,\n"
             "Team Global Connect Travels"
         )
@@ -109,7 +107,7 @@ def template_parameters(
     """Return positional BODY variables in the exact Meta template order."""
 
     if message_type == "welcome":
-        return [message_content, support_contacts]
+        return [message_content]
     return [
         passport_link_intro(group_name),
         passport_link or "",
@@ -121,10 +119,12 @@ def template_parameters(
 def template_header_parameters(
     *,
     message_type: WhatsAppMessageType,
+    welcome_image_id: str | None = None,
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
-    del message_type
+    if message_type == "welcome" and welcome_image_id:
+        return [welcome_image_id]
     return []
 
 
@@ -134,14 +134,32 @@ def validate_template_parameters(
     header_parameters: Sequence[str],
     body_parameters: Sequence[str],
 ) -> None:
-    """Reject payloads that cannot match the two approved Meta templates."""
+    """Reject payloads that cannot match the approved Meta templates."""
 
-    if header_parameters:
-        raise ValueError("The approved WhatsApp templates use a static header")
+    if message_type == "welcome":
+        is_current_media_template = (
+            len(header_parameters) == 1 and len(body_parameters) == 1
+        )
+        is_legacy_text_template = (
+            len(header_parameters) == 0 and len(body_parameters) == 2
+        )
+        if not (is_current_media_template or is_legacy_text_template):
+            raise ValueError(
+                "welcome requires one image header and one body parameter"
+            )
+    elif header_parameters:
+        raise ValueError("The passport-link WhatsApp template uses a static header")
+
     expected_body_count = EXPECTED_BODY_PARAMETER_COUNTS[message_type]
-    if len(body_parameters) != expected_body_count:
+    if (
+        message_type != "welcome"
+        and len(body_parameters) != expected_body_count
+    ):
         raise ValueError(
             f"{message_type} requires exactly {expected_body_count} body parameters"
         )
-    if any(not isinstance(value, str) or not value.strip() for value in body_parameters):
+    if any(
+        not isinstance(value, str) or not value.strip()
+        for value in [*header_parameters, *body_parameters]
+    ):
         raise ValueError("WhatsApp template parameters must contain non-empty text")

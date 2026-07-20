@@ -1,4 +1,4 @@
-# PassDetection - Enterprise Passport OCR Platform
+# Global Connects Dashboard - Enterprise Passport OCR Platform
 
 Enterprise-grade passport processing platform for travel agencies.
 

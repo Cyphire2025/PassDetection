@@ -15,6 +15,7 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     ManagerGroupAccessModel,
+    PassportSubmissionModel,
     UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -324,6 +325,73 @@ async def test_matches_can_filter_by_a_linked_broadcast_and_reject_unlinked(
                 session=db_session,
             )
         assert unlinked_error.value.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_match_api_exposes_imported_fields_and_evidence(
+    db_session: AsyncSession,
+) -> None:
+    seeded = await _seed(db_session)
+    group = seeded["group"]
+    viewer = seeded["viewer"]
+    recipients = (
+        await db_session.scalars(
+            select(WhatsAppBroadcastRecipientModel).where(
+                WhatsAppBroadcastRecipientModel.normalized_phone_number
+                == "+919876543210"
+            )
+        )
+    ).all()
+    for recipient in recipients:
+        recipient.imported_fields = {
+            "email": "irfan@example.com",
+            "staff_code": "GC42",
+            "zone_name": "North",
+        }
+    submission = PassportSubmissionModel(
+        id=uuid.uuid4(),
+        group_id=group.id,
+        agency_id=seeded["agency_id"],
+        client_name="Irfan Khan",
+        client_email="IRFAN@example.com",
+        client_phone="9000000000",
+        image_s3_key="test/passport.jpg",
+        status="submitted",
+        confirmed_fields={
+            "given_names": "Irfan",
+            "surname": "Khan",
+            "staff_code": "GC42",
+        },
+        created_at=NOW,
+        updated_at=NOW,
+    )
+    db_session.add(submission)
+    await db_session.flush()
+
+    response = await get_client_group_whatsapp_matches(
+        group.id,
+        broadcast_id=None,
+        match_status="all",
+        sort_by="name",
+        sort_order="asc",
+        page=1,
+        page_size=100,
+        current_user=viewer,
+        session=db_session,
+    )
+
+    assert response.counts.submitted_count == 1
+    assert response.counts.matched_submission_count == 1
+    row = response.matches[0]
+    assert row.status == "submitted"
+    assert row.confidence == "high"
+    assert {evidence.kind for evidence in row.match_evidence} == {
+        "email",
+        "staff_code",
+    }
+    assert {item.fields["zone_name"] for item in row.recipient_fields} == {
+        "North"
+    }
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 export type RecipientImportContact = {
   name: string;
   phone_number: string;
+  imported_fields?: Record<string, string>;
 };
 
 export type RecipientImportMergeResult = {
@@ -51,6 +52,9 @@ export function mergeRecipientImportContacts(
     const cleaned = {
       name: contact.name.trim(),
       phone_number: contact.phone_number.trim(),
+      ...(contact.imported_fields
+        ? { imported_fields: { ...contact.imported_fields } }
+        : {}),
     };
     const key = recipientPhoneMergeKey(cleaned.phone_number);
     if (key && seen.has(key)) {
@@ -66,6 +70,9 @@ export function mergeRecipientImportContacts(
     const cleaned = {
       name: contact.name.trim(),
       phone_number: contact.phone_number.trim(),
+      ...(contact.imported_fields
+        ? { imported_fields: { ...contact.imported_fields } }
+        : {}),
     };
     const key = recipientPhoneMergeKey(cleaned.phone_number);
     if (!cleaned.name || !key || seen.has(key)) {

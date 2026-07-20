@@ -47,7 +47,7 @@ type PlatformSettings = {
 
 const DELETE_CONFIRMATION = "DELETE ALL DATA";
 const DEFAULT_SETTINGS: PlatformSettings = {
-  platform_name: "PassDetection",
+  platform_name: "Global Connects Dashboard",
   require_client_email: false,
   require_client_phone: false,
   duplicate_contact_policy: "block_same_group",

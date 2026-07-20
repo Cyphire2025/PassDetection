@@ -1,5 +1,5 @@
 """
-PassDetection Platform - Application Settings
+Global Connects Dashboard - Application Settings
 =============================================
 Single source of truth for all configuration.
 Uses pydantic-settings for:
@@ -125,7 +125,7 @@ class Settings(BaseSettings):
     app_secret_key: str = Field(..., description="Must be set via APP_SECRET_KEY")
     app_debug: bool = False
     app_version: str = "1.0.0"
-    app_name: str = "PassDetection MRZ Platform"
+    app_name: str = "Global Connects Dashboard"
 
     api_v1_prefix: str = "/api/v1"
     backend_port: int = 8000

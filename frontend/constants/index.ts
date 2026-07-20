@@ -3,7 +3,7 @@
  * ==========================
  */
 
-export const APP_NAME = "PassDetection";
+export const APP_NAME = "Global Connects Dashboard";
 
 export const PASSPORT_STATUS_LABELS: Record<string, string> = {
   pending_upload: "Pending Upload",

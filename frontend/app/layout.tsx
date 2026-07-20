@@ -12,8 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "PassDetection - Passport MRZ Platform",
-    template: "%s | PassDetection",
+    default: "Global Connects Dashboard - Passport MRZ Platform",
+    template: "%s | Global Connects Dashboard",
   },
   description:
     "Secure passport MRZ processing platform for travel agencies.",
