@@ -4,10 +4,48 @@ export type RecipientImportContact = {
   imported_fields?: Record<string, string>;
 };
 
+export type RecipientImportRejectionReasonCode =
+  | "missing_phone"
+  | "invalid_phone"
+  | "missing_name"
+  | "duplicate_phone";
+
+export type RecipientImportRejectedRow = {
+  sheet_name: string;
+  row_number: number;
+  raw_name: string | null;
+  raw_phone_number: string | null;
+  reason_code: RecipientImportRejectionReasonCode;
+  reason: string;
+};
+
+export type RecipientImportRejectedRowWithSource =
+  RecipientImportRejectedRow & {
+    source_file_name: string;
+  };
+
+export type RecipientImportPreview = {
+  recipient_count: number;
+  accepted_count?: number;
+  recipients: RecipientImportContact[];
+  rejected_count?: number;
+  rejected_rows?: RecipientImportRejectedRow[];
+  rejected_rows_truncated?: boolean;
+  omitted_rejected_count?: number;
+};
+
 export type RecipientImportMergeResult = {
   contacts: RecipientImportContact[];
   addedCount: number;
   duplicateCount: number;
+};
+
+export type RecipientImportPreviewMergeResult = RecipientImportMergeResult & {
+  acceptedCount: number;
+  rejectedCount: number;
+  rejectedRows: RecipientImportRejectedRow[];
+  rejectedRowsTruncated: boolean;
+  omittedRejectedCount: number;
 };
 
 /**
@@ -85,4 +123,65 @@ export function mergeRecipientImportContacts(
   }
 
   return { contacts, addedCount, duplicateCount };
+}
+
+export function mergeRecipientImportPreview(
+  existingContacts: RecipientImportContact[],
+  preview: RecipientImportPreview,
+  excludedPhoneNumbers: string[] = [],
+): RecipientImportPreviewMergeResult {
+  const merged = mergeRecipientImportContacts(
+    existingContacts,
+    preview.recipients,
+    excludedPhoneNumbers,
+  );
+  const rejectedRows = (preview.rejected_rows ?? []).map((row) => ({ ...row }));
+  const rejectedCount = preview.rejected_count ?? rejectedRows.length;
+  const omittedRejectedCount =
+    preview.omitted_rejected_count ??
+    Math.max(0, rejectedCount - rejectedRows.length);
+
+  return {
+    ...merged,
+    acceptedCount: preview.accepted_count ?? preview.recipient_count,
+    rejectedCount,
+    rejectedRows,
+    rejectedRowsTruncated:
+      preview.rejected_rows_truncated ??
+      omittedRejectedCount > 0,
+    omittedRejectedCount,
+  };
+}
+
+function rejectedRowWithSourceKey(
+  row: RecipientImportRejectedRowWithSource,
+): string {
+  return JSON.stringify([
+    row.source_file_name,
+    row.sheet_name,
+    row.row_number,
+    row.raw_name,
+    row.raw_phone_number,
+    row.reason_code,
+  ]);
+}
+
+export function mergeRecipientImportRejectedRows(
+  existingRows: RecipientImportRejectedRowWithSource[],
+  importedRows: RecipientImportRejectedRow[],
+  sourceFileName: string,
+): RecipientImportRejectedRowWithSource[] {
+  const rowsBySource = new Map(
+    existingRows.map((row) => [rejectedRowWithSourceKey(row), { ...row }]),
+  );
+
+  for (const row of importedRows) {
+    const rowWithSource = {
+      ...row,
+      source_file_name: sourceFileName,
+    };
+    rowsBySource.set(rejectedRowWithSourceKey(rowWithSource), rowWithSource);
+  }
+
+  return Array.from(rowsBySource.values());
 }

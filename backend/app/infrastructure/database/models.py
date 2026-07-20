@@ -219,6 +219,13 @@ class WhatsAppBroadcastGroupModel(Base):
         back_populates="broadcast_group",
         cascade="all, delete-orphan",
     )
+    rejected_contacts: Mapped[
+        list[WhatsAppBroadcastRejectedContactModel]
+    ] = relationship(
+        "WhatsAppBroadcastRejectedContactModel",
+        back_populates="broadcast_group",
+        cascade="all, delete-orphan",
+    )
 
 
 class WhatsAppBroadcastRecipientModel(Base):
@@ -246,6 +253,66 @@ class WhatsAppBroadcastRecipientModel(Base):
     )
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+
+class WhatsAppBroadcastRejectedContactModel(Base):
+    __tablename__ = "whatsapp_broadcast_rejected_contacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "broadcast_group_id",
+            "fingerprint",
+            name="uq_whatsapp_rejected_contact_group_fingerprint",
+        ),
+        CheckConstraint(
+            "row_number >= 1",
+            name="ck_whatsapp_rejected_contact_row_number",
+        ),
+        CheckConstraint(
+            "reason_code IN "
+            "('missing_phone', 'invalid_phone', 'missing_name', 'duplicate_phone')",
+            name="ck_whatsapp_rejected_contact_reason_code",
+        ),
+        Index(
+            "ix_whatsapp_rejected_contacts_group_created",
+            "broadcast_group_id",
+            "created_at",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    source_file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    sheet_name: Mapped[str] = mapped_column(String(31), nullable=False)
+    row_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    raw_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    raw_phone_number: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    reason_code: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str] = mapped_column(String(256), nullable=False)
+    fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
+    )
+
+    broadcast_group: Mapped[WhatsAppBroadcastGroupModel] = relationship(
+        "WhatsAppBroadcastGroupModel",
+        back_populates="rejected_contacts",
+    )
 
 
 class WhatsAppBroadcastSupportContactModel(Base):

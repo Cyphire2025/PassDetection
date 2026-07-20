@@ -14,6 +14,14 @@ const apiSource = readFileSync(
   new URL("../api/whatsapp.api.ts", import.meta.url),
   "utf8",
 );
+const hooksSource = readFileSync(
+  new URL("../hooks/use-whatsapp.ts", import.meta.url),
+  "utf8",
+);
+const endpointsSource = readFileSync(
+  new URL("../../../lib/api/endpoints.ts", import.meta.url),
+  "utf8",
+);
 
 test("create and send actions have synchronous single-flight guards", () => {
   assert.match(pageSource, /if \(isLoading \|\| submitInFlightRef\.current\) return;/);
@@ -88,6 +96,58 @@ test("recipient lists retain and expose imported spreadsheet details", () => {
   assert.match(pageSource, /importedFieldLabel/);
   assert.match(pageSource, /imported detail/);
   assert.match(dialogSource, /contact\.imported_fields/);
+});
+
+test("mixed Excel previews keep accepted recipients and expose every rejected source row", () => {
+  assert.match(apiSource, /RecipientImportPreview/);
+  assert.match(pageSource, /mergeRecipientImportPreview\(/);
+  assert.match(pageSource, /state\.rejectedRows\.map/);
+  assert.match(pageSource, /row\.sheet_name/);
+  assert.match(pageSource, /row\.row_number/);
+  assert.match(pageSource, /row\.raw_name/);
+  assert.match(pageSource, /row\.raw_phone_number/);
+  assert.match(pageSource, /row\.reason/);
+  assert.match(pageSource, /Valid recipients were kept/);
+  assert.match(pageSource, /state\.rejectedRowsTruncated/);
+  assert.match(pageSource, /role="status"/);
+  assert.match(pageSource, /aria-label="Rejected spreadsheet rows"/);
+  assert.doesNotMatch(pageSource, /<div aria-live="polite">/);
+});
+
+test("create and add flows persist rejected contacts separately from valid recipients", () => {
+  assert.match(apiSource, /rejected_contacts_json/);
+  assert.equal(apiSource.match(/JSON\.stringify\(rejectedContacts\)/g)?.length, 2);
+  assert.match(pageSource, /toRejectedContactInputs\(rejectedContacts\)/);
+  assert.match(
+    pageSource,
+    /contacts\.length === 0 && rejectedContacts\.length === 0/,
+  );
+  assert.match(pageSource, /mergeRecipientImportRejectedRows\(/);
+  assert.match(pageSource, /source_file_name: contact\.source_file_name/);
+});
+
+test("saved rejected contacts are lazy-loaded and paginated from the recipient list", () => {
+  assert.match(endpointsSource, /rejected-contacts/);
+  assert.match(apiSource, /params: \{ limit, offset \}/);
+  assert.match(hooksSource, /enabled,/);
+  assert.match(
+    pageSource,
+    /enabled: showRejectedContacts && rejectedContactCount > 0/,
+  );
+  assert.match(
+    pageSource,
+    /Rejected contacts \(\{detail\.rejected_contact_count\}\)/,
+  );
+  assert.match(pageSource, /contact\.source_file_name/);
+  assert.match(pageSource, /contact\.sheet_name/);
+  assert.match(pageSource, /contact\.row_number/);
+  assert.match(pageSource, /contact\.raw_name/);
+  assert.match(pageSource, /contact\.raw_phone_number/);
+  assert.match(pageSource, /contact\.reason/);
+  assert.match(pageSource, /rejectedContactsLoading/);
+  assert.match(pageSource, /rejectedContactsError/);
+  assert.match(pageSource, /Previous/);
+  assert.match(pageSource, /Next/);
 });
 
 test("message preview remains unsendable while the latest approved rendering loads", () => {

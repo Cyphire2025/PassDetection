@@ -20,6 +20,7 @@ async def test_whatsapp_purge_deletes_children_before_groups_without_committing(
         _DeleteResult(7),
         _DeleteResult(5),
         _DeleteResult(2),
+        _DeleteResult(3),
         _DeleteResult(4),
         _DeleteResult(1),
     ]
@@ -31,6 +32,7 @@ async def test_whatsapp_purge_deletes_children_before_groups_without_committing(
         "whatsapp_message_logs",
         "whatsapp_recipient_message_states",
         "whatsapp_broadcast_support_contacts",
+        "whatsapp_broadcast_rejected_contacts",
         "whatsapp_broadcast_recipients",
         "whatsapp_broadcast_groups",
     ]
@@ -38,6 +40,7 @@ async def test_whatsapp_purge_deletes_children_before_groups_without_committing(
     assert counts.message_logs == 7
     assert counts.delivery_states == 5
     assert counts.support_contacts == 2
+    assert counts.rejected_contacts == 3
     assert counts.recipients == 4
     assert counts.broadcast_groups == 1
     session.commit.assert_not_awaited()
@@ -47,12 +50,12 @@ async def test_whatsapp_purge_deletes_children_before_groups_without_committing(
 async def test_whatsapp_purge_scopes_every_delete_to_the_admin_agency() -> None:
     agency_id = uuid.uuid4()
     session = AsyncMock()
-    session.execute.side_effect = [_DeleteResult(0) for _ in range(5)]
+    session.execute.side_effect = [_DeleteResult(0) for _ in range(6)]
 
     await _delete_whatsapp_broadcast_data(session, agency_id=agency_id)
 
     statements = [call.args[0] for call in session.execute.await_args_list]
-    assert len(statements) == 5
+    assert len(statements) == 6
     for statement in statements:
         compiled = statement.compile()
         assert statement.whereclause is not None

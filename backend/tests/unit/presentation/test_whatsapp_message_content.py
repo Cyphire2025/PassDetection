@@ -80,6 +80,7 @@ class WhatsAppCreateGroupCompatibilityTests(unittest.IsolatedAsyncioTestCase):
                 contacts_json=(
                     '[{"name":"Aarav Sharma","phone_number":"+91 98765 43210"}]'
                 ),
+                rejected_contacts_json="[]",
                 support_contacts_json=(
                     '[{"name":"Support Desk","phone_number":"+91 98765 43211"}]'
                 ),

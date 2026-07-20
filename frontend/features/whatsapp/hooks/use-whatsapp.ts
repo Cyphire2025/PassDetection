@@ -5,6 +5,13 @@ import { whatsappApi } from "../api/whatsapp.api";
 export const WHATSAPP_QUERY_KEYS = {
   groups: ["whatsapp", "groups"] as const,
   group: (groupId: string) => ["whatsapp", "groups", groupId] as const,
+  rejectedContacts: (groupId: string) =>
+    ["whatsapp", "groups", groupId, "rejected-contacts"] as const,
+  rejectedContactsPage: (groupId: string, limit: number, offset: number) =>
+    [
+      ...WHATSAPP_QUERY_KEYS.rejectedContacts(groupId),
+      { limit, offset },
+    ] as const,
 };
 
 export function useWhatsAppGroups() {
@@ -36,6 +43,28 @@ export function useWhatsAppGroup(groupId: string | null) {
   });
 }
 
+export function useWhatsAppRejectedContacts({
+  groupId,
+  enabled,
+  limit,
+  offset,
+}: {
+  groupId: string;
+  enabled: boolean;
+  limit: number;
+  offset: number;
+}) {
+  return useQuery({
+    queryKey: WHATSAPP_QUERY_KEYS.rejectedContactsPage(
+      groupId,
+      limit,
+      offset,
+    ),
+    queryFn: () => whatsappApi.rejectedContacts({ groupId, limit, offset }),
+    enabled,
+  });
+}
+
 export function useCreateWhatsAppGroup() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -64,6 +93,9 @@ export function useAddWhatsAppRecipients() {
     onSuccess: (group) => {
       queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+      queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
+      });
     },
   });
 }

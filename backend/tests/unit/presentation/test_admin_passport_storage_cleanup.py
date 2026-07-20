@@ -246,6 +246,7 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
                 return_value=_WhatsAppPurgeCounts(
                     broadcast_groups=0,
                     recipients=0,
+                    rejected_contacts=0,
                     support_contacts=0,
                     message_logs=0,
                     delivery_states=0,
@@ -303,6 +304,7 @@ async def test_agency_purge_scopes_submissions_through_authorized_groups() -> No
                 return_value=_WhatsAppPurgeCounts(
                     broadcast_groups=0,
                     recipients=0,
+                    rejected_contacts=0,
                     support_contacts=0,
                     message_logs=0,
                     delivery_states=0,

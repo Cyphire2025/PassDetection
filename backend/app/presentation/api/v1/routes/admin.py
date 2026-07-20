@@ -32,6 +32,7 @@ from app.infrastructure.database.models import (
     UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastRejectedContactModel,
     WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
@@ -63,6 +64,7 @@ DEFAULT_PLATFORM_SETTINGS = PlatformSettingsResponse().model_dump(exclude={"upda
 class _WhatsAppPurgeCounts:
     broadcast_groups: int
     recipients: int
+    rejected_contacts: int
     support_contacts: int
     message_logs: int
     delivery_states: int
@@ -647,6 +649,7 @@ async def purge_passport_data(
         deleted_storage_objects=deleted_storage_objects,
         deleted_whatsapp_broadcast_groups=whatsapp_counts.broadcast_groups,
         deleted_whatsapp_recipients=whatsapp_counts.recipients,
+        deleted_whatsapp_rejected_contacts=whatsapp_counts.rejected_contacts,
         deleted_whatsapp_support_contacts=whatsapp_counts.support_contacts,
         deleted_whatsapp_message_logs=whatsapp_counts.message_logs,
         deleted_whatsapp_delivery_states=whatsapp_counts.delivery_states,
@@ -739,17 +742,19 @@ async def _delete_whatsapp_broadcast_data(
         return int(result.rowcount or 0)
 
     # Message logs and delivery states reference both groups and recipients,
-    # while support contacts and recipients reference groups. Keep this
+    # while support contacts, rejected contacts, and recipients reference groups. Keep this
     # explicit instead of relying on database cascades so counts stay accurate
     # and the order is portable.
     message_logs = await delete_model(WhatsAppMessageLogModel)
     delivery_states = await delete_model(WhatsAppRecipientMessageStateModel)
     support_contacts = await delete_model(WhatsAppBroadcastSupportContactModel)
+    rejected_contacts = await delete_model(WhatsAppBroadcastRejectedContactModel)
     recipients = await delete_model(WhatsAppBroadcastRecipientModel)
     broadcast_groups = await delete_model(WhatsAppBroadcastGroupModel)
     return _WhatsAppPurgeCounts(
         broadcast_groups=broadcast_groups,
         recipients=recipients,
+        rejected_contacts=rejected_contacts,
         support_contacts=support_contacts,
         message_logs=message_logs,
         delivery_states=delivery_states,

@@ -1,5 +1,9 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import type {
+  RecipientImportPreview,
+  RecipientImportRejectionReasonCode,
+} from "../utils/recipient-import";
 
 export interface WhatsAppRecipientInput {
   name?: string | null;
@@ -21,14 +25,29 @@ export interface WhatsAppRecipient {
   message_statuses: WhatsAppRecipientMessageStatus[];
 }
 
-export interface WhatsAppContactPreviewResponse {
-  recipient_count: number;
-  recipients: Array<{
-    name: string;
-    phone_number: string;
-    imported_fields: Record<string, string>;
-  }>;
+export interface WhatsAppRejectedContactInput {
+  source_file_name: string;
+  sheet_name: string;
+  row_number: number;
+  raw_name: string | null;
+  raw_phone_number: string | null;
+  reason_code: RecipientImportRejectionReasonCode;
 }
+
+export interface WhatsAppRejectedContact extends WhatsAppRejectedContactInput {
+  id: string;
+  reason: string;
+  created_at: string;
+}
+
+export interface WhatsAppRejectedContactPage {
+  items: WhatsAppRejectedContact[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export type WhatsAppContactPreviewResponse = RecipientImportPreview;
 
 export interface WhatsAppRecipientMessageStatus {
   message_type: string;
@@ -59,6 +78,7 @@ export interface WhatsAppBroadcastGroup {
 export interface WhatsAppBroadcastGroupDetail extends WhatsAppBroadcastGroup {
   recipients: WhatsAppRecipient[];
   support_contacts: WhatsAppSupportContact[];
+  rejected_contact_count: number;
 }
 
 export type WhatsAppMessageType = "welcome" | "passport_link";
@@ -155,12 +175,14 @@ export const whatsappApi = {
   createGroup: async ({
     name,
     contacts,
+    rejectedContacts,
     supportContacts,
     recipientOptInConfirmed,
     file,
   }: {
     name: string;
     contacts: WhatsAppRecipientInput[];
+    rejectedContacts: WhatsAppRejectedContactInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
     file?: File | null;
@@ -168,6 +190,10 @@ export const whatsappApi = {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("contacts_json", JSON.stringify(contacts));
+    formData.append(
+      "rejected_contacts_json",
+      JSON.stringify(rejectedContacts),
+    );
     formData.append("support_contacts_json", JSON.stringify(supportContacts));
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
     if (file) formData.append("contacts_file", file);
@@ -202,22 +228,44 @@ export const whatsappApi = {
   addRecipients: async ({
     groupId,
     contacts,
+    rejectedContacts,
     recipientOptInConfirmed,
     file,
   }: {
     groupId: string;
     contacts: WhatsAppRecipientInput[];
+    rejectedContacts: WhatsAppRejectedContactInput[];
     recipientOptInConfirmed: boolean;
     file?: File | null;
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
     formData.append("contacts_json", JSON.stringify(contacts));
+    formData.append(
+      "rejected_contacts_json",
+      JSON.stringify(rejectedContacts),
+    );
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
     if (file) formData.append("contacts_file", file);
     const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
       API_ENDPOINTS.whatsapp.recipients(groupId),
       formData,
       { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return data;
+  },
+
+  rejectedContacts: async ({
+    groupId,
+    limit,
+    offset,
+  }: {
+    groupId: string;
+    limit: number;
+    offset: number;
+  }): Promise<WhatsAppRejectedContactPage> => {
+    const { data } = await apiClient.get<WhatsAppRejectedContactPage>(
+      API_ENDPOINTS.whatsapp.rejectedContacts(groupId),
+      { params: { limit, offset } },
     );
     return data;
   },

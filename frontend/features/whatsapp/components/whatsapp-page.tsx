@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertTriangle,
   CheckCircle2,
   FileSpreadsheet,
   Info,
@@ -20,6 +21,7 @@ import {
   type FormEvent,
   type SetStateAction,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
@@ -45,6 +47,7 @@ import {
   type WhatsAppBroadcastGroup,
   type WhatsAppMessageType,
   type WhatsAppPreviewResponse,
+  type WhatsAppRejectedContactInput,
   type WhatsAppRecipientInput,
   type WhatsAppRecipientMessageStatus,
   type WhatsAppSendResponse,
@@ -63,13 +66,18 @@ import {
   useWhatsAppBatchStatus,
   useWhatsAppGroup,
   useWhatsAppGroups,
+  useWhatsAppRejectedContacts,
 } from "../hooks/use-whatsapp";
 import {
   countEligibleRecipients,
   getMessageStatus,
   hasAlreadySentMessage,
 } from "../utils/recipient-delivery";
-import { mergeRecipientImportContacts } from "../utils/recipient-import";
+import {
+  mergeRecipientImportRejectedRows,
+  mergeRecipientImportPreview,
+  type RecipientImportRejectedRowWithSource,
+} from "../utils/recipient-import";
 import { mergeWhatsAppSendProgress } from "../utils/send-progress";
 
 type MessageTarget = {
@@ -92,9 +100,12 @@ type RecipientResendTarget = {
   messageType: WhatsAppMessageType;
 };
 
+type RejectedContactDraft = RecipientImportRejectedRowWithSource;
+
 const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
+const REJECTED_CONTACT_PAGE_SIZE = 50;
 
 function importedFieldLabel(value: string): string {
   return value
@@ -104,15 +115,32 @@ function importedFieldLabel(value: string): string {
     .join(" ");
 }
 
+function toRejectedContactInputs(
+  contacts: RejectedContactDraft[],
+): WhatsAppRejectedContactInput[] {
+  return contacts.map((contact) => ({
+    source_file_name: contact.source_file_name,
+    sheet_name: contact.sheet_name,
+    row_number: contact.row_number,
+    raw_name: contact.raw_name,
+    raw_phone_number: contact.raw_phone_number,
+    reason_code: contact.reason_code,
+  }));
+}
+
 type RecipientImportState =
   | { status: "idle" }
   | { status: "loading"; fileName: string }
   | {
       status: "success";
       fileName: string;
-      importedCount: number;
+      acceptedCount: number;
       addedCount: number;
       duplicateCount: number;
+      rejectedCount: number;
+      rejectedRows: RejectedContactDraft[];
+      rejectedRowsTruncated: boolean;
+      omittedRejectedCount: number;
     }
   | { status: "error"; fileName: string; message: string };
 
@@ -134,6 +162,11 @@ function useRecipientExcelPreview({
   const controllerRef = useRef<AbortController | null>(null);
   const contactsRef = useRef(contacts);
   const excludedPhoneNumbersRef = useRef(excludedPhoneNumbers);
+  const rejectedContactsRef = useRef<RejectedContactDraft[]>([]);
+  const omittedRejectedCountsRef = useRef(new Map<string, number>());
+  const [rejectedContacts, setRejectedContacts] = useState<
+    RejectedContactDraft[]
+  >([]);
 
   useEffect(() => {
     contactsRef.current = contacts;
@@ -164,19 +197,42 @@ function useRecipientExcelPreview({
       const preview = await whatsappApi.previewContacts(file, controller.signal);
       if (requestId !== requestIdRef.current || controller.signal.aborted) return;
 
-      const merged = mergeRecipientImportContacts(
+      const merged = mergeRecipientImportPreview(
         contactsRef.current,
-        preview.recipients,
+        preview,
         excludedPhoneNumbersRef.current,
       );
       contactsRef.current = merged.contacts;
       setContacts(merged.contacts);
+      const accumulatedRejectedRows = mergeRecipientImportRejectedRows(
+        rejectedContactsRef.current,
+        merged.rejectedRows,
+        file.name,
+      );
+      rejectedContactsRef.current = accumulatedRejectedRows;
+      omittedRejectedCountsRef.current.set(
+        file.name,
+        merged.omittedRejectedCount,
+      );
+      const accumulatedOmittedRejectedCount = Array.from(
+        omittedRejectedCountsRef.current.values(),
+      ).reduce(
+        (total, omittedCount) => total + omittedCount,
+        0,
+      );
+      const accumulatedRejectedCount =
+        accumulatedRejectedRows.length + accumulatedOmittedRejectedCount;
+      setRejectedContacts(accumulatedRejectedRows);
       setImportState({
         status: "success",
         fileName: file.name,
-        importedCount: preview.recipient_count,
+        acceptedCount: merged.acceptedCount,
         addedCount: merged.addedCount,
         duplicateCount: merged.duplicateCount,
+        rejectedCount: accumulatedRejectedCount,
+        rejectedRows: accumulatedRejectedRows,
+        rejectedRowsTruncated: accumulatedOmittedRejectedCount > 0,
+        omittedRejectedCount: accumulatedOmittedRejectedCount,
       });
     } catch (previewError) {
       if (requestId !== requestIdRef.current || controller.signal.aborted) return;
@@ -197,10 +253,13 @@ function useRecipientExcelPreview({
     requestIdRef.current += 1;
     controllerRef.current?.abort();
     controllerRef.current = null;
+    rejectedContactsRef.current = [];
+    omittedRejectedCountsRef.current.clear();
+    setRejectedContacts([]);
     setImportState({ status: "idle" });
   };
 
-  return { importState, previewFile, resetImport };
+  return { importState, previewFile, rejectedContacts, resetImport };
 }
 
 function ExcelRecipientImport({
@@ -214,6 +273,7 @@ function ExcelRecipientImport({
 }) {
   const isLoading = state.status === "loading";
   const fileName = state.status === "idle" ? null : state.fileName;
+  const rejectionTitleId = useId();
 
   return (
     <div className="space-y-2">
@@ -228,6 +288,8 @@ function ExcelRecipientImport({
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
             {isLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
+            ) : state.status === "success" && state.rejectedCount > 0 ? (
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
             ) : state.status === "success" ? (
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             ) : (
@@ -259,19 +321,100 @@ function ExcelRecipientImport({
         />
       </label>
 
-      <div aria-live="polite">
+      <div>
         {state.status === "success" && (
-          <p className="text-sm text-emerald-700">
-            {state.addedCount} recipient{state.addedCount === 1 ? "" : "s"} added
-            from {state.importedCount} validated spreadsheet contact
-            {state.importedCount === 1 ? "" : "s"}.
-            {state.duplicateCount > 0
-              ? ` ${state.duplicateCount} duplicate${state.duplicateCount === 1 ? " was" : "s were"} skipped.`
-              : " You can edit or remove them above before saving."}
-          </p>
+          <div className="space-y-3">
+            <p
+              role="status"
+              className={`text-sm ${
+                state.rejectedCount > 0
+                  ? "text-amber-800"
+                  : "text-emerald-700"
+              }`}
+            >
+              {state.addedCount} recipient{state.addedCount === 1 ? "" : "s"}{" "}
+              added from {state.acceptedCount} valid spreadsheet contact
+              {state.acceptedCount === 1 ? "" : "s"}.
+              {state.duplicateCount > 0
+                ? ` ${state.duplicateCount} contact${state.duplicateCount === 1 ? " was" : "s were"} skipped because the number is already in this list or broadcast.`
+                : " You can edit or remove the accepted recipients above before saving."}
+            </p>
+            {state.rejectedCount > 0 && (
+              <section
+                className="rounded-xl border border-amber-200 bg-amber-50/60 p-3"
+                aria-labelledby={rejectionTitleId}
+              >
+                <h4
+                  id={rejectionTitleId}
+                  className="font-semibold text-amber-900"
+                >
+                  {state.rejectedCount} spreadsheet row
+                  {state.rejectedCount === 1 ? "" : "s"} need attention
+                </h4>
+                <p className="mt-1 text-xs text-amber-800">
+                  Valid recipients were kept. The rows shown below will be
+                  saved with this broadcast for correction, but they cannot
+                  receive messages.
+                  {state.rejectedRowsTruncated &&
+                    ` ${state.omittedRejectedCount} additional rejected row${state.omittedRejectedCount === 1 ? " was" : "s were"} counted but could not be included in this preview.`}
+                </p>
+                {state.rejectedRows.length > 0 && (
+                  <div
+                    className="mt-3 max-h-64 overflow-auto rounded-lg border border-amber-200 bg-white"
+                    tabIndex={0}
+                    aria-label="Rejected spreadsheet rows"
+                  >
+                    <table className="w-full min-w-[880px] text-left text-xs">
+                      <thead className="sticky top-0 border-b border-amber-200 bg-amber-50 text-amber-900">
+                        <tr>
+                          <th className="px-3 py-2 font-semibold">
+                            Source file
+                          </th>
+                          <th className="px-3 py-2 font-semibold">
+                            Sheet and row
+                          </th>
+                          <th className="px-3 py-2 font-semibold">Raw name</th>
+                          <th className="px-3 py-2 font-semibold">
+                            Raw WhatsApp number
+                          </th>
+                          <th className="px-3 py-2 font-semibold">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-amber-100">
+                        {state.rejectedRows.map((row, index) => (
+                          <tr
+                            key={`${row.source_file_name}:${row.sheet_name}:${row.row_number}:${index}`}
+                            className="align-top text-slate-700"
+                          >
+                            <td className="max-w-48 break-words px-3 py-2">
+                              {row.source_file_name}
+                            </td>
+                            <td className="whitespace-nowrap px-3 py-2 font-medium">
+                              {row.sheet_name}, row {row.row_number}
+                            </td>
+                            <td className="max-w-48 break-words px-3 py-2">
+                              {row.raw_name?.trim() || "Blank"}
+                            </td>
+                            <td className="max-w-48 break-words px-3 py-2 font-mono">
+                              {row.raw_phone_number?.trim() || "Blank"}
+                            </td>
+                            <td className="max-w-64 break-words px-3 py-2">
+                              {row.reason}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
         )}
         {state.status === "error" && (
-          <p className="text-sm text-red-700">{state.message}</p>
+          <p role="alert" className="text-sm text-red-700">
+            {state.message}
+          </p>
         )}
       </div>
     </div>
@@ -567,6 +710,7 @@ export function WhatsAppPage() {
 
       {recipientListGroup && (
         <RecipientListDialog
+          key={recipientListGroup.id}
           group={recipientListGroup}
           onClose={() => setRecipientListGroup(null)}
         />
@@ -692,7 +836,12 @@ function ActionMenu({
             <button
               type="button"
               className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-              disabled={isSending}
+              disabled={isSending || group.recipient_count === 0}
+              title={
+                group.recipient_count === 0
+                  ? "Add a valid recipient before sending"
+                  : undefined
+              }
               onClick={onWelcome}
             >
               <Send className="h-4 w-4" />
@@ -701,7 +850,12 @@ function ActionMenu({
             <button
               type="button"
               className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-              disabled={isSending}
+              disabled={isSending || group.recipient_count === 0}
+              title={
+                group.recipient_count === 0
+                  ? "Add a valid recipient before sending"
+                  : undefined
+              }
               onClick={onPassportLink}
             >
               <Send className="h-4 w-4" />
@@ -751,6 +905,8 @@ function RecipientListDialog({
   });
   const [contacts, setContacts] = useState<ManualContact[]>([]);
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
+  const [showRejectedContacts, setShowRejectedContacts] = useState(false);
+  const [rejectedContactOffset, setRejectedContactOffset] = useState(0);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -767,7 +923,12 @@ function RecipientListDialog({
   const detailsInFlightRef = useRef(false);
   const recipientsInFlightRef = useRef(false);
   const resendInFlightRef = useRef(false);
-  const { importState, previewFile, resetImport } = useRecipientExcelPreview({
+  const {
+    importState,
+    previewFile,
+    rejectedContacts,
+    resetImport,
+  } = useRecipientExcelPreview({
     contacts,
     setContacts,
     excludedPhoneNumbers:
@@ -777,6 +938,18 @@ function RecipientListDialog({
       setRecipientError(null);
       setSuccessMessage(null);
     },
+  });
+  const rejectedContactCount = detail?.rejected_contact_count ?? 0;
+  const {
+    data: rejectedContactPage,
+    isLoading: rejectedContactsLoading,
+    error: rejectedContactsError,
+    refetch: refetchRejectedContacts,
+  } = useWhatsAppRejectedContacts({
+    groupId: group.id,
+    enabled: showRejectedContacts && rejectedContactCount > 0,
+    limit: REJECTED_CONTACT_PAGE_SIZE,
+    offset: rejectedContactOffset,
   });
 
   useEffect(() => {
@@ -850,9 +1023,9 @@ function RecipientListDialog({
       setRecipientError("Wait for the Excel contacts to finish loading.");
       return;
     }
-    if (contacts.length === 0) {
+    if (contacts.length === 0 && rejectedContacts.length === 0) {
       setRecipientError(
-        "Add at least one named recipient or select an Excel file.",
+        "Add at least one named recipient or import rejected rows for correction.",
       );
       return;
     }
@@ -866,7 +1039,7 @@ function RecipientListDialog({
       );
       return;
     }
-    if (!recipientOptInConfirmed) {
+    if (contacts.length > 0 && !recipientOptInConfirmed) {
       setRecipientError(
         "Confirm that the new recipients agreed to receive WhatsApp updates.",
       );
@@ -881,13 +1054,18 @@ function RecipientListDialog({
       const updated = await addRecipientsMutation.mutateAsync({
         groupId: group.id,
         contacts,
-        recipientOptInConfirmed,
+        rejectedContacts: toRejectedContactInputs(rejectedContacts),
+        recipientOptInConfirmed:
+          contacts.length > 0 && recipientOptInConfirmed,
       });
+      const savedRejectedCount = rejectedContacts.length;
       setContacts([]);
       resetImport();
       setRecipientOptInConfirmed(false);
+      setShowRejectedContacts(false);
+      setRejectedContactOffset(0);
       setSuccessMessage(
-        `Recipient list updated. It now contains ${updated.recipient_count} recipient${updated.recipient_count === 1 ? "" : "s"}.`,
+        `Recipient list updated. It now contains ${updated.recipient_count} valid recipient${updated.recipient_count === 1 ? "" : "s"}.${savedRejectedCount > 0 ? ` ${savedRejectedCount} rejected contact${savedRejectedCount === 1 ? " was" : "s were"} saved for correction.` : ""}`,
       );
     } catch (updateError) {
       setRecipientError(
@@ -1116,9 +1294,26 @@ function RecipientListDialog({
                     again to that one person.
                   </p>
                 </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-                  {detail.recipient_count} total
-                </span>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+                    {detail.recipient_count} valid
+                  </span>
+                  {detail.rejected_contact_count > 0 && (
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+                      aria-expanded={showRejectedContacts}
+                      aria-controls="saved-rejected-contacts"
+                      onClick={() => {
+                        setRejectedContactOffset(0);
+                        setShowRejectedContacts((current) => !current);
+                      }}
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Rejected contacts ({detail.rejected_contact_count})
+                    </button>
+                  )}
+                </div>
               </div>
 
               {displayedResendError && (
@@ -1315,6 +1510,152 @@ function RecipientListDialog({
                   </tbody>
                 </table>
               </div>
+
+              {showRejectedContacts && (
+                <section
+                  id="saved-rejected-contacts"
+                  className="mt-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4"
+                >
+                  <div>
+                    <h4 className="font-semibold text-amber-950">
+                      Rejected contacts
+                    </h4>
+                    <p className="mt-1 text-sm text-amber-800">
+                      These spreadsheet rows are saved for correction only.
+                      They are not valid recipients and will never receive a
+                      WhatsApp message.
+                    </p>
+                  </div>
+
+                  {rejectedContactsError ? (
+                    <div className="mt-3 rounded-lg border border-red-200 bg-white p-3">
+                      <p role="alert" className="text-sm text-red-700">
+                        The rejected contacts could not be loaded.
+                      </p>
+                      <button
+                        type="button"
+                        className="mt-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                        onClick={() => void refetchRejectedContacts()}
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  ) : rejectedContactsLoading || !rejectedContactPage ? (
+                    <div
+                      className="mt-3 space-y-2"
+                      role="status"
+                      aria-label="Loading rejected contacts"
+                    >
+                      <Skeleton className="h-10" />
+                      <Skeleton className="h-10" />
+                    </div>
+                  ) : rejectedContactPage.items.length === 0 ? (
+                    <p className="mt-3 rounded-lg border border-amber-200 bg-white p-3 text-sm text-amber-800">
+                      No rejected contacts were found on this page.
+                    </p>
+                  ) : (
+                    <>
+                      <div
+                        className="mt-3 max-h-72 overflow-auto rounded-lg border border-amber-200 bg-white"
+                        tabIndex={0}
+                        aria-label="Saved rejected contacts"
+                      >
+                        <table className="w-full min-w-[900px] text-left text-xs">
+                          <thead className="sticky top-0 border-b border-amber-200 bg-amber-50 text-amber-950">
+                            <tr>
+                              <th className="px-3 py-2 font-semibold">
+                                Source file
+                              </th>
+                              <th className="px-3 py-2 font-semibold">
+                                Sheet and row
+                              </th>
+                              <th className="px-3 py-2 font-semibold">
+                                Entered name
+                              </th>
+                              <th className="px-3 py-2 font-semibold">
+                                Entered phone
+                              </th>
+                              <th className="px-3 py-2 font-semibold">
+                                Reason
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-amber-100">
+                            {rejectedContactPage.items.map((contact) => (
+                              <tr
+                                key={contact.id}
+                                className="align-top text-slate-700"
+                              >
+                                <td className="max-w-48 break-words px-3 py-2">
+                                  {contact.source_file_name}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-2 font-medium">
+                                  {contact.sheet_name}, row {contact.row_number}
+                                </td>
+                                <td className="max-w-48 break-words px-3 py-2">
+                                  {contact.raw_name?.trim() || "Blank"}
+                                </td>
+                                <td className="max-w-48 break-words px-3 py-2 font-mono">
+                                  {contact.raw_phone_number?.trim() || "Blank"}
+                                </td>
+                                <td className="max-w-64 break-words px-3 py-2">
+                                  {contact.reason}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900">
+                        <span>
+                          Showing {rejectedContactPage.offset + 1}-
+                          {Math.min(
+                            rejectedContactPage.offset +
+                              rejectedContactPage.items.length,
+                            rejectedContactPage.total,
+                          )}{" "}
+                          of {rejectedContactPage.total}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={rejectedContactPage.offset === 0}
+                            onClick={() =>
+                              setRejectedContactOffset((current) =>
+                                Math.max(
+                                  0,
+                                  current - REJECTED_CONTACT_PAGE_SIZE,
+                                ),
+                              )
+                            }
+                          >
+                            Previous
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={
+                              rejectedContactPage.offset +
+                                rejectedContactPage.items.length >=
+                              rejectedContactPage.total
+                            }
+                            onClick={() =>
+                              setRejectedContactOffset(
+                                rejectedContactPage.offset +
+                                  REJECTED_CONTACT_PAGE_SIZE,
+                              )
+                            }
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </section>
+              )}
             </section>
 
             <section className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/30 p-4">
@@ -1322,7 +1663,8 @@ function RecipientListDialog({
                 <h3 className="font-semibold text-slate-900">Add recipients</h3>
                 <p className="mt-1 text-sm text-slate-500">
                   Add people manually or import an Excel file. Existing phone
-                  numbers are safely ignored.
+                  numbers are safely ignored, and invalid rows can be saved for
+                  correction.
                 </p>
               </div>
 
@@ -1358,20 +1700,28 @@ function RecipientListDialog({
                 label="Upload additional Excel contacts"
               />
 
-              <label className="flex items-start gap-3 rounded-xl border border-blue-100 bg-white p-4 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  checked={recipientOptInConfirmed}
-                  onChange={(event) =>
-                    setRecipientOptInConfirmed(event.target.checked)
-                  }
-                />
-                <span>
-                  I confirm the new recipients agreed to receive trip-related
-                  WhatsApp updates.
-                </span>
-              </label>
+              {contacts.length > 0 ? (
+                <label className="flex items-start gap-3 rounded-xl border border-blue-100 bg-white p-4 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    checked={recipientOptInConfirmed}
+                    onChange={(event) =>
+                      setRecipientOptInConfirmed(event.target.checked)
+                    }
+                  />
+                  <span>
+                    I confirm the new recipients agreed to receive trip-related
+                    WhatsApp updates.
+                  </span>
+                </label>
+              ) : rejectedContacts.length > 0 ? (
+                <p className="rounded-xl border border-amber-200 bg-white p-4 text-sm text-amber-800">
+                  This import has no valid recipients. You can still save its
+                  rejected rows for correction; no WhatsApp messages can be
+                  sent to them.
+                </p>
+              ) : null}
 
               {recipientError && <ErrorBanner message={recipientError} />}
               <div className="flex justify-end">
@@ -1379,8 +1729,9 @@ function RecipientListDialog({
                   type="button"
                   isLoading={addRecipientsMutation.isPending}
                   disabled={
-                    contacts.length === 0 ||
-                    !recipientOptInConfirmed ||
+                    (contacts.length === 0 &&
+                      rejectedContacts.length === 0) ||
+                    (contacts.length > 0 && !recipientOptInConfirmed) ||
                     importState.status === "loading"
                   }
                   onClick={addRecipients}
@@ -1522,6 +1873,7 @@ function CreateBroadcastDialog({
   onSubmit: (payload: {
     name: string;
     contacts: WhatsAppRecipientInput[];
+    rejectedContacts: WhatsAppRejectedContactInput[];
     supportContacts: WhatsAppSupportContactInput[];
     recipientOptInConfirmed: boolean;
   }) => Promise<void>;
@@ -1540,11 +1892,12 @@ function CreateBroadcastDialog({
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitInFlightRef = useRef(false);
-  const { importState, previewFile } = useRecipientExcelPreview({
-    contacts,
-    setContacts,
-    onStart: () => setError(null),
-  });
+  const { importState, previewFile, rejectedContacts } =
+    useRecipientExcelPreview({
+      contacts,
+      setContacts,
+      onStart: () => setError(null),
+    });
 
   const addContact = (
     value: ManualContact,
@@ -1575,8 +1928,10 @@ function CreateBroadcastDialog({
       setError("Enter a group name.");
       return;
     }
-    if (contacts.length === 0) {
-      setError("Add at least one named recipient or upload an Excel file.");
+    if (contacts.length === 0 && rejectedContacts.length === 0) {
+      setError(
+        "Add at least one named recipient or import rejected rows for correction.",
+      );
       return;
     }
     if (
@@ -1591,7 +1946,7 @@ function CreateBroadcastDialog({
       setError("Add at least one customer support contact.");
       return;
     }
-    if (!recipientOptInConfirmed) {
+    if (contacts.length > 0 && !recipientOptInConfirmed) {
       setError(
         "Confirm that recipients agreed to receive trip updates on WhatsApp.",
       );
@@ -1603,8 +1958,10 @@ function CreateBroadcastDialog({
       await onSubmit({
         name: name.trim(),
         contacts,
+        rejectedContacts: toRejectedContactInputs(rejectedContacts),
         supportContacts,
-        recipientOptInConfirmed,
+        recipientOptInConfirmed:
+          contacts.length > 0 && recipientOptInConfirmed,
       });
     } catch (submitError) {
       setError(
@@ -1695,20 +2052,28 @@ function CreateBroadcastDialog({
           }
         />
 
-        <label className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-            checked={recipientOptInConfirmed}
-            onChange={(event) =>
-              setRecipientOptInConfirmed(event.target.checked)
-            }
-          />
-          <span>
-            I confirm these recipients agreed to receive trip-related WhatsApp
-            updates and can request that messages stop.
-          </span>
-        </label>
+        {contacts.length > 0 ? (
+          <label className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              checked={recipientOptInConfirmed}
+              onChange={(event) =>
+                setRecipientOptInConfirmed(event.target.checked)
+              }
+            />
+            <span>
+              I confirm these recipients agreed to receive trip-related
+              WhatsApp updates and can request that messages stop.
+            </span>
+          </label>
+        ) : rejectedContacts.length > 0 ? (
+          <p className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-800">
+            This broadcast currently has no valid recipients. Its rejected
+            spreadsheet rows will be saved for correction and cannot receive
+            WhatsApp messages.
+          </p>
+        ) : null}
 
         {error && <ErrorBanner message={error} />}
 

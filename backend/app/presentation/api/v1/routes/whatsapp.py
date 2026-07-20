@@ -10,10 +10,11 @@ import logging
 import math
 import re
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from itertools import islice
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlparse
 from zipfile import BadZipFile, ZipFile
 
@@ -63,6 +64,7 @@ from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppBroadcastRejectedContactModel,
     WhatsAppBroadcastSupportContactModel,
     WhatsAppMessageLogModel,
     WhatsAppRecipientMessageStateModel,
@@ -111,6 +113,9 @@ MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
 MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
 MAX_WHATSAPP_EXCEL_SHEETS = 50
+MAX_WHATSAPP_EXCEL_ROWS = 2_000
+MAX_WHATSAPP_REJECTED_ROWS = 500
+MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = 500
 MAX_WHATSAPP_IMPORTED_FIELDS = 32
 MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
 MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
@@ -130,9 +135,70 @@ class WhatsAppContactPreviewRecipient(BaseModel):
     imported_fields: dict[str, str] = Field(default_factory=dict)
 
 
+WhatsAppContactRejectionCode = Literal[
+    "missing_phone",
+    "invalid_phone",
+    "missing_name",
+    "duplicate_phone",
+]
+
+
+class WhatsAppContactPreviewRejectedRow(BaseModel):
+    sheet_name: str = Field(min_length=1, max_length=31)
+    row_number: int = Field(ge=1)
+    raw_name: str | None = Field(default=None, max_length=256)
+    raw_phone_number: str | None = Field(default=None, max_length=64)
+    reason_code: WhatsAppContactRejectionCode
+    reason: str = Field(min_length=1, max_length=256)
+
+
 class WhatsAppContactPreviewResponse(BaseModel):
     recipient_count: int
+    accepted_count: int
     recipients: list[WhatsAppContactPreviewRecipient]
+    rejected_count: int
+    rejected_rows: list[WhatsAppContactPreviewRejectedRow]
+    rejected_rows_truncated: bool
+    omitted_rejected_count: int
+
+
+@dataclass(slots=True)
+class _WhatsAppExcelContactParseResult:
+    contacts: list[WhatsAppRecipientInput]
+    rejected_rows: list[WhatsAppContactPreviewRejectedRow]
+    rejected_counts: dict[WhatsAppContactRejectionCode, int]
+
+    @property
+    def rejected_count(self) -> int:
+        return sum(self.rejected_counts.values())
+
+
+class WhatsAppRejectedContactInput(BaseModel):
+    source_file_name: str = Field(min_length=1, max_length=255)
+    sheet_name: str = Field(min_length=1, max_length=31)
+    row_number: int = Field(ge=1, le=1_048_576)
+    raw_name: str | None = Field(default=None, max_length=256)
+    raw_phone_number: str | None = Field(default=None, max_length=64)
+    reason_code: WhatsAppContactRejectionCode
+
+
+class WhatsAppRejectedContactResponse(BaseModel):
+    id: uuid.UUID
+    source_file_name: str
+    sheet_name: str
+    row_number: int
+    raw_name: str | None
+    raw_phone_number: str | None
+    reason_code: WhatsAppContactRejectionCode
+    reason: str
+    created_at: datetime
+
+
+class WhatsAppRejectedContactListResponse(BaseModel):
+    items: list[WhatsAppRejectedContactResponse]
+    total: int
+    limit: int
+    offset: int
 
 
 class WhatsAppSupportContactInput(BaseModel):
@@ -181,6 +247,7 @@ class WhatsAppBroadcastGroupResponse(BaseModel):
 class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
     recipients: list[WhatsAppRecipientResponse]
     support_contacts: list[WhatsAppSupportContactResponse]
+    rejected_contact_count: int
 
 
 class WhatsAppSendRequest(BaseModel):
@@ -897,6 +964,136 @@ def _excel_name_from_row(
     return None
 
 
+def _excel_raw_name_from_row(
+    row_values: list[Any],
+    *,
+    name_columns: list[int],
+    given_name_columns: list[int],
+    surname_columns: list[int],
+    phone_columns: list[int],
+) -> str | None:
+    for index in name_columns:
+        if index >= len(row_values):
+            continue
+        if value := _excel_cell_text(row_values[index]):
+            return value[:256]
+    given_name = next(
+        (
+            _excel_cell_text(row_values[index])
+            for index in given_name_columns
+            if index < len(row_values) and _excel_cell_text(row_values[index])
+        ),
+        None,
+    )
+    surname = next(
+        (
+            _excel_cell_text(row_values[index])
+            for index in surname_columns
+            if index < len(row_values) and _excel_cell_text(row_values[index])
+        ),
+        None,
+    )
+    composed = " ".join(part for part in (given_name, surname) if part)
+    if composed:
+        return composed[:256]
+    if name_columns or given_name_columns or surname_columns:
+        return None
+    for index, value in enumerate(row_values):
+        if index in phone_columns:
+            continue
+        text = _excel_cell_text(value)
+        if text and any(character.isalpha() for character in text) and not PHONE_RE.search(text):
+            return text[:256]
+    return None
+
+
+def _bounded_excel_raw_value(value: Any, *, max_length: int) -> str | None:
+    text = _excel_cell_text(value)
+    if not text or _excel_header_label(text) in _EMPTY_EXCEL_VALUES:
+        return None
+    return text[:max_length]
+
+
+def _is_repeated_excel_header(
+    row_values: list[Any],
+    header_row: tuple[Any, ...],
+) -> bool:
+    identity_keys = {"given_names", "name", "phone_number", "surname"}
+
+    def identity_signature(values: list[Any] | tuple[Any, ...]) -> tuple[tuple[int, str], ...]:
+        return tuple(
+            (index, key)
+            for index, value in enumerate(values)
+            if (key := _excel_field_key(value)) in identity_keys
+        )
+
+    header_signature = identity_signature(header_row)
+    row_signature = identity_signature(row_values)
+    header_keys = {key for _, key in header_signature}
+    return (
+        "phone_number" in header_keys
+        and bool(header_keys & {"given_names", "name"})
+        and row_signature == header_signature
+    )
+
+
+def _row_has_contact_identity(
+    *,
+    name: str | None,
+    imported_fields: dict[str, str],
+) -> bool:
+    if name:
+        return True
+    return bool(
+        imported_fields.keys()
+        & {
+            "agent_code",
+            "email",
+            "passport_number",
+            "staff_code",
+        }
+    )
+
+
+_WHATSAPP_CONTACT_REJECTION_REASONS: dict[WhatsAppContactRejectionCode, str] = {
+    "missing_phone": "Add a WhatsApp number for this contact.",
+    "invalid_phone": (
+        "Use a 10-digit Indian mobile number, or an international number of "
+        "8 to 15 digits with its country code (prefix shorter numbers with + or 00)."
+    ),
+    "missing_name": "Add the recipient's name so staff can identify this contact.",
+    "duplicate_phone": (
+        "This WhatsApp number is already listed; its extra details were merged "
+        "into the first accepted contact."
+    ),
+}
+
+
+def _append_excel_contact_rejection(
+    rejected_rows: list[WhatsAppContactPreviewRejectedRow],
+    rejected_counts: dict[WhatsAppContactRejectionCode, int],
+    *,
+    sheet_name: str,
+    row_number: int,
+    raw_name: str | None,
+    raw_phone_number: str | None,
+    reason_code: WhatsAppContactRejectionCode,
+) -> None:
+    rejected_counts[reason_code] = rejected_counts.get(reason_code, 0) + 1
+    if len(rejected_rows) >= MAX_WHATSAPP_REJECTED_ROWS:
+        return
+    rejected_rows.append(
+        WhatsAppContactPreviewRejectedRow(
+            sheet_name=sheet_name,
+            row_number=row_number,
+            raw_name=raw_name,
+            raw_phone_number=raw_phone_number,
+            reason_code=reason_code,
+            reason=_WHATSAPP_CONTACT_REJECTION_REASONS[reason_code],
+        )
+    )
+
+
 def _excel_fields_from_row(
     *,
     header_row: tuple[Any, ...],
@@ -957,7 +1154,7 @@ def _parse_excel_contact_bytes(
     payload: bytes,
     *,
     filename: str,
-) -> list[WhatsAppRecipientInput]:
+) -> _WhatsAppExcelContactParseResult:
     suffix = filename.rsplit(".", maxsplit=1)[-1].lower()
     suffix = f".{suffix}" if "." in filename else ".xlsx"
     if suffix not in {".xlsx", ".xlsm"}:
@@ -983,22 +1180,26 @@ def _parse_excel_contact_bytes(
                     f"use at most {MAX_WHATSAPP_EXCEL_SHEETS}"
                 ),
             )
-        sheet_rows = [
-            (
-                sheet.title,
-                list(
-                    islice(
-                        sheet.iter_rows(values_only=True),
-                        (
-                            MAX_WHATSAPP_RECIPIENTS
-                            + MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
-                            + 1
-                        ),
-                    )
-                ),
+        sheet_rows: list[tuple[str, list[tuple[Any, ...]]]] = []
+        total_rows = 0
+        for sheet in worksheets:
+            remaining_rows = MAX_WHATSAPP_EXCEL_ROWS - total_rows
+            rows = list(
+                islice(
+                    sheet.iter_rows(values_only=True),
+                    remaining_rows + 1,
+                )
             )
-            for sheet in worksheets
-        ]
+            total_rows += len(rows)
+            if total_rows > MAX_WHATSAPP_EXCEL_ROWS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=(
+                        "The Excel contact file can contain at most "
+                        f"{MAX_WHATSAPP_EXCEL_ROWS} rows across all worksheets"
+                    ),
+                )
+            sheet_rows.append((sheet.title, rows))
     except HTTPException:
         raise
     except (BadZipFile, InvalidFileException, OSError, ValueError) as exc:
@@ -1020,10 +1221,15 @@ def _parse_excel_contact_bytes(
             workbook.close()
 
     if not any(rows for _, rows in sheet_rows):
-        return []
+        return _WhatsAppExcelContactParseResult(
+            contacts=[],
+            rejected_rows=[],
+            rejected_counts={},
+        )
 
     contacts_by_phone: dict[str, WhatsAppRecipientInput] = {}
-    invalid_phone_count = 0
+    rejected_rows: list[WhatsAppContactPreviewRejectedRow] = []
+    rejected_counts: dict[WhatsAppContactRejectionCode, int] = {}
     for sheet_index, (sheet_name, rows) in enumerate(sheet_rows):
         if not rows:
             continue
@@ -1038,6 +1244,7 @@ def _parse_excel_contact_bytes(
             ) = header_match
             header_row = rows[header_row_index]
             data_rows = rows[header_row_index + 1 :]
+            first_data_row_number = header_row_index + 2
         elif sheet_index == 0:
             header_row = ()
             phone_columns = []
@@ -1045,13 +1252,19 @@ def _parse_excel_contact_bytes(
             given_name_columns = []
             surname_columns = []
             data_rows = rows
+            first_data_row_number = 1
         else:
             # A multi-sheet workbook often contains notes or lookup sheets.
             # Never scan those heuristically for phone-like numbers.
             continue
 
-        for row in data_rows:
+        for row_number, row in enumerate(
+            data_rows,
+            start=first_data_row_number,
+        ):
             row_values = list(row)
+            if header_row and _is_repeated_excel_header(row_values, header_row):
+                continue
             candidates: list[tuple[str | None, str, dict[str, str]]] = []
             imported_fields = (
                 _excel_fields_from_row(
@@ -1062,32 +1275,55 @@ def _parse_excel_contact_bytes(
                 if header_row
                 else {}
             )
+            name = _excel_name_from_row(
+                row_values,
+                name_columns=name_columns,
+                given_name_columns=given_name_columns,
+                surname_columns=surname_columns,
+                phone_columns=phone_columns,
+            )
+            raw_name = _excel_raw_name_from_row(
+                row_values,
+                name_columns=name_columns,
+                given_name_columns=given_name_columns,
+                surname_columns=surname_columns,
+                phone_columns=phone_columns,
+            )
             if phone_columns:
-                name = _excel_name_from_row(
-                    row_values,
-                    name_columns=name_columns,
-                    given_name_columns=given_name_columns,
-                    surname_columns=surname_columns,
-                    phone_columns=phone_columns,
-                )
+                phone_values: list[str] = []
                 for index in phone_columns:
                     if index >= len(row_values):
                         continue
-                    phone = _excel_cell_text(row_values[index])
+                    phone = _bounded_excel_raw_value(
+                        row_values[index],
+                        max_length=64,
+                    )
                     if phone:
-                        candidates.append((name, phone, imported_fields))
+                        phone_values.append(phone)
+                if not phone_values:
+                    if _row_has_contact_identity(
+                        name=name,
+                        imported_fields=imported_fields,
+                    ):
+                        _append_excel_contact_rejection(
+                            rejected_rows,
+                            rejected_counts,
+                            sheet_name=sheet_name,
+                            row_number=row_number,
+                            raw_name=raw_name,
+                            raw_phone_number=None,
+                            reason_code="missing_phone",
+                        )
+                    continue
+                candidates.extend(
+                    (name, phone, imported_fields)
+                    for phone in phone_values
+                )
             else:
                 row_text = " ".join(
                     text
                     for cell in row_values
                     if (text := _excel_cell_text(cell))
-                )
-                name = _excel_name_from_row(
-                    row_values,
-                    name_columns=[],
-                    given_name_columns=[],
-                    surname_columns=[],
-                    phone_columns=[],
                 )
                 for match in PHONE_RE.findall(row_text):
                     candidates.append((name, match, {}))
@@ -1095,7 +1331,15 @@ def _parse_excel_contact_bytes(
             for name, phone, fields in candidates:
                 normalized = _normalize_phone(phone)
                 if not normalized:
-                    invalid_phone_count += 1
+                    _append_excel_contact_rejection(
+                        rejected_rows,
+                        rejected_counts,
+                        sheet_name=sheet_name,
+                        row_number=row_number,
+                        raw_name=raw_name,
+                        raw_phone_number=phone,
+                        reason_code="invalid_phone",
+                    )
                     continue
                 incoming = WhatsAppRecipientInput(
                     name=name,
@@ -1103,11 +1347,38 @@ def _parse_excel_contact_bytes(
                     imported_fields=fields,
                 )
                 existing = contacts_by_phone.get(normalized)
-                contacts_by_phone[normalized] = (
-                    _merge_recipient_inputs(existing, incoming)
-                    if existing
-                    else incoming
-                )
+                if not name:
+                    if existing:
+                        contacts_by_phone[normalized] = _merge_recipient_inputs(
+                            existing,
+                            incoming,
+                        )
+                    _append_excel_contact_rejection(
+                        rejected_rows,
+                        rejected_counts,
+                        sheet_name=sheet_name,
+                        row_number=row_number,
+                        raw_name=raw_name,
+                        raw_phone_number=phone,
+                        reason_code="missing_name",
+                    )
+                    continue
+                if existing:
+                    contacts_by_phone[normalized] = _merge_recipient_inputs(
+                        existing,
+                        incoming,
+                    )
+                    _append_excel_contact_rejection(
+                        rejected_rows,
+                        rejected_counts,
+                        sheet_name=sheet_name,
+                        row_number=row_number,
+                        raw_name=raw_name,
+                        raw_phone_number=phone,
+                        reason_code="duplicate_phone",
+                    )
+                    continue
+                contacts_by_phone[normalized] = incoming
                 if len(contacts_by_phone) > MAX_WHATSAPP_RECIPIENTS:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
@@ -1116,20 +1387,16 @@ def _parse_excel_contact_bytes(
                             f"{MAX_WHATSAPP_RECIPIENTS} recipients"
                         ),
                     )
-    if invalid_phone_count:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"{invalid_phone_count} WhatsApp number(s) in the Excel file "
-                "are invalid. Use 8 to 15 digits with an optional country code."
-            ),
-        )
-    return list(contacts_by_phone.values())
+    return _WhatsAppExcelContactParseResult(
+        contacts=list(contacts_by_phone.values()),
+        rejected_rows=rejected_rows,
+        rejected_counts=rejected_counts,
+    )
 
 
-async def _parse_excel_contacts(
+async def _parse_excel_contact_preview(
     upload: UploadFile,
-) -> list[WhatsAppRecipientInput]:
+) -> _WhatsAppExcelContactParseResult:
     payload = bytearray()
     while chunk := await upload.read(WHATSAPP_UPLOAD_READ_CHUNK_BYTES):
         payload.extend(chunk)
@@ -1149,10 +1416,36 @@ async def _parse_excel_contacts(
     )
 
 
+async def _parse_excel_contacts(
+    upload: UploadFile,
+) -> list[WhatsAppRecipientInput]:
+    result = await _parse_excel_contact_preview(upload)
+    blocking_rejection_count = sum(
+        count
+        for reason_code, count in result.rejected_counts.items()
+        if reason_code != "duplicate_phone"
+    )
+    if blocking_rejection_count:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"The Excel contact file contains {blocking_rejection_count} "
+                "invalid contact row(s). Preview the file, correct the rejected "
+                "rows, and upload it again."
+            ),
+        )
+    return result.contacts
+
+
 def _excel_contact_preview_response(
     contacts: list[WhatsAppRecipientInput],
+    rejected_rows: list[WhatsAppContactPreviewRejectedRow] | None = None,
+    *,
+    rejected_count: int | None = None,
 ) -> WhatsAppContactPreviewResponse:
-    if not contacts:
+    rejected_rows = rejected_rows or []
+    total_rejected = len(rejected_rows) if rejected_count is None else rejected_count
+    if not contacts and total_rejected == 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
@@ -1161,7 +1454,7 @@ def _excel_contact_preview_response(
             ),
         )
 
-    normalized_contacts = _normalized_recipient_inputs(contacts)
+    normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
     recipients = [
         WhatsAppContactPreviewRecipient(
             name=_clean_required_name(contact.name, "Recipient name"),
@@ -1172,7 +1465,12 @@ def _excel_contact_preview_response(
     ]
     return WhatsAppContactPreviewResponse(
         recipient_count=len(recipients),
+        accepted_count=len(recipients),
         recipients=recipients,
+        rejected_count=total_rejected,
+        rejected_rows=rejected_rows,
+        rejected_rows_truncated=total_rejected > len(rejected_rows),
+        omitted_rejected_count=max(0, total_rejected - len(rejected_rows)),
     )
 
 
@@ -1187,6 +1485,119 @@ def _parse_manual_contacts(value: str) -> list[WhatsAppRecipientInput]:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid manual contact list",
         ) from exc
+
+
+def _rejected_contact_fingerprint(
+    contact: WhatsAppRejectedContactInput,
+) -> str:
+    payload = json.dumps(
+        [
+            contact.source_file_name,
+            contact.sheet_name,
+            contact.row_number,
+            contact.raw_name,
+            contact.raw_phone_number,
+            contact.reason_code,
+        ],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _parse_rejected_contacts(value: str) -> list[WhatsAppRejectedContactInput]:
+    try:
+        parsed = json.loads(value or "[]")
+        if not isinstance(parsed, list):
+            raise TypeError
+        if len(parsed) > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "A WhatsApp list can contain at most "
+                    f"{MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP} rejected contacts"
+                ),
+            )
+        contacts: list[WhatsAppRejectedContactInput] = []
+        fingerprints: set[str] = set()
+        for item in parsed:
+            contact = WhatsAppRejectedContactInput(**item)
+            source_file_name = (
+                contact.source_file_name.replace("\\", "/").rsplit("/", maxsplit=1)[-1].strip()
+            )
+            sheet_name = contact.sheet_name.strip()
+            raw_name = (contact.raw_name or "").strip() or None
+            raw_phone_number = (contact.raw_phone_number or "").strip() or None
+            if not source_file_name:
+                raise ValueError("source_file_name is empty")
+            if not sheet_name:
+                raise ValueError("sheet_name is empty")
+            normalized = WhatsAppRejectedContactInput(
+                source_file_name=source_file_name,
+                sheet_name=sheet_name,
+                row_number=contact.row_number,
+                raw_name=raw_name,
+                raw_phone_number=raw_phone_number,
+                reason_code=contact.reason_code,
+            )
+            fingerprint = _rejected_contact_fingerprint(normalized)
+            if fingerprint in fingerprints:
+                continue
+            fingerprints.add(fingerprint)
+            contacts.append(normalized)
+        return contacts
+    except HTTPException:
+        raise
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid rejected WhatsApp contact list",
+        ) from exc
+
+
+def _add_rejected_contact_models(
+    *,
+    session: AsyncSession,
+    group: WhatsAppBroadcastGroupModel,
+    contacts: list[WhatsAppRejectedContactInput],
+    existing_fingerprints: set[str],
+    now: datetime,
+) -> int:
+    new_contacts = [
+        contact
+        for contact in contacts
+        if _rejected_contact_fingerprint(contact) not in existing_fingerprints
+    ]
+    if (
+        len(existing_fingerprints) + len(new_contacts)
+        > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "A WhatsApp list can contain at most "
+                f"{MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP} rejected contacts"
+            ),
+        )
+    for contact in new_contacts:
+        fingerprint = _rejected_contact_fingerprint(contact)
+        existing_fingerprints.add(fingerprint)
+        session.add(
+            WhatsAppBroadcastRejectedContactModel(
+                broadcast_group_id=group.id,
+                agency_id=group.agency_id,
+                source_file_name=contact.source_file_name,
+                sheet_name=contact.sheet_name,
+                row_number=contact.row_number,
+                raw_name=contact.raw_name,
+                raw_phone_number=contact.raw_phone_number,
+                reason_code=contact.reason_code,
+                reason=_WHATSAPP_CONTACT_REJECTION_REASONS[contact.reason_code],
+                fingerprint=fingerprint,
+                created_at=now,
+            )
+        )
+    return len(new_contacts)
 
 
 def _normalized_recipient_inputs(
@@ -1345,6 +1756,22 @@ def _recipient_response(
     )
 
 
+def _rejected_contact_response(
+    model: WhatsAppBroadcastRejectedContactModel,
+) -> WhatsAppRejectedContactResponse:
+    return WhatsAppRejectedContactResponse(
+        id=model.id,
+        source_file_name=model.source_file_name,
+        sheet_name=model.sheet_name,
+        row_number=model.row_number,
+        raw_name=model.raw_name,
+        raw_phone_number=model.raw_phone_number,
+        reason_code=model.reason_code,
+        reason=model.reason,
+        created_at=model.created_at,
+    )
+
+
 def _support_contact_response(
     model: WhatsAppBroadcastSupportContactModel,
 ) -> WhatsAppSupportContactResponse:
@@ -1417,6 +1844,14 @@ async def _group_detail(
             )
             recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
     support_contacts = await _support_contacts_for_group(session, group.id)
+    rejected_count_result = await session.execute(
+        select(func.count())
+        .select_from(WhatsAppBroadcastRejectedContactModel)
+        .where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group.id,
+        )
+    )
+    rejected_contact_count = int(rejected_count_result.scalar_one())
     return WhatsAppBroadcastGroupDetailResponse(
         id=group.id,
         name=group.name,
@@ -1434,6 +1869,7 @@ async def _group_detail(
             for recipient in recipients
         ],
         support_contacts=[_support_contact_response(contact) for contact in support_contacts],
+        rejected_contact_count=rejected_contact_count,
     )
 
 
@@ -1669,8 +2105,12 @@ async def preview_excel_contacts(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
 ) -> WhatsAppContactPreviewResponse:
     del current_user
-    contacts = await _parse_excel_contacts(contacts_file)
-    return _excel_contact_preview_response(contacts)
+    result = await _parse_excel_contact_preview(contacts_file)
+    return _excel_contact_preview_response(
+        result.contacts,
+        result.rejected_rows,
+        rejected_count=result.rejected_count,
+    )
 
 
 @router.get("/groups", response_model=list[WhatsAppBroadcastGroupResponse])
@@ -1727,6 +2167,63 @@ async def get_broadcast_group(
             status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
         )
     return await _group_detail(session, group)
+
+
+@router.get(
+    "/groups/{group_id}/rejected-contacts",
+    response_model=WhatsAppRejectedContactListResponse,
+)
+async def list_broadcast_rejected_contacts(
+    group_id: uuid.UUID,
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppRejectedContactListResponse:
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel.id).where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+    )
+    if group_result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    total_result = await session.execute(
+        select(func.count())
+        .select_from(WhatsAppBroadcastRejectedContactModel)
+        .where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
+        )
+    )
+    total = int(total_result.scalar_one())
+    items_result = await session.execute(
+        select(WhatsAppBroadcastRejectedContactModel)
+        .where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
+        )
+        .order_by(
+            WhatsAppBroadcastRejectedContactModel.created_at.desc(),
+            WhatsAppBroadcastRejectedContactModel.source_file_name.asc(),
+            WhatsAppBroadcastRejectedContactModel.sheet_name.asc(),
+            WhatsAppBroadcastRejectedContactModel.row_number.asc(),
+            WhatsAppBroadcastRejectedContactModel.id.asc(),
+        )
+        .limit(limit)
+        .offset(offset)
+    )
+    return WhatsAppRejectedContactListResponse(
+        items=[
+            _rejected_contact_response(model)
+            for model in items_result.scalars().all()
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.post(
@@ -1895,6 +2392,7 @@ async def create_broadcast_group(
     name: str = Form(...),
     organizing_company_name: str | None = Form(None),
     contacts_json: str = Form("[]"),
+    rejected_contacts_json: str = Form("[]"),
     support_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
     contacts_file: UploadFile | None = File(None),
@@ -1921,12 +2419,6 @@ async def create_broadcast_group(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Organising company name must be 100 characters or fewer",
         )
-    if not recipient_opt_in_confirmed:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Confirm recipient WhatsApp opt-in before saving this list",
-        )
-
     try:
         manual_contacts = [
             WhatsAppRecipientInput(**item) for item in json.loads(contacts_json or "[]")
@@ -1935,6 +2427,7 @@ async def create_broadcast_group(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid manual contact list"
         ) from exc
+    rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
 
     try:
         support_contacts = [
@@ -1954,7 +2447,21 @@ async def create_broadcast_group(
 
     excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
     contacts = manual_contacts + excel_contacts
-    normalized_contacts = _normalized_recipient_inputs(contacts)
+    normalized_contacts = (
+        _normalized_recipient_inputs(contacts)
+        if contacts
+        else {}
+    )
+    if not normalized_contacts and not rejected_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add at least one valid or rejected WhatsApp contact",
+        )
+    if normalized_contacts and not recipient_opt_in_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm recipient WhatsApp opt-in before saving this list",
+        )
     if len(normalized_contacts) > MAX_WHATSAPP_RECIPIENTS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -2000,14 +2507,15 @@ async def create_broadcast_group(
             detail="Add no more than three customer support contacts",
         )
 
+    now = datetime.now(tz=UTC)
     group = WhatsAppBroadcastGroupModel(
         agency_id=current_user.agency_id,
         name=group_name,
         organizing_company_name=company_name,
-        recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
+        recipient_opt_in_confirmed_at=now if normalized_contacts else None,
         created_by_user_id=current_user.id,
-        created_at=datetime.now(tz=UTC),
-        updated_at=datetime.now(tz=UTC),
+        created_at=now,
+        updated_at=now,
     )
     session.add(group)
     await session.flush()
@@ -2020,9 +2528,16 @@ async def create_broadcast_group(
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
                 imported_fields=contact.imported_fields,
-                created_at=datetime.now(tz=UTC),
+                created_at=now,
             )
         )
+    _add_rejected_contact_models(
+        session=session,
+        group=group,
+        contacts=rejected_contacts,
+        existing_fingerprints=set(),
+        now=now,
+    )
     for sort_order, (normalized, support_contact) in enumerate(normalized_support_contacts.items()):
         session.add(
             WhatsAppBroadcastSupportContactModel(
@@ -2032,7 +2547,7 @@ async def create_broadcast_group(
                 phone_number=support_contact.phone_number.strip(),
                 normalized_phone_number=normalized,
                 sort_order=sort_order,
-                created_at=datetime.now(tz=UTC),
+                created_at=now,
             )
         )
     await session.flush()
@@ -2128,16 +2643,12 @@ async def update_broadcast_group(
 async def add_broadcast_recipients(
     group_id: uuid.UUID,
     contacts_json: str = Form("[]"),
+    rejected_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
     contacts_file: UploadFile | None = File(None),
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
-    if not recipient_opt_in_confirmed:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Confirm recipient WhatsApp opt-in before adding contacts",
-        )
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .where(
@@ -2154,32 +2665,53 @@ async def add_broadcast_recipients(
         )
 
     manual_contacts = _parse_manual_contacts(contacts_json)
+    rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
     excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
-    normalized_contacts = _normalized_recipient_inputs(manual_contacts + excel_contacts)
-
-    existing_result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel).where(
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id
-        )
+    contacts = manual_contacts + excel_contacts
+    normalized_contacts = (
+        _normalized_recipient_inputs(contacts)
+        if contacts
+        else {}
     )
-    existing_by_phone = {
-        recipient.normalized_phone_number: recipient
-        for recipient in existing_result.scalars().all()
-    }
-    active_count = sum(
-        1 for recipient in existing_by_phone.values() if recipient.removed_at is None
-    )
-    activating_count = sum(
-        1
-        for normalized in normalized_contacts
-        if normalized not in existing_by_phone
-        or existing_by_phone[normalized].removed_at is not None
-    )
-    if active_count + activating_count > MAX_WHATSAPP_RECIPIENTS:
+    if not normalized_contacts and not rejected_contacts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients",
+            detail="Add at least one valid or rejected WhatsApp contact",
         )
+    if normalized_contacts and not recipient_opt_in_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm recipient WhatsApp opt-in before adding contacts",
+        )
+
+    existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel] = {}
+    if normalized_contacts:
+        existing_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel).where(
+                WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id
+            )
+        )
+        existing_by_phone = {
+            recipient.normalized_phone_number: recipient
+            for recipient in existing_result.scalars().all()
+        }
+        active_count = sum(
+            1 for recipient in existing_by_phone.values() if recipient.removed_at is None
+        )
+        activating_count = sum(
+            1
+            for normalized in normalized_contacts
+            if normalized not in existing_by_phone
+            or existing_by_phone[normalized].removed_at is not None
+        )
+        if active_count + activating_count > MAX_WHATSAPP_RECIPIENTS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "A WhatsApp list can contain at most "
+                    f"{MAX_WHATSAPP_RECIPIENTS} recipients"
+                ),
+            )
 
     now = datetime.now(tz=UTC)
     _activate_recipient_models(
@@ -2189,8 +2721,26 @@ async def add_broadcast_recipients(
         normalized_contacts=normalized_contacts,
         now=now,
     )
+    if rejected_contacts:
+        existing_rejected_result = await session.execute(
+            select(WhatsAppBroadcastRejectedContactModel.fingerprint).where(
+                WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group.id,
+            )
+        )
+        _add_rejected_contact_models(
+            session=session,
+            group=group,
+            contacts=rejected_contacts,
+            existing_fingerprints=set(
+                existing_rejected_result.scalars().all()
+            ),
+            now=now,
+        )
 
-    group.recipient_opt_in_confirmed_at = group.recipient_opt_in_confirmed_at or now
+    if normalized_contacts:
+        group.recipient_opt_in_confirmed_at = (
+            group.recipient_opt_in_confirmed_at or now
+        )
     group.updated_at = now
     await session.flush()
     return await _group_detail(session, group)

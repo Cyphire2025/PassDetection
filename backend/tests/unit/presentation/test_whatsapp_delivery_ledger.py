@@ -37,6 +37,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     _excel_contact_preview_response,
     _extract_status_error,
     _normalized_recipient_inputs,
+    _parse_excel_contact_preview,
     _parse_excel_contacts,
     _provider_status_state_predicates,
     _recipient_delivery_counts,
@@ -894,6 +895,7 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
 
     assert response.model_dump() == {
         "recipient_count": 2,
+        "accepted_count": 2,
         "recipients": [
             {
                 "name": "Aarav Sharma",
@@ -917,7 +919,201 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                 },
             },
         ],
+        "rejected_count": 1,
+        "rejected_rows": [
+            {
+                "sheet_name": "Sheet",
+                "row_number": 5,
+                "raw_name": "Duplicate Aarav",
+                "raw_phone_number": "+91-9873361557",
+                "reason_code": "duplicate_phone",
+                "reason": (
+                    "This WhatsApp number is already listed; its extra details "
+                    "were merged into the first accepted contact."
+                ),
+            }
+        ],
+        "rejected_rows_truncated": False,
+        "omitted_rejected_count": 0,
     }
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_returns_valid_rows_and_actionable_rejections() -> None:
+    workbook = Workbook()
+    north = workbook.active
+    north.title = "North"
+    north.append(["Name", "Mobile", "Email"])
+    north.append(["Aarav Sharma", 9873361557, "aarav@example.com"])
+    north.append(["Invalid Phone", 919726092, "invalid@example.com"])
+    north.append(["Missing Phone", None, "missing-phone@example.com"])
+    north.append([None, 9355926411, "missing-name@example.com"])
+    north.append(["Duplicate Aarav", "+91-9873361557", "alternate@example.com"])
+    north.append(["Name", "Mobile", "Email"])
+    south = workbook.create_sheet("South")
+    south.append(["Name", "Mobile"])
+    south.append(["Meera Patel", 9355926412])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    response = await preview_excel_contacts(
+        contacts_file=UploadFile(file=payload, filename="contacts.xlsx"),
+        current_user=SimpleNamespace(),
+    )
+
+    assert response.recipient_count == 2
+    assert response.accepted_count == 2
+    assert response.rejected_count == 4
+    assert [
+        (
+            row.sheet_name,
+            row.row_number,
+            row.raw_name,
+            row.raw_phone_number,
+            row.reason_code,
+        )
+        for row in response.rejected_rows
+    ] == [
+        ("North", 3, "Invalid Phone", "919726092", "invalid_phone"),
+        ("North", 4, "Missing Phone", None, "missing_phone"),
+        ("North", 5, None, "9355926411", "missing_name"),
+        (
+            "North",
+            6,
+            "Duplicate Aarav",
+            "+91-9873361557",
+            "duplicate_phone",
+        ),
+    ]
+    assert "10-digit Indian mobile number" in response.rejected_rows[0].reason
+    assert response.recipients[0].imported_fields["email_2"] == "alternate@example.com"
+    assert response.recipients[0].imported_fields["duplicate_conflicting_fields"] == (
+        "email, name"
+    )
+    assert [recipient.name for recipient in response.recipients] == [
+        "Aarav Sharma",
+        "Meera Patel",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_skips_structural_header_variants() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Region", "Name", "Mobile"])
+    sheet.append(["North", "Aarav Sharma", 9873361557])
+    sheet.append(["B", "Name", "Mobile"])
+    sheet.append(["North", "Invalid Phone", 919726092])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    response = await preview_excel_contacts(
+        contacts_file=UploadFile(file=payload, filename="contacts.xlsx"),
+        current_user=SimpleNamespace(),
+    )
+
+    assert response.accepted_count == 1
+    assert response.rejected_count == 1
+    assert response.rejected_rows[0].row_number == 4
+    assert response.rejected_rows[0].reason_code == "invalid_phone"
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_returns_all_rejected_rows_without_a_server_error() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Name", "Mobile"])
+    sheet.append(["Invalid Phone", 805527415])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    response = await preview_excel_contacts(
+        contacts_file=UploadFile(file=payload, filename="contacts.xlsx"),
+        current_user=SimpleNamespace(),
+    )
+
+    assert response.recipient_count == 0
+    assert response.accepted_count == 0
+    assert response.recipients == []
+    assert response.rejected_count == 1
+    assert response.rejected_rows[0].reason_code == "invalid_phone"
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_direct_upload_remains_strict_but_allows_merged_duplicates() -> None:
+    invalid_workbook = Workbook()
+    invalid_sheet = invalid_workbook.active
+    invalid_sheet.append(["Name", "Mobile"])
+    invalid_sheet.append(["Valid", 9873361557])
+    invalid_sheet.append(["Invalid", 919726092])
+    invalid_payload = BytesIO()
+    invalid_workbook.save(invalid_payload)
+    invalid_workbook.close()
+    invalid_payload.seek(0)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await _parse_excel_contacts(
+            UploadFile(file=invalid_payload, filename="contacts.xlsx"),
+        )
+
+    assert exc_info.value.status_code == 400
+    assert "1 invalid contact row" in str(exc_info.value.detail)
+
+    duplicate_workbook = Workbook()
+    duplicate_sheet = duplicate_workbook.active
+    duplicate_sheet.append(["Name", "Mobile", "Email"])
+    duplicate_sheet.append(["Aarav", 9873361557, "first@example.com"])
+    duplicate_sheet.append(["Aarav Sharma", "+91-9873361557", "second@example.com"])
+    duplicate_payload = BytesIO()
+    duplicate_workbook.save(duplicate_payload)
+    duplicate_workbook.close()
+    duplicate_payload.seek(0)
+
+    contacts = await _parse_excel_contacts(
+        UploadFile(file=duplicate_payload, filename="contacts.xlsx"),
+    )
+
+    assert len(contacts) == 1
+    assert contacts[0].imported_fields["email_2"] == "second@example.com"
+
+
+@pytest.mark.asyncio
+async def test_excel_contact_preview_bounds_rejected_row_payload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp.MAX_WHATSAPP_REJECTED_ROWS",
+        1,
+    )
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.append(["Name", "Mobile"])
+    sheet.append(["Invalid One", 919726092])
+    sheet.append(["Invalid Two", 805527415])
+    payload = BytesIO()
+    workbook.save(payload)
+    workbook.close()
+    payload.seek(0)
+
+    result = await _parse_excel_contact_preview(
+        UploadFile(file=payload, filename="contacts.xlsx"),
+    )
+    response = _excel_contact_preview_response(
+        result.contacts,
+        result.rejected_rows,
+        rejected_count=result.rejected_count,
+    )
+
+    assert response.rejected_count == 2
+    assert len(response.rejected_rows) == 1
+    assert response.rejected_rows_truncated is True
+    assert response.omitted_rejected_count == 1
 
 
 def test_excel_contact_preview_rejects_empty_or_unnamed_contacts() -> None:
@@ -963,6 +1159,15 @@ def test_excel_contact_preview_route_is_role_gated_and_has_stable_contract() -> 
 
     assert route.methods == {"POST"}
     assert route.response_model is WhatsAppContactPreviewResponse
+    assert set(WhatsAppContactPreviewResponse.model_fields) == {
+        "recipient_count",
+        "accepted_count",
+        "recipients",
+        "rejected_count",
+        "rejected_rows",
+        "rejected_rows_truncated",
+        "omitted_rejected_count",
+    }
     assert [dependency.call.__name__ for dependency in route.dependant.dependencies] == [
         "_check_role"
     ]
