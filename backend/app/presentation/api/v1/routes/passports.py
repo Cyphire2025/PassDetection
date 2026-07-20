@@ -11,6 +11,7 @@ import mimetypes
 import uuid
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import Literal
 
 from fastapi import (
     APIRouter,
@@ -20,6 +21,7 @@ from fastapi import (
     Form,
     Header,
     HTTPException,
+    Query,
     Response,
     UploadFile,
     status,
@@ -66,6 +68,9 @@ from app.application.use_cases.passports.retry_public_passport_extraction_use_ca
 from app.application.use_cases.passports.staff_approve_passport_use_case import (
     StaffApprovalResult,
     StaffApprovePassportUseCase,
+)
+from app.application.use_cases.passports.submission_view import (
+    build_submission_view,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.core.logging.logger import get_logger
@@ -145,8 +150,11 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportDocumentImportItem,
     PassportDocumentImportPreviewResponse,
     PassportDocumentImportSaveResponse,
+    PassportExpiryAlertResponse,
     PassportGroupSummaryResponse,
     PassportSubmissionResponse,
+    PassportSubmissionsViewResponse,
+    PassportSubmissionViewItemResponse,
     ReconcilePassportUploadRequest,
     ReconcilePassportUploadResponse,
     StaffApprovePassportRequest,
@@ -1066,6 +1074,122 @@ async def list_passports_by_group(
         visible_to_user=None if include_deleted else current_user,
     )
     return [PassportSubmissionResponse.model_validate(item) for item in result]
+
+
+@router.get(
+    "/groups/{group_id}/submissions-view",
+    response_model=PassportSubmissionsViewResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List a full-group filtered and duplicate-aware submission view",
+)
+async def list_passports_by_group_view(
+    group_id: uuid.UUID,
+    submission_filter: Literal[
+        "all",
+        "pending_ai",
+        "ai_approved",
+        "needs_review",
+        "staff_approved",
+        "duplicates",
+    ] = "all",
+    sort_by: Literal[
+        "name", "updated_at", "verification_confidence"
+    ] = "name",
+    sort_order: Literal["asc", "desc"] = "asc",
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+    search: str | None = Query(default=None, max_length=200),
+    include_deleted: bool = False,
+    current_user: User = Depends(get_current_active_user),
+    use_case: ListPassportSubmissionsByGroupUseCase = Depends(
+        _get_list_passports_by_group_use_case
+    ),
+) -> PassportSubmissionsViewResponse:
+    if not current_user.agency_id:
+        return PassportSubmissionsViewResponse(
+            items=[],
+            group_total=0,
+            total=0,
+            page=page,
+            page_size=page_size,
+            total_pages=0,
+            returned_count=0,
+            expiry_alerts=[],
+        )
+    if include_deleted and current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super admins can view old data",
+        )
+
+    # Identity clusters, search propagation, and status filtering must operate
+    # over the complete authorized group before block-aware pagination.
+    all_submissions = await use_case.execute(
+        agency_id=current_user.agency_id,
+        group_id=group_id,
+        skip=0,
+        limit=None,
+        search=None,
+        created_by_user_id=(
+            None if include_deleted else _owner_scope_for(current_user)
+        ),
+        include_deleted_group=include_deleted,
+        visible_to_user=None if include_deleted else current_user,
+    )
+    view = build_submission_view(
+        all_submissions,
+        submission_filter=submission_filter,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        page=page,
+        page_size=page_size,
+    )
+    items: list[PassportSubmissionViewItemResponse] = []
+    for entry in view.items:
+        base = PassportSubmissionResponse.model_validate(
+            entry.submission
+        )
+        items.append(
+            PassportSubmissionViewItemResponse.model_validate(
+                {
+                    **base.model_dump(),
+                    "duplicate_cluster_id": (
+                        entry.duplicate_cluster_id
+                    ),
+                    "duplicate_cluster_size": (
+                        entry.duplicate_cluster_size
+                    ),
+                    "duplicate_cluster_member_ids": list(
+                        entry.duplicate_cluster_member_ids
+                    ),
+                    "verification_confidence": (
+                        entry.verification_confidence
+                    ),
+                }
+            )
+        )
+    return PassportSubmissionsViewResponse(
+        items=items,
+        group_total=view.group_total,
+        total=view.total,
+        page=view.page,
+        page_size=view.page_size,
+        total_pages=view.total_pages,
+        returned_count=view.returned_count,
+        cluster_boundaries_preserved=True,
+        expiry_alerts=[
+            PassportExpiryAlertResponse(
+                submission_id=alert.submission_id,
+                client_name=alert.client_name,
+                client_email=alert.client_email,
+                passport_number=alert.passport_number,
+                date_of_expiry=alert.date_of_expiry,
+                status=alert.status,
+            )
+            for alert in view.expiry_alerts
+        ],
+    )
 
 
 @router.post(

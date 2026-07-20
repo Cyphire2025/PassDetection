@@ -166,6 +166,13 @@ class ClientGroupModel(Base):
     submissions: Mapped[list[PassportSubmissionModel]] = relationship(
         "PassportSubmissionModel", back_populates="group"
     )
+    whatsapp_broadcast_links: Mapped[
+        list[ClientGroupWhatsAppBroadcastLinkModel]
+    ] = relationship(
+        "ClientGroupWhatsAppBroadcastLinkModel",
+        back_populates="client_group",
+        cascade="all, delete-orphan",
+    )
 
 
 class ManagerGroupAccessModel(Base):
@@ -205,6 +212,13 @@ class WhatsAppBroadcastGroupModel(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    client_group_links: Mapped[
+        list[ClientGroupWhatsAppBroadcastLinkModel]
+    ] = relationship(
+        "ClientGroupWhatsAppBroadcastLinkModel",
+        back_populates="broadcast_group",
+        cascade="all, delete-orphan",
+    )
 
 
 class WhatsAppBroadcastRecipientModel(Base):
@@ -1024,6 +1038,62 @@ class PassportProcessingJobModel(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False, index=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class ClientGroupWhatsAppBroadcastLinkModel(Base):
+    """Tenant-scoped metadata link between an upload group and WhatsApp list."""
+
+    __tablename__ = "client_group_whatsapp_broadcast_links"
+    __table_args__ = (
+        UniqueConstraint(
+            "client_group_id",
+            "broadcast_group_id",
+            name="uq_client_group_whatsapp_broadcast_link",
+        ),
+        Index(
+            "ix_client_group_whatsapp_links_agency_group",
+            "agency_id",
+            "client_group_id",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    client_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+    client_group: Mapped[ClientGroupModel] = relationship(
+        "ClientGroupModel", back_populates="whatsapp_broadcast_links"
+    )
+    broadcast_group: Mapped[WhatsAppBroadcastGroupModel] = relationship(
+        "WhatsAppBroadcastGroupModel", back_populates="client_group_links"
+    )
 
 
 class PassportPostSubmissionVerificationJobModel(Base):

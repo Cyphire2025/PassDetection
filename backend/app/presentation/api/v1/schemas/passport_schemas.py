@@ -239,6 +239,46 @@ class PassportSubmissionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PassportSubmissionViewItemResponse(PassportSubmissionResponse):
+    duplicate_cluster_id: str | None = None
+    duplicate_cluster_size: int = Field(default=1, ge=1)
+    duplicate_cluster_member_ids: list[uuid.UUID] = Field(
+        default_factory=list
+    )
+    verification_confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0
+    )
+
+
+class PassportExpiryAlertResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    client_name: str
+    client_email: str | None = None
+    passport_number: str | None = None
+    date_of_expiry: date
+    status: Literal["expired", "near_expiry"]
+
+
+class PassportSubmissionsViewResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[PassportSubmissionViewItemResponse] = Field(
+        default_factory=list
+    )
+    group_total: int = Field(ge=0)
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    total_pages: int = Field(ge=0)
+    returned_count: int = Field(ge=0)
+    cluster_boundaries_preserved: bool = True
+    expiry_alerts: list[PassportExpiryAlertResponse] = Field(
+        default_factory=list
+    )
+
+
 class PassportGroupSummaryResponse(BaseModel):
     group_id: uuid.UUID
     group_name: str

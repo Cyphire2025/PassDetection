@@ -16,7 +16,7 @@ export const PASSPORT_STATUS_LABELS: Record<string, string> = {
   pending_extraction: "Pending Extraction",
   extracting: "Extracting",
   ready_for_client_review: "Ready For Client Review",
-  submitted: "Submitted",
+  submitted: "Pending AI Verification",
   ai_approved: "AI Approved",
   needs_review: "Needs Review",
   staff_approved: "Staff Approved",

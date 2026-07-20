@@ -54,6 +54,11 @@ export const API_ENDPOINTS = {
     restore: (id: string) => `/api/v1/upload-links/${id}/restore`,
     delete: (id: string) => `/api/v1/upload-links/${id}`,
     permanentDelete: (id: string) => `/api/v1/upload-links/${id}/permanent`,
+    whatsappBroadcastOptions: "/api/v1/upload-links/whatsapp-broadcast-options",
+    groupWhatsAppBroadcastOptions: (id: string) =>
+      `/api/v1/upload-links/${id}/whatsapp-broadcast-options`,
+    whatsappLinks: (id: string) => `/api/v1/upload-links/${id}/whatsapp-links`,
+    whatsappMatches: (id: string) => `/api/v1/upload-links/${id}/whatsapp-matches`,
   },
 
   whatsapp: {
@@ -75,6 +80,8 @@ export const API_ENDPOINTS = {
     groups: "/api/v1/passports/groups",
     groupsExport: "/api/v1/passports/groups/export.xlsx",
     groupDetail: (groupId: string) => `/api/v1/passports/groups/${groupId}`,
+    groupSubmissionsView: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/submissions-view`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
     groupImageExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export-images`,
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,

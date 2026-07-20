@@ -14,6 +14,7 @@ import {
 import { createUploadLinkSchema, type CreateUploadLinkFormData } from "../schemas/upload-link.schema";
 import { useCreateUploadLink } from "../hooks/use-upload-links";
 import { GroupOptionToggle } from "./group-option-toggle";
+import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 
 interface CreateUploadLinkModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       allow_files_from_device: true,
       ask_nearest_domestic_airport: false,
       relation_with_qualifier_enabled: false,
+      whatsapp_broadcast_group_ids: [],
       notes: "",
     },
   });
@@ -68,6 +70,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     control,
     name: "relation_with_qualifier_enabled",
   }) ?? false;
+  const whatsappBroadcastGroupIds = useWatch({
+    control,
+    name: "whatsapp_broadcast_group_ids",
+  }) ?? [];
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
@@ -367,6 +373,17 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   onChange={(checked) => setValue("meal_preference_enabled", checked, { shouldDirty: true })}
                 />
               </div>
+
+              <WhatsAppBroadcastSelector
+                selectedIds={whatsappBroadcastGroupIds}
+                onChange={(ids) => setValue(
+                  "whatsapp_broadcast_group_ids",
+                  ids,
+                  { shouldDirty: true, shouldValidate: true },
+                )}
+                disabled={isPending}
+                description="Optional. Link the group to one or more existing broadcasts now so recipient submissions can be tracked from the beginning."
+              />
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 This will generate:

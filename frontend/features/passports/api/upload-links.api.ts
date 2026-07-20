@@ -28,7 +28,69 @@ export interface CreateUploadLinkRequest {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  whatsapp_broadcast_group_ids?: string[];
   notes?: string | null;
+}
+
+export interface LinkedWhatsAppBroadcast {
+  id: string;
+  name: string;
+  recipient_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupWhatsAppLinksResponse {
+  client_group_id: string;
+  broadcasts: LinkedWhatsAppBroadcast[];
+  broadcast_count: number;
+  recipient_count: number;
+  can_manage: boolean;
+}
+
+export type GroupWhatsAppMatchStatus =
+  | "submitted"
+  | "not_submitted"
+  | "multiple_submissions";
+
+export interface GroupWhatsAppMatchCounts {
+  total_recipients: number;
+  submitted_count: number;
+  not_submitted_count: number;
+  multiple_submission_count: number;
+  matched_submission_count: number;
+}
+
+export interface GroupWhatsAppMatch {
+  status: GroupWhatsAppMatchStatus;
+  match_basis: "phone" | null;
+  normalized_phone: string | null;
+  recipient_ids: string[];
+  submission_ids: string[];
+  broadcast_ids: string[];
+  broadcast_names: string[];
+  recipient_names: string[];
+  submission_names: string[];
+  updated_at: string | null;
+}
+
+export interface GroupWhatsAppMatchesResponse {
+  client_group_id: string;
+  linked_broadcast_count: number;
+  counts: GroupWhatsAppMatchCounts;
+  matches: GroupWhatsAppMatch[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface GroupWhatsAppMatchesParams {
+  status?: "all" | GroupWhatsAppMatchStatus;
+  sort_by?: "name" | "phone" | "status" | "broadcast" | "updated_at";
+  sort_order?: "asc" | "desc";
+  page?: number;
+  page_size?: number;
 }
 
 export interface QualifierRelationOption {
@@ -90,6 +152,46 @@ export const uploadLinksApi = {
 
   update: async (id: string, data: CreateUploadLinkRequest): Promise<UploadLinkResponse> => {
     const response = await apiClient.patch<UploadLinkResponse>(API_ENDPOINTS.uploadLinks.detail(id), data);
+    return response.data;
+  },
+
+  getWhatsAppLinks: async (id: string): Promise<GroupWhatsAppLinksResponse> => {
+    const response = await apiClient.get<GroupWhatsAppLinksResponse>(
+      API_ENDPOINTS.uploadLinks.whatsappLinks(id),
+    );
+    return response.data;
+  },
+
+  updateWhatsAppLinks: async (
+    id: string,
+    whatsappBroadcastGroupIds: string[],
+  ): Promise<GroupWhatsAppLinksResponse> => {
+    const response = await apiClient.put<GroupWhatsAppLinksResponse>(
+      API_ENDPOINTS.uploadLinks.whatsappLinks(id),
+      { whatsapp_broadcast_group_ids: whatsappBroadcastGroupIds },
+    );
+    return response.data;
+  },
+
+  getWhatsAppBroadcastOptions: async (
+    id?: string,
+  ): Promise<LinkedWhatsAppBroadcast[]> => {
+    const response = await apiClient.get<LinkedWhatsAppBroadcast[]>(
+      id
+        ? API_ENDPOINTS.uploadLinks.groupWhatsAppBroadcastOptions(id)
+        : API_ENDPOINTS.uploadLinks.whatsappBroadcastOptions,
+    );
+    return response.data;
+  },
+
+  getWhatsAppMatches: async (
+    id: string,
+    params: GroupWhatsAppMatchesParams = {},
+  ): Promise<GroupWhatsAppMatchesResponse> => {
+    const response = await apiClient.get<GroupWhatsAppMatchesResponse>(
+      API_ENDPOINTS.uploadLinks.whatsappMatches(id),
+      { params },
+    );
     return response.data;
   },
 

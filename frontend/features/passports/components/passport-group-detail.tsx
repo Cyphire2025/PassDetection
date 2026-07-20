@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
@@ -17,21 +17,25 @@ import {
 } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
-import { getPassportVerificationConfidence } from "../utils/passport-review";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
   useExportPassportGroupImages,
   useExportSelectedPassports,
   useBulkDeletePassportSubmissions,
+  useGroupSubmissionsView,
   useImportPassportGroup,
   usePassportGroups,
-  usePassportsByGroup,
   useReextractPassportSubmission,
   usePreviewPassportDocuments,
   useSavePassportDocuments,
 } from "../hooks/use-passports";
-import type { PassportDocumentImportPreview } from "../api/passports.api";
+import type {
+  PassportDocumentImportPreview,
+  PassportGroupSubmissionFilter,
+  PassportGroupSubmissionSort,
+} from "../api/passports.api";
+import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
 
 interface PassportGroupDetailProps {
@@ -44,14 +48,29 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const role = useAuthStore(selectUserRole);
   const canPermanentlyDelete = role === "super_admin" || role === "agency_admin";
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedPassports, setSelectedPassports] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [qualityFilter, setQualityFilter] = useState("all");
-  const [metadataField, setMetadataField] = useState("all");
-  const [metadataValue, setMetadataValue] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
+  const [submissionFilter, setSubmissionFilter] = useState<PassportGroupSubmissionFilter>("all");
+  const [sortBy, setSortBy] = useState<PassportGroupSubmissionSort>("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
   const [viewMode, setViewMode] = useState<"table" | "docs">("table");
-  const { data, isLoading, error } = usePassportsByGroup(groupId, search, includeDeleted);
+  const {
+    data: submissionsView,
+    isLoading,
+    error,
+    isFetching,
+  } = useGroupSubmissionsView(groupId, {
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    include_deleted: includeDeleted,
+    submission_filter: submissionFilter,
+    sort_by: sortBy,
+    sort_order: sortOrder,
+    page,
+    page_size: pageSize,
+  });
+  const data = submissionsView?.items;
   const { data: groups = [] } = usePassportGroups();
   const { data: deletedGroups = [] } = useUploadLinks("deleted", includeDeleted);
   const deletedGroup = deletedGroups.find((item) => item.id === groupId);
@@ -121,6 +140,21 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   });
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    if (!submissionsView || page <= submissionsView.total_pages) return;
+    const timer = window.setTimeout(() => {
+      setPage(Math.max(1, submissionsView.total_pages));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [page, submissionsView]);
+
+  useEffect(() => {
     if (!isActionsMenuOpen) return;
 
     const closeOnOutsidePointer = (event: PointerEvent) => {
@@ -141,41 +175,10 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   }, [isActionsMenuOpen]);
 
   const expiryAlerts = useMemo(() => {
-    return (data ?? []).filter((passport) => getExpiryStatus(passport) !== "valid");
-  }, [data]);
+    return submissionsView?.expiry_alerts ?? [];
+  }, [submissionsView?.expiry_alerts]);
 
-  const metadataFields = useMemo(() => {
-    const keys = new Set<string>();
-    (data ?? []).forEach((passport) => Object.keys(passport.staff_metadata ?? {}).forEach((key) => {
-      if (key !== "source_sheet") keys.add(key);
-    }));
-    return [...keys].sort();
-  }, [data]);
-
-  const metadataValues = useMemo(() => {
-    if (metadataField === "all") return [];
-    return [...new Set((data ?? []).map((passport) => passport.staff_metadata?.[metadataField]).filter(Boolean) as string[])].sort();
-  }, [data, metadataField]);
-
-  const filteredPassports = useMemo(() => {
-    return (data ?? []).filter((passport) => {
-      if (statusFilter !== "all" && passport.status !== statusFilter) return false;
-      const confidence = getGroupVerificationConfidence(passport);
-      if (
-        qualityFilter === "low_confidence"
-        && (confidence === null || confidence > 0.5)
-      ) return false;
-      if (qualityFilter === "missing_passport" && getStringField(passport.extracted_fields, "passport_number")) return false;
-      if (qualityFilter === "expiry_alert" && getExpiryStatus(passport) === "valid") return false;
-      if (qualityFilter === "complete" && needsReextraction(passport)) return false;
-      if (metadataField !== "all" && metadataValue !== "all" && passport.staff_metadata?.[metadataField] !== metadataValue) return false;
-      return true;
-    }).sort((left, right) => {
-      const leftValue = sortBy === "name" ? left.client_name : (left.staff_metadata?.[sortBy] ?? "");
-      const rightValue = sortBy === "name" ? right.client_name : (right.staff_metadata?.[sortBy] ?? "");
-      return leftValue.localeCompare(rightValue, undefined, { numeric: true, sensitivity: "base" });
-    });
-  }, [data, metadataField, metadataValue, qualityFilter, sortBy, statusFilter]);
+  const filteredPassports = data ?? [];
 
   const togglePassport = (passportId: string) => {
     setSelectedPassports((current) =>
@@ -183,43 +186,41 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     );
   };
 
-  const handlePassportImportFiles = async (files: File[]) => {
+  const handlePassportImportFiles = (files: File[]) => {
     setImportMessage(null);
     setPassportImportPreview(null);
-    const containsZip = files.some((file) => file.name.toLowerCase().endsWith(".zip"));
-    if (containsZip) {
-      setPassportImportFiles(files);
-      setPassportImportProgress({ processed: 0, total: files.length, label: "Uploading archive for document check" });
-      passportPreviewMutation.mutate({
-        files,
-        onProgress: (progress) => {
-          setPassportImportProgress({
-            processed: progress.loaded,
-            total: progress.total,
-            label: progress.phase === "uploading" ? "Uploading archive for document check" : "Checking documents",
-          });
-        },
-      }, {
-        onSuccess: (preview) => {
-          setPassportImportPreview(preview);
-          setPassportImportProgress(null);
-        },
-        onError: (error) => {
-          setPassportImportProgress(null);
-          setImportMessage(error instanceof Error ? error.message : "Passport document check failed");
-        },
-      });
-      return;
-    }
-
-    setPassportImportProgress({ processed: 0, total: files.length, label: "Checking document names" });
-    const preview = await buildLocalPassportDocumentPreview(groupId, files, data ?? [], (processed, total) => {
-      setPassportImportProgress({ processed, total, label: "Checking document names" });
+    setPassportImportFiles(files);
+    setPassportImportProgress({
+      processed: 0,
+      total: files.reduce((sum, file) => sum + file.size, 0),
+      label: "Uploading files for document check",
     });
-    const acceptedNames = new Set(preview.accepted_documents.map((item) => item.filename));
-    setPassportImportFiles(files.filter((file) => acceptedNames.has(file.name)));
-    setPassportImportPreview(preview);
-    setPassportImportProgress(null);
+    passportPreviewMutation.mutate({
+      files,
+      onProgress: (progress) => {
+        setPassportImportProgress({
+          processed: progress.loaded,
+          total: progress.total,
+          label: progress.phase === "uploading"
+            ? "Uploading files for document check"
+            : "Checking documents against the full group",
+        });
+      },
+    }, {
+      onSuccess: (preview) => {
+        setPassportImportPreview(preview);
+        setPassportImportProgress(null);
+      },
+      onError: (previewError) => {
+        setPassportImportFiles([]);
+        setPassportImportProgress(null);
+        setImportMessage(
+          previewError instanceof Error
+            ? previewError.message
+            : "Passport document check failed",
+        );
+      },
+    });
   };
 
   return (
@@ -416,6 +417,10 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         </Card>
       )}
 
+      {!includeDeleted && (
+        <GroupWhatsAppBroadcastPanel groupId={groupId} />
+      )}
+
       {importMessage && (
         <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
           {importMessage}
@@ -448,7 +453,6 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       {passportImportPreview && (
         <PassportDocumentImportDialog
           preview={passportImportPreview}
-          passports={data ?? []}
           saving={passportSaveMutation.isPending}
           onClose={() => {
             if (!passportSaveMutation.isPending) setPassportImportPreview(null);
@@ -495,20 +499,20 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             <div className="grid gap-3 md:grid-cols-2">
               {expiryAlerts.map((passport) => (
                 <Link
-                  key={passport.id}
-                  href={ROUTES.dashboard.passportDetail(passport.id) as never}
+                  key={passport.submission_id}
+                  href={ROUTES.dashboard.passportDetail(passport.submission_id) as never}
                   className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <div className="font-semibold text-slate-900">{passport.client_name}</div>
                       <div className="text-xs text-slate-500">
-                        {getStringField(getDashboardFields(passport), "passport_number") || "Passport number not extracted"}
+                        {passport.passport_number || "Passport number not extracted"}
                       </div>
                     </div>
                     <div className="text-right text-sm font-medium text-red-800">
                       {formatPassportDateForUi(
-                        getStringField(getDashboardFields(passport), "date_of_expiry"),
+                        passport.date_of_expiry,
                       ) || "Expiry missing"}
                     </div>
                   </div>
@@ -523,71 +527,65 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
         <Input
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
           placeholder="Search name, email, phone, passport number"
           className="h-10 pl-9"
         />
+        {isFetching && !isLoading && (
+          <Loader2
+            className="absolute right-3 top-3 h-4 w-4 animate-spin text-blue-600"
+            aria-label="Updating submissions"
+          />
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <label className="sr-only" htmlFor="group-submission-sort">Sort submissions by</label>
         <select
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
+          id="group-submission-sort"
+          value={sortBy}
+          onChange={(event) => {
+            setSortBy(event.target.value as PassportGroupSubmissionSort);
+            setPage(1);
+          }}
           className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
-          <option value="all">All statuses</option>
-          <option value="pending_extraction">Pending Extraction</option>
-          <option value="extracting">Extracting</option>
-          <option value="ready_for_client_review">Ready For Client Review</option>
-          <option value="submitted">Submitted</option>
+          <option value="name">Sort by: Name</option>
+          <option value="updated_at">Sort by: Updated</option>
+          <option value="verification_confidence">Sort by: Verification confidence</option>
+        </select>
+        <label className="sr-only" htmlFor="group-submission-filter">Filter submissions</label>
+        <select
+          id="group-submission-filter"
+          value={submissionFilter}
+          onChange={(event) => {
+            setSubmissionFilter(event.target.value as PassportGroupSubmissionFilter);
+            setPage(1);
+          }}
+          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        >
+          <option value="all">All submissions</option>
+          <option value="pending_ai">Pending AI Verification</option>
           <option value="ai_approved">AI Approved</option>
           <option value="needs_review">Needs Review</option>
           <option value="staff_approved">Staff Approved</option>
-          <option value="client_submitted">Client submitted</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="review_required">Review required</option>
-          <option value="failed">Failed</option>
+          <option value="duplicates">Duplicates</option>
         </select>
-        {metadataFields.length > 0 && (
-          <>
-            <select
-              value={metadataField}
-              onChange={(event) => { setMetadataField(event.target.value); setMetadataValue("all"); }}
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="all">All staff fields</option>
-              {metadataFields.map((field) => <option key={field} value={field}>{formatMetadataLabel(field)}</option>)}
-            </select>
-            {metadataField !== "all" && (
-              <select
-                value={metadataValue}
-                onChange={(event) => setMetadataValue(event.target.value)}
-                className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              >
-                <option value="all">All {formatMetadataLabel(metadataField)}</option>
-                {metadataValues.map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            )}
-            <select
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value)}
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="name">Sort: name</option>
-              {metadataFields.map((field) => <option key={field} value={field}>Sort: {formatMetadataLabel(field)}</option>)}
-            </select>
-          </>
-        )}
+        <label className="sr-only" htmlFor="group-submission-sort-order">Sort direction</label>
         <select
-          value={qualityFilter}
-          onChange={(event) => setQualityFilter(event.target.value)}
+          id="group-submission-sort-order"
+          value={sortOrder}
+          onChange={(event) => {
+            setSortOrder(event.target.value as "asc" | "desc");
+            setPage(1);
+          }}
           className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
-          <option value="all">All quality</option>
-          <option value="low_confidence">Low confidence</option>
-          <option value="missing_passport">Missing passport number</option>
-          <option value="expiry_alert">Expired / expiring soon</option>
-          <option value="complete">Complete</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
         </select>
         <Button
           type="button"
@@ -640,31 +638,48 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             <Skeleton key={index} className="h-28 w-full rounded-2xl" />
           ))}
         </div>
-      ) : !data || data.length === 0 ? (
+      ) : error ? null : (submissionsView?.group_total ?? 0) === 0 ? (
         <EmptyState
           icon={<UploadCloud className="h-5 w-5" />}
           title="Drop passport here"
           description="Share this group link with clients or upload a passport through the client page. Submitted passports will appear here."
         />
-      ) : filteredPassports.length === 0 ? (
+      ) : !data || data.length === 0 ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
           title="No passports match these filters"
-          description="Adjust search, status, or quality filters to find more submissions."
-          action={{ label: "Reset Filters", onClick: () => { setSearch(""); setStatusFilter("all"); setQualityFilter("all"); setMetadataField("all"); setMetadataValue("all"); setSortBy("name"); } }}
+          description="Adjust the search or submission filter to find more submissions."
+          action={{
+            label: "Reset Filters",
+            onClick: () => {
+              setSearch("");
+              setDebouncedSearch("");
+              setSubmissionFilter("all");
+              setSortBy("name");
+              setSortOrder("asc");
+              setPage(1);
+            },
+          }}
         />
       ) : viewMode === "docs" ? (
         <PassportDocumentMatrix passports={filteredPassports} />
       ) : (
         <>
           <div className="grid gap-4 lg:hidden">
-            {filteredPassports.map((passport) => (
-              <PassportMobileCard
-                key={passport.id}
-                passport={passport}
-                selected={selectedPassports.includes(passport.id)}
-                onToggle={() => togglePassport(passport.id)}
-              />
+            {filteredPassports.map((passport, index) => (
+              <Fragment key={passport.id}>
+                {isDuplicateClusterStart(filteredPassports, index) && (
+                  <DuplicateClusterHeader
+                    passport={passport}
+                    searchActive={Boolean(debouncedSearch)}
+                  />
+                )}
+                <PassportMobileCard
+                  passport={passport}
+                  selected={selectedPassports.includes(passport.id)}
+                  onToggle={() => togglePassport(passport.id)}
+                />
+              </Fragment>
             ))}
           </div>
 
@@ -683,12 +698,25 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredPassports.map((passport) => (
-                      <tr
-                        key={passport.id}
-                        className="cursor-pointer hover:bg-slate-50/60"
-                        onClick={() => togglePassport(passport.id)}
-                      >
+                    {filteredPassports.map((passport, index) => (
+                      <Fragment key={passport.id}>
+                        {isDuplicateClusterStart(filteredPassports, index) && (
+                          <tr className="border-y border-amber-200 bg-amber-50">
+                            <td colSpan={6} className="px-6 py-2">
+                              <DuplicateClusterHeader
+                                passport={passport}
+                                searchActive={Boolean(debouncedSearch)}
+                                compact
+                              />
+                            </td>
+                          </tr>
+                        )}
+                        <tr
+                          className={`cursor-pointer hover:bg-slate-50/60 ${
+                            isDuplicatePassport(passport) ? "bg-amber-50/30" : ""
+                          }`}
+                          onClick={() => togglePassport(passport.id)}
+                        >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <input
@@ -714,7 +742,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-slate-700">
-                          {formatConfidence(getGroupVerificationConfidence(passport))}
+                          {formatConfidence(passport.verification_confidence ?? null)}
                         </td>
                         <td className="px-6 py-4 text-slate-500">{formatDateTime(passport.updated_at)}</td>
                         <td className="px-6 py-4">
@@ -728,7 +756,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                             </Link>
                           </div>
                         </td>
-                      </tr>
+                        </tr>
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -736,6 +765,41 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             </CardContent>
           </Card>
         </>
+      )}
+
+      {submissionsView && submissionsView.total > 0 && (
+        <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-600">
+            Showing {submissionsView.items.length.toLocaleString()} of{" "}
+            {submissionsView.total.toLocaleString()} matching submissions
+            {submissionsView.cluster_boundaries_preserved
+              ? " · duplicate sets stay together"
+              : ""}
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={page <= 1 || isFetching}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+            >
+              Previous
+            </Button>
+            <span className="min-w-24 text-center text-sm font-medium text-slate-700">
+              Page {submissionsView.page} of {Math.max(1, submissionsView.total_pages)}
+            </span>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={page >= submissionsView.total_pages || isFetching}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       )}
 
       {isEditingTrip && groupDetails && (
@@ -811,6 +875,48 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   );
 }
 
+function isDuplicatePassport(passport: PassportSubmission) {
+  return Boolean(
+    passport.duplicate_cluster_id
+    && (passport.duplicate_cluster_size ?? 0) > 1,
+  );
+}
+
+function isDuplicateClusterStart(
+  passports: PassportSubmission[],
+  index: number,
+) {
+  const passport = passports[index];
+  if (!passport || !isDuplicatePassport(passport)) return false;
+  return index === 0
+    || passports[index - 1]?.duplicate_cluster_id !== passport.duplicate_cluster_id;
+}
+
+function DuplicateClusterHeader({
+  passport,
+  searchActive,
+  compact = false,
+}: {
+  passport: PassportSubmission;
+  searchActive: boolean;
+  compact?: boolean;
+}) {
+  const count = passport.duplicate_cluster_size ?? (
+    passport.duplicate_cluster_member_ids?.length ?? 2
+  );
+  return (
+    <div className={compact ? "flex flex-wrap items-center gap-2" : "rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"}>
+      <span className="inline-flex items-center rounded-full bg-amber-200/70 px-2.5 py-1 text-xs font-bold text-amber-950">
+        Possible duplicate set
+      </span>
+      <span className="text-xs font-medium text-amber-900">
+        Part of a possible duplicate set with {count} submissions
+        {searchActive ? " · all set members are shown when one matches your search" : ""}
+      </span>
+    </div>
+  );
+}
+
 function PassportMobileCard({
   passport,
   selected,
@@ -820,8 +926,13 @@ function PassportMobileCard({
   selected: boolean;
   onToggle: () => void;
 }) {
+  const cardClassName = selected
+    ? "rounded-2xl border-blue-300 bg-blue-50/40"
+    : isDuplicatePassport(passport)
+      ? "rounded-2xl border-amber-200 bg-amber-50/30"
+      : "rounded-2xl";
   return (
-    <Card className={selected ? "rounded-2xl border-blue-300 bg-blue-50/40" : "rounded-2xl"} onClick={onToggle}>
+    <Card className={cardClassName} onClick={onToggle}>
       <CardContent className="space-y-4 p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex gap-3">
@@ -848,7 +959,7 @@ function PassportMobileCard({
           />
           <InfoPair
             label="Confidence"
-            value={formatConfidence(getGroupVerificationConfidence(passport))}
+            value={formatConfidence(passport.verification_confidence ?? null)}
           />
           <InfoPair label="Updated" value={formatDateTime(passport.updated_at)} />
         </div>
@@ -1107,101 +1218,15 @@ function getDashboardCountry(passport: PassportSubmission) {
   return formatPassportCountry(getStringField(fields, "issuing_country"));
 }
 
-function getGroupVerificationConfidence(passport: PassportSubmission) {
-  const verification = passport.post_submission_verification;
-  return verification ? getPassportVerificationConfidence(verification) : null;
-}
-
 function getExtractionConflictCount(passport: PassportSubmission) {
   if (Array.isArray(passport.extraction_conflicts)) return passport.extraction_conflicts.length;
   const fallback = passport.extracted_fields?.manual_review_conflicts;
   return Array.isArray(fallback) ? fallback.length : 0;
 }
 
-function getExpiryStatus(passport: PassportSubmission): "expired" | "near_expiry" | "valid" {
-  const fields = passport.confirmed_fields ?? passport.extracted_fields;
-  const rawExpiry = getStringField(fields, "date_of_expiry");
-  if (!rawExpiry) return "valid";
-
-  const expiry = new Date(`${rawExpiry}T00:00:00`);
-  if (Number.isNaN(expiry.getTime())) return "valid";
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const warningDate = new Date(today);
-  warningDate.setMonth(warningDate.getMonth() + 6);
-
-  if (expiry < today) return "expired";
-  if (expiry <= warningDate) return "near_expiry";
-  return "valid";
-}
-
 function getStringField(fields: ExtractedPassportFields | null, key: string) {
   const value = fields?.[key];
   return typeof value === "string" ? value : "";
-}
-
-const PASSPORT_DOCUMENT_NAME = /^STF_([A-Za-z0-9-]{1,80})_(PHOTO|FRONT|BACK)\.(jpe?g|png|webp)$/i;
-
-async function buildLocalPassportDocumentPreview(
-  groupId: string,
-  files: File[],
-  passports: PassportSubmission[],
-  onProgress: (processed: number, total: number) => void,
-): Promise<PassportDocumentImportPreview> {
-  const byStaffCode = new Map<string, PassportSubmission>();
-  passports.forEach((passport) => {
-    const staffCode = getStaffCode(passport);
-    if (staffCode) byStaffCode.set(staffCode, passport);
-  });
-
-  const accepted: PassportDocumentImportPreview["accepted_documents"] = [];
-  const rejected: PassportDocumentImportPreview["rejected_documents"] = [];
-  const seen = new Set<string>();
-  const chunkSize = 300;
-
-  for (let index = 0; index < files.length; index += chunkSize) {
-    for (const file of files.slice(index, index + chunkSize)) {
-      const match = PASSPORT_DOCUMENT_NAME.exec(file.name);
-      if (!match) {
-        rejected.push({ filename: file.name, accepted: false, reason: "Expected STF_<staffcode>_PHOTO, _FRONT, or _BACK image name" });
-        continue;
-      }
-      const staffCode = match[1].toUpperCase();
-      const documentType = match[2].toLowerCase() as "photo" | "front" | "back";
-      const passenger = byStaffCode.get(staffCode);
-      if (!passenger) {
-        rejected.push({ filename: file.name, staff_code: staffCode, document_type: documentType, accepted: false, reason: "Staff code was not found in this group" });
-        continue;
-      }
-      const duplicateKey = `${passenger.id}:${documentType}`;
-      if (seen.has(duplicateKey)) {
-        rejected.push({ filename: file.name, staff_code: staffCode, document_type: documentType, accepted: false, reason: "Duplicate document type for this passenger" });
-        continue;
-      }
-      seen.add(duplicateKey);
-      accepted.push({
-        filename: file.name,
-        staff_code: staffCode,
-        document_type: documentType,
-        passenger_id: passenger.id,
-        passenger_name: passenger.client_name,
-        accepted: true,
-      });
-    }
-    onProgress(Math.min(index + chunkSize, files.length), files.length);
-    await new Promise((resolve) => window.setTimeout(resolve, 0));
-  }
-
-  return {
-    group_id: groupId,
-    total_count: accepted.length + rejected.length,
-    accepted_count: accepted.length,
-    rejected_count: rejected.length,
-    accepted_documents: accepted,
-    rejected_documents: rejected,
-  };
 }
 
 function getStaffCode(passport: PassportSubmission) {
@@ -1245,15 +1270,90 @@ function PassportDocumentImportProgress({
   );
 }
 
+function PassportImportPreviewMatrix({
+  preview,
+}: {
+  preview: PassportDocumentImportPreview;
+}) {
+  const passengers = useMemo(() => {
+    const byPassenger = new Map<string, {
+      id: string;
+      name: string;
+      staffCode: string;
+      documents: Partial<Record<
+        "photo" | "front" | "back",
+        PassportDocumentImportPreview["accepted_documents"][number]
+      >>;
+    }>();
+    preview.accepted_documents.forEach((document) => {
+      if (!document.passenger_id || !document.document_type) return;
+      const passenger = byPassenger.get(document.passenger_id) ?? {
+        id: document.passenger_id,
+        name: document.passenger_name || "Unnamed passenger",
+        staffCode: document.staff_code || "",
+        documents: {},
+      };
+      passenger.documents[document.document_type] = document;
+      byPassenger.set(document.passenger_id, passenger);
+    });
+    return [...byPassenger.values()].sort((left, right) => (
+      left.name.localeCompare(right.name, undefined, {
+        sensitivity: "base",
+        numeric: true,
+      })
+    ));
+  }, [preview.accepted_documents]);
+
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
+                <th className="px-5 py-4">Person</th>
+                <th className="px-5 py-4">Passport pic</th>
+                <th className="px-5 py-4">Passport front</th>
+                <th className="px-5 py-4">Passport back</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {passengers.map((passenger) => (
+                <tr key={passenger.id} className="align-top">
+                  <td className="px-5 py-4">
+                    <div className="font-semibold text-slate-900">{passenger.name}</div>
+                    <div className="mt-1 text-xs text-slate-500">
+                      {passenger.staffCode || "No staff code"}
+                    </div>
+                  </td>
+                  {(["photo", "front", "back"] as const).map((documentType) => {
+                    const document = passenger.documents[documentType];
+                    return (
+                      <DocumentCell
+                        key={documentType}
+                        label={documentType}
+                        filename={document?.filename}
+                        hasDocument={Boolean(document)}
+                      />
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function PassportDocumentImportDialog({
   preview,
-  passports,
   saving,
   onClose,
   onSave,
 }: {
   preview: PassportDocumentImportPreview;
-  passports: PassportSubmission[];
   saving: boolean;
   onClose: () => void;
   onSave: () => void;
@@ -1299,7 +1399,7 @@ function PassportDocumentImportDialog({
               </section>
             </div>
           ) : (
-            <PassportDocumentMatrix passports={passports} preview={preview} />
+            <PassportImportPreviewMatrix preview={preview} />
           )}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">
@@ -1563,10 +1663,6 @@ function TripDetailsDialog({
 
 function normalizeCity(value: string) {
   return value.trim().replace(/\s+/g, " ").slice(0, 120);
-}
-
-function formatMetadataLabel(key: string) {
-  return key.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function normalizeCities(values: string[]) {

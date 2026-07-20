@@ -490,7 +490,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         group_id: uuid.UUID,
         *,
         skip: int = 0,
-        limit: int = 50,
+        limit: int | None = 50,
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,
@@ -512,7 +512,11 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, visible_to_user)
         stmt = self._apply_search(stmt, search)
-        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc()).offset(skip).limit(limit)
+        stmt = stmt.order_by(PassportSubmissionModel.created_at.desc())
+        if skip:
+            stmt = stmt.offset(skip)
+        if limit is not None:
+            stmt = stmt.limit(limit)
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
 

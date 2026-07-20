@@ -27,7 +27,7 @@ class ListPassportSubmissionsByGroupUseCase:
         group_id: uuid.UUID,
         *,
         skip: int = 0,
-        limit: int = 100,
+        limit: int | None = 100,
         search: str | None = None,
         created_by_user_id: uuid.UUID | None = None,
         include_deleted_group: bool = False,

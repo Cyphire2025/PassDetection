@@ -4,12 +4,24 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { uploadLinksApi, type CreateUploadLinkRequest, type UploadLinkResponse } from "../api/upload-links.api";
+import {
+  uploadLinksApi,
+  type CreateUploadLinkRequest,
+  type GroupWhatsAppMatchesParams,
+  type UploadLinkResponse,
+} from "../api/upload-links.api";
 
 const QUERY_KEYS = {
   all: ["upload-links"] as const,
   list: (statusFilter?: UploadLinkResponse["status"]) => ["upload-links", "list", statusFilter ?? "active-workflow"] as const,
   byToken: (token: string) => ["upload-links", "token", token] as const,
+  whatsappLinks: (id: string) => ["upload-links", id, "whatsapp-links"] as const,
+  whatsappBroadcastOptions: (id?: string) => (
+    ["upload-links", id ?? "new", "whatsapp-broadcast-options"] as const
+  ),
+  whatsappMatches: (id: string, params: GroupWhatsAppMatchesParams) => (
+    ["upload-links", id, "whatsapp-matches", params] as const
+  ),
 };
 
 export function useUploadLinks(statusFilter?: UploadLinkResponse["status"], enabled = true) {
@@ -75,6 +87,54 @@ export function useUpdateUploadLink() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
     },
+  });
+}
+
+export function useGroupWhatsAppLinks(id: string, enabled = true) {
+  return useQuery({
+    queryKey: QUERY_KEYS.whatsappLinks(id),
+    queryFn: () => uploadLinksApi.getWhatsAppLinks(id),
+    enabled: enabled && Boolean(id),
+    refetchInterval: 30_000,
+  });
+}
+
+export function useWhatsAppBroadcastOptions(id?: string, enabled = true) {
+  return useQuery({
+    queryKey: QUERY_KEYS.whatsappBroadcastOptions(id),
+    queryFn: () => uploadLinksApi.getWhatsAppBroadcastOptions(id),
+    enabled,
+  });
+}
+
+export function useUpdateGroupWhatsAppLinks(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (whatsappBroadcastGroupIds: string[]) => (
+      uploadLinksApi.updateWhatsAppLinks(id, whatsappBroadcastGroupIds)
+    ),
+    onSuccess: (response) => {
+      queryClient.setQueryData(QUERY_KEYS.whatsappLinks(id), response);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      queryClient.invalidateQueries({
+        queryKey: ["upload-links", id, "whatsapp-matches"],
+      });
+    },
+  });
+}
+
+export function useGroupWhatsAppMatches(
+  id: string,
+  params: GroupWhatsAppMatchesParams,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: QUERY_KEYS.whatsappMatches(id, params),
+    queryFn: () => uploadLinksApi.getWhatsAppMatches(id, params),
+    enabled: enabled && Boolean(id),
+    placeholderData: (previous) => previous,
+    refetchInterval: 30_000,
   });
 }
 

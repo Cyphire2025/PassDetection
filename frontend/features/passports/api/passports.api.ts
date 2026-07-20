@@ -52,6 +52,50 @@ export interface PassportDocumentImportChunkRequest extends PassportDocumentImpo
   maxChunkFiles?: number;
 }
 
+export type PassportGroupSubmissionFilter =
+  | "all"
+  | "pending_ai"
+  | "ai_approved"
+  | "needs_review"
+  | "staff_approved"
+  | "duplicates";
+
+export type PassportGroupSubmissionSort =
+  | "name"
+  | "updated_at"
+  | "verification_confidence";
+
+export interface PassportGroupSubmissionsViewParams {
+  search?: string;
+  include_deleted?: boolean;
+  submission_filter: PassportGroupSubmissionFilter;
+  sort_by: PassportGroupSubmissionSort;
+  sort_order: "asc" | "desc";
+  page: number;
+  page_size: number;
+}
+
+export interface PassportExpiryAlert {
+  submission_id: string;
+  client_name: string;
+  client_email: string | null;
+  passport_number: string | null;
+  date_of_expiry: string;
+  status: "expired" | "near_expiry";
+}
+
+export interface PassportGroupSubmissionsView {
+  items: PassportSubmission[];
+  group_total: number;
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  returned_count: number;
+  cluster_boundaries_preserved: boolean;
+  expiry_alerts: PassportExpiryAlert[];
+}
+
 export interface BulkDeletePassportSubmissionsResult {
   deleted_count: number;
   deleted_submission_ids: string[];
@@ -100,6 +144,17 @@ export const passportsApi = {
     const { data } = await apiClient.post<PassportSubmission>(API_ENDPOINTS.passports.confirm(id), {
       confirmed_fields: confirmedFields,
     });
+    return data;
+  },
+
+  getGroupSubmissionsView: async (
+    groupId: string,
+    params: PassportGroupSubmissionsViewParams,
+  ): Promise<PassportGroupSubmissionsView> => {
+    const { data } = await apiClient.get<PassportGroupSubmissionsView>(
+      API_ENDPOINTS.passports.groupSubmissionsView(groupId),
+      { params },
+    );
     return data;
   },
 

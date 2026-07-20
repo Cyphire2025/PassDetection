@@ -29,6 +29,14 @@ def _normalize_departure_cities(values: list[str] | None) -> list[str]:
     return cities
 
 
+def _normalize_broadcast_group_ids(
+    values: list[uuid.UUID] | None,
+) -> list[uuid.UUID]:
+    if not values:
+        return []
+    return list(dict.fromkeys(values))
+
+
 class CreateClientGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -47,11 +55,23 @@ class CreateClientGroupRequest(BaseModel):
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
     notes: str | None = Field(default=None, max_length=2000)
+    whatsapp_broadcast_group_ids: list[uuid.UUID] = Field(
+        default_factory=list,
+        max_length=50,
+    )
 
     @field_validator("departure_cities", mode="before")
     @classmethod
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
+
+    @field_validator("whatsapp_broadcast_group_ids", mode="before")
+    @classmethod
+    def normalize_whatsapp_broadcast_group_ids(
+        cls,
+        value: list[uuid.UUID] | None,
+    ) -> list[uuid.UUID]:
+        return _normalize_broadcast_group_ids(value)
 
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> CreateClientGroupRequest:
@@ -82,11 +102,25 @@ class UpdateClientGroupRequest(BaseModel):
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
     notes: str | None = Field(default=None, max_length=2000)
+    whatsapp_broadcast_group_ids: list[uuid.UUID] | None = Field(
+        default=None,
+        max_length=50,
+    )
 
     @field_validator("departure_cities", mode="before")
     @classmethod
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
+
+    @field_validator("whatsapp_broadcast_group_ids", mode="before")
+    @classmethod
+    def normalize_whatsapp_broadcast_group_ids(
+        cls,
+        value: list[uuid.UUID] | None,
+    ) -> list[uuid.UUID] | None:
+        if value is None:
+            return None
+        return _normalize_broadcast_group_ids(value)
 
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> UpdateClientGroupRequest:
@@ -104,6 +138,16 @@ class QualifierRelationOptionResponse(BaseModel):
 
     code: str = Field(..., min_length=1, max_length=40)
     label: str = Field(..., min_length=1, max_length=80)
+
+
+class WhatsAppBroadcastSummaryResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    name: str
+    recipient_count: int = Field(default=0, ge=0)
+    created_at: datetime
+    updated_at: datetime
 
 
 class ClientGroupResponse(BaseModel):
@@ -137,6 +181,79 @@ class ClientGroupResponse(BaseModel):
     deletion_retained_records: bool = False
 
     model_config = {"from_attributes": True}
+
+
+class ReplaceWhatsAppBroadcastLinksRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    whatsapp_broadcast_group_ids: list[uuid.UUID] = Field(
+        ...,
+        max_length=50,
+    )
+
+    @field_validator("whatsapp_broadcast_group_ids", mode="before")
+    @classmethod
+    def normalize_whatsapp_broadcast_group_ids(
+        cls,
+        value: list[uuid.UUID] | None,
+    ) -> list[uuid.UUID]:
+        return _normalize_broadcast_group_ids(value)
+
+
+class ClientGroupWhatsAppLinksResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    client_group_id: uuid.UUID
+    broadcasts: list[WhatsAppBroadcastSummaryResponse] = Field(
+        default_factory=list
+    )
+    broadcast_count: int = Field(default=0, ge=0)
+    recipient_count: int = Field(default=0, ge=0)
+    can_manage: bool = False
+
+
+class WhatsAppSubmissionMatchCountsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    total_recipients: int = Field(ge=0)
+    submitted_count: int = Field(ge=0)
+    not_submitted_count: int = Field(ge=0)
+    multiple_submission_count: int = Field(ge=0)
+    matched_submission_count: int = Field(ge=0)
+
+
+class WhatsAppSubmissionMatchRowResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal[
+        "submitted",
+        "not_submitted",
+        "multiple_submissions",
+    ]
+    match_basis: Literal["phone"] | None = None
+    normalized_phone: str | None = None
+    recipient_ids: list[uuid.UUID] = Field(default_factory=list)
+    submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    broadcast_ids: list[uuid.UUID] = Field(default_factory=list)
+    broadcast_names: list[str] = Field(default_factory=list)
+    recipient_names: list[str] = Field(default_factory=list)
+    submission_names: list[str] = Field(default_factory=list)
+    updated_at: datetime
+
+
+class ClientGroupWhatsAppMatchesResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    client_group_id: uuid.UUID
+    linked_broadcast_count: int = Field(ge=0)
+    counts: WhatsAppSubmissionMatchCountsResponse
+    matches: list[WhatsAppSubmissionMatchRowResponse] = Field(
+        default_factory=list
+    )
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    total_pages: int = Field(ge=0)
 
 
 class CreateQualifierSelectionRequest(BaseModel):

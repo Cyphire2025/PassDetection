@@ -14,6 +14,7 @@ export const createUploadLinkSchema = z.object({
   allow_files_from_device: z.boolean(),
   ask_nearest_domestic_airport: z.boolean(),
   relation_with_qualifier_enabled: z.boolean(),
+  whatsapp_broadcast_group_ids: z.array(z.string().uuid()).max(50),
   notes: z.string().trim().max(2000).optional(),
 }).superRefine((data, context) => {
   if (data.nearest_international_airport_enabled && data.departure_cities.length === 0) {

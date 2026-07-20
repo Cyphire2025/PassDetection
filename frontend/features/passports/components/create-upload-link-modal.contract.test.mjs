@@ -45,3 +45,16 @@ test("whitespace-only group names are rejected", () => {
     /name: z\.string\(\)\.trim\(\)\.min\(1, "Group name is required"\)/,
   );
 });
+
+test("group creation can link a bounded set of existing WhatsApp broadcasts", () => {
+  assert.match(modalSource, /<WhatsAppBroadcastSelector/);
+  assert.match(modalSource, /name: "whatsapp_broadcast_group_ids"/);
+  assert.match(
+    modalSource,
+    /setValue\(\s*"whatsapp_broadcast_group_ids"/,
+  );
+  assert.match(
+    schemaSource,
+    /whatsapp_broadcast_group_ids: z\.array\(z\.string\(\)\.uuid\(\)\)\.max\(50\)/,
+  );
+});

@@ -38,6 +38,10 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.contact_normalization import (
+    clean_whatsapp_name,
+    normalize_whatsapp_phone,
+)
 from app.application.use_cases.whatsapp.message_templates import (
     AUTOMATED_NOTICE,
     GREETING,
@@ -99,7 +103,6 @@ MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
 MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
 WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
-PHONE_ALLOWED_RE = re.compile(r"^(?:\+|00)?[\d\s().-]+$")
 
 
 class WhatsAppRecipientInput(BaseModel):
@@ -501,33 +504,11 @@ def _agency_filter(current_user: User) -> list[Any]:
 
 
 def _normalize_phone(raw: str) -> str | None:
-    value = (raw or "").strip()
-    if not value or len(value) > 64 or not PHONE_ALLOWED_RE.fullmatch(value):
-        return None
-    has_plus = value.startswith("+")
-    digits = re.sub(r"\D", "", value)
-    if not digits:
-        return None
-    if value.startswith("00"):
-        digits = digits[2:]
-    if not 8 <= len(digits) <= 15:
-        return None
-    if has_plus or value.startswith("00") or len(digits) > 10:
-        if digits.startswith("0"):
-            return None
-        normalized = f"+{digits}"
-    elif len(digits) == 10:
-        normalized = f"+91{digits}"
-    else:
-        return None
-    return normalized
+    return normalize_whatsapp_phone(raw)
 
 
 def _clean_name(value: Any) -> str | None:
-    if value is None:
-        return None
-    name = re.sub(r"\s+", " ", str(value)).strip()
-    return name[:255] or None
+    return clean_whatsapp_name(value)
 
 
 def _clean_required_name(value: Any, field_label: str) -> str:

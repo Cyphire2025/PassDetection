@@ -3,6 +3,7 @@ import { QUERY_KEYS } from "@/constants";
 import type { StaffApprovalRequest } from "@/types/passport.types";
 import { passportsApi } from "../api/passports.api";
 import type { PassportDocumentImportChunkRequest, PassportDocumentImportRequest } from "../api/passports.api";
+import type { PassportGroupSubmissionsViewParams } from "../api/passports.api";
 import { getStaffApprovalErrorFeedback } from "../utils/passport-review";
 import { isPassportWorkflowPending } from "../utils/passport-workflow";
 
@@ -80,6 +81,27 @@ export function useSavePassportDocuments(groupId: string) {
 export function useExportSelectedPassports() {
   return useMutation({
     mutationFn: (submissionIds: string[]) => passportsApi.exportSelectedPassports(submissionIds),
+  });
+}
+
+export function useGroupSubmissionsView(
+  groupId: string,
+  params: PassportGroupSubmissionsViewParams,
+) {
+  return useQuery({
+    queryKey: QUERY_KEYS.passports.groupDetail(groupId, {
+      view: "submissions",
+      ...params,
+    }),
+    queryFn: () => passportsApi.getGroupSubmissionsView(groupId, params),
+    enabled: Boolean(groupId),
+    refetchInterval: (query) => (
+      query.state.data?.items.some((passport) => (
+        isPassportWorkflowPending(passport.status, passport.extraction_status)
+      ))
+        ? 2_000
+        : 30_000
+    ),
   });
 }
 

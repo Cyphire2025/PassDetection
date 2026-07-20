@@ -246,7 +246,7 @@ class IPassportSubmissionRepository(ABC):
         group_id: uuid.UUID,
         *,
         skip: int = 0,
-        limit: int = 50,
+        limit: int | None = 50,
         search: str | None = None,
         exclude_archived_groups: bool = False,
         created_by_user_id: uuid.UUID | None = None,

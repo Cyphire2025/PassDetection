@@ -182,6 +182,11 @@ export interface PassportSubmission extends TimestampedEntity {
   verification_reviewed_by_user_id?: string | null;
   verification_reviewer_name?: string | null;
   verification_reviewed_at?: string | null;
+  duplicate_cluster_id?: string | null;
+  duplicate_cluster_size?: number;
+  duplicate_cluster_member_ids?: string[];
+  duplicate_match_basis?: string | null;
+  verification_confidence?: number | null;
   overall_confidence: number | null;
   confidence_score: PassportConfidenceScore | null;
   mrz_raw: string | null;
