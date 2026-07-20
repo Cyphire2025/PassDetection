@@ -92,6 +92,39 @@ test("search is debounced and expiry alerts do not depend on the visible page", 
   assert.doesNotMatch(source, /passport\.client_email \|\| "No email provided"/);
 });
 
+test("expiry alerts are collapsible through an accessible disclosure control", () => {
+  assert.match(source, /const \[isExpiryAlertsExpanded, setIsExpiryAlertsExpanded\] = useState\(true\)/);
+  assert.match(source, /aria-expanded=\{isExpiryAlertsExpanded\}/);
+  assert.match(source, /aria-controls=\{expiryAlertsRegionId\}/);
+  assert.match(source, /id=\{expiryAlertsRegionId\}/);
+  assert.match(source, /setIsExpiryAlertsExpanded\(\(current\) => !current\)/);
+  assert.match(source, /\{isExpiryAlertsExpanded && \(/);
+});
+
+test("selection actions stay hidden until a passport is selected", () => {
+  assert.match(
+    source,
+    /\{selectedPassports\.length > 0 && \([\s\S]*?Export Selected[\s\S]*?Delete Selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
+  );
+  assert.doesNotMatch(
+    source,
+    /disabled=\{selectedPassports\.length === 0\}/,
+  );
+});
+
+test("submission toolbar remains a compact non-wrapping row with horizontal overflow", () => {
+  assert.match(
+    source,
+    /className="flex flex-nowrap items-center gap-2 overflow-x-auto rounded-xl/,
+  );
+  assert.match(source, /className="shrink-0 whitespace-nowrap"/);
+  assert.match(source, /\{viewMode === "docs" \? "Table view" : "DOCS view"\}/);
+  assert.doesNotMatch(
+    source,
+    /className="flex flex-wrap items-center gap-3 rounded-xl/,
+  );
+});
+
 test("all document-import previews use full-group backend reconciliation", () => {
   assert.match(
     source,

@@ -245,6 +245,7 @@ class ClientGroupWhatsAppMatchesResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     client_group_id: uuid.UUID
+    selected_broadcast_id: uuid.UUID | None = None
     linked_broadcast_count: int = Field(ge=0)
     counts: WhatsAppSubmissionMatchCountsResponse
     matches: list[WhatsAppSubmissionMatchRowResponse] = Field(

@@ -230,6 +230,7 @@ async def test_view_only_manager_can_read_deduped_links_and_matches(
     )
     matches = await get_client_group_whatsapp_matches(
         group.id,
+        broadcast_id=None,
         match_status="all",
         sort_by="name",
         sort_order="asc",
@@ -265,6 +266,64 @@ async def test_view_only_manager_can_read_deduped_links_and_matches(
             session=db_session,
         )
     assert options_error.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_matches_can_filter_by_a_linked_broadcast_and_reject_unlinked(
+    db_session: AsyncSession,
+) -> None:
+    seeded = await _seed(db_session)
+    group = seeded["group"]
+    viewer = seeded["viewer"]
+    first, second, unlinked = seeded["broadcasts"]
+    other_tenant = seeded["other_broadcast"]
+    db_session.add(
+        WhatsAppBroadcastRecipientModel(
+            id=uuid.uuid4(),
+            broadcast_group_id=second.id,
+            agency_id=seeded["agency_id"],
+            name="South only",
+            phone_number="9000012345",
+            normalized_phone_number="+919000012345",
+            created_at=NOW,
+        )
+    )
+    await db_session.flush()
+
+    matches = await get_client_group_whatsapp_matches(
+        group.id,
+        broadcast_id=first.id,
+        match_status="all",
+        sort_by="name",
+        sort_order="asc",
+        page=1,
+        page_size=100,
+        current_user=viewer,
+        session=db_session,
+    )
+
+    assert matches.selected_broadcast_id == first.id
+    assert matches.counts.total_recipients == 1
+    assert matches.total == 1
+    assert set(matches.matches[0].broadcast_ids) == {
+        first.id,
+        second.id,
+    }
+
+    for unavailable_id in (unlinked.id, other_tenant.id):
+        with pytest.raises(HTTPException) as unlinked_error:
+            await get_client_group_whatsapp_matches(
+                group.id,
+                broadcast_id=unavailable_id,
+                match_status="all",
+                sort_by="name",
+                sort_order="asc",
+                page=1,
+                page_size=100,
+                current_user=viewer,
+                session=db_session,
+            )
+        assert unlinked_error.value.status_code == 400
 
 
 @pytest.mark.asyncio

@@ -76,6 +76,7 @@ export interface GroupWhatsAppMatch {
 
 export interface GroupWhatsAppMatchesResponse {
   client_group_id: string;
+  selected_broadcast_id: string | null;
   linked_broadcast_count: number;
   counts: GroupWhatsAppMatchCounts;
   matches: GroupWhatsAppMatch[];
@@ -87,6 +88,7 @@ export interface GroupWhatsAppMatchesResponse {
 
 export interface GroupWhatsAppMatchesParams {
   status?: "all" | GroupWhatsAppMatchStatus;
+  broadcast_id?: string;
   sort_by?: "name" | "phone" | "status" | "broadcast" | "updated_at";
   sort_order?: "asc" | "desc";
   page?: number;

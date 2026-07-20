@@ -22,6 +22,8 @@ export const ROUTES = {
     root: "/dashboard",
     passports: "/passports",
     passportGroup: (groupId: string) => `/passports/groups/${groupId}`,
+    passportGroupWhatsAppTracking: (groupId: string) =>
+      `/passports/groups/${groupId}/whatsapp`,
     passportDetail: (id: string) => `/passports/${id}`,
     uploadLinks: "/upload-links",
     whatsapp: "/whatsapp",

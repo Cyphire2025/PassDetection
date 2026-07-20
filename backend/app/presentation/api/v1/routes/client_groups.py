@@ -58,6 +58,7 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionForComparison,
     compare_group_submissions,
     filter_and_sort_match_rows,
+    summarize_match_rows,
 )
 from app.core.security.upload_session import is_valid_upload_session_id
 from app.domain.entities.entities import (
@@ -797,6 +798,7 @@ async def replace_client_group_whatsapp_links(
 )
 async def get_client_group_whatsapp_matches(
     link_id: uuid.UUID,
+    broadcast_id: uuid.UUID | None = None,
     match_status: Literal[
         "all", "submitted", "not_submitted", "multiple_submissions"
     ] = Query(default="all", alias="status"),
@@ -834,6 +836,17 @@ async def get_client_group_whatsapp_matches(
         broadcast_id: broadcast_name
         for broadcast_id, broadcast_name in linked_result.all()
     }
+    if (
+        broadcast_id is not None
+        and broadcast_id not in linked_broadcasts
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "The selected WhatsApp broadcast is not linked to this "
+                "client group."
+            ),
+        )
 
     recipients: list[RecipientForComparison] = []
     if linked_broadcasts:
@@ -881,6 +894,11 @@ async def get_client_group_whatsapp_matches(
         for submission in submission_result.scalars().all()
     ]
     rows, counts = compare_group_submissions(recipients, submissions)
+    if broadcast_id is not None:
+        rows = [
+            row for row in rows if broadcast_id in row.broadcast_ids
+        ]
+        counts = summarize_match_rows(rows)
     ordered_rows = filter_and_sort_match_rows(
         rows,
         status=match_status,
@@ -892,6 +910,7 @@ async def get_client_group_whatsapp_matches(
     page_rows = ordered_rows[offset : offset + page_size]
     return ClientGroupWhatsAppMatchesResponse(
         client_group_id=group.id,
+        selected_broadcast_id=broadcast_id,
         linked_broadcast_count=len(linked_broadcasts),
         counts=WhatsAppSubmissionMatchCountsResponse(
             total_recipients=counts.total_recipients,

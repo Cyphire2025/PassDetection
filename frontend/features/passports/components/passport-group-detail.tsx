@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from "@/components/ui";
@@ -56,6 +56,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const [page, setPage] = useState(1);
   const pageSize = 50;
   const [viewMode, setViewMode] = useState<"table" | "docs">("table");
+  const [isExpiryAlertsExpanded, setIsExpiryAlertsExpanded] = useState(true);
+  const expiryAlertsRegionId = useId();
   const {
     data: submissionsView,
     isLoading,
@@ -485,40 +487,59 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
 
       {expiryAlerts.length > 0 && (
         <Card className="border-red-200 bg-red-50">
-          <CardContent className="space-y-4 p-5">
-            <div className="flex items-center justify-between gap-3">
+          <CardContent className="p-0">
+            <button
+              type="button"
+              aria-expanded={isExpiryAlertsExpanded}
+              aria-controls={expiryAlertsRegionId}
+              onClick={() => setIsExpiryAlertsExpanded((current) => !current)}
+              className="flex w-full items-center justify-between gap-3 rounded-xl p-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            >
               <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-red-700" />
+                <AlertTriangle className="h-5 w-5 text-red-700" aria-hidden="true" />
                 <div>
                   <h2 className="text-base font-semibold text-red-950">Passport Expiry Alerts</h2>
                   <p className="text-sm text-red-800">Passports expired or expiring within 6 months.</p>
                 </div>
               </div>
-              <Badge variant="destructive">{expiryAlerts.length}</Badge>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {expiryAlerts.map((passport) => (
-                <Link
-                  key={passport.submission_id}
-                  href={ROUTES.dashboard.passportDetail(passport.submission_id) as never}
-                  className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="font-semibold text-slate-900">{passport.client_name}</div>
-                      <div className="text-xs text-slate-500">
-                        {passport.passport_number || "Passport number not extracted"}
+              <span className="flex shrink-0 items-center gap-2">
+                <Badge variant="destructive">{expiryAlerts.length}</Badge>
+                <ChevronDown
+                  className={`h-4 w-4 text-red-800 transition-transform ${
+                    isExpiryAlertsExpanded ? "rotate-180" : ""
+                  }`}
+                  aria-hidden="true"
+                />
+              </span>
+            </button>
+            {isExpiryAlertsExpanded && (
+              <div
+                id={expiryAlertsRegionId}
+                className="grid gap-3 border-t border-red-200 px-5 pb-5 pt-4 md:grid-cols-2"
+              >
+                {expiryAlerts.map((passport) => (
+                  <Link
+                    key={passport.submission_id}
+                    href={ROUTES.dashboard.passportDetail(passport.submission_id) as never}
+                    className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="font-semibold text-slate-900">{passport.client_name}</div>
+                        <div className="text-xs text-slate-500">
+                          {passport.passport_number || "Passport number not extracted"}
+                        </div>
+                      </div>
+                      <div className="text-right text-sm font-medium text-red-800">
+                        {formatPassportDateForUi(
+                          passport.date_of_expiry,
+                        ) || "Expiry missing"}
                       </div>
                     </div>
-                    <div className="text-right text-sm font-medium text-red-800">
-                      {formatPassportDateForUi(
-                        passport.date_of_expiry,
-                      ) || "Expiry missing"}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -542,7 +563,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-nowrap items-center gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <label className="sr-only" htmlFor="group-submission-sort">Sort submissions by</label>
         <select
           id="group-submission-sort"
@@ -551,7 +572,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             setSortBy(event.target.value as PassportGroupSubmissionSort);
             setPage(1);
           }}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="name">Sort by: Name</option>
           <option value="updated_at">Sort by: Updated</option>
@@ -565,7 +586,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             setSubmissionFilter(event.target.value as PassportGroupSubmissionFilter);
             setPage(1);
           }}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="all">All submissions</option>
           <option value="pending_ai">Pending AI Verification</option>
@@ -582,44 +603,57 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             setSortOrder(event.target.value as "asc" | "desc");
             setPage(1);
           }}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={selectedPassports.length === 0}
-          isLoading={exportSelected.isPending}
-          onClick={() => exportSelected.mutate(selectedPassports)}
-        >
-          <Download className="h-4 w-4" />
-          Export Selected ({selectedPassports.length})
-        </Button>
-        {canPermanentlyDelete && !includeDeleted && (
-          <Button
-            type="button"
-            variant="danger"
-            disabled={selectedPassports.length === 0 || bulkDelete.isPending}
-            isLoading={bulkDelete.isPending}
-            onClick={() => {
-              setBulkDeleteFeedback(null);
-              setIsBulkDeleteConfirmationOpen(true);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Selected ({selectedPassports.length})
-          </Button>
-        )}
         {selectedPassports.length > 0 && (
-          <Button type="button" variant="ghost" onClick={() => setSelectedPassports([])}>
-            Clear selection
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="shrink-0 whitespace-nowrap"
+              isLoading={exportSelected.isPending}
+              onClick={() => exportSelected.mutate(selectedPassports)}
+            >
+              <Download className="h-4 w-4" />
+              Export Selected ({selectedPassports.length})
+            </Button>
+            {canPermanentlyDelete && !includeDeleted && (
+              <Button
+                type="button"
+                variant="danger"
+                size="sm"
+                className="shrink-0 whitespace-nowrap"
+                disabled={bulkDelete.isPending}
+                isLoading={bulkDelete.isPending}
+                onClick={() => {
+                  setBulkDeleteFeedback(null);
+                  setIsBulkDeleteConfirmationOpen(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete Selected ({selectedPassports.length})
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="shrink-0 whitespace-nowrap"
+              onClick={() => setSelectedPassports([])}
+            >
+              Clear selection
+            </Button>
+          </>
         )}
         <Button
           type="button"
           variant={viewMode === "docs" ? "primary" : "secondary"}
+          size="sm"
+          className="shrink-0 whitespace-nowrap"
           onClick={() => setViewMode((current) => current === "docs" ? "table" : "docs")}
         >
           {viewMode === "docs" ? "Table view" : "DOCS view"}

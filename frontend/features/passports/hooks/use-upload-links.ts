@@ -133,7 +133,6 @@ export function useGroupWhatsAppMatches(
     queryKey: QUERY_KEYS.whatsappMatches(id, params),
     queryFn: () => uploadLinksApi.getWhatsAppMatches(id, params),
     enabled: enabled && Boolean(id),
-    placeholderData: (previous) => previous,
     refetchInterval: 30_000,
   });
 }

@@ -8,6 +8,7 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     SubmissionForComparison,
     compare_group_submissions,
     filter_and_sort_match_rows,
+    summarize_match_rows,
 )
 
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
@@ -121,3 +122,40 @@ def test_match_filter_and_sort_use_final_status_vocabulary() -> None:
 
     assert [row.status for row in filtered] == ["not_submitted"]
     assert filtered[0].recipient_names == ("Alpha",)
+
+
+def test_broadcast_subset_keeps_unique_phone_and_full_provenance() -> None:
+    north_id = uuid.uuid4()
+    south_id = uuid.uuid4()
+    shared_north = _recipient(
+        "9876543210",
+        broadcast_id=north_id,
+        broadcast_name="North",
+    )
+    shared_south = _recipient(
+        "+919876543210",
+        broadcast_id=south_id,
+        broadcast_name="South",
+    )
+    south_only = _recipient(
+        "9123456789",
+        broadcast_id=south_id,
+        broadcast_name="South",
+    )
+    submission = _submission(client_phone="9876543210")
+
+    rows, _ = compare_group_submissions(
+        [shared_north, shared_south, south_only],
+        [submission],
+    )
+    north_rows = [
+        row for row in rows if north_id in row.broadcast_ids
+    ]
+    counts = summarize_match_rows(north_rows)
+
+    assert len(north_rows) == 1
+    assert set(north_rows[0].broadcast_ids) == {north_id, south_id}
+    assert set(north_rows[0].broadcast_names) == {"North", "South"}
+    assert counts.total_recipients == 1
+    assert counts.submitted_count == 1
+    assert counts.matched_submission_count == 1

@@ -22,6 +22,17 @@ const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
 );
+const routes = readFileSync(
+  new URL("../../../constants/routes.ts", import.meta.url),
+  "utf8",
+);
+const trackingPage = readFileSync(
+  new URL(
+    "../../../app/(dashboard)/passports/groups/[groupId]/whatsapp/page.tsx",
+    import.meta.url,
+  ),
+  "utf8",
+);
 
 test("broadcast choices come only from agency-scoped group-link endpoints", () => {
   assert.match(
@@ -91,4 +102,30 @@ test("manage actions follow backend authorization instead of inferred roles", ()
     hooks,
     /useGroupWhatsAppLinks[\s\S]*?refetchInterval: 30_000/,
   );
+});
+
+test("the group page stays compact and opens full tracking on a dedicated route", () => {
+  assert.match(panel, /mode="summary"/);
+  assert.match(panel, /WhatsApp broadcasts/);
+  assert.match(panel, /links\?\.broadcasts\.map/);
+  assert.match(panel, /\{broadcast\.name\}/);
+  assert.match(panel, /View tracking/);
+  assert.match(
+    routes,
+    /passportGroupWhatsAppTracking:[\s\S]*?\/whatsapp/,
+  );
+  assert.match(
+    trackingPage,
+    /GroupWhatsAppBroadcastTrackingPage groupId=\{groupId\}/,
+  );
+  assert.match(panel, /mode="tracking"/);
+});
+
+test("full tracking can filter unique recipients by a linked broadcast", () => {
+  assert.match(api, /broadcast_id\?: string/);
+  assert.match(api, /selected_broadcast_id: string \| null/);
+  assert.match(panel, /broadcast_id: broadcastFilter/);
+  assert.match(panel, /All linked broadcasts/);
+  assert.match(panel, /whatsapp-broadcast-filter/);
+  assert.match(panel, /links\?\.broadcasts\.length \?\? 0\) > 1/);
 });

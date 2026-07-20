@@ -2,22 +2,29 @@
 
 import {
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
+  ChevronRight,
   Link2,
   Loader2,
   MessageCircle,
   Users,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useId, useState } from "react";
+import { PageHeader } from "@/components/shared/page-header";
 import {
   Badge,
   Button,
+  buttonVariants,
   Card,
   CardContent,
   ConfirmDialog,
   Skeleton,
 } from "@/components/ui";
+import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils/cn";
 import { formatDateTime } from "@/lib/utils/format";
 import type {
   GroupWhatsAppMatch,
@@ -48,7 +55,49 @@ export function GroupWhatsAppBroadcastPanel({
   groupId,
   readOnly = false,
 }: GroupWhatsAppBroadcastPanelProps) {
+  return (
+    <GroupWhatsAppBroadcastWorkspace
+      groupId={groupId}
+      readOnly={readOnly}
+      mode="summary"
+    />
+  );
+}
+
+export function GroupWhatsAppBroadcastTrackingPage({
+  groupId,
+}: {
+  groupId: string;
+}) {
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="WhatsApp submission tracking"
+        description="Compare linked broadcast recipients with passport submissions."
+        actions={(
+          <Link
+            href={ROUTES.dashboard.passportGroup(groupId) as never}
+            className={buttonVariants({ variant: "secondary" })}
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to group
+          </Link>
+        )}
+      />
+      <GroupWhatsAppBroadcastWorkspace groupId={groupId} mode="tracking" />
+    </div>
+  );
+}
+
+function GroupWhatsAppBroadcastWorkspace({
+  groupId,
+  readOnly = false,
+  mode,
+}: GroupWhatsAppBroadcastPanelProps & {
+  mode: "summary" | "tracking";
+}) {
   const [matchFilter, setMatchFilter] = useState<MatchFilter>("all");
+  const [broadcastFilter, setBroadcastFilter] = useState("all");
   const [matchPage, setMatchPage] = useState(1);
   const [isManaging, setIsManaging] = useState(false);
   const matchPageSize = 50;
@@ -65,16 +114,20 @@ export function GroupWhatsAppBroadcastPanel({
       sort_order: "asc",
       page: matchPage,
       page_size: matchPageSize,
+      ...(broadcastFilter === "all"
+        ? {}
+        : { broadcast_id: broadcastFilter }),
     },
-    hasLinkedBroadcasts,
+    mode === "tracking" && hasLinkedBroadcasts,
   );
-  const totalRecipientCount = (
-    matchesQuery.data?.counts.total_recipients ?? links?.recipient_count ?? 0
-  );
+  const totalRecipientCount = matchesQuery.data?.counts.total_recipients
+    ?? (broadcastFilter === "all" ? links?.recipient_count ?? 0 : null);
   const submittedRecipientCount = (
     matchesQuery.data?.counts.submitted_count ?? null
   );
-  const submissionRate = submittedRecipientCount !== null && totalRecipientCount > 0
+  const submissionRate = submittedRecipientCount !== null
+    && totalRecipientCount !== null
+    && totalRecipientCount > 0
     ? Math.round((submittedRecipientCount / totalRecipientCount) * 100)
     : null;
 
@@ -87,8 +140,114 @@ export function GroupWhatsAppBroadcastPanel({
     return () => window.clearTimeout(timer);
   }, [matchPage, matchesQuery.data?.total_pages]);
 
+  useEffect(() => {
+    if (
+      broadcastFilter === "all"
+      || links?.broadcasts.some(
+        (broadcast) => broadcast.id === broadcastFilter,
+      )
+    ) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setBroadcastFilter("all");
+      setMatchPage(1);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [broadcastFilter, links?.broadcasts]);
+
   if (linksLoading) {
     return <Skeleton className="h-44 w-full rounded-2xl" />;
+  }
+
+  if (mode === "summary") {
+    return (
+      <>
+        <Card>
+          <CardContent className="space-y-4 p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900">
+                    WhatsApp broadcasts
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Link recipient lists and open tracking when you need the full comparison.
+                  </p>
+                </div>
+              </div>
+              {canManage && (
+                <Button
+                  type="button"
+                  variant={hasLinkedBroadcasts ? "secondary" : "primary"}
+                  size="sm"
+                  onClick={() => setIsManaging(true)}
+                >
+                  <Link2 className="h-4 w-4" aria-hidden="true" />
+                  {hasLinkedBroadcasts ? "Manage broadcasts" : "Link broadcasts"}
+                </Button>
+              )}
+            </div>
+
+            {linksError ? (
+              <div
+                role="alert"
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                Linked WhatsApp broadcasts could not be loaded.
+              </div>
+            ) : !hasLinkedBroadcasts ? (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-7 text-center">
+                <div className="font-medium text-slate-800">
+                  No WhatsApp broadcasts linked
+                </div>
+                <p className="mt-1 text-sm text-slate-500">
+                  Link one or more existing broadcasts to track submissions.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 flex-wrap gap-2">
+                  {links?.broadcasts.map((broadcast) => (
+                    <span
+                      key={broadcast.id}
+                      className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-sm font-semibold text-emerald-900"
+                    >
+                      {broadcast.name}
+                    </span>
+                  ))}
+                </div>
+                <Link
+                  href={
+                    ROUTES.dashboard.passportGroupWhatsAppTracking(groupId) as never
+                  }
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "shrink-0",
+                  )}
+                >
+                  View tracking
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {isManaging && (
+          <ManageBroadcastsDialog
+            groupId={groupId}
+            initialIds={
+              links?.broadcasts.map((broadcast) => broadcast.id) ?? []
+            }
+            onClose={() => setIsManaging(false)}
+          />
+        )}
+      </>
+    );
   }
 
   return (
@@ -185,25 +344,56 @@ export function GroupWhatsAppBroadcastPanel({
               </div>
 
               <div className="space-y-3">
-                <div className="flex flex-wrap gap-2" aria-label="Filter broadcast recipients">
-                  {MATCH_FILTERS.map((filter) => (
-                    <button
-                      key={filter.value}
-                      type="button"
-                      aria-pressed={matchFilter === filter.value}
-                      onClick={() => {
-                        setMatchFilter(filter.value);
-                        setMatchPage(1);
-                      }}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                        matchFilter === filter.value
-                          ? "border-blue-600 bg-blue-600 text-white"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                      }`}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div
+                    className="flex flex-wrap gap-2"
+                    aria-label="Filter broadcast recipients by submission status"
+                  >
+                    {MATCH_FILTERS.map((filter) => (
+                      <button
+                        key={filter.value}
+                        type="button"
+                        aria-pressed={matchFilter === filter.value}
+                        onClick={() => {
+                          setMatchFilter(filter.value);
+                          setMatchPage(1);
+                        }}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                          matchFilter === filter.value
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                  {(links?.broadcasts.length ?? 0) > 1 && (
+                    <div className="flex shrink-0 items-center gap-2">
+                      <label
+                        htmlFor="whatsapp-broadcast-filter"
+                        className="text-xs font-semibold text-slate-600"
+                      >
+                        Broadcast
+                      </label>
+                      <select
+                        id="whatsapp-broadcast-filter"
+                        value={broadcastFilter}
+                        onChange={(event) => {
+                          setBroadcastFilter(event.target.value);
+                          setMatchPage(1);
+                        }}
+                        className="h-9 max-w-72 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      >
+                        <option value="all">All linked broadcasts</option>
+                        {links?.broadcasts.map((broadcast) => (
+                          <option key={broadcast.id} value={broadcast.id}>
+                            {broadcast.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 <BroadcastMatchTable

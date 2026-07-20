@@ -59,6 +59,33 @@ class SubmissionMatchSummary:
     matched_submission_count: int
 
 
+def summarize_match_rows(
+    rows: list[SubmissionMatchRow],
+) -> SubmissionMatchSummary:
+    """Summarize an already-selected set of logical recipient rows."""
+
+    return SubmissionMatchSummary(
+        total_recipients=len(rows),
+        submitted_count=sum(
+            row.status in {"submitted", "multiple_submissions"}
+            for row in rows
+        ),
+        not_submitted_count=sum(
+            row.status == "not_submitted" for row in rows
+        ),
+        multiple_submission_count=sum(
+            row.status == "multiple_submissions" for row in rows
+        ),
+        matched_submission_count=len(
+            {
+                submission_id
+                for row in rows
+                for submission_id in row.submission_ids
+            }
+        ),
+    )
+
+
 def _recipient_sort_key(recipient: RecipientForComparison) -> tuple[str, str]:
     return (str(recipient.broadcast_id), str(recipient.id))
 
@@ -99,11 +126,6 @@ def compare_group_submissions(
             submissions_by_phone[phone].append(submission)
 
     rows: list[SubmissionMatchRow] = []
-    matched_submission_ids: set[uuid.UUID] = set()
-    submitted_count = 0
-    not_submitted_count = 0
-    multiple_submission_count = 0
-
     for phone_key in sorted(recipient_groups):
         logical_recipients = sorted(
             recipient_groups[phone_key], key=_recipient_sort_key
@@ -120,18 +142,12 @@ def compare_group_submissions(
             }.values(),
             key=_submission_sort_key,
         )
-        matched_submission_ids.update(submission.id for submission in matched)
-
         if not matched:
             row_status = "not_submitted"
-            not_submitted_count += 1
         elif len(matched) == 1:
             row_status = "submitted"
-            submitted_count += 1
         else:
             row_status = "multiple_submissions"
-            submitted_count += 1
-            multiple_submission_count += 1
 
         recipient_names = tuple(
             sorted(
@@ -175,14 +191,7 @@ def compare_group_submissions(
             )
         )
 
-    summary = SubmissionMatchSummary(
-        total_recipients=len(recipient_groups),
-        submitted_count=submitted_count,
-        not_submitted_count=not_submitted_count,
-        multiple_submission_count=multiple_submission_count,
-        matched_submission_count=len(matched_submission_ids),
-    )
-    return rows, summary
+    return rows, summarize_match_rows(rows)
 
 
 def filter_and_sort_match_rows(
