@@ -1953,7 +1953,7 @@ function MessagePreviewDialog({
                 type="file"
                 accept="image/jpeg,image/png,.jpg,.jpeg,.png"
                 className="sr-only"
-                required
+                required={!welcomeImage}
                 onChange={(event) => {
                   const selected = event.currentTarget.files?.[0] ?? null;
                   event.currentTarget.value = "";

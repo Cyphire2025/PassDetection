@@ -78,6 +78,7 @@ test("approved-template guidance exposes the required image and body positions",
   );
   assert.match(pageSource, /Welcome image <span className="text-red-600">\*<\/span>/);
   assert.match(pageSource, /messageType !== "welcome" \|\| welcomeImage/);
+  assert.match(pageSource, /required=\{!welcomeImage\}/);
   assert.match(apiSource, /header_image_id: uploadedImage\.media_id/);
 });
 
