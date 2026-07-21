@@ -195,9 +195,9 @@ async def set_managed_account_status(
 @router.delete(
     "/{account_id}",
     response_model=DeleteManagedAccountResponse,
-    summary="Remove a coordinator account while preserving attendance history",
+    summary="Remove a staff or coordinator account while preserving required history",
 )
-async def delete_managed_coordinator(
+async def delete_managed_account(
     account_id: uuid.UUID,
     request: Request,
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
@@ -281,7 +281,10 @@ async def _get_manageable_account(
         UserRole.AGENCY_COORDINATOR.value,
     }:
         return account, agency_name
-    if current_user.role == UserRole.AGENCY_MANAGER and account.role == UserRole.AGENCY_COORDINATOR.value:
+    if current_user.role == UserRole.AGENCY_MANAGER and account.role in {
+        UserRole.AGENCY_STAFF.value,
+        UserRole.AGENCY_COORDINATOR.value,
+    }:
         return account, agency_name
     if current_user.role == UserRole.AGENCY_MANAGER and account.id == current_user.id:
         return account, agency_name

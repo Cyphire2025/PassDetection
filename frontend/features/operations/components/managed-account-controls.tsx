@@ -25,11 +25,13 @@ export function ManagedAccountControls({
 }) {
   const actions = useManagedAccountActions();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const isPending = actions.resetPassword.isPending
     || actions.revokeSessions.isPending
     || actions.setStatus.isPending
@@ -78,7 +80,8 @@ export function ManagedAccountControls({
   useEffect(() => {
     if (!showActions) return;
     const closeOnOutside = (event: MouseEvent) => {
-      if (buttonRef.current?.contains(event.target as Node)) return;
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return;
       setShowActions(false);
     };
     document.addEventListener("mousedown", closeOnOutside);
@@ -98,12 +101,15 @@ export function ManagedAccountControls({
           onClick={() => setShowActions((current) => !current)}
           aria-label={`Open actions for ${accountName}`}
           aria-expanded={showActions}
+          aria-haspopup="menu"
         >
           <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
         </Button>
 
         {showActions && menuPosition && (
           <div
+            ref={menuRef}
+            role="menu"
             className="fixed z-[80] w-52 overflow-hidden rounded-lg border border-slate-200 bg-white p-1 shadow-2xl shadow-slate-900/15"
             style={{ top: menuPosition.top, left: menuPosition.left }}
           >
@@ -144,7 +150,10 @@ export function ManagedAccountControls({
                     if (onDelete) {
                       onDelete();
                     } else if (window.confirm(`Remove ${accountName}'s account? Related operational history will be preserved where required.`)) {
-                      actions.deleteAccount.mutate(accountId);
+                      setActionError(null);
+                      void actions.deleteAccount.mutateAsync(accountId).catch((deleteError: unknown) => {
+                        setActionError(getAccountActionError(deleteError));
+                      });
                     }
                   }}
                 />
@@ -153,6 +162,23 @@ export function ManagedAccountControls({
           </div>
         )}
       </div>
+
+      {actionError && (
+        <div
+          role="alert"
+          className="fixed right-4 top-20 z-[90] flex max-w-sm items-start gap-3 rounded-xl border border-red-200 bg-white px-4 py-3 text-sm text-red-700 shadow-xl"
+        >
+          <span>{actionError}</span>
+          <button
+            type="button"
+            className="shrink-0 rounded p-0.5 text-red-500 hover:bg-red-50 hover:text-red-800"
+            onClick={() => setActionError(null)}
+            aria-label="Dismiss account action error"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {showPasswordDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
@@ -187,6 +213,19 @@ export function ManagedAccountControls({
       )}
     </>
   );
+}
+
+function getAccountActionError(error: unknown): string {
+  if (
+    typeof error === "object"
+    && error !== null
+    && "message" in error
+    && typeof error.message === "string"
+    && error.message.trim()
+  ) {
+    return error.message;
+  }
+  return "The account could not be deleted. Please try again.";
 }
 
 function ActionMenuButton({

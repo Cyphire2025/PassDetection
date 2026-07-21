@@ -399,6 +399,7 @@ class ClientGroup:
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True
@@ -424,6 +425,7 @@ class ClientGroup:
         base_city_enabled: bool = False,
         nearest_international_airport_enabled: bool = False,
         staff_code_enabled: bool = False,
+        agent_employee_code_enabled: bool = False,
         meal_preference_enabled: bool = False,
         require_selfie: bool = False,
         allow_files_from_device: bool = True,
@@ -464,6 +466,7 @@ class ClientGroup:
             base_city_enabled=base_city_enabled,
             nearest_international_airport_enabled=nearest_international_airport_enabled,
             staff_code_enabled=staff_code_enabled,
+            agent_employee_code_enabled=agent_employee_code_enabled,
             meal_preference_enabled=meal_preference_enabled,
             require_selfie=require_selfie,
             allow_files_from_device=allow_files_from_device,
@@ -484,6 +487,7 @@ class ClientGroup:
         base_city_enabled: bool,
         nearest_international_airport_enabled: bool,
         staff_code_enabled: bool,
+        agent_employee_code_enabled: bool,
         meal_preference_enabled: bool,
         require_selfie: bool,
         allow_files_from_device: bool,
@@ -521,6 +525,7 @@ class ClientGroup:
         self.base_city_enabled = base_city_enabled
         self.nearest_international_airport_enabled = nearest_international_airport_enabled
         self.staff_code_enabled = staff_code_enabled
+        self.agent_employee_code_enabled = agent_employee_code_enabled
         self.meal_preference_enabled = meal_preference_enabled
         self.require_selfie = require_selfie
         self.allow_files_from_device = allow_files_from_device

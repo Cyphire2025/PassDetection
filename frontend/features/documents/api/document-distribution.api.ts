@@ -4,7 +4,10 @@ import type {
   DistributionDocumentType,
   DocumentBatchReview,
   DocumentDistributionGroup,
+  DocumentDeliveryPreview,
+  DocumentDeliveryTracking,
   DocumentVerificationResult,
+  SendDocumentBroadcastResult,
 } from "@/types/document-distribution.types";
 
 export const documentDistributionApi = {
@@ -84,6 +87,34 @@ export const documentDistributionApi = {
   saveBatch: async (batchId: string): Promise<{ batch_id: string; status: string; saved_at: string }> => {
     const { data } = await apiClient.post<{ batch_id: string; status: string; saved_at: string }>(
       API_ENDPOINTS.documents.saveBatch(batchId),
+    );
+    return data;
+  },
+
+  previewWhatsAppDelivery: async (
+    groupId: string,
+    documentType: DistributionDocumentType,
+  ): Promise<DocumentDeliveryPreview> => {
+    const { data } = await apiClient.get<DocumentDeliveryPreview>(
+      API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),
+    );
+    return data;
+  },
+
+  sendWhatsAppDelivery: async (
+    batchId: string,
+    documentIds: string[],
+  ): Promise<SendDocumentBroadcastResult> => {
+    const { data } = await apiClient.post<SendDocumentBroadcastResult>(
+      API_ENDPOINTS.documents.sendWhatsApp(batchId),
+      { document_ids: documentIds },
+    );
+    return data;
+  },
+
+  getDeliveryTracking: async (groupId: string): Promise<DocumentDeliveryTracking> => {
+    const { data } = await apiClient.get<DocumentDeliveryTracking>(
+      API_ENDPOINTS.documents.deliveryTracking(groupId),
     );
     return data;
   },

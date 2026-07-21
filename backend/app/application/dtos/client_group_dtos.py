@@ -23,6 +23,7 @@ class CreateClientGroupInputDTO:
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True
@@ -42,6 +43,7 @@ class UpdateClientGroupInputDTO:
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True
@@ -68,6 +70,7 @@ class ClientGroupOutputDTO:
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True
@@ -98,6 +101,7 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         base_city_enabled=link.base_city_enabled,
         nearest_international_airport_enabled=link.nearest_international_airport_enabled,
         staff_code_enabled=link.staff_code_enabled,
+        agent_employee_code_enabled=link.agent_employee_code_enabled,
         meal_preference_enabled=link.meal_preference_enabled,
         require_selfie=link.require_selfie,
         allow_files_from_device=link.allow_files_from_device,

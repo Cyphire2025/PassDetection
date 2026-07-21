@@ -65,6 +65,8 @@ class ClientSubmitPassportUseCase:
         nearest_domestic_airport: str | None = None,
         base_city: str | None = None,
         staff_code: str | None = None,
+        agent_employee_type: str | None = None,
+        agent_employee_code: str | None = None,
         meal_preference: str | None = None,
         submission_mode: str = "single",
         family_group_id: uuid.UUID | None = None,
@@ -172,6 +174,14 @@ class ClientSubmitPassportUseCase:
             label="staff code",
             max_length=80,
         )
+        (
+            normalized_agent_employee_type,
+            normalized_agent_employee_code,
+        ) = self._normalize_agent_employee_code(
+            agent_employee_type,
+            agent_employee_code,
+            enabled=group.agent_employee_code_enabled,
+        )
         normalized_meal_preference = self._normalize_meal_preference(
             meal_preference,
             enabled=group.meal_preference_enabled,
@@ -200,6 +210,8 @@ class ClientSubmitPassportUseCase:
                 "base_city",
                 "nearest_domestic_airport",
                 "staff_code",
+                "agent_employee_type",
+                "agent_employee_code",
                 "meal_preference",
             }
         }
@@ -211,6 +223,9 @@ class ClientSubmitPassportUseCase:
             clean_fields["base_city"] = normalized_base_city
         if normalized_staff_code:
             clean_fields["staff_code"] = normalized_staff_code
+        if normalized_agent_employee_type and normalized_agent_employee_code:
+            clean_fields["agent_employee_type"] = normalized_agent_employee_type
+            clean_fields["agent_employee_code"] = normalized_agent_employee_code
         if normalized_meal_preference:
             clean_fields["meal_preference"] = normalized_meal_preference
 
@@ -417,6 +432,33 @@ class ClientSubmitPassportUseCase:
         if not matched:
             raise ValidationError("Select Veg, Non Veg, or Jain.", field="meal_preference")
         return matched
+
+    @staticmethod
+    def _normalize_agent_employee_code(
+        person_type: str | None,
+        code: str | None,
+        *,
+        enabled: bool,
+    ) -> tuple[str | None, str | None]:
+        if not enabled:
+            return None, None
+        normalized_type = (
+            " ".join(person_type.strip().split()).casefold()
+            if person_type
+            else ""
+        )
+        if normalized_type not in {"agent", "employee"}:
+            raise ValidationError(
+                "Select Agent or Employee.",
+                field="agent_employee_type",
+            )
+        normalized_code = code.strip() if code else ""
+        if not re.fullmatch(r"\d{1,10}", normalized_code):
+            raise ValidationError(
+                "Enter an Agent/Employee code using up to 10 numbers.",
+                field="agent_employee_code",
+            )
+        return normalized_type, normalized_code
 
     @staticmethod
     def _content_type(suffix: str) -> str:

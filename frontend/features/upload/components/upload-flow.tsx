@@ -72,6 +72,7 @@ interface UploadFlowProps {
 }
 
 type FlowMode = "single" | "family";
+type AgentEmployeeType = "" | "agent" | "employee";
 type Step =
   | "BOOTSTRAP"
   | "RECOVERY_ERROR"
@@ -98,6 +99,8 @@ interface FamilyMember {
   baseCity: string;
   nearestDomesticAirport: string;
   staffCode: string;
+  agentEmployeeType: AgentEmployeeType;
+  agentEmployeeCode: string;
   mealPreference: string;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
@@ -178,6 +181,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [baseCity, setBaseCity] = useState("");
   const [nearestDomesticAirport, setNearestDomesticAirport] = useState("");
   const [staffCode, setStaffCode] = useState("");
+  const [agentEmployeeType, setAgentEmployeeType] = useState<AgentEmployeeType>("");
+  const [agentEmployeeCode, setAgentEmployeeCode] = useState("");
   const [mealPreference, setMealPreference] = useState("");
   const [submission, setSubmission] = useState<PassportSubmission | null>(null);
   const [reviewFields, setReviewFields] = useState<Record<string, string>>({});
@@ -216,6 +221,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const airportEnabled = Boolean(group?.nearest_international_airport_enabled || departureCities.length > 0);
   const baseCityEnabled = group?.base_city_enabled ?? false;
   const staffCodeEnabled = group?.staff_code_enabled ?? false;
+  const agentEmployeeCodeEnabled = group?.agent_employee_code_enabled ?? false;
   const mealPreferenceEnabled = group?.meal_preference_enabled ?? false;
   const selfieRequired = group?.require_selfie ?? false;
   const allowFilesFromDevice = group?.allow_files_from_device ?? true;
@@ -1194,6 +1200,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Please enter your staff code before submitting.");
       return;
     }
+    if (agentEmployeeCodeEnabled && (!agentEmployeeType || !/^\d{1,10}$/.test(agentEmployeeCode))) {
+      setUploadError("Please select Agent or Employee and enter a code using up to 10 numbers.");
+      return;
+    }
     if (mealPreferenceEnabled && !mealPreference) {
       setUploadError("Please select a meal preference before submitting.");
       return;
@@ -1217,6 +1227,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
         base_city: baseCity.trim() || null,
         nearest_domestic_airport: nearestDomesticAirport.trim() || null,
         staff_code: staffCode.trim() || null,
+        agent_employee_type: agentEmployeeType || null,
+        agent_employee_code: agentEmployeeCode || null,
         meal_preference: mealPreference || null,
         submission_mode: "single",
       });
@@ -1268,6 +1280,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       (baseCityEnabled && !member.baseCity.trim())
       || (askNearestDomesticAirport && !member.nearestDomesticAirport.trim())
       || (staffCodeEnabled && !member.staffCode.trim())
+      || (agentEmployeeCodeEnabled && (
+        !member.agentEmployeeType
+        || !/^\d{1,10}$/.test(member.agentEmployeeCode)
+      ))
       || (mealPreferenceEnabled && !member.mealPreference)
     ));
     if (missingConfiguredField) {
@@ -1295,6 +1311,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
           base_city: member.baseCity.trim() || null,
           nearest_domestic_airport: member.nearestDomesticAirport.trim() || null,
           staff_code: member.staffCode.trim() || null,
+          agent_employee_type: member.agentEmployeeType || null,
+          agent_employee_code: member.agentEmployeeCode || null,
           meal_preference: member.mealPreference || null,
           submission_mode: "family",
           family_group_id: familyGroupId,
@@ -1533,14 +1551,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
               baseCityEnabled={baseCityEnabled}
               askNearestDomesticAirport={askNearestDomesticAirport}
               staffCodeEnabled={staffCodeEnabled}
+              agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
               mealPreferenceEnabled={mealPreferenceEnabled}
               baseCity={baseCity}
               nearestDomesticAirport={nearestDomesticAirport}
               staffCode={staffCode}
+              agentEmployeeType={agentEmployeeType}
+              agentEmployeeCode={agentEmployeeCode}
               mealPreference={mealPreference}
               onBaseCity={setBaseCity}
               onNearestDomesticAirport={setNearestDomesticAirport}
               onStaffCode={setStaffCode}
+              onAgentEmployeeType={setAgentEmployeeType}
+              onAgentEmployeeCode={setAgentEmployeeCode}
               onMealPreference={setMealPreference}
             />
             <Button
@@ -1678,14 +1701,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     baseCityEnabled={baseCityEnabled}
                     askNearestDomesticAirport={askNearestDomesticAirport}
                     staffCodeEnabled={staffCodeEnabled}
+                    agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
                     mealPreferenceEnabled={mealPreferenceEnabled}
                     baseCity={member.baseCity}
                     nearestDomesticAirport={member.nearestDomesticAirport}
                     staffCode={member.staffCode}
+                    agentEmployeeType={member.agentEmployeeType}
+                    agentEmployeeCode={member.agentEmployeeCode}
                     mealPreference={member.mealPreference}
                     onBaseCity={(value) => updateFamilyMember(index, { baseCity: value })}
                     onNearestDomesticAirport={(value) => updateFamilyMember(index, { nearestDomesticAirport: value })}
                     onStaffCode={(value) => updateFamilyMember(index, { staffCode: value })}
+                    onAgentEmployeeType={(value) => updateFamilyMember(index, { agentEmployeeType: value })}
+                    onAgentEmployeeCode={(value) => updateFamilyMember(index, { agentEmployeeCode: value })}
                     onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
                   />
                 </>
@@ -1970,6 +1998,8 @@ function createFamilyMember(index: number): FamilyMember {
     baseCity: "",
     nearestDomesticAirport: "",
     staffCode: "",
+    agentEmployeeType: "",
+    agentEmployeeCode: "",
     mealPreference: "",
     submission: null,
     reviewFields: {},
@@ -2432,6 +2462,8 @@ function ContactInput({
   onChange,
   required = false,
   maxLength,
+  inputMode,
+  pattern,
 }: {
   icon: ReactNode;
   label: string;
@@ -2440,13 +2472,15 @@ function ContactInput({
   onChange: (value: string) => void;
   required?: boolean;
   maxLength?: number;
+  inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  pattern?: string;
 }) {
   return (
     <label className="block min-w-0 space-y-1.5">
       <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
       <div className="relative min-w-0">
         <span className="absolute left-3 top-3 text-slate-400">{icon}</span>
-        <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" required={required} maxLength={maxLength} />
+        <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" required={required} maxLength={maxLength} inputMode={inputMode} pattern={pattern} />
       </div>
     </label>
   );
@@ -2491,30 +2525,40 @@ function ConfiguredClientFields({
   baseCityEnabled,
   askNearestDomesticAirport,
   staffCodeEnabled,
+  agentEmployeeCodeEnabled,
   mealPreferenceEnabled,
   baseCity,
   nearestDomesticAirport,
   staffCode,
+  agentEmployeeType,
+  agentEmployeeCode,
   mealPreference,
   onBaseCity,
   onNearestDomesticAirport,
   onStaffCode,
+  onAgentEmployeeType,
+  onAgentEmployeeCode,
   onMealPreference,
 }: {
   baseCityEnabled: boolean;
   askNearestDomesticAirport: boolean;
   staffCodeEnabled: boolean;
+  agentEmployeeCodeEnabled: boolean;
   mealPreferenceEnabled: boolean;
   baseCity: string;
   nearestDomesticAirport: string;
   staffCode: string;
+  agentEmployeeType: AgentEmployeeType;
+  agentEmployeeCode: string;
   mealPreference: string;
   onBaseCity: (value: string) => void;
   onNearestDomesticAirport: (value: string) => void;
   onStaffCode: (value: string) => void;
+  onAgentEmployeeType: (value: AgentEmployeeType) => void;
+  onAgentEmployeeCode: (value: string) => void;
   onMealPreference: (value: string) => void;
 }) {
-  if (!baseCityEnabled && !askNearestDomesticAirport && !staffCodeEnabled && !mealPreferenceEnabled) return null;
+  if (!baseCityEnabled && !askNearestDomesticAirport && !staffCodeEnabled && !agentEmployeeCodeEnabled && !mealPreferenceEnabled) return null;
 
   return (
     <div className="mt-5 grid gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
@@ -2548,6 +2592,34 @@ function ConfiguredClientFields({
           onChange={onStaffCode}
           required
         />
+      )}
+      {agentEmployeeCodeEnabled && (
+        <div className="grid min-w-0 gap-3 sm:col-span-2 sm:grid-cols-2">
+          <label className="block min-w-0 space-y-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Agent or Employee</span>
+            <select
+              value={agentEmployeeType}
+              onChange={(event) => onAgentEmployeeType(event.target.value as AgentEmployeeType)}
+              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              required
+            >
+              <option value="">Select Agent or Employee</option>
+              <option value="agent">Agent</option>
+              <option value="employee">Employee</option>
+            </select>
+          </label>
+          <ContactInput
+            icon={<BadgeCheck className="h-5 w-5" />}
+            label="Agent/Employee Code"
+            type="text"
+            value={agentEmployeeCode}
+            onChange={(value) => onAgentEmployeeCode(value.replace(/\D/g, "").slice(0, 10))}
+            required
+            maxLength={10}
+            inputMode="numeric"
+            pattern="[0-9]{1,10}"
+          />
+        </div>
       )}
       {mealPreferenceEnabled && (
         <label className="block min-w-0 space-y-1.5">

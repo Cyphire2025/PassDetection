@@ -69,6 +69,14 @@ def test_passport_support_selection_is_optional_and_group_scoped() -> None:
     assert exc_info.value.status_code == 404
 
 
+def test_passport_support_selection_accepts_only_one_contact() -> None:
+    with pytest.raises(ValueError):
+        WhatsAppSendRequest(
+            message_type="passport_link",
+            support_contact_ids=[uuid.uuid4(), uuid.uuid4()],
+        )
+
+
 def _passport_log(*, explicit: bool = False) -> SimpleNamespace:
     return SimpleNamespace(
         id=uuid.uuid4(),

@@ -1608,6 +1608,7 @@ async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]
             base_city_enabled=group.base_city_enabled,
             nearest_international_airport_enabled=group.nearest_international_airport_enabled,
             staff_code_enabled=group.staff_code_enabled,
+            agent_employee_code_enabled=group.agent_employee_code_enabled,
             meal_preference_enabled=group.meal_preference_enabled,
             require_selfie=group.require_selfie,
             passenger_count=passenger_counts.get(group.id, 0),

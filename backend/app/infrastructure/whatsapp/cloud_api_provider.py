@@ -7,6 +7,9 @@ from typing import Any
 
 import httpx
 
+from app.application.use_cases.whatsapp.document_templates import (
+    validate_document_template_parameters,
+)
 from app.application.use_cases.whatsapp.message_templates import (
     WhatsAppMessageType,
     validate_template_parameters,
@@ -45,6 +48,13 @@ def _text_parameter(value: str) -> dict[str, str]:
 
 def _image_parameter(media_id: str) -> dict[str, Any]:
     return {"type": "image", "image": {"id": media_id}}
+
+
+def _document_parameter(media_id: str, filename: str) -> dict[str, Any]:
+    return {
+        "type": "document",
+        "document": {"id": media_id, "filename": filename},
+    }
 
 
 async def upload_whatsapp_image(
@@ -111,6 +121,170 @@ async def upload_whatsapp_image(
             transient=response.status_code == 429 or response.status_code >= 500,
         )
     return media_id.strip()
+
+
+async def upload_whatsapp_document(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    file_name: str,
+    file_content: bytes,
+    content_type: str,
+) -> str:
+    """Upload one private travel document to Meta for a template header."""
+
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API credentials are incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+    try:
+        response = await client.post(
+            (
+                f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
+                f"{settings.whatsapp_phone_number_id}/media"
+            ),
+            data={"messaging_product": "whatsapp", "type": content_type},
+            files={"file": (file_name, file_content, content_type)},
+            headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
+        )
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
+        raise WhatsAppCloudApiError(
+            "The travel document could not be uploaded to WhatsApp",
+            code="WHATSAPP_DOCUMENT_UPLOAD_UNREACHABLE",
+            transient=True,
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise WhatsAppCloudApiError(
+            "The travel document upload was interrupted",
+            code="WHATSAPP_DOCUMENT_UPLOAD_INTERRUPTED",
+            transient=True,
+        ) from exc
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {}
+    media_id = data.get("id") if isinstance(data, dict) else None
+    if response.status_code >= 400 or not isinstance(media_id, str) or not media_id.strip():
+        logger.warning(
+            "whatsapp_document_upload_rejected",
+            extra={"status_code": response.status_code},
+        )
+        raise WhatsAppCloudApiError(
+            "Meta rejected the travel document upload; verify the PDF and try again",
+            code="WHATSAPP_DOCUMENT_UPLOAD_REJECTED",
+            transient=response.status_code == 429 or response.status_code >= 500,
+        )
+    return media_id.strip()
+
+
+async def send_whatsapp_document_template(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    to_number: str,
+    template_name: str,
+    media_id: str,
+    filename: str,
+    parameters: list[str],
+) -> str:
+    """Send an approved template with a private document header."""
+
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API credentials are incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+    try:
+        validate_document_template_parameters(parameters)
+    except ValueError as exc:
+        raise WhatsAppCloudApiError(
+            f"Invalid WhatsApp document template payload: {exc}",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        ) from exc
+
+    template = {
+        "name": template_name,
+        "language": {"code": settings.whatsapp_template_language},
+        "components": [
+            {
+                "type": "header",
+                "parameters": [_document_parameter(media_id, filename)],
+            },
+            {
+                "type": "body",
+                "parameters": [_text_parameter(parameter) for parameter in parameters],
+            },
+        ],
+    }
+    try:
+        response = await client.post(
+            (
+                f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
+                f"{settings.whatsapp_phone_number_id}/messages"
+            ),
+            json={
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": to_number.lstrip("+"),
+                "type": "template",
+                "template": template,
+            },
+            headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
+        )
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API could not be reached",
+            code="WHATSAPP_PROVIDER_UNREACHABLE",
+            transient=True,
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise WhatsAppCloudApiError(
+            "WhatsApp document delivery outcome is unknown after a provider interruption",
+            code="WHATSAPP_DELIVERY_UNKNOWN",
+            delivery_unknown=True,
+        ) from exc
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {}
+    if response.status_code >= 400:
+        if response.status_code == 429:
+            code = "WHATSAPP_PROVIDER_RATE_LIMITED"
+            message = "Meta temporarily rate-limited this document message"
+        elif response.status_code in {401, 403}:
+            code = "WHATSAPP_PROVIDER_AUTH_FAILED"
+            message = "Meta rejected the configured WhatsApp credentials"
+        elif response.status_code >= 500:
+            code = "WHATSAPP_DELIVERY_UNKNOWN"
+            message = "Meta returned a server error and delivery status is unknown"
+        else:
+            code = "WHATSAPP_PROVIDER_REJECTED"
+            message = (
+                "Meta rejected this document template; verify the approved template "
+                "and recipient details"
+            )
+        raise WhatsAppCloudApiError(
+            message,
+            code=code,
+            transient=response.status_code == 429,
+            delivery_unknown=response.status_code >= 500,
+        )
+    messages = data.get("messages") if isinstance(data, dict) else None
+    provider_id = (
+        messages[0].get("id")
+        if isinstance(messages, list) and messages and isinstance(messages[0], dict)
+        else None
+    )
+    if not provider_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp API accepted the document without returning a message ID",
+            code="WHATSAPP_PROVIDER_RESPONSE_INVALID",
+            delivery_unknown=True,
+        )
+    return str(provider_id)
 
 
 async def send_whatsapp_template(

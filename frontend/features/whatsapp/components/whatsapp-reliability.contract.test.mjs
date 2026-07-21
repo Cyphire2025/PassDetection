@@ -178,9 +178,13 @@ test("rejected rows retain imported fields and use a responsive non-scrolling ed
   assert.doesNotMatch(rejectedSection, /min-w-\[1080px\]/);
 });
 
-test("passport-link sends support custom recipient and support-contact selections", () => {
+test("passport-link sends custom recipients with one selected support contact", () => {
   assert.match(pageSource, /Custom select/);
   assert.match(pageSource, /Support contacts included/);
+  assert.match(pageSource, /name="passport-link-support-contact"/);
+  assert.match(pageSource, /setSelectedSupportContactIds\(\[contact\.id\]\)/);
+  assert.match(pageSource, /Select one contact to show/);
+  assert.doesNotMatch(pageSource, /Select one or more contacts to show/);
   assert.match(pageSource, /recipient_ids:/);
   assert.match(pageSource, /support_contact_ids:/);
   assert.match(apiSource, /recipient_ids: recipientIds/);

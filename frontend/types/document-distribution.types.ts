@@ -74,3 +74,84 @@ export interface DocumentBatchReview {
   unmatched_documents: DistributedDocument[];
   rejected_documents: RejectedDistributedDocument[];
 }
+
+export type DocumentDeliveryPreviewStatus =
+  | "ready"
+  | "retryable"
+  | "already_sent"
+  | "queued"
+  | "processing"
+  | "delivery_unknown"
+  | "blocked";
+
+export interface DocumentDeliveryPreviewRecipient {
+  passenger_id: string;
+  passenger_name: string;
+  passport_number: string | null;
+  document_id: string | null;
+  document_filename: string | null;
+  document_type: DistributionDocumentType | string;
+  recipient_id: string | null;
+  broadcast_group_id: string | null;
+  broadcast_name: string | null;
+  phone_number: string | null;
+  delivery_id: string | null;
+  delivery_status: DocumentDeliveryPreviewStatus | string;
+  eligible: boolean;
+  reason: string;
+  message_preview: string | null;
+}
+
+export interface DocumentDeliveryPreview {
+  group_id: string;
+  batch_id: string;
+  document_type: DistributionDocumentType | string;
+  template_name: string | null;
+  template_configured: boolean;
+  linked_broadcast_count: number;
+  can_send: boolean;
+  configuration_error: string | null;
+  summary: {
+    total_passengers: number;
+    ready: number;
+    retryable: number;
+    already_sent: number;
+    in_progress: number;
+    blocked: number;
+  };
+  recipients: DocumentDeliveryPreviewRecipient[];
+}
+
+export interface SendDocumentBroadcastResult {
+  send_batch_id: string | null;
+  queued_count: number;
+  skipped_count: number;
+  message: string;
+}
+
+export interface DocumentDeliveryTrackingRow {
+  delivery_id: string;
+  passenger_id: string | null;
+  passenger_name: string;
+  passport_number: string | null;
+  document_type: DistributionDocumentType | string;
+  document_filename: string;
+  phone_number: string;
+  status: string;
+  error_message: string | null;
+  status_updated_at: string;
+}
+
+export interface DocumentDeliveryTracking {
+  group_id: string;
+  counts: {
+    total: number;
+    queued: number;
+    sent: number;
+    delivered: number;
+    read: number;
+    failed: number;
+    delivery_unknown: number;
+  };
+  deliveries: DocumentDeliveryTrackingRow[];
+}

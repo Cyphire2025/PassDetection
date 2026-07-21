@@ -239,6 +239,7 @@ class Settings(BaseSettings):
     whatsapp_template_language: str = "en_US"
     whatsapp_welcome_template_name: str = ""
     whatsapp_passport_link_template_name: str = ""
+    whatsapp_document_template_name: str = ""
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
 

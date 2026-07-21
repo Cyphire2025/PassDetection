@@ -30,7 +30,14 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
         )
 
     @staticmethod
-    def _submission(group: ClientGroup, *, include_selfie: bool, staff_code: str | None = None) -> PassportSubmission:
+    def _submission(
+        group: ClientGroup,
+        *,
+        include_selfie: bool,
+        staff_code: str | None = None,
+        agent_employee_type: str | None = None,
+        agent_employee_code: str | None = None,
+    ) -> PassportSubmission:
         submission = PassportSubmission.create(
             group_id=group.id,
             agency_id=group.agency_id,
@@ -40,13 +47,21 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
         )
         submission.passport_back_s3_key = f"originals/{uuid.uuid4()}/back.png"
         submission.passport_photo_s3_key = f"originals/{uuid.uuid4()}/selfie.jpeg" if include_selfie else None
-        submission.confirmed_fields = {"staff_code": staff_code} if staff_code else {}
+        submission.confirmed_fields = {
+            key: value
+            for key, value in {
+                "staff_code": staff_code,
+                "agent_employee_type": agent_employee_type,
+                "agent_employee_code": agent_employee_code,
+            }.items()
+            if value
+        }
         return submission
 
     async def test_export_has_safe_deterministic_paths_and_collision_suffixes(self) -> None:
         group = self._group()
-        first = self._submission(group, include_selfie=True, staff_code="STF/01")
-        second = self._submission(group, include_selfie=False, staff_code="STF/01")
+        first = self._submission(group, include_selfie=True, staff_code="01")
+        second = self._submission(group, include_selfie=False, staff_code="01")
         objects = {
             first.image_s3_key: b"front-one",
             first.passport_back_s3_key: b"back-one",
@@ -74,6 +89,7 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 passenger_folders = {name.rsplit("/", 1)[0] for name in files}
                 self.assertEqual(len(passenger_folders), 2)
                 self.assertTrue(any(folder.endswith("_2") for folder in passenger_folders))
+                self.assertTrue(any("STF_01_Alex _ Doe" in folder for folder in passenger_folders))
                 self.assertEqual(archive.read(next(name for name in files if name.endswith("_visaimage.jpeg"))), b"selfie-one")
         finally:
             spool.close()
@@ -123,6 +139,47 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(any(name.endswith("John_passportfront.jpg") for name in files))
                 self.assertTrue(any(name.endswith("John_2_passportfront.jpg") for name in files))
                 self.assertTrue(any(name.endswith("John_2_2_passportfront.bin") for name in files))
+        finally:
+            spool.close()
+
+    async def test_export_uses_agent_employee_prefix_before_staff_code(self) -> None:
+        group = self._group()
+        agent = self._submission(
+            group,
+            include_selfie=False,
+            staff_code="55",
+            agent_employee_type="agent",
+            agent_employee_code="123",
+        )
+        employee = self._submission(
+            group,
+            include_selfie=False,
+            staff_code="66",
+            agent_employee_type="employee",
+            agent_employee_code="456",
+        )
+        employee.client_name = "Employee Name"
+        submissions = [agent, employee]
+        objects = {
+            key: b"image"
+            for submission in submissions
+            for key in (submission.image_s3_key, submission.passport_back_s3_key)
+            if key
+        }
+
+        spool, _, _ = await PassportImageZipExporter().export_group(
+            submissions,
+            group_name=group.name,
+            staff_code_enabled=True,
+            agent_employee_code_enabled=True,
+            storage=FakeStorage(objects),  # type: ignore[arg-type]
+        )
+        try:
+            with zipfile.ZipFile(spool) as archive:
+                files = [name for name in archive.namelist() if not name.endswith("/")]
+                self.assertTrue(any("AGT_123_Alex _ Doe" in name for name in files))
+                self.assertTrue(any("EMP_456_Employee Name" in name for name in files))
+                self.assertFalse(any("STF_55" in name or "STF_66" in name for name in files))
         finally:
             spool.close()
 

@@ -8,6 +8,10 @@ from celery.utils.log import get_task_logger
 
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
 from app.infrastructure.processing.celery_app import celery_app
+from app.infrastructure.whatsapp.document_delivery_runtime import (
+    mark_document_batch_failed,
+    run_document_whatsapp_broadcast,
+)
 from app.infrastructure.whatsapp.worker_runtime import (
     mark_whatsapp_batch_failed,
     run_whatsapp_broadcast,
@@ -56,6 +60,42 @@ def process_whatsapp_broadcast(
                     batch_id=batch_id,
                     error_message=(
                         "WHATSAPP_WORKER_FAILED: WhatsApp delivery worker failed "
+                        "after bounded retries"
+                    ),
+                )
+            )
+            raise
+        raise self.retry(exc=exc) from exc
+
+
+@celery_app.task(
+    bind=True,
+    name="whatsapp.process_document_broadcast",
+    queue="whatsapp",
+    max_retries=2,
+    default_retry_delay=10,
+)
+def process_document_whatsapp_broadcast(
+    self,  # type: ignore[no-untyped-def]
+    *,
+    send_batch_id: str,
+) -> None:
+    try:
+        asyncio.run(
+            run_document_whatsapp_broadcast(send_batch_id=send_batch_id)
+        )
+    except Exception as exc:
+        logger.error(
+            "document_whatsapp_task_failed send_batch_id=%s error_type=%s",
+            send_batch_id,
+            type(exc).__name__,
+        )
+        if self.request.retries >= self.max_retries:
+            asyncio.run(
+                mark_document_batch_failed(
+                    send_batch_id=send_batch_id,
+                    error_message=(
+                        "WHATSAPP_WORKER_FAILED: Document delivery worker failed "
                         "after bounded retries"
                     ),
                 )

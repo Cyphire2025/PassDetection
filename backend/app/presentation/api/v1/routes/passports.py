@@ -434,6 +434,7 @@ def _group_export_details(
         "ask_nearest_domestic_airport": group.ask_nearest_domestic_airport,
         "base_city_enabled": group.base_city_enabled,
         "staff_code_enabled": group.staff_code_enabled,
+        "agent_employee_code_enabled": group.agent_employee_code_enabled,
         "meal_preference_enabled": group.meal_preference_enabled,
         "relation_with_qualifier_enabled": (
             group.relation_with_qualifier_enabled
@@ -1569,6 +1570,7 @@ async def export_passport_images_by_group(
             submissions,
             group_name=group.name,
             staff_code_enabled=group.staff_code_enabled,
+            agent_employee_code_enabled=group.agent_employee_code_enabled,
             storage=MinioStorageRepository(),
             crop_metadata=crop_metadata,
         )
@@ -2622,6 +2624,8 @@ async def client_submit_passport(
             nearest_domestic_airport=body.nearest_domestic_airport,
             base_city=body.base_city,
             staff_code=body.staff_code,
+            agent_employee_type=body.agent_employee_type,
+            agent_employee_code=body.agent_employee_code,
             meal_preference=body.meal_preference,
             submission_mode=body.submission_mode,
             family_group_id=body.family_group_id,

@@ -204,6 +204,7 @@ export function UploadLinkList() {
               base_city_enabled: renameTarget.base_city_enabled,
               nearest_international_airport_enabled: renameTarget.nearest_international_airport_enabled,
               staff_code_enabled: renameTarget.staff_code_enabled,
+              agent_employee_code_enabled: renameTarget.agent_employee_code_enabled,
               meal_preference_enabled: renameTarget.meal_preference_enabled,
               require_selfie: renameTarget.require_selfie,
               allow_files_from_device: editAllowFilesFromDevice,

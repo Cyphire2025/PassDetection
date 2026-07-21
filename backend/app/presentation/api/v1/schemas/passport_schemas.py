@@ -76,6 +76,8 @@ class ClientSubmitPassportRequest(BaseModel):
     nearest_domestic_airport: str | None = Field(default=None, max_length=120)
     base_city: str | None = Field(default=None, max_length=120)
     staff_code: str | None = Field(default=None, max_length=80)
+    agent_employee_type: str | None = Field(default=None, max_length=20)
+    agent_employee_code: str | None = Field(default=None, max_length=10)
     meal_preference: str | None = Field(default=None, max_length=20)
     group_token: str = Field(..., min_length=10)
     submission_mode: str = Field(default="single", pattern="^(single|family)$")
@@ -336,6 +338,7 @@ class PassportGroupSummaryResponse(BaseModel):
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True

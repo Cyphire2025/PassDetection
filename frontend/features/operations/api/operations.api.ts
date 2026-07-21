@@ -154,6 +154,7 @@ export interface TourGroup {
   base_city_enabled: boolean;
   nearest_international_airport_enabled: boolean;
   staff_code_enabled: boolean;
+  agent_employee_code_enabled: boolean;
   meal_preference_enabled: boolean;
   passenger_count: number;
   assigned_passengers_count: number;

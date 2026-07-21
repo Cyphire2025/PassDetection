@@ -49,6 +49,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       base_city_enabled: false,
       nearest_international_airport_enabled: false,
       staff_code_enabled: false,
+      agent_employee_code_enabled: false,
       meal_preference_enabled: false,
       require_selfie: false,
       allow_files_from_device: true,
@@ -62,6 +63,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const baseCityEnabled = useWatch({ control, name: "base_city_enabled" }) ?? false;
   const airportEnabled = useWatch({ control, name: "nearest_international_airport_enabled" }) ?? false;
   const staffCodeEnabled = useWatch({ control, name: "staff_code_enabled" }) ?? false;
+  const agentEmployeeCodeEnabled = useWatch({
+    control,
+    name: "agent_employee_code_enabled",
+  }) ?? false;
   const mealPreferenceEnabled = useWatch({ control, name: "meal_preference_enabled" }) ?? false;
   const requireSelfie = useWatch({ control, name: "require_selfie" }) ?? false;
   const allowFilesFromDevice = useWatch({ control, name: "allow_files_from_device" }) ?? true;
@@ -383,6 +388,12 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   description="Require each client to enter their staff code."
                   checked={staffCodeEnabled}
                   onChange={(checked) => setValue("staff_code_enabled", checked, { shouldDirty: true })}
+                />
+                <GroupOptionToggle
+                  label="Agent/Employee Code"
+                  description="Require each client to select Agent or Employee and enter a numeric code."
+                  checked={agentEmployeeCodeEnabled}
+                  onChange={(checked) => setValue("agent_employee_code_enabled", checked, { shouldDirty: true })}
                 />
                 <GroupOptionToggle
                   label="Meal Preference"

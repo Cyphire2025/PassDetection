@@ -7,6 +7,10 @@ const documentKeys = {
   groups: () => ["document-distribution", "groups"] as const,
   review: (groupId: string, documentType: DistributionDocumentType) =>
     ["document-distribution", "groups", groupId, documentType] as const,
+  deliveryPreview: (groupId: string, documentType: DistributionDocumentType) =>
+    ["document-distribution", "delivery-preview", groupId, documentType] as const,
+  deliveryTracking: (groupId: string) =>
+    ["document-distribution", "delivery-tracking", groupId] as const,
 };
 
 export function useDocumentGroups() {
@@ -34,6 +38,7 @@ export function useUploadDistributionDocuments(groupId: string, documentType: Di
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
       queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
     },
   });
 }
@@ -53,6 +58,7 @@ export function useReuploadPassengerDocument(groupId: string, documentType: Dist
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
       queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
     },
   });
 }
@@ -65,6 +71,7 @@ export function useDeleteDistributionDocuments(groupId: string, documentType: Di
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
       queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
     },
   });
 }
@@ -76,6 +83,47 @@ export function useSaveDocumentBatch(groupId: string, documentType: Distribution
     mutationFn: (batchId: string) => documentDistributionApi.saveBatch(batchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: documentKeys.review(groupId, documentType) });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
+    },
+  });
+}
+
+export function useDocumentDeliveryPreview(
+  groupId: string,
+  documentType: DistributionDocumentType,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: documentKeys.deliveryPreview(groupId, documentType),
+    queryFn: () => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType),
+    enabled: Boolean(groupId && documentType && enabled),
+    staleTime: 5_000,
+  });
+}
+
+export function useSendDocumentWhatsAppBroadcast(
+  groupId: string,
+  documentType: DistributionDocumentType,
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ batchId, documentIds }: { batchId: string; documentIds: string[] }) =>
+      documentDistributionApi.sendWhatsAppDelivery(batchId, documentIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryTracking(groupId) });
+    },
+  });
+}
+
+export function useDocumentDeliveryTracking(groupId: string, enabled = true) {
+  return useQuery({
+    queryKey: documentKeys.deliveryTracking(groupId),
+    queryFn: () => documentDistributionApi.getDeliveryTracking(groupId),
+    enabled: Boolean(groupId && enabled),
+    refetchInterval: (query) => {
+      const counts = query.state.data?.counts;
+      return counts && counts.queued > 0 ? 5_000 : 30_000;
     },
   });
 }

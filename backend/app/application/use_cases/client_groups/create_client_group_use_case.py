@@ -49,6 +49,7 @@ class CreateClientGroupUseCase:
             base_city_enabled=dto.base_city_enabled,
             nearest_international_airport_enabled=dto.nearest_international_airport_enabled,
             staff_code_enabled=dto.staff_code_enabled,
+            agent_employee_code_enabled=dto.agent_employee_code_enabled,
             meal_preference_enabled=dto.meal_preference_enabled,
             require_selfie=dto.require_selfie,
             allow_files_from_device=dto.allow_files_from_device,

@@ -153,6 +153,8 @@ export const uploadApi = {
       base_city?: string | null;
       nearest_domestic_airport?: string | null;
       staff_code?: string | null;
+      agent_employee_type?: "agent" | "employee" | null;
+      agent_employee_code?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";
       family_group_id?: string | null;

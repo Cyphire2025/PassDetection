@@ -635,8 +635,8 @@ function clampCrop(crop: CropBounds, maxWidth: number, maxHeight: number): CropB
 }
 
 function addCaptureMargin(crop: CropBounds, maxWidth: number, maxHeight: number): CropBounds {
-  const horizontalMargin = crop.width * 0.02;
-  const verticalMargin = crop.height * 0.02;
+  const horizontalMargin = crop.width * 0.01;
+  const verticalMargin = crop.height * 0.01;
   return clampCrop(
     {
       left: crop.left - horizontalMargin,

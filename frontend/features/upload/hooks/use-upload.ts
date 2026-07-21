@@ -50,6 +50,8 @@ export function useSubmitClientPassportReview() {
       base_city,
       nearest_domestic_airport,
       staff_code,
+      agent_employee_type,
+      agent_employee_code,
       meal_preference,
       submission_mode,
       family_group_id,
@@ -70,6 +72,8 @@ export function useSubmitClientPassportReview() {
       base_city?: string | null;
       nearest_domestic_airport?: string | null;
       staff_code?: string | null;
+      agent_employee_type?: "agent" | "employee" | null;
+      agent_employee_code?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";
       family_group_id?: string | null;
@@ -89,6 +93,8 @@ export function useSubmitClientPassportReview() {
         base_city,
         nearest_domestic_airport,
         staff_code,
+        agent_employee_type,
+        agent_employee_code,
         meal_preference,
         submission_mode,
         family_group_id,

@@ -7,6 +7,7 @@ import pytest
 from openpyxl import load_workbook
 
 from app.domain.entities.entities import PassportSubmission
+from app.domain.value_objects.personnel_codes import prefixed_staff_code
 from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
     _country_display_name,
@@ -20,6 +21,7 @@ _OPTION_FLAGS = {
     "ask_nearest_domestic_airport": False,
     "base_city_enabled": False,
     "staff_code_enabled": False,
+    "agent_employee_code_enabled": False,
     "meal_preference_enabled": False,
     "relation_with_qualifier_enabled": False,
 }
@@ -98,6 +100,7 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
         "Nearest Domestic Airport",
         "Base City",
         "Staff Code",
+        "Agent/Employee Code",
         "Meal Preference",
         "Relation with Qualifier",
     }.isdisjoint(headers)
@@ -123,6 +126,8 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
         fields={
             "base_city": "Mumbai",
             "staff_code": "GC-77",
+            "agent_employee_type": "agent",
+            "agent_employee_code": "9988",
             "meal_preference": "Jain",
         },
     )
@@ -140,6 +145,7 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
                 **_OPTION_FLAGS,
                 "base_city_enabled": True,
                 "staff_code_enabled": True,
+                "agent_employee_code_enabled": True,
                 "meal_preference_enabled": True,
             },
         },
@@ -155,10 +161,58 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
     assert "Nearest Domestic Airport" not in headers
     assert "Base City" in headers
     assert "Staff Code" in headers
+    assert "Agent/Employee Code" in headers
     assert "Meal Preference" in headers
     assert second_values["Base City"] == "Mumbai"
-    assert second_values["Staff Code"] == "GC-77"
+    assert second_values["Staff Code"] == "STF_GC-77"
+    assert second_values["Agent/Employee Code"] == "AGT_9988"
     assert second_values["Meal Preference"] == "Jain"
+
+
+@pytest.mark.parametrize(
+    ("person_type", "expected"),
+    (("agent", "AGT_12345"), ("employee", "EMP_12345")),
+)
+def test_export_prefixes_agent_and_employee_codes(
+    person_type: str,
+    expected: str,
+) -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        fields={
+            "agent_employee_type": person_type,
+            "agent_employee_code": "12345",
+        },
+    )
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Code Group",
+            group_details={
+                group_id: {
+                    "name": "Code Group",
+                    **_OPTION_FLAGS,
+                    "agent_employee_code_enabled": True,
+                }
+            },
+        )
+    )
+    _, values = _row_values(worksheet)
+
+    assert values["Agent/Employee Code"] == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    (("42", "STF_42"), ("STF_42", "STF_42"), ("STF-42", "STF_42")),
+)
+def test_staff_code_prefix_is_canonical_and_not_duplicated(
+    source: str,
+    expected: str,
+) -> None:
+    assert prefixed_staff_code(source) == expected
 
 
 def test_export_includes_relation_snapshot_only_for_enabled_groups() -> None:

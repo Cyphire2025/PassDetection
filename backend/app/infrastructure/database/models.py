@@ -146,6 +146,9 @@ class ClientGroupModel(Base):
         Boolean, nullable=False, default=False, server_default="false"
     )
     staff_code_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    agent_employee_code_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     meal_preference_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     require_selfie: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     allow_files_from_device: Mapped[bool] = mapped_column(
@@ -872,6 +875,109 @@ class DistributedDocumentModel(Base):
     extracted_reference: Mapped[str | None] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+
+
+class DocumentWhatsAppDeliveryModel(Base):
+    """Durable, idempotent WhatsApp delivery state for one passenger document."""
+
+    __tablename__ = "document_whatsapp_deliveries"
+    __table_args__ = (
+        UniqueConstraint(
+            "distributed_document_id",
+            name="uq_document_whatsapp_delivery_document",
+        ),
+        Index(
+            "ix_document_whatsapp_delivery_group_status",
+            "group_id",
+            "status",
+        ),
+        Index(
+            "ix_document_whatsapp_delivery_send_batch",
+            "send_batch_id",
+            "created_at",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    document_batch_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("document_distribution_batches.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    distributed_document_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("distributed_documents.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    passenger_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    broadcast_group_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    recipient_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_recipients.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    send_batch_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False, index=True
+    )
+    document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    document_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    passenger_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    passport_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
+    normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    template_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
+    provider_media_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    provider_status_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
 
 
 class DocumentRenameBatchModel(Base):

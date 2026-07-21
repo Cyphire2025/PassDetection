@@ -14,21 +14,30 @@ import {
   RefreshCw,
   Save,
   SearchCheck,
+  Send,
   Trash2,
   UploadCloud,
+  X,
   XCircle,
 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence } from "@/lib/utils/format";
-import type { DistributionDocumentType, DocumentPassengerReviewRow, DocumentVerificationResult } from "@/types/document-distribution.types";
+import type {
+  DistributionDocumentType,
+  DocumentDeliveryPreview,
+  DocumentPassengerReviewRow,
+  DocumentVerificationResult,
+} from "@/types/document-distribution.types";
 import {
   useDeleteDistributionDocuments,
+  useDocumentDeliveryPreview,
   useDocumentGroups,
   useDocumentReview,
   useReuploadPassengerDocument,
   useSaveDocumentBatch,
+  useSendDocumentWhatsAppBroadcast,
   useUploadDistributionDocuments,
   useVerifyDistributionDocuments,
 } from "../hooks/use-document-distribution";
@@ -51,7 +60,11 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
+  const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
+  const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[]>([]);
+  const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const initializedDeliveryPreviewRef = useRef<string | null>(null);
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
   const review = useDocumentReview(groupId, selectedType);
@@ -60,6 +73,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const reupload = useReuploadPassengerDocument(groupId, selectedType);
   const deleteDocuments = useDeleteDistributionDocuments(groupId, selectedType);
   const save = useSaveDocumentBatch(groupId, selectedType);
+  const deliveryPreview = useDocumentDeliveryPreview(
+    groupId,
+    selectedType,
+    isSendPreviewOpen,
+  );
+  const sendDocuments = useSendDocumentWhatsAppBroadcast(groupId, selectedType);
   const selectedConfig = DOCUMENT_TYPES.find((item) => item.type === selectedType) ?? DOCUMENT_TYPES[0];
   const missingCount = useMemo(() => (review.data?.review_rows ?? []).filter((row) => !row.document).length, [review.data]);
   const acceptedFiles = useMemo(() => {
@@ -82,6 +101,21 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     }, 220);
     return () => window.clearInterval(timer);
   }, [phase, verify.isPending]);
+
+  useEffect(() => {
+    const preview = deliveryPreview.data;
+    if (!isSendPreviewOpen || !preview) return;
+    const previewKey = `${preview.batch_id}:${preview.recipients
+      .map((row) => `${row.document_id ?? "none"}:${row.delivery_status}`)
+      .join("|")}`;
+    if (initializedDeliveryPreviewRef.current === previewKey) return;
+    initializedDeliveryPreviewRef.current = previewKey;
+    setDeliveryDocumentIds(
+      preview.recipients
+        .filter((row) => row.eligible && row.document_id)
+        .map((row) => row.document_id as string),
+    );
+  }, [deliveryPreview.data, isSendPreviewOpen]);
 
   const resetSelection = (files: File[]) => {
     setSelectedFiles(files);
@@ -300,6 +334,19 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   <Save className="h-4 w-4" />
                   {review.data?.status === "saved" ? "Saved" : "Save List"}
                 </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!review.data?.batch_id || review.data.status !== "saved"}
+                  onClick={() => {
+                    initializedDeliveryPreviewRef.current = null;
+                    setDeliveryFeedback(null);
+                    setIsSendPreviewOpen(true);
+                  }}
+                >
+                  <Send className="h-4 w-4" />
+                  Send WhatsApp Broadcast
+                </Button>
               </div>
             </div>
 
@@ -412,8 +459,237 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           </CardContent>
         </Card>
       )}
+
+      {deliveryFeedback && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {deliveryFeedback}
+        </div>
+      )}
+
+      {isSendPreviewOpen && (
+        <DocumentDeliveryPreviewDialog
+          preview={deliveryPreview.data}
+          loading={deliveryPreview.isLoading}
+          loadError={deliveryPreview.error}
+          selectedDocumentIds={deliveryDocumentIds}
+          sending={sendDocuments.isPending}
+          sendError={sendDocuments.error}
+          onToggleDocument={(documentId) => {
+            setDeliveryDocumentIds((current) =>
+              current.includes(documentId)
+                ? current.filter((id) => id !== documentId)
+                : [...current, documentId],
+            );
+          }}
+          onClose={() => {
+            if (!sendDocuments.isPending) setIsSendPreviewOpen(false);
+          }}
+          onSend={() => {
+            const batchId = deliveryPreview.data?.batch_id;
+            if (!batchId) return;
+            sendDocuments.mutate(
+              { batchId, documentIds: deliveryDocumentIds },
+              {
+                onSuccess: (result) => {
+                  setDeliveryFeedback(result.message);
+                  setIsSendPreviewOpen(false);
+                },
+              },
+            );
+          }}
+        />
+      )}
     </div>
   );
+}
+
+function DocumentDeliveryPreviewDialog({
+  preview,
+  loading,
+  loadError,
+  selectedDocumentIds,
+  sending,
+  sendError,
+  onToggleDocument,
+  onClose,
+  onSend,
+}: {
+  preview: DocumentDeliveryPreview | undefined;
+  loading: boolean;
+  loadError: Error | null;
+  selectedDocumentIds: string[];
+  sending: boolean;
+  sendError: Error | null;
+  onToggleDocument: (documentId: string) => void;
+  onClose: () => void;
+  onSend: () => void;
+}) {
+  const sampleMessage = preview?.recipients.find((row) => row.message_preview)?.message_preview;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="document-delivery-preview-title"
+    >
+      <div className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
+          <div>
+            <h2 id="document-delivery-preview-title" className="text-lg font-semibold text-slate-950">
+              Preview WhatsApp document delivery
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Confirm the exact document, passenger, and opted-in WhatsApp number before queueing individual messages.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={sending}
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+            aria-label="Close delivery preview"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+          {loading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-20 rounded-xl" />
+              <Skeleton className="h-72 rounded-xl" />
+            </div>
+          ) : loadError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {loadError.message || "The delivery preview could not be loaded."}
+            </div>
+          ) : preview ? (
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <DeliverySummary label="Passengers" value={preview.summary.total_passengers} />
+                <DeliverySummary label="Ready" value={preview.summary.ready} tone="success" />
+                <DeliverySummary label="Retryable" value={preview.summary.retryable} tone="warning" />
+                <DeliverySummary label="Already sent" value={preview.summary.already_sent} />
+                <DeliverySummary label="In progress" value={preview.summary.in_progress} />
+                <DeliverySummary label="Blocked" value={preview.summary.blocked} tone="danger" />
+              </div>
+
+              {preview.configuration_error && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  {preview.configuration_error}
+                </div>
+              )}
+
+              {sampleMessage && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Message preview</div>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-800">{sampleMessage}</p>
+                  <p className="mt-2 text-xs text-slate-500">Each passenger receives only the PDF shown in their row.</p>
+                </div>
+              )}
+
+              <div className="overflow-hidden rounded-xl border border-slate-200">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[900px] text-left text-sm">
+                    <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                      <tr>
+                        <th className="px-4 py-3">Send</th>
+                        <th className="px-4 py-3">Passenger</th>
+                        <th className="px-4 py-3">Document</th>
+                        <th className="px-4 py-3">WhatsApp recipient</th>
+                        <th className="px-4 py-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {preview.recipients.map((row) => (
+                        <tr key={row.passenger_id} className={row.eligible ? "bg-white" : "bg-slate-50/60"}>
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(row.document_id && selectedDocumentIds.includes(row.document_id))}
+                              disabled={!row.eligible || !row.document_id || sending}
+                              onChange={() => row.document_id && onToggleDocument(row.document_id)}
+                              aria-label={`Send document to ${row.passenger_name}`}
+                              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            />
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="font-semibold text-slate-900">{row.passenger_name}</div>
+                            <div className="mt-1 text-xs text-slate-500">{row.passport_number || "No passport number"}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-slate-800">{row.document_filename || "No document"}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-slate-800">{row.phone_number || "Not matched"}</div>
+                            <div className="mt-1 text-xs text-slate-500">{row.broadcast_name || "No linked broadcast match"}</div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <DeliveryPreviewStatus status={row.delivery_status} />
+                            <div className="mt-1 max-w-xs text-xs text-slate-500">{row.reason}</div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="border-t border-slate-200 px-6 py-4">
+          {(sendError || loadError) && (
+            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {(sendError || loadError)?.message}
+            </div>
+          )}
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-slate-500">
+              Successful and uncertain deliveries are excluded automatically to prevent duplicates.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="secondary" onClick={onClose} disabled={sending}>Cancel</Button>
+              <Button
+                type="button"
+                onClick={onSend}
+                isLoading={sending}
+                disabled={!preview?.can_send || selectedDocumentIds.length === 0 || loading}
+              >
+                <Send className="h-4 w-4" />
+                Send individually to {selectedDocumentIds.length}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeliverySummary({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "success" | "warning" | "danger" }) {
+  const toneClass = tone === "success"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+    : tone === "warning"
+      ? "border-amber-200 bg-amber-50 text-amber-900"
+      : tone === "danger"
+        ? "border-red-200 bg-red-50 text-red-900"
+        : "border-slate-200 bg-slate-50 text-slate-900";
+  return (
+    <div className={`rounded-xl border p-3 ${toneClass}`}>
+      <div className="text-xs font-medium opacity-70">{label}</div>
+      <div className="mt-1 text-xl font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function DeliveryPreviewStatus({ status }: { status: string }) {
+  if (status === "ready") return <Badge variant="success">Ready</Badge>;
+  if (status === "retryable") return <Badge variant="warning">Retry failed</Badge>;
+  if (status === "already_sent") return <Badge variant="success">Already sent</Badge>;
+  if (status === "queued" || status === "processing") return <Badge variant="outline">In progress</Badge>;
+  if (status === "delivery_unknown") return <Badge variant="warning">Outcome unknown</Badge>;
+  return <Badge variant="outline">Blocked</Badge>;
 }
 
 function VerificationPanel({ verification }: { verification: DocumentVerificationResult }) {

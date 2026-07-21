@@ -36,6 +36,7 @@ import type {
   PassportGroupSubmissionSort,
 } from "../api/passports.api";
 import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
+import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
 
 interface PassportGroupDetailProps {
@@ -94,6 +95,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     base_city_enabled: deletedGroup.base_city_enabled,
     nearest_international_airport_enabled: deletedGroup.nearest_international_airport_enabled,
     staff_code_enabled: deletedGroup.staff_code_enabled,
+    agent_employee_code_enabled: deletedGroup.agent_employee_code_enabled,
     meal_preference_enabled: deletedGroup.meal_preference_enabled,
     require_selfie: deletedGroup.require_selfie,
     allow_files_from_device: deletedGroup.allow_files_from_device ?? true,
@@ -133,6 +135,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     base_city_enabled: false,
     nearest_international_airport_enabled: false,
     staff_code_enabled: false,
+    agent_employee_code_enabled: false,
     meal_preference_enabled: false,
     require_selfie: false,
     allow_files_from_device: true,
@@ -381,6 +384,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     base_city_enabled: groupDetails.base_city_enabled,
                     nearest_international_airport_enabled: groupDetails.nearest_international_airport_enabled,
                     staff_code_enabled: groupDetails.staff_code_enabled,
+                    agent_employee_code_enabled: groupDetails.agent_employee_code_enabled,
                     meal_preference_enabled: groupDetails.meal_preference_enabled,
                     require_selfie: groupDetails.require_selfie,
                     allow_files_from_device: groupDetails.allow_files_from_device ?? true,
@@ -403,6 +407,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
               <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
+              <InfoPair label="Agent/Employee Code" value={groupDetails.agent_employee_code_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Visa Photo Upload" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
               <InfoPair label="Files From Device" value={(groupDetails.allow_files_from_device ?? true) ? "Allowed" : "Live scanner only"} />
@@ -420,7 +425,10 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       )}
 
       {!includeDeleted && (
-        <GroupWhatsAppBroadcastPanel groupId={groupId} />
+        <>
+          <GroupWhatsAppBroadcastPanel groupId={groupId} />
+          <GroupDocumentDeliveryPanel groupId={groupId} />
+        </>
       )}
 
       {importMessage && (
@@ -867,6 +875,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 base_city_enabled: tripForm.base_city_enabled,
                 nearest_international_airport_enabled: tripForm.nearest_international_airport_enabled,
                 staff_code_enabled: tripForm.staff_code_enabled,
+                agent_employee_code_enabled: tripForm.agent_employee_code_enabled,
                 meal_preference_enabled: tripForm.meal_preference_enabled,
                 require_selfie: tripForm.require_selfie,
                 allow_files_from_device: tripForm.allow_files_from_device,
@@ -1183,7 +1192,7 @@ function PassportDocumentMatrix({
                   <tr key={passport.id} className="align-top">
                     <td className="px-5 py-4">
                       <div className="font-semibold text-slate-900">{passport.client_name}</div>
-                      <div className="mt-1 text-xs text-slate-500">{getStaffCode(passport) || "No staff code"}</div>
+                      <div className="mt-1 text-xs text-slate-500">{getPersonnelCode(passport) || "No staff or Agent/Employee code"}</div>
                     </td>
                     <DocumentCell
                       label="Passport pic"
@@ -1345,11 +1354,19 @@ function getStringField(fields: ExtractedPassportFields | null, key: string) {
   return typeof value === "string" ? value : "";
 }
 
-function getStaffCode(passport: PassportSubmission) {
+function getPersonnelCode(passport: PassportSubmission) {
+  const fields = passport.confirmed_fields ?? passport.extracted_fields;
+  const agentEmployeeType = getStringField(fields, "agent_employee_type").toLowerCase();
+  const agentEmployeeCode = getStringField(fields, "agent_employee_code");
+  if (agentEmployeeCode && agentEmployeeType === "agent") return `AGT_${agentEmployeeCode}`;
+  if (agentEmployeeCode && agentEmployeeType === "employee") return `EMP_${agentEmployeeCode}`;
   const metadataCode = passport.staff_metadata?.staff_code ?? passport.staff_metadata?.staffcode;
-  const fieldCode = getStringField(passport.confirmed_fields ?? passport.extracted_fields, "staff_code");
+  const fieldCode = getStringField(fields, "staff_code");
   const value = metadataCode || fieldCode;
-  return value ? String(value).trim().toUpperCase() : "";
+  if (!value) return "";
+  const normalized = String(value).trim().toUpperCase();
+  const prefixed = normalized.match(/^STF[_\-\s]+(.+)$/);
+  return prefixed ? `STF_${prefixed[1]}` : `STF_${normalized}`;
 }
 
 function PassportDocumentImportProgress({
@@ -1618,6 +1635,7 @@ function TripDetailsDialog({
     base_city_enabled: boolean;
     nearest_international_airport_enabled: boolean;
     staff_code_enabled: boolean;
+    agent_employee_code_enabled: boolean;
     meal_preference_enabled: boolean;
     require_selfie: boolean;
     allow_files_from_device: boolean;
@@ -1635,6 +1653,7 @@ function TripDetailsDialog({
     base_city_enabled: boolean;
     nearest_international_airport_enabled: boolean;
     staff_code_enabled: boolean;
+    agent_employee_code_enabled: boolean;
     meal_preference_enabled: boolean;
     require_selfie: boolean;
     allow_files_from_device: boolean;
@@ -1721,6 +1740,12 @@ function TripDetailsDialog({
             description="Require each client to enter a staff code."
             checked={form.staff_code_enabled}
             onChange={(checked) => onChange({ ...form, staff_code_enabled: checked })}
+          />
+          <GroupOptionToggle
+            label="Agent/Employee Code"
+            description="Require each client to select Agent or Employee and enter a numeric code."
+            checked={form.agent_employee_code_enabled}
+            onChange={(checked) => onChange({ ...form, agent_employee_code_enabled: checked })}
           />
           <div className="space-y-3 rounded-xl border border-slate-200 p-4 sm:col-span-2">
             <GroupOptionToggle

@@ -12,6 +12,10 @@ from typing import BinaryIO, Mapping
 
 from app.domain.entities.entities import PassportSubmission
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.value_objects.personnel_codes import (
+    prefixed_agent_employee_code,
+    prefixed_staff_code,
+)
 from app.domain.repositories.interfaces import IObjectStorageRepository
 from app.domain.value_objects.passport_image_crop import PassportImageCrop, PassportImageType
 from app.infrastructure.imaging.passport_image_cropper import render_saved_passport_image_crop
@@ -51,6 +55,7 @@ class PassportImageZipExporter:
         group_name: str,
         staff_code_enabled: bool,
         storage: IObjectStorageRepository,
+        agent_employee_code_enabled: bool = False,
         crop_metadata: Mapping[object, Mapping[PassportImageType, PassportImageCrop]] | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
@@ -61,7 +66,11 @@ class PassportImageZipExporter:
         ordered = sorted(
             submissions,
             key=lambda item: (
-                self._passenger_folder_base(item, staff_code_enabled=staff_code_enabled).casefold(),
+                self._passenger_folder_base(
+                    item,
+                    staff_code_enabled=staff_code_enabled,
+                    agent_employee_code_enabled=agent_employee_code_enabled,
+                ).casefold(),
                 str(item.id),
             ),
         )
@@ -92,6 +101,7 @@ class PassportImageZipExporter:
                     base_folder = self._passenger_folder_base(
                         submission,
                         staff_code_enabled=staff_code_enabled,
+                        agent_employee_code_enabled=agent_employee_code_enabled,
                     )
                     passenger_folder = base_folder
                     occurrence = 1
@@ -152,15 +162,41 @@ class PassportImageZipExporter:
             raise
 
     @staticmethod
-    def _passenger_folder_base(submission: PassportSubmission, *, staff_code_enabled: bool) -> str:
+    def _passenger_folder_base(
+        submission: PassportSubmission,
+        *,
+        staff_code_enabled: bool,
+        agent_employee_code_enabled: bool,
+    ) -> str:
         client_name = sanitize_zip_component(submission.client_name, fallback="CLIENT")
-        if not staff_code_enabled:
-            return client_name
         metadata = submission.staff_metadata or {}
         fields = submission.confirmed_fields or submission.extracted_fields or {}
-        raw_staff_code = metadata.get("staff_code") or fields.get("staff_code")
-        staff_code = sanitize_zip_component(str(raw_staff_code), fallback="") if raw_staff_code else ""
-        return f"{staff_code}_{client_name}" if staff_code else client_name
+        if agent_employee_code_enabled:
+            agent_employee_code = prefixed_agent_employee_code(
+                fields.get("agent_employee_type")
+                or metadata.get("agent_employee_type"),
+                fields.get("agent_employee_code")
+                or metadata.get("agent_employee_code"),
+            )
+            safe_agent_employee_code = (
+                sanitize_zip_component(agent_employee_code, fallback="")
+                if agent_employee_code
+                else ""
+            )
+            if safe_agent_employee_code:
+                return f"{safe_agent_employee_code}_{client_name}"
+        if staff_code_enabled:
+            staff_code = prefixed_staff_code(
+                metadata.get("staff_code") or fields.get("staff_code")
+            )
+            safe_staff_code = (
+                sanitize_zip_component(staff_code, fallback="")
+                if staff_code
+                else ""
+            )
+            if safe_staff_code:
+                return f"{safe_staff_code}_{client_name}"
+        return client_name
 
     @staticmethod
     def _zip_info(path: str, *, is_directory: bool = False) -> zipfile.ZipInfo:

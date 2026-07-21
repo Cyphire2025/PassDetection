@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'none'; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Smart COPY/PASTE V2 Matching Regression Fixture</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f4f6fa;
+      --panel: #fff;
+      --ink: #172033;
+      --muted: #5b6679;
+      --line: #d9dee8;
+      --accent: #1769e0;
+      --auto: #087a55;
+      --picker: #9a5a00;
+      --blocked: #b42318;
+      --code: #eef2f7;
+      --shadow: 0 10px 28px rgb(32 45 70 / 10%);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #10141d;
+        --panel: #181e29;
+        --ink: #edf2fb;
+        --muted: #aeb9ca;
+        --line: #303a49;
+        --accent: #78a7ff;
+        --auto: #58d6ab;
+        --picker: #ffc26f;
+        --blocked: #ff8d85;
+        --code: #232c3a;
+        --shadow: 0 10px 28px rgb(0 0 0 / 28%);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.45;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 28px auto 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 7px;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      margin-bottom: 6px;
+      font-size: 1.18rem;
+    }
+
+    .subtitle,
+    .section-intro {
+      color: var(--muted);
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin-bottom: 0;
+    }
+
+    .badge {
+      flex: none;
+      padding: 7px 11px;
+      border: 1px solid color-mix(in srgb, var(--auto) 45%, var(--line));
+      border-radius: 999px;
+      color: var(--auto);
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .profile {
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .profile strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--code);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .section-intro {
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .case {
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .case label {
+      display: block;
+      min-height: 24px;
+      margin-bottom: 7px;
+      font-weight: 650;
+    }
+
+    input,
+    select,
+    button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 9px 11px;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--accent) 38%, transparent);
+      outline-offset: 2px;
+      border-color: var(--accent);
+    }
+
+    .expectation {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5px 8px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .outcome {
+      align-self: start;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .outcome.auto {
+      background: color-mix(in srgb, var(--auto) 12%, transparent);
+      color: var(--auto);
+    }
+
+    .outcome.picker {
+      background: color-mix(in srgb, var(--picker) 12%, transparent);
+      color: var(--picker);
+    }
+
+    .outcome.blocked {
+      background: color-mix(in srgb, var(--blocked) 10%, transparent);
+      color: var(--blocked);
+    }
+
+    code {
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--code);
+      color: var(--ink);
+    }
+
+    .monitor {
+      position: sticky;
+      top: 18px;
+    }
+
+    .counter {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--code);
+    }
+
+    .counter strong {
+      color: var(--auto);
+      font-size: 1.45rem;
+    }
+
+    .counter.danger strong {
+      color: var(--blocked);
+    }
+
+    #eventLog {
+      height: 430px;
+      margin: 0;
+      padding: 11px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--code);
+      color: var(--ink);
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 0.76rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 13px;
+    }
+
+    button {
+      width: auto;
+      padding: 8px 13px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    .primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .required {
+      color: #d92d20;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .monitor {
+        position: static;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 18px, 1240px);
+        margin-top: 14px;
+      }
+
+      header {
+        display: block;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 10px;
+      }
+
+      .case-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <h1>V2 matching regression fixture</h1>
+        <p class="subtitle">
+          Screenshot-derived label, punctuation, phone narrowing, format-hint,
+          runtime-learning, and ambiguity cases. Run in Chrome, Edge, and Brave
+          with synthetic values only.
+        </p>
+      </div>
+      <span class="badge">Offline · deterministic QA</span>
+    </header>
+
+    <section class="profile" aria-labelledby="profileTitle">
+      <strong id="profileTitle">Recommended rich synthetic profile</strong>
+      <div class="chips">
+        <span class="chip">Surname</span>
+        <span class="chip">Given Name</span>
+        <span class="chip">Date of Birth</span>
+        <span class="chip">Gender</span>
+        <span class="chip">Nationality</span>
+        <span class="chip">Place of Birth</span>
+        <span class="chip">Passport Number</span>
+        <span class="chip">National ID Number</span>
+        <span class="chip">Email</span>
+        <span class="chip">Mobile Number</span>
+        <span class="chip">Alternate Mobile</span>
+        <span class="chip">Landline</span>
+        <span class="chip">Calling Code</span>
+        <span class="chip">Emergency Phone</span>
+      </div>
+    </section>
+
+    <div class="layout">
+      <form id="v2FixtureForm" autocomplete="off">
+        <section class="card" aria-labelledby="vietnamTitle">
+          <h2 id="vietnamTitle">Vietnam-form label variants</h2>
+          <p class="section-intro">
+            Derived from the supplied 1917×641 portal screenshot. Parentheses,
+            mixed capitalization, and required markers must not create a
+            recurring picker for otherwise obvious fields.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="LABEL-01"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.surname">
+              <label for="v2Surname">Surname (Last name)</label>
+              <input id="v2Surname" name="family_name" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.surname</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-02"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.given_name">
+              <label for="v2GivenNames">
+                Middle and given name (First name)<span class="required">*</span>
+              </label>
+              <input id="v2GivenNames" name="given_names" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.given_name</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-03"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.date_of_birth">
+              <label for="v2BirthDate">Date of birth *</label>
+              <input id="v2BirthDate" name="birth_date" type="text"
+                     placeholder="DD/MM/YYYY">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.date_of_birth</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-04"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.gender">
+              <label for="v2Sex">Sex<span class="required">*</span></label>
+              <input id="v2Sex" name="sex" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.gender</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-05"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.nationality">
+              <label for="v2Nationality">
+                Nationality<span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="v2Nationality" name="nationality" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.nationality</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-06"
+                 data-expected-outcome="auto"
+                 data-expected-field="identity.national_id_number">
+              <label for="v2IdentityCard">Identity Card</label>
+              <input id="v2IdentityCard" name="identity_card" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>identity.national_id_number</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-07"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.email">
+              <label for="v2Email">Email *</label>
+              <input id="v2Email" name="email" type="email">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.email</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-08"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.email">
+              <label for="v2EmailAgain">Re-enter Email*</label>
+              <input id="v2EmailAgain" name="email_confirmation" type="email">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span>same <code>contact.email</code>; no recurring picker</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-09"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.place_of_birth">
+              <label for="v2BirthPlace">Place of birth*</label>
+              <input id="v2BirthPlace" name="birth_place" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.place_of_birth</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LABEL-10"
+                 data-expected-outcome="picker"
+                 data-expected-candidates="personal.religion">
+              <label for="v2Religion">Religion*</label>
+              <input id="v2Religion" name="religion" type="text">
+              <div class="expectation">
+                <span class="outcome picker">No value</span>
+                <span>never invent data when religion was not copied</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="caseTitle">
+          <h2 id="caseTitle">Case and punctuation invariance</h2>
+          <p class="section-intro">
+            Capitalization, colons, periods, parentheses, and required
+            asterisks are presentation only. They must not change the semantic
+            result.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="NORMALIZE-01"
+                 data-expected-outcome="auto"
+                 data-expected-field="personal.surname">
+              <label for="v2UpperSurname">SURNAME : *</label>
+              <input id="v2UpperSurname" name="SURNAME" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>personal.surname</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="NORMALIZE-02"
+                 data-expected-outcome="auto"
+                 data-expected-field="passport.number">
+              <label for="v2MixedPassport">pAsSpOrT nUmBeR : *</label>
+              <input id="v2MixedPassport" name="passport_no" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>passport.number</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="NORMALIZE-03"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.email">
+              <label for="v2PunctEmail">E-mail Address (required):</label>
+              <input id="v2PunctEmail" name="email_address" type="email">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.email</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="NORMALIZE-04"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.mobile">
+              <label for="v2MobileNo">Mobile No. (*)</label>
+              <input id="v2MobileNo" name="mobile_no" type="tel">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.mobile</code></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="phoneTitle">
+          <h2 id="phoneTitle">Phone-family candidate narrowing</h2>
+          <p class="section-intro">
+            Exact semantics auto-paste only when that value exists. A generic
+            or unavailable phone semantic opens a picker containing phone
+            fields only—never names, passport, dates, nationality, or email.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="PHONE-01"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.mobile">
+              <label for="v2Mobile">Mobile Number *</label>
+              <input id="v2Mobile" name="mobileNumber" type="tel">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.mobile</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="PHONE-02"
+                 data-expected-outcome="picker-then-runtime-auto"
+                 data-expected-candidates="contact.landline,contact.mobile"
+                 data-remember-default="checked">
+              <label for="v2Telephone">Telephone number *</label>
+              <input id="v2Telephone" name="telephone_number" type="tel">
+              <div class="expectation">
+                <span class="outcome picker">Confirm once</span>
+                <span>mobile/landline only; checked session memory enables repeat auto-paste</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="PHONE-03"
+                 data-expected-outcome="picker-then-runtime-auto"
+                 data-expected-candidates="contact.landline,contact.mobile"
+                 data-remember-default="checked">
+              <label for="v2PhoneMobile">TELEPHONE / PHONE NUMBER *</label>
+              <span id="phoneCountryCodeHint">
+                Include country code in the full telephone number.
+              </span>
+              <input id="v2PhoneMobile" name="phone_or_mobile" type="tel"
+                     aria-describedby="phoneCountryCodeHint">
+              <div class="expectation">
+                <span class="outcome picker">Confirm once</span>
+                <span>helper still means a full number; never recommend the calling-code field</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="PHONE-04"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.alternate_mobile">
+              <label for="v2AlternatePhone">Alternate Phone No.*</label>
+              <input id="v2AlternatePhone" name="alternate_phone" type="tel">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.alternate_mobile</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="PHONE-05"
+                 data-expected-outcome="auto"
+                 data-expected-field="emergency.phone">
+              <label for="v2EmergencyPhone">Emergency Contact Telephone *</label>
+              <input id="v2EmergencyPhone" name="emergency_phone" type="tel">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>emergency.phone</code>; never primary mobile</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="PHONE-06"
+                 data-expected-outcome="auto"
+                 data-expected-field="contact.country_calling_code">
+              <label for="v2CallingCode">Country Calling Code (+) *</label>
+              <input id="v2CallingCode" name="dial_code" type="tel">
+              <div class="expectation">
+                <span class="outcome auto">Auto</span>
+                <span><code>contact.country_calling_code</code></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="formatTitle">
+          <h2 id="formatTitle">Explicit value-format hints</h2>
+          <p class="section-intro">
+            Transform only when target metadata explicitly requests a safe
+            format. Uppercase label styling alone is not a format instruction.
+            These cases apply to editable text controls, not dropdowns or
+            native date inputs.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="FORMAT-01"
+                 data-expected-outcome="auto-transform"
+                 data-expected-field="personal.surname"
+                 data-source-sample="Sharma"
+                 data-expected-value="SHARMA">
+              <label for="v2UppercaseSurname">Surname (UPPERCASE ONLY) *</label>
+              <input id="v2UppercaseSurname" name="uppercase_surname" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Transform</span>
+                <span><code>Sharma</code> to <code>SHARMA</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-02"
+                 data-expected-outcome="auto-transform"
+                 data-expected-field="passport.number"
+                 data-source-sample="z1234567"
+                 data-expected-value="Z1234567">
+              <label for="v2UppercasePassport">Passport Number *</label>
+              <span id="passportFormatHint">UPPERCASE ONLY</span>
+              <input id="v2UppercasePassport" name="uppercase_passport"
+                     aria-describedby="passportFormatHint" type="text">
+              <div class="expectation">
+                <span class="outcome auto">Transform</span>
+                <span><code>z1234567</code> to <code>Z1234567</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-03"
+                 data-expected-outcome="auto-transform"
+                 data-expected-field="contact.email"
+                 data-source-sample="Rahul.Fixture@Example.INVALID"
+                 data-expected-value="rahul.fixture@example.invalid">
+              <label for="v2LowercaseEmail">
+                Email address (lowercase only) *
+              </label>
+              <input id="v2LowercaseEmail" name="lowercase_email" type="email">
+              <div class="expectation">
+                <span class="outcome auto">Transform</span>
+                <span>lowercase only because the hint is explicit</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-04"
+                 data-expected-outcome="auto-transform"
+                 data-expected-field="personal.date_of_birth"
+                 data-source-sample="29.04.2002"
+                 data-expected-value="29/04/2002">
+              <label for="v2FormattedDob">Date of birth (DD/MM/YYYY) *</label>
+              <input id="v2FormattedDob" name="formatted_dob" type="text"
+                     placeholder="DD/MM/YYYY">
+              <div class="expectation">
+                <span class="outcome auto">Transform</span>
+                <span><code>29.04.2002</code> to <code>29/04/2002</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-05"
+                 data-expected-outcome="picker-transform-then-runtime-auto"
+                 data-expected-field="contact.landline"
+                 data-expected-candidates="contact.landline,contact.mobile"
+                 data-remember-default="checked"
+                 data-source-sample="0012 345-678"
+                 data-expected-value="0012345678">
+              <label for="v2DigitsTelephone">
+                Telephone number (digits only) *
+              </label>
+              <input id="v2DigitsTelephone" name="digits_telephone" type="tel"
+                     inputmode="numeric">
+              <div class="expectation">
+                <span class="outcome picker">Confirm + transform</span>
+                <span>choose related number, remove separators, preserve leading zeroes</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-06"
+                 data-expected-outcome="auto-no-transform"
+                 data-expected-field="personal.surname"
+                 data-source-sample="McDonald"
+                 data-expected-value="McDonald">
+              <label for="v2StyledUppercase">SURNAME *</label>
+              <input id="v2StyledUppercase" name="styled_uppercase" type="text">
+              <div class="expectation">
+                <span class="outcome auto">No transform</span>
+                <span>uppercase label text does not uppercase <code>McDonald</code></span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="FORMAT-07"
+                 data-expected-outcome="manual-unsupported">
+              <label for="v2NegatedPassportFormat">
+                Passport Number (negated format instruction) *
+              </label>
+              <span id="negatedPassportFormatHint">
+                Do not use capital letters.
+              </span>
+              <input id="v2NegatedPassportFormat"
+                     name="negated_passport_format"
+                     type="text"
+                     aria-describedby="negatedPassportFormatHint">
+              <label for="v2NationalitySelect">Nationality (dropdown) *</label>
+              <select id="v2NationalitySelect" name="nationality_select">
+                <option value="">Choose manually</option>
+                <option value="fixture-country">Fixture Country</option>
+              </select>
+              <label for="v2NativeDate">Date of birth (native date input) *</label>
+              <input id="v2NativeDate" name="native_date" type="date">
+              <div class="expectation">
+                <span class="outcome blocked">Manual</span>
+                <span>negated formatting fails closed; dropdown and native date remain unsupported</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="learningTitle">
+          <h2 id="learningTitle">Runtime-only picker learning</h2>
+          <p class="section-intro">
+            A confirmed ambiguous choice may be reused only for the exact
+            normalized UI Automation signature in this process lifetime.
+            Clearing one passenger preserves it only while another remains;
+            clearing the final passenger forgets it.
+            Restarting the app forgets it. V2 has no domain-persistent mapping.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="LEARN-01"
+                 data-expected-outcome="picker-then-runtime-auto"
+                 data-expected-candidates="contact.landline,contact.mobile"
+                 data-remember-default="checked">
+              <label for="runtimeLearnPhoneA">Telephone number *</label>
+              <input id="runtimeLearnPhoneA" name="runtime_learn_phone_a"
+                     type="tel" aria-label="Telephone number">
+              <div class="expectation">
+                <span class="outcome picker">Learn once</span>
+                <span>checked runtime-only memory enables repeat auto-paste</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LEARN-02"
+                 data-expected-outcome="picker"
+                 data-expected-candidates="contact.landline,contact.mobile"
+                 data-remember-default="checked">
+              <label for="runtimeLearnPhoneB">Telephone number *</label>
+              <input id="runtimeLearnPhoneB" name="runtime_learn_phone_b"
+                     type="tel" aria-label="Telephone number">
+              <div class="expectation">
+                <span class="outcome picker">New signature</span>
+                <span>same label with another AutomationId is not learned</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="LEARN-03"
+                 data-expected-outcome="fresh-evaluation-no-reuse"
+                 data-expected-field="emergency.phone"
+                 role="group"
+                 aria-label="Emergency Contact">
+              <label for="emergencyPhone">Telephone number *</label>
+              <input id="emergencyPhone" name="runtime_learn_conflict"
+                     type="tel" aria-label="Telephone number">
+              <div class="expectation">
+                <span class="outcome picker">Conflict check</span>
+                <span>Emergency section forces the specialized phone candidate</span>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="changeLearnedSignature" type="button">
+              Change LEARN-01 signature
+            </button>
+            <button id="resetLearnedSignature" type="button">
+              Reset LEARN-01 signature
+            </button>
+          </div>
+          <p id="learnedSignatureStatus" class="section-intro" role="status">
+            LEARN-01 accessible name: Telephone number
+          </p>
+        </section>
+
+        <section class="card" aria-labelledby="qualifierTitle">
+          <h2 id="qualifierTitle">Section-qualifier safety exercises</h2>
+          <p class="section-intro">
+            A generic-looking field inside an Emergency, Previous, Former,
+            Old, Alternate, or Secondary group must not receive the base field.
+            Use the specialized candidate when it exists; otherwise leave the
+            field for manual confirmation. These supporting scenarios preserve
+            the frozen 34 machine-case IDs.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-scenario-id="QUALIFIER-01"
+                 role="group"
+                 aria-label="Emergency Contact">
+              <label for="qualifiedEmergencyMobile">Mobile number *</label>
+              <input id="qualifiedEmergencyMobile"
+                     name="qualified_emergency_mobile"
+                     type="tel">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>emergency.phone</code>; never primary mobile</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-scenario-id="QUALIFIER-02"
+                 role="group"
+                 aria-label="Previous passport information">
+              <label for="qualifiedPreviousPassport">Passport number *</label>
+              <input id="qualifiedPreviousPassport"
+                     name="qualified_previous_passport"
+                     type="text">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>passport.old_number</code>; never current passport</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-scenario-id="QUALIFIER-03"
+                 role="group"
+                 aria-label="Former nationality">
+              <label for="qualifiedFormerNationality">Nationality *</label>
+              <input id="qualifiedFormerNationality"
+                     name="qualified_former_nationality"
+                     type="text">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>personal.previous_nationality</code>; never current nationality</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-scenario-id="QUALIFIER-04"
+                 role="group"
+                 aria-label="Old passport information">
+              <label for="qualifiedOldPassport">Passport number *</label>
+              <input id="qualifiedOldPassport"
+                     name="qualified_old_passport"
+                     type="text">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>passport.old_number</code>; old context blocks the base field</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-scenario-id="QUALIFIER-05"
+                 role="group"
+                 aria-label="Alternate Contact">
+              <label for="qualifiedAlternateEmail">Email *</label>
+              <input id="qualifiedAlternateEmail"
+                     name="qualified_alternate_email"
+                     type="email">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>contact.alternate_email</code>; never primary email</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-scenario-id="QUALIFIER-06"
+                 role="group"
+                 aria-label="Secondary Contact">
+              <label for="qualifiedSecondaryMobile">Mobile number *</label>
+              <input id="qualifiedSecondaryMobile"
+                     name="qualified_secondary_mobile"
+                     type="tel">
+              <div class="expectation">
+                <span class="outcome picker">Specialized</span>
+                <span><code>contact.alternate_mobile</code>; never primary mobile</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="ambiguousTitle">
+          <h2 id="ambiguousTitle">Materially ambiguous identifiers</h2>
+          <p class="section-intro">
+            These controls must never receive an automatic value, even when
+            only one copied profile value appears superficially similar.
+          </p>
+          <div class="case-grid">
+            <div class="case"
+                 data-case-id="AMBIGUOUS-01"
+                 data-expected-outcome="picker"
+                 data-expected-candidates="passport.number,identity.national_id_number">
+              <label for="v2PassportApplication">Passport / Application Number *</label>
+              <input id="v2PassportApplication" name="application_number" type="text">
+              <div class="expectation">
+                <span class="outcome picker">Picker</span>
+                <span>identifier candidates only; no auto-paste</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="AMBIGUOUS-02"
+                 data-expected-outcome="picker">
+              <label for="v2Reference">Reference No.*</label>
+              <input id="v2Reference" name="reference" type="text">
+              <div class="expectation">
+                <span class="outcome picker">Picker</span>
+                <span>unknown; no unsafe guess</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="AMBIGUOUS-03"
+                 data-expected-outcome="picker"
+                 data-expected-candidates="passport.number,identity.national_id_number">
+              <label for="v2GenericId">ID Number *</label>
+              <input id="v2GenericId" name="id_number" type="text">
+              <div class="expectation">
+                <span class="outcome picker">Picker</span>
+                <span>identifier candidates only</span>
+              </div>
+            </div>
+
+            <div class="case"
+                 data-case-id="AMBIGUOUS-04"
+                 data-expected-outcome="picker">
+              <label for="v2GenericNumber">Number *</label>
+              <input id="v2GenericNumber" name="number" type="text">
+              <div class="expectation">
+                <span class="outcome picker">Picker</span>
+                <span>unknown; never infer by column order</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="fixtureSubmit" class="primary" type="submit">
+              Fixture Submit
+            </button>
+            <button id="clearFixture" type="button">Clear fixture</button>
+          </div>
+        </section>
+      </form>
+
+      <aside class="monitor" aria-labelledby="monitorTitle">
+        <section class="card">
+          <h2 id="monitorTitle">Privacy-safe event monitor</h2>
+          <div id="submitCounterPanel" class="counter">
+            <span>Submit attempts</span>
+            <strong id="submitCount">0</strong>
+          </div>
+          <pre id="eventLog" role="log" aria-live="polite">V2 fixture ready. Values are never logged.</pre>
+          <div class="actions">
+            <button id="clearLog" type="button">Clear event log</button>
+          </div>
+          <p class="section-intro">
+            Log entries include case ID, event type, element identity, and
+            value length only.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const form = document.getElementById("v2FixtureForm");
+      const eventLog = document.getElementById("eventLog");
+      const submitCount = document.getElementById("submitCount");
+      const submitCounterPanel = document.getElementById("submitCounterPanel");
+      const learnedTarget = document.getElementById("runtimeLearnPhoneA");
+      const learnedSignatureStatus =
+        document.getElementById("learnedSignatureStatus");
+      let submissions = 0;
+
+      const log = (message) => {
+        eventLog.textContent += `\n${new Date().toLocaleTimeString()}  ${message}`;
+        eventLog.scrollTop = eventLog.scrollHeight;
+      };
+
+      const caseFor = (target) => {
+        const container = target.closest?.(
+          "[data-case-id], [data-scenario-id]");
+        return container?.dataset.caseId ||
+          container?.dataset.scenarioId ||
+          "NO-CASE";
+      };
+
+      const identity = (target) => {
+        const tag = target.tagName ? target.tagName.toLowerCase() : "unknown";
+        const id = target.id || "(no-id)";
+        const type = target.type || target.getAttribute?.("role") || "n/a";
+        return `${tag}#${id}[${type}]`;
+      };
+
+      const valueLength = (target) =>
+        typeof target.value === "string"
+          ? target.value.length
+          : (target.textContent || "").length;
+
+      ["beforeinput", "input", "change", "blur"].forEach((eventName) => {
+        form.addEventListener(eventName, (event) => {
+          if (!(event.target instanceof HTMLElement)) {
+            return;
+          }
+          log(`${caseFor(event.target)} ${event.type.padEnd(11)} ${identity(event.target)} length=${valueLength(event.target)}`);
+        }, true);
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submissions += 1;
+        submitCount.textContent = String(submissions);
+        submitCounterPanel.classList.add("danger");
+        log(`SUBMIT BLOCKED count=${submissions}`);
+      });
+
+      document.getElementById("clearLog").addEventListener("click", () => {
+        eventLog.textContent = "Event log cleared. Values are never logged.";
+      });
+
+      const setLearnedSignature = (accessibleName) => {
+        learnedTarget.setAttribute("aria-label", accessibleName);
+        learnedSignatureStatus.textContent =
+          `LEARN-01 accessible name: ${accessibleName}`;
+        log(`LEARN-01 signature changed to metadata label "${accessibleName}"`);
+      };
+
+      document.getElementById("changeLearnedSignature")
+        .addEventListener("click", () => {
+          setLearnedSignature("Emergency Contact Telephone");
+        });
+
+      document.getElementById("resetLearnedSignature")
+        .addEventListener("click", () => {
+          setLearnedSignature("Telephone number");
+        });
+
+      document.getElementById("clearFixture").addEventListener("click", () => {
+        form.reset();
+        setLearnedSignature("Telephone number");
+        submissions = 0;
+        submitCount.textContent = "0";
+        submitCounterPanel.classList.remove("danger");
+        log("fixture fields and submit counter cleared");
+      });
+
+      const cases = [...document.querySelectorAll("[data-case-id]")].map((node) => ({
+        id: node.dataset.caseId,
+        expectedOutcome: node.dataset.expectedOutcome || "",
+        expectedField: node.dataset.expectedField || "",
+        sourceSample: node.dataset.sourceSample || "",
+        expectedValue: node.dataset.expectedValue || "",
+        rememberDefault: node.dataset.rememberDefault || "",
+        expectedCandidates: (node.dataset.expectedCandidates || "")
+          .split(",")
+          .filter(Boolean)
+      }));
+
+      window.smartCopyPasteV2Fixture = Object.freeze({
+        getCases: () => cases.map((item) => ({ ...item })),
+        getSubmitCount: () => submissions
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -137,6 +137,12 @@ export const API_ENDPOINTS = {
     deleteDocuments: (groupId: string, documentType: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/documents/delete`,
     saveBatch: (batchId: string) => `/api/v1/document-distribution/batches/${batchId}/save`,
+    whatsappPreview: (groupId: string, documentType: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/whatsapp-preview`,
+    sendWhatsApp: (batchId: string) =>
+      `/api/v1/document-distribution/batches/${batchId}/whatsapp-send`,
+    deliveryTracking: (groupId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/whatsapp-deliveries/tracking`,
   },
 
   documentRename: {

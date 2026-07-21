@@ -19,6 +19,10 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from app.domain.entities.entities import PassportSubmission
+from app.domain.value_objects.personnel_codes import (
+    prefixed_agent_employee_code,
+    prefixed_staff_code,
+)
 
 
 @dataclass(frozen=True)
@@ -51,6 +55,11 @@ _COLUMNS = (
     ),
     _ExportColumn("Base City", 20, "base_city_enabled"),
     _ExportColumn("Staff Code", 18, "staff_code_enabled"),
+    _ExportColumn(
+        "Agent/Employee Code",
+        24,
+        "agent_employee_code_enabled",
+    ),
     _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
     _ExportColumn(
         "Relation with Qualifier",
@@ -193,7 +202,15 @@ class PassportExcelExporter:
                 "Nearest International Airport": submission.departure_city,
                 "Nearest Domestic Airport": submission.nearest_domestic_airport,
                 "Base City": fields.get("base_city") or staff_metadata.get("base_city"),
-                "Staff Code": fields.get("staff_code") or staff_metadata.get("staff_code"),
+                "Staff Code": prefixed_staff_code(
+                    fields.get("staff_code") or staff_metadata.get("staff_code")
+                ),
+                "Agent/Employee Code": prefixed_agent_employee_code(
+                    fields.get("agent_employee_type")
+                    or staff_metadata.get("agent_employee_type"),
+                    fields.get("agent_employee_code")
+                    or staff_metadata.get("agent_employee_code"),
+                ),
                 "Meal Preference": (
                     fields.get("meal_preference") or staff_metadata.get("meal_preference")
                 ),

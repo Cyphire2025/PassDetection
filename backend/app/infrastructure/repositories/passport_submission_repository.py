@@ -561,6 +561,9 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.base_city_enabled.label("base_city_enabled"),
                 ClientGroupModel.nearest_international_airport_enabled.label("nearest_international_airport_enabled"),
                 ClientGroupModel.staff_code_enabled.label("staff_code_enabled"),
+                ClientGroupModel.agent_employee_code_enabled.label(
+                    "agent_employee_code_enabled"
+                ),
                 ClientGroupModel.meal_preference_enabled.label("meal_preference_enabled"),
                 ClientGroupModel.require_selfie.label("require_selfie"),
                 ClientGroupModel.allow_files_from_device.label("allow_files_from_device"),
@@ -627,6 +630,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.base_city_enabled,
                 ClientGroupModel.nearest_international_airport_enabled,
                 ClientGroupModel.staff_code_enabled,
+                ClientGroupModel.agent_employee_code_enabled,
                 ClientGroupModel.meal_preference_enabled,
                 ClientGroupModel.require_selfie,
                 ClientGroupModel.allow_files_from_device,
@@ -657,6 +661,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 base_city_enabled=row.base_city_enabled,
                 nearest_international_airport_enabled=row.nearest_international_airport_enabled,
                 staff_code_enabled=row.staff_code_enabled,
+                agent_employee_code_enabled=row.agent_employee_code_enabled,
                 meal_preference_enabled=row.meal_preference_enabled,
                 require_selfie=row.require_selfie,
                 allow_files_from_device=row.allow_files_from_device,

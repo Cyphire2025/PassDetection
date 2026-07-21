@@ -9,6 +9,7 @@ export const createUploadLinkSchema = z.object({
   base_city_enabled: z.boolean(),
   nearest_international_airport_enabled: z.boolean(),
   staff_code_enabled: z.boolean(),
+  agent_employee_code_enabled: z.boolean(),
   meal_preference_enabled: z.boolean(),
   require_selfie: z.boolean(),
   allow_files_from_device: z.boolean(),

@@ -46,6 +46,7 @@ class ClientGroupRepository(IClientGroupRepository):
             base_city_enabled=model.base_city_enabled,
             nearest_international_airport_enabled=model.nearest_international_airport_enabled,
             staff_code_enabled=model.staff_code_enabled,
+            agent_employee_code_enabled=model.agent_employee_code_enabled,
             meal_preference_enabled=model.meal_preference_enabled,
             require_selfie=model.require_selfie,
             allow_files_from_device=model.allow_files_from_device,
@@ -76,6 +77,7 @@ class ClientGroupRepository(IClientGroupRepository):
             base_city_enabled=entity.base_city_enabled,
             nearest_international_airport_enabled=entity.nearest_international_airport_enabled,
             staff_code_enabled=entity.staff_code_enabled,
+            agent_employee_code_enabled=entity.agent_employee_code_enabled,
             meal_preference_enabled=entity.meal_preference_enabled,
             require_selfie=entity.require_selfie,
             allow_files_from_device=entity.allow_files_from_device,
@@ -148,6 +150,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.base_city_enabled = link.base_city_enabled
         model.nearest_international_airport_enabled = link.nearest_international_airport_enabled
         model.staff_code_enabled = link.staff_code_enabled
+        model.agent_employee_code_enabled = link.agent_employee_code_enabled
         model.meal_preference_enabled = link.meal_preference_enabled
         model.require_selfie = link.require_selfie
         model.allow_files_from_device = link.allow_files_from_device

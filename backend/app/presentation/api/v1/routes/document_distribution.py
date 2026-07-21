@@ -11,6 +11,15 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.whatsapp.document_templates import (
+    render_document_message,
+)
+from app.application.use_cases.whatsapp.group_submission_matching import (
+    RecipientForComparison,
+    SubmissionForComparison,
+    compare_group_submissions,
+)
+from app.core.config.settings import get_settings
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
     PassportSubmission,
@@ -20,9 +29,13 @@ from app.domain.entities.entities import (
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
+    DocumentWhatsAppDeliveryModel,
     PassportSubmissionModel,
+    WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.document_matcher import DOCUMENT_TYPES, DocumentMatcher
@@ -36,10 +49,18 @@ from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DeleteDistributionDocumentsRequest,
     DistributedDocumentResponse,
     DocumentBatchResponse,
+    DocumentDeliveryPreviewRecipient,
+    DocumentDeliveryPreviewResponse,
+    DocumentDeliveryPreviewSummary,
+    DocumentDeliveryTrackingCounts,
+    DocumentDeliveryTrackingResponse,
+    DocumentDeliveryTrackingRow,
     DocumentGroupResponse,
     DocumentPassengerReviewRow,
     RejectedDocumentResponse,
     SaveDocumentBatchResponse,
+    SendDocumentBroadcastRequest,
+    SendDocumentBroadcastResponse,
     VerifiedDocumentResponse,
     VerifyDocumentBatchResponse,
 )
@@ -65,6 +86,297 @@ def _passport_number(passenger: PassportSubmission) -> str | None:
 def _safe_filename(value: str) -> str:
     name = re.sub(r"[^A-Za-z0-9_.-]+", "_", value.strip())[:120]
     return name or "document.pdf"
+
+
+DOCUMENT_DELIVERY_ACCEPTED_STATUSES = frozenset(
+    {"submitted", "sent", "delivered", "read"}
+)
+DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = frozenset(
+    {"queued", "processing", "delivery_unknown"}
+)
+DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = frozenset({"queued", "processing"})
+
+
+async def _latest_document_batch(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    document_type: str,
+) -> DocumentDistributionBatchModel | None:
+    result = await session.execute(
+        select(DocumentDistributionBatchModel)
+        .where(
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+        )
+        .order_by(DocumentDistributionBatchModel.created_at.desc())
+        .limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
+async def _linked_whatsapp_recipients(
+    session: AsyncSession,
+    *,
+    group: ClientGroupModel,
+) -> tuple[dict[uuid.UUID, str], list[WhatsAppBroadcastRecipientModel]]:
+    linked_result = await session.execute(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.name,
+        )
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id
+            == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+            WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
+            WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
+        )
+    )
+    linked_broadcasts = {
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name in linked_result.all()
+    }
+    if not linked_broadcasts:
+        return {}, []
+    recipient_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel).where(
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(
+                list(linked_broadcasts)
+            ),
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+    )
+    return linked_broadcasts, list(recipient_result.scalars().all())
+
+
+async def _build_document_delivery_preview(
+    session: AsyncSession,
+    *,
+    group: ClientGroupModel,
+    batch: DocumentDistributionBatchModel,
+    passengers: list[PassportSubmission],
+) -> DocumentDeliveryPreviewResponse:
+    linked_broadcasts, recipient_models = await _linked_whatsapp_recipients(
+        session,
+        group=group,
+    )
+    recipients_for_comparison = [
+        RecipientForComparison(
+            id=recipient.id,
+            broadcast_id=recipient.broadcast_group_id,
+            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
+            name=recipient.name,
+            phone=recipient.normalized_phone_number,
+            updated_at=recipient.created_at,
+            imported_fields=dict(recipient.imported_fields or {}),
+        )
+        for recipient in recipient_models
+    ]
+    passenger_ids = [passenger.id for passenger in passengers]
+    submission_models: list[PassportSubmissionModel] = []
+    if passenger_ids:
+        submission_result = await session.execute(
+            select(PassportSubmissionModel).where(
+                PassportSubmissionModel.id.in_(passenger_ids),
+                PassportSubmissionModel.group_id == group.id,
+                PassportSubmissionModel.agency_id == group.agency_id,
+            )
+        )
+        submission_models = list(submission_result.scalars().all())
+    submissions_for_comparison = [
+        SubmissionForComparison(
+            id=submission.id,
+            name=submission.client_name,
+            client_phone=submission.client_phone,
+            family_head_phone=submission.family_head_phone,
+            updated_at=submission.updated_at,
+            client_email=submission.client_email,
+            family_head_email=submission.family_head_email,
+            confirmed_fields=dict(submission.confirmed_fields or {}),
+            extracted_fields=dict(submission.extracted_fields or {}),
+            staff_metadata=dict(submission.staff_metadata or {}),
+        )
+        for submission in submission_models
+    ]
+    match_rows, _ = compare_group_submissions(
+        recipients_for_comparison,
+        submissions_for_comparison,
+    )
+    recipients_by_id = {recipient.id: recipient for recipient in recipient_models}
+    recipient_by_submission: dict[
+        uuid.UUID,
+        tuple[WhatsAppBroadcastRecipientModel, str],
+    ] = {}
+    for row in match_rows:
+        if row.status not in {"submitted", "multiple_submissions"}:
+            continue
+        candidates = sorted(
+            (
+                recipients_by_id[recipient_id]
+                for recipient_id in row.recipient_ids
+                if recipient_id in recipients_by_id
+            ),
+            key=lambda recipient: (
+                linked_broadcasts.get(recipient.broadcast_group_id, "").casefold(),
+                str(recipient.id),
+            ),
+        )
+        if not candidates:
+            continue
+        selected_recipient = candidates[0]
+        for submission_id in row.submission_ids:
+            recipient_by_submission[submission_id] = (
+                selected_recipient,
+                linked_broadcasts[selected_recipient.broadcast_group_id],
+            )
+
+    documents_result = await session.execute(
+        select(DistributedDocumentModel)
+        .where(DistributedDocumentModel.batch_id == batch.id)
+        .order_by(
+            DistributedDocumentModel.match_confidence.desc(),
+            DistributedDocumentModel.created_at.asc(),
+        )
+    )
+    documents = list(documents_result.scalars().all())
+    documents_by_passenger: dict[uuid.UUID, DistributedDocumentModel] = {}
+    for document in documents:
+        if document.passenger_id and document.match_status != "duplicate_document":
+            documents_by_passenger.setdefault(document.passenger_id, document)
+
+    document_ids = [document.id for document in documents]
+    deliveries_by_document: dict[uuid.UUID, DocumentWhatsAppDeliveryModel] = {}
+    if document_ids:
+        delivery_result = await session.execute(
+            select(DocumentWhatsAppDeliveryModel).where(
+                DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids)
+            )
+        )
+        deliveries_by_document = {
+            delivery.distributed_document_id: delivery
+            for delivery in delivery_result.scalars().all()
+            if delivery.distributed_document_id
+        }
+
+    preview_rows: list[DocumentDeliveryPreviewRecipient] = []
+    summary = DocumentDeliveryPreviewSummary(total_passengers=len(passengers))
+    for passenger in passengers:
+        document = documents_by_passenger.get(passenger.id)
+        matched_recipient = recipient_by_submission.get(passenger.id)
+        existing_delivery = (
+            deliveries_by_document.get(document.id) if document else None
+        )
+        delivery_status = "blocked"
+        eligible = False
+        reason = "No saved document is matched to this passenger."
+        if document and document.match_status != "matched":
+            reason = "The document still needs manual matching review."
+        elif document and not matched_recipient:
+            reason = (
+                "No confirmed WhatsApp recipient could be matched to this passenger "
+                "from the linked broadcasts."
+            )
+        elif document and matched_recipient:
+            if existing_delivery and existing_delivery.status in DOCUMENT_DELIVERY_ACCEPTED_STATUSES:
+                delivery_status = "already_sent"
+                reason = "This document was already accepted by WhatsApp."
+                summary.already_sent += 1
+            elif existing_delivery and existing_delivery.status in DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES:
+                delivery_status = existing_delivery.status
+                reason = (
+                    "Delivery is already in progress."
+                    if existing_delivery.status != "delivery_unknown"
+                    else "The previous delivery outcome is uncertain; automatic resend is suppressed."
+                )
+                summary.in_progress += 1
+            elif existing_delivery and existing_delivery.status == "failed":
+                delivery_status = "retryable"
+                reason = "The previous attempt failed and can be retried safely."
+                eligible = True
+                summary.retryable += 1
+            else:
+                delivery_status = "ready"
+                reason = "Ready to send."
+                eligible = True
+                summary.ready += 1
+        if not eligible and delivery_status == "blocked":
+            summary.blocked += 1
+
+        recipient_model = matched_recipient[0] if matched_recipient else None
+        broadcast_name = matched_recipient[1] if matched_recipient else None
+        preview_rows.append(
+            DocumentDeliveryPreviewRecipient(
+                passenger_id=passenger.id,
+                passenger_name=passenger.client_name,
+                passport_number=_passport_number(passenger),
+                document_id=document.id if document else None,
+                document_filename=document.original_filename if document else None,
+                document_type=batch.document_type,
+                recipient_id=recipient_model.id if recipient_model else None,
+                broadcast_group_id=(
+                    recipient_model.broadcast_group_id if recipient_model else None
+                ),
+                broadcast_name=broadcast_name,
+                phone_number=(
+                    recipient_model.normalized_phone_number
+                    if recipient_model
+                    else None
+                ),
+                delivery_id=existing_delivery.id if existing_delivery else None,
+                delivery_status=delivery_status,
+                eligible=eligible,
+                reason=reason,
+                message_preview=(
+                    render_document_message(
+                        passenger_name=passenger.client_name,
+                        document_type=batch.document_type,
+                        group_name=group.name,
+                    )
+                    if document and matched_recipient
+                    else None
+                ),
+            )
+        )
+
+    settings = get_settings()
+    template_name = settings.whatsapp_document_template_name.strip()
+    provider_configured = bool(
+        template_name
+        and settings.whatsapp_access_token
+        and settings.whatsapp_phone_number_id
+    )
+    configuration_error: str | None = None
+    if batch.status != "saved":
+        configuration_error = "Save this reviewed document list before sending."
+    elif not linked_broadcasts:
+        configuration_error = (
+            "Link at least one opted-in WhatsApp broadcast to this group first."
+        )
+    elif not provider_configured:
+        configuration_error = (
+            "The WhatsApp document template or Cloud API credentials are not configured."
+        )
+    elif summary.ready + summary.retryable == 0:
+        configuration_error = "There are no new or safely retryable documents to send."
+
+    return DocumentDeliveryPreviewResponse(
+        group_id=group.id,
+        batch_id=batch.id,
+        document_type=batch.document_type,
+        template_name=template_name or None,
+        template_configured=provider_configured,
+        linked_broadcast_count=len(linked_broadcasts),
+        can_send=configuration_error is None,
+        configuration_error=configuration_error,
+        summary=summary,
+        recipients=preview_rows,
+    )
 
 
 async def _get_authorized_group(
@@ -458,6 +770,7 @@ async def reupload_passenger_document(
         )
         .order_by(DocumentDistributionBatchModel.created_at.desc())
         .limit(1)
+        .with_for_update()
     )
     batch = result.scalar_one_or_none()
     now = datetime.now(tz=UTC)
@@ -566,6 +879,7 @@ async def delete_distribution_documents(
         )
         .order_by(DocumentDistributionBatchModel.created_at.desc())
         .limit(1)
+        .with_for_update()
     )
     batch = result.scalar_one_or_none()
     if not batch:
@@ -583,6 +897,28 @@ async def delete_distribution_documents(
     documents_to_delete = list(docs_result.scalars().all())
     if not documents_to_delete:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No matching documents were found")
+
+    active_delivery_result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel.id)
+        .where(
+            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
+                [document.id for document in documents_to_delete]
+            ),
+            DocumentWhatsAppDeliveryModel.status.in_(
+                DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES
+            ),
+        )
+        .with_for_update()
+        .limit(1)
+    )
+    if active_delivery_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "A selected document is currently being sent through WhatsApp. "
+                "Wait for delivery processing to finish before deleting it."
+            ),
+        )
 
     candidate_storage_keys = list({document.storage_key for document in documents_to_delete})
     remaining_key_result = await session.execute(
@@ -660,3 +996,310 @@ async def save_batch(
     )
     await session.commit()
     return SaveDocumentBatchResponse(batch_id=batch.id, status=batch.status, saved_at=now)
+
+
+@router.get(
+    "/groups/{group_id}/{document_type}/whatsapp-preview",
+    response_model=DocumentDeliveryPreviewResponse,
+)
+async def preview_document_whatsapp_broadcast(
+    group_id: uuid.UUID,
+    document_type: str,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentDeliveryPreviewResponse:
+    if document_type not in DOCUMENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported document type",
+        )
+    group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    batch = await _latest_document_batch(
+        session,
+        group_id=group_id,
+        document_type=document_type,
+    )
+    if not batch:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document batch was not found",
+        )
+    passengers = await _group_passengers(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    return await _build_document_delivery_preview(
+        session,
+        group=group,
+        batch=batch,
+        passengers=passengers,
+    )
+
+
+@router.post(
+    "/batches/{batch_id}/whatsapp-send",
+    response_model=SendDocumentBroadcastResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def send_document_whatsapp_broadcast(
+    batch_id: uuid.UUID,
+    payload: SendDocumentBroadcastRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> SendDocumentBroadcastResponse:
+    batch_result = await session.execute(
+        select(DocumentDistributionBatchModel)
+        .where(DocumentDistributionBatchModel.id == batch_id)
+        .with_for_update()
+    )
+    batch = batch_result.scalar_one_or_none()
+    if not batch:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document batch was not found",
+        )
+    group = await _get_authorized_group(
+        batch.group_id,
+        current_user=current_user,
+        session=session,
+    )
+    passengers = await _group_passengers(
+        batch.group_id,
+        current_user=current_user,
+        session=session,
+    )
+    preview = await _build_document_delivery_preview(
+        session,
+        group=group,
+        batch=batch,
+        passengers=passengers,
+    )
+    if not preview.can_send:
+        error_status = (
+            status.HTTP_503_SERVICE_UNAVAILABLE
+            if not preview.template_configured
+            else status.HTTP_409_CONFLICT
+        )
+        raise HTTPException(
+            status_code=error_status,
+            detail=preview.configuration_error or "Documents are not ready to send",
+        )
+
+    requested_ids = (
+        set(payload.document_ids)
+        if payload.document_ids is not None
+        else {
+            row.document_id
+            for row in preview.recipients
+            if row.document_id and row.eligible
+        }
+    )
+    eligible_rows = [
+        row
+        for row in preview.recipients
+        if row.document_id in requested_ids and row.eligible
+    ]
+    if not eligible_rows:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Select at least one new or safely retryable document",
+        )
+
+    send_batch_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    template_name = preview.template_name or ""
+    queued_count = 0
+    for row in eligible_rows:
+        if not (
+            row.document_id
+            and row.recipient_id
+            and row.broadcast_group_id
+            and row.phone_number
+            and row.document_filename
+        ):
+            continue
+        delivery: DocumentWhatsAppDeliveryModel | None = None
+        if row.delivery_id:
+            delivery_result = await session.execute(
+                select(DocumentWhatsAppDeliveryModel)
+                .where(DocumentWhatsAppDeliveryModel.id == row.delivery_id)
+                .with_for_update()
+            )
+            delivery = delivery_result.scalar_one_or_none()
+        if delivery:
+            if delivery.status != "failed":
+                continue
+            delivery.send_batch_id = send_batch_id
+            delivery.broadcast_group_id = row.broadcast_group_id
+            delivery.recipient_id = row.recipient_id
+            delivery.phone_number = row.phone_number
+            delivery.normalized_phone_number = row.phone_number
+            delivery.template_name = template_name
+            delivery.status = "queued"
+            delivery.status_updated_at = now
+            delivery.provider_status_at = None
+            delivery.provider_message_id = None
+            delivery.provider_media_id = None
+            delivery.error_message = None
+            delivery.updated_at = now
+        else:
+            delivery = DocumentWhatsAppDeliveryModel(
+                id=uuid.uuid4(),
+                agency_id=batch.agency_id,
+                group_id=batch.group_id,
+                document_batch_id=batch.id,
+                distributed_document_id=row.document_id,
+                passenger_id=row.passenger_id,
+                broadcast_group_id=row.broadcast_group_id,
+                recipient_id=row.recipient_id,
+                send_batch_id=send_batch_id,
+                document_type=batch.document_type,
+                document_filename=row.document_filename,
+                passenger_name=row.passenger_name,
+                passport_number=row.passport_number,
+                phone_number=row.phone_number,
+                normalized_phone_number=row.phone_number,
+                template_name=template_name,
+                status="queued",
+                attempt_count=0,
+                status_updated_at=now,
+                created_by_user_id=current_user.id,
+                created_at=now,
+                updated_at=now,
+            )
+            session.add(delivery)
+        queued_count += 1
+
+    if not queued_count:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The selected documents were already claimed by another send",
+        )
+    await AuditLogRepository(session).record(
+        action="document_whatsapp_broadcast_queued",
+        entity_type="document_distribution_batch",
+        entity_id=str(batch.id),
+        agency_id=batch.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "group_id": str(batch.group_id),
+            "document_type": batch.document_type,
+            "send_batch_id": str(send_batch_id),
+            "queued_count": queued_count,
+        },
+    )
+    await session.commit()
+
+    from app.infrastructure.whatsapp.tasks import (
+        process_document_whatsapp_broadcast,
+    )
+
+    try:
+        process_document_whatsapp_broadcast.apply_async(
+            kwargs={"send_batch_id": str(send_batch_id)},
+            queue="whatsapp",
+        )
+    except Exception as exc:
+        failed_result = await session.execute(
+            select(DocumentWhatsAppDeliveryModel).where(
+                DocumentWhatsAppDeliveryModel.send_batch_id == send_batch_id,
+                DocumentWhatsAppDeliveryModel.status == "queued",
+            )
+        )
+        failure_time = datetime.now(tz=UTC)
+        for delivery in failed_result.scalars().all():
+            delivery.status = "failed"
+            delivery.status_updated_at = failure_time
+            delivery.updated_at = failure_time
+            delivery.error_message = "The WhatsApp worker queue is temporarily unavailable"
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The WhatsApp worker queue is temporarily unavailable",
+        ) from exc
+
+    attempted_count = len(requested_ids) if payload.document_ids is not None else len(preview.recipients)
+    return SendDocumentBroadcastResponse(
+        send_batch_id=send_batch_id,
+        queued_count=queued_count,
+        skipped_count=max(0, attempted_count - queued_count),
+        message=(
+            f"Queued {queued_count} document{'' if queued_count == 1 else 's'} "
+            "for individual WhatsApp delivery."
+        ),
+    )
+
+
+@router.get(
+    "/groups/{group_id}/whatsapp-deliveries/tracking",
+    response_model=DocumentDeliveryTrackingResponse,
+)
+async def get_document_delivery_tracking(
+    group_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentDeliveryTrackingResponse:
+    group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    count_result = await session.execute(
+        select(
+            DocumentWhatsAppDeliveryModel.status,
+            func.count(DocumentWhatsAppDeliveryModel.id),
+        )
+        .where(
+            DocumentWhatsAppDeliveryModel.group_id == group.id,
+            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+        )
+        .group_by(DocumentWhatsAppDeliveryModel.status)
+    )
+    status_counts = {
+        delivery_status: int(count)
+        for delivery_status, count in count_result.all()
+    }
+    result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel)
+        .where(
+            DocumentWhatsAppDeliveryModel.group_id == group.id,
+            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+        )
+        .order_by(DocumentWhatsAppDeliveryModel.status_updated_at.desc())
+        .limit(100)
+    )
+    deliveries = list(result.scalars().all())
+    counts = DocumentDeliveryTrackingCounts(
+        total=sum(status_counts.values()),
+        queued=status_counts.get("queued", 0) + status_counts.get("processing", 0),
+        sent=status_counts.get("submitted", 0) + status_counts.get("sent", 0),
+        delivered=status_counts.get("delivered", 0),
+        read=status_counts.get("read", 0),
+        failed=status_counts.get("failed", 0),
+        delivery_unknown=status_counts.get("delivery_unknown", 0),
+    )
+    return DocumentDeliveryTrackingResponse(
+        group_id=group.id,
+        counts=counts,
+        deliveries=[
+            DocumentDeliveryTrackingRow(
+                delivery_id=delivery.id,
+                passenger_id=delivery.passenger_id,
+                passenger_name=delivery.passenger_name,
+                passport_number=delivery.passport_number,
+                document_type=delivery.document_type,
+                document_filename=delivery.document_filename,
+                phone_number=delivery.phone_number,
+                status=delivery.status,
+                error_message=delivery.error_message,
+                status_updated_at=delivery.status_updated_at,
+            )
+            for delivery in deliveries
+        ],
+    )

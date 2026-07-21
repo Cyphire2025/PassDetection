@@ -365,7 +365,8 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
     ["Nearest International Airport", passport.departure_city],
     ["Nearest Domestic Airport", passport.nearest_domestic_airport],
     ["Base City", getStringField(fields, "base_city")],
-    ["Staff Code", getStringField(fields, "staff_code")],
+    ["Staff Code", prefixedStaffCode(getStringField(fields, "staff_code"))],
+    ["Agent/Employee Code", prefixedAgentEmployeeCode(fields)],
     ["Meal Preference", getStringField(fields, "meal_preference")],
   ].filter((item): item is [string, string] => Boolean(item[1]));
 
@@ -1020,6 +1021,22 @@ function getWorkflowStatusMessage(status: PassportSubmission["status"]) {
 function getStringField(fields: ExtractedPassportFields, key: string) {
   const value = fields[key];
   return typeof value === "string" ? value : "";
+}
+
+function prefixedStaffCode(value: string) {
+  if (!value) return "";
+  const normalized = value.trim();
+  const prefixed = normalized.match(/^STF[_\-\s]+(.+)$/i);
+  return prefixed ? `STF_${prefixed[1]}` : `STF_${normalized}`;
+}
+
+function prefixedAgentEmployeeCode(fields: ExtractedPassportFields) {
+  const personType = getStringField(fields, "agent_employee_type").toLowerCase();
+  const code = getStringField(fields, "agent_employee_code");
+  if (!code) return "";
+  if (personType === "agent") return `AGT_${code}`;
+  if (personType === "employee") return `EMP_${code}`;
+  return "";
 }
 
 function getExtractionConflicts(passport: PassportSubmission): PassportExtractionConflict[] {

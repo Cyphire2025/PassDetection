@@ -62,6 +62,7 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.models import (
+    DocumentWhatsAppDeliveryModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -75,6 +76,9 @@ from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     upload_whatsapp_image,
+)
+from app.infrastructure.whatsapp.document_delivery_runtime import (
+    apply_document_provider_status,
 )
 from app.presentation.dependencies.auth import require_role
 
@@ -269,7 +273,7 @@ class WhatsAppSendRequest(BaseModel):
         default=None,
         max_length=MAX_WHATSAPP_RECIPIENTS,
     )
-    support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=3)
+    support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
 
 
 class WhatsAppResendRequest(WhatsAppSendRequest):
@@ -577,7 +581,8 @@ async def receive_whatsapp_webhook(
                 WhatsAppMessageLogModel.provider_message_id == provider_id
             )
         )
-        for log in result.scalars().all():
+        message_logs = list(result.scalars().all())
+        for log in message_logs:
             now = datetime.now(tz=UTC)
             _apply_provider_status_to_message_log(
                 log,
@@ -606,6 +611,23 @@ async def receive_whatsapp_webhook(
                         now=now,
                     )
             processed_statuses += 1
+        if not message_logs:
+            document_result = await session.execute(
+                select(DocumentWhatsAppDeliveryModel).where(
+                    DocumentWhatsAppDeliveryModel.provider_message_id == provider_id
+                )
+            )
+            for delivery in document_result.scalars().all():
+                if not isinstance(delivery, DocumentWhatsAppDeliveryModel):
+                    continue
+                apply_document_provider_status(
+                    delivery,
+                    provider_status=provider_status,
+                    error_message=error_message,
+                    provider_status_at=provider_status_at,
+                    now=datetime.now(tz=UTC),
+                )
+                processed_statuses += 1
     if processed_statuses:
         await session.commit()
 
@@ -852,16 +874,16 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
             text_value = _normalize_phone(text_value) or text_value
         elif key == "email":
             text_value = text_value.casefold()
-        elif key in {
-            "agent_code",
-            "passport_number",
-            "staff_code",
-        }:
+        elif key == "passport_number":
             text_value = re.sub(
                 r"[^A-Z0-9]+",
                 "",
                 text_value.upper(),
             )
+        elif key in {"agent_code", "staff_code"}:
+            # These are imported reference values, not identifiers used for
+            # authentication. Preserve meaningful separators for staff review.
+            text_value = " ".join(text_value.upper().split())
         else:
             text_value = " ".join(text_value.split())
         if not text_value:

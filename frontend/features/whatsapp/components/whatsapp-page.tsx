@@ -2428,10 +2428,13 @@ function MessagePreviewDialog({
   const messageContentId = useId();
   const previewMutate = previewRequest.mutate;
   const resolvedSupportContactIds = useMemo(
-    () =>
-      selectedSupportContactIds
-      ?? detail?.support_contacts.map((contact) => contact.id)
-      ?? [],
+    () => {
+      if (selectedSupportContactIds !== null) {
+        return selectedSupportContactIds.slice(0, 1);
+      }
+      const firstContactId = detail?.support_contacts[0]?.id;
+      return firstContactId ? [firstContactId] : [];
+    },
     [detail?.support_contacts, selectedSupportContactIds],
   );
 
@@ -3009,7 +3012,7 @@ function MessagePreviewDialog({
                   Support contacts included ({resolvedSupportContactIds.length})
                 </summary>
                 <p className="mt-1 text-xs text-slate-500">
-                  Select one or more contacts to show in this Passport Link message.
+                  Select one contact to show in this Passport Link message.
                 </p>
                 <div className="mt-2 space-y-1">
                   {detail.support_contacts.map((contact) => (
@@ -3018,20 +3021,12 @@ function MessagePreviewDialog({
                       className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-50"
                     >
                       <input
-                        type="checkbox"
-                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        type="radio"
+                        name="passport-link-support-contact"
+                        className="mt-0.5 h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-500"
                         checked={resolvedSupportContactIds.includes(contact.id)}
-                        onChange={(event) =>
-                          setSelectedSupportContactIds((current) =>
-                            event.target.checked
-                              ? Array.from(new Set([
-                                  ...(current ?? resolvedSupportContactIds),
-                                  contact.id,
-                                ]))
-                              : (current ?? resolvedSupportContactIds).filter(
-                                  (id) => id !== contact.id,
-                                ),
-                          )
+                        onChange={() =>
+                          setSelectedSupportContactIds([contact.id])
                         }
                       />
                       <span>

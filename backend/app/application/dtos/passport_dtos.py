@@ -158,6 +158,7 @@ class PassportGroupSummaryDTO:
     base_city_enabled: bool = False
     nearest_international_airport_enabled: bool = False
     staff_code_enabled: bool = False
+    agent_employee_code_enabled: bool = False
     meal_preference_enabled: bool = False
     require_selfie: bool = False
     allow_files_from_device: bool = True

@@ -53,6 +53,7 @@ class ListPassportGroupSummariesUseCase:
                 base_city_enabled=summary.base_city_enabled,
                 nearest_international_airport_enabled=summary.nearest_international_airport_enabled,
                 staff_code_enabled=summary.staff_code_enabled,
+                agent_employee_code_enabled=summary.agent_employee_code_enabled,
                 meal_preference_enabled=summary.meal_preference_enabled,
                 require_selfie=summary.require_selfie,
                 allow_files_from_device=summary.allow_files_from_device,

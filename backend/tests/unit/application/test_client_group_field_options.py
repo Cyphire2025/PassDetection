@@ -113,6 +113,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             nearest_international_airport_enabled=True,
             ask_nearest_domestic_airport=True,
             staff_code_enabled=True,
+            agent_employee_code_enabled=True,
             meal_preference_enabled=True,
         )
         submission = self._submission(group)
@@ -128,6 +129,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             nearest_domestic_airport="  Indira   Gandhi Domestic Terminal ",
             base_city="  New   Delhi ",
             staff_code=" STF-42 ",
+            agent_employee_type="Agent",
+            agent_employee_code="0012345678",
             meal_preference="non veg",
         )
 
@@ -138,6 +141,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(submission.confirmed_fields["base_city"], "New Delhi")
         self.assertEqual(submission.confirmed_fields["staff_code"], "STF-42")
+        self.assertEqual(submission.confirmed_fields["agent_employee_type"], "agent")
+        self.assertEqual(submission.confirmed_fields["agent_employee_code"], "0012345678")
         self.assertEqual(submission.confirmed_fields["meal_preference"], "Non Veg")
         passport_repo.update.assert_awaited_once_with(submission)
 
@@ -160,6 +165,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         cases = (
             ("base_city", {"base_city_enabled": True}),
             ("staff_code", {"staff_code_enabled": True}),
+            ("agent_employee_type", {"agent_employee_code_enabled": True}),
             ("meal_preference", {"meal_preference_enabled": True}),
             ("departure_city", {"nearest_international_airport_enabled": True}),
             (
@@ -196,6 +202,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
                 "passport_number": "P1234567",
                 "base_city": "Injected",
                 "staff_code": "Injected",
+                "agent_employee_type": "agent",
+                "agent_employee_code": "12345",
                 "meal_preference": "Veg",
                 "nearest_domestic_airport": "Injected",
             },
@@ -205,6 +213,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             nearest_domestic_airport="Injected",
             base_city="Injected",
             staff_code="Injected",
+            agent_employee_type="agent",
+            agent_employee_code="12345",
             meal_preference="Veg",
         )
 
@@ -212,7 +222,44 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(submission.nearest_domestic_airport)
         self.assertNotIn("base_city", submission.confirmed_fields)
         self.assertNotIn("staff_code", submission.confirmed_fields)
+        self.assertNotIn("agent_employee_type", submission.confirmed_fields)
+        self.assertNotIn("agent_employee_code", submission.confirmed_fields)
         self.assertNotIn("meal_preference", submission.confirmed_fields)
+
+    async def test_agent_employee_code_requires_numeric_value_up_to_ten_digits(self) -> None:
+        group = self._group(agent_employee_code_enabled=True)
+        for code in ("ABC123", "12345678901", "12 34"):
+            with self.subTest(code=code):
+                submission = self._submission(group)
+                use_case, _ = self._build_use_case(group, submission)
+                with self.assertRaises(ValidationError) as context:
+                    await use_case.execute(
+                        submission.id,
+                        group_token=group.token,
+                        confirmed_fields={"passport_number": "P1234567"},
+                        client_email="person@example.com",
+                        client_phone="9876543210",
+                        agent_employee_type="employee",
+                        agent_employee_code=code,
+                    )
+                self.assertEqual(context.exception.field, "agent_employee_code")
+
+    async def test_agent_employee_code_requires_code_after_valid_type(self) -> None:
+        group = self._group(agent_employee_code_enabled=True)
+        submission = self._submission(group)
+        use_case, _ = self._build_use_case(group, submission)
+
+        with self.assertRaises(ValidationError) as context:
+            await use_case.execute(
+                submission.id,
+                group_token=group.token,
+                confirmed_fields={"passport_number": "P1234567"},
+                client_email="person@example.com",
+                client_phone="9876543210",
+                agent_employee_type="agent",
+            )
+
+        self.assertEqual(context.exception.field, "agent_employee_code")
 
     async def test_exact_family_submit_replay_is_idempotent(self) -> None:
         group = self._group()

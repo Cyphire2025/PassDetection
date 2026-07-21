@@ -91,3 +91,83 @@ class SaveDocumentBatchResponse(BaseModel):
     batch_id: uuid.UUID
     status: str
     saved_at: datetime
+
+
+class DocumentDeliveryPreviewRecipient(BaseModel):
+    passenger_id: uuid.UUID
+    passenger_name: str
+    passport_number: str | None = None
+    document_id: uuid.UUID | None = None
+    document_filename: str | None = None
+    document_type: str
+    recipient_id: uuid.UUID | None = None
+    broadcast_group_id: uuid.UUID | None = None
+    broadcast_name: str | None = None
+    phone_number: str | None = None
+    delivery_id: uuid.UUID | None = None
+    delivery_status: str
+    eligible: bool = False
+    reason: str
+    message_preview: str | None = None
+
+
+class DocumentDeliveryPreviewSummary(BaseModel):
+    total_passengers: int = 0
+    ready: int = 0
+    retryable: int = 0
+    already_sent: int = 0
+    in_progress: int = 0
+    blocked: int = 0
+
+
+class DocumentDeliveryPreviewResponse(BaseModel):
+    group_id: uuid.UUID
+    batch_id: uuid.UUID
+    document_type: str
+    template_name: str | None = None
+    template_configured: bool = False
+    linked_broadcast_count: int = 0
+    can_send: bool = False
+    configuration_error: str | None = None
+    summary: DocumentDeliveryPreviewSummary
+    recipients: list[DocumentDeliveryPreviewRecipient] = Field(default_factory=list)
+
+
+class SendDocumentBroadcastRequest(BaseModel):
+    document_ids: list[uuid.UUID] | None = Field(default=None, max_length=500)
+
+
+class SendDocumentBroadcastResponse(BaseModel):
+    send_batch_id: uuid.UUID | None = None
+    queued_count: int = 0
+    skipped_count: int = 0
+    message: str
+
+
+class DocumentDeliveryTrackingCounts(BaseModel):
+    total: int = 0
+    queued: int = 0
+    sent: int = 0
+    delivered: int = 0
+    read: int = 0
+    failed: int = 0
+    delivery_unknown: int = 0
+
+
+class DocumentDeliveryTrackingRow(BaseModel):
+    delivery_id: uuid.UUID
+    passenger_id: uuid.UUID | None = None
+    passenger_name: str
+    passport_number: str | None = None
+    document_type: str
+    document_filename: str
+    phone_number: str
+    status: str
+    error_message: str | None = None
+    status_updated_at: datetime
+
+
+class DocumentDeliveryTrackingResponse(BaseModel):
+    group_id: uuid.UUID
+    counts: DocumentDeliveryTrackingCounts
+    deliveries: list[DocumentDeliveryTrackingRow] = Field(default_factory=list)

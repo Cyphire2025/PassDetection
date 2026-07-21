@@ -23,6 +23,7 @@ export interface UpdateUploadLinkRequest {
   base_city_enabled: boolean;
   nearest_international_airport_enabled: boolean;
   staff_code_enabled: boolean;
+  agent_employee_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
   allow_files_from_device: boolean;
@@ -151,6 +152,7 @@ export interface UploadLinkResponse {
   base_city_enabled: boolean;
   nearest_international_airport_enabled: boolean;
   staff_code_enabled: boolean;
+  agent_employee_code_enabled: boolean;
   meal_preference_enabled: boolean;
   require_selfie: boolean;
   allow_files_from_device: boolean;

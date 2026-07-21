@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'none'; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Smart COPY/PASTE Offline Browser Fixture</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f3f6fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #58657a;
+      --line: #d9e0ea;
+      --accent: #155eef;
+      --accent-ink: #ffffff;
+      --safe: #087a55;
+      --warn: #a15c00;
+      --danger: #b42318;
+      --code: #edf1f7;
+      --focus: #84adff;
+      --shadow: 0 12px 32px rgb(35 48 73 / 10%);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #10141d;
+        --panel: #181e29;
+        --ink: #edf2fb;
+        --muted: #aeb9ca;
+        --line: #303a49;
+        --accent: #6c9cff;
+        --accent-ink: #071329;
+        --safe: #58d6ab;
+        --warn: #f6ba64;
+        --danger: #ff8d85;
+        --code: #232c3a;
+        --shadow: 0 12px 32px rgb(0 0 0 / 28%);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.45;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 1.15rem;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .badge {
+      flex: none;
+      padding: 7px 11px;
+      border: 1px solid color-mix(in srgb, var(--safe) 45%, var(--line));
+      border-radius: 999px;
+      color: var(--safe);
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .notice {
+      margin-bottom: 24px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--warn);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--warn) 8%, var(--panel));
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .card {
+      margin-bottom: 20px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label,
+    .field-title {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 650;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 9px 11px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus-visible,
+    [contenteditable]:focus {
+      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      outline-offset: 2px;
+      border-color: var(--accent);
+    }
+
+    input:disabled,
+    input[readonly] {
+      cursor: not-allowed;
+      opacity: 0.62;
+    }
+
+    .hint,
+    .expected {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .expected code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--code);
+      color: var(--ink);
+    }
+
+    .ambiguous {
+      padding: 14px;
+      border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line));
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--warn) 6%, var(--panel));
+    }
+
+    .protected {
+      padding: 14px;
+      border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line));
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--danger) 5%, var(--panel));
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .actions button {
+      width: auto;
+      min-width: 148px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    .primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .secondary {
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .monitor {
+      position: sticky;
+      top: 20px;
+    }
+
+    .counter {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--code);
+    }
+
+    .counter strong {
+      color: var(--safe);
+      font-size: 1.65rem;
+    }
+
+    .counter.danger strong {
+      color: var(--danger);
+    }
+
+    #eventLog {
+      height: 440px;
+      margin: 0;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--code);
+      color: var(--ink);
+      font-family: Consolas, "Cascadia Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .privacy {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    [contenteditable] {
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .monitor {
+        position: static;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        display: block;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <h1>Smart COPY/PASTE browser fixture</h1>
+        <p class="subtitle">
+          Offline fields for deterministic matching, safe fallback, event
+          delivery, and no-submit verification. Use synthetic passenger data.
+        </p>
+      </div>
+      <span class="badge">Offline · no dependencies</span>
+    </header>
+
+    <div class="notice" role="note">
+      The event monitor records field identity, event type, and value length.
+      It intentionally never records the entered value.
+    </div>
+
+    <div class="layout">
+      <form id="fixtureForm" autocomplete="off">
+        <section class="card" aria-labelledby="standardTitle">
+          <h2 id="standardTitle">Standard labelled fields</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="familyName">Surname</label>
+              <input id="familyName" name="familyName" type="text">
+              <span class="expected">Expected: <code>personal.surname</code></span>
+            </div>
+
+            <div class="field">
+              <label for="givenName">Given Name</label>
+              <input id="givenName" name="first_name" type="text">
+              <span class="expected">Expected: <code>personal.given_name</code></span>
+            </div>
+
+            <div class="field">
+              <label for="passportNumber">Passport Number</label>
+              <input id="passportNumber" name="travelDocumentNumber" type="text"
+                     autocomplete="off">
+              <span class="expected">Expected: <code>passport.number</code></span>
+            </div>
+
+            <div class="field">
+              <label for="birthDate">Date of Birth</label>
+              <input id="birthDate" name="dateOfBirth" type="text"
+                     placeholder="DD/MM/YYYY">
+              <span class="expected">Expected: <code>personal.date_of_birth</code></span>
+            </div>
+
+            <div class="field">
+              <label for="nationality">Nationality</label>
+              <input id="nationality" name="citizenship" type="text">
+              <span class="expected">Expected: <code>personal.nationality</code></span>
+            </div>
+
+            <div class="field">
+              <label for="mobileNumberInput">Mobile Number</label>
+              <input id="mobileNumberInput" name="contactMobile" type="tel">
+              <span class="expected">Expected: <code>contact.mobile</code></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="accessibilityTitle">
+          <h2 id="accessibilityTitle">Accessibility and weak identifiers</h2>
+          <div class="field-grid">
+            <div class="field">
+              <span class="field-title" id="emailVisibleTitle">Email via ARIA only</span>
+              <input id="field_47" name="x47" type="email"
+                     aria-label="Email Address">
+              <span class="expected">ARIA expected: <code>contact.email</code></span>
+            </div>
+
+            <div class="field">
+              <span class="field-title">Placeholder-only surname</span>
+              <input id="field_83" name="x83" type="text"
+                     placeholder="Enter passenger surname">
+              <span class="hint">May require picker when UIA omits placeholder text.</span>
+            </div>
+
+            <div class="field">
+              <span class="field-title" id="issuePlaceLabel">Passport Place of Issue</span>
+              <input id="issuePlace" name="place_issued" type="text"
+                     aria-labelledby="issuePlaceLabel">
+              <span class="expected">Expected: <code>passport.place_of_issue</code></span>
+            </div>
+
+            <div class="field">
+              <label for="unknownLoyaltyCode">Unknown loyalty code</label>
+              <input id="unknownLoyaltyCode" name="misc_771" type="text">
+              <span class="expected">Expected: manual picker; never auto-match</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="ambiguousTitle">
+          <h2 id="ambiguousTitle">Ambiguous and contradictory metadata</h2>
+          <div class="field-grid">
+            <div class="field ambiguous">
+              <label for="passportNumberConflict">
+                Application Number — conflicting metadata
+              </label>
+              <input id="passportNumberConflict" name="passport_number"
+                     type="text" aria-label="Application Number">
+              <span class="expected">Expected: conflict; manual picker only</span>
+            </div>
+
+            <div class="field ambiguous">
+              <label for="ambiguousReference">Passport or Application Reference</label>
+              <input id="ambiguousReference" name="referenceNumber" type="text"
+                     placeholder="Enter number">
+              <span class="expected">Expected: ambiguous; manual picker only</span>
+            </div>
+
+            <div class="field ambiguous">
+              <label for="nationalIdNumber">National ID Number</label>
+              <input id="nationalIdNumber" name="documentNumber" type="text">
+              <span class="expected">Must not match <code>passport.number</code></span>
+            </div>
+
+            <div class="field ambiguous">
+              <label for="visaNumber">Visa Number</label>
+              <input id="visaNumber" name="visaReference" type="text">
+              <span class="expected">Must not match <code>passport.number</code></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="dynamicTitle">
+          <h2 id="dynamicTitle">Dynamic and future controls</h2>
+          <div id="dynamicFields" class="field-grid" aria-live="polite">
+            <div class="field">
+              <label for="nativeCountry">Native country select</label>
+              <select id="nativeCountry" name="country">
+                <option value="">Choose a country</option>
+                <option value="IN">India</option>
+                <option value="GB">United Kingdom</option>
+                <option value="US">United States</option>
+              </select>
+              <span class="hint">Fixture coverage; select automation is deferred.</span>
+            </div>
+
+            <div class="field">
+              <span class="field-title" id="editableLabel">Accessible contenteditable note</span>
+              <div id="editableNote" role="textbox" contenteditable="true"
+                   aria-labelledby="editableLabel"></div>
+              <span class="hint">Fixture coverage; contenteditable is deferred.</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="addDynamicField" class="secondary" type="button">
+              Add dynamic field
+            </button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="protectedTitle">
+          <h2 id="protectedTitle">Protected and blocked controls</h2>
+          <div class="field-grid">
+            <div class="field protected">
+              <label for="accountPassword">Password</label>
+              <input id="accountPassword" name="password" type="password">
+              <span class="expected">Expected: blocked</span>
+            </div>
+
+            <div class="field protected">
+              <label for="documentUpload">File upload</label>
+              <input id="documentUpload" name="document" type="file">
+              <span class="expected">Expected: blocked</span>
+            </div>
+
+            <div class="field protected">
+              <label for="disabledField">Disabled field</label>
+              <input id="disabledField" name="disabled" type="text" disabled>
+              <span class="expected">Expected: blocked</span>
+            </div>
+
+            <div class="field protected">
+              <label for="readonlyField">Read-only field</label>
+              <input id="readonlyField" name="readonly" type="text"
+                     value="Portal-owned value" readonly>
+              <span class="expected">Expected: blocked</span>
+            </div>
+
+            <div class="field protected">
+              <label for="oneTimePassword">One-time password</label>
+              <input id="oneTimePassword" name="otp" type="text"
+                     autocomplete="one-time-code">
+              <span class="expected">Expected: blocked; picker cannot override</span>
+            </div>
+
+            <div class="field protected">
+              <label for="oneTimePin">One-time PIN</label>
+              <input id="oneTimePin" name="one_time_pin" type="tel">
+              <span class="expected">Expected: blocked; picker cannot override</span>
+            </div>
+
+            <div class="field protected">
+              <label for="twoFactorCode">Two-factor authentication code (2FA)</label>
+              <input id="twoFactorCode" name="two_factor_code" type="text">
+              <span class="expected">Expected: blocked; picker cannot override</span>
+            </div>
+
+            <div class="field protected">
+              <label for="authenticatorCode">MFA authenticator code</label>
+              <input id="authenticatorCode" name="authenticator_code" type="tel">
+              <span class="expected">Expected: blocked; picker cannot override</span>
+            </div>
+
+            <div class="field protected full">
+              <label for="captchaMock">CAPTCHA-like verification field</label>
+              <input id="captchaMock" name="captchaResponse" type="text"
+                     aria-label="CAPTCHA verification" data-captcha="true"
+                     readonly value="DO NOT AUTOMATE">
+              <span class="expected">Expected: blocked; never bypassed</span>
+            </div>
+          </div>
+
+          <input id="hiddenControl" name="hiddenPassport" type="hidden"
+                 value="blocked">
+
+          <div class="actions">
+            <button id="fixtureSubmit" class="primary" type="submit">
+              Fixture Submit
+            </button>
+            <button id="clearFixture" class="secondary" type="button">
+              Clear fixture
+            </button>
+          </div>
+        </section>
+      </form>
+
+      <aside class="monitor" aria-labelledby="monitorTitle">
+        <section class="card">
+          <h2 id="monitorTitle">Safety monitor</h2>
+          <div id="submitCounterPanel" class="counter">
+            <span>Submit attempts</span>
+            <strong id="submitCount">0</strong>
+          </div>
+          <pre id="eventLog" role="log" aria-live="polite">Fixture ready. No values are logged.</pre>
+          <div class="actions">
+            <button id="clearLog" class="secondary" type="button">
+              Clear event log
+            </button>
+          </div>
+          <p class="privacy">
+            Each log line includes time, event type, element identity, and
+            value length only.
+          </p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const form = document.getElementById("fixtureForm");
+      const eventLog = document.getElementById("eventLog");
+      const submitCount = document.getElementById("submitCount");
+      const submitCounterPanel = document.getElementById("submitCounterPanel");
+      const dynamicFields = document.getElementById("dynamicFields");
+      let submissions = 0;
+      let dynamicFieldAdded = false;
+
+      const log = (message) => {
+        const line = `${new Date().toLocaleTimeString()}  ${message}`;
+        eventLog.textContent += `\n${line}`;
+        eventLog.scrollTop = eventLog.scrollHeight;
+      };
+
+      const safeIdentity = (target) => {
+        const tag = target.tagName ? target.tagName.toLowerCase() : "unknown";
+        const id = target.id || "(no-id)";
+        const type = target.type || target.getAttribute?.("role") || "n/a";
+        return `${tag}#${id}[${type}]`;
+      };
+
+      const valueLength = (target) => {
+        if (typeof target.value === "string") {
+          return target.value.length;
+        }
+        return (target.textContent || "").length;
+      };
+
+      ["beforeinput", "input", "change", "blur"].forEach((eventName) => {
+        form.addEventListener(eventName, (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLElement)) {
+            return;
+          }
+          log(`${event.type.padEnd(11)} ${safeIdentity(target)} length=${valueLength(target)}`);
+        }, true);
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submissions += 1;
+        submitCount.textContent = String(submissions);
+        submitCounterPanel.classList.add("danger");
+        log(`SUBMIT BLOCKED count=${submissions}`);
+      });
+
+      document.getElementById("addDynamicField").addEventListener("click", () => {
+        if (dynamicFieldAdded) {
+          document.getElementById("dynamicPassportExpiry").focus();
+          log("dynamic field already exists; focused existing field");
+          return;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "field full";
+        wrapper.innerHTML = `
+          <label for="dynamicPassportExpiry">Passport Expiry Date</label>
+          <input id="dynamicPassportExpiry" name="dynamic_expiry" type="text"
+                 aria-label="Passport Expiry Date" placeholder="DD/MM/YYYY">
+          <span class="expected">Dynamically inserted after page load</span>
+        `;
+        dynamicFields.appendChild(wrapper);
+        dynamicFieldAdded = true;
+        document.getElementById("dynamicPassportExpiry").focus();
+        log("dynamic field inserted and focused");
+      });
+
+      document.getElementById("clearLog").addEventListener("click", () => {
+        eventLog.textContent = "Event log cleared. No values are logged.";
+      });
+
+      document.getElementById("clearFixture").addEventListener("click", () => {
+        form.reset();
+        document.getElementById("editableNote").textContent = "";
+        submissions = 0;
+        submitCount.textContent = "0";
+        submitCounterPanel.classList.remove("danger");
+        log("fixture fields and submit counter cleared");
+      });
+
+      window.smartCopyPasteFixture = Object.freeze({
+        getSubmitCount: () => submissions,
+        resetSubmitCount: () => {
+          submissions = 0;
+          submitCount.textContent = "0";
+          submitCounterPanel.classList.remove("danger");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
