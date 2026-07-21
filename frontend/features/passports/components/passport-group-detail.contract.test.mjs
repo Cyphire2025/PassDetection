@@ -101,6 +101,20 @@ test("expiry alerts are collapsible through an accessible disclosure control", (
   assert.match(source, /\{isExpiryAlertsExpanded && \(/);
 });
 
+test("expiry guidance uses the group Travel/Departure date", () => {
+  assert.match(source, /within 6 months of the Travel\/Departure date/);
+  assert.match(source, /formatPassportDateForUi\(groupDetails\.travel_date\)/);
+  assert.match(source, /label="Travel\/Departure Date"/);
+});
+
+test("group rows show imported birth, issue, and expiry dates", () => {
+  assert.match(source, />Passport Dates</);
+  assert.match(source, /getDashboardPassportDate\(passport, "date_of_birth"\)/);
+  assert.match(source, /getDashboardPassportDate\(passport, "date_of_issue"\)/);
+  assert.match(source, /getDashboardPassportDate\(passport, "date_of_expiry"\)/);
+  assert.match(source, /formatPassportDateForUi/);
+});
+
 test("selection actions stay hidden until a passport is selected", () => {
   assert.match(
     source,

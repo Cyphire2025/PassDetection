@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import date
 
 from pydantic import ValidationError
 
@@ -11,10 +12,27 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 
 
 class QualifierSchemaTests(unittest.TestCase):
-    def test_client_group_flag_defaults_off_for_old_clients(self) -> None:
-        request = CreateClientGroupRequest(name="Legacy Link")
+    def test_client_group_flag_defaults_off(self) -> None:
+        request = CreateClientGroupRequest(
+            name="Trip",
+            destination="Thailand",
+            travel_date=date(2026, 9, 1),
+            return_date=date(2026, 9, 7),
+        )
 
         self.assertFalse(request.relation_with_qualifier_enabled)
+
+    def test_client_group_requires_destination_and_trip_dates(self) -> None:
+        with self.assertRaises(ValidationError):
+            CreateClientGroupRequest(name="Incomplete Trip")
+
+        with self.assertRaises(ValidationError):
+            CreateClientGroupRequest(
+                name="Reverse Trip",
+                destination="Thailand",
+                travel_date=date(2026, 9, 7),
+                return_date=date(2026, 9, 1),
+            )
 
     def test_schema_requires_exactly_one_path(self) -> None:
         self.assertTrue(

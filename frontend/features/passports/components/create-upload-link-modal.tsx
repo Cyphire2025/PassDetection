@@ -114,9 +114,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       const result = await createUploadLink({
         ...data,
         name: data.name.trim(),
-        destination: data.destination || null,
-        travel_date: data.travel_date || null,
-        return_date: data.return_date || null,
+        destination: data.destination.trim(),
+        travel_date: data.travel_date,
+        return_date: data.return_date,
         departure_cities: data.nearest_international_airport_enabled
           ? normalizeCities(data.departure_cities)
           : [],
@@ -256,9 +256,27 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
               />
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Input label="Destination" placeholder="e.g. Dubai" {...register("destination")} />
-                <Input label="Travel Date" type="date" {...register("travel_date")} />
-                <Input label="Return Date" type="date" {...register("return_date")} />
+                <Input
+                  label="Destination"
+                  placeholder="e.g. Dubai"
+                  {...register("destination")}
+                  error={errors.destination?.message}
+                  required
+                />
+                <Input
+                  label="Travel/Departure Date"
+                  type="date"
+                  {...register("travel_date")}
+                  error={errors.travel_date?.message}
+                  required
+                />
+                <Input
+                  label="Return Date"
+                  type="date"
+                  {...register("return_date")}
+                  error={errors.return_date?.message}
+                  required
+                />
               </div>
 
               <div className="space-y-1">

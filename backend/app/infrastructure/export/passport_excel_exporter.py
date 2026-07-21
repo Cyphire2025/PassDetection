@@ -34,7 +34,7 @@ _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _COLUMNS = (
     _ExportColumn("Group", 24),
     _ExportColumn("Destination", 22),
-    _ExportColumn("Travel Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("Travel/Departure Date", 22, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Return Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Client Name", 24),
     _ExportColumn("Email", 28),
@@ -185,7 +185,7 @@ class PassportExcelExporter:
             values = {
                 "Group": details.get("name") or group_name,
                 "Destination": details.get("destination"),
-                "Travel Date": details.get("travel_date"),
+                "Travel/Departure Date": details.get("travel_date"),
                 "Return Date": details.get("return_date"),
                 "Client Name": submission.client_name,
                 "Email": submission.client_email,

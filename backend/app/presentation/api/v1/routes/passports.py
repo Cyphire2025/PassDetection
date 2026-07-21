@@ -1101,6 +1101,7 @@ async def list_passports_by_group_view(
     search: str | None = Query(default=None, max_length=200),
     include_deleted: bool = False,
     current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
     use_case: ListPassportSubmissionsByGroupUseCase = Depends(
         _get_list_passports_by_group_use_case
     ),
@@ -1136,6 +1137,20 @@ async def list_passports_by_group_view(
         include_deleted_group=include_deleted,
         visible_to_user=None if include_deleted else current_user,
     )
+    travel_date_stmt = select(ClientGroupModel.travel_date).where(
+        ClientGroupModel.id == group_id
+    )
+    if not include_deleted:
+        travel_date_stmt = travel_date_stmt.where(
+            ClientGroupModel.deleted_at.is_(None)
+        )
+    travel_date_stmt = AuthorizationPolicy.apply_group_visibility_scope(
+        travel_date_stmt,
+        current_user,
+    )
+    travel_date = (
+        await session.execute(travel_date_stmt)
+    ).scalar_one_or_none()
     view = build_submission_view(
         all_submissions,
         submission_filter=submission_filter,
@@ -1144,6 +1159,7 @@ async def list_passports_by_group_view(
         search=search,
         page=page,
         page_size=page_size,
+        travel_date=travel_date,
     )
     items: list[PassportSubmissionViewItemResponse] = []
     for entry in view.items:

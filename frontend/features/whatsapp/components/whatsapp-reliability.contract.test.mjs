@@ -168,3 +168,18 @@ test("message preview remains unsendable while the latest approved rendering loa
     /messageType === "welcome" \|\| detail\.support_contacts\.length > 0/,
   );
 });
+
+test("message editors expose selection-aware WhatsApp bold controls", () => {
+  assert.match(pageSource, /toggleWhatsAppBold/);
+  assert.match(pageSource, /passportIntroRef\.current/);
+  assert.match(pageSource, /messageContentRef\.current/);
+  assert.match(
+    pageSource,
+    /aria-label="Bold selected passport introduction text or start bold typing"/,
+  );
+  assert.match(
+    pageSource,
+    /aria-label="Bold selected message text or start bold typing"/,
+  );
+  assert.match(pageSource, /parseWhatsAppBoldSegments\(preview\.rendered_message\)/);
+});

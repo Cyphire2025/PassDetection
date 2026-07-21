@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 from fastapi import HTTPException
@@ -532,6 +532,9 @@ def test_create_request_dedupes_and_limits_broadcast_ids() -> None:
     first = uuid.uuid4()
     request = CreateClientGroupRequest(
         name="Trip",
+        destination="Thailand",
+        travel_date=date(2026, 9, 1),
+        return_date=date(2026, 9, 7),
         whatsapp_broadcast_group_ids=[first, first],
     )
     assert request.whatsapp_broadcast_group_ids == [first]
@@ -539,6 +542,9 @@ def test_create_request_dedupes_and_limits_broadcast_ids() -> None:
     with pytest.raises(ValidationError):
         CreateClientGroupRequest(
             name="Trip",
+            destination="Thailand",
+            travel_date=date(2026, 9, 1),
+            return_date=date(2026, 9, 7),
             whatsapp_broadcast_group_ids=[uuid.uuid4() for _ in range(51)],
         )
 

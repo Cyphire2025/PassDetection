@@ -167,7 +167,7 @@ export function PassportList() {
                         <td className="px-6 py-4">
                           <div className="font-medium text-slate-800">{group.destination || "Not set"}</div>
                           <div className="mt-1 text-xs text-slate-500">
-                            {group.travel_date || "No travel date"}
+                            {group.travel_date || "No Travel/Departure date"}
                           </div>
                         </td>
                         <td className="px-6 py-4">

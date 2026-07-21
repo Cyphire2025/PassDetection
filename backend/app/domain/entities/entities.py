@@ -436,7 +436,7 @@ class ClientGroup:
             raise ValidationError("Group name is required.", field="name")
         if travel_date and return_date and return_date < travel_date:
             raise ValidationError(
-                "Return date cannot be before the travel date.",
+                "Return date cannot be before the Travel/Departure date.",
                 field="return_date",
             )
         normalized_departure_cities = (
@@ -498,7 +498,7 @@ class ClientGroup:
             raise ValidationError("Group name is required.", field="name")
         if travel_date and return_date and return_date < travel_date:
             raise ValidationError(
-                "Return date cannot be before the travel date.",
+                "Return date cannot be before the Travel/Departure date.",
                 field="return_date",
             )
         normalized_departure_cities = (

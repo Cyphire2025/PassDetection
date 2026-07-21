@@ -13,7 +13,7 @@ const publicUploadHeaders = (token: string) => ({
   "X-Upload-Session-ID": getOrCreatePublicUploadSessionId(token),
 });
 
-export interface CreateUploadLinkRequest {
+export interface UpdateUploadLinkRequest {
   name: string;
   destination?: string | null;
   travel_date?: string | null;
@@ -30,6 +30,12 @@ export interface CreateUploadLinkRequest {
   relation_with_qualifier_enabled: boolean;
   whatsapp_broadcast_group_ids?: string[];
   notes?: string | null;
+}
+
+export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
+  destination: string;
+  travel_date: string;
+  return_date: string;
 }
 
 export interface LinkedWhatsAppBroadcast {
@@ -180,7 +186,7 @@ export const uploadLinksApi = {
     return response.data;
   },
 
-  update: async (id: string, data: CreateUploadLinkRequest): Promise<UploadLinkResponse> => {
+  update: async (id: string, data: UpdateUploadLinkRequest): Promise<UploadLinkResponse> => {
     const response = await apiClient.patch<UploadLinkResponse>(API_ENDPOINTS.uploadLinks.detail(id), data);
     return response.data;
   },

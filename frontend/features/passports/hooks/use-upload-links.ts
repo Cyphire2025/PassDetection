@@ -8,6 +8,7 @@ import {
   uploadLinksApi,
   type CreateUploadLinkRequest,
   type GroupWhatsAppMatchesParams,
+  type UpdateUploadLinkRequest,
   type UploadLinkResponse,
 } from "../api/upload-links.api";
 
@@ -83,7 +84,7 @@ export function useUpdateUploadLink() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...data }: CreateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
+    mutationFn: ({ id, ...data }: UpdateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
     },

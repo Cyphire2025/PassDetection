@@ -41,9 +41,9 @@ class CreateClientGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     name: str = Field(..., min_length=1, max_length=100)
-    destination: str | None = Field(default=None, max_length=255)
-    travel_date: date | None = None
-    return_date: date | None = None
+    destination: str = Field(..., min_length=1, max_length=255)
+    travel_date: date
+    return_date: date
     package_name: str | None = Field(default=None, max_length=255)
     departure_cities: list[str] = Field(default_factory=list, max_length=50)
     base_city_enabled: bool = False
@@ -79,8 +79,8 @@ class CreateClientGroupRequest(BaseModel):
             raise ValueError("Add at least one nearest international airport when the option is enabled.")
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
-        if self.travel_date and self.return_date and self.return_date < self.travel_date:
-            raise ValueError("Return date cannot be before the travel date.")
+        if self.return_date < self.travel_date:
+            raise ValueError("Return date cannot be before the Travel/Departure date.")
         return self
 
 
@@ -129,7 +129,7 @@ class UpdateClientGroupRequest(BaseModel):
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
         if self.travel_date and self.return_date and self.return_date < self.travel_date:
-            raise ValueError("Return date cannot be before the travel date.")
+            raise ValueError("Return date cannot be before the Travel/Departure date.")
         return self
 
 

@@ -398,7 +398,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             </div>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
               <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
-              <InfoPair label="Travel Date" value={groupDetails.travel_date || "Not set"} />
+              <InfoPair label="Travel/Departure Date" value={groupDetails.travel_date || "Not set"} />
               <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
               <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
               <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
@@ -499,7 +499,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 <AlertTriangle className="h-5 w-5 text-red-700" aria-hidden="true" />
                 <div>
                   <h2 className="text-base font-semibold text-red-950">Passport Expiry Alerts</h2>
-                  <p className="text-sm text-red-800">Passports expired or expiring within 6 months.</p>
+                  <p className="text-sm text-red-800">
+                    {groupDetails?.travel_date
+                      ? `Expired passports, or passports expiring within 6 months of the Travel/Departure date (${formatPassportDateForUi(groupDetails.travel_date)}).`
+                      : "Expired passports, or passports expiring within the next 6 months."}
+                  </p>
                 </div>
               </div>
               <span className="flex shrink-0 items-center gap-2">
@@ -726,6 +730,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                       <th className="px-6 py-4">Client</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4">Passport</th>
+                      <th className="px-6 py-4">Passport Dates</th>
                       <th className="px-6 py-4">Confidence</th>
                       <th className="px-6 py-4">Updated</th>
                       <th className="px-6 py-4 text-right">Action</th>
@@ -736,7 +741,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                       <Fragment key={passport.id}>
                         {isDuplicateClusterStart(filteredPassports, index) && (
                           <tr className="border-y border-amber-200 bg-amber-50">
-                            <td colSpan={6} className="px-6 py-2">
+                            <td colSpan={7} className="px-6 py-2">
                               <DuplicateClusterHeader
                                 passport={passport}
                                 searchActive={Boolean(debouncedSearch)}
@@ -774,6 +779,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                           <div className="mt-1 text-xs text-slate-500">
                             {getDashboardCountry(passport) || "Manual review"}
                           </div>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-slate-600">
+                          <div><span className="font-medium text-slate-500">DOB:</span> {getDashboardPassportDate(passport, "date_of_birth")}</div>
+                          <div className="mt-1"><span className="font-medium text-slate-500">Issued:</span> {getDashboardPassportDate(passport, "date_of_issue")}</div>
+                          <div className="mt-1"><span className="font-medium text-slate-500">Expires:</span> {getDashboardPassportDate(passport, "date_of_expiry")}</div>
                         </td>
                         <td className="px-6 py-4 text-slate-700">
                           {formatConfidence(passport.verification_confidence ?? null)}
@@ -996,6 +1006,9 @@ function PassportMobileCard({
             value={formatConfidence(passport.verification_confidence ?? null)}
           />
           <InfoPair label="Updated" value={formatDateTime(passport.updated_at)} />
+          <InfoPair label="Date of Birth" value={getDashboardPassportDate(passport, "date_of_birth")} />
+          <InfoPair label="Date of Issue" value={getDashboardPassportDate(passport, "date_of_issue")} />
+          <InfoPair label="Date of Expiry" value={getDashboardPassportDate(passport, "date_of_expiry")} />
         </div>
 
         <div className={`grid gap-2 ${needsReextraction(passport) || passport.extraction_status === "processing" ? "sm:grid-cols-2" : ""}`}>
@@ -1250,6 +1263,15 @@ function getDashboardCountry(passport: PassportSubmission) {
   const nationality = getStringField(fields, "nationality");
   if (nationality) return formatPassportNationality(nationality);
   return formatPassportCountry(getStringField(fields, "issuing_country"));
+}
+
+function getDashboardPassportDate(
+  passport: PassportSubmission,
+  field: "date_of_birth" | "date_of_issue" | "date_of_expiry",
+) {
+  return formatPassportDateForUi(
+    getStringField(getDashboardFields(passport), field),
+  ) || "Not provided";
 }
 
 function getExtractionConflictCount(passport: PassportSubmission) {
@@ -1568,7 +1590,7 @@ function TripDetailsDialog({
             <Input value={form.destination} onChange={(event) => updateField("destination", event.target.value)} />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-medium text-slate-700">Travel Date</span>
+            <span className="text-sm font-medium text-slate-700">Travel/Departure Date</span>
             <Input type="date" value={form.travel_date} onChange={(event) => updateField("travel_date", event.target.value)} />
           </label>
           <label className="space-y-2">

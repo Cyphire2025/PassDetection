@@ -2,6 +2,7 @@
 
 import {
   AlertTriangle,
+  Bold,
   CheckCircle2,
   FileSpreadsheet,
   Info,
@@ -42,6 +43,10 @@ import {
   type ManualContact,
   readErrorMessage,
 } from "./whatsapp-dialog-ui";
+import {
+  parseWhatsAppBoldSegments,
+  toggleWhatsAppBold,
+} from "../utils/whatsapp-formatting";
 import {
   whatsappApi,
   type WhatsAppBroadcastGroup,
@@ -2139,6 +2144,10 @@ function MessagePreviewDialog({
   const previewSequence = useRef(0);
   const sendInFlightRef = useRef(false);
   const headerImagePreviewUrlRef = useRef<string | null>(null);
+  const passportIntroRef = useRef<HTMLTextAreaElement>(null);
+  const messageContentRef = useRef<HTMLTextAreaElement>(null);
+  const passportIntroId = useId();
+  const messageContentId = useId();
   const previewMutate = previewRequest.mutate;
 
   useEffect(() => {
@@ -2158,6 +2167,28 @@ function MessagePreviewDialog({
     setHeaderImage(image);
     setHeaderImagePreview(previewUrl);
     if (image) setHeaderImageId(null);
+  };
+
+  const applyBoldFormatting = (
+    textarea: HTMLTextAreaElement | null,
+    value: string,
+    setValue: Dispatch<SetStateAction<string | null>>,
+  ) => {
+    if (!textarea) return;
+    const update = toggleWhatsAppBold(
+      value,
+      textarea.selectionStart,
+      textarea.selectionEnd,
+    );
+    if (update.value.length > 600) {
+      setError("Bold formatting must fit within the 600-character message limit.");
+      return;
+    }
+    setValue(update.value);
+    window.requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(update.selectionStart, update.selectionEnd);
+    });
   };
 
   useEffect(() => {
@@ -2432,40 +2463,96 @@ function MessagePreviewDialog({
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="space-y-4">
             {messageType === "passport_link" && (
-              <label className="block text-sm font-medium text-slate-700">
-                Passport link introduction (BODY {"{{1}}"})
-                <textarea
-                  className="mt-1.5 min-h-32 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  value={
-                    passportIntro ?? preview?.passport_intro ?? ""
-                  }
-                  onChange={(event) => setPassportIntro(event.target.value)}
-                  maxLength={600}
-                />
+              <div>
+                <label
+                  htmlFor={passportIntroId}
+                  className="block text-sm font-medium text-slate-700"
+                >
+                  Passport link introduction (BODY {"{{1}}"})
+                </label>
+                <div className="mt-1.5 overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                  <div className="flex items-center border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+                    <button
+                      type="button"
+                      aria-label="Bold selected passport introduction text or start bold typing"
+                      title="Bold"
+                      className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() =>
+                        applyBoldFormatting(
+                          passportIntroRef.current,
+                          passportIntro ?? preview?.passport_intro ?? "",
+                          setPassportIntro,
+                        )
+                      }
+                    >
+                      <Bold className="h-3.5 w-3.5" aria-hidden="true" />
+                      Bold
+                    </button>
+                  </div>
+                  <textarea
+                    id={passportIntroId}
+                    ref={passportIntroRef}
+                    className="min-h-32 w-full resize-y border-0 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none"
+                    value={
+                      passportIntro ?? preview?.passport_intro ?? ""
+                    }
+                    onChange={(event) => setPassportIntro(event.target.value)}
+                    maxLength={600}
+                  />
+                </div>
                 {passportIntro !== null && !resolvedPassportIntro && (
                   <span className="mt-1.5 block text-xs font-normal text-amber-700">
                     Add the introduction used for Meta BODY variable {"{{1}}"}.
                   </span>
                 )}
-              </label>
+              </div>
             )}
-            <label className="block text-sm font-medium text-slate-700">
-              {messageType === "welcome"
-                ? "Welcome trip message (BODY {{1}})"
-                : "Passport instructions (BODY {{3}})"}
-              <textarea
-                className="mt-1.5 min-h-56 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                value={messageContent ?? preview?.message_content ?? ""}
-                onChange={(event) => setMessageContent(event.target.value)}
-                maxLength={600}
-              />
+            <div>
+              <label
+                htmlFor={messageContentId}
+                className="block text-sm font-medium text-slate-700"
+              >
+                {messageType === "welcome"
+                  ? "Welcome trip message (BODY {{1}})"
+                  : "Passport instructions (BODY {{3}})"}
+              </label>
+              <div className="mt-1.5 overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <div className="flex items-center border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+                  <button
+                    type="button"
+                    aria-label="Bold selected message text or start bold typing"
+                    title="Bold"
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() =>
+                      applyBoldFormatting(
+                        messageContentRef.current,
+                        messageContent ?? preview?.message_content ?? "",
+                        setMessageContent,
+                      )
+                    }
+                  >
+                    <Bold className="h-3.5 w-3.5" aria-hidden="true" />
+                    Bold
+                  </button>
+                </div>
+                <textarea
+                  id={messageContentId}
+                  ref={messageContentRef}
+                  className="min-h-56 w-full resize-y border-0 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none"
+                  value={messageContent ?? preview?.message_content ?? ""}
+                  onChange={(event) => setMessageContent(event.target.value)}
+                  maxLength={600}
+                />
+              </div>
               {messageContent !== null && !resolvedMessageContent && (
                 <span className="mt-1.5 block text-xs font-normal text-amber-700">
                   Add text before sending. Meta requires this editable template
                   section to contain text.
                 </span>
               )}
-            </label>
+            </div>
             {detail && detail.recipients.length > 1 && !targetRecipient && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
@@ -2528,7 +2615,18 @@ function MessagePreviewDialog({
                 ) : null}
                 {preview ? (
                   <p className="whitespace-pre-wrap">
-                    {preview.rendered_message}
+                    {parseWhatsAppBoldSegments(preview.rendered_message).map(
+                      (segment, index) =>
+                        segment.bold ? (
+                          <strong key={`${index}:${segment.text}`}>
+                            {segment.text}
+                          </strong>
+                        ) : (
+                          <span key={`${index}:${segment.text}`}>
+                            {segment.text}
+                          </span>
+                        ),
+                    )}
                   </p>
                 ) : (
                   <div className="space-y-3 py-2">

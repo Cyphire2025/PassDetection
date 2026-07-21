@@ -61,7 +61,7 @@ export function DocumentGroupList() {
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <InfoPair label="Passengers" value={String(group.total_passengers)} />
-                  <InfoPair label="Travel Date" value={group.travel_date || "Not set"} />
+                  <InfoPair label="Travel/Departure Date" value={group.travel_date || "Not set"} />
                 </div>
 
                 <Link href={ROUTES.dashboard.documentGroup(group.group_id) as never} className="block">

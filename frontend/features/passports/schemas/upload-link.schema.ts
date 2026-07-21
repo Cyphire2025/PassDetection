@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const createUploadLinkSchema = z.object({
   name: z.string().trim().min(1, "Group name is required").max(100),
-  destination: z.string().trim().max(255).optional(),
-  travel_date: z.string().optional(),
-  return_date: z.string().optional(),
+  destination: z.string().trim().min(1, "Destination is required").max(255),
+  travel_date: z.string().trim().min(1, "Travel/Departure date is required"),
+  return_date: z.string().trim().min(1, "Return date is required"),
   departure_cities: z.array(z.string().trim().min(1).max(120)).max(50),
   base_city_enabled: z.boolean(),
   nearest_international_airport_enabled: z.boolean(),
@@ -22,6 +22,13 @@ export const createUploadLinkSchema = z.object({
       code: "custom",
       path: ["departure_cities"],
       message: "Add at least one nearest international airport",
+    });
+  }
+  if (data.travel_date && data.return_date && data.return_date < data.travel_date) {
+    context.addIssue({
+      code: "custom",
+      path: ["return_date"],
+      message: "Return date cannot be before the Travel/Departure date",
     });
   }
 });

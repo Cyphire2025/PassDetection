@@ -281,7 +281,7 @@ def test_export_writes_all_visible_dates_as_native_dd_dot_mm_dot_yyyy() -> None:
     )
     headers = [cell.value for cell in worksheet[4]]
     expected = {
-        "Travel Date": "17.07.2026",
+        "Travel/Departure Date": "17.07.2026",
         "Return Date": "25.07.2026",
         "Date of Birth": "30.08.1972",
         "Date of Issue": "10.08.2023",

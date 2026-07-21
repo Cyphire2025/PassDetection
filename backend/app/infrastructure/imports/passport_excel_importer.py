@@ -9,7 +9,7 @@ from __future__ import annotations
 import io
 import re
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from openpyxl import load_workbook
@@ -61,9 +61,30 @@ class PassportExcelImporter:
         "passport_number": {"passport number", "passport no", "passport", "passport #"},
         "nationality": {"nationality"},
         "issuing_country": {"issuing country", "issue country", "country of issue"},
-        "date_of_birth": {"date of birth", "dob", "birth date"},
-        "date_of_issue": {"date of issue", "issue date", "passport issue date"},
-        "date_of_expiry": {"date of expiry", "expiry date", "passport expiry", "valid until"},
+        "date_of_birth": {
+            "date of birth",
+            "dob",
+            "birth date",
+            "birthdate",
+        },
+        "date_of_issue": {
+            "date of issue",
+            "doi",
+            "issue date",
+            "passport issue",
+            "passport issue date",
+        },
+        "date_of_expiry": {
+            "date of expiry",
+            "date of expiration",
+            "doe",
+            "expiry",
+            "expiry date",
+            "expiration date",
+            "passport expiry",
+            "passport expiry date",
+            "valid until",
+        },
         "sex": {"sex", "gender"},
         "staff_code": {"staffcode", "staff code", "employee code", "employee id"},
     }
@@ -213,6 +234,8 @@ class PassportExcelImporter:
             return ""
         if isinstance(value, datetime):
             return value.date().isoformat()
+        if isinstance(value, date):
+            return value.isoformat()
         text = " ".join(str(value).strip().split())
         return "" if text.lower() in {"null", "n/a", "na", "none", "-"} else text
 

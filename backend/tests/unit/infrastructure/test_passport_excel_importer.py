@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from io import BytesIO
 
 from openpyxl import Workbook
@@ -12,8 +12,26 @@ def _workbook_bytes() -> bytes:
     workbook = Workbook()
     asm = workbook.active
     asm.title = "ASM"
-    asm.append(["Zone Name", "Staffname", "StaffCode", "Designation", "PASSPORT_NO", "DOB"])
-    asm.append(["ASSAM", "BIPLAB DAS", 25523, "ACE", "Z4160891", datetime(1979, 9, 5)])
+    asm.append([
+        "Zone Name",
+        "Staffname",
+        "StaffCode",
+        "Designation",
+        "PASSPORT_NO",
+        "DOB",
+        "DOI",
+        "Passport Expiry Date",
+    ])
+    asm.append([
+        "ASSAM",
+        "BIPLAB DAS",
+        25523,
+        "ACE",
+        "Z4160891",
+        datetime(1979, 9, 5),
+        date(2021, 6, 14),
+        datetime(2031, 6, 13),
+    ])
 
     delhi = workbook.create_sheet("DE1")
     delhi.append(["Zone Name", "Staff Name", "Staff Code", "Designation", "Gender"])
@@ -35,6 +53,8 @@ def test_imports_every_worksheet_and_retains_staff_metadata() -> None:
         "staff_code": "25523",
         "passport_number": "Z4160891",
         "date_of_birth": "1979-09-05",
+        "date_of_issue": "2021-06-14",
+        "date_of_expiry": "2031-06-13",
     }
     assert rows[0].staff_metadata["zone_name"] == "ASSAM"
     assert rows[0].staff_metadata["designation"] == "ACE"

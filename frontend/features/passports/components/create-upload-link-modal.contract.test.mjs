@@ -46,6 +46,18 @@ test("whitespace-only group names are rejected", () => {
   );
 });
 
+test("group creation requires destination and Travel/Departure dates", () => {
+  assert.match(
+    schemaSource,
+    /destination: z\.string\(\)\.trim\(\)\.min\(1, "Destination is required"\)/,
+  );
+  assert.match(schemaSource, /Travel\/Departure date is required/);
+  assert.match(schemaSource, /Return date is required/);
+  assert.match(schemaSource, /Return date cannot be before the Travel\/Departure date/);
+  assert.match(modalSource, /label="Travel\/Departure Date"/);
+  assert.equal(modalSource.match(/required/g)?.length >= 3, true);
+});
+
 test("group creation can link a bounded set of existing WhatsApp broadcasts", () => {
   assert.match(modalSource, /<WhatsAppBroadcastSelector/);
   assert.match(modalSource, /name: "whatsapp_broadcast_group_ids"/);

@@ -309,6 +309,7 @@ def test_expiry_alerts_are_full_group_and_filter_independent_at_boundary() -> No
         page=1,
         page_size=1,
         today=today,
+        travel_date=today,
     )
 
     assert view.items == ()
@@ -323,4 +324,41 @@ def test_expiry_alerts_are_full_group_and_filter_independent_at_boundary() -> No
     ] == [
         (expired.id, "EXP", "expired"),
         (boundary.id, "BOUND", "near_expiry"),
+    ]
+
+
+def test_expiry_alerts_use_group_travel_date_but_keep_all_expired() -> None:
+    today = date(2026, 1, 1)
+    travel_date = date(2026, 10, 1)
+    expired = _submission(
+        name="Expired",
+        confirmed=_passport_fields("EXP", "IND", expiry="2025-12-31"),
+    )
+    after_current_window = _submission(
+        name="Travel Window",
+        confirmed=_passport_fields("TRAVEL", "IND", expiry="2027-04-01"),
+    )
+    outside_travel_window = _submission(
+        name="Outside",
+        confirmed=_passport_fields("OUT", "IND", expiry="2027-04-02"),
+    )
+
+    view = build_submission_view(
+        [expired, after_current_window, outside_travel_window],
+        submission_filter="all",
+        sort_by="name",
+        sort_order="asc",
+        search=None,
+        page=1,
+        page_size=50,
+        today=today,
+        travel_date=travel_date,
+    )
+
+    assert [
+        (alert.passport_number, alert.status)
+        for alert in view.expiry_alerts
+    ] == [
+        ("EXP", "expired"),
+        ("TRAVEL", "near_expiry"),
     ]

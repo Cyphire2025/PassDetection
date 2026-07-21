@@ -73,3 +73,11 @@ test("client-provided details show the submitted email and phone", () => {
   assert.match(source, /\["Email entered by client", passport\.client_email\]/);
   assert.match(source, /\["Phone entered by client", passport\.client_phone\]/);
 });
+
+test("individual review fields prefill imported confirmed passport dates", () => {
+  assert.match(
+    source,
+    /sourceFields=\{data\.confirmed_fields \?\? data\.extracted_fields \?\? \{\}\}/,
+  );
+  assert.match(source, /fields\[key\] = getStringField\(sourceFields, key\)/);
+});

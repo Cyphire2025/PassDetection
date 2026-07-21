@@ -429,8 +429,9 @@ def _expiry_alerts(
     submissions: list[Any],
     *,
     today: date,
+    travel_date: date | None,
 ) -> tuple[ExpiryAlert, ...]:
-    warning_date = _add_months(today, 6)
+    warning_date = _add_months(travel_date or today, 6)
     alerts: list[ExpiryAlert] = []
     for submission in submissions:
         expiry_text = _field_value(submission, "date_of_expiry")
@@ -438,7 +439,8 @@ def _expiry_alerts(
             expiry = date.fromisoformat(expiry_text)
         except (TypeError, ValueError):
             continue
-        if expiry > warning_date:
+        is_expired = expiry < today
+        if not is_expired and expiry > warning_date:
             continue
         alerts.append(
             ExpiryAlert(
@@ -449,7 +451,7 @@ def _expiry_alerts(
                     _field_value(submission, "passport_number") or None
                 ),
                 date_of_expiry=expiry.isoformat(),
-                status="expired" if expiry < today else "near_expiry",
+                status="expired" if is_expired else "near_expiry",
             )
         )
     return tuple(
@@ -474,6 +476,7 @@ def build_submission_view(
     page: int,
     page_size: int,
     today: date | None = None,
+    travel_date: date | None = None,
 ) -> SubmissionViewResult:
     """Apply full-group identity logic before filters and block pagination."""
 
@@ -527,5 +530,6 @@ def build_submission_view(
         expiry_alerts=_expiry_alerts(
             submissions,
             today=today or datetime.now(tz=UTC).date(),
+            travel_date=travel_date,
         ),
     )
