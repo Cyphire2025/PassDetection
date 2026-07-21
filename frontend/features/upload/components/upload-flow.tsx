@@ -2080,7 +2080,7 @@ function UploadHeader({ groupName }: { groupName: string }) {
         className="mx-auto mb-4 h-16 w-[240px] sm:mb-6 sm:h-20 sm:w-[300px]"
         priority
       />
-      <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:mb-3 sm:text-3xl">Upload Passport</h1>
+      <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:mb-3 sm:text-3xl">Upload Travel Documents</h1>
       <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">Global Connect Travels has requested passport details for</p>
       <div className="mt-2 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-600">
         <span className="truncate">{groupName}</span>

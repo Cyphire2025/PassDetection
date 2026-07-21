@@ -160,6 +160,7 @@ test("public upload entry uses Global Connect branding and requested copy", () =
     source,
     /Global Connect Travels has requested passport details for/,
   );
+  assert.match(source, />Upload Travel Documents<\/h1>/);
   assert.match(
     source,
     /title=\{file \? "Visa Photo ready" : "Upload Photo for Visa"\}/,
