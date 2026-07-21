@@ -277,6 +277,33 @@ export const whatsappApi = {
     return data;
   },
 
+  resolveRejectedContact: async ({
+    groupId,
+    rejectedContactId,
+    name,
+    phoneNumber,
+    recipientOptInConfirmed,
+  }: {
+    groupId: string;
+    rejectedContactId: string;
+    name: string;
+    phoneNumber: string;
+    recipientOptInConfirmed: boolean;
+  }): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
+      API_ENDPOINTS.whatsapp.resolveRejectedContact(
+        groupId,
+        rejectedContactId,
+      ),
+      {
+        name,
+        phone_number: phoneNumber,
+        recipient_opt_in_confirmed: recipientOptInConfirmed,
+      },
+    );
+    return data;
+  },
+
   deleteGroup: async (groupId: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.whatsapp.group(groupId));
   },

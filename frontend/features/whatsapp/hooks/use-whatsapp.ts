@@ -65,6 +65,22 @@ export function useWhatsAppRejectedContacts({
   });
 }
 
+export function useResolveWhatsAppRejectedContact() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.resolveRejectedContact,
+    onSuccess: async (group) => {
+      queryClient.setQueryData(WHATSAPP_QUERY_KEYS.group(group.id), group);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
+        }),
+      ]);
+    },
+  });
+}
+
 export function useCreateWhatsAppGroup() {
   const queryClient = useQueryClient();
   return useMutation({

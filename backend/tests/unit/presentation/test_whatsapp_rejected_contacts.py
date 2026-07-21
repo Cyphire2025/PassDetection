@@ -16,11 +16,13 @@ from app.infrastructure.database.models import (
 )
 from app.presentation.api.v1.routes.whatsapp import (
     _WHATSAPP_CONTACT_REJECTION_REASONS,
+    WhatsAppRejectedContactResolveRequest,
     _parse_rejected_contacts,
     _rejected_contact_fingerprint,
     add_broadcast_recipients,
     create_broadcast_group,
     list_broadcast_rejected_contacts,
+    resolve_broadcast_rejected_contact,
 )
 
 
@@ -235,3 +237,80 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
     assert response.offset == 0
     assert response.items[0].row_number == 14
     assert response.items[0].reason_code == "invalid_phone"
+
+
+@pytest.mark.asyncio
+async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> None:
+    group_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    rejected_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    group = SimpleNamespace(
+        id=group_id,
+        agency_id=agency_id,
+        recipient_opt_in_confirmed_at=now,
+        updated_at=now,
+    )
+    rejected = WhatsAppBroadcastRejectedContactModel(
+        id=rejected_id,
+        broadcast_group_id=group_id,
+        agency_id=agency_id,
+        source_file_name="Saigon Sheet.xlsx",
+        sheet_name="Sheet1",
+        row_number=14,
+        raw_name="Rejected Contact",
+        raw_phone_number="919726092",
+        reason_code="invalid_phone",
+        reason=_WHATSAPP_CONTACT_REJECTION_REASONS["invalid_phone"],
+        fingerprint="b" * 64,
+        created_at=now,
+    )
+    group_result = MagicMock()
+    group_result.scalar_one_or_none.return_value = group
+    rejected_result = MagicMock()
+    rejected_result.scalar_one_or_none.return_value = rejected
+    existing_result = MagicMock()
+    existing_result.scalar_one_or_none.return_value = None
+    count_result = MagicMock()
+    count_result.scalar_one.return_value = 12
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[
+            group_result,
+            rejected_result,
+            existing_result,
+            count_result,
+            MagicMock(),
+        ]
+    )
+    session.flush = AsyncMock()
+
+    with patch(
+        "app.presentation.api.v1.routes.whatsapp._group_detail",
+        new=AsyncMock(return_value=group),
+    ):
+        response = await resolve_broadcast_rejected_contact(
+            group_id=group_id,
+            rejected_contact_id=rejected_id,
+            body=WhatsAppRejectedContactResolveRequest(
+                name="Corrected Contact",
+                phone_number="9876543211",
+                recipient_opt_in_confirmed=True,
+            ),
+            current_user=SimpleNamespace(
+                role=UserRole.SUPER_ADMIN,
+                agency_id=None,
+            ),
+            session=session,
+        )
+
+    added = [call.args[0] for call in session.add.call_args_list]
+    recipient = next(
+        model
+        for model in added
+        if isinstance(model, WhatsAppBroadcastRecipientModel)
+    )
+    assert response is group
+    assert recipient.name == "Corrected Contact"
+    assert recipient.normalized_phone_number == "+919876543211"
+    assert recipient.imported_fields["source_row"] == "14"

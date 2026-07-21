@@ -65,6 +65,7 @@ import {
   useDeleteWhatsAppGroup,
   useDeleteWhatsAppRecipient,
   usePreviewWhatsAppMessage,
+  useResolveWhatsAppRejectedContact,
   useResendWhatsAppRecipientMessage,
   useSendWhatsAppPassportLink,
   useSendWhatsAppWelcome,
@@ -911,6 +912,7 @@ function RecipientListDialog({
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
   const updateRecipientPhone = useUpdateWhatsAppRecipientPhone();
+  const resolveRejectedContact = useResolveWhatsAppRejectedContact();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
@@ -926,6 +928,15 @@ function RecipientListDialog({
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [showRejectedContacts, setShowRejectedContacts] = useState(false);
   const [rejectedContactOffset, setRejectedContactOffset] = useState(0);
+  const [rejectedContactEdit, setRejectedContactEdit] = useState<{
+    id: string;
+    name: string;
+    phoneNumber: string;
+    optInConfirmed: boolean;
+  } | null>(null);
+  const [rejectedContactError, setRejectedContactError] = useState<
+    string | null
+  >(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -1212,6 +1223,7 @@ function RecipientListDialog({
             || addRecipientsMutation.isPending
             || deleteRecipient.isPending
             || updateRecipientPhone.isPending
+            || resolveRejectedContact.isPending
             || resendRecipientMessage.isPending
             || Boolean(recipientToRemove)
           }
@@ -1618,11 +1630,17 @@ function RecipientListDialog({
                       Rejected contacts
                     </h4>
                     <p className="mt-1 text-sm text-amber-800">
-                      These spreadsheet rows are saved for correction only.
-                      They are not valid recipients and will never receive a
-                      WhatsApp message.
+                      Correct the name or phone number and save it. Once valid,
+                      the person moves into the recipient list as Not sent and
+                      can receive messages normally.
                     </p>
                   </div>
+
+                  {rejectedContactError && (
+                    <div className="mt-3">
+                      <ErrorBanner message={rejectedContactError} />
+                    </div>
+                  )}
 
                   {rejectedContactsError ? (
                     <div className="mt-3 rounded-lg border border-red-200 bg-white p-3">
@@ -1657,7 +1675,7 @@ function RecipientListDialog({
                         tabIndex={0}
                         aria-label="Saved rejected contacts"
                       >
-                        <table className="w-full min-w-[900px] text-left text-xs">
+                        <table className="w-full min-w-[1080px] text-left text-xs">
                           <thead className="sticky top-0 border-b border-amber-200 bg-amber-50 text-amber-950">
                             <tr>
                               <th className="px-3 py-2 font-semibold">
@@ -1675,6 +1693,9 @@ function RecipientListDialog({
                               <th className="px-3 py-2 font-semibold">
                                 Reason
                               </th>
+                              <th className="px-3 py-2 text-right font-semibold">
+                                Action
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-amber-100">
@@ -1689,14 +1710,161 @@ function RecipientListDialog({
                                 <td className="whitespace-nowrap px-3 py-2 font-medium">
                                   {contact.sheet_name}, row {contact.row_number}
                                 </td>
-                                <td className="max-w-48 break-words px-3 py-2">
-                                  {contact.raw_name?.trim() || "Blank"}
+                                <td className="max-w-56 break-words px-3 py-2">
+                                  {rejectedContactEdit?.id === contact.id ? (
+                                    <input
+                                      type="text"
+                                      value={rejectedContactEdit.name}
+                                      aria-label={`Corrected name for row ${contact.row_number}`}
+                                      className="w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      onChange={(event) =>
+                                        setRejectedContactEdit((current) =>
+                                          current
+                                            ? { ...current, name: event.target.value }
+                                            : current,
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    contact.raw_name?.trim() || "Blank"
+                                  )}
                                 </td>
-                                <td className="max-w-48 break-words px-3 py-2 font-mono">
-                                  {contact.raw_phone_number?.trim() || "Blank"}
+                                <td className="max-w-56 break-words px-3 py-2 font-mono">
+                                  {rejectedContactEdit?.id === contact.id ? (
+                                    <input
+                                      type="tel"
+                                      value={rejectedContactEdit.phoneNumber}
+                                      autoFocus
+                                      aria-label={`Corrected WhatsApp number for row ${contact.row_number}`}
+                                      className="w-full rounded-md border border-amber-300 px-2 py-1.5 font-sans text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      onChange={(event) =>
+                                        setRejectedContactEdit((current) =>
+                                          current
+                                            ? {
+                                                ...current,
+                                                phoneNumber: event.target.value,
+                                              }
+                                            : current,
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    contact.raw_phone_number?.trim() || "Blank"
+                                  )}
                                 </td>
                                 <td className="max-w-64 break-words px-3 py-2">
                                   {contact.reason}
+                                </td>
+                                <td className="min-w-52 px-3 py-2 text-right">
+                                  {rejectedContactEdit?.id === contact.id ? (
+                                    <div className="space-y-2">
+                                      <label className="flex items-start gap-2 text-left text-[11px] text-slate-600">
+                                        <input
+                                          type="checkbox"
+                                          className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                          checked={
+                                            rejectedContactEdit.optInConfirmed
+                                          }
+                                          onChange={(event) =>
+                                            setRejectedContactEdit((current) =>
+                                              current
+                                                ? {
+                                                    ...current,
+                                                    optInConfirmed:
+                                                      event.target.checked,
+                                                  }
+                                                : current,
+                                            )
+                                          }
+                                        />
+                                        Recipient agreed to WhatsApp updates
+                                      </label>
+                                      <div className="flex justify-end gap-2">
+                                        <button
+                                          type="button"
+                                          className="rounded-md px-2 py-1.5 font-semibold text-slate-600 hover:bg-slate-100"
+                                          disabled={resolveRejectedContact.isPending}
+                                          onClick={() => {
+                                            setRejectedContactEdit(null);
+                                            setRejectedContactError(null);
+                                          }}
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="rounded-md bg-blue-600 px-2.5 py-1.5 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                          disabled={
+                                            resolveRejectedContact.isPending
+                                            || !rejectedContactEdit.name.trim()
+                                            || !rejectedContactEdit.phoneNumber.trim()
+                                            || !rejectedContactEdit.optInConfirmed
+                                          }
+                                          onClick={async () => {
+                                            const correction = rejectedContactEdit;
+                                            setRejectedContactError(null);
+                                            try {
+                                              await resolveRejectedContact.mutateAsync({
+                                                groupId: group.id,
+                                                rejectedContactId: contact.id,
+                                                name: correction.name.trim(),
+                                                phoneNumber:
+                                                  correction.phoneNumber.trim(),
+                                                recipientOptInConfirmed:
+                                                  correction.optInConfirmed,
+                                              });
+                                              setRejectedContactEdit(null);
+                                              setSuccessMessage(
+                                                `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
+                                              );
+                                              if (
+                                                rejectedContactPage.items.length === 1
+                                                && rejectedContactPage.offset > 0
+                                              ) {
+                                                setRejectedContactOffset(
+                                                  Math.max(
+                                                    0,
+                                                    rejectedContactPage.offset
+                                                      - REJECTED_CONTACT_PAGE_SIZE,
+                                                  ),
+                                                );
+                                              } else {
+                                                await refetchRejectedContacts();
+                                              }
+                                            } catch (correctionError) {
+                                              setRejectedContactError(
+                                                readErrorMessage(
+                                                  correctionError,
+                                                  "Could not add this corrected contact.",
+                                                ),
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          Save and add
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-semibold text-blue-700 hover:bg-blue-50"
+                                      onClick={() => {
+                                        setRejectedContactError(null);
+                                        setRejectedContactEdit({
+                                          id: contact.id,
+                                          name: contact.raw_name?.trim() || "",
+                                          phoneNumber:
+                                            contact.raw_phone_number?.trim() || "",
+                                          optInConfirmed:
+                                            detail.recipient_opt_in_confirmed,
+                                        });
+                                      }}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                      Correct
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             ))}

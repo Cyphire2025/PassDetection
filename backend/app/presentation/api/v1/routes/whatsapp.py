@@ -201,6 +201,12 @@ class WhatsAppRejectedContactListResponse(BaseModel):
     offset: int
 
 
+class WhatsAppRejectedContactResolveRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    phone_number: str = Field(min_length=1, max_length=64)
+    recipient_opt_in_confirmed: bool
+
+
 class WhatsAppSupportContactInput(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     phone_number: str = Field(min_length=6, max_length=64)
@@ -2419,6 +2425,145 @@ async def list_broadcast_rejected_contacts(
         limit=limit,
         offset=offset,
     )
+
+
+@router.post(
+    "/groups/{group_id}/rejected-contacts/{rejected_contact_id}/resolve",
+    response_model=WhatsAppBroadcastGroupDetailResponse,
+)
+async def resolve_broadcast_rejected_contact(
+    group_id: uuid.UUID,
+    rejected_contact_id: uuid.UUID,
+    body: WhatsAppRejectedContactResolveRequest,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBroadcastGroupDetailResponse:
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    rejected_result = await session.execute(
+        select(WhatsAppBroadcastRejectedContactModel)
+        .where(
+            WhatsAppBroadcastRejectedContactModel.id == rejected_contact_id,
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group.id,
+        )
+        .with_for_update()
+    )
+    rejected_contact = rejected_result.scalar_one_or_none()
+    if not rejected_contact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Rejected WhatsApp contact not found",
+        )
+
+    name = _clean_name(body.name)
+    if not name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Recipient name is required",
+        )
+    normalized_phone = _normalize_phone(body.phone_number)
+    if not normalized_phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Use a 10-digit Indian mobile number, or an international number "
+                "of 8 to 15 digits with its country code"
+            ),
+        )
+    if not body.recipient_opt_in_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirm this recipient agreed to receive WhatsApp updates",
+        )
+
+    existing_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.normalized_phone_number
+            == normalized_phone,
+        )
+        .with_for_update()
+    )
+    existing_recipient = existing_result.scalar_one_or_none()
+    if existing_recipient and existing_recipient.removed_at is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="That WhatsApp number is already in the valid recipient list",
+        )
+
+    if not existing_recipient:
+        active_count_result = await session.execute(
+            select(func.count())
+            .select_from(WhatsAppBroadcastRecipientModel)
+            .where(
+                WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            )
+        )
+        if int(active_count_result.scalar_one()) >= MAX_WHATSAPP_RECIPIENTS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "This WhatsApp list already contains the maximum of "
+                    f"{MAX_WHATSAPP_RECIPIENTS} valid recipients"
+                ),
+            )
+
+    now = datetime.now(tz=UTC)
+    imported_fields = {
+        "source_file": rejected_contact.source_file_name,
+        "source_sheet": rejected_contact.sheet_name,
+        "source_row": str(rejected_contact.row_number),
+    }
+    if existing_recipient:
+        existing_recipient.name = name
+        existing_recipient.phone_number = body.phone_number.strip()
+        existing_recipient.imported_fields = imported_fields
+        existing_recipient.removed_at = None
+        await session.execute(
+            delete(WhatsAppRecipientMessageStateModel).where(
+                WhatsAppRecipientMessageStateModel.recipient_id
+                == existing_recipient.id,
+            )
+        )
+    else:
+        session.add(
+            WhatsAppBroadcastRecipientModel(
+                broadcast_group_id=group.id,
+                agency_id=group.agency_id,
+                name=name,
+                phone_number=body.phone_number.strip(),
+                normalized_phone_number=normalized_phone,
+                imported_fields=imported_fields,
+                created_at=now,
+            )
+        )
+
+    await session.execute(
+        delete(WhatsAppBroadcastRejectedContactModel).where(
+            WhatsAppBroadcastRejectedContactModel.id == rejected_contact.id,
+        )
+    )
+    group.recipient_opt_in_confirmed_at = (
+        group.recipient_opt_in_confirmed_at or now
+    )
+    group.updated_at = now
+    await session.flush()
+    return await _group_detail(session, group)
 
 
 @router.post(

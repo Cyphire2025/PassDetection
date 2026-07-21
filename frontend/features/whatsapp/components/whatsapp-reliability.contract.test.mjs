@@ -156,6 +156,16 @@ test("saved rejected contacts are lazy-loaded and paginated from the recipient l
   assert.match(pageSource, /Next/);
 });
 
+test("saved rejected contacts can be corrected into unsent recipients", () => {
+  assert.match(endpointsSource, /rejected-contacts\/\$\{rejectedContactId\}\/resolve/);
+  assert.match(apiSource, /resolveRejectedContact: async/);
+  assert.match(apiSource, /recipient_opt_in_confirmed: recipientOptInConfirmed/);
+  assert.match(hooksSource, /useResolveWhatsAppRejectedContact/);
+  assert.match(pageSource, /Save and add/);
+  assert.match(pageSource, /Recipient agreed to WhatsApp updates/);
+  assert.match(pageSource, /added to the valid recipient list as Not sent/);
+});
+
 test("message preview remains unsendable while the latest approved rendering loads", () => {
   assert.match(
     pageSource,
