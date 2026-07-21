@@ -149,3 +149,23 @@ test("surname may be blank while every other canonical field remains required", 
     "single and family submissions must use the explicit-empty-aware cleaner",
   );
 });
+
+test("public upload entry uses Global Connect branding and requested copy", () => {
+  assert.match(
+    source,
+    /import \{ BrandLogo \} from "@\/components\/brand\/brand-logo";/,
+  );
+  assert.match(source, /<BrandLogo[\s\S]*?priority[\s\S]*?\/>/);
+  assert.match(
+    source,
+    /Global Connect Travels has requested passport details for/,
+  );
+  assert.match(
+    source,
+    /title=\{file \? "Visa Photo ready" : "Upload Photo for Visa"\}/,
+  );
+  assert.doesNotMatch(
+    source,
+    /Your travel agency has requested passport details for|Capture Visa Photo/,
+  );
+});

@@ -26,6 +26,7 @@ import {
   cleanPassportReviewFields as cleanReviewFields,
 } from "@/features/passports/utils/passport-review";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { previousPassportIsoDate } from "@/lib/utils/passport-date";
@@ -2075,11 +2076,12 @@ function isMissingSavedSubmissionError(error: unknown) {
 function UploadHeader({ groupName }: { groupName: string }) {
   return (
     <div className="mb-5 text-center sm:mb-8 lg:mb-10">
-      <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-600/30 sm:mb-6 sm:h-14 sm:w-14">
-        <Users className="h-7 w-7 text-white" />
-      </div>
+      <BrandLogo
+        className="mx-auto mb-4 h-16 w-[240px] sm:mb-6 sm:h-20 sm:w-[300px]"
+        priority
+      />
       <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:mb-3 sm:text-3xl">Upload Passport</h1>
-      <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">Your travel agency has requested passport details for</p>
+      <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">Global Connect Travels has requested passport details for</p>
       <div className="mt-2 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-600">
         <span className="truncate">{groupName}</span>
       </div>
@@ -2104,7 +2106,7 @@ function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () =>
     <div className="relative">
       <ChoiceCard
         icon={file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
-        title={file ? "Visa Photo ready" : "Capture Visa Photo"}
+        title={file ? "Visa Photo ready" : "Upload Photo for Visa"}
         description={file
           ? "Original Visa Photo captured after live checks. Tap to retake it."
           : "Required. Use a plain white or off-white wall; capture unlocks when photo checks pass."}
