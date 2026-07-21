@@ -1368,7 +1368,7 @@ def test_explicit_resend_route_is_role_gated_and_returns_send_contract() -> None
 
 
 @pytest.mark.asyncio
-async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledger(
+async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     group_id = uuid.uuid4()
@@ -1377,11 +1377,13 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
     group = SimpleNamespace(
         id=group_id,
         agency_id=agency_id,
+        name="Thailand",
         recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
     )
     recipient = SimpleNamespace(
         id=recipient_id,
         agency_id=agency_id,
+        name="Aarav Sharma",
         normalized_phone_number="+919876543210",
         removed_at=None,
     )
@@ -1390,18 +1392,15 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
         id=uuid.uuid4(),
         status="delivered",
         message_type="welcome",
-        template_name="welcome_template",
+        template_name="legacy_welcome_v2",
         rendered_message=render_message(
             message_type="welcome",
             group_name="Thailand",
             support_contacts="Aman: +919876543211",
             message_content="Original trip message",
         ),
-        header_parameter_values=[],
-        template_parameter_values=[
-            "Original trip message",
-            "Aman: +919876543211",
-        ],
+        header_parameter_values=["media-original"],
+        template_parameter_values=["Original trip message"],
     )
 
     def scalar_result(value: object) -> MagicMock:
@@ -1419,6 +1418,7 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
         MagicMock(),
         scalar_result(None),
         scalar_result(source_log),
+        MagicMock(),
     ]
     audit_record = AsyncMock()
     queue_message = MagicMock()
@@ -1436,7 +1436,7 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
     settings = SimpleNamespace(
         whatsapp_access_token="token",
         whatsapp_phone_number_id="phone-id",
-        whatsapp_welcome_template_name="welcome_template",
+        whatsapp_welcome_template_name="welcome_v3",
         whatsapp_passport_link_template_name="passport_template",
     )
     monkeypatch.setattr(
@@ -1453,7 +1453,10 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
     response = await resend_recipient_message(
         group_id=group_id,
         recipient_id=recipient_id,
-        body=WhatsAppResendRequest(message_type="welcome"),
+        body=WhatsAppResendRequest(
+            message_type="welcome",
+            message_content="Edited trip message",
+        ),
         request=Request({"type": "http", "client": ("127.0.0.1", 1234)}),
         current_user=current_user,
         session=session,
@@ -1463,10 +1466,9 @@ async def test_resend_endpoint_queues_one_frozen_message_without_reclaiming_ledg
     assert response.results[0].recipient_id == recipient_id
     queued_log = session.add.call_args.args[0]
     assert queued_log.is_explicit_resend is True
-    assert queued_log.template_parameter_values == [
-        "Original trip message",
-        "Aman: +919876543211",
-    ]
+    assert queued_log.template_name == "welcome_v3"
+    assert queued_log.template_parameter_values == ["Edited trip message"]
+    assert queued_log.header_parameter_values == ["media-original"]
     assert state.status == "delivered"
     queue_message.assert_called_once()
     audit_record.assert_awaited_once()
@@ -1565,11 +1567,13 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     group = SimpleNamespace(
         id=group_id,
         agency_id=agency_id,
+        name="Thailand",
         recipient_opt_in_confirmed_at=datetime.now(tz=UTC),
     )
     recipient = SimpleNamespace(
         id=recipient_id,
         agency_id=agency_id,
+        name="Aarav Sharma",
         normalized_phone_number="+919876543210",
         removed_at=None,
     )
@@ -1585,11 +1589,8 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
             support_contacts="Aman: +919876543211",
             message_content="Original trip message",
         ),
-        header_parameter_values=[],
-        template_parameter_values=[
-            "Original trip message",
-            "Aman: +919876543211",
-        ],
+        header_parameter_values=["media-original"],
+        template_parameter_values=["Original trip message"],
     )
 
     def scalar_result(value: object) -> MagicMock:
@@ -1607,6 +1608,7 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
         MagicMock(),
         scalar_result(None),
         scalar_result(source_log),
+        MagicMock(),
     ]
     monkeypatch.setattr(
         "app.presentation.api.v1.routes.whatsapp.AuditLogRepository.record",

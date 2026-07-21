@@ -81,8 +81,9 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
         self.assertEqual(
             template_header_parameters(
                 message_type="passport_link",
+                header_image_id="passport-media-123",
             ),
-            [],
+            ["passport-media-123"],
         )
         parameters = template_parameters(
             message_type="passport_link",
@@ -105,9 +106,39 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
         )
         validate_template_parameters(
             message_type="passport_link",
-            header_parameters=[],
+            header_parameters=["passport-media-123"],
             body_parameters=parameters,
         )
+
+    def test_passport_intro_is_editable_without_changing_meta_parameter_order(self) -> None:
+        parameters = template_parameters(
+            message_type="passport_link",
+            group_name="Original group name",
+            passport_intro="Upload the requested travel documents for the Vietnam tour.",
+            passport_link="https://travel.example/upload/abc",
+            support_contacts="Raman Jha: +91 98187 52221",
+            message_content="Please complete every required field.",
+        )
+        rendered = render_message(
+            message_type="passport_link",
+            group_name="Original group name",
+            passport_intro=parameters[0],
+            passport_link=parameters[1],
+            message_content=parameters[2],
+            support_contacts=parameters[3],
+        )
+
+        self.assertEqual(
+            parameters,
+            [
+                "Upload the requested travel documents for the Vietnam tour.",
+                "https://travel.example/upload/abc",
+                "Please complete every required field.",
+                "Raman Jha: +91 98187 52221",
+            ],
+        )
+        self.assertIn(parameters[0], rendered)
+        self.assertNotIn(passport_link_intro("Original group name"), rendered)
 
     def test_passport_preview_matches_approved_fixed_body_text(self) -> None:
         rendered = render_message(

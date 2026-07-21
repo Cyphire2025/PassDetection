@@ -78,16 +78,22 @@ test("approved-template guidance exposes the required image and body positions",
   );
   assert.match(
     pageSource,
+    /Passport link introduction \(BODY \{"\{\{1\}\}"\}\)/,
+  );
+  assert.match(
+    pageSource,
     /Welcome trip message \(BODY \{\{1\}\}\)/,
   );
   assert.match(
     pageSource,
     /Passport instructions \(BODY \{\{3\}\}\)/,
   );
-  assert.match(pageSource, /Welcome image <span className="text-red-600">\*<\/span>/);
-  assert.match(pageSource, /messageType !== "welcome" \|\| welcomeImage/);
-  assert.match(pageSource, /required=\{!welcomeImage\}/);
-  assert.match(apiSource, /header_image_id: uploadedImage\.media_id/);
+  assert.match(pageSource, /\? "Welcome image"\s*: "Passport Link image"/);
+  assert.match(pageSource, /const hasHeaderImage = Boolean\(headerImage \|\| headerImageId\)/);
+  assert.match(pageSource, /required=\{!hasHeaderImage\}/);
+  assert.match(pageSource, /Previously sent image selected/);
+  assert.match(apiSource, /header_image_id: resolvedHeaderImageId/);
+  assert.match(apiSource, /passport_intro: passportIntro/);
 });
 
 test("recipient lists retain and expose imported spreadsheet details", () => {

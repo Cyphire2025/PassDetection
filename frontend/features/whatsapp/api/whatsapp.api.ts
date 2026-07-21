@@ -85,9 +85,12 @@ export type WhatsAppMessageType = "welcome" | "passport_link";
 
 export interface WhatsAppMessageDraft {
   message_type: WhatsAppMessageType;
+  passport_intro?: string | null;
   passport_link?: string | null;
   message_content?: string | null;
   recipient_id?: string | null;
+  resend_recipient_id?: string | null;
+  header_image_id?: string | null;
 }
 
 export interface WhatsAppPreviewResponse {
@@ -100,7 +103,11 @@ export interface WhatsAppPreviewResponse {
   already_sent_count: number;
   in_progress_count: number;
   uncertain_recipient_count: number;
+  passport_intro: string | null;
+  passport_link: string | null;
   message_content: string;
+  header_image_id: string | null;
+  content_source: "default" | "latest_group" | "latest_recipient";
   rendered_message: string;
   header_parameter_values: string[];
   parameter_values: string[];
@@ -288,14 +295,35 @@ export const whatsappApi = {
     groupId,
     recipientId,
     messageType,
+    passportIntro,
+    passportLink,
+    messageContent,
+    image,
+    headerImageId,
   }: {
     groupId: string;
     recipientId: string;
     messageType: WhatsAppMessageType;
+    passportIntro: string;
+    passportLink: string;
+    messageContent: string;
+    image: File | null;
+    headerImageId: string | null;
   }): Promise<WhatsAppSendResponse> => {
+    const resolvedHeaderImageId = image
+      ? (await uploadWelcomeImage(groupId, image)).media_id
+      : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.resendRecipientMessage(groupId, recipientId),
-      { message_type: messageType },
+      {
+        message_type: messageType,
+        passport_intro:
+          messageType === "passport_link" ? passportIntro : null,
+        passport_link:
+          messageType === "passport_link" ? passportLink : null,
+        message_content: messageContent,
+        header_image_id: resolvedHeaderImageId,
+      },
     );
     return data;
   },
@@ -318,26 +346,37 @@ export const whatsappApi = {
   sendWelcome: async (
     groupId: string,
     messageContent: string,
-    image: File,
+    image: File | null,
+    headerImageId: string | null,
   ): Promise<WhatsAppSendResponse> => {
-    const uploadedImage = await uploadWelcomeImage(groupId, image);
+    const resolvedHeaderImageId = image
+      ? (await uploadWelcomeImage(groupId, image)).media_id
+      : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
       message_type: "welcome",
       message_content: messageContent,
-      header_image_id: uploadedImage.media_id,
+      header_image_id: resolvedHeaderImageId,
     });
     return data;
   },
 
   sendPassportLink: async (
     groupId: string,
+    passportIntro: string,
     passportLink: string,
     messageContent: string,
+    image: File | null,
+    headerImageId: string | null,
   ): Promise<WhatsAppSendResponse> => {
+    const resolvedHeaderImageId = image
+      ? (await uploadWelcomeImage(groupId, image)).media_id
+      : headerImageId;
     const { data } = await apiClient.post<WhatsAppSendResponse>(API_ENDPOINTS.whatsapp.send(groupId), {
       message_type: "passport_link",
+      passport_intro: passportIntro,
       passport_link: passportLink,
       message_content: messageContent,
+      header_image_id: resolvedHeaderImageId,
     });
     return data;
   },

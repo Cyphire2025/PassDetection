@@ -19,7 +19,7 @@ const endpointSource = readFileSync(
   "utf8",
 );
 
-test("resend API targets exactly one recipient and sends only the selected message type", () => {
+test("resend API targets exactly one recipient with the edited composer draft", () => {
   assert.match(
     endpointSource,
     /groups\/\$\{groupId\}\/recipients\/\$\{recipientId\}\/resend/,
@@ -30,8 +30,12 @@ test("resend API targets exactly one recipient and sends only the selected messa
   const resendApi = apiSource.slice(start, end);
   assert.ok(start >= 0);
   assert.ok(end > start);
-  assert.match(resendApi, /\{ message_type: messageType \}/);
-  assert.doesNotMatch(resendApi, /passport_link:\s|message_content:\s/);
+  assert.match(resendApi, /message_type: messageType/);
+  assert.match(resendApi, /passport_intro:/);
+  assert.match(resendApi, /passport_link:/);
+  assert.match(resendApi, /message_content: messageContent/);
+  assert.match(resendApi, /header_image_id: resolvedHeaderImageId/);
+  assert.match(resendApi, /uploadWelcomeImage\(groupId, image\)/);
 });
 
 test("recipient details refresh after an accepted resend request", () => {
@@ -68,15 +72,17 @@ test("only already-sent welcome and passport messages expose per-message resend"
   );
 });
 
-test("resend requires named confirmation and is protected from double submission", () => {
-  assert.match(pageSource, /title=\{`Resend \$\{formatMessageType/);
+test("resend opens the shared editor for one named recipient and is protected from double submission", () => {
+  assert.match(pageSource, /<MessagePreviewDialog/);
+  assert.match(pageSource, /targetRecipient=\{recipientToResend\}/);
+  assert.match(pageSource, /targetRecipient \? "Resend" : "Preview"/);
   assert.match(
     pageSource,
-    /No other recipient will receive it\./,
+    /No other recipient will\s+receive this resend\./,
   );
   assert.match(
     pageSource,
-    /same passport link that was previously sent; ensure that link is still active/,
+    /resend_recipient_id: targetRecipient\?\.recipientId \?\? null/,
   );
   assert.match(
     pageSource,
@@ -84,6 +90,18 @@ test("resend requires named confirmation and is protected from double submission
   );
   assert.match(pageSource, /resendInFlightRef\.current = true/);
   assert.match(pageSource, /resendInFlightRef\.current = false/);
+  assert.match(pageSource, /Resend to \$\{targetRecipient\.recipientName\}/);
+});
+
+test("opening the resend editor replaces the recipient-list modal instead of stacking two dialogs", () => {
+  const start = pageSource.indexOf("function RecipientListDialog");
+  const end = pageSource.indexOf("function DeliveryBadge", start);
+  const recipientDialog = pageSource.slice(start, end);
+
+  assert.ok(start >= 0);
+  assert.ok(end > start);
+  assert.match(recipientDialog, /!recipientToResend && \(\s*<DialogFrame/);
+  assert.match(recipientDialog, /recipientToResend && \(\s*<MessagePreviewDialog/);
 });
 
 test("resend refreshes blocked delivery state and announces success or failure", () => {

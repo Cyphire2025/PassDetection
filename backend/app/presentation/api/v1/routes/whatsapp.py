@@ -252,17 +252,19 @@ class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
 
 class WhatsAppSendRequest(BaseModel):
     message_type: str = Field(pattern="^(welcome|passport_link)$")
+    passport_intro: str | None = Field(default=None, max_length=600)
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
     header_image_id: str | None = Field(default=None, max_length=255)
 
 
-class WhatsAppResendRequest(BaseModel):
-    message_type: str = Field(pattern="^(welcome|passport_link)$")
+class WhatsAppResendRequest(WhatsAppSendRequest):
+    pass
 
 
 class WhatsAppPreviewRequest(WhatsAppSendRequest):
     recipient_id: uuid.UUID | None = None
+    resend_recipient_id: uuid.UUID | None = None
 
 
 class WhatsAppPreviewResponse(BaseModel):
@@ -275,7 +277,11 @@ class WhatsAppPreviewResponse(BaseModel):
     already_sent_count: int
     in_progress_count: int
     uncertain_recipient_count: int
+    passport_intro: str | None
+    passport_link: str | None
     message_content: str
+    header_image_id: str | None
+    content_source: Literal["default", "latest_group", "latest_recipient"]
     rendered_message: str
     header_parameter_values: list[str]
     parameter_values: list[str]
@@ -305,6 +311,15 @@ class WhatsAppSendResponse(BaseModel):
     skipped_in_progress: int = 0
     skipped_delivery_unknown: int = 0
     results: list[WhatsAppSendResult]
+
+
+@dataclass(frozen=True, slots=True)
+class _WhatsAppComposerSnapshot:
+    log: WhatsAppMessageLogModel
+    passport_intro: str | None
+    passport_link: str | None
+    message_content: str
+    header_image_id: str | None
 
 
 class WhatsAppWebhookAck(BaseModel):
@@ -642,6 +657,42 @@ def _resolve_send_message_content(
             ),
         )
     return content
+
+
+def _resolve_passport_intro(value: str | None, *, group_name: str) -> str:
+    if value is None:
+        return passport_link_intro(group_name)
+    return value.strip()
+
+
+def _resolve_send_passport_intro(value: str | None, *, group_name: str) -> str:
+    intro = _resolve_passport_intro(value, group_name=group_name)
+    if not intro:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "Enter the passport-link introduction before sending. "
+                "Meta requires BODY {{1}} to contain text."
+            ),
+        )
+    return intro
+
+
+def _resolve_send_header_image(
+    message_type: WhatsAppMessageType,
+    value: str | None,
+    *,
+    resend: bool = False,
+) -> str:
+    media_id = (value or "").strip()
+    if media_id:
+        return media_id
+    action = "resending" if resend else "sending"
+    label = "Welcome" if message_type == "welcome" else "Passport Link"
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Upload the required {label} image before {action}",
+    )
 
 
 def _validate_passport_link(value: str | None, *, allow_placeholder: bool = False) -> str:
@@ -1935,12 +1986,26 @@ def _message_values(
     support_contacts: list[WhatsAppBroadcastSupportContactModel],
     body: WhatsAppSendRequest,
     preview: bool = False,
-) -> tuple[WhatsAppMessageType, str, str, str, list[str], list[str]]:
+) -> tuple[
+    WhatsAppMessageType,
+    str | None,
+    str | None,
+    str,
+    str,
+    str,
+    list[str],
+    list[str],
+]:
     message_type = _as_message_type(body.message_type)
     message_content = _resolve_message_content(
         message_type,
         body.message_content,
         group_name=group.name,
+    )
+    passport_intro = (
+        _resolve_passport_intro(body.passport_intro, group_name=group.name)
+        if message_type == "passport_link"
+        else None
     )
     passport_link = (
         _validate_passport_link(body.passport_link, allow_placeholder=preview)
@@ -1957,10 +2022,11 @@ def _message_values(
         support_contacts=support_block,
         message_content=message_content,
         passport_link=passport_link,
+        passport_intro=passport_intro,
     )
     header_parameters = template_header_parameters(
         message_type=message_type,
-        welcome_image_id=body.header_image_id,
+        header_image_id=body.header_image_id,
     )
     parameters = template_parameters(
         message_type=message_type,
@@ -1968,8 +2034,18 @@ def _message_values(
         support_contacts=support_block,
         message_content=message_content,
         passport_link=passport_link,
+        passport_intro=passport_intro,
     )
-    return message_type, message_content, recipient_name, rendered, header_parameters, parameters
+    return (
+        message_type,
+        passport_intro,
+        passport_link,
+        message_content,
+        recipient_name,
+        rendered,
+        header_parameters,
+        parameters,
+    )
 
 
 def _split_rendered_support_block(rendered_body: str) -> tuple[str, str]:
@@ -2094,6 +2170,104 @@ def _template_snapshot_from_log(
         body_parameters=parameters,
     )
     return header_parameters, parameters
+
+
+def _composer_snapshot_from_log(
+    log: WhatsAppMessageLogModel,
+) -> _WhatsAppComposerSnapshot:
+    header_parameters, parameters = _template_snapshot_from_log(log)
+    header_image_id = header_parameters[0] if header_parameters else None
+    if log.message_type == "welcome":
+        return _WhatsAppComposerSnapshot(
+            log=log,
+            passport_intro=None,
+            passport_link=None,
+            message_content=parameters[0],
+            header_image_id=header_image_id,
+        )
+    return _WhatsAppComposerSnapshot(
+        log=log,
+        passport_intro=parameters[0],
+        passport_link=parameters[1],
+        message_content=parameters[2],
+        header_image_id=header_image_id,
+    )
+
+
+async def _latest_composer_snapshot(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    message_type: WhatsAppMessageType,
+    recipient_id: uuid.UUID | None = None,
+    accepted_only: bool = True,
+    include_explicit_resends: bool = False,
+) -> _WhatsAppComposerSnapshot | None:
+    reusable_statuses = (
+        WHATSAPP_ACCEPTED_STATUSES
+        if accepted_only
+        else WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES
+    )
+    predicates: list[Any] = [
+        WhatsAppMessageLogModel.broadcast_group_id == group_id,
+        WhatsAppMessageLogModel.message_type == message_type,
+        WhatsAppMessageLogModel.status.in_(reusable_statuses),
+    ]
+    if recipient_id is not None:
+        predicates.append(WhatsAppMessageLogModel.recipient_id == recipient_id)
+    if not include_explicit_resends:
+        predicates.append(WhatsAppMessageLogModel.is_explicit_resend.is_(False))
+    result = await session.execute(
+        select(WhatsAppMessageLogModel)
+        .where(*predicates)
+        .order_by(
+            WhatsAppMessageLogModel.created_at.desc(),
+            WhatsAppMessageLogModel.status_updated_at.desc(),
+        )
+        .limit(20)
+    )
+    for log in result.scalars().all():
+        try:
+            return _composer_snapshot_from_log(log)
+        except ValueError:
+            logger.warning(
+                "whatsapp_composer_snapshot_ignored",
+                extra={
+                    "message_log_id": str(log.id),
+                    "message_type": message_type,
+                },
+            )
+    return None
+
+
+def _merge_composer_snapshot(
+    body: WhatsAppSendRequest,
+    snapshot: _WhatsAppComposerSnapshot | None,
+) -> WhatsAppSendRequest:
+    message_type = _as_message_type(body.message_type)
+    return WhatsAppSendRequest(
+        message_type=message_type,
+        passport_intro=(
+            body.passport_intro
+            if body.passport_intro is not None
+            else snapshot.passport_intro if snapshot else None
+        ),
+        passport_link=(
+            body.passport_link
+            if body.passport_link is not None
+            else snapshot.passport_link if snapshot else None
+        ),
+        message_content=(
+            body.message_content
+            if body.message_content is not None
+            else snapshot.message_content if snapshot else None
+        ),
+        header_image_id=(
+            body.header_image_id
+            if body.header_image_id is not None
+            else snapshot.header_image_id if snapshot else None
+        ),
+    )
 
 
 @router.post(
@@ -2330,9 +2504,18 @@ async def preview_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This WhatsApp list has no recipients",
         )
+    if body.recipient_id and body.resend_recipient_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Choose either a preview recipient or a resend recipient, not both",
+        )
     recipient = recipients[0]
-    if body.recipient_id:
-        selected = next((item for item in recipients if item.id == body.recipient_id), None)
+    selected_recipient_id = body.resend_recipient_id or body.recipient_id
+    if selected_recipient_id:
+        selected = next(
+            (item for item in recipients if item.id == selected_recipient_id),
+            None,
+        )
         if not selected:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -2340,26 +2523,72 @@ async def preview_broadcast_message(
             )
         recipient = selected
 
+    message_type = _as_message_type(body.message_type)
+    snapshot: _WhatsAppComposerSnapshot | None = None
+    content_source: Literal["default", "latest_group", "latest_recipient"] = "default"
+    if body.resend_recipient_id:
+        snapshot = await _latest_composer_snapshot(
+            session,
+            group_id=group.id,
+            recipient_id=body.resend_recipient_id,
+            message_type=message_type,
+            accepted_only=True,
+            include_explicit_resends=True,
+        )
+        if snapshot:
+            content_source = "latest_recipient"
+    if snapshot is None and body.resend_recipient_id is None:
+        snapshot = await _latest_composer_snapshot(
+            session,
+            group_id=group.id,
+            message_type=message_type,
+            accepted_only=True,
+        )
+        if snapshot:
+            content_source = "latest_group"
+    if body.resend_recipient_id is not None and snapshot is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No successfully submitted message is available to resend for this recipient",
+        )
+    resolved_body = _merge_composer_snapshot(body, snapshot)
     support_contacts = await _support_contacts_for_group(session, group.id)
-    message_type, message_content, recipient_name, rendered, header_parameters, parameters = (
+    (
+        message_type,
+        passport_intro,
+        passport_link,
+        message_content,
+        recipient_name,
+        rendered,
+        header_parameters,
+        parameters,
+    ) = (
         _message_values(
             group=group,
             recipient=recipient,
             support_contacts=support_contacts,
-            body=body,
+            body=resolved_body,
             preview=True,
         )
     )
-    (
-        eligible_count,
-        already_sent_count,
-        in_progress_count,
-        uncertain_count,
-    ) = await _recipient_delivery_counts(
-        session,
-        recipients=recipients,
-        message_type=message_type,
-    )
+    if body.resend_recipient_id is not None:
+        recipient_count = 1
+        eligible_count = 1
+        already_sent_count = 1
+        in_progress_count = 0
+        uncertain_count = 0
+    else:
+        recipient_count = len(recipients)
+        (
+            eligible_count,
+            already_sent_count,
+            in_progress_count,
+            uncertain_count,
+        ) = await _recipient_delivery_counts(
+            session,
+            recipients=recipients,
+            message_type=message_type,
+        )
     settings = get_settings()
     template_name = (
         settings.whatsapp_welcome_template_name
@@ -2371,12 +2600,16 @@ async def preview_broadcast_message(
         template_name=template_name,
         recipient_id=recipient.id,
         recipient_name=recipient_name,
-        recipient_count=len(recipients),
+        recipient_count=recipient_count,
         eligible_recipient_count=eligible_count,
         already_sent_count=already_sent_count,
         in_progress_count=in_progress_count,
         uncertain_recipient_count=uncertain_count,
+        passport_intro=passport_intro,
+        passport_link=(resolved_body.passport_link or "").strip() or None,
         message_content=message_content,
+        header_image_id=(resolved_body.header_image_id or "").strip() or None,
+        content_source=content_source,
         rendered_message=rendered,
         header_parameter_values=header_parameters,
         parameter_values=parameters,
@@ -2950,8 +3183,8 @@ async def resend_recipient_message(
             WhatsAppMessageLogModel.status.in_(WHATSAPP_ACCEPTED_STATUSES),
         )
         .order_by(
-            WhatsAppMessageLogModel.status_updated_at.desc(),
             WhatsAppMessageLogModel.created_at.desc(),
+            WhatsAppMessageLogModel.status_updated_at.desc(),
         )
         .limit(1)
     )
@@ -2962,7 +3195,7 @@ async def resend_recipient_message(
             detail="The previously submitted WhatsApp message could not be found",
         )
     try:
-        header_parameters, parameters = _template_snapshot_from_log(source_log)
+        source_snapshot = _composer_snapshot_from_log(source_log)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -2983,7 +3216,59 @@ async def resend_recipient_message(
         if message_type == "welcome"
         else settings.whatsapp_passport_link_template_name
     )
-    template_name = (source_log.template_name or configured_template_name).strip()
+    merged_body = _merge_composer_snapshot(body, source_snapshot)
+    header_image_id = _resolve_send_header_image(
+        message_type,
+        merged_body.header_image_id,
+        resend=True,
+    )
+    support_contacts = await _support_contacts_for_group(session, group.id)
+    if message_type == "passport_link" and not support_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add customer support contacts before resending this message",
+        )
+    message_content = _resolve_send_message_content(
+        message_type,
+        merged_body.message_content,
+        group_name=group.name,
+    )
+    passport_intro = (
+        _resolve_send_passport_intro(
+            merged_body.passport_intro,
+            group_name=group.name,
+        )
+        if message_type == "passport_link"
+        else None
+    )
+    passport_link = (
+        _validate_passport_link(merged_body.passport_link)
+        if message_type == "passport_link"
+        else None
+    )
+    resolved_body = WhatsAppSendRequest(
+        message_type=message_type,
+        passport_intro=passport_intro,
+        passport_link=passport_link,
+        message_content=message_content,
+        header_image_id=header_image_id,
+    )
+    (
+        _,
+        _,
+        _,
+        _,
+        _,
+        rendered_message,
+        header_parameters,
+        parameters,
+    ) = _message_values(
+        group=group,
+        recipient=recipient,
+        support_contacts=support_contacts,
+        body=resolved_body,
+    )
+    template_name = configured_template_name.strip()
     if not template_name:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -3002,7 +3287,7 @@ async def resend_recipient_message(
         provider_message_id=None,
         error_message=None,
         template_name=template_name,
-        rendered_message=source_log.rendered_message,
+        rendered_message=rendered_message,
         header_parameter_values=header_parameters,
         template_parameter_values=parameters,
         is_explicit_resend=True,
@@ -3044,10 +3329,11 @@ async def resend_recipient_message(
                 "batch_id": str(batch_id),
                 "message_type": message_type,
                 "message_content": parameters[0] if message_type == "welcome" else parameters[2],
+                "passport_intro": parameters[0] if message_type == "passport_link" else None,
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
                 "header_image_id": (
                     header_parameters[0]
-                    if message_type == "welcome" and header_parameters
+                    if header_parameters
                     else None
                 ),
             },
@@ -3208,20 +3494,29 @@ async def send_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Add customer support contacts before sending this message",
         )
-    if message_type == "welcome" and not (body.header_image_id or "").strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Upload the required Welcome image before sending",
-        )
-    if message_type == "passport_link" and body.header_image_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The passport-link template does not accept a header image",
-        )
+    snapshot = await _latest_composer_snapshot(
+        session,
+        group_id=group.id,
+        message_type=message_type,
+        accepted_only=True,
+    )
+    merged_body = _merge_composer_snapshot(body, snapshot)
+    header_image_id = _resolve_send_header_image(
+        message_type,
+        merged_body.header_image_id,
+    )
     message_content = _resolve_send_message_content(
         message_type,
-        body.message_content,
+        merged_body.message_content,
         group_name=group.name,
+    )
+    passport_intro = (
+        _resolve_send_passport_intro(
+            merged_body.passport_intro,
+            group_name=group.name,
+        )
+        if message_type == "passport_link"
+        else None
     )
     settings = get_settings()
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
@@ -3241,17 +3536,16 @@ async def send_broadcast_message(
         )
 
     passport_link = (
-        _validate_passport_link(body.passport_link) if message_type == "passport_link" else None
+        _validate_passport_link(merged_body.passport_link)
+        if message_type == "passport_link"
+        else None
     )
     resolved_body = WhatsAppSendRequest(
         message_type=message_type,
+        passport_intro=passport_intro,
         passport_link=passport_link,
         message_content=message_content,
-        header_image_id=(
-            body.header_image_id.strip()
-            if message_type == "welcome" and body.header_image_id
-            else None
-        ),
+        header_image_id=header_image_id,
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
@@ -3397,7 +3691,16 @@ async def send_broadcast_message(
 
     results: list[WhatsAppSendResult] = []
     for recipient in claimed_recipients:
-        _, _, _, rendered, header_parameters, parameters = _message_values(
+        (
+            _,
+            _,
+            _,
+            _,
+            _,
+            rendered,
+            header_parameters,
+            parameters,
+        ) = _message_values(
             group=group,
             recipient=recipient,
             support_contacts=support_contacts,
@@ -3439,6 +3742,7 @@ async def send_broadcast_message(
                 "batch_id": str(batch_id),
                 "message_type": message_type,
                 "message_content": message_content,
+                "passport_intro": passport_intro,
                 "passport_link": passport_link,
                 "header_image_id": resolved_body.header_image_id,
             },

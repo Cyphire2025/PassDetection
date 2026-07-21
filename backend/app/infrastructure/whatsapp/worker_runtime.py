@@ -180,6 +180,7 @@ async def run_whatsapp_broadcast(
     message_content: str,
     passport_link: str | None,
     header_image_id: str | None = None,
+    passport_intro: str | None = None,
 ) -> None:
     parsed_batch_id = uuid.UUID(batch_id)
     settings = get_settings()
@@ -335,10 +336,11 @@ async def run_whatsapp_broadcast(
                     support_contacts=support_block,
                     message_content=message_content,
                     passport_link=passport_link,
+                    passport_intro=passport_intro,
                 )
                 fallback_header_parameters = template_header_parameters(
                     message_type=message_type,
-                    welcome_image_id=header_image_id,
+                    header_image_id=header_image_id,
                 )
                 try:
                     header_parameters, parameters = _resolve_log_template_snapshot(

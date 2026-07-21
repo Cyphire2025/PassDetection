@@ -149,11 +149,7 @@ async def send_whatsapp_template(
         components.append(
             {
                 "type": "header",
-                "parameters": (
-                    [_image_parameter(header_parameters[0])]
-                    if message_type == "welcome"
-                    else [_text_parameter(parameter) for parameter in header_parameters]
-                ),
+                "parameters": [_image_parameter(header_parameters[0])],
             }
         )
     if parameters:

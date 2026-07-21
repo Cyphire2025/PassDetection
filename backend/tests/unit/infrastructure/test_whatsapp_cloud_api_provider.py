@@ -146,7 +146,7 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Invalid parameter", str(raised.exception))
         self.assertIn("Meta rejected this template message", str(raised.exception))
 
-    async def test_passport_payload_has_one_body_component_with_four_parameters(self) -> None:
+    async def test_passport_payload_has_image_header_and_four_body_parameters(self) -> None:
         response = types.SimpleNamespace(
             status_code=200,
             json=lambda: {"messages": [{"id": "wamid.passport-123"}]},
@@ -166,16 +166,25 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             template_name="approved_passport_template",
             message_type="passport_link",
             parameters=parameters,
-            header_parameters=[],
+            header_parameters=["passport-media-123"],
         )
 
         template = client.post.await_args.kwargs["json"]["template"]
         self.assertEqual(
             [component["type"] for component in template["components"]],
-            ["body"],
+            ["header", "body"],
         )
         self.assertEqual(
             template["components"][0]["parameters"],
+            [
+                {
+                    "type": "image",
+                    "image": {"id": "passport-media-123"},
+                }
+            ],
+        )
+        self.assertEqual(
+            template["components"][1]["parameters"],
             [{"type": "text", "text": value} for value in parameters],
         )
 

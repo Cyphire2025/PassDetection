@@ -69,6 +69,7 @@ def render_message(
     support_contacts: str,
     message_content: str,
     passport_link: str | None = None,
+    passport_intro: str | None = None,
 ) -> str:
     """Render the same message a recipient sees after Meta substitutes variables."""
 
@@ -85,7 +86,7 @@ def render_message(
     return (
         f"{STATIC_TEMPLATE_HEADER}\n\n"
         f"{GREETING}\n\n"
-        f"{passport_link_intro(group_name)}\n\n"
+        f"{passport_intro if passport_intro is not None else passport_link_intro(group_name)}\n\n"
         f"{passport_link or '[passport upload link]'}\n\n"
         f"{message_content}\n\n"
         f"{PASSPORT_INFORMATION_NOTICE}\n\n"
@@ -103,13 +104,14 @@ def template_parameters(
     support_contacts: str,
     message_content: str,
     passport_link: str | None = None,
+    passport_intro: str | None = None,
 ) -> list[str]:
     """Return positional BODY variables in the exact Meta template order."""
 
     if message_type == "welcome":
         return [message_content]
     return [
-        passport_link_intro(group_name),
+        passport_intro if passport_intro is not None else passport_link_intro(group_name),
         passport_link or "",
         message_content,
         support_contacts,
@@ -120,11 +122,13 @@ def template_header_parameters(
     *,
     message_type: WhatsAppMessageType,
     welcome_image_id: str | None = None,
+    header_image_id: str | None = None,
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
-    if message_type == "welcome" and welcome_image_id:
-        return [welcome_image_id]
+    resolved_image_id = header_image_id or welcome_image_id
+    if resolved_image_id:
+        return [resolved_image_id]
     return []
 
 
@@ -147,8 +151,13 @@ def validate_template_parameters(
             raise ValueError(
                 "welcome requires one image header and one body parameter"
             )
-    elif header_parameters:
-        raise ValueError("The passport-link WhatsApp template uses a static header")
+    else:
+        is_current_media_template = len(header_parameters) == 1
+        is_legacy_text_template = len(header_parameters) == 0
+        if not (is_current_media_template or is_legacy_text_template):
+            raise ValueError(
+                "passport_link requires one image header for the current template"
+            )
 
     expected_body_count = EXPECTED_BODY_PARAMETER_COUNTS[message_type]
     if (

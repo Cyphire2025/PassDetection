@@ -672,18 +672,28 @@ export function WhatsAppPage() {
           messageType={messageTarget.messageType}
           isSending={sendWelcome.isPending || sendPassportLink.isPending}
           onClose={() => setMessageTarget(null)}
-          onSend={async ({ passportLink, messageContent, welcomeImage }) => {
+          onSend={async ({
+            passportIntro,
+            passportLink,
+            messageContent,
+            headerImage,
+            headerImageId,
+          }) => {
             const result =
               messageTarget.messageType === "welcome"
                 ? await sendWelcome.mutateAsync({
                     groupId: messageTarget.group.id,
                     messageContent,
-                    image: welcomeImage as File,
+                    image: headerImage,
+                    headerImageId,
                   })
                 : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
+                    passportIntro,
                     passportLink,
                     messageContent,
+                    image: headerImage,
+                    headerImageId,
                   });
             setLastSend(result);
             if (result.batch_id && typeof window !== "undefined") {
@@ -1076,7 +1086,13 @@ function RecipientListDialog({
     }
   };
 
-  const resendSelectedMessage = async () => {
+  const resendSelectedMessage = async (payload: {
+    passportIntro: string;
+    passportLink: string;
+    messageContent: string;
+    headerImage: File | null;
+    headerImageId: string | null;
+  }) => {
     if (
       !recipientToResend
       || resendRecipientMessage.isPending
@@ -1093,6 +1109,11 @@ function RecipientListDialog({
         groupId: group.id,
         recipientId: target.recipientId,
         messageType: target.messageType,
+        passportIntro: payload.passportIntro,
+        passportLink: payload.passportLink,
+        messageContent: payload.messageContent,
+        image: payload.headerImage,
+        headerImageId: payload.headerImageId,
       });
       setRecipientToResend(null);
       await refetchGroup();
@@ -1112,7 +1133,6 @@ function RecipientListDialog({
         );
       }
     } catch (resendRequestError) {
-      setRecipientToResend(null);
       setLastResendTarget(null);
       setResendError(
         readErrorMessage(
@@ -1120,6 +1140,7 @@ function RecipientListDialog({
           `Could not resend the ${formatMessageType(target.messageType).toLowerCase()} to ${target.recipientName}.`,
         ),
       );
+      throw resendRequestError;
     } finally {
       resendInFlightRef.current = false;
     }
@@ -1169,19 +1190,19 @@ function RecipientListDialog({
 
   return (
     <>
-      <DialogFrame
-        title={`Recipient List - ${detail?.name ?? group.name}`}
-        onClose={onClose}
-        isBusy={
-          updateGroup.isPending
-          || addRecipientsMutation.isPending
-          || deleteRecipient.isPending
-          || resendRecipientMessage.isPending
-          || Boolean(recipientToRemove)
-          || Boolean(recipientToResend)
-        }
-        widthClass="max-w-5xl"
-      >
+      {!recipientToResend && (
+        <DialogFrame
+          title={`Recipient List - ${detail?.name ?? group.name}`}
+          onClose={onClose}
+          isBusy={
+            updateGroup.isPending
+            || addRecipientsMutation.isPending
+            || deleteRecipient.isPending
+            || resendRecipientMessage.isPending
+            || Boolean(recipientToRemove)
+          }
+          widthClass="max-w-5xl"
+        >
         {loadError ? (
           <ErrorBanner message="The recipient list could not be loaded." />
         ) : isLoading || !detail ? (
@@ -1405,10 +1426,6 @@ function RecipientListDialog({
                               || latestResendStatus === "processing";
                             const needsResendReview =
                               latestResendStatus === "delivery_unknown";
-                            const isSelectedResend =
-                              recipientToResend?.recipientId === recipient.id
-                              && recipientToResend.messageType === messageType;
-
                             return (
                               <td key={messageType} className="px-4 py-3">
                                 <div className="flex flex-wrap items-center gap-2">
@@ -1444,21 +1461,12 @@ function RecipientListDialog({
                                         });
                                       }}
                                     >
-                                      {isSelectedResend
-                                        && resendRecipientMessage.isPending
-                                        ? (
-                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                      ) : (
-                                        <RotateCw className="h-3.5 w-3.5" />
-                                      )}
-                                      {isSelectedResend
-                                            && resendRecipientMessage.isPending
-                                          ? "Sending..."
-                                          : needsResendReview
-                                            ? "Review required"
-                                            : isResendProcessing
-                                              ? "Resending..."
-                                              : "Resend"}
+                                      <RotateCw className="h-3.5 w-3.5" />
+                                      {needsResendReview
+                                        ? "Review required"
+                                        : isResendProcessing
+                                          ? "Resending..."
+                                          : "Resend"}
                                     </button>
                                   )}
                                   {latestResendStatus === "failed" && (
@@ -1749,23 +1757,26 @@ function RecipientListDialog({
             )}
           </div>
         )}
-      </DialogFrame>
+        </DialogFrame>
+      )}
 
-      <ConfirmDialog
-        isOpen={Boolean(recipientToResend)}
-        title={`Resend ${formatMessageType(recipientToResend?.messageType ?? "welcome")}?`}
-        description={getResendConfirmationDescription(recipientToResend)}
-        confirmLabel="Resend Message"
-        isLoading={resendRecipientMessage.isPending}
-        onClose={() => {
-          if (!resendRecipientMessage.isPending && !resendInFlightRef.current) {
-            setRecipientToResend(null);
-          }
-        }}
-        onConfirm={() => {
-          void resendSelectedMessage();
-        }}
-      />
+      {recipientToResend && (
+        <MessagePreviewDialog
+          group={group}
+          messageType={recipientToResend.messageType}
+          targetRecipient={recipientToResend}
+          isSending={resendRecipientMessage.isPending}
+          onClose={() => {
+            if (
+              !resendRecipientMessage.isPending
+              && !resendInFlightRef.current
+            ) {
+              setRecipientToResend(null);
+            }
+          }}
+          onSend={resendSelectedMessage}
+        />
+      )}
 
       <ConfirmDialog
         isOpen={Boolean(recipientToRemove)}
@@ -1849,18 +1860,6 @@ function isWhatsAppMessageType(
   messageType: string,
 ): messageType is WhatsAppMessageType {
   return messageType === "welcome" || messageType === "passport_link";
-}
-
-function getResendConfirmationDescription(
-  target: RecipientResendTarget | null,
-): string {
-  if (!target) return "";
-  const recipient = `${target.recipientName} (${target.phoneNumber})`;
-  const linkWarning =
-    target.messageType === "passport_link"
-      ? " This reuses the same passport link that was previously sent; ensure that link is still active."
-      : "";
-  return `Send the ${formatMessageType(target.messageType)} again to ${recipient}? This intentionally sends only this message to this person. No other recipient will receive it.${linkWarning}`;
 }
 
 function CreateBroadcastDialog({
@@ -2102,56 +2101,63 @@ function CreateBroadcastDialog({
 function MessagePreviewDialog({
   group,
   messageType,
+  targetRecipient,
   isSending,
   onClose,
   onSend,
 }: {
   group: WhatsAppBroadcastGroup;
   messageType: WhatsAppMessageType;
+  targetRecipient?: RecipientResendTarget;
   isSending: boolean;
   onClose: () => void;
   onSend: (payload: {
+    passportIntro: string;
     passportLink: string;
     messageContent: string;
-    welcomeImage: File | null;
+    headerImage: File | null;
+    headerImageId: string | null;
   }) => Promise<void>;
 }) {
   const { data: detail, isLoading: isLoadingDetail } = useWhatsAppGroup(
     group.id,
   );
   const previewRequest = usePreviewWhatsAppMessage();
-  const [passportLink, setPassportLink] = useState("");
+  const [passportIntro, setPassportIntro] = useState<string | null>(null);
+  const [passportLink, setPassportLink] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState<string | null>(null);
-  const [welcomeImage, setWelcomeImage] = useState<File | null>(null);
-  const [welcomeImagePreview, setWelcomeImagePreview] = useState<string | null>(
+  const [headerImage, setHeaderImage] = useState<File | null>(null);
+  const [headerImageId, setHeaderImageId] = useState<string | null>(null);
+  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(
     null,
   );
   const [previewRecipientId, setPreviewRecipientId] = useState<string | null>(
-    null,
+    targetRecipient?.recipientId ?? null,
   );
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previewSequence = useRef(0);
   const sendInFlightRef = useRef(false);
-  const welcomeImagePreviewUrlRef = useRef<string | null>(null);
+  const headerImagePreviewUrlRef = useRef<string | null>(null);
   const previewMutate = previewRequest.mutate;
 
   useEffect(() => {
     return () => {
-      if (welcomeImagePreviewUrlRef.current) {
-        URL.revokeObjectURL(welcomeImagePreviewUrlRef.current);
+      if (headerImagePreviewUrlRef.current) {
+        URL.revokeObjectURL(headerImagePreviewUrlRef.current);
       }
     };
   }, []);
 
-  const replaceWelcomeImage = (image: File | null) => {
-    if (welcomeImagePreviewUrlRef.current) {
-      URL.revokeObjectURL(welcomeImagePreviewUrlRef.current);
+  const replaceHeaderImage = (image: File | null) => {
+    if (headerImagePreviewUrlRef.current) {
+      URL.revokeObjectURL(headerImagePreviewUrlRef.current);
     }
     const previewUrl = image ? URL.createObjectURL(image) : null;
-    welcomeImagePreviewUrlRef.current = previewUrl;
-    setWelcomeImage(image);
-    setWelcomeImagePreview(previewUrl);
+    headerImagePreviewUrlRef.current = previewUrl;
+    setHeaderImage(image);
+    setHeaderImagePreview(previewUrl);
+    if (image) setHeaderImageId(null);
   };
 
   useEffect(() => {
@@ -2163,10 +2169,14 @@ function MessagePreviewDialog({
           groupId: group.id,
           draft: {
             message_type: messageType,
+            passport_intro:
+              messageType === "passport_link" ? passportIntro : null,
             passport_link:
               messageType === "passport_link" ? passportLink : null,
             message_content: messageContent,
-            recipient_id: previewRecipientId,
+            recipient_id: targetRecipient ? null : previewRecipientId,
+            resend_recipient_id: targetRecipient?.recipientId ?? null,
+            header_image_id: headerImageId,
           },
           signal: controller.signal,
         },
@@ -2177,7 +2187,18 @@ function MessagePreviewDialog({
               || sequence !== previewSequence.current
             ) return;
             setPreview(response);
+            setPassportIntro((current) =>
+              current ?? response.passport_intro ?? null
+            );
+            setPassportLink((current) =>
+              current ?? response.passport_link ?? null
+            );
             setMessageContent((current) => current ?? response.message_content);
+            setHeaderImageId((current) =>
+              headerImage
+                ? current
+                : current ?? response.header_image_id ?? null
+            );
             setError(null);
           },
           onError: (previewError) => {
@@ -2201,11 +2222,15 @@ function MessagePreviewDialog({
     };
   }, [
     group.id,
+    headerImage,
+    headerImageId,
     messageContent,
     messageType,
+    passportIntro,
     passportLink,
     previewMutate,
     previewRecipientId,
+    targetRecipient,
   ]);
 
   const resolvedMessageContent = (
@@ -2213,19 +2238,44 @@ function MessagePreviewDialog({
     preview?.message_content ??
     ""
   ).trim();
-  const eligibleRecipientCount =
-    preview?.eligible_recipient_count ??
-    (detail
-      ? countEligibleRecipients(detail.recipients, messageType)
-      : undefined) ??
-    group.recipient_count;
+  const resolvedPassportIntro = (
+    passportIntro ??
+    preview?.passport_intro ??
+    ""
+  ).trim();
+  const resolvedPassportLink = (
+    passportLink ??
+    preview?.passport_link ??
+    ""
+  ).trim();
+  const hasHeaderImage = Boolean(headerImage || headerImageId);
+  const targetRecipientDetail = targetRecipient && detail
+    ? detail.recipients.find(
+        (recipient) => recipient.id === targetRecipient.recipientId,
+      )
+    : undefined;
+  const targetMessageStatus = targetRecipientDetail
+    ? getMessageStatus(targetRecipientDetail, messageType)
+    : undefined;
+  const canResendTarget = !targetRecipient || Boolean(
+    targetMessageStatus?.already_sent && !targetMessageStatus.resend_blocked,
+  );
+  const eligibleRecipientCount = targetRecipient
+    ? 1
+    : preview?.eligible_recipient_count ??
+      (detail
+        ? countEligibleRecipients(detail.recipients, messageType)
+        : undefined) ??
+      group.recipient_count;
   const canSend = Boolean(
     detail?.recipient_opt_in_confirmed &&
     (messageType === "welcome" || detail.support_contacts.length > 0) &&
     resolvedMessageContent &&
     eligibleRecipientCount > 0 &&
-    (messageType !== "welcome" || welcomeImage) &&
-    (messageType === "welcome" || passportLink.trim()),
+    canResendTarget &&
+    hasHeaderImage &&
+    (messageType === "welcome" ||
+      (resolvedPassportIntro && resolvedPassportLink)),
   );
 
   const handleSend = async (event: FormEvent<HTMLFormElement>) => {
@@ -2237,11 +2287,17 @@ function MessagePreviewDialog({
       );
       return;
     }
-    if (messageType === "welcome" && !welcomeImage) {
-      setError("Upload the required Welcome image before sending.");
+    if (!hasHeaderImage) {
+      setError(
+        `Upload the required ${messageType === "welcome" ? "Welcome" : "Passport Link"} image before sending.`,
+      );
       return;
     }
-    if (messageType === "passport_link" && !passportLink.trim()) {
+    if (messageType === "passport_link" && !resolvedPassportIntro) {
+      setError("Add the passport introduction before sending.");
+      return;
+    }
+    if (messageType === "passport_link" && !resolvedPassportLink) {
       setError("Paste the passport upload link before sending.");
       return;
     }
@@ -2249,9 +2305,11 @@ function MessagePreviewDialog({
     sendInFlightRef.current = true;
     try {
       await onSend({
-        passportLink: passportLink.trim(),
+        passportIntro: resolvedPassportIntro,
+        passportLink: resolvedPassportLink,
         messageContent: resolvedMessageContent,
-        welcomeImage,
+        headerImage,
+        headerImageId,
       });
     } catch (sendError) {
       setError(
@@ -2268,9 +2326,9 @@ function MessagePreviewDialog({
   return (
     <DialogFrame
       title={
-        messageType === "welcome"
-          ? "Preview Welcome Message"
-          : "Preview Passport Link Message"
+        `${targetRecipient ? "Resend" : "Preview"} ${
+          messageType === "welcome" ? "Welcome Message" : "Passport Link Message"
+        }`
       }
       onClose={onClose}
       isBusy={isSending}
@@ -2287,69 +2345,85 @@ function MessagePreviewDialog({
             </p>
           ) : (
             <p>
-              The approved Meta header is fixed as Dear Delegates. This field
-              supplies BODY variable {"{{3}}"} and the passport upload link
-              supplies BODY variable {"{{2}}"}. The remaining wording is fixed
-              in the approved Meta template.
+              The picture is the required Meta IMAGE header. The introduction
+              supplies BODY variable {"{{1}}"}, the passport upload link
+              supplies BODY variable {"{{2}}"}, and the instructions supply
+              BODY variable {"{{3}}"}. The remaining wording stays fixed in the
+              approved template.
             </p>
           )}
         </div>
 
-        {messageType === "welcome" && (
-          <div className="space-y-2">
-            <label
-              className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
-                welcomeImage
-                  ? "border-emerald-300 bg-emerald-50/50"
-                  : "border-blue-300 bg-blue-50/40"
-              }`}
-            >
-              <span className="min-w-0">
-                <span className="block font-medium text-slate-900">
-                  Welcome image <span className="text-red-600">*</span>
-                </span>
-                <span className="block truncate text-sm text-slate-500">
-                  {welcomeImage?.name ??
-                    "Upload the approved JPEG or PNG shown above the message."}
-                </span>
-              </span>
-              <Upload className="h-5 w-5 shrink-0 text-blue-600" />
-              <input
-                type="file"
-                accept="image/jpeg,image/png,.jpg,.jpeg,.png"
-                className="sr-only"
-                required={!welcomeImage}
-                onChange={(event) => {
-                  const selected = event.currentTarget.files?.[0] ?? null;
-                  event.currentTarget.value = "";
-                  if (!selected) return;
-                  if (!WELCOME_IMAGE_TYPES.has(selected.type)) {
-                    replaceWelcomeImage(null);
-                    setError("Use a JPEG or PNG image for the Welcome message.");
-                    return;
-                  }
-                  if (selected.size > MAX_WELCOME_IMAGE_BYTES) {
-                    replaceWelcomeImage(null);
-                    setError("The Welcome image must be 5 MB or smaller.");
-                    return;
-                  }
-                  setError(null);
-                  replaceWelcomeImage(selected);
-                }}
-              />
-            </label>
-            <p className="text-xs text-slate-500">
-              Required for every Welcome send. Maximum size: 5 MB.
-            </p>
+        {preview?.content_source !== undefined
+          && preview.content_source !== "default" && (
+          <div
+            role="status"
+            className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+          >
+            {preview.content_source === "latest_recipient"
+              ? "Loaded the latest message previously sent to this recipient. You can edit it before resending."
+              : "Loaded the most recent message used for this broadcast. You can edit it before sending to the remaining recipients."}
           </div>
         )}
+
+        <div className="space-y-2">
+          <label
+            className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
+              hasHeaderImage
+                ? "border-emerald-300 bg-emerald-50/50"
+                : "border-blue-300 bg-blue-50/40"
+            }`}
+          >
+            <span className="min-w-0">
+              <span className="block font-medium text-slate-900">
+                {messageType === "welcome"
+                  ? "Welcome image"
+                  : "Passport Link image"}{" "}
+                <span className="text-red-600">*</span>
+              </span>
+              <span className="block truncate text-sm text-slate-500">
+                {headerImage?.name ??
+                  (headerImageId
+                    ? "Previously sent image selected. Choose a file to replace it."
+                    : "Upload the approved JPEG or PNG shown above the message.")}
+              </span>
+            </span>
+            <Upload className="h-5 w-5 shrink-0 text-blue-600" />
+            <input
+              type="file"
+              accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+              className="sr-only"
+              required={!hasHeaderImage}
+              onChange={(event) => {
+                const selected = event.currentTarget.files?.[0] ?? null;
+                event.currentTarget.value = "";
+                if (!selected) return;
+                if (!WELCOME_IMAGE_TYPES.has(selected.type)) {
+                  replaceHeaderImage(null);
+                  setError("Use a JPEG or PNG image for this message.");
+                  return;
+                }
+                if (selected.size > MAX_WELCOME_IMAGE_BYTES) {
+                  replaceHeaderImage(null);
+                  setError("The message image must be 5 MB or smaller.");
+                  return;
+                }
+                setError(null);
+                replaceHeaderImage(selected);
+              }}
+            />
+          </label>
+          <p className="text-xs text-slate-500">
+            Required for every send. Maximum size: 5 MB.
+          </p>
+        </div>
 
         {messageType === "passport_link" && (
           <Input
             label="Passport upload link"
             hint="This secure link supplies Meta BODY variable {{2}} for every recipient."
             placeholder="https://..."
-            value={passportLink}
+            value={passportLink ?? preview?.passport_link ?? ""}
             onChange={(event) => setPassportLink(event.target.value)}
             required
           />
@@ -2357,6 +2431,24 @@ function MessagePreviewDialog({
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="space-y-4">
+            {messageType === "passport_link" && (
+              <label className="block text-sm font-medium text-slate-700">
+                Passport link introduction (BODY {"{{1}}"})
+                <textarea
+                  className="mt-1.5 min-h-32 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  value={
+                    passportIntro ?? preview?.passport_intro ?? ""
+                  }
+                  onChange={(event) => setPassportIntro(event.target.value)}
+                  maxLength={600}
+                />
+                {passportIntro !== null && !resolvedPassportIntro && (
+                  <span className="mt-1.5 block text-xs font-normal text-amber-700">
+                    Add the introduction used for Meta BODY variable {"{{1}}"}.
+                  </span>
+                )}
+              </label>
+            )}
             <label className="block text-sm font-medium text-slate-700">
               {messageType === "welcome"
                 ? "Welcome trip message (BODY {{1}})"
@@ -2374,7 +2466,7 @@ function MessagePreviewDialog({
                 </span>
               )}
             </label>
-            {detail && detail.recipients.length > 1 && (
+            {detail && detail.recipients.length > 1 && !targetRecipient && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
                 <select
@@ -2393,31 +2485,47 @@ function MessagePreviewDialog({
                 </select>
               </label>
             )}
+            {targetRecipient && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                Resend only to <strong>{targetRecipient.recipientName}</strong>
+                {" "}({targetRecipient.phoneNumber}). No other recipient will
+                receive this resend.
+              </div>
+            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-sm font-medium text-slate-700">
-                Individual WhatsApp preview
+                {targetRecipient
+                  ? "One-person WhatsApp resend preview"
+                  : "Individual WhatsApp preview"}
               </h3>
               <span className="text-xs text-slate-500">
-                {eligibleRecipientCount} eligible of{" "}
-                {preview?.recipient_count ?? group.recipient_count}
+                {targetRecipient
+                  ? "1 selected recipient"
+                  : `${eligibleRecipientCount} eligible of ${
+                      preview?.recipient_count ?? group.recipient_count
+                    }`}
               </span>
             </div>
             <div className="mt-1.5 min-h-96 rounded-2xl bg-[#e5ddd5] p-4 shadow-inner">
               <div className="ml-auto max-w-[94%] rounded-xl rounded-tr-sm bg-[#dcf8c6] p-3 text-sm leading-5 text-slate-900 shadow-sm">
-                {messageType === "welcome" && welcomeImagePreview && (
+                {headerImagePreview ? (
                   <div className="relative mb-3 aspect-[16/10] overflow-hidden rounded-lg bg-white">
                     <Image
-                      src={welcomeImagePreview}
-                      alt="Selected Welcome message header"
+                      src={headerImagePreview}
+                      alt={`Selected ${formatMessageType(messageType)} image header`}
                       fill
                       unoptimized
                       className="object-contain"
                     />
                   </div>
-                )}
+                ) : headerImageId ? (
+                  <div className="mb-3 flex aspect-[16/10] items-center justify-center rounded-lg border border-emerald-200 bg-white px-4 text-center text-xs font-medium text-emerald-700">
+                    The image from the previous message will be reused.
+                  </div>
+                ) : null}
                 {preview ? (
                   <p className="whitespace-pre-wrap">
                     {preview.rendered_message}
@@ -2437,21 +2545,21 @@ function MessagePreviewDialog({
                   Template: {preview.template_name} - Previewing{" "}
                   {preview.recipient_name}
                 </p>
-                {preview.already_sent_count > 0 && (
+                {!targetRecipient && preview.already_sent_count > 0 && (
                   <p className="font-medium text-emerald-700">
                     {preview.already_sent_count} previous recipient
                     {preview.already_sent_count === 1 ? "" : "s"} will be
                     skipped automatically.
                   </p>
                 )}
-                {preview.in_progress_count > 0 && (
+                {!targetRecipient && preview.in_progress_count > 0 && (
                   <p className="font-medium text-blue-700">
                     {preview.in_progress_count} recipient
                     {preview.in_progress_count === 1 ? " is" : "s are"} already
                     queued and will not be queued twice.
                   </p>
                 )}
-                {preview.uncertain_recipient_count > 0 && (
+                {!targetRecipient && preview.uncertain_recipient_count > 0 && (
                   <p className="font-medium text-amber-700">
                     {preview.uncertain_recipient_count} recipient
                     {preview.uncertain_recipient_count === 1
@@ -2479,7 +2587,11 @@ function MessagePreviewDialog({
           detail.support_contacts.length === 0 && (
           <ErrorBanner message="This older list has no customer support contacts. Create a new list before sending." />
           )}
-        {preview &&
+        {targetRecipient && detail && !canResendTarget && (
+          <ErrorBanner message="This resend can no longer be submitted because its latest delivery is missing, still running, or requires review. Refresh the recipient list before trying again." />
+        )}
+        {!targetRecipient &&
+          preview &&
           eligibleRecipientCount === 0 &&
           preview.already_sent_count === preview.recipient_count && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
@@ -2487,7 +2599,8 @@ function MessagePreviewDialog({
               in this broadcast. No duplicate messages will be sent.
             </div>
           )}
-        {preview &&
+        {!targetRecipient &&
+          preview &&
           eligibleRecipientCount === 0 &&
           preview.uncertain_recipient_count > 0 && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
@@ -2498,7 +2611,8 @@ function MessagePreviewDialog({
               Review these recipients before taking manual action.
             </div>
           )}
-        {preview &&
+        {!targetRecipient &&
+          preview &&
           eligibleRecipientCount === 0 &&
           preview.uncertain_recipient_count === 0 &&
           preview.in_progress_count > 0 && (
@@ -2525,7 +2639,9 @@ function MessagePreviewDialog({
             disabled={!canSend || previewRequest.isPending}
           >
             <Send className="h-4 w-4" />
-            Send individually to {eligibleRecipientCount}
+            {targetRecipient
+              ? `Resend to ${targetRecipient.recipientName}`
+              : `Send individually to ${eligibleRecipientCount}`}
           </Button>
         </div>
       </form>
