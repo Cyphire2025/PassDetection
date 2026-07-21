@@ -300,6 +300,12 @@ class WhatsAppBroadcastRejectedContactModel(Base):
     row_number: Mapped[int] = mapped_column(Integer, nullable=False)
     raw_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     raw_phone_number: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    imported_fields: Mapped[dict[str, str]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=dict,
+        server_default="{}",
+    )
     reason_code: Mapped[str] = mapped_column(String(32), nullable=False)
     reason: Mapped[str] = mapped_column(String(256), nullable=False)
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)

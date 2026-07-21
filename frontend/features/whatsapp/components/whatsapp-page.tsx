@@ -24,6 +24,7 @@ import {
   type SetStateAction,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -80,6 +81,7 @@ import {
   countEligibleRecipients,
   getMessageStatus,
   hasAlreadySentMessage,
+  isRecipientEligible,
 } from "../utils/recipient-delivery";
 import {
   mergeRecipientImportRejectedRows,
@@ -134,6 +136,7 @@ function toRejectedContactInputs(
     raw_name: contact.raw_name,
     raw_phone_number: contact.raw_phone_number,
     reason_code: contact.reason_code,
+    imported_fields: contact.imported_fields,
   }));
 }
 
@@ -341,9 +344,8 @@ function ExcelRecipientImport({
                   : "text-emerald-700"
               }`}
             >
-              {state.addedCount} recipient{state.addedCount === 1 ? "" : "s"}{" "}
-              added from {state.acceptedCount} valid spreadsheet contact
-              {state.acceptedCount === 1 ? "" : "s"}.
+              {state.addedCount} new recipient
+              {state.addedCount === 1 ? "" : "s"} added.
               {state.duplicateCount > 0
                 ? ` ${state.duplicateCount} contact${state.duplicateCount === 1 ? " was" : "s were"} skipped because the number is already in this list or broadcast.`
                 : " You can edit or remove the accepted recipients above before saving."}
@@ -369,51 +371,35 @@ function ExcelRecipientImport({
                 </p>
                 {state.rejectedRows.length > 0 && (
                   <div
-                    className="mt-3 max-h-64 overflow-auto rounded-lg border border-amber-200 bg-white"
-                    tabIndex={0}
+                    className="mt-3 space-y-2"
                     aria-label="Rejected spreadsheet rows"
                   >
-                    <table className="w-full min-w-[880px] text-left text-xs">
-                      <thead className="sticky top-0 border-b border-amber-200 bg-amber-50 text-amber-900">
-                        <tr>
-                          <th className="px-3 py-2 font-semibold">
-                            Source file
-                          </th>
-                          <th className="px-3 py-2 font-semibold">
-                            Sheet and row
-                          </th>
-                          <th className="px-3 py-2 font-semibold">Raw name</th>
-                          <th className="px-3 py-2 font-semibold">
-                            Raw WhatsApp number
-                          </th>
-                          <th className="px-3 py-2 font-semibold">Reason</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-amber-100">
-                        {state.rejectedRows.map((row, index) => (
-                          <tr
-                            key={`${row.source_file_name}:${row.sheet_name}:${row.row_number}:${index}`}
-                            className="align-top text-slate-700"
-                          >
-                            <td className="max-w-48 break-words px-3 py-2">
-                              {row.source_file_name}
-                            </td>
-                            <td className="whitespace-nowrap px-3 py-2 font-medium">
-                              {row.sheet_name}, row {row.row_number}
-                            </td>
-                            <td className="max-w-48 break-words px-3 py-2">
-                              {row.raw_name?.trim() || "Blank"}
-                            </td>
-                            <td className="max-w-48 break-words px-3 py-2 font-mono">
-                              {row.raw_phone_number?.trim() || "Blank"}
-                            </td>
-                            <td className="max-w-64 break-words px-3 py-2">
-                              {row.reason}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    {state.rejectedRows.map((row, index) => (
+                      <article
+                        key={`${row.source_file_name}:${row.sheet_name}:${row.row_number}:${index}`}
+                        className="rounded-lg border border-amber-200 bg-white p-3 text-xs text-slate-700"
+                      >
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                          <div className="min-w-0">
+                            <span className="font-semibold text-amber-900">Source</span>
+                            <p className="break-words">{row.source_file_name}</p>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-amber-900">Sheet and row</span>
+                            <p>{row.sheet_name}, row {row.row_number}</p>
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-semibold text-amber-900">Entered name</span>
+                            <p className="break-words">{row.raw_name?.trim() || "Blank"}</p>
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-semibold text-amber-900">Entered phone</span>
+                            <p className="break-all font-mono">{row.raw_phone_number?.trim() || "Blank"}</p>
+                          </div>
+                        </div>
+                        <p className="mt-3 break-words text-amber-900">{row.reason}</p>
+                      </article>
+                    ))}
                   </div>
                 )}
               </section>
@@ -687,6 +673,8 @@ export function WhatsAppPage() {
             messageContent,
             headerImage,
             headerImageId,
+            recipientIds,
+            supportContactIds,
           }) => {
             const result =
               messageTarget.messageType === "welcome"
@@ -695,6 +683,7 @@ export function WhatsAppPage() {
                     messageContent,
                     image: headerImage,
                     headerImageId,
+                    recipientIds,
                   })
                 : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
@@ -703,6 +692,8 @@ export function WhatsAppPage() {
                     messageContent,
                     image: headerImage,
                     headerImageId,
+                    recipientIds,
+                    supportContactIds,
                   });
             setLastSend(result);
             if (result.batch_id && typeof window !== "undefined") {
@@ -1116,6 +1107,8 @@ function RecipientListDialog({
     messageContent: string;
     headerImage: File | null;
     headerImageId: string | null;
+    recipientIds: string[] | null;
+    supportContactIds: string[] | null;
   }) => {
     if (
       !recipientToResend
@@ -1138,6 +1131,7 @@ function RecipientListDialog({
         messageContent: payload.messageContent,
         image: payload.headerImage,
         headerImageId: payload.headerImageId,
+        supportContactIds: payload.supportContactIds,
       });
       setRecipientToResend(null);
       await refetchGroup();
@@ -1671,52 +1665,46 @@ function RecipientListDialog({
                   ) : (
                     <>
                       <div
-                        className="mt-3 max-h-72 overflow-auto rounded-lg border border-amber-200 bg-white"
-                        tabIndex={0}
+                        className="mt-3 space-y-3"
                         aria-label="Saved rejected contacts"
                       >
-                        <table className="w-full min-w-[1080px] text-left text-xs">
-                          <thead className="sticky top-0 border-b border-amber-200 bg-amber-50 text-amber-950">
-                            <tr>
-                              <th className="px-3 py-2 font-semibold">
-                                Source file
-                              </th>
-                              <th className="px-3 py-2 font-semibold">
-                                Sheet and row
-                              </th>
-                              <th className="px-3 py-2 font-semibold">
-                                Entered name
-                              </th>
-                              <th className="px-3 py-2 font-semibold">
-                                Entered phone
-                              </th>
-                              <th className="px-3 py-2 font-semibold">
-                                Reason
-                              </th>
-                              <th className="px-3 py-2 text-right font-semibold">
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-amber-100">
-                            {rejectedContactPage.items.map((contact) => (
-                              <tr
-                                key={contact.id}
-                                className="align-top text-slate-700"
-                              >
-                                <td className="max-w-48 break-words px-3 py-2">
-                                  {contact.source_file_name}
-                                </td>
-                                <td className="whitespace-nowrap px-3 py-2 font-medium">
-                                  {contact.sheet_name}, row {contact.row_number}
-                                </td>
-                                <td className="max-w-56 break-words px-3 py-2">
-                                  {rejectedContactEdit?.id === contact.id ? (
+                        {rejectedContactPage.items.map((contact) => {
+                          const isEditing = rejectedContactEdit?.id === contact.id;
+                          const importedEntries = Object.entries(
+                            contact.imported_fields ?? {},
+                          ).sort(([left], [right]) =>
+                            importedFieldLabel(left).localeCompare(
+                              importedFieldLabel(right),
+                            ),
+                          );
+                          return (
+                            <article
+                              key={contact.id}
+                              className="rounded-xl border border-amber-200 bg-white p-4 text-sm text-slate-700"
+                            >
+                              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)]">
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                                    Source
+                                  </p>
+                                  <p className="mt-1 break-words font-medium text-slate-900">
+                                    {contact.source_file_name}
+                                  </p>
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {contact.sheet_name}, row {contact.row_number}
+                                  </p>
+                                </div>
+
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                                    Entered name
+                                  </p>
+                                  {isEditing ? (
                                     <input
                                       type="text"
                                       value={rejectedContactEdit.name}
                                       aria-label={`Corrected name for row ${contact.row_number}`}
-                                      className="w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                       onChange={(event) =>
                                         setRejectedContactEdit((current) =>
                                           current
@@ -1726,17 +1714,23 @@ function RecipientListDialog({
                                       }
                                     />
                                   ) : (
-                                    contact.raw_name?.trim() || "Blank"
+                                    <p className="mt-1 break-words text-slate-900">
+                                      {contact.raw_name?.trim() || "Blank"}
+                                    </p>
                                   )}
-                                </td>
-                                <td className="max-w-56 break-words px-3 py-2 font-mono">
-                                  {rejectedContactEdit?.id === contact.id ? (
+                                </div>
+
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                                    Entered phone
+                                  </p>
+                                  {isEditing ? (
                                     <input
                                       type="tel"
                                       value={rejectedContactEdit.phoneNumber}
                                       autoFocus
                                       aria-label={`Corrected WhatsApp number for row ${contact.row_number}`}
-                                      className="w-full rounded-md border border-amber-300 px-2 py-1.5 font-sans text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                       onChange={(event) =>
                                         setRejectedContactEdit((current) =>
                                           current
@@ -1749,127 +1743,148 @@ function RecipientListDialog({
                                       }
                                     />
                                   ) : (
-                                    contact.raw_phone_number?.trim() || "Blank"
-                                  )}
-                                </td>
-                                <td className="max-w-64 break-words px-3 py-2">
-                                  {contact.reason}
-                                </td>
-                                <td className="min-w-52 px-3 py-2 text-right">
-                                  {rejectedContactEdit?.id === contact.id ? (
-                                    <div className="space-y-2">
-                                      <label className="flex items-start gap-2 text-left text-[11px] text-slate-600">
-                                        <input
-                                          type="checkbox"
-                                          className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                          checked={
-                                            rejectedContactEdit.optInConfirmed
-                                          }
-                                          onChange={(event) =>
-                                            setRejectedContactEdit((current) =>
-                                              current
-                                                ? {
-                                                    ...current,
-                                                    optInConfirmed:
-                                                      event.target.checked,
-                                                  }
-                                                : current,
-                                            )
-                                          }
-                                        />
-                                        Recipient agreed to WhatsApp updates
-                                      </label>
-                                      <div className="flex justify-end gap-2">
-                                        <button
-                                          type="button"
-                                          className="rounded-md px-2 py-1.5 font-semibold text-slate-600 hover:bg-slate-100"
-                                          disabled={resolveRejectedContact.isPending}
-                                          onClick={() => {
-                                            setRejectedContactEdit(null);
-                                            setRejectedContactError(null);
-                                          }}
-                                        >
-                                          Cancel
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className="rounded-md bg-blue-600 px-2.5 py-1.5 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                          disabled={
-                                            resolveRejectedContact.isPending
-                                            || !rejectedContactEdit.name.trim()
-                                            || !rejectedContactEdit.phoneNumber.trim()
-                                            || !rejectedContactEdit.optInConfirmed
-                                          }
-                                          onClick={async () => {
-                                            const correction = rejectedContactEdit;
-                                            setRejectedContactError(null);
-                                            try {
-                                              await resolveRejectedContact.mutateAsync({
-                                                groupId: group.id,
-                                                rejectedContactId: contact.id,
-                                                name: correction.name.trim(),
-                                                phoneNumber:
-                                                  correction.phoneNumber.trim(),
-                                                recipientOptInConfirmed:
-                                                  correction.optInConfirmed,
-                                              });
-                                              setRejectedContactEdit(null);
-                                              setSuccessMessage(
-                                                `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
-                                              );
-                                              if (
-                                                rejectedContactPage.items.length === 1
-                                                && rejectedContactPage.offset > 0
-                                              ) {
-                                                setRejectedContactOffset(
-                                                  Math.max(
-                                                    0,
-                                                    rejectedContactPage.offset
-                                                      - REJECTED_CONTACT_PAGE_SIZE,
-                                                  ),
-                                                );
-                                              } else {
-                                                await refetchRejectedContacts();
-                                              }
-                                            } catch (correctionError) {
-                                              setRejectedContactError(
-                                                readErrorMessage(
-                                                  correctionError,
-                                                  "Could not add this corrected contact.",
-                                                ),
-                                              );
-                                            }
-                                          }}
-                                        >
-                                          Save and add
-                                        </button>
-                                      </div>
+                                    <div className="mt-1 flex min-w-0 items-center gap-1.5">
+                                      <span className="break-all font-mono text-slate-900">
+                                        {contact.raw_phone_number?.trim() || "Blank"}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        className="shrink-0 rounded-md p-1 text-blue-700 hover:bg-blue-50"
+                                        aria-label={`Edit rejected WhatsApp number for row ${contact.row_number}`}
+                                        title="Edit rejected WhatsApp number"
+                                        onClick={() => {
+                                          setRejectedContactError(null);
+                                          setRejectedContactEdit({
+                                            id: contact.id,
+                                            name: contact.raw_name?.trim() || "",
+                                            phoneNumber:
+                                              contact.raw_phone_number?.trim() || "",
+                                            optInConfirmed:
+                                              detail.recipient_opt_in_confirmed,
+                                          });
+                                        }}
+                                      >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                      </button>
                                     </div>
-                                  ) : (
+                                  )}
+                                </div>
+                              </div>
+
+                              <p className="mt-3 break-words rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                                {contact.reason}
+                              </p>
+
+                              {importedEntries.length > 0 && (
+                                <details className="mt-3">
+                                  <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+                                    View {importedEntries.length} imported detail
+                                    {importedEntries.length === 1 ? "" : "s"}
+                                  </summary>
+                                  <dl className="mt-2 grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {importedEntries.map(([key, value]) => (
+                                      <div key={key} className="min-w-0">
+                                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                          {importedFieldLabel(key)}
+                                        </dt>
+                                        <dd className="break-words text-xs text-slate-700">
+                                          {value}
+                                        </dd>
+                                      </div>
+                                    ))}
+                                  </dl>
+                                </details>
+                              )}
+
+                              {isEditing && (
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-amber-100 pt-3">
+                                  <label className="flex items-start gap-2 text-xs text-slate-600">
+                                    <input
+                                      type="checkbox"
+                                      className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                      checked={rejectedContactEdit.optInConfirmed}
+                                      onChange={(event) =>
+                                        setRejectedContactEdit((current) =>
+                                          current
+                                            ? {
+                                                ...current,
+                                                optInConfirmed: event.target.checked,
+                                              }
+                                            : current,
+                                        )
+                                      }
+                                    />
+                                    Recipient agreed to WhatsApp updates
+                                  </label>
+                                  <div className="flex gap-2">
                                     <button
                                       type="button"
-                                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-semibold text-blue-700 hover:bg-blue-50"
+                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                                      disabled={resolveRejectedContact.isPending}
                                       onClick={() => {
+                                        setRejectedContactEdit(null);
                                         setRejectedContactError(null);
-                                        setRejectedContactEdit({
-                                          id: contact.id,
-                                          name: contact.raw_name?.trim() || "",
-                                          phoneNumber:
-                                            contact.raw_phone_number?.trim() || "",
-                                          optInConfirmed:
-                                            detail.recipient_opt_in_confirmed,
-                                        });
                                       }}
                                     >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                      Correct
+                                      Cancel
                                     </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                    <button
+                                      type="button"
+                                      className="rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                      disabled={
+                                        resolveRejectedContact.isPending
+                                        || !rejectedContactEdit.name.trim()
+                                        || !rejectedContactEdit.phoneNumber.trim()
+                                        || !rejectedContactEdit.optInConfirmed
+                                      }
+                                      onClick={async () => {
+                                        const correction = rejectedContactEdit;
+                                        setRejectedContactError(null);
+                                        try {
+                                          await resolveRejectedContact.mutateAsync({
+                                            groupId: group.id,
+                                            rejectedContactId: contact.id,
+                                            name: correction.name.trim(),
+                                            phoneNumber: correction.phoneNumber.trim(),
+                                            recipientOptInConfirmed:
+                                              correction.optInConfirmed,
+                                          });
+                                          setRejectedContactEdit(null);
+                                          setSuccessMessage(
+                                            `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
+                                          );
+                                          if (
+                                            rejectedContactPage.items.length === 1
+                                            && rejectedContactPage.offset > 0
+                                          ) {
+                                            setRejectedContactOffset(
+                                              Math.max(
+                                                0,
+                                                rejectedContactPage.offset
+                                                  - REJECTED_CONTACT_PAGE_SIZE,
+                                              ),
+                                            );
+                                          } else {
+                                            await refetchRejectedContacts();
+                                          }
+                                        } catch (correctionError) {
+                                          setRejectedContactError(
+                                            readErrorMessage(
+                                              correctionError,
+                                              "Could not add this corrected contact.",
+                                            ),
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      Save and add
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </article>
+                          );
+                        })}
                       </div>
 
                       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900">
@@ -2374,6 +2389,8 @@ function MessagePreviewDialog({
     messageContent: string;
     headerImage: File | null;
     headerImageId: string | null;
+    recipientIds: string[] | null;
+    supportContactIds: string[] | null;
   }) => Promise<void>;
 }) {
   const { data: detail, isLoading: isLoadingDetail } = useWhatsAppGroup(
@@ -2391,6 +2408,15 @@ function MessagePreviewDialog({
   const [previewRecipientId, setPreviewRecipientId] = useState<string | null>(
     targetRecipient?.recipientId ?? null,
   );
+  const [recipientSelectionMode, setRecipientSelectionMode] = useState<
+    "all" | "custom"
+  >("all");
+  const [selectedRecipientIds, setSelectedRecipientIds] = useState<string[]>(
+    [],
+  );
+  const [selectedSupportContactIds, setSelectedSupportContactIds] = useState<
+    string[] | null
+  >(null);
   const [preview, setPreview] = useState<WhatsAppPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previewSequence = useRef(0);
@@ -2401,6 +2427,13 @@ function MessagePreviewDialog({
   const passportIntroId = useId();
   const messageContentId = useId();
   const previewMutate = previewRequest.mutate;
+  const resolvedSupportContactIds = useMemo(
+    () =>
+      selectedSupportContactIds
+      ?? detail?.support_contacts.map((contact) => contact.id)
+      ?? [],
+    [detail?.support_contacts, selectedSupportContactIds],
+  );
 
   useEffect(() => {
     return () => {
@@ -2460,6 +2493,16 @@ function MessagePreviewDialog({
             recipient_id: targetRecipient ? null : previewRecipientId,
             resend_recipient_id: targetRecipient?.recipientId ?? null,
             header_image_id: headerImageId,
+            recipient_ids:
+              messageType === "passport_link"
+              && !targetRecipient
+              && recipientSelectionMode === "custom"
+                ? selectedRecipientIds
+                : null,
+            support_contact_ids:
+              messageType === "passport_link" && detail
+                ? resolvedSupportContactIds
+                : null,
           },
           signal: controller.signal,
         },
@@ -2505,6 +2548,7 @@ function MessagePreviewDialog({
     };
   }, [
     group.id,
+    detail,
     headerImage,
     headerImageId,
     messageContent,
@@ -2513,6 +2557,9 @@ function MessagePreviewDialog({
     passportLink,
     previewMutate,
     previewRecipientId,
+    recipientSelectionMode,
+    selectedRecipientIds,
+    resolvedSupportContactIds,
     targetRecipient,
   ]);
 
@@ -2545,16 +2592,29 @@ function MessagePreviewDialog({
       ? targetMessageStatus?.status === "failed"
       : targetMessageStatus?.already_sent && !targetMessageStatus.resend_blocked,
   );
+  const eligibleRecipients = detail?.recipients.filter((recipient) =>
+    isRecipientEligible(recipient, messageType),
+  ) ?? [];
+  const selectedEligibleRecipients =
+    messageType === "passport_link"
+    && !targetRecipient
+    && recipientSelectionMode === "custom"
+      ? eligibleRecipients.filter((recipient) =>
+          selectedRecipientIds.includes(recipient.id),
+        )
+      : eligibleRecipients;
   const eligibleRecipientCount = targetRecipient
     ? 1
-    : preview?.eligible_recipient_count ??
+    : recipientSelectionMode === "custom"
+      ? selectedEligibleRecipients.length
+      : preview?.eligible_recipient_count ??
       (detail
         ? countEligibleRecipients(detail.recipients, messageType)
         : undefined) ??
       group.recipient_count;
   const canSend = Boolean(
     detail?.recipient_opt_in_confirmed &&
-    (messageType === "welcome" || detail.support_contacts.length > 0) &&
+    (messageType === "welcome" || resolvedSupportContactIds.length > 0) &&
     resolvedMessageContent &&
     eligibleRecipientCount > 0 &&
     canResendTarget &&
@@ -2586,6 +2646,22 @@ function MessagePreviewDialog({
       setError("Paste the passport upload link before sending.");
       return;
     }
+    if (
+      messageType === "passport_link"
+      && resolvedSupportContactIds.length === 0
+    ) {
+      setError("Select at least one support contact for this Passport Link message.");
+      return;
+    }
+    if (
+      messageType === "passport_link"
+      && !targetRecipient
+      && recipientSelectionMode === "custom"
+      && selectedRecipientIds.length === 0
+    ) {
+      setError("Select at least one unsent recipient for this custom send.");
+      return;
+    }
     if (isSending || sendInFlightRef.current) return;
     sendInFlightRef.current = true;
     try {
@@ -2595,6 +2671,16 @@ function MessagePreviewDialog({
         messageContent: resolvedMessageContent,
         headerImage,
         headerImageId,
+        recipientIds:
+          messageType === "passport_link"
+          && !targetRecipient
+          && recipientSelectionMode === "custom"
+            ? selectedRecipientIds
+            : null,
+        supportContactIds:
+          messageType === "passport_link"
+            ? resolvedSupportContactIds
+            : null,
       });
     } catch (sendError) {
       setError(
@@ -2807,6 +2893,158 @@ function MessagePreviewDialog({
                 </span>
               )}
             </div>
+            {messageType === "passport_link" && detail && !targetRecipient && (
+              <fieldset className="rounded-xl border border-slate-200 p-3">
+                <legend className="px-1 text-sm font-medium text-slate-700">
+                  Recipients for this send
+                </legend>
+                <div className="mt-1 flex flex-wrap gap-4 text-sm text-slate-700">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="recipient-selection-mode"
+                      checked={recipientSelectionMode === "all"}
+                      onChange={() => setRecipientSelectionMode("all")}
+                    />
+                    All unsent recipients
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="recipient-selection-mode"
+                      checked={recipientSelectionMode === "custom"}
+                      onChange={() => {
+                        const firstEligibleId = eligibleRecipients[0]?.id;
+                        setRecipientSelectionMode("custom");
+                        setSelectedRecipientIds((current) =>
+                          current.length > 0
+                            ? current
+                            : firstEligibleId
+                              ? [firstEligibleId]
+                              : [],
+                        );
+                        if (firstEligibleId) setPreviewRecipientId(firstEligibleId);
+                      }}
+                    />
+                    Custom select
+                  </label>
+                </div>
+                {recipientSelectionMode === "custom" && (
+                  <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3" open>
+                    <summary className="cursor-pointer text-sm font-semibold text-slate-800">
+                      {selectedEligibleRecipients.length} recipient
+                      {selectedEligibleRecipients.length === 1 ? "" : "s"} selected
+                    </summary>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className="text-xs font-semibold text-blue-700 hover:text-blue-800"
+                        onClick={() => {
+                          const ids = eligibleRecipients.map((recipient) => recipient.id);
+                          setSelectedRecipientIds(ids);
+                          setPreviewRecipientId(ids[0] ?? null);
+                        }}
+                      >
+                        Select all
+                      </button>
+                      <button
+                        type="button"
+                        className="text-xs font-semibold text-slate-600 hover:text-slate-800"
+                        onClick={() => {
+                          setSelectedRecipientIds([]);
+                          setPreviewRecipientId(null);
+                        }}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div className="mt-2 max-h-52 space-y-1 overflow-y-auto pr-1">
+                      {eligibleRecipients.map((recipient) => (
+                        <label
+                          key={recipient.id}
+                          className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white"
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            checked={selectedRecipientIds.includes(recipient.id)}
+                            onChange={(event) => {
+                              const checked = event.target.checked;
+                              const nextIds = checked
+                                ? Array.from(
+                                    new Set([
+                                      ...selectedRecipientIds,
+                                      recipient.id,
+                                    ]),
+                                  )
+                                : selectedRecipientIds.filter(
+                                    (id) => id !== recipient.id,
+                                  );
+                              setSelectedRecipientIds(nextIds);
+                              if (checked) {
+                                setPreviewRecipientId(recipient.id);
+                              } else if (previewRecipientId === recipient.id) {
+                                setPreviewRecipientId(nextIds[0] ?? null);
+                              }
+                            }}
+                          />
+                          <span className="min-w-0">
+                            <span className="block break-words font-medium text-slate-800">
+                              {recipient.name || "Unnamed recipient"}
+                            </span>
+                            <span className="block break-all text-xs text-slate-500">
+                              {recipient.normalized_phone_number}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </fieldset>
+            )}
+            {messageType === "passport_link" && detail && (
+              <details className="rounded-xl border border-slate-200 p-3" open>
+                <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                  Support contacts included ({resolvedSupportContactIds.length})
+                </summary>
+                <p className="mt-1 text-xs text-slate-500">
+                  Select one or more contacts to show in this Passport Link message.
+                </p>
+                <div className="mt-2 space-y-1">
+                  {detail.support_contacts.map((contact) => (
+                    <label
+                      key={contact.id}
+                      className="flex items-start gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-50"
+                    >
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        checked={resolvedSupportContactIds.includes(contact.id)}
+                        onChange={(event) =>
+                          setSelectedSupportContactIds((current) =>
+                            event.target.checked
+                              ? Array.from(new Set([
+                                  ...(current ?? resolvedSupportContactIds),
+                                  contact.id,
+                                ]))
+                              : (current ?? resolvedSupportContactIds).filter(
+                                  (id) => id !== contact.id,
+                                ),
+                          )
+                        }
+                      />
+                      <span>
+                        <span className="font-medium text-slate-800">{contact.name}</span>
+                        <span className="block text-xs text-slate-500">
+                          {contact.normalized_phone_number}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </details>
+            )}
             {detail && detail.recipients.length > 1 && !targetRecipient && (
               <label className="block text-sm font-medium text-slate-700">
                 Preview recipient
@@ -2817,7 +3055,10 @@ function MessagePreviewDialog({
                     setPreviewRecipientId(event.target.value)
                   }
                 >
-                  {detail.recipients.map((recipient) => (
+                  {(recipientSelectionMode === "custom"
+                    ? selectedEligibleRecipients
+                    : detail.recipients
+                  ).map((recipient) => (
                     <option key={recipient.id} value={recipient.id}>
                       {recipient.name || "Guest"} -{" "}
                       {recipient.normalized_phone_number}

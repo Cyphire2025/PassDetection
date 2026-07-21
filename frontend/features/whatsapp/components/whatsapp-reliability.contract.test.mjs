@@ -166,6 +166,27 @@ test("saved rejected contacts can be corrected into unsent recipients", () => {
   assert.match(pageSource, /added to the valid recipient list as Not sent/);
 });
 
+test("rejected rows retain imported fields and use a responsive non-scrolling editor", () => {
+  assert.match(apiSource, /interface WhatsAppRejectedContactInput[\s\S]*imported_fields\?: Record<string, string>/);
+  assert.match(pageSource, /imported_fields: contact\.imported_fields/);
+  assert.match(pageSource, /contact\.imported_fields \?\? \{\}/);
+  assert.match(pageSource, /aria-label=\{`Edit rejected WhatsApp number/);
+  const rejectedStart = pageSource.indexOf('id="saved-rejected-contacts"');
+  const rejectedEnd = pageSource.indexOf("Add recipients", rejectedStart);
+  const rejectedSection = pageSource.slice(rejectedStart, rejectedEnd);
+  assert.doesNotMatch(rejectedSection, /overflow-(?:auto|x-auto|y-auto)/);
+  assert.doesNotMatch(rejectedSection, /min-w-\[1080px\]/);
+});
+
+test("passport-link sends support custom recipient and support-contact selections", () => {
+  assert.match(pageSource, /Custom select/);
+  assert.match(pageSource, /Support contacts included/);
+  assert.match(pageSource, /recipient_ids:/);
+  assert.match(pageSource, /support_contact_ids:/);
+  assert.match(apiSource, /recipient_ids: recipientIds/);
+  assert.match(apiSource, /support_contact_ids: supportContactIds/);
+});
+
 test("message preview remains unsendable while the latest approved rendering loads", () => {
   assert.match(
     pageSource,
@@ -175,7 +196,7 @@ test("message preview remains unsendable while the latest approved rendering loa
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
   assert.match(
     pageSource,
-    /messageType === "welcome" \|\| detail\.support_contacts\.length > 0/,
+    /messageType === "welcome" \|\| resolvedSupportContactIds\.length > 0/,
   );
 });
 

@@ -926,6 +926,11 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                 "row_number": 5,
                 "raw_name": "Duplicate Aarav",
                 "raw_phone_number": "+91-9873361557",
+                "imported_fields": {
+                    "s_no": "3",
+                    "name": "Duplicate Aarav",
+                    "phone_number": "+919873361557",
+                },
                 "reason_code": "duplicate_phone",
                 "reason": (
                     "This WhatsApp number is already listed; its extra details "

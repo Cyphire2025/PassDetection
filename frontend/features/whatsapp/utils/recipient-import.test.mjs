@@ -362,3 +362,29 @@ test("accumulates rejected rows across files and deduplicates only exact source 
     ],
   );
 });
+
+test("preserves imported fields on rejected rows for later correction", () => {
+  const importedFields = {
+    email: "delegate@example.com",
+    staff_code: "GC-204",
+  };
+  const result = mergeRecipientImportPreview([], {
+    recipient_count: 0,
+    recipients: [],
+    rejected_count: 1,
+    rejected_rows: [
+      {
+        sheet_name: "Delegates",
+        row_number: 8,
+        raw_name: "Delegate Name",
+        raw_phone_number: "123",
+        reason_code: "invalid_phone",
+        reason: "WhatsApp number is invalid.",
+        imported_fields: importedFields,
+      },
+    ],
+  });
+
+  assert.deepEqual(result.rejectedRows[0].imported_fields, importedFields);
+  assert.notEqual(result.rejectedRows[0].imported_fields, importedFields);
+});

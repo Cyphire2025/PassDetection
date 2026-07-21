@@ -217,16 +217,19 @@ export function useSendWhatsAppWelcome() {
       messageContent,
       image,
       headerImageId,
+      recipientIds,
     }: {
       groupId: string;
       messageContent: string;
       image: File | null;
       headerImageId: string | null;
+      recipientIds: string[] | null;
     }) => whatsappApi.sendWelcome(
       groupId,
       messageContent,
       image,
       headerImageId,
+      recipientIds,
     ),
   });
 }
@@ -240,6 +243,8 @@ export function useSendWhatsAppPassportLink() {
       messageContent,
       image,
       headerImageId,
+      recipientIds,
+      supportContactIds,
     }: {
       groupId: string;
       passportIntro: string;
@@ -247,6 +252,8 @@ export function useSendWhatsAppPassportLink() {
       messageContent: string;
       image: File | null;
       headerImageId: string | null;
+      recipientIds: string[] | null;
+      supportContactIds: string[] | null;
     }) => whatsappApi.sendPassportLink(
       groupId,
       passportIntro,
@@ -254,6 +261,8 @@ export function useSendWhatsAppPassportLink() {
       messageContent,
       image,
       headerImageId,
+      recipientIds,
+      supportContactIds,
     ),
   });
 }

@@ -32,6 +32,7 @@ export interface WhatsAppRejectedContactInput {
   raw_name: string | null;
   raw_phone_number: string | null;
   reason_code: RecipientImportRejectionReasonCode;
+  imported_fields?: Record<string, string>;
 }
 
 export interface WhatsAppRejectedContact extends WhatsAppRejectedContactInput {
@@ -91,6 +92,8 @@ export interface WhatsAppMessageDraft {
   recipient_id?: string | null;
   resend_recipient_id?: string | null;
   header_image_id?: string | null;
+  recipient_ids?: string[] | null;
+  support_contact_ids?: string[] | null;
 }
 
 export interface WhatsAppPreviewResponse {
@@ -343,6 +346,7 @@ export const whatsappApi = {
     messageContent,
     image,
     headerImageId,
+    supportContactIds,
   }: {
     groupId: string;
     recipientId: string;
@@ -352,6 +356,7 @@ export const whatsappApi = {
     messageContent: string;
     image: File | null;
     headerImageId: string | null;
+    supportContactIds?: string[] | null;
   }): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
       ? (await uploadWelcomeImage(groupId, image)).media_id
@@ -366,6 +371,8 @@ export const whatsappApi = {
           messageType === "passport_link" ? passportLink : null,
         message_content: messageContent,
         header_image_id: resolvedHeaderImageId,
+        support_contact_ids:
+          messageType === "passport_link" ? supportContactIds ?? null : null,
       },
     );
     return data;
@@ -391,6 +398,7 @@ export const whatsappApi = {
     messageContent: string,
     image: File | null,
     headerImageId: string | null,
+    recipientIds: string[] | null = null,
   ): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
       ? (await uploadWelcomeImage(groupId, image)).media_id
@@ -399,6 +407,7 @@ export const whatsappApi = {
       message_type: "welcome",
       message_content: messageContent,
       header_image_id: resolvedHeaderImageId,
+      recipient_ids: recipientIds,
     });
     return data;
   },
@@ -410,6 +419,8 @@ export const whatsappApi = {
     messageContent: string,
     image: File | null,
     headerImageId: string | null,
+    recipientIds: string[] | null = null,
+    supportContactIds: string[] | null = null,
   ): Promise<WhatsAppSendResponse> => {
     const resolvedHeaderImageId = image
       ? (await uploadWelcomeImage(groupId, image)).media_id
@@ -420,6 +431,8 @@ export const whatsappApi = {
       passport_link: passportLink,
       message_content: messageContent,
       header_image_id: resolvedHeaderImageId,
+      recipient_ids: recipientIds,
+      support_contact_ids: supportContactIds,
     });
     return data;
   },

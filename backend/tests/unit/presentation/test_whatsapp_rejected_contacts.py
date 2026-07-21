@@ -35,6 +35,10 @@ def _rejected_json(*, source_file_name: str = "Saigon Sheet.xlsx") -> str:
                 "row_number": 14,
                 "raw_name": "Rejected Contact",
                 "raw_phone_number": "919726092",
+                "imported_fields": {
+                    "email": "rejected@example.com",
+                    "staff_code": "GC-14",
+                },
                 "reason_code": "invalid_phone",
                 "reason": "Client-supplied text must not be stored.",
             }
@@ -101,6 +105,10 @@ async def test_create_group_persists_rejected_only_without_opt_in() -> None:
     assert group.recipient_opt_in_confirmed_at is None
     assert not any(isinstance(model, WhatsAppBroadcastRecipientModel) for model in added)
     assert rejected.source_file_name == "Saigon Sheet.xlsx"
+    assert rejected.imported_fields == {
+        "email": "rejected@example.com",
+        "staff_code": "GC-14",
+    }
     assert rejected.reason == _WHATSAPP_CONTACT_REJECTION_REASONS["invalid_phone"]
     assert rejected.reason != "Client-supplied text must not be stored."
 
@@ -117,9 +125,11 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
     group_result.scalar_one_or_none.return_value = group
     existing_rejected_result = MagicMock()
     existing_contact = _parse_rejected_contacts(_rejected_json())[0]
-    existing_rejected_result.scalars.return_value.all.return_value = [
-        _rejected_contact_fingerprint(existing_contact)
-    ]
+    existing_model = WhatsAppBroadcastRejectedContactModel(
+        fingerprint=_rejected_contact_fingerprint(existing_contact),
+        imported_fields={},
+    )
+    existing_rejected_result.scalars.return_value.all.return_value = [existing_model]
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[group_result, existing_rejected_result]
@@ -147,6 +157,10 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
     assert not any(
         isinstance(model, WhatsAppBroadcastRejectedContactModel) for model in added
     )
+    assert existing_model.imported_fields == {
+        "email": "rejected@example.com",
+        "staff_code": "GC-14",
+    }
     assert group.recipient_opt_in_confirmed_at is None
 
 
@@ -207,6 +221,7 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
         row_number=14,
         raw_name="Rejected Contact",
         raw_phone_number="919726092",
+        imported_fields={"email": "rejected@example.com"},
         reason_code="invalid_phone",
         reason=_WHATSAPP_CONTACT_REJECTION_REASONS["invalid_phone"],
         fingerprint="a" * 64,
@@ -237,6 +252,9 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
     assert response.offset == 0
     assert response.items[0].row_number == 14
     assert response.items[0].reason_code == "invalid_phone"
+    assert response.items[0].imported_fields == {
+        "email": "rejected@example.com"
+    }
 
 
 @pytest.mark.asyncio
@@ -260,6 +278,10 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
         row_number=14,
         raw_name="Rejected Contact",
         raw_phone_number="919726092",
+        imported_fields={
+            "email": "rejected@example.com",
+            "staff_code": "GC-14",
+        },
         reason_code="invalid_phone",
         reason=_WHATSAPP_CONTACT_REJECTION_REASONS["invalid_phone"],
         fingerprint="b" * 64,
@@ -314,3 +336,5 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
     assert recipient.name == "Corrected Contact"
     assert recipient.normalized_phone_number == "+919876543211"
     assert recipient.imported_fields["source_row"] == "14"
+    assert recipient.imported_fields["email"] == "rejected@example.com"
+    assert recipient.imported_fields["staff_code"] == "GC-14"

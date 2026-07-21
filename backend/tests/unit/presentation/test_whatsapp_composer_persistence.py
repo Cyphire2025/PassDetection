@@ -19,10 +19,54 @@ from app.presentation.api.v1.routes.whatsapp import (
     _merge_composer_snapshot,
     _resolve_send_header_image,
     _resolve_send_passport_intro,
+    _select_group_recipients,
+    _select_support_contacts,
     preview_broadcast_message,
     resend_recipient_message,
     send_broadcast_message,
 )
+
+
+def test_custom_recipient_selection_is_optional_and_group_scoped() -> None:
+    first = SimpleNamespace(id=uuid.uuid4())
+    second = SimpleNamespace(id=uuid.uuid4())
+
+    assert _select_group_recipients([first, second], None) == [first, second]
+    assert _select_group_recipients([first, second], [second.id]) == [second]
+
+    with pytest.raises(HTTPException) as exc_info:
+        _select_group_recipients([first, second], [uuid.uuid4()])
+    assert exc_info.value.status_code == 404
+
+
+def test_passport_support_selection_is_optional_and_group_scoped() -> None:
+    first = SimpleNamespace(id=uuid.uuid4())
+    second = SimpleNamespace(id=uuid.uuid4())
+
+    assert _select_support_contacts(
+        [first, second],
+        None,
+        message_type="passport_link",
+    ) == [first, second]
+    assert _select_support_contacts(
+        [first, second],
+        [second.id],
+        message_type="passport_link",
+    ) == [second]
+    # Welcome messages do not render support contacts, so selection is ignored.
+    assert _select_support_contacts(
+        [first, second],
+        [uuid.uuid4()],
+        message_type="welcome",
+    ) == [first, second]
+
+    with pytest.raises(HTTPException) as exc_info:
+        _select_support_contacts(
+            [first, second],
+            [uuid.uuid4()],
+            message_type="passport_link",
+        )
+    assert exc_info.value.status_code == 404
 
 
 def _passport_log(*, explicit: bool = False) -> SimpleNamespace:

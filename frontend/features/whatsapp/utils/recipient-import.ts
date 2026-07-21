@@ -17,6 +17,7 @@ export type RecipientImportRejectedRow = {
   raw_phone_number: string | null;
   reason_code: RecipientImportRejectionReasonCode;
   reason: string;
+  imported_fields?: Record<string, string>;
 };
 
 export type RecipientImportRejectedRowWithSource =
@@ -135,7 +136,12 @@ export function mergeRecipientImportPreview(
     preview.recipients,
     excludedPhoneNumbers,
   );
-  const rejectedRows = (preview.rejected_rows ?? []).map((row) => ({ ...row }));
+  const rejectedRows = (preview.rejected_rows ?? []).map((row) => ({
+    ...row,
+    ...(row.imported_fields
+      ? { imported_fields: { ...row.imported_fields } }
+      : {}),
+  }));
   const rejectedCount = preview.rejected_count ?? rejectedRows.length;
   const omittedRejectedCount =
     preview.omitted_rejected_count ??
@@ -143,7 +149,10 @@ export function mergeRecipientImportPreview(
 
   return {
     ...merged,
-    acceptedCount: preview.accepted_count ?? preview.recipient_count,
+    // "Accepted" in the UI means accepted into this list, not merely valid in
+    // the workbook. Re-uploaded or already-saved phone numbers are therefore
+    // excluded from both the added and accepted counts.
+    acceptedCount: merged.addedCount,
     rejectedCount,
     rejectedRows,
     rejectedRowsTruncated:

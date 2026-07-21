@@ -148,6 +148,7 @@ class WhatsAppContactPreviewRejectedRow(BaseModel):
     row_number: int = Field(ge=1)
     raw_name: str | None = Field(default=None, max_length=256)
     raw_phone_number: str | None = Field(default=None, max_length=64)
+    imported_fields: dict[str, str] = Field(default_factory=dict)
     reason_code: WhatsAppContactRejectionCode
     reason: str = Field(min_length=1, max_length=256)
 
@@ -179,6 +180,7 @@ class WhatsAppRejectedContactInput(BaseModel):
     row_number: int = Field(ge=1, le=1_048_576)
     raw_name: str | None = Field(default=None, max_length=256)
     raw_phone_number: str | None = Field(default=None, max_length=64)
+    imported_fields: dict[str, str] = Field(default_factory=dict)
     reason_code: WhatsAppContactRejectionCode
 
 
@@ -189,6 +191,7 @@ class WhatsAppRejectedContactResponse(BaseModel):
     row_number: int
     raw_name: str | None
     raw_phone_number: str | None
+    imported_fields: dict[str, str] = Field(default_factory=dict)
     reason_code: WhatsAppContactRejectionCode
     reason: str
     created_at: datetime
@@ -262,6 +265,11 @@ class WhatsAppSendRequest(BaseModel):
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
     header_image_id: str | None = Field(default=None, max_length=255)
+    recipient_ids: list[uuid.UUID] | None = Field(
+        default=None,
+        max_length=MAX_WHATSAPP_RECIPIENTS,
+    )
+    support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=3)
 
 
 class WhatsAppResendRequest(WhatsAppSendRequest):
@@ -1138,6 +1146,7 @@ def _append_excel_contact_rejection(
     row_number: int,
     raw_name: str | None,
     raw_phone_number: str | None,
+    imported_fields: dict[str, str],
     reason_code: WhatsAppContactRejectionCode,
 ) -> None:
     rejected_counts[reason_code] = rejected_counts.get(reason_code, 0) + 1
@@ -1149,6 +1158,7 @@ def _append_excel_contact_rejection(
             row_number=row_number,
             raw_name=raw_name,
             raw_phone_number=raw_phone_number,
+            imported_fields=_safe_imported_fields(imported_fields),
             reason_code=reason_code,
             reason=_WHATSAPP_CONTACT_REJECTION_REASONS[reason_code],
         )
@@ -1373,6 +1383,7 @@ def _parse_excel_contact_bytes(
                             row_number=row_number,
                             raw_name=raw_name,
                             raw_phone_number=None,
+                            imported_fields=imported_fields,
                             reason_code="missing_phone",
                         )
                     continue
@@ -1399,6 +1410,7 @@ def _parse_excel_contact_bytes(
                         row_number=row_number,
                         raw_name=raw_name,
                         raw_phone_number=phone,
+                        imported_fields=fields,
                         reason_code="invalid_phone",
                     )
                     continue
@@ -1421,6 +1433,7 @@ def _parse_excel_contact_bytes(
                         row_number=row_number,
                         raw_name=raw_name,
                         raw_phone_number=phone,
+                        imported_fields=fields,
                         reason_code="missing_name",
                     )
                     continue
@@ -1436,6 +1449,7 @@ def _parse_excel_contact_bytes(
                         row_number=row_number,
                         raw_name=raw_name,
                         raw_phone_number=phone,
+                        imported_fields=fields,
                         reason_code="duplicate_phone",
                     )
                     continue
@@ -1599,6 +1613,7 @@ def _parse_rejected_contacts(value: str) -> list[WhatsAppRejectedContactInput]:
                 row_number=contact.row_number,
                 raw_name=raw_name,
                 raw_phone_number=raw_phone_number,
+                imported_fields=_safe_imported_fields(contact.imported_fields),
                 reason_code=contact.reason_code,
             )
             fingerprint = _rejected_contact_fingerprint(normalized)
@@ -1621,16 +1636,26 @@ def _add_rejected_contact_models(
     session: AsyncSession,
     group: WhatsAppBroadcastGroupModel,
     contacts: list[WhatsAppRejectedContactInput],
-    existing_fingerprints: set[str],
+    existing_by_fingerprint: dict[
+        str,
+        WhatsAppBroadcastRejectedContactModel,
+    ],
     now: datetime,
 ) -> int:
-    new_contacts = [
-        contact
-        for contact in contacts
-        if _rejected_contact_fingerprint(contact) not in existing_fingerprints
-    ]
+    new_contacts: list[WhatsAppRejectedContactInput] = []
+    for contact in contacts:
+        fingerprint = _rejected_contact_fingerprint(contact)
+        existing = existing_by_fingerprint.get(fingerprint)
+        if existing is None:
+            new_contacts.append(contact)
+            continue
+        # A repeated import remains one rejected row, but can enrich a record
+        # created before imported spreadsheet fields were persisted.
+        merged_fields = dict(existing.imported_fields or {})
+        merged_fields.update(contact.imported_fields)
+        existing.imported_fields = _safe_imported_fields(merged_fields)
     if (
-        len(existing_fingerprints) + len(new_contacts)
+        len(existing_by_fingerprint) + len(new_contacts)
         > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP
     ):
         raise HTTPException(
@@ -1642,22 +1667,22 @@ def _add_rejected_contact_models(
         )
     for contact in new_contacts:
         fingerprint = _rejected_contact_fingerprint(contact)
-        existing_fingerprints.add(fingerprint)
-        session.add(
-            WhatsAppBroadcastRejectedContactModel(
-                broadcast_group_id=group.id,
-                agency_id=group.agency_id,
-                source_file_name=contact.source_file_name,
-                sheet_name=contact.sheet_name,
-                row_number=contact.row_number,
-                raw_name=contact.raw_name,
-                raw_phone_number=contact.raw_phone_number,
-                reason_code=contact.reason_code,
-                reason=_WHATSAPP_CONTACT_REJECTION_REASONS[contact.reason_code],
-                fingerprint=fingerprint,
-                created_at=now,
-            )
+        model = WhatsAppBroadcastRejectedContactModel(
+            broadcast_group_id=group.id,
+            agency_id=group.agency_id,
+            source_file_name=contact.source_file_name,
+            sheet_name=contact.sheet_name,
+            row_number=contact.row_number,
+            raw_name=contact.raw_name,
+            raw_phone_number=contact.raw_phone_number,
+            imported_fields=_safe_imported_fields(contact.imported_fields),
+            reason_code=contact.reason_code,
+            reason=_WHATSAPP_CONTACT_REJECTION_REASONS[contact.reason_code],
+            fingerprint=fingerprint,
+            created_at=now,
         )
+        existing_by_fingerprint[fingerprint] = model
+        session.add(model)
     return len(new_contacts)
 
 
@@ -1827,6 +1852,7 @@ def _rejected_contact_response(
         row_number=model.row_number,
         raw_name=model.raw_name,
         raw_phone_number=model.raw_phone_number,
+        imported_fields=_safe_imported_fields(model.imported_fields),
         reason_code=model.reason_code,
         reason=model.reason,
         created_at=model.created_at,
@@ -1964,6 +1990,59 @@ async def _group_recipients(
         )
     )
     return list(result.scalars().all())
+
+
+def _select_group_recipients(
+    recipients: list[WhatsAppBroadcastRecipientModel],
+    requested_ids: list[uuid.UUID] | None,
+) -> list[WhatsAppBroadcastRecipientModel]:
+    """Apply an optional custom-recipient selection without widening scope."""
+    if requested_ids is None:
+        return recipients
+    requested_id_set = set(requested_ids)
+    if not requested_id_set:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Select at least one WhatsApp recipient",
+        )
+    selected = [
+        recipient for recipient in recipients if recipient.id in requested_id_set
+    ]
+    if len(selected) != len(requested_id_set):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="One or more selected WhatsApp recipients were not found in this list",
+        )
+    return selected
+
+
+def _select_support_contacts(
+    support_contacts: list[WhatsAppBroadcastSupportContactModel],
+    requested_ids: list[uuid.UUID] | None,
+    *,
+    message_type: WhatsAppMessageType,
+) -> list[WhatsAppBroadcastSupportContactModel]:
+    """Apply optional support-contact selection for Passport Link messages."""
+    if message_type != "passport_link" or requested_ids is None:
+        return support_contacts
+    requested_id_set = set(requested_ids)
+    if not requested_id_set:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Select at least one customer support contact",
+        )
+    selected = [
+        contact for contact in support_contacts if contact.id in requested_id_set
+    ]
+    if len(selected) != len(requested_id_set):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "One or more selected customer support contacts were not found "
+                "in this WhatsApp list"
+            ),
+        )
+    return selected
 
 
 async def _recipient_delivery_counts(
@@ -2294,6 +2373,8 @@ def _merge_composer_snapshot(
             if body.header_image_id is not None
             else snapshot.header_image_id if snapshot else None
         ),
+        recipient_ids=body.recipient_ids,
+        support_contact_ids=body.support_contact_ids,
     )
 
 
@@ -2524,11 +2605,11 @@ async def resolve_broadcast_rejected_contact(
             )
 
     now = datetime.now(tz=UTC)
-    imported_fields = {
-        "source_file": rejected_contact.source_file_name,
-        "source_sheet": rejected_contact.sheet_name,
-        "source_row": str(rejected_contact.row_number),
-    }
+    imported_fields = dict(rejected_contact.imported_fields or {})
+    imported_fields.setdefault("source_file", rejected_contact.source_file_name)
+    imported_fields.setdefault("source_sheet", rejected_contact.sheet_name)
+    imported_fields.setdefault("source_row", str(rejected_contact.row_number))
+    imported_fields = _safe_imported_fields(imported_fields)
     if existing_recipient:
         existing_recipient.name = name
         existing_recipient.phone_number = body.phone_number.strip()
@@ -2664,8 +2745,8 @@ async def preview_broadcast_message(
             detail="WhatsApp broadcast group not found",
         )
 
-    recipients = await _group_recipients(session, group.id)
-    if not recipients:
+    all_recipients = await _group_recipients(session, group.id)
+    if not all_recipients:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This WhatsApp list has no recipients",
@@ -2674,6 +2755,14 @@ async def preview_broadcast_message(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Choose either a preview recipient or a resend recipient, not both",
+        )
+    recipients = _select_group_recipients(all_recipients, body.recipient_ids)
+    if body.resend_recipient_id and body.recipient_ids is not None and (
+        len(recipients) != 1 or recipients[0].id != body.resend_recipient_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A resend preview can only target its selected recipient",
         )
     recipient = recipients[0]
     selected_recipient_id = body.resend_recipient_id or body.recipient_id
@@ -2735,7 +2824,11 @@ async def preview_broadcast_message(
             detail="No saved message is available to resend or retry for this recipient",
         )
     resolved_body = _merge_composer_snapshot(body, snapshot)
-    support_contacts = await _support_contacts_for_group(session, group.id)
+    support_contacts = _select_support_contacts(
+        await _support_contacts_for_group(session, group.id),
+        resolved_body.support_contact_ids,
+        message_type=message_type,
+    )
     (
         message_type,
         passport_intro,
@@ -2953,7 +3046,7 @@ async def create_broadcast_group(
         session=session,
         group=group,
         contacts=rejected_contacts,
-        existing_fingerprints=set(),
+        existing_by_fingerprint={},
         now=now,
     )
     for sort_order, (normalized, support_contact) in enumerate(normalized_support_contacts.items()):
@@ -3141,17 +3234,19 @@ async def add_broadcast_recipients(
     )
     if rejected_contacts:
         existing_rejected_result = await session.execute(
-            select(WhatsAppBroadcastRejectedContactModel.fingerprint).where(
+            select(WhatsAppBroadcastRejectedContactModel).where(
                 WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group.id,
             )
         )
+        existing_rejected_contacts = list(existing_rejected_result.scalars().all())
         _add_rejected_contact_models(
             session=session,
             group=group,
             contacts=rejected_contacts,
-            existing_fingerprints=set(
-                existing_rejected_result.scalars().all()
-            ),
+            existing_by_fingerprint={
+                contact.fingerprint: contact
+                for contact in existing_rejected_contacts
+            },
             now=now,
         )
 
@@ -3395,6 +3490,11 @@ async def resend_recipient_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
+    if body.recipient_ids is not None and set(body.recipient_ids) != {recipient.id}:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A resend can only target its selected recipient",
+        )
 
     message_type = _as_message_type(body.message_type)
     state_result = await session.execute(
@@ -3528,7 +3628,11 @@ async def resend_recipient_message(
         merged_body.header_image_id,
         resend=True,
     )
-    support_contacts = await _support_contacts_for_group(session, group.id)
+    support_contacts = _select_support_contacts(
+        await _support_contacts_for_group(session, group.id),
+        merged_body.support_contact_ids,
+        message_type=message_type,
+    )
     if message_type == "passport_link" and not support_contacts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -3558,6 +3662,8 @@ async def resend_recipient_message(
         passport_link=passport_link,
         message_content=message_content,
         header_image_id=header_image_id,
+        recipient_ids=merged_body.recipient_ids,
+        support_contact_ids=merged_body.support_contact_ids,
     )
     (
         _,
@@ -3803,19 +3909,15 @@ async def send_broadcast_message(
             detail="Recipient WhatsApp opt-in has not been confirmed for this list",
         )
 
-    recipients = await _group_recipients(session, group.id)
-    if not recipients:
+    all_recipients = await _group_recipients(session, group.id)
+    if not all_recipients:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This WhatsApp list has no recipients",
         )
     message_type = _as_message_type(body.message_type)
+    recipients = _select_group_recipients(all_recipients, body.recipient_ids)
     support_contacts = await _support_contacts_for_group(session, group.id)
-    if message_type == "passport_link" and not support_contacts:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Add customer support contacts before sending this message",
-        )
     snapshot = await _latest_composer_snapshot(
         session,
         group_id=group.id,
@@ -3823,6 +3925,16 @@ async def send_broadcast_message(
         accepted_only=True,
     )
     merged_body = _merge_composer_snapshot(body, snapshot)
+    support_contacts = _select_support_contacts(
+        support_contacts,
+        merged_body.support_contact_ids,
+        message_type=message_type,
+    )
+    if message_type == "passport_link" and not support_contacts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Add customer support contacts before sending this message",
+        )
     header_image_id = _resolve_send_header_image(
         message_type,
         merged_body.header_image_id,
@@ -3868,6 +3980,8 @@ async def send_broadcast_message(
         passport_link=passport_link,
         message_content=message_content,
         header_image_id=header_image_id,
+        recipient_ids=merged_body.recipient_ids,
+        support_contact_ids=merged_body.support_contact_ids,
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
