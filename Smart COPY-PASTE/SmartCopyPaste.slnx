@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="src/SmartCopyPaste.Core/SmartCopyPaste.Core.csproj" />
-  <Project Path="src/SmartCopyPaste.App/SmartCopyPaste.App.csproj" />
-  <Project Path="tests/SmartCopyPaste.Core.Tests/SmartCopyPaste.Core.Tests.csproj" />
-</Solution>
-
