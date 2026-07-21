@@ -134,6 +134,20 @@ export function useDeleteWhatsAppRecipient() {
   });
 }
 
+export function useUpdateWhatsAppRecipientPhone() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: whatsappApi.updateRecipientPhone,
+    onSuccess: (group) => {
+      queryClient.setQueryData(
+        WHATSAPP_QUERY_KEYS.group(group.id),
+        group,
+      );
+      queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+    },
+  });
+}
+
 export function useResendWhatsAppRecipientMessage() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -9,6 +9,7 @@ import {
   Loader2,
   MessageCircle,
   MoreVertical,
+  Pencil,
   Plus,
   RotateCw,
   Send,
@@ -68,6 +69,7 @@ import {
   useSendWhatsAppPassportLink,
   useSendWhatsAppWelcome,
   useUpdateWhatsAppGroup,
+  useUpdateWhatsAppRecipientPhone,
   useWhatsAppBatchStatus,
   useWhatsAppGroup,
   useWhatsAppGroups,
@@ -103,6 +105,7 @@ type RecipientResendTarget = {
   recipientName: string;
   phoneNumber: string;
   messageType: WhatsAppMessageType;
+  action: "resend" | "retry";
 };
 
 type RejectedContactDraft = RecipientImportRejectedRowWithSource;
@@ -907,6 +910,7 @@ function RecipientListDialog({
   const updateGroup = useUpdateWhatsAppGroup();
   const addRecipientsMutation = useAddWhatsAppRecipients();
   const deleteRecipient = useDeleteWhatsAppRecipient();
+  const updateRecipientPhone = useUpdateWhatsAppRecipientPhone();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
@@ -934,6 +938,10 @@ function RecipientListDialog({
   const [recipientToRemove, setRecipientToRemove] = useState<
     (WhatsAppRecipientInput & { id: string }) | null
   >(null);
+  const [editingRecipientId, setEditingRecipientId] = useState<string | null>(
+    null,
+  );
+  const [editedPhoneNumber, setEditedPhoneNumber] = useState("");
   const initializedGroupRef = useRef<string | null>(null);
   const detailsInFlightRef = useRef(false);
   const recipientsInFlightRef = useRef(false);
@@ -1126,15 +1134,15 @@ function RecipientListDialog({
 
       if (result.queued > 0) {
         setResendNotice(
-          `${formatMessageType(target.messageType)} resend queued for ${target.recipientName} only.`,
+          `${formatMessageType(target.messageType)} ${target.action} queued for ${target.recipientName} only.`,
         );
       } else if (result.sent > 0) {
         setResendNotice(
-          `${formatMessageType(target.messageType)} resent to ${target.recipientName} only.`,
+          `${formatMessageType(target.messageType)} ${target.action === "retry" ? "sent" : "resent"} to ${target.recipientName} only.`,
         );
       } else {
         setResendError(
-          `${formatMessageType(target.messageType)} was not resent. Refresh the recipient status before trying again.`,
+          `${formatMessageType(target.messageType)} was not ${target.action === "retry" ? "retried" : "resent"}. Refresh the recipient status before trying again.`,
         );
       }
     } catch (resendRequestError) {
@@ -1142,7 +1150,7 @@ function RecipientListDialog({
       setResendError(
         readErrorMessage(
           resendRequestError,
-          `Could not resend the ${formatMessageType(target.messageType).toLowerCase()} to ${target.recipientName}.`,
+          `Could not ${target.action} the ${formatMessageType(target.messageType).toLowerCase()} to ${target.recipientName}.`,
         ),
       );
       throw resendRequestError;
@@ -1203,6 +1211,7 @@ function RecipientListDialog({
             updateGroup.isPending
             || addRecipientsMutation.isPending
             || deleteRecipient.isPending
+            || updateRecipientPhone.isPending
             || resendRecipientMessage.isPending
             || Boolean(recipientToRemove)
           }
@@ -1410,7 +1419,76 @@ function RecipientListDialog({
                             )}
                           </td>
                           <td className="px-4 py-3 text-slate-600">
-                            {recipient.normalized_phone_number}
+                            {editingRecipientId === recipient.id ? (
+                              <div className="flex min-w-64 items-center gap-2">
+                                <input
+                                  type="tel"
+                                  value={editedPhoneNumber}
+                                  autoFocus
+                                  aria-label={`WhatsApp number for ${recipient.name || "unnamed recipient"}`}
+                                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                  onChange={(event) =>
+                                    setEditedPhoneNumber(event.target.value)
+                                  }
+                                />
+                                <button
+                                  type="button"
+                                  className="rounded-md px-2 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50"
+                                  disabled={
+                                    updateRecipientPhone.isPending
+                                    || !editedPhoneNumber.trim()
+                                  }
+                                  onClick={async () => {
+                                    setRecipientError(null);
+                                    try {
+                                      await updateRecipientPhone.mutateAsync({
+                                        groupId: group.id,
+                                        recipientId: recipient.id,
+                                        phoneNumber: editedPhoneNumber.trim(),
+                                      });
+                                      setEditingRecipientId(null);
+                                      setSuccessMessage(
+                                        `WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`,
+                                      );
+                                    } catch (phoneError) {
+                                      setRecipientError(
+                                        readErrorMessage(
+                                          phoneError,
+                                          "Could not update this WhatsApp number.",
+                                        ),
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                                  disabled={updateRecipientPhone.isPending}
+                                  onClick={() => setEditingRecipientId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span>{recipient.normalized_phone_number}</span>
+                                <button
+                                  type="button"
+                                  className="rounded-md p-1 text-blue-700 hover:bg-blue-50"
+                                  aria-label={`Edit WhatsApp number for ${recipient.name || "unnamed recipient"}`}
+                                  title="Edit WhatsApp number"
+                                  onClick={() => {
+                                    setRecipientError(null);
+                                    setEditingRecipientId(recipient.id);
+                                    setEditedPhoneNumber(recipient.phone_number);
+                                  }}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            )}
                           </td>
                           {messageTypes.map((messageType) => {
                             const messageStatus = getMessageStatus(
@@ -1422,6 +1500,9 @@ function RecipientListDialog({
                             const canResend =
                               knownMessageType
                               && hasAlreadySentMessage(recipient, messageType);
+                            const canRetry =
+                              knownMessageType
+                              && messageStatus?.status === "failed";
                             const resendBlocked =
                               messageStatus?.resend_blocked ?? false;
                             const latestResendStatus =
@@ -1435,7 +1516,7 @@ function RecipientListDialog({
                               <td key={messageType} className="px-4 py-3">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <DeliveryBadge status={messageStatus} />
-                                  {canResend && (
+                                  {(canResend || canRetry) && (
                                     <button
                                       type="button"
                                       className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -1450,7 +1531,7 @@ function RecipientListDialog({
                                             ? "A resend is already in progress for this person."
                                             : undefined
                                       }
-                                      aria-label={`Resend ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
+                                      aria-label={`${canRetry ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
                                       onClick={() => {
                                         setResendError(null);
                                         setResendNotice(null);
@@ -1463,6 +1544,7 @@ function RecipientListDialog({
                                           phoneNumber:
                                             recipient.normalized_phone_number,
                                           messageType,
+                                          action: canRetry ? "retry" : "resend",
                                         });
                                       }}
                                     >
@@ -1471,7 +1553,9 @@ function RecipientListDialog({
                                         ? "Review required"
                                         : isResendProcessing
                                           ? "Resending..."
-                                          : "Resend"}
+                                          : canRetry
+                                            ? "Retry"
+                                            : "Resend"}
                                     </button>
                                   )}
                                   {latestResendStatus === "failed" && (
@@ -1831,7 +1915,7 @@ function DeliveryBadge({
       : isInProgress
         ? "In progress"
         : status?.status === "failed"
-          ? "Failed - retry"
+          ? "Failed"
           : "Not sent";
   const style = status?.already_sent
     ? "bg-emerald-50 text-emerald-700"
@@ -2289,7 +2373,9 @@ function MessagePreviewDialog({
     ? getMessageStatus(targetRecipientDetail, messageType)
     : undefined;
   const canResendTarget = !targetRecipient || Boolean(
-    targetMessageStatus?.already_sent && !targetMessageStatus.resend_blocked,
+    targetRecipient.action === "retry"
+      ? targetMessageStatus?.status === "failed"
+      : targetMessageStatus?.already_sent && !targetMessageStatus.resend_blocked,
   );
   const eligibleRecipientCount = targetRecipient
     ? 1
@@ -2357,7 +2443,7 @@ function MessagePreviewDialog({
   return (
     <DialogFrame
       title={
-        `${targetRecipient ? "Resend" : "Preview"} ${
+        `${targetRecipient ? targetRecipient.action === "retry" ? "Retry" : "Resend" : "Preview"} ${
           messageType === "welcome" ? "Welcome Message" : "Passport Link Message"
         }`
       }
@@ -2392,7 +2478,7 @@ function MessagePreviewDialog({
             className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
           >
             {preview.content_source === "latest_recipient"
-              ? "Loaded the latest message previously sent to this recipient. You can edit it before resending."
+              ? `Loaded the latest saved message for this recipient. You can edit it before ${targetRecipient?.action === "retry" ? "retrying" : "resending"}.`
               : "Loaded the most recent message used for this broadcast. You can edit it before sending to the remaining recipients."}
           </div>
         )}
@@ -2574,9 +2660,10 @@ function MessagePreviewDialog({
             )}
             {targetRecipient && (
               <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-                Resend only to <strong>{targetRecipient.recipientName}</strong>
+                {targetRecipient.action === "retry" ? "Retry" : "Resend"} only
+                to <strong>{targetRecipient.recipientName}</strong>
                 {" "}({targetRecipient.phoneNumber}). No other recipient will
-                receive this resend.
+                receive this {targetRecipient.action}.
               </div>
             )}
           </div>
@@ -2585,7 +2672,7 @@ function MessagePreviewDialog({
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-sm font-medium text-slate-700">
                 {targetRecipient
-                  ? "One-person WhatsApp resend preview"
+                  ? `One-person WhatsApp ${targetRecipient.action} preview`
                   : "Individual WhatsApp preview"}
               </h3>
               <span className="text-xs text-slate-500">
@@ -2686,7 +2773,7 @@ function MessagePreviewDialog({
           <ErrorBanner message="This older list has no customer support contacts. Create a new list before sending." />
           )}
         {targetRecipient && detail && !canResendTarget && (
-          <ErrorBanner message="This resend can no longer be submitted because its latest delivery is missing, still running, or requires review. Refresh the recipient list before trying again." />
+          <ErrorBanner message={`This ${targetRecipient.action} can no longer be submitted because its latest delivery state changed. Refresh the recipient list before trying again.`} />
         )}
         {!targetRecipient &&
           preview &&
@@ -2738,7 +2825,7 @@ function MessagePreviewDialog({
           >
             <Send className="h-4 w-4" />
             {targetRecipient
-              ? `Resend to ${targetRecipient.recipientName}`
+              ? `${targetRecipient.action === "retry" ? "Retry" : "Resend"} to ${targetRecipient.recipientName}`
               : `Send individually to ${eligibleRecipientCount}`}
           </Button>
         </div>

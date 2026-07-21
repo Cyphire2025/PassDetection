@@ -56,7 +56,7 @@ test("recipient details refresh after an accepted resend request", () => {
   assert.match(resendHook, /invalidateQueries/);
 });
 
-test("only already-sent welcome and passport messages expose per-message resend", () => {
+test("sent messages expose resend and failed messages expose retry", () => {
   assert.match(
     pageSource,
     /const knownMessageType =\s*isWhatsAppMessageType\(messageType\)/,
@@ -65,7 +65,9 @@ test("only already-sent welcome and passport messages expose per-message resend"
     pageSource,
     /knownMessageType\s*&& hasAlreadySentMessage\(recipient, messageType\)/,
   );
-  assert.match(pageSource, /\{canResend && \(/);
+  assert.match(pageSource, /messageStatus\?\.status === "failed"/);
+  assert.match(pageSource, /\{\(canResend \|\| canRetry\) && \(/);
+  assert.match(pageSource, /canRetry\s*\? "Retry"/);
   assert.match(
     pageSource,
     /return messageType === "welcome" \|\| messageType === "passport_link"/,
@@ -75,10 +77,10 @@ test("only already-sent welcome and passport messages expose per-message resend"
 test("resend opens the shared editor for one named recipient and is protected from double submission", () => {
   assert.match(pageSource, /<MessagePreviewDialog/);
   assert.match(pageSource, /targetRecipient=\{recipientToResend\}/);
-  assert.match(pageSource, /targetRecipient \? "Resend" : "Preview"/);
+  assert.match(pageSource, /targetRecipient\.action === "retry" \? "Retry" : "Resend"/);
   assert.match(
     pageSource,
-    /No other recipient will\s+receive this resend\./,
+    /No other recipient will\s+receive this \{targetRecipient\.action\}\./,
   );
   assert.match(
     pageSource,
@@ -90,7 +92,15 @@ test("resend opens the shared editor for one named recipient and is protected fr
   );
   assert.match(pageSource, /resendInFlightRef\.current = true/);
   assert.match(pageSource, /resendInFlightRef\.current = false/);
-  assert.match(pageSource, /Resend to \$\{targetRecipient\.recipientName\}/);
+  assert.match(pageSource, /\? "Retry" : "Resend"\} to \$\{targetRecipient\.recipientName\}/);
+});
+
+test("recipient phone numbers are editable through the scoped update API", () => {
+  assert.match(apiSource, /updateRecipientPhone: async/);
+  assert.match(apiSource, /\{ phone_number: phoneNumber \}/);
+  assert.match(hooksSource, /useUpdateWhatsAppRecipientPhone/);
+  assert.match(pageSource, /Edit WhatsApp number/);
+  assert.match(pageSource, /updateRecipientPhone\.mutateAsync/);
 });
 
 test("opening the resend editor replaces the recipient-list modal instead of stacking two dialogs", () => {

@@ -180,8 +180,12 @@ async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_co
         id=group_id,
         name="Vietnam",
     )
+    state_result = MagicMock()
+    state_result.scalar_one_or_none.return_value = SimpleNamespace(
+        status="submitted",
+    )
     session = AsyncMock()
-    session.execute.return_value = group_result
+    session.execute.side_effect = [group_result, state_result]
     recipient = SimpleNamespace(id=recipient_id, name="Aarav")
     latest_snapshot = AsyncMock(return_value=_composer_snapshot_from_log(_passport_log(explicit=True)))
     monkeypatch.setattr(
@@ -224,6 +228,63 @@ async def test_resend_preview_is_scoped_to_one_recipient_and_latest_recipient_co
     assert response.content_source == "latest_recipient"
     assert response.recipient_count == 1
     assert response.eligible_recipient_count == 1
+
+
+@pytest.mark.asyncio
+async def test_failed_message_preview_reuses_saved_content_for_one_person_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    group_id = uuid.uuid4()
+    recipient_id = uuid.uuid4()
+    group_result = MagicMock()
+    group_result.scalar_one_or_none.return_value = SimpleNamespace(
+        id=group_id,
+        name="Vietnam",
+    )
+    state_result = MagicMock()
+    state_result.scalar_one_or_none.return_value = SimpleNamespace(status="failed")
+    session = AsyncMock()
+    session.execute.side_effect = [group_result, state_result]
+    latest_snapshot = AsyncMock(
+        return_value=_composer_snapshot_from_log(_passport_log())
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp._group_recipients",
+        AsyncMock(
+            return_value=[SimpleNamespace(id=recipient_id, name="Aarav")]
+        ),
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp._latest_composer_snapshot",
+        latest_snapshot,
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp._support_contacts_for_group",
+        AsyncMock(return_value=[]),
+    )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp.get_settings",
+        lambda: SimpleNamespace(
+            whatsapp_welcome_template_name="welcome_v3",
+            whatsapp_passport_link_template_name="passport_v3",
+        ),
+    )
+
+    response = await preview_broadcast_message(
+        group_id=group_id,
+        body=WhatsAppPreviewRequest(
+            message_type="passport_link",
+            resend_recipient_id=recipient_id,
+        ),
+        current_user=SimpleNamespace(role=UserRole.SUPER_ADMIN, agency_id=None),
+        session=session,
+    )
+
+    call = latest_snapshot.await_args
+    assert call.kwargs["accepted_only"] is False
+    assert call.kwargs["include_failed"] is True
+    assert response.eligible_recipient_count == 1
+    assert response.already_sent_count == 0
 
 
 @pytest.mark.asyncio

@@ -291,6 +291,22 @@ export const whatsappApi = {
     await apiClient.delete(API_ENDPOINTS.whatsapp.recipient(groupId, recipientId));
   },
 
+  updateRecipientPhone: async ({
+    groupId,
+    recipientId,
+    phoneNumber,
+  }: {
+    groupId: string;
+    recipientId: string;
+    phoneNumber: string;
+  }): Promise<WhatsAppBroadcastGroupDetail> => {
+    const { data } = await apiClient.patch<WhatsAppBroadcastGroupDetail>(
+      API_ENDPOINTS.whatsapp.recipient(groupId, recipientId),
+      { phone_number: phoneNumber },
+    );
+    return data;
+  },
+
   resendRecipientMessage: async ({
     groupId,
     recipientId,

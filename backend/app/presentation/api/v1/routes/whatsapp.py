@@ -262,6 +262,10 @@ class WhatsAppResendRequest(WhatsAppSendRequest):
     pass
 
 
+class WhatsAppRecipientPhoneUpdateRequest(BaseModel):
+    phone_number: str = Field(min_length=1, max_length=64)
+
+
 class WhatsAppPreviewRequest(WhatsAppSendRequest):
     recipient_id: uuid.UUID | None = None
     resend_recipient_id: uuid.UUID | None = None
@@ -1889,6 +1893,20 @@ async def _group_detail(
             .order_by(WhatsAppMessageLogModel.created_at.desc())
         )
         for resend_log in resend_result.scalars().all():
+            current_state = next(
+                (
+                    state
+                    for state in states_by_recipient.get(resend_log.recipient_id, [])
+                    if state.message_type == resend_log.message_type
+                ),
+                None,
+            )
+            if (
+                current_state
+                and current_state.status == "failed"
+                and resend_log.created_at <= current_state.status_updated_at
+            ):
+                continue
             recipient_statuses = resend_statuses_by_recipient.setdefault(
                 resend_log.recipient_id,
                 {},
@@ -2201,6 +2219,7 @@ async def _latest_composer_snapshot(
     message_type: WhatsAppMessageType,
     recipient_id: uuid.UUID | None = None,
     accepted_only: bool = True,
+    include_failed: bool = False,
     include_explicit_resends: bool = False,
 ) -> _WhatsAppComposerSnapshot | None:
     reusable_statuses = (
@@ -2208,6 +2227,8 @@ async def _latest_composer_snapshot(
         if accepted_only
         else WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES
     )
+    if include_failed:
+        reusable_statuses = reusable_statuses | {"failed"}
     predicates: list[Any] = [
         WhatsAppMessageLogModel.broadcast_group_id == group_id,
         WhatsAppMessageLogModel.message_type == message_type,
@@ -2527,12 +2548,29 @@ async def preview_broadcast_message(
     snapshot: _WhatsAppComposerSnapshot | None = None
     content_source: Literal["default", "latest_group", "latest_recipient"] = "default"
     if body.resend_recipient_id:
+        state_result = await session.execute(
+            select(WhatsAppRecipientMessageStateModel).where(
+                WhatsAppRecipientMessageStateModel.recipient_id
+                == body.resend_recipient_id,
+                WhatsAppRecipientMessageStateModel.message_type == message_type,
+            )
+        )
+        target_state = state_result.scalar_one_or_none()
+        if not target_state or (
+            target_state.status not in WHATSAPP_ACCEPTED_STATUSES
+            and target_state.status != "failed"
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Only a sent or failed WhatsApp message can be opened here",
+            )
         snapshot = await _latest_composer_snapshot(
             session,
             group_id=group.id,
             recipient_id=body.resend_recipient_id,
             message_type=message_type,
-            accepted_only=True,
+            accepted_only=target_state.status in WHATSAPP_ACCEPTED_STATUSES,
+            include_failed=target_state.status == "failed",
             include_explicit_resends=True,
         )
         if snapshot:
@@ -2549,7 +2587,7 @@ async def preview_broadcast_message(
     if body.resend_recipient_id is not None and snapshot is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="No successfully submitted message is available to resend for this recipient",
+            detail="No saved message is available to resend or retry for this recipient",
         )
     resolved_body = _merge_composer_snapshot(body, snapshot)
     support_contacts = await _support_contacts_for_group(session, group.id)
@@ -2574,7 +2612,9 @@ async def preview_broadcast_message(
     if body.resend_recipient_id is not None:
         recipient_count = 1
         eligible_count = 1
-        already_sent_count = 1
+        already_sent_count = (
+            1 if target_state.status in WHATSAPP_ACCEPTED_STATUSES else 0
+        )
         in_progress_count = 0
         uncertain_count = 0
     else:
@@ -2979,6 +3019,122 @@ async def add_broadcast_recipients(
     return await _group_detail(session, group)
 
 
+@router.patch(
+    "/groups/{group_id}/recipients/{recipient_id}",
+    response_model=WhatsAppBroadcastGroupDetailResponse,
+)
+async def update_broadcast_recipient_phone(
+    group_id: uuid.UUID,
+    recipient_id: uuid.UUID,
+    body: WhatsAppRecipientPhoneUpdateRequest,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBroadcastGroupDetailResponse:
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+    recipient_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.id == recipient_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+        .with_for_update()
+    )
+    recipient = recipient_result.scalar_one_or_none()
+    if not recipient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp recipient not found",
+        )
+    normalized_phone = _normalize_phone(body.phone_number)
+    if not normalized_phone:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Use 8 to 15 digits with an optional country code",
+        )
+    duplicate_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel.id).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.normalized_phone_number
+            == normalized_phone,
+            WhatsAppBroadcastRecipientModel.id != recipient.id,
+        )
+    )
+    if duplicate_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="That WhatsApp number already belongs to another recipient in this list",
+        )
+    active_state_result = await session.execute(
+        select(WhatsAppRecipientMessageStateModel.id).where(
+            WhatsAppRecipientMessageStateModel.recipient_id == recipient.id,
+            WhatsAppRecipientMessageStateModel.status.in_(
+                WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
+            ),
+        )
+    )
+    if active_state_result.first():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Wait until the current delivery finishes, or review its unknown "
+                "outcome, before changing this number"
+            ),
+        )
+    active_resend_result = await session.execute(
+        select(WhatsAppMessageLogModel.id).where(
+            WhatsAppMessageLogModel.recipient_id == recipient.id,
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+            WhatsAppMessageLogModel.status.in_(
+                WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
+            ),
+        )
+    )
+    if active_resend_result.first():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Wait until the current resend finishes, or review its unknown "
+                "outcome, before changing this number"
+            ),
+        )
+    if normalized_phone == recipient.normalized_phone_number:
+        return await _group_detail(session, group)
+
+    now = datetime.now(tz=UTC)
+    recipient.phone_number = body.phone_number.strip()
+    recipient.normalized_phone_number = normalized_phone
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(WhatsAppRecipientMessageStateModel.recipient_id == recipient.id)
+        .values(
+            status="failed",
+            batch_id=None,
+            submitted_at=None,
+            provider_status_at=None,
+            status_updated_at=now,
+            updated_at=now,
+        )
+        .execution_options(synchronize_session=False)
+    )
+    group.updated_at = now
+    await session.flush()
+    return await _group_detail(session, group)
+
+
 @router.delete(
     "/groups/{group_id}/recipients/{recipient_id}",
     status_code=status.HTTP_200_OK,
@@ -3105,12 +3261,15 @@ async def resend_recipient_message(
         .with_for_update()
     )
     delivery_state = state_result.scalar_one_or_none()
-    if not delivery_state or delivery_state.status not in WHATSAPP_ACCEPTED_STATUSES:
+    is_retry = bool(delivery_state and delivery_state.status == "failed")
+    if not delivery_state or (
+        delivery_state.status not in WHATSAPP_ACCEPTED_STATUSES and not is_retry
+    ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                "Only a successfully submitted WhatsApp message can be resent. "
-                "Use the normal send action for an unsent or failed message."
+                "Only a successfully submitted message can be resent, and only a "
+                "failed message can be retried."
             ),
         )
 
@@ -3180,7 +3339,9 @@ async def resend_recipient_message(
             WhatsAppMessageLogModel.broadcast_group_id == group.id,
             WhatsAppMessageLogModel.recipient_id == recipient.id,
             WhatsAppMessageLogModel.message_type == message_type,
-            WhatsAppMessageLogModel.status.in_(WHATSAPP_ACCEPTED_STATUSES),
+            WhatsAppMessageLogModel.status.in_(
+                WHATSAPP_ACCEPTED_STATUSES | ({"failed"} if is_retry else set())
+            ),
         )
         .order_by(
             WhatsAppMessageLogModel.created_at.desc(),
@@ -3192,7 +3353,7 @@ async def resend_recipient_message(
     if not source_log:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="The previously submitted WhatsApp message could not be found",
+            detail="The previously saved WhatsApp message could not be found",
         )
     try:
         source_snapshot = _composer_snapshot_from_log(source_log)
@@ -3290,10 +3451,17 @@ async def resend_recipient_message(
         rendered_message=rendered_message,
         header_parameter_values=header_parameters,
         template_parameter_values=parameters,
-        is_explicit_resend=True,
+        is_explicit_resend=not is_retry,
         created_at=now,
     )
     session.add(resend_log)
+    if is_retry:
+        delivery_state.status = "queued"
+        delivery_state.batch_id = batch_id
+        delivery_state.submitted_at = None
+        delivery_state.provider_status_at = None
+        delivery_state.status_updated_at = now
+        delivery_state.updated_at = now
     try:
         await session.flush()
     except IntegrityError as exc:
@@ -3304,7 +3472,11 @@ async def resend_recipient_message(
         ) from exc
 
     await AuditLogRepository(session).record(
-        action="whatsapp_recipient_message_resend_requested",
+        action=(
+            "whatsapp_recipient_message_retry_requested"
+            if is_retry
+            else "whatsapp_recipient_message_resend_requested"
+        ),
         entity_type="whatsapp_broadcast_recipient",
         entity_id=str(recipient.id),
         agency_id=group.agency_id,
@@ -3353,6 +3525,11 @@ async def resend_recipient_message(
         resend_log.error_message = (
             "WHATSAPP_QUEUE_UNAVAILABLE: WhatsApp delivery queue is temporarily unavailable"
         )
+        if is_retry:
+            delivery_state.status = "failed"
+            delivery_state.batch_id = None
+            delivery_state.status_updated_at = resend_log.status_updated_at
+            delivery_state.updated_at = resend_log.status_updated_at
         await session.commit()
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
