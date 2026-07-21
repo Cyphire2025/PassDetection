@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Crop, ExternalLink, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
@@ -50,6 +50,9 @@ import {
   type PassportFieldReview,
   type StaffApprovalFeedback,
 } from "../utils/passport-review";
+import type { PassportImageType } from "../api/passports.api";
+import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
+import { PassportImageCropEditor } from "./passport-image-crop-editor";
 
 interface PassportDetailProps {
   id: string;
@@ -63,15 +66,22 @@ interface ReextractFeedback {
 const REVIEW_FIELDS = PASSPORT_REVIEW_FIELDS;
 
 export function PassportDetail({ id }: PassportDetailProps) {
-  const { data, isLoading, error } = usePassportSubmission(id);
+  const { data, isLoading, error, refetch } = usePassportSubmission(id);
   const confirmMutation = useConfirmPassportSubmission(id);
   const staffApproveMutation = useStaffApprovePassportSubmission(id);
   const retryAiVerificationMutation = useRetryPassportAiVerification(id);
   const reextractMutation = useReextractPassportSubmission();
   const currentUser = useAuthStore(selectUser);
+  const canCropPassportImages = canEditPassportImages(currentUser?.role);
   const [formError, setFormError] = useState<string | null>(null);
   const [approvalFeedback, setApprovalFeedback] = useState<StaffApprovalFeedback | null>(null);
   const [reextractFeedback, setReextractFeedback] = useState<ReextractFeedback | null>(null);
+  const [cropEditor, setCropEditor] = useState<{
+    imageType: PassportImageType;
+    label: string;
+    returnFocusTarget: HTMLButtonElement;
+  } | null>(null);
+  const [imageRevision, setImageRevision] = useState(0);
   const reextractInFlightRef = useRef(false);
 
   if (isLoading) {
@@ -159,9 +169,33 @@ export function PassportDetail({ id }: PassportDetailProps) {
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <Card className="overflow-hidden rounded-3xl">
           <CardContent className="space-y-5 p-4">
-            <PassportImagePreview label="Visa Photo" url={data.passport_photo_url} clientName={data.client_name} />
-            <PassportImagePreview label="Passport front" url={data.image_url} clientName={data.client_name} />
-            <PassportImagePreview label="Passport back" url={data.passport_back_url} clientName={data.client_name} />
+            <PassportImagePreview
+              label="Visa Photo"
+              imageType="visa_photo"
+              url={data.passport_photo_url}
+              clientName={data.client_name}
+              revision={imageRevision}
+              canCrop={canCropPassportImages}
+              onCrop={(returnFocusTarget) => setCropEditor({ imageType: "visa_photo", label: "Visa Photo", returnFocusTarget })}
+            />
+            <PassportImagePreview
+              label="Passport front"
+              imageType="passport_front"
+              url={data.image_url}
+              clientName={data.client_name}
+              revision={imageRevision}
+              canCrop={canCropPassportImages}
+              onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_front", label: "Passport front", returnFocusTarget })}
+            />
+            <PassportImagePreview
+              label="Passport back"
+              imageType="passport_back"
+              url={data.passport_back_url}
+              clientName={data.client_name}
+              revision={imageRevision}
+              canCrop={canCropPassportImages}
+              onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_back", label: "Passport back", returnFocusTarget })}
+            />
           </CardContent>
         </Card>
 
@@ -242,18 +276,78 @@ export function PassportDetail({ id }: PassportDetailProps) {
           )}
         </div>
       </div>
+      {cropEditor && canCropPassportImages && (
+        <PassportImageCropEditor
+          submissionId={data.id}
+          imageType={cropEditor.imageType}
+          label={cropEditor.label}
+          returnFocusTarget={cropEditor.returnFocusTarget}
+          onClose={() => setCropEditor(null)}
+          onSaved={() => {
+            setImageRevision((current) => current + 1);
+            void refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function PassportImagePreview({ label, url, clientName }: { label: string; url?: string | null; clientName: string }) {
+function PassportImagePreview({
+  label,
+  imageType,
+  url,
+  clientName,
+  revision,
+  canCrop,
+  onCrop,
+}: {
+  label: string;
+  imageType: PassportImageType;
+  url?: string | null;
+  clientName: string;
+  revision: number;
+  canCrop: boolean;
+  onCrop: (trigger: HTMLButtonElement) => void;
+}) {
+  const effectiveUrl = url ? appendCacheRevision(url, revision) : null;
   return (
     <section>
-      <h3 className="mb-2 text-sm font-semibold text-slate-700">{label}</h3>
-      {url ? (
-        <div className="relative aspect-[4/3] min-h-[15rem] overflow-hidden rounded-xl bg-slate-100">
-          <Image src={url} alt={`${label} for ${clientName}`} fill unoptimized className="object-contain" />
-        </div>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
+        {effectiveUrl && (
+          <div className="flex items-center gap-2">
+            <a
+              href={effectiveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Open
+            </a>
+            {canCrop && (
+              <button
+                type="button"
+                onClick={(event) => onCrop(event.currentTarget)}
+                data-image-type={imageType}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <Crop className="h-3.5 w-3.5" /> Crop
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      {effectiveUrl ? (
+        <a
+          href={effectiveUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open ${label} for ${clientName} in a new tab`}
+          className="relative block aspect-[4/3] min-h-[15rem] overflow-hidden rounded-xl bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        >
+          <Image src={effectiveUrl} alt={`${label} for ${clientName}`} fill unoptimized className="object-contain" />
+        </a>
       ) : (
         <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 text-sm text-slate-400">
           Not uploaded
@@ -336,6 +430,12 @@ interface ReviewFieldsCardProps {
   onRetryAiVerification: () => Promise<unknown>;
   reviewerLabel: string | null;
   onReextract: () => void;
+}
+
+function appendCacheRevision(url: string, revision: number) {
+  if (revision === 0) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}ui_crop_revision=${revision}`;
 }
 
 function ReviewFieldsCard({
@@ -1006,9 +1106,9 @@ function formatConflictValue(field: string, value: string) {
 
 function MetaItem({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <div className="text-xs uppercase tracking-wide text-slate-400">{label}</div>
-      <div className="mt-1 text-sm font-medium text-slate-800">{value}</div>
+      <div className="mt-1 break-all text-sm font-medium text-slate-800">{value}</div>
     </div>
   );
 }

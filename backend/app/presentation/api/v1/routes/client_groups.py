@@ -90,6 +90,9 @@ from app.infrastructure.observability.operational_events import (
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
+from app.infrastructure.repositories.passport_image_crop_repository import (
+    PassportImageCropRepository,
+)
 from app.infrastructure.repositories.qualifier_selection_repository import (
     QualifierSelectionRepository,
 )
@@ -1195,6 +1198,9 @@ async def permanently_delete_client_group(
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
     storage_keys = passport_storage_keys(submissions)
+    storage_keys.extend(
+        await PassportImageCropRepository(session).derived_storage_keys(submission_ids)
+    )
 
     await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id))
     await session.execute(

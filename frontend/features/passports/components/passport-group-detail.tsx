@@ -455,6 +455,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       {passportImportPreview && (
         <PassportDocumentImportDialog
           preview={passportImportPreview}
+          files={passportImportFiles}
           saving={passportSaveMutation.isPending}
           onClose={() => {
             if (!passportSaveMutation.isPending) setPassportImportPreview(null);
@@ -765,9 +766,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                               onClick={(event) => event.stopPropagation()}
                               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                             />
-                            <div>
+                            <div className="min-w-0">
                               <div className="font-semibold text-slate-900">{passport.client_name}</div>
-                              <div className="mt-1 text-xs text-slate-500">{passport.client_email ?? "No email provided"}</div>
+                              <div className="mt-1 break-all text-xs text-slate-500">{passport.client_email ?? "No email provided"}</div>
                             </div>
                           </div>
                         </td>
@@ -987,9 +988,9 @@ function PassportMobileCard({
               onClick={(event) => event.stopPropagation()}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            <div>
+            <div className="min-w-0">
               <h3 className="text-base font-semibold text-slate-900">{passport.client_name}</h3>
-              <p className="mt-1 text-xs text-slate-500">{passport.client_email ?? "No email provided"}</p>
+              <p className="mt-1 break-all text-xs text-slate-500">{passport.client_email ?? "No email provided"}</p>
             </div>
           </div>
           <StatusBadge status={passport.status} />
@@ -1141,10 +1142,16 @@ function ReextractPassportControl({
 function PassportDocumentMatrix({
   passports,
   preview,
+  files = [],
 }: {
   passports: PassportSubmission[];
   preview?: PassportDocumentImportPreview;
+  files?: File[];
 }) {
+  const matchedFiles = useMemo(
+    () => matchPreviewFiles(preview?.accepted_documents ?? [], files),
+    [files, preview?.accepted_documents],
+  );
   const previewByPassenger = useMemo(() => {
     const map = new Map<string, Partial<Record<"photo" | "front" | "back", PassportDocumentImportPreview["accepted_documents"][number]>>>();
     preview?.accepted_documents.forEach((item) => {
@@ -1180,21 +1187,21 @@ function PassportDocumentMatrix({
                     </td>
                     <DocumentCell
                       label="Passport pic"
-                      url={previewDocs?.photo ? undefined : passport.passport_photo_url}
+                      url={passport.passport_photo_url}
+                      file={previewDocs?.photo ? matchedFiles.get(previewDocs.photo) : undefined}
                       filename={previewDocs?.photo?.filename}
-                      hasDocument={Boolean(previewDocs?.photo || passport.passport_photo_s3_key)}
                     />
                     <DocumentCell
                       label="Passport front"
-                      url={previewDocs?.front ? undefined : passport.image_url}
+                      url={passport.image_url}
+                      file={previewDocs?.front ? matchedFiles.get(previewDocs.front) : undefined}
                       filename={previewDocs?.front?.filename}
-                      hasDocument={Boolean(previewDocs?.front || hasRealPassportFront(passport))}
                     />
                     <DocumentCell
                       label="Passport back"
-                      url={previewDocs?.back ? undefined : passport.passport_back_url}
+                      url={passport.passport_back_url}
+                      file={previewDocs?.back ? matchedFiles.get(previewDocs.back) : undefined}
                       filename={previewDocs?.back?.filename}
-                      hasDocument={Boolean(previewDocs?.back || passport.passport_back_s3_key)}
                     />
                   </tr>
                 );
@@ -1210,26 +1217,38 @@ function PassportDocumentMatrix({
 function DocumentCell({
   label,
   url,
+  file,
   filename,
-  hasDocument,
 }: {
   label: string;
   url?: string | null;
+  file?: File;
   filename?: string | null;
-  hasDocument: boolean;
 }) {
   return (
     <td className="px-5 py-4">
-      {hasDocument ? (
+      {url || file ? (
         <div className="space-y-2">
-          {url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={label} className="h-24 w-36 rounded-lg border border-slate-200 object-cover" />
-          ) : (
-            <div className="flex h-24 w-36 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-xs font-medium text-emerald-800">
-              Accepted
-            </div>
-          )}
+          {file ? (
+            <LocalDocumentThumbnail file={file} label={label} />
+          ) : url ? (
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${label} in a new tab`}
+              className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={url}
+                alt={label}
+                loading="lazy"
+                decoding="async"
+                className="h-24 w-36 rounded-lg border border-slate-200 bg-slate-50 object-contain"
+              />
+            </a>
+          ) : null}
           <div className="max-w-44 truncate text-xs text-slate-500">{filename ?? "Saved document"}</div>
         </div>
       ) : (
@@ -1252,6 +1271,47 @@ function needsReextraction(passport: PassportSubmission) {
 
 function hasRealPassportFront(passport: PassportSubmission) {
   return Boolean(passport.image_s3_key && !passport.image_s3_key.startsWith("excel-imports/"));
+}
+
+function LocalDocumentThumbnail({ file, label }: { file: File; label: string }) {
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const nextUrl = URL.createObjectURL(file);
+    const timer = window.setTimeout(() => setObjectUrl(nextUrl), 0);
+    return () => {
+      window.clearTimeout(timer);
+      URL.revokeObjectURL(nextUrl);
+    };
+  }, [file]);
+  if (!objectUrl) {
+    return (
+      <div
+        className="flex h-24 w-36 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-400"
+        role="status"
+      >
+        Loading preview
+      </div>
+    );
+  }
+  return (
+    <a
+      href={objectUrl}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`Open ${label} preview in a new tab`}
+      className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+    >
+      {/* Document imports accept image files; the object URL is revoked on replacement/unmount. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={objectUrl}
+        alt={label}
+        loading="lazy"
+        decoding="async"
+        className="h-24 w-36 rounded-lg border border-slate-200 bg-slate-50 object-contain"
+      />
+    </a>
+  );
 }
 
 function getDashboardFields(passport: PassportSubmission) {
@@ -1328,9 +1388,15 @@ function PassportDocumentImportProgress({
 
 function PassportImportPreviewMatrix({
   preview,
+  files,
 }: {
   preview: PassportDocumentImportPreview;
+  files: File[];
 }) {
+  const matchedFiles = useMemo(
+    () => matchPreviewFiles(preview.accepted_documents, files),
+    [files, preview.accepted_documents],
+  );
   const passengers = useMemo(() => {
     const byPassenger = new Map<string, {
       id: string;
@@ -1388,8 +1454,8 @@ function PassportImportPreviewMatrix({
                       <DocumentCell
                         key={documentType}
                         label={documentType}
+                        file={document ? matchedFiles.get(document) : undefined}
                         filename={document?.filename}
-                        hasDocument={Boolean(document)}
                       />
                     );
                   })}
@@ -1403,13 +1469,33 @@ function PassportImportPreviewMatrix({
   );
 }
 
+function matchPreviewFiles(
+  documents: PassportDocumentImportPreview["accepted_documents"],
+  files: File[],
+) {
+  const queues = new Map<string, File[]>();
+  for (const file of files) {
+    const queue = queues.get(file.name) ?? [];
+    queue.push(file);
+    queues.set(file.name, queue);
+  }
+  const matches = new Map<PassportDocumentImportPreview["accepted_documents"][number], File>();
+  for (const document of documents) {
+    const file = queues.get(document.filename)?.shift();
+    if (file) matches.set(document, file);
+  }
+  return matches;
+}
+
 function PassportDocumentImportDialog({
   preview,
+  files,
   saving,
   onClose,
   onSave,
 }: {
   preview: PassportDocumentImportPreview;
+  files: File[];
   saving: boolean;
   onClose: () => void;
   onSave: () => void;
@@ -1455,7 +1541,7 @@ function PassportDocumentImportDialog({
               </section>
             </div>
           ) : (
-            <PassportImportPreviewMatrix preview={preview} />
+            <PassportImportPreviewMatrix preview={preview} files={files} />
           )}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-4">

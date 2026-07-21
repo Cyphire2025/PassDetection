@@ -9,6 +9,9 @@ import pytest
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import StorageError
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.passport_image_crop_repository import (
+    PassportImageCropRepository,
+)
 from app.presentation.api.v1.routes.admin import (
     _WhatsAppPurgeCounts,
     delete_manager,
@@ -126,12 +129,18 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
         group_id=group_id,
         submission=submission,
     )
-    storage = SimpleNamespace(delete_files=AsyncMock(return_value=4))
+    derived_key = "passport-crops/manager/front/1.jpg"
+    storage = SimpleNamespace(delete_files=AsyncMock(return_value=5))
 
     with (
         patch(
             "app.presentation.api.v1.routes.admin.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=[derived_key]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -160,9 +169,10 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
             "front/thumbnail.jpg",
             "back/original.jpg",
             "visa-photo/original.jpg",
+            derived_key,
         ]
     )
-    assert response.deleted_storage_objects == 4
+    assert response.deleted_storage_objects == 5
     session.delete.assert_awaited_once_with(manager)
     session.flush.assert_awaited_once_with()
 
@@ -191,6 +201,11 @@ async def test_manager_deletion_does_not_mutate_database_after_storage_failure()
         patch(
             "app.presentation.api.v1.routes.admin.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=["passport-crops/manager/front/1.jpg"]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -225,12 +240,18 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
         group_id=group_id,
         submission=submission,
     )
-    storage = SimpleNamespace(delete_files=AsyncMock(return_value=4))
+    derived_key = "passport-crops/global/photo/1.jpg"
+    storage = SimpleNamespace(delete_files=AsyncMock(return_value=5))
 
     with (
         patch(
             "app.presentation.api.v1.routes.admin.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=[derived_key]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -270,9 +291,10 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
             "front/thumbnail.jpg",
             "back/original.jpg",
             "visa-photo/original.jpg",
+            derived_key,
         ]
     )
-    assert response.deleted_storage_objects == 4
+    assert response.deleted_storage_objects == 5
 
 
 @pytest.mark.asyncio
@@ -289,6 +311,11 @@ async def test_agency_purge_scopes_submissions_through_authorized_groups() -> No
         patch(
             "app.presentation.api.v1.routes.admin.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=[]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -345,6 +372,11 @@ async def test_global_purge_does_not_delete_database_rows_after_storage_failure(
         patch(
             "app.presentation.api.v1.routes.admin.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=["passport-crops/global/photo/1.jpg"]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",

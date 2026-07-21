@@ -11,6 +11,9 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.client_group_repository import (
     ClientGroupRepository,
 )
+from app.infrastructure.repositories.passport_image_crop_repository import (
+    PassportImageCropRepository,
+)
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
 from app.presentation.api.v1.routes.client_groups import (
     permanently_delete_client_group,
@@ -72,8 +75,9 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
         email="admin@example.com",
     )
     storage = SimpleNamespace(
-        delete_files=AsyncMock(return_value=4),
+        delete_files=AsyncMock(return_value=5),
     )
+    derived_key = "passport-crops/group/front/1.jpg"
 
     with (
         patch.object(
@@ -97,6 +101,11 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             return_value=storage,
         ),
         patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=[derived_key]),
+        ),
+        patch.object(
             AuditLogRepository,
             "record",
             AsyncMock(return_value=None),
@@ -115,6 +124,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             "front/thumbnail.jpg",
             "back/original.jpg",
             "visa/original.jpg",
+            derived_key,
         ]
     )
     statements = [

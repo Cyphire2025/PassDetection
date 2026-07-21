@@ -9,7 +9,47 @@ import uuid
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+
+PassportImageTypeValue = Literal["visa_photo", "passport_front", "passport_back"]
+
+
+class PassportImageCropCoordinates(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    x: float = Field(..., ge=0.0, le=1.0, allow_inf_nan=False)
+    y: float = Field(..., ge=0.0, le=1.0, allow_inf_nan=False)
+    width: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
+    height: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
+    rotation_degrees: Literal[0, 90, 180, 270] = 0
+
+    @model_validator(mode="after")
+    def validate_bounds(self) -> PassportImageCropCoordinates:
+        if self.x + self.width > 1.000001 or self.y + self.height > 1.000001:
+            raise ValueError("Crop coordinates must stay inside the image.")
+        return self
+
+
+class PassportImageCropUpdateRequest(PassportImageCropCoordinates):
+    expected_revision: int = Field(..., ge=0)
+
+
+class PassportImageCropResetRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(..., ge=0)
+
+
+class PassportImageCropResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    image_type: PassportImageTypeValue
+    original_url: str
+    cropped_url: str
+    crop: PassportImageCropCoordinates | None = None
+    source_width: int | None = Field(default=None, ge=1)
+    source_height: int | None = Field(default=None, ge=1)
+    revision: int = Field(default=0, ge=0)
 
 
 class ConfirmPassportSubmissionRequest(BaseModel):

@@ -691,6 +691,56 @@ class PassportSubmissionModel(Base):
     group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
 
 
+class PassportImageCropModel(Base):
+    """Non-destructive crop metadata and its revisioned display derivative."""
+
+    __tablename__ = "passport_image_crops"
+    __table_args__ = (
+        UniqueConstraint("submission_id", "image_type", name="uq_passport_image_crops_submission_type"),
+        CheckConstraint(
+            "image_type IN ('visa_photo', 'passport_front', 'passport_back')",
+            name="ck_passport_image_crops_type",
+        ),
+        CheckConstraint("rotation_degrees IN (0, 90, 180, 270)", name="ck_passport_image_crops_rotation"),
+        CheckConstraint(
+            "crop_x >= 0 AND crop_y >= 0 AND crop_width >= 0.08 AND crop_height >= 0.08 "
+            "AND crop_x + crop_width <= 1.000001 AND crop_y + crop_height <= 1.000001",
+            name="ck_passport_image_crops_bounds",
+        ),
+        CheckConstraint("source_width > 0 AND source_height > 0", name="ck_passport_image_crops_source_size"),
+        CheckConstraint("revision > 0", name="ck_passport_image_crops_revision"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    image_type: Mapped[str] = mapped_column(String(24), nullable=False)
+    source_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    derived_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
+    crop_x: Mapped[float] = mapped_column(Float, nullable=False)
+    crop_y: Mapped[float] = mapped_column(Float, nullable=False)
+    crop_width: Mapped[float] = mapped_column(Float, nullable=False)
+    crop_height: Mapped[float] = mapped_column(Float, nullable=False)
+    rotation_degrees: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    source_width: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_height: Mapped[int] = mapped_column(Integer, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+
+
 class QualifierSelectionModel(Base):
     __tablename__ = "qualifier_selections"
     __table_args__ = (

@@ -146,5 +146,24 @@ test("all document-import previews use full-group backend reconciliation", () =>
   );
   assert.doesNotMatch(source, /buildLocalPassportDocumentPreview/);
   assert.doesNotMatch(source, /containsZip/);
-  assert.match(source, /PassportImportPreviewMatrix preview=\{preview\}/);
+  assert.match(source, /PassportImportPreviewMatrix preview=\{preview\} files=\{files\}/);
+});
+
+test("long client emails wrap inside their own group-row column", () => {
+  assert.match(source, /className="min-w-0"[\s\S]*?className="mt-1 break-all text-xs text-slate-500"/);
+});
+
+test("DOCS view prefers real saved or local image previews and never shows an Accepted placeholder", () => {
+  assert.match(source, /url=\{passport\.passport_photo_url\}/);
+  assert.match(source, /url=\{passport\.image_url\}/);
+  assert.match(source, /url=\{passport\.passport_back_url\}/);
+  assert.match(source, /LocalDocumentThumbnail/);
+  assert.match(source, /\{file \? \([\s\S]*?<LocalDocumentThumbnail file=\{file\}[\s\S]*?\) : url \? \(/);
+  assert.match(source, /URL\.revokeObjectURL\(nextUrl\)/);
+  assert.match(source, /object-contain/);
+  assert.equal((source.match(/loading="lazy"/g) ?? []).length, 2);
+  assert.equal((source.match(/decoding="async"/g) ?? []).length, 2);
+  assert.doesNotMatch(source, /object-cover/);
+  assert.doesNotMatch(source, />\s*Accepted\s*</);
+  assert.match(source, /No document/);
 });

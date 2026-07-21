@@ -96,6 +96,18 @@ export const API_ENDPOINTS = {
     bulkDelete: (groupId: string) => `/api/v1/passports/groups/${groupId}/bulk-delete`,
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
+    imageCrop: (
+      id: string,
+      imageType: "visa_photo" | "passport_front" | "passport_back",
+    ) => `/api/v1/passports/${id}/images/${imageType}/crop`,
+    currentImage: (
+      id: string,
+      imageType: "visa_photo" | "passport_front" | "passport_back",
+    ) => `/api/v1/passports/${id}/images/${imageType}`,
+    originalImage: (
+      id: string,
+      imageType: "visa_photo" | "passport_front" | "passport_back",
+    ) => `/api/v1/passports/${id}/images/${imageType}/original`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
     reconcileUpload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,

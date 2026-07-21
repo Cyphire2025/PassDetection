@@ -104,6 +104,30 @@ export interface BulkDeletePassportSubmissionsResult {
   storage_cleanup_deferred: boolean;
 }
 
+export type PassportImageType = "visa_photo" | "passport_front" | "passport_back";
+
+export interface PassportImageCropRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation_degrees: 0 | 90 | 180 | 270;
+}
+
+export interface PassportImageCropState {
+  image_type: PassportImageType;
+  original_url: string;
+  cropped_url: string;
+  crop: PassportImageCropRect | null;
+  revision: number;
+  source_width: number | null;
+  source_height: number | null;
+}
+
+export interface SavePassportImageCropRequest extends PassportImageCropRect {
+  expected_revision: number;
+}
+
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
 export type PassportReextractOutcome = "completed" | "failed" | "timed_out";
 
@@ -144,6 +168,54 @@ export const passportsApi = {
     const { data } = await apiClient.post<PassportSubmission>(API_ENDPOINTS.passports.confirm(id), {
       confirmed_fields: confirmedFields,
     });
+    return data;
+  },
+
+  getImageCrop: async (
+    id: string,
+    imageType: PassportImageType,
+  ): Promise<PassportImageCropState> => {
+    const { data } = await apiClient.get<PassportImageCropState>(
+      API_ENDPOINTS.passports.imageCrop(id, imageType),
+    );
+    return data;
+  },
+
+  getOriginalImage: async (
+    id: string,
+    imageType: PassportImageType,
+    signal?: AbortSignal,
+  ): Promise<Blob> => {
+    const { data } = await apiClient.get<Blob>(
+      API_ENDPOINTS.passports.originalImage(id, imageType),
+      { responseType: "blob", signal },
+    );
+    return data;
+  },
+
+  saveImageCrop: async (
+    id: string,
+    imageType: PassportImageType,
+    request: SavePassportImageCropRequest,
+  ): Promise<PassportImageCropState> => {
+    const { data } = await apiClient.put<PassportImageCropState>(
+      API_ENDPOINTS.passports.imageCrop(id, imageType),
+      request,
+    );
+    return data;
+  },
+
+  resetImageCrop: async (
+    id: string,
+    imageType: PassportImageType,
+    expectedRevision: number,
+  ): Promise<PassportImageCropState> => {
+    const { data } = await apiClient.delete<PassportImageCropState>(
+      API_ENDPOINTS.passports.imageCrop(id, imageType),
+      {
+        data: { expected_revision: expectedRevision },
+      },
+    );
     return data;
   },
 

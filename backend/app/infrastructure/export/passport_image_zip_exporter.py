@@ -1,16 +1,20 @@
-"""Secure ZIP packaging for original passport submission images."""
+"""Secure ZIP packaging for effective passport submission image views."""
 
 from __future__ import annotations
 
+import asyncio
 import re
 import tempfile
 import unicodedata
 import zipfile
 from pathlib import PurePosixPath
-from typing import BinaryIO
+from typing import BinaryIO, Mapping
 
 from app.domain.entities.entities import PassportSubmission
+from app.domain.exceptions.exceptions import StorageError
 from app.domain.repositories.interfaces import IObjectStorageRepository
+from app.domain.value_objects.passport_image_crop import PassportImageCrop, PassportImageType
+from app.infrastructure.imaging.passport_image_cropper import render_saved_passport_image_crop
 
 _UNSAFE_COMPONENT = re.compile(r"[\\/:*?\"<>|\x00-\x1f\x7f]+")
 _SAFE_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
@@ -26,7 +30,7 @@ class PassportImageExportError(ValueError):
 
 
 class MissingPassportImagesError(PassportImageExportError):
-    """Raised when a submitted passenger is missing compulsory originals."""
+    """Raised when a submitted passenger is missing compulsory source images."""
 
 
 class PassportImageExportLimitError(PassportImageExportError):
@@ -47,6 +51,7 @@ class PassportImageZipExporter:
         group_name: str,
         staff_code_enabled: bool,
         storage: IObjectStorageRepository,
+        crop_metadata: Mapping[object, Mapping[PassportImageType, PassportImageCrop]] | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
             raise PassportImageExportLimitError(
@@ -95,23 +100,47 @@ class PassportImageZipExporter:
                         passenger_folder = f"{base_folder}_{occurrence}"
                     used_folders.add(passenger_folder.casefold())
 
-                    originals = [
-                        ("passportfront", submission.image_s3_key),
-                        ("passportback", submission.passport_back_s3_key),
+                    images = [
+                        ("passportfront", PassportImageType.PASSPORT_FRONT, submission.image_s3_key),
+                        ("passportback", PassportImageType.PASSPORT_BACK, submission.passport_back_s3_key),
                     ]
                     if submission.passport_photo_s3_key:
-                        originals.insert(0, ("visaimage", submission.passport_photo_s3_key))
+                        images.insert(
+                            0,
+                            ("visaimage", PassportImageType.VISA_PHOTO, submission.passport_photo_s3_key),
+                        )
 
-                    for label, storage_key in originals:
+                    submission_crops = crop_metadata.get(submission.id, {}) if crop_metadata else {}
+                    for label, image_type, storage_key in images:
                         if not storage_key:
                             continue
-                        content = await storage.get_file(storage_key)
+                        crop = submission_crops.get(image_type)
+                        effective_crop = (
+                            crop
+                            if crop and crop.active and crop.source_storage_key == storage_key
+                            else None
+                        )
+                        extension = safe_storage_extension(storage_key)
+                        if effective_crop and effective_crop.derived_storage_key:
+                            try:
+                                content = await storage.get_file(effective_crop.derived_storage_key)
+                                extension = ".jpg"
+                            except StorageError:
+                                original = await storage.get_file(storage_key)
+                                rendered = await asyncio.to_thread(
+                                    render_saved_passport_image_crop,
+                                    original,
+                                    effective_crop,
+                                )
+                                content = rendered.content
+                                extension = rendered.extension
+                        else:
+                            content = await storage.get_file(storage_key)
                         total_bytes += len(content)
                         if total_bytes > self.MAX_UNCOMPRESSED_BYTES:
                             raise PassportImageExportLimitError(
                                 "Image export exceeds the 2 GB uncompressed safety limit."
                             )
-                        extension = safe_storage_extension(storage_key)
                         archive_path = f"{root}/{passenger_folder}/{passenger_folder}_{label}{extension}"
                         archive.writestr(self._zip_info(archive_path), content)
                         entry_count += 1
