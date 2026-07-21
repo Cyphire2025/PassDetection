@@ -12,7 +12,7 @@ def _load_migration():
         Path(__file__).resolve().parents[3]
         / "alembic"
         / "versions"
-        / "0043_whatsapp_rejected_imported_fields.py"
+        / "0043_rejected_imported_fields.py"
     )
     spec = importlib.util.spec_from_file_location(
         "whatsapp_rejected_imported_fields_migration",
@@ -30,7 +30,7 @@ def _load_migration():
 
 def test_rejected_imported_fields_migration_follows_current_head() -> None:
     migration = _load_migration()
-    assert migration.revision == "0043_whatsapp_rejected_imported_fields"
+    assert migration.revision == "0043_rejected_imported_fields"
     assert migration.down_revision == "0042_whatsapp_rejected_contacts"
 
 

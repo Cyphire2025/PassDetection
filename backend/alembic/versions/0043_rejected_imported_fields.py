@@ -1,6 +1,6 @@
 """Preserve imported spreadsheet fields for rejected WhatsApp contacts.
 
-Revision ID: 0043_whatsapp_rejected_imported_fields
+Revision ID: 0043_rejected_imported_fields
 Revises: 0042_whatsapp_rejected_contacts
 Create Date: 2026-07-21
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
-revision = "0043_whatsapp_rejected_imported_fields"
+revision = "0043_rejected_imported_fields"
 down_revision = "0042_whatsapp_rejected_contacts"
 branch_labels = None
 depends_on = None
