@@ -76,14 +76,19 @@ test("sharpness is available for every image while guarded AI editing is Visa-on
   assert.match(editor, /max="3"/);
   assert.match(editor, /const isVisaPhoto = imageType === "visa_photo"/);
   assert.match(editor, /activePanel === "ai" && isVisaPhoto/);
-  assert.match(editor, /Current Visa photo/);
+  assert.match(editor, /Original Visa photo/);
   assert.match(editor, /AI edit instruction/);
-  assert.match(editor, /Generated preview/);
-  assert.match(editor, /passportsApi\.generateVisaAiPreview/);
-  assert.match(editor, /passportsApi\.applyVisaAiEdit/);
-  assert.match(api, /x-visa-ai-edit-token/);
-  assert.match(endpoints, /visa_photo\/ai-preview/);
-  assert.match(endpoints, /visa_photo\/ai-apply/);
+  assert.match(editor, /Saved AI image library/);
+  assert.match(editor, /passportsApi\.generateVisaAiLibraryImage/);
+  assert.match(editor, /passportsApi\.useVisaAiLibraryImage/);
+  assert.match(editor, /Saved automatically after verification/);
+  assert.match(editor, /Use this image/);
+  assert.match(editor, /bg-emerald-600/);
+  assert.match(editor, /const effectiveSharpness = 3/);
+  assert.match(endpoints, /visa_photo\/ai-library/);
+  assert.match(api, /listVisaAiLibrary/);
+  assert.match(api, /generateVisaAiLibraryImage/);
+  assert.match(api, /useVisaAiLibraryImage/);
 });
 
 test("Visa AI preview supports cancellation and preserves structured Blob errors", () => {
@@ -91,7 +96,7 @@ test("Visa AI preview supports cancellation and preserves structured Blob errors
   assert.match(editor, /controller\.signal/);
   assert.match(editor, /Cancel generation/);
   assert.match(editor, /aiRequestRef\.current\?\.abort\(\)/);
-  assert.match(api, /generateVisaAiPreview:[\s\S]*?signal\?: AbortSignal/);
+  assert.match(api, /generateVisaAiLibraryImage:[\s\S]*?signal\?: AbortSignal/);
   assert.match(apiClient, /responseData instanceof Blob/);
   assert.match(apiClient, /JSON\.parse\(await responseData\.text\(\)\)/);
   assert.match(
@@ -100,6 +105,13 @@ test("Visa AI preview supports cancellation and preserves structured Blob errors
   );
   assert.match(editor, /if \("response" in error\)/);
   assert.match(editor, /const message = \(error as \{ message\?: unknown \}\)\.message/);
+});
+
+test("returning from AI remounts and redraws the Adjust canvas", () => {
+  assert.match(
+    editor,
+    /\[activePanel, cropRect\.rotation_degrees, imageSize\.width, sharpness, workingObjectUrl\]/,
+  );
 });
 
 test("crop API supports metadata, optimistic save, and reset", () => {

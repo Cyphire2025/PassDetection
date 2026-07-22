@@ -12,7 +12,7 @@ from app.domain.value_objects.passport_image_crop import (
     PassportImageCrop,
     PassportImageType,
 )
-from app.infrastructure.database.models import PassportImageCropModel
+from app.infrastructure.database.models import PassportImageCropModel, PassportVisaAiImageModel
 
 
 class PassportImageCropRevisionConflict(ValueError):
@@ -40,6 +40,7 @@ class PassportImageCropRepository:
             height=model.crop_height,
             rotation_degrees=model.rotation_degrees,
             sharpness=model.sharpness,
+            sharpness_algorithm_version=model.sharpness_algorithm_version,
             source_width=model.source_width,
             source_height=model.source_height,
             revision=model.revision,
@@ -100,6 +101,7 @@ class PassportImageCropRepository:
         source_height: int,
         updated_by_user_id: uuid.UUID,
         expected_revision: int | None,
+        sharpness_algorithm_version: int = 2,
     ) -> tuple[PassportImageCrop, str | None, str | None]:
         result = await self._session.execute(
             select(PassportImageCropModel)
@@ -131,6 +133,7 @@ class PassportImageCropRepository:
                 crop_height=height,
                 rotation_degrees=rotation_degrees,
                 sharpness=sharpness,
+                sharpness_algorithm_version=sharpness_algorithm_version,
                 source_width=source_width,
                 source_height=source_height,
                 revision=1,
@@ -150,6 +153,7 @@ class PassportImageCropRepository:
             model.crop_height = height
             model.rotation_degrees = rotation_degrees
             model.sharpness = sharpness
+            model.sharpness_algorithm_version = sharpness_algorithm_version
             model.source_width = source_width
             model.source_height = source_height
             model.revision += 1
@@ -189,6 +193,7 @@ class PassportImageCropRepository:
         model.derived_storage_key = None
         model.edit_source_storage_key = None
         model.sharpness = 1.0
+        model.sharpness_algorithm_version = 1
         model.revision += 1
         model.updated_by_user_id = updated_by_user_id
         model.updated_at = datetime.now(tz=UTC)
@@ -221,4 +226,17 @@ class PassportImageCropRepository:
                 PassportImageCropModel.edit_source_storage_key.is_not(None),
             )
         )
-        return list(dict.fromkeys(key for key in result.scalars().all() if key))
+        active_keys = [key for key in result.scalars().all() if key]
+        library_result = await self._session.execute(
+            select(PassportVisaAiImageModel.generated_storage_key).where(
+                PassportVisaAiImageModel.submission_id.in_(set(submission_ids)),
+            )
+        )
+        return list(
+            dict.fromkeys(
+                [
+                    *active_keys,
+                    *(key for key in library_result.scalars().all() if key),
+                ]
+            )
+        )

@@ -39,6 +39,7 @@ def _utcnow() -> datetime:
 
 class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
+
     pass
 
 
@@ -50,11 +51,17 @@ class AgencyModel(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
     users: Mapped[list[UserModel]] = relationship("UserModel", back_populates="agency")
-    client_groups: Mapped[list[ClientGroupModel]] = relationship("ClientGroupModel", back_populates="agency")
+    client_groups: Mapped[list[ClientGroupModel]] = relationship(
+        "ClientGroupModel", back_populates="agency"
+    )
 
 
 class UserModel(Base):
@@ -81,8 +88,12 @@ class UserModel(Base):
         UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="SET NULL"), nullable=True
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     agency: Mapped[AgencyModel | None] = relationship("AgencyModel", back_populates="users")
@@ -111,7 +122,9 @@ class RefreshTokenModel(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     is_revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     # Track which IP created this token for audit purposes
     created_from_ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
@@ -128,29 +141,48 @@ class ClientGroupModel(Base):
         UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
     )
     status: Mapped[str] = mapped_column(
-        Enum("active", "closed", "archived", "deleted", name="group_status_enum", native_enum=True, create_type=False),
-        nullable=False, default="active",
+        Enum(
+            "active",
+            "closed",
+            "archived",
+            "deleted",
+            name="group_status_enum",
+            native_enum=True,
+            create_type=False,
+        ),
+        nullable=False,
+        default="active",
     )
     created_by_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     destination: Mapped[str | None] = mapped_column(String(255), nullable=True)
     travel_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     return_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     package_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     departure_cities: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
-    base_city_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    base_city_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     nearest_international_airport_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
-    staff_code_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    staff_code_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     agent_employee_code_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
-    meal_preference_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
-    require_selfie: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    meal_preference_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    require_selfie: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     allow_files_from_device: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
     )
@@ -169,9 +201,7 @@ class ClientGroupModel(Base):
     submissions: Mapped[list[PassportSubmissionModel]] = relationship(
         "PassportSubmissionModel", back_populates="group"
     )
-    whatsapp_broadcast_links: Mapped[
-        list[ClientGroupWhatsAppBroadcastLinkModel]
-    ] = relationship(
+    whatsapp_broadcast_links: Mapped[list[ClientGroupWhatsAppBroadcastLinkModel]] = relationship(
         "ClientGroupWhatsAppBroadcastLinkModel",
         back_populates="client_group",
         cascade="all, delete-orphan",
@@ -189,12 +219,20 @@ class ManagerGroupAccessModel(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class WhatsAppBroadcastGroupModel(Base):
@@ -205,26 +243,31 @@ class WhatsAppBroadcastGroupModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     organizing_company_name: Mapped[str] = mapped_column(String(255), nullable=False, default="")
-    recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    recipient_opt_in_confirmed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
-    client_group_links: Mapped[
-        list[ClientGroupWhatsAppBroadcastLinkModel]
-    ] = relationship(
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+    client_group_links: Mapped[list[ClientGroupWhatsAppBroadcastLinkModel]] = relationship(
         "ClientGroupWhatsAppBroadcastLinkModel",
         back_populates="broadcast_group",
         cascade="all, delete-orphan",
     )
-    rejected_contacts: Mapped[
-        list[WhatsAppBroadcastRejectedContactModel]
-    ] = relationship(
+    rejected_contacts: Mapped[list[WhatsAppBroadcastRejectedContactModel]] = relationship(
         "WhatsAppBroadcastRejectedContactModel",
         back_populates="broadcast_group",
         cascade="all, delete-orphan",
@@ -234,16 +277,26 @@ class WhatsAppBroadcastGroupModel(Base):
 class WhatsAppBroadcastRecipientModel(Base):
     __tablename__ = "whatsapp_broadcast_recipients"
     __table_args__ = (
-        UniqueConstraint("broadcast_group_id", "normalized_phone_number", name="uq_whatsapp_recipient_group_phone"),
+        UniqueConstraint(
+            "broadcast_group_id",
+            "normalized_phone_number",
+            name="uq_whatsapp_recipient_group_phone",
+        ),
         Index("ix_whatsapp_recipients_group_created", "broadcast_group_id", "created_at"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -255,7 +308,9 @@ class WhatsAppBroadcastRecipientModel(Base):
         server_default="{}",
     )
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class WhatsAppBroadcastRejectedContactModel(Base):
@@ -271,8 +326,7 @@ class WhatsAppBroadcastRejectedContactModel(Base):
             name="ck_whatsapp_rejected_contact_row_number",
         ),
         CheckConstraint(
-            "reason_code IN "
-            "('missing_phone', 'invalid_phone', 'missing_name', 'duplicate_phone')",
+            "reason_code IN ('missing_phone', 'invalid_phone', 'missing_name', 'duplicate_phone')",
             name="ck_whatsapp_rejected_contact_reason_code",
         ),
         Index(
@@ -343,13 +397,18 @@ class WhatsAppBroadcastSupportContactModel(Base):
         index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
     normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class WhatsAppMessageLogModel(Base):
@@ -369,20 +428,35 @@ class WhatsAppMessageLogModel(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    batch_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    batch_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True, index=True
+    )
     broadcast_group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     recipient_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_recipients.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     message_type: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    status_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    provider_status_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    provider_status_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     template_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -395,7 +469,9 @@ class WhatsAppMessageLogModel(Base):
         server_default=text("false"),
         nullable=False,
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class WhatsAppRecipientMessageStateModel(Base):
@@ -437,11 +513,19 @@ class WhatsAppRecipientMessageStateModel(Base):
     )
     message_type: Mapped[str] = mapped_column(String(64), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
-    batch_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    batch_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True, index=True
+    )
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    status_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    provider_status_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    status_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    provider_status_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=_utcnow,
@@ -460,13 +544,22 @@ class CoordinatorAssignmentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
@@ -475,7 +568,9 @@ class CoordinatorAssignmentModel(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
-    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    assigned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     unassigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
@@ -483,7 +578,9 @@ class CoordinatorGroupAssignmentModel(Base):
     __tablename__ = "coordinator_group_assignments"
     __table_args__ = (
         Index("ix_coordinator_group_assignments_group_active", "group_id", "active"),
-        Index("ix_coordinator_group_assignments_coordinator_active", "coordinator_user_id", "active"),
+        Index(
+            "ix_coordinator_group_assignments_coordinator_active", "coordinator_user_id", "active"
+        ),
         Index(
             "uq_coordinator_group_assignments_active_pair",
             "group_id",
@@ -495,10 +592,16 @@ class CoordinatorGroupAssignmentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
@@ -507,7 +610,9 @@ class CoordinatorGroupAssignmentModel(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
-    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    assigned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     unassigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
@@ -587,25 +692,37 @@ class PassportSubmissionModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="RESTRICT"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="RESTRICT"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
     )
     client_name: Mapped[str] = mapped_column(String(255), nullable=False)
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     client_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
     departure_city: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)
     nearest_domestic_airport: Mapped[str | None] = mapped_column(String(120), nullable=True)
-    submission_mode: Mapped[str] = mapped_column(String(20), nullable=False, default="single", server_default="single")
-    family_group_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    submission_mode: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="single", server_default="single"
+    )
+    family_group_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True, index=True
+    )
     family_member_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
     family_relation: Mapped[str | None] = mapped_column(String(80), nullable=True)
     family_gender: Mapped[str | None] = mapped_column(String(40), nullable=True)
     family_head_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     family_head_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     family_head_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    family_broadcast_to_member: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    family_broadcast_to_member: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     image_s3_key: Mapped[str] = mapped_column(String(512), nullable=False)
     thumbnail_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     # Excel-derived organisational attributes (staff code, zone, designation,
@@ -642,15 +759,27 @@ class PassportSubmissionModel(Base):
     )
     status: Mapped[str] = mapped_column(
         Enum(
-            "pending_upload", "uploaded", "processing",
-            "review_required", "client_submitted", "confirmed", "failed",
-            "pending_extraction", "extracting", "ready_for_client_review",
-            "submitted", "ai_approved", "needs_review", "staff_approved",
+            "pending_upload",
+            "uploaded",
+            "processing",
+            "review_required",
+            "client_submitted",
+            "confirmed",
+            "failed",
+            "pending_extraction",
+            "extracting",
+            "ready_for_client_review",
+            "submitted",
+            "ai_approved",
+            "needs_review",
+            "staff_approved",
             name="submission_status_enum",
             native_enum=True,
             create_type=False,
         ),
-        nullable=False, default="uploaded", index=True,
+        nullable=False,
+        default="uploaded",
+        index=True,
     )
     extracted_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     confirmed_fields: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
@@ -664,9 +793,15 @@ class PassportSubmissionModel(Base):
     confidence_score: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     mrz_raw: Mapped[str | None] = mapped_column(Text, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
-    client_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+    client_reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     post_submission_verification: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     post_submission_verification_revision: Mapped[int] = mapped_column(
@@ -699,21 +834,31 @@ class PassportImageCropModel(Base):
 
     __tablename__ = "passport_image_crops"
     __table_args__ = (
-        UniqueConstraint("submission_id", "image_type", name="uq_passport_image_crops_submission_type"),
+        UniqueConstraint(
+            "submission_id", "image_type", name="uq_passport_image_crops_submission_type"
+        ),
         CheckConstraint(
             "image_type IN ('visa_photo', 'passport_front', 'passport_back')",
             name="ck_passport_image_crops_type",
         ),
-        CheckConstraint("rotation_degrees IN (0, 90, 180, 270)", name="ck_passport_image_crops_rotation"),
+        CheckConstraint(
+            "rotation_degrees IN (0, 90, 180, 270)", name="ck_passport_image_crops_rotation"
+        ),
         CheckConstraint(
             "crop_x >= 0 AND crop_y >= 0 AND crop_width >= 0.08 AND crop_height >= 0.08 "
             "AND crop_x + crop_width <= 1.000001 AND crop_y + crop_height <= 1.000001",
             name="ck_passport_image_crops_bounds",
         ),
-        CheckConstraint("source_width > 0 AND source_height > 0", name="ck_passport_image_crops_source_size"),
+        CheckConstraint(
+            "source_width > 0 AND source_height > 0", name="ck_passport_image_crops_source_size"
+        ),
         CheckConstraint(
             "sharpness >= 1.0 AND sharpness <= 3.0",
             name="ck_passport_image_crops_sharpness",
+        ),
+        CheckConstraint(
+            "sharpness_algorithm_version IN (1, 2)",
+            name="ck_passport_image_crops_sharpness_algorithm_version",
         ),
         CheckConstraint("revision > 0", name="ck_passport_image_crops_revision"),
     )
@@ -729,7 +874,9 @@ class PassportImageCropModel(Base):
     source_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
     edit_source_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     derived_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
-    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
+    active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default="true"
+    )
     crop_x: Mapped[float] = mapped_column(Float, nullable=False)
     crop_y: Mapped[float] = mapped_column(Float, nullable=False)
     crop_width: Mapped[float] = mapped_column(Float, nullable=False)
@@ -741,6 +888,12 @@ class PassportImageCropModel(Base):
         default=1.0,
         server_default="1.0",
     )
+    sharpness_algorithm_version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
+    )
     source_width: Mapped[int] = mapped_column(Integer, nullable=False)
     source_height: Mapped[int] = mapped_column(Integer, nullable=False)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
@@ -749,9 +902,55 @@ class PassportImageCropModel(Base):
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+
+
+class PassportVisaAiImageModel(Base):
+    """Durable, verified AI variants for one submission's Visa photograph."""
+
+    __tablename__ = "passport_visa_ai_images"
+    __table_args__ = (
+        Index(
+            "ix_passport_visa_ai_images_submission_created",
+            "submission_id",
+            "created_at",
+        ),
+        UniqueConstraint(
+            "submission_id",
+            "generated_storage_key",
+            name="uq_passport_visa_ai_images_submission_storage_key",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    original_source_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    input_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    generated_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    prompt: Mapped[str] = mapped_column(String(1000), nullable=False)
+    prompt_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    content_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    model: Mapped[str] = mapped_column(String(128), nullable=False)
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        nullable=False,
     )
 
 
@@ -835,10 +1034,16 @@ class DocumentDistributionBatchModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="draft", index=True)
@@ -849,8 +1054,12 @@ class DocumentDistributionBatchModel(Base):
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class DistributedDocumentModel(Base):
@@ -862,30 +1071,50 @@ class DistributedDocumentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     batch_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("document_distribution_batches.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("document_distribution_batches.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="SET NULL"), nullable=True, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
-    content_type: Mapped[str] = mapped_column(String(120), nullable=False, default="application/pdf")
+    content_type: Mapped[str] = mapped_column(
+        String(120), nullable=False, default="application/pdf"
+    )
     detected_type: Mapped[str] = mapped_column(String(32), nullable=False, default="unknown")
-    match_status: Mapped[str] = mapped_column(String(40), nullable=False, default="needs_review", index=True)
+    match_status: Mapped[str] = mapped_column(
+        String(40), nullable=False, default="needs_review", index=True
+    )
     match_confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     match_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
     extracted_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     extracted_passport_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
     extracted_reference: Mapped[str | None] = mapped_column(String(80), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class DocumentWhatsAppDeliveryModel(Base):
@@ -909,9 +1138,7 @@ class DocumentWhatsAppDeliveryModel(Base):
         ),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("agencies.id", ondelete="CASCADE"),
@@ -954,9 +1181,7 @@ class DocumentWhatsAppDeliveryModel(Base):
         nullable=True,
         index=True,
     )
-    send_batch_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
-    )
+    send_batch_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     document_type: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     document_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     passenger_name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -996,7 +1221,10 @@ class DocumentRenameBatchModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(String(160), nullable=False, default="Rename Batch")
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="completed", index=True)
@@ -1007,49 +1235,69 @@ class DocumentRenameBatchModel(Base):
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class DocumentRenameItemModel(Base):
     __tablename__ = "document_rename_items"
-    __table_args__ = (
-        Index("ix_document_rename_items_batch_created", "batch_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_document_rename_items_batch_created", "batch_id", "created_at"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     batch_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("document_rename_batches.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("document_rename_batches.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     renamed_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
-    content_type: Mapped[str] = mapped_column(String(120), nullable=False, default="application/pdf")
-    detected_type: Mapped[str] = mapped_column(String(32), nullable=False, default="unknown", index=True)
+    content_type: Mapped[str] = mapped_column(
+        String(120), nullable=False, default="application/pdf"
+    )
+    detected_type: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="unknown", index=True
+    )
     extracted_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     extracted_passport_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
     extracted_reference: Mapped[str | None] = mapped_column(String(80), nullable=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="renamed", index=True)
     reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class RoomingHotelModel(Base):
     __tablename__ = "rooming_hotels"
-    __table_args__ = (
-        Index("ix_rooming_hotels_group_created", "group_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_rooming_hotels_group_created", "group_id", "created_at"),)
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     hotel_name: Mapped[str] = mapped_column(String(255), nullable=False)
     city: Mapped[str | None] = mapped_column(String(120), nullable=True)
@@ -1058,8 +1306,12 @@ class RoomingHotelModel(Base):
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class RoomingRoomModel(Base):
@@ -1071,7 +1323,10 @@ class RoomingRoomModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     hotel_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     room_number: Mapped[str] = mapped_column(String(32), nullable=False)
     room_type: Mapped[str] = mapped_column(String(16), nullable=False, default="twin")
@@ -1080,8 +1335,12 @@ class RoomingRoomModel(Base):
     roommate_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_saved: Mapped[bool] = mapped_column(default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class RoomingPassengerPreferenceModel(Base):
@@ -1093,15 +1352,23 @@ class RoomingPassengerPreferenceModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     hotel_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     allocation_tag: Mapped[str] = mapped_column(String(16), nullable=False, default="unspecified")
     special_requests: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
     roommate_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class RoomingAssignmentModel(Base):
@@ -1114,40 +1381,85 @@ class RoomingAssignmentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     hotel_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     room_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("rooming_rooms.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("rooming_rooms.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    assigned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class RoomingCheckinModel(Base):
     __tablename__ = "rooming_checkins"
     __table_args__ = (
         UniqueConstraint("hotel_id", "passenger_id", name="uq_rooming_checkins_hotel_passenger"),
-        Index("ix_rooming_checkins_hotel_status", "hotel_id", "checked_in", "key_issued", "welcome_letter_issued"),
+        Index(
+            "ix_rooming_checkins_hotel_status",
+            "hotel_id",
+            "checked_in",
+            "key_issued",
+            "welcome_letter_issued",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True)
-    hotel_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("rooming_hotels.id", ondelete="CASCADE"), nullable=False, index=True)
-    room_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("rooming_rooms.id", ondelete="CASCADE"), nullable=False, index=True)
-    passenger_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    hotel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooming_rooms.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    passenger_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     checked_in: Mapped[bool] = mapped_column(default=False, nullable=False)
     checked_in_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     key_issued: Mapped[bool] = mapped_column(default=False, nullable=False)
     key_issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     welcome_letter_issued: Mapped[bool] = mapped_column(default=False, nullable=False)
-    welcome_letter_issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    welcome_letter_issued_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
-    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    updated_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class PassengerQRTokenModel(Base):
@@ -1166,10 +1478,16 @@ class PassengerQRTokenModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     token_hash: Mapped[str] = mapped_column(String(128), nullable=False)
     qr_payload: Mapped[str | None] = mapped_column(String(64), nullable=True)
@@ -1179,9 +1497,15 @@ class PassengerQRTokenModel(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class AttendanceSessionModel(Base):
@@ -1193,14 +1517,28 @@ class AttendanceSessionModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("client_groups.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     status: Mapped[str] = mapped_column(
-        Enum("draft", "active", "completed", "cancelled", name="attendance_session_status_enum", native_enum=True, create_type=False),
+        Enum(
+            "draft",
+            "active",
+            "completed",
+            "cancelled",
+            name="attendance_session_status_enum",
+            native_enum=True,
+            create_type=False,
+        ),
         nullable=False,
         default="draft",
         index=True,
@@ -1208,8 +1546,12 @@ class AttendanceSessionModel(Base):
     created_by_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -1218,34 +1560,57 @@ class AttendanceSessionModel(Base):
 class AttendanceRecordModel(Base):
     __tablename__ = "attendance_records"
     __table_args__ = (
-        UniqueConstraint("session_id", "passenger_id", name="uq_attendance_records_session_passenger"),
-        UniqueConstraint("session_id", "client_event_id", name="uq_attendance_records_session_client_event"),
+        UniqueConstraint(
+            "session_id", "passenger_id", name="uq_attendance_records_session_passenger"
+        ),
+        UniqueConstraint(
+            "session_id", "client_event_id", name="uq_attendance_records_session_client_event"
+        ),
         Index("ix_attendance_records_agency_session", "agency_id", "session_id"),
         Index("ix_attendance_records_coordinator_scanned", "coordinator_user_id", "scanned_at"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("attendance_sessions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     passenger_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     coordinator_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True
     )
-    scanned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    scanned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
     sync_source: Mapped[str] = mapped_column(
-        Enum("online", "offline", name="attendance_scan_source_enum", native_enum=True, create_type=False),
+        Enum(
+            "online",
+            "offline",
+            name="attendance_scan_source_enum",
+            native_enum=True,
+            create_type=False,
+        ),
         nullable=False,
         default="online",
     )
     client_event_id: Mapped[str] = mapped_column(String(128), nullable=False)
     device_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
 
 class PassportProcessingJobModel(Base):
@@ -1266,7 +1631,10 @@ class PassportProcessingJobModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     submission_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("passport_submissions.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     queue_name: Mapped[str] = mapped_column(String(64), nullable=False, default="passport_ocr")
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
@@ -1282,8 +1650,12 @@ class PassportProcessingJobModel(Base):
     cancel_requested: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False, index=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False, index=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
 
 
 class ClientGroupWhatsAppBroadcastLinkModel(Base):
@@ -1303,9 +1675,7 @@ class ClientGroupWhatsAppBroadcastLinkModel(Base):
         ),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     client_group_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("client_groups.id", ondelete="CASCADE"),
@@ -1388,7 +1758,9 @@ class PassportPostSubmissionVerificationJobModel(Base):
         index=True,
     )
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3, server_default="3")
+    max_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=3, server_default="3"
+    )
     celery_task_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
     error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -1411,30 +1783,48 @@ class AuditLogModel(Base):
     __tablename__ = "audit_logs"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="SET NULL"), nullable=True, index=True)
-    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    agency_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     action: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     entity_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     ip_address: Mapped[str | None] = mapped_column(String(64), nullable=True)
     metadata_json: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False, index=True
+    )
 
 
 class NotificationModel(Base):
     __tablename__ = "notifications"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    agency_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False, index=True)
-    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     entity_type: Mapped[str | None] = mapped_column(String(80), nullable=True)
     entity_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False, index=True
+    )
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
@@ -1443,4 +1833,6 @@ class PlatformSettingModel(Base):
 
     key: Mapped[str] = mapped_column(String(120), primary_key=True)
     value: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )

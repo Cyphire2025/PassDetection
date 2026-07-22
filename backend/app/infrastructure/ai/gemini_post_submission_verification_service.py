@@ -31,6 +31,7 @@ from app.domain.value_objects.passport_fields import (
     canonical_country_identity,
     normalize_passport_date,
 )
+from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai.passport_date_evidence import (
     PassportNumericDateOrder,
     normalize_passport_date_evidence,
@@ -87,9 +88,7 @@ _DOCUMENT_REASON_CODES: Final[tuple[str, ...]] = (
     "classification_uncertain",
 )
 _DOCUMENT_REVIEW_EXPLANATIONS: Final[dict[str, str]] = {
-    "passport_cover": (
-        "The final image appears to be a passport cover; staff review is required."
-    ),
+    "passport_cover": ("The final image appears to be a passport cover; staff review is required."),
     "wrong_passport_page": (
         "The final image appears to be a different passport page; staff review is required."
     ),
@@ -98,12 +97,9 @@ _DOCUMENT_REVIEW_EXPLANATIONS: Final[dict[str, str]] = {
         "staff review is required."
     ),
     "document_low_quality": (
-        "The final passport image is too low quality to verify reliably; "
-        "staff review is required."
+        "The final passport image is too low quality to verify reliably; staff review is required."
     ),
-    "document_unreadable": (
-        "The final passport image is unreadable; staff review is required."
-    ),
+    "document_unreadable": ("The final passport image is unreadable; staff review is required."),
     "document_uncertain": (
         "The final document classification is uncertain; staff review is required."
     ),
@@ -186,7 +182,7 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
                     "reason_code",
                 ],
             },
-        }
+        },
     },
     "required": ["document", "fields"],
 }
@@ -346,19 +342,10 @@ class PostSubmissionDocumentAgent:
             return "document_low_quality"
 
         if document_class == "passport_cover" or page_type == "cover":
+            return "passport_cover" if classification_confidence >= 0.75 else "document_uncertain"
+        if document_class == "passport_other_page" or page_type == "other_passport_page":
             return (
-                "passport_cover"
-                if classification_confidence >= 0.75
-                else "document_uncertain"
-            )
-        if (
-            document_class == "passport_other_page"
-            or page_type == "other_passport_page"
-        ):
-            return (
-                "wrong_passport_page"
-                if classification_confidence >= 0.75
-                else "document_uncertain"
+                "wrong_passport_page" if classification_confidence >= 0.75 else "document_uncertain"
             )
         if document_class in {
             "aadhaar",
@@ -366,11 +353,7 @@ class PostSubmissionDocumentAgent:
             "other_document",
             "not_document",
         }:
-            return (
-                "wrong_document"
-                if classification_confidence >= 0.80
-                else "document_uncertain"
-            )
+            return "wrong_document" if classification_confidence >= 0.80 else "document_uncertain"
         if (
             document_class == "passport_data_page"
             and page_type == "data_page"
@@ -398,8 +381,7 @@ class PostSubmissionFieldAgent:
             hint
             for raw in raw_fields
             if isinstance(raw, dict)
-            and raw.get("field")
-            in {"date_of_birth", "date_of_issue", "date_of_expiry"}
+            and raw.get("field") in {"date_of_birth", "date_of_issue", "date_of_expiry"}
             and isinstance(raw.get("observed_value"), str)
             and (
                 hint := passport_numeric_date_order_hint(
@@ -456,19 +438,13 @@ class PostSubmissionFieldAgent:
                     field=field,
                     numeric_order=date_order,
                 )
-                date_evidence_ambiguous = (
-                    len(date_candidates) > 1 and not observed
-                )
+                date_evidence_ambiguous = len(date_candidates) > 1 and not observed
             else:
                 observed = _normalize_passport_value(field, raw_observed)
             verdict = PostSubmissionFieldVerdict(raw["verdict"])
             reason_code = str(raw["reason_code"])
-            if reason_code == "not_present" and (
-                field != "surname" or _string_value(raw_observed)
-            ):
-                raise ValueError(
-                    "Only an empty surname can use not_present evidence"
-                )
+            if reason_code == "not_present" and (field != "surname" or _string_value(raw_observed)):
+                raise ValueError("Only an empty surname can use not_present evidence")
 
             surname_confirmed_absent = (
                 field == "surname"
@@ -488,11 +464,7 @@ class PostSubmissionFieldAgent:
                 reason_code = "different_value"
             elif not submitted and field == "surname":
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
-                reason_code = (
-                    "unreadable"
-                    if reason_code == "unreadable"
-                    else "ambiguous"
-                )
+                reason_code = "unreadable" if reason_code == "unreadable" else "ambiguous"
             elif not submitted:
                 verdict = PostSubmissionFieldVerdict.SUSPICIOUS
                 reason_code = "missing_submitted_value"
@@ -537,10 +509,7 @@ class PostSubmissionConfidenceAgent:
             verdict = result.verdict
             reason_code = result.reason_code
             confidence = result.confidence
-            if (
-                result.observed_value is None
-                and reason_code != "not_present"
-            ) or reason_code in {
+            if (result.observed_value is None and reason_code != "not_present") or reason_code in {
                 "unreadable",
                 "missing_submitted_value",
             }:
@@ -651,9 +620,7 @@ class PostSubmissionFormatterAgent:
         )
 
 
-class GeminiPostSubmissionVerificationService(
-    IPostSubmissionPassportVerificationService
-):
+class GeminiPostSubmissionVerificationService(IPostSubmissionPassportVerificationService):
     """Coordinate one Gemini vision request and deterministic typed review stages."""
 
     def __init__(
@@ -678,9 +645,7 @@ class GeminiPostSubmissionVerificationService(
         self._formatter_agent = formatter_agent or PostSubmissionFormatterAgent()
         self._retry_jitter = retry_jitter or random.random
         self._priority_metrics = (
-            priority_metrics
-            if priority_metrics is not None
-            else AiPriorityMetrics()
+            priority_metrics if priority_metrics is not None else AiPriorityMetrics()
         )
 
     async def verify(
@@ -724,9 +689,11 @@ class GeminiPostSubmissionVerificationService(
         )
         for attempt in range(max_attempts):
             model = models[min(attempt, len(models) - 1)]
+            payload["generationConfig"]["thinkingConfig"] = {
+                "thinkingLevel": thinking_level_for_model(model)
+            }
             endpoint = (
-                f"{self._settings.gemini_api_base_url.rstrip('/')}"
-                f"/models/{model}:generateContent"
+                f"{self._settings.gemini_api_base_url.rstrip('/')}/models/{model}:generateContent"
             )
             remaining = deadline - time.monotonic()
             if remaining <= 0:
@@ -735,9 +702,7 @@ class GeminiPostSubmissionVerificationService(
                 break
             attempts_left = max_attempts - attempt
             attempt_timeout = (
-                remaining
-                if attempts_left == 1
-                else max(0.01, remaining / attempts_left)
+                remaining if attempts_left == 1 else max(0.01, remaining / attempts_left)
             )
             timeout = httpx.Timeout(
                 attempt_timeout,
@@ -786,9 +751,7 @@ class GeminiPostSubmissionVerificationService(
                 )
 
             retry_after_ms = parse_retry_after_ms(
-                response.headers.get("Retry-After")
-                if response is not None
-                else None
+                response.headers.get("Retry-After") if response is not None else None
             )
             logger.info(
                 "post_submission_verification_response_metadata",
@@ -800,9 +763,7 @@ class GeminiPostSubmissionVerificationService(
                     (time.monotonic() - attempt_started) * 1000,
                     1,
                 ),
-                transport_status=(
-                    "response" if response is not None else last_transport_status
-                ),
+                transport_status=("response" if response is not None else last_transport_status),
                 retry_after_ms=retry_after_ms,
             )
             if response is not None:
@@ -811,11 +772,7 @@ class GeminiPostSubmissionVerificationService(
                     event=(
                         "upstream_429"
                         if response.status_code == 429
-                        else (
-                            "success"
-                            if response.status_code < 400
-                            else "upstream_failure"
-                        )
+                        else ("success" if response.status_code < 400 else "upstream_failure")
                     ),
                     duration_ms=(time.monotonic() - attempt_started) * 1_000,
                     retry_number=attempt + 1,
@@ -830,11 +787,7 @@ class GeminiPostSubmissionVerificationService(
                 and (response is None or transient_response)
             ):
                 retry_delay = retry_after_delay_seconds(
-                    (
-                        response.headers.get("Retry-After")
-                        if response is not None
-                        else None
-                    ),
+                    (response.headers.get("Retry-After") if response is not None else None),
                     remaining_seconds=remaining,
                     attempt_number=attempt + 1,
                     jitter_unit=self._retry_jitter(),
@@ -880,9 +833,7 @@ class GeminiPostSubmissionVerificationService(
             if len(response.content) > _MAX_PROVIDER_RESPONSE_BYTES:
                 raise ValueError("Gemini response exceeded the configured bound")
             provider_json = self._extract_provider_json(response.json())
-            document_assessment = self._document_agent.evaluate(
-                provider_json["document"]
-            )
+            document_assessment = self._document_agent.evaluate(provider_json["document"])
             field_results = self._field_agent.evaluate(
                 provider_json["fields"],
                 submitted_fields,
@@ -917,9 +868,7 @@ class GeminiPostSubmissionVerificationService(
             document_class=document_assessment.document_class,
             page_type=document_assessment.page_type,
             image_quality=document_assessment.image_quality,
-            classification_confidence=(
-                document_assessment.classification_confidence
-            ),
+            classification_confidence=(document_assessment.classification_confidence),
             reason_code=result.reason_code,
             correct_count=counts["correct"],
             suspicious_count=counts["suspicious"],
@@ -959,9 +908,7 @@ class GeminiPostSubmissionVerificationService(
         submitted_fields: dict[str, Any],
     ) -> dict[str, Any]:
         compact_fields = {
-            field: _string_value(submitted_fields.get(field))[
-                :_MAX_OBSERVED_VALUE_CHARACTERS
-            ]
+            field: _string_value(submitted_fields.get(field))[:_MAX_OBSERVED_VALUE_CHARACTERS]
             for field in POST_SUBMISSION_PASSPORT_FIELDS
         }
         return {
@@ -990,7 +937,9 @@ class GeminiPostSubmissionVerificationService(
                 "responseMimeType": "application/json",
                 "responseSchema": _RESPONSE_SCHEMA,
                 "maxOutputTokens": max(1024, self._settings.gemini_max_output_tokens),
-                "thinkingConfig": {"thinkingLevel": "minimal"},
+                "thinkingConfig": {
+                    "thinkingLevel": thinking_level_for_model(self._settings.gemini_model)
+                },
             },
         }
 
@@ -1011,9 +960,7 @@ class GeminiPostSubmissionVerificationService(
         if not isinstance(parts, list) or len(parts) != 1:
             raise ValueError("Gemini response must contain one text part")
         part = parts[0]
-        if not isinstance(part, dict) or not set(part).issubset(
-            {"text", "thoughtSignature"}
-        ):
+        if not isinstance(part, dict) or not set(part).issubset({"text", "thoughtSignature"}):
             raise ValueError("Gemini response part contains unexpected data")
         if "text" not in part:
             raise ValueError("Gemini response part must contain text")
@@ -1074,16 +1021,12 @@ class GeminiPostSubmissionVerificationService(
             self._settings.gemini_model,
             self._settings.gemini_fallback_model,
         )
-        candidates = tuple(
-            dict.fromkeys(model.strip() for model in configured if model.strip())
-        )
+        candidates = tuple(dict.fromkeys(model.strip() for model in configured if model.strip()))
         return candidates or ("gemini-3.5-flash",)
 
     @staticmethod
     def _safe_content_type(content_type: str) -> str:
         normalized = content_type.lower().strip()
         return (
-            normalized
-            if normalized in {"image/jpeg", "image/png", "image/webp"}
-            else "image/jpeg"
+            normalized if normalized in {"image/jpeg", "image/png", "image/webp"} else "image/jpeg"
         )

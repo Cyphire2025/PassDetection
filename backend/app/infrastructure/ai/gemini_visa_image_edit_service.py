@@ -18,6 +18,7 @@ from PIL import Image
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai_priority.retry import retry_after_delay_seconds
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
@@ -90,6 +91,7 @@ class GeminiVisaImageEditResult:
     content: bytes
     content_type: str
     prompt_sha256: str
+    model: str
 
 
 class GeminiVisaImageEditService:
@@ -118,7 +120,9 @@ class GeminiVisaImageEditService:
                 "Visa AI editing is not configured. Add GEMINI_IMAGE_EDIT_MODEL and a Google API key."
             )
         if not _MODEL_PATTERN.fullmatch(model):
-            raise GeminiVisaImageEditNotConfigured("The configured Visa image model name is invalid.")
+            raise GeminiVisaImageEditNotConfigured(
+                "The configured Visa image model name is invalid."
+            )
 
         try:
             canonical = await asyncio.to_thread(self._canonical_image, image_content)
@@ -168,6 +172,7 @@ class GeminiVisaImageEditService:
             content=candidate,
             content_type="image/jpeg",
             prompt_sha256=prompt_hash,
+            model=model,
         )
 
     async def _generate(
@@ -181,16 +186,20 @@ class GeminiVisaImageEditService:
     ) -> bytes:
         payload = {
             "systemInstruction": {"parts": [{"text": _SYSTEM_INSTRUCTION}]},
-            "contents": [{
-                "role": "user",
-                "parts": [
-                    {"text": prompt},
-                    {"inlineData": {
-                        "mimeType": "image/jpeg",
-                        "data": base64.b64encode(image_content).decode("ascii"),
-                    }},
-                ],
-            }],
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {"text": prompt},
+                        {
+                            "inlineData": {
+                                "mimeType": "image/jpeg",
+                                "data": base64.b64encode(image_content).decode("ascii"),
+                            }
+                        },
+                    ],
+                }
+            ],
             "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
         }
         response = await self._post(
@@ -206,7 +215,9 @@ class GeminiVisaImageEditService:
                 continue
             mime_type = str(inline.get("mimeType") or inline.get("mime_type") or "")
             encoded = inline.get("data")
-            if mime_type not in {"image/jpeg", "image/png", "image/webp"} or not isinstance(encoded, str):
+            if mime_type not in {"image/jpeg", "image/png", "image/webp"} or not isinstance(
+                encoded, str
+            ):
                 continue
             try:
                 content = base64.b64decode(encoded, validate=True)
@@ -215,7 +226,9 @@ class GeminiVisaImageEditService:
             if not content or len(content) > self._settings.upload_max_file_size_bytes:
                 raise GeminiVisaImageEditError("Gemini returned an image outside the allowed size.")
             return content
-        raise GeminiVisaImageEditError("Gemini did not return an edited image. Try a clearer prompt.")
+        raise GeminiVisaImageEditError(
+            "Gemini did not return an edited image. Try a clearer prompt."
+        )
 
     async def _verify_identity(
         self,
@@ -227,19 +240,34 @@ class GeminiVisaImageEditService:
     ) -> None:
         payload = {
             "systemInstruction": {"parts": [{"text": _VERIFY_INSTRUCTION}]},
-            "contents": [{
-                "role": "user",
-                "parts": [
-                    {"text": "Original image"},
-                    {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(original).decode("ascii")}},
-                    {"text": "Edited candidate"},
-                    {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(candidate).decode("ascii")}},
-                ],
-            }],
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {"text": "Original image"},
+                        {
+                            "inlineData": {
+                                "mimeType": "image/jpeg",
+                                "data": base64.b64encode(original).decode("ascii"),
+                            }
+                        },
+                        {"text": "Edited candidate"},
+                        {
+                            "inlineData": {
+                                "mimeType": "image/jpeg",
+                                "data": base64.b64encode(candidate).decode("ascii"),
+                            }
+                        },
+                    ],
+                }
+            ],
             "generationConfig": {
                 "responseMimeType": "application/json",
                 "responseSchema": _VERIFY_SCHEMA,
                 "maxOutputTokens": 256,
+                "thinkingConfig": {
+                    "thinkingLevel": thinking_level_for_model(self._settings.gemini_model)
+                },
             },
         }
         response = await self._post(
@@ -338,6 +366,16 @@ class GeminiVisaImageEditService:
                 f"{self._settings.gemini_api_base_url.rstrip('/')}"
                 f"/models/{attempt_model}:generateContent"
             )
+            request_payload = payload
+            if stage == "verification":
+                generation_config = dict(payload.get("generationConfig", {}))
+                generation_config["thinkingConfig"] = {
+                    "thinkingLevel": thinking_level_for_model(attempt_model)
+                }
+                request_payload = {
+                    **payload,
+                    "generationConfig": generation_config,
+                }
             response: httpx.Response | None = None
             retry_after: str | None = None
             try:
@@ -348,7 +386,7 @@ class GeminiVisaImageEditService:
                             "x-goog-api-key": api_key,
                             "Content-Type": "application/json",
                         },
-                        json=payload,
+                        json=request_payload,
                         timeout=timeout,
                     )
                 else:
@@ -359,7 +397,7 @@ class GeminiVisaImageEditService:
                                 "x-goog-api-key": api_key,
                                 "Content-Type": "application/json",
                             },
-                            json=payload,
+                            json=request_payload,
                         )
             except (httpx.TimeoutException, httpx.TransportError) as exc:
                 last_error = exc

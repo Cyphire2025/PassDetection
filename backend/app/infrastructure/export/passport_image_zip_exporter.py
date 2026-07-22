@@ -8,20 +8,21 @@ import tempfile
 import unicodedata
 import zipfile
 from pathlib import PurePosixPath
-from typing import BinaryIO, Mapping
+from typing import BinaryIO, Iterable, Mapping
 
 from app.domain.entities.entities import PassportSubmission
 from app.domain.exceptions.exceptions import StorageError
+from app.domain.repositories.interfaces import IObjectStorageRepository
+from app.domain.value_objects.passport_image_crop import PassportImageCrop, PassportImageType
 from app.domain.value_objects.personnel_codes import (
     prefixed_agent_employee_code,
     prefixed_staff_code,
 )
-from app.domain.repositories.interfaces import IObjectStorageRepository
-from app.domain.value_objects.passport_image_crop import PassportImageCrop, PassportImageType
 from app.infrastructure.imaging.passport_image_cropper import render_saved_passport_image_crop
 
 _UNSAFE_COMPONENT = re.compile(r"[\\/:*?\"<>|\x00-\x1f\x7f]+")
 _SAFE_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+_UNASSIGNED_ZONE_FOLDER = "UNASSIGNED_ZONE"
 _WINDOWS_RESERVED = {
     "CON", "PRN", "AUX", "NUL",
     *(f"COM{index}" for index in range(1, 10)),
@@ -57,15 +58,33 @@ class PassportImageZipExporter:
         storage: IObjectStorageRepository,
         agent_employee_code_enabled: bool = False,
         crop_metadata: Mapping[object, Mapping[PassportImageType, PassportImageCrop]] | None = None,
+        zone_names: Mapping[object, str] | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
             raise PassportImageExportLimitError(
                 f"Image export is limited to {self.MAX_SUBMISSIONS} passengers at a time."
             )
 
+        resolved_zones = {
+            item.id: self._zone_name(item, zone_names)
+            for item in submissions
+        }
+        use_zone_folders = any(resolved_zones.values())
+        zone_folders = (
+            self._zone_folders(resolved_zones.values())
+            if use_zone_folders
+            else {}
+        )
         ordered = sorted(
             submissions,
             key=lambda item: (
+                (
+                    resolved_zones[item.id].casefold()
+                    if resolved_zones[item.id]
+                    else "\uffff"
+                )
+                if use_zone_folders
+                else "",
                 self._passenger_folder_base(
                     item,
                     staff_code_enabled=staff_code_enabled,
@@ -93,11 +112,30 @@ class PassportImageZipExporter:
         entry_count = 0
         root = f"{sanitize_zip_component(group_name, fallback='GROUP')}_PASSPORT_IMAGES"
         used_folders: set[str] = set()
+        written_zone_folders: set[str] = set()
 
         try:
             with zipfile.ZipFile(spool, mode="w", compression=zipfile.ZIP_STORED, allowZip64=True) as archive:
                 archive.writestr(self._zip_info(f"{root}/", is_directory=True), b"")
                 for submission in ordered:
+                    zone_folder = ""
+                    if use_zone_folders:
+                        zone_name = resolved_zones[submission.id]
+                        zone_folder = (
+                            zone_folders[zone_name.casefold()]
+                            if zone_name
+                            else _UNASSIGNED_ZONE_FOLDER
+                        )
+                        if zone_folder.casefold() not in written_zone_folders:
+                            archive.writestr(
+                                self._zip_info(
+                                    f"{root}/{zone_folder}/",
+                                    is_directory=True,
+                                ),
+                                b"",
+                            )
+                            written_zone_folders.add(zone_folder.casefold())
+
                     base_folder = self._passenger_folder_base(
                         submission,
                         staff_code_enabled=staff_code_enabled,
@@ -105,10 +143,20 @@ class PassportImageZipExporter:
                     )
                     passenger_folder = base_folder
                     occurrence = 1
-                    while passenger_folder.casefold() in used_folders:
+                    folder_path = (
+                        f"{zone_folder}/{passenger_folder}"
+                        if zone_folder
+                        else passenger_folder
+                    )
+                    while folder_path.casefold() in used_folders:
                         occurrence += 1
                         passenger_folder = f"{base_folder}_{occurrence}"
-                    used_folders.add(passenger_folder.casefold())
+                        folder_path = (
+                            f"{zone_folder}/{passenger_folder}"
+                            if zone_folder
+                            else passenger_folder
+                        )
+                    used_folders.add(folder_path.casefold())
 
                     images = [
                         ("passportfront", PassportImageType.PASSPORT_FRONT, submission.image_s3_key),
@@ -154,7 +202,10 @@ class PassportImageZipExporter:
                             raise PassportImageExportLimitError(
                                 "Image export exceeds the 2 GB uncompressed safety limit."
                             )
-                        archive_path = f"{root}/{passenger_folder}/{passenger_folder}_{label}{extension}"
+                        archive_path = (
+                            f"{root}/{folder_path}/"
+                            f"{passenger_folder}_{label}{extension}"
+                        )
                         archive.writestr(self._zip_info(archive_path), content)
                         entry_count += 1
 
@@ -200,6 +251,48 @@ class PassportImageZipExporter:
             if safe_staff_code:
                 return f"{safe_staff_code}_{client_name}"
         return client_name
+
+    @staticmethod
+    def _zone_name(
+        submission: PassportSubmission,
+        zone_names: Mapping[object, str] | None,
+    ) -> str:
+        def normalize(value: object) -> str:
+            normalized = " ".join(str(value or "").strip().split())
+            if normalized.casefold() in {"null", "none", "n/a", "na"}:
+                return ""
+            return normalized
+
+        matched_zone = normalize((zone_names or {}).get(submission.id))
+        if matched_zone:
+            return matched_zone
+        return normalize((submission.staff_metadata or {}).get("zone_name"))
+
+    @staticmethod
+    def _zone_folders(zone_names: Iterable[str]) -> dict[str, str]:
+        names = [zone_name for zone_name in zone_names if isinstance(zone_name, str)]
+        result: dict[str, str] = {}
+        used_folders = (
+            {_UNASSIGNED_ZONE_FOLDER.casefold()}
+            if any(not zone_name for zone_name in names)
+            else set()
+        )
+        for zone_name in sorted(
+            set(filter(None, names)),
+            key=lambda value: (value.casefold(), value),
+        ):
+            zone_key = zone_name.casefold()
+            if zone_key in result:
+                continue
+            base_folder = sanitize_zip_component(zone_name, fallback="ZONE")
+            zone_folder = base_folder
+            occurrence = 1
+            while zone_folder.casefold() in used_folders:
+                occurrence += 1
+                zone_folder = f"{base_folder}_{occurrence}"
+            result[zone_key] = zone_folder
+            used_folders.add(zone_folder.casefold())
+        return result
 
     @staticmethod
     def _zip_info(path: str, *, is_directory: bool = False) -> zipfile.ZipInfo:

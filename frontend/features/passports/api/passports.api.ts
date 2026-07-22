@@ -124,6 +124,7 @@ export interface PassportImageCropState {
   source_width: number | null;
   source_height: number | null;
   sharpness: number;
+  sharpness_algorithm_version: 1 | 2;
   ai_edited: boolean;
 }
 
@@ -141,6 +142,19 @@ export interface ApplyVisaAiEditRequest extends SavePassportImageCropRequest {
   image: Blob;
   previewToken: string;
   prompt: string;
+}
+
+export interface VisaAiLibraryImage {
+  id: string;
+  image_url: string;
+  prompt: string;
+  model: string;
+  created_at: string;
+  is_current: boolean;
+}
+
+export interface VisaAiLibrary {
+  items: VisaAiLibraryImage[];
 }
 
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
@@ -258,6 +272,39 @@ export const passportsApi = {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 120_000,
       },
+    );
+    return data;
+  },
+
+  listVisaAiLibrary: async (id: string): Promise<VisaAiLibraryImage[]> => {
+    const { data } = await apiClient.get<VisaAiLibrary>(
+      API_ENDPOINTS.passports.visaAiLibrary(id),
+    );
+    return data.items;
+  },
+
+  generateVisaAiLibraryImage: async (
+    id: string,
+    prompt: string,
+    signal?: AbortSignal,
+  ): Promise<VisaAiLibraryImage> => {
+    const { data } = await apiClient.post<VisaAiLibraryImage>(
+      API_ENDPOINTS.passports.visaAiLibrary(id),
+      { prompt },
+      { timeout: 120_000, signal },
+    );
+    return data;
+  },
+
+  useVisaAiLibraryImage: async (
+    id: string,
+    generationId: string,
+    request: SavePassportImageCropRequest,
+  ): Promise<PassportImageCropState> => {
+    const { data } = await apiClient.post<PassportImageCropState>(
+      API_ENDPOINTS.passports.visaAiLibraryUse(id, generationId),
+      request,
+      { timeout: 120_000 },
     );
     return data;
   },

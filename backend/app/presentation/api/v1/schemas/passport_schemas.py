@@ -52,6 +52,7 @@ class PassportImageCropResponse(BaseModel):
     source_width: int | None = Field(default=None, ge=1)
     source_height: int | None = Field(default=None, ge=1)
     sharpness: float = Field(default=1.0, ge=1.0, le=3.0)
+    sharpness_algorithm_version: Literal[1, 2] = 1
     ai_edited: bool = False
     revision: int = Field(default=0, ge=0)
 
@@ -60,6 +61,27 @@ class PassportVisaAiPreviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     prompt: str = Field(..., min_length=3, max_length=1000)
+
+
+class PassportVisaAiImageResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    image_url: str
+    prompt: str = Field(..., min_length=3, max_length=1000)
+    model: str
+    created_at: datetime
+    is_current: bool = False
+
+
+class PassportVisaAiImageListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[PassportVisaAiImageResponse]
+
+
+class PassportVisaAiImageUseRequest(PassportImageCropCoordinates):
+    expected_revision: int = Field(..., ge=0)
 
 
 class ConfirmPassportSubmissionRequest(BaseModel):
@@ -264,9 +286,7 @@ class PassportSubmissionResponse(BaseModel):
     updated_at: datetime
     extracted_fields: dict | None = None
     confirmed_fields: dict | None = None
-    extraction_conflicts: list[PassportExtractionConflictResponse] = Field(
-        default_factory=list
-    )
+    extraction_conflicts: list[PassportExtractionConflictResponse] = Field(default_factory=list)
     overall_confidence: float | None = None
     confidence_score: dict | None = None
     mrz_raw: str | None = None
@@ -294,12 +314,8 @@ class PassportSubmissionResponse(BaseModel):
 class PassportSubmissionViewItemResponse(PassportSubmissionResponse):
     duplicate_cluster_id: str | None = None
     duplicate_cluster_size: int = Field(default=1, ge=1)
-    duplicate_cluster_member_ids: list[uuid.UUID] = Field(
-        default_factory=list
-    )
-    verification_confidence: float | None = Field(
-        default=None, ge=0.0, le=1.0
-    )
+    duplicate_cluster_member_ids: list[uuid.UUID] = Field(default_factory=list)
+    verification_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class PassportExpiryAlertResponse(BaseModel):
@@ -316,9 +332,7 @@ class PassportExpiryAlertResponse(BaseModel):
 class PassportSubmissionsViewResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    items: list[PassportSubmissionViewItemResponse] = Field(
-        default_factory=list
-    )
+    items: list[PassportSubmissionViewItemResponse] = Field(default_factory=list)
     group_total: int = Field(ge=0)
     total: int = Field(ge=0)
     page: int = Field(ge=1)
@@ -326,9 +340,7 @@ class PassportSubmissionsViewResponse(BaseModel):
     total_pages: int = Field(ge=0)
     returned_count: int = Field(ge=0)
     cluster_boundaries_preserved: bool = True
-    expiry_alerts: list[PassportExpiryAlertResponse] = Field(
-        default_factory=list
-    )
+    expiry_alerts: list[PassportExpiryAlertResponse] = Field(default_factory=list)
 
 
 class PassportGroupSummaryResponse(BaseModel):

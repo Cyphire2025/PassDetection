@@ -112,6 +112,10 @@ export const API_ENDPOINTS = {
       `/api/v1/passports/${id}/images/visa_photo/ai-preview`,
     visaAiApply: (id: string) =>
       `/api/v1/passports/${id}/images/visa_photo/ai-apply`,
+    visaAiLibrary: (id: string) =>
+      `/api/v1/passports/${id}/images/visa_photo/ai-library`,
+    visaAiLibraryUse: (id: string, generationId: string) =>
+      `/api/v1/passports/${id}/images/visa_photo/ai-library/${generationId}/use`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
     reconcileUpload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,

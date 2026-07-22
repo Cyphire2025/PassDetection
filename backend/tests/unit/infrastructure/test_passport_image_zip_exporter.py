@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 import uuid
 import zipfile
+from pathlib import PurePosixPath
 
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.infrastructure.export.passport_image_zip_exporter import (
@@ -180,6 +181,107 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(any("AGT_123_Alex _ Doe" in name for name in files))
                 self.assertTrue(any("EMP_456_Employee Name" in name for name in files))
                 self.assertFalse(any("STF_55" in name or "STF_66" in name for name in files))
+        finally:
+            spool.close()
+
+    async def test_export_places_passengers_in_exact_zone_folders(self) -> None:
+        group = self._group()
+        delhi = self._submission(group, include_selfie=False, staff_code="101")
+        mumbai_one = self._submission(group, include_selfie=False, staff_code="102")
+        mumbai_two = self._submission(group, include_selfie=False, staff_code="103")
+        unassigned = self._submission(group, include_selfie=False, staff_code="104")
+        delhi.client_name = "Delhi Person"
+        mumbai_one.client_name = "Mumbai One Person"
+        mumbai_two.client_name = "Mumbai Two Person"
+        unassigned.client_name = "Unassigned Person"
+        submissions = [unassigned, mumbai_two, delhi, mumbai_one]
+        objects = {
+            key: b"image"
+            for submission in submissions
+            for key in (submission.image_s3_key, submission.passport_back_s3_key)
+            if key
+        }
+
+        spool, _, _ = await PassportImageZipExporter().export_group(
+            submissions,
+            group_name=group.name,
+            staff_code_enabled=True,
+            storage=FakeStorage(objects),  # type: ignore[arg-type]
+            zone_names={
+                delhi.id: "Delhi",
+                mumbai_one.id: "Mumbai-1",
+                mumbai_two.id: "Mumbai-2",
+            },
+        )
+        try:
+            with zipfile.ZipFile(spool) as archive:
+                files = [name for name in archive.namelist() if not name.endswith("/")]
+                self.assertTrue(any("/Delhi/STF_101_Delhi Person/" in name for name in files))
+                self.assertTrue(any("/Mumbai-1/STF_102_Mumbai One Person/" in name for name in files))
+                self.assertTrue(any("/Mumbai-2/STF_103_Mumbai Two Person/" in name for name in files))
+                self.assertTrue(
+                    any(
+                        "/UNASSIGNED_ZONE/STF_104_Unassigned Person/" in name
+                        for name in files
+                    )
+                )
+                self.assertTrue(all(len(PurePosixPath(name).parts) == 4 for name in files))
+        finally:
+            spool.close()
+
+    async def test_export_keeps_legacy_flat_layout_when_group_has_no_zones(self) -> None:
+        group = self._group()
+        submission = self._submission(group, include_selfie=False, staff_code="201")
+        objects = {
+            submission.image_s3_key: b"front",
+            submission.passport_back_s3_key: b"back",
+        }
+
+        spool, _, _ = await PassportImageZipExporter().export_group(
+            [submission],
+            group_name=group.name,
+            staff_code_enabled=True,
+            storage=FakeStorage(objects),  # type: ignore[arg-type]
+            zone_names={},
+        )
+        try:
+            with zipfile.ZipFile(spool) as archive:
+                files = [name for name in archive.namelist() if not name.endswith("/")]
+                self.assertTrue(all(len(PurePosixPath(name).parts) == 3 for name in files))
+                self.assertFalse(any("UNASSIGNED_ZONE" in name for name in files))
+        finally:
+            spool.close()
+
+    async def test_export_sanitizes_colliding_zone_folder_names(self) -> None:
+        group = self._group()
+        slash_zone = self._submission(group, include_selfie=False)
+        backslash_zone = self._submission(group, include_selfie=False)
+        slash_zone.client_name = "Slash Zone Person"
+        backslash_zone.client_name = "Backslash Zone Person"
+        submissions = [slash_zone, backslash_zone]
+        objects = {
+            key: b"image"
+            for submission in submissions
+            for key in (submission.image_s3_key, submission.passport_back_s3_key)
+            if key
+        }
+
+        spool, _, _ = await PassportImageZipExporter().export_group(
+            submissions,
+            group_name=group.name,
+            staff_code_enabled=False,
+            storage=FakeStorage(objects),  # type: ignore[arg-type]
+            zone_names={
+                slash_zone.id: "Delhi/West",
+                backslash_zone.id: "Delhi\\West",
+            },
+        )
+        try:
+            with zipfile.ZipFile(spool) as archive:
+                files = [name for name in archive.namelist() if not name.endswith("/")]
+                zone_folders = {PurePosixPath(name).parts[1] for name in files}
+                self.assertEqual(zone_folders, {"Delhi_West", "Delhi_West_2"})
+                self.assertTrue(all(".." not in name and "\\" not in name for name in files))
         finally:
             spool.close()
 

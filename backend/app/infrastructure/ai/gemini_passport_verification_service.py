@@ -22,6 +22,7 @@ from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
 from app.core.time_budget import TimeBudget
 from app.domain.value_objects.passport_fields import normalize_extracted_passport_dates
+from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai_priority.metrics import AiPriorityMetrics
 from app.infrastructure.ai_priority.retry import (
     parse_retry_after_ms,
@@ -154,9 +155,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         self._retry_jitter = retry_jitter or random.random
         self._validator = PassportFieldValidator()
         self._priority_metrics = (
-            priority_metrics
-            if priority_metrics is not None
-            else AiPriorityMetrics()
+            priority_metrics if priority_metrics is not None else AiPriorityMetrics()
         )
 
     async def verify(
@@ -196,23 +195,24 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             "Content-Type": "application/json",
         }
         if self._http_client is not None:
-            response, failure_status, attempts, provider_model = (
-                await self._request_with_retries(
-                    self._http_client,
-                    headers=headers,
-                    payload=payload,
-                    budget=budget,
-                )
+            response, failure_status, attempts, provider_model = await self._request_with_retries(
+                self._http_client,
+                headers=headers,
+                payload=payload,
+                budget=budget,
             )
         else:
             async with httpx.AsyncClient() as client:
-                response, failure_status, attempts, provider_model = (
-                    await self._request_with_retries(
-                        client,
-                        headers=headers,
-                        payload=payload,
-                        budget=budget,
-                    )
+                (
+                    response,
+                    failure_status,
+                    attempts,
+                    provider_model,
+                ) = await self._request_with_retries(
+                    client,
+                    headers=headers,
+                    payload=payload,
+                    budget=budget,
                 )
 
         if response is None:
@@ -336,9 +336,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             last_model = model
             attempts_left = len(model_route) - attempt + 1
             attempt_timeout = (
-                remaining
-                if attempts_left == 1
-                else max(0.01, remaining / attempts_left)
+                remaining if attempts_left == 1 else max(0.01, remaining / attempts_left)
             )
             attempt_started = time.perf_counter()
             timeout = httpx.Timeout(
@@ -357,6 +355,9 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 attempt=attempt,
                 timeout_ms=round(attempt_timeout * 1000, 2),
             )
+            payload["generationConfig"]["thinkingConfig"] = {
+                "thinkingLevel": thinking_level_for_model(model)
+            }
             try:
                 async with asyncio.timeout(attempt_timeout):
                     response = await client.post(
@@ -427,9 +428,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 return None, "provider_request_error", attempts, last_model
             else:
                 assert response is not None
-                retry_after_ms = parse_retry_after_ms(
-                    response.headers.get("Retry-After")
-                )
+                retry_after_ms = parse_retry_after_ms(response.headers.get("Retry-After"))
                 logger.info(
                     "gemini_passport_verification_response_received",
                     model=model,
@@ -446,11 +445,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 provider_event = (
                     "upstream_429"
                     if response.status_code == 429
-                    else (
-                        "success"
-                        if last_status is None
-                        else "upstream_failure"
-                    )
+                    else ("success" if last_status is None else "upstream_failure")
                 )
                 self._priority_metrics.record_provider_event(
                     workload=AiWorkload.EXTRACTION,
@@ -461,11 +456,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 if last_status is None:
                     return response, None, attempts, model
 
-            if (
-                not transient
-                or attempt >= len(model_route)
-                or not budget.has_time(0.01)
-            ):
+            if not transient or attempt >= len(model_route) or not budget.has_time(0.01):
                 return None, last_status, attempts, last_model
             retry_delay = retry_after_delay_seconds(
                 response.headers.get("Retry-After") if response is not None else None,
@@ -504,10 +495,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         return (primary, *([fallback] * (max_attempts - 1)))
 
     def _endpoint_for_model(self, model: str) -> str:
-        return (
-            f"{self._settings.gemini_api_base_url.rstrip('/')}"
-            f"/models/{model}:generateContent"
-        )
+        return f"{self._settings.gemini_api_base_url.rstrip('/')}/models/{model}:generateContent"
 
     @staticmethod
     def _response_failure(status_code: int) -> tuple[str | None, bool]:
@@ -552,7 +540,9 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 "responseMimeType": "application/json",
                 "responseSchema": _RESPONSE_SCHEMA,
                 "maxOutputTokens": self._settings.gemini_max_output_tokens,
-                "thinkingConfig": {"thinkingLevel": "minimal"},
+                "thinkingConfig": {
+                    "thinkingLevel": thinking_level_for_model(self._settings.gemini_model)
+                },
             },
         }
 
@@ -561,7 +551,11 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         if not isinstance(response_payload, dict):
             raise ValueError("Unexpected Gemini response root")
         candidates = response_payload["candidates"]
-        if not isinstance(candidates, list) or not candidates or not isinstance(candidates[0], dict):
+        if (
+            not isinstance(candidates, list)
+            or not candidates
+            or not isinstance(candidates[0], dict)
+        ):
             raise ValueError("Unexpected Gemini candidates")
         content = candidates[0]["content"]
         if not isinstance(content, dict):
@@ -586,7 +580,9 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             or not 0.0 <= float(parsed["dc"]) <= 1.0
         ):
             raise ValueError("Unexpected Gemini document classification")
-        if parsed["s"] not in {"match", "changes", "unreadable"} or not isinstance(parsed["f"], list):
+        if parsed["s"] not in {"match", "changes", "unreadable"} or not isinstance(
+            parsed["f"], list
+        ):
             raise ValueError("Unexpected Gemini verification status")
         if len(parsed["f"]) > len(PASSPORT_FIELDS):
             raise ValueError("Too many Gemini field results")
@@ -696,8 +692,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 and (
                     current_given_names == value
                     or (
-                        proposed_name_actions.get("given_names")
-                        in {"fill", "keep", "replace"}
+                        proposed_name_actions.get("given_names") in {"fill", "keep", "replace"}
                         and proposed_name_values.get("given_names") == value
                     )
                 )
@@ -711,7 +706,13 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 merged[field] = value
                 filled.append(field)
                 field_confidences[field] = round(confidence, 4)
-            elif action == "replace" and current and value and value != current and confidence >= 0.90:
+            elif (
+                action == "replace"
+                and current
+                and value
+                and value != current
+                and confidence >= 0.90
+            ):
                 merged[field] = value
                 corrected.append(field)
                 field_confidences[field] = round(confidence, 4)
@@ -786,7 +787,9 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             return parsed.isoformat()
         if field == "sex":
             normalized = value.upper()
-            normalized = {"MALE": "M", "FEMALE": "F", "UNSPECIFIED": "X"}.get(normalized, normalized)
+            normalized = {"MALE": "M", "FEMALE": "F", "UNSPECIFIED": "X"}.get(
+                normalized, normalized
+            )
             return normalized if normalized in {"M", "F", "X", "<"} else ""
         return ""
 
@@ -857,7 +860,9 @@ class GeminiPassportVerificationService(IPassportVerificationService):
     @staticmethod
     def _safe_content_type(content_type: str) -> str:
         normalized = content_type.lower().strip()
-        return normalized if normalized in {"image/jpeg", "image/png", "image/webp"} else "image/jpeg"
+        return (
+            normalized if normalized in {"image/jpeg", "image/png", "image/webp"} else "image/jpeg"
+        )
 
     @staticmethod
     def _string_value(value: Any) -> str:

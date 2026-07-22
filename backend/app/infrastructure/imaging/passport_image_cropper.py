@@ -17,6 +17,8 @@ MIN_RENDERED_CROP_PIXELS = 32
 SUPPORTED_ROTATIONS = frozenset({0, 90, 180, 270})
 MIN_SHARPNESS = 1.0
 MAX_SHARPNESS = 3.0
+LEGACY_SHARPNESS_ALGORITHM_VERSION = 1
+STRONG_SHARPNESS_ALGORITHM_VERSION = 2
 
 
 class PassportImageCropError(ValueError):
@@ -65,6 +67,7 @@ def render_passport_image_crop(
     height: float,
     rotation_degrees: int,
     sharpness: float = 1.0,
+    sharpness_algorithm_version: int = LEGACY_SHARPNESS_ALGORITHM_VERSION,
 ) -> RenderedPassportImage:
     """Rotate, crop, sharpen and emit bounded metadata-free JPEG pixels."""
 
@@ -75,6 +78,7 @@ def render_passport_image_crop(
         height=height,
         rotation_degrees=rotation_degrees,
         sharpness=sharpness,
+        sharpness_algorithm_version=sharpness_algorithm_version,
     )
     image = _open_canonical_image(content)
     rotated: Image.Image | None = None
@@ -97,8 +101,12 @@ def render_passport_image_crop(
             )
         cropped = rotated.crop((left, top, right, bottom))
         rgb = _to_rgb(cropped)
-        if sharpness != 1.0:
-            sharpened = ImageEnhance.Sharpness(rgb).enhance(sharpness)
+        effective_sharpness = _effective_sharpness(
+            sharpness,
+            sharpness_algorithm_version=sharpness_algorithm_version,
+        )
+        if effective_sharpness != 1.0:
+            sharpened = ImageEnhance.Sharpness(rgb).enhance(effective_sharpness)
             rgb.close()
             rgb = sharpened
         output = io.BytesIO()
@@ -142,6 +150,7 @@ def render_saved_passport_image_crop(
         height=crop.height,
         rotation_degrees=crop.rotation_degrees,
         sharpness=crop.sharpness,
+        sharpness_algorithm_version=crop.sharpness_algorithm_version,
     )
     if rendered.source_width != crop.source_width or rendered.source_height != crop.source_height:
         raise PassportImageCropError(
@@ -225,6 +234,7 @@ def _validate_normalized_crop(
     height: float,
     rotation_degrees: int,
     sharpness: float = 1.0,
+    sharpness_algorithm_version: int = LEGACY_SHARPNESS_ALGORITHM_VERSION,
 ) -> None:
     values = (x, y, width, height, sharpness)
     if not all(math.isfinite(value) for value in values):
@@ -233,6 +243,11 @@ def _validate_normalized_crop(
         raise PassportImageCropError("Choose a supported image rotation.")
     if sharpness < MIN_SHARPNESS or sharpness > MAX_SHARPNESS:
         raise PassportImageCropError("Sharpness must be between 100% and 300%.")
+    if sharpness_algorithm_version not in {
+        LEGACY_SHARPNESS_ALGORITHM_VERSION,
+        STRONG_SHARPNESS_ALGORITHM_VERSION,
+    }:
+        raise PassportImageCropError("The sharpness algorithm version is not supported.")
     if x < 0 or y < 0 or x > 1 or y > 1:
         raise PassportImageCropError("Crop coordinates must stay inside the image.")
     if width < MIN_NORMALIZED_CROP_SIZE or height < MIN_NORMALIZED_CROP_SIZE:
@@ -241,6 +256,22 @@ def _validate_normalized_crop(
         )
     if x + width > 1.000001 or y + height > 1.000001:
         raise PassportImageCropError("Crop coordinates must stay inside the image.")
+
+
+def _effective_sharpness(
+    sharpness: float,
+    *,
+    sharpness_algorithm_version: int,
+) -> float:
+    """Map the v2 100-300% control to a visibly stronger bounded range.
+
+    Version 1 preserves every existing production edit. Version 2 makes the
+    new 100% position equivalent to the old 300% result and scales to 700%.
+    """
+
+    if sharpness_algorithm_version == STRONG_SHARPNESS_ALGORITHM_VERSION:
+        return 3.0 + ((sharpness - 1.0) * 2.0)
+    return sharpness
 
 
 def _to_rgb(image: Image.Image) -> Image.Image:

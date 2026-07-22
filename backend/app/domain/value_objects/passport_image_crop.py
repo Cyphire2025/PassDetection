@@ -47,6 +47,7 @@ class PassportImageCrop:
     revision: int
     edit_source_storage_key: str | None = None
     sharpness: float = 1.0
+    sharpness_algorithm_version: int = 1
     updated_by_user_id: uuid.UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None

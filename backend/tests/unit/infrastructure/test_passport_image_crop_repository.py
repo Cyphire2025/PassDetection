@@ -60,6 +60,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     )
     assert first.revision == 1
     assert first.active is True
+    assert first.sharpness_algorithm_version == 2
     assert previous is None
     assert previous_edit is None
 
@@ -72,6 +73,7 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert reset is not None
     assert reset.revision == 2
     assert reset.active is False
+    assert reset.sharpness_algorithm_version == 1
     assert removed == "derived/front-r1.jpg"
     assert removed_edit is None
 
@@ -129,3 +131,4 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert third.active is True
     assert third.source_storage_key == "original/front-v2.jpg"
     assert third.sharpness == 1.5
+    assert third.sharpness_algorithm_version == 2

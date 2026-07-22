@@ -8,6 +8,8 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
+  Check,
+  Images,
   Loader2,
   Pencil,
   RotateCw,
@@ -22,6 +24,7 @@ import {
   type PassportImageCropRect,
   type PassportImageCropState,
   type PassportImageType,
+  type VisaAiLibraryImage,
 } from "../api/passports.api";
 import {
   normalizeCrop,
@@ -37,13 +40,6 @@ interface PassportImageCropEditorProps {
   returnFocusTarget: HTMLButtonElement;
   onClose: () => void;
   onSaved: () => void;
-}
-
-interface VisaAiPreviewState {
-  blob: Blob;
-  objectUrl: string;
-  token: string;
-  prompt: string;
 }
 
 const FULL_IMAGE_CROP: PassportImageCropRect = {
@@ -70,11 +66,14 @@ export function PassportImageCropEditor({
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [activePanel, setActivePanel] = useState<"adjust" | "ai">("adjust");
   const [aiPrompt, setAiPrompt] = useState("");
-  const [aiPreview, setAiPreview] = useState<VisaAiPreviewState | null>(null);
+  const [aiLibrary, setAiLibrary] = useState<VisaAiLibraryImage[]>([]);
+  const [featuredGenerationId, setFeaturedGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingLibrary, setIsLoadingLibrary] = useState(isVisaPhoto);
+  const [usingImageId, setUsingImageId] = useState<string | "original" | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -119,16 +118,30 @@ export function PassportImageCropEditor({
   }, [imageType, submissionId]);
 
   useEffect(() => {
-    return () => {
-      if (aiPreview) URL.revokeObjectURL(aiPreview.objectUrl);
-    };
-  }, [aiPreview]);
-
-  useEffect(() => {
     return () => aiRequestRef.current?.abort();
   }, []);
 
-  const workingObjectUrl = aiPreview?.objectUrl ?? sourceObjectUrl;
+  useEffect(() => {
+    if (!isVisaPhoto) return;
+    const controller = new AbortController();
+    void passportsApi.listVisaAiLibrary(submissionId)
+      .then((items) => {
+        if (controller.signal.aborted) return;
+        setAiLibrary(items);
+        setFeaturedGenerationId((current) => current ?? items[0]?.id ?? null);
+      })
+      .catch((loadError) => {
+        if (!controller.signal.aborted) {
+          setError(readEditError(loadError, "Could not load the saved AI image library."));
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoadingLibrary(false);
+      });
+    return () => controller.abort();
+  }, [isVisaPhoto, submissionId]);
+
+  const workingObjectUrl = sourceObjectUrl;
 
   useEffect(() => {
     if (!workingObjectUrl) return;
@@ -162,15 +175,15 @@ export function PassportImageCropEditor({
       window.clearTimeout(timer);
       image.onload = null;
     };
-  }, [cropRect.rotation_degrees, imageSize.width, sharpness, workingObjectUrl]);
+  }, [activePanel, cropRect.rotation_degrees, imageSize.width, sharpness, workingObjectUrl]);
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
   useEffect(() => {
-    busyRef.current = isSaving || isResetting || isGenerating;
-  }, [isGenerating, isResetting, isSaving]);
+    busyRef.current = isSaving || isResetting || isGenerating || usingImageId !== null;
+  }, [isGenerating, isResetting, isSaving, usingImageId]);
 
   useEffect(() => {
     returnFocusRef.current = returnFocusTarget;
@@ -254,7 +267,6 @@ export function PassportImageCropEditor({
 
   const updatePrompt = (value: string) => {
     setAiPrompt(value);
-    setAiPreview(null);
   };
 
   const generateAiPreview = async () => {
@@ -265,16 +277,13 @@ export function PassportImageCropEditor({
     const controller = new AbortController();
     aiRequestRef.current = controller;
     try {
-      const generated = await passportsApi.generateVisaAiPreview(
+      const generated = await passportsApi.generateVisaAiLibraryImage(
         submissionId,
         prompt,
         controller.signal,
       );
-      setAiPreview({
-        ...generated,
-        objectUrl: URL.createObjectURL(generated.blob),
-        prompt,
-      });
+      setAiLibrary((current) => [generated, ...current.filter((item) => item.id !== generated.id)]);
+      setFeaturedGenerationId(generated.id);
     } catch (generationError) {
       if (!controller.signal.aborted) {
         setError(readEditError(
@@ -285,6 +294,40 @@ export function PassportImageCropEditor({
     } finally {
       if (aiRequestRef.current === controller) aiRequestRef.current = null;
       setIsGenerating(false);
+    }
+  };
+
+  const activateAiGeneration = async (generationId: string) => {
+    if (!metadata || busyRef.current) return;
+    setError(null);
+    setUsingImageId(generationId);
+    try {
+      await passportsApi.useVisaAiLibraryImage(submissionId, generationId, {
+        ...FULL_IMAGE_CROP,
+        sharpness: 1,
+        expected_revision: metadata.revision,
+      });
+      onSaved();
+      onClose();
+    } catch (useError) {
+      setError(readEditError(useError, "Could not use this saved Visa photo."));
+    } finally {
+      setUsingImageId(null);
+    }
+  };
+
+  const activateOriginalImage = async () => {
+    if (!metadata || busyRef.current || !canReset) return;
+    setError(null);
+    setUsingImageId("original");
+    try {
+      await passportsApi.resetImageCrop(submissionId, imageType, metadata.revision);
+      onSaved();
+      onClose();
+    } catch (useError) {
+      setError(readEditError(useError, "Could not restore the original Visa photo."));
+    } finally {
+      setUsingImageId(null);
     }
   };
 
@@ -302,16 +345,7 @@ export function PassportImageCropEditor({
         sharpness,
         expected_revision: metadata.revision,
       };
-      if (aiPreview) {
-        await passportsApi.applyVisaAiEdit(submissionId, {
-          ...editRequest,
-          image: aiPreview.blob,
-          previewToken: aiPreview.token,
-          prompt: aiPreview.prompt,
-        });
-      } else {
-        await passportsApi.saveImageCrop(submissionId, imageType, editRequest);
-      }
+      await passportsApi.saveImageCrop(submissionId, imageType, editRequest);
       onSaved();
       onClose();
     } catch (saveError) {
@@ -340,7 +374,7 @@ export function PassportImageCropEditor({
     }
   };
 
-  const busy = isSaving || isResetting || isGenerating;
+  const busy = isSaving || isResetting || isGenerating || usingImageId !== null;
   const canReset = Boolean(
     metadata?.crop || metadata?.ai_edited || (metadata?.sharpness ?? 1) > 1,
   );
@@ -391,7 +425,7 @@ export function PassportImageCropEditor({
               role="tab"
               aria-selected={activePanel === "ai"}
               onClick={() => setActivePanel("ai")}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "ai" ? "bg-violet-50 text-violet-700" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "ai" ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <Sparkles className="h-4 w-4" /> AI
             </button>
@@ -404,20 +438,27 @@ export function PassportImageCropEditor({
               {error}
             </div>
           )}
-          {!sourceObjectUrl || imageSize.width === 0 ? (
+          {!metadata || !sourceObjectUrl || imageSize.width === 0 ? (
             <div className="flex min-h-80 flex-1 items-center justify-center text-sm text-slate-500" role="status">
               {error ? "Image editor unavailable" : <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading image</>}
             </div>
           ) : activePanel === "ai" && isVisaPhoto ? (
             <VisaAiPanel
-              sourceObjectUrl={sourceObjectUrl}
-              generatedObjectUrl={aiPreview?.objectUrl ?? null}
+              originalImageUrl={metadata.original_url}
+              library={aiLibrary}
+              featuredGenerationId={featuredGenerationId}
               prompt={aiPrompt}
               busy={busy}
               isGenerating={isGenerating}
+              isLoadingLibrary={isLoadingLibrary}
+              usingImageId={usingImageId}
+              originalIsCurrent={!canReset}
               onPromptChange={updatePrompt}
               onGenerate={() => void generateAiPreview()}
               onCancelGenerate={cancelAiGeneration}
+              onFeature={setFeaturedGenerationId}
+              onUseOriginal={() => void activateOriginalImage()}
+              onUseGeneration={(generationId) => void activateAiGeneration(generationId)}
             />
           ) : (
             <div className="flex min-h-0 flex-1 flex-col gap-4">
@@ -467,6 +508,13 @@ export function PassportImageCropEditor({
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
+          {activePanel === "ai" && isVisaPhoto ? (
+            <>
+              <p className="text-xs text-slate-500">Generated images are saved automatically. Choose one from the library when ready.</p>
+              <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Close</Button>
+            </>
+          ) : (
+            <>
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={() => setCropRect((current) => rotateCropClockwise(current))}>
               <RotateCw className="h-4 w-4" /> Rotate 90 degrees
@@ -485,6 +533,8 @@ export function PassportImageCropEditor({
               Save edits
             </Button>
           </div>
+            </>
+          )}
         </footer>
       </div>
     </div>
@@ -492,28 +542,51 @@ export function PassportImageCropEditor({
 }
 
 function VisaAiPanel({
-  sourceObjectUrl,
-  generatedObjectUrl,
+  originalImageUrl,
+  library,
+  featuredGenerationId,
   prompt,
   busy,
   isGenerating,
+  isLoadingLibrary,
+  usingImageId,
+  originalIsCurrent,
   onPromptChange,
   onGenerate,
   onCancelGenerate,
+  onFeature,
+  onUseOriginal,
+  onUseGeneration,
 }: {
-  sourceObjectUrl: string;
-  generatedObjectUrl: string | null;
+  originalImageUrl: string;
+  library: VisaAiLibraryImage[];
+  featuredGenerationId: string | null;
   prompt: string;
   busy: boolean;
   isGenerating: boolean;
+  isLoadingLibrary: boolean;
+  usingImageId: string | "original" | null;
+  originalIsCurrent: boolean;
   onPromptChange: (value: string) => void;
   onGenerate: () => void;
   onCancelGenerate: () => void;
+  onFeature: (generationId: string) => void;
+  onUseOriginal: () => void;
+  onUseGeneration: (generationId: string) => void;
 }) {
+  const featured = library.find((item) => item.id === featuredGenerationId) ?? library[0] ?? null;
   return (
-    <div className="grid min-h-[28rem] flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)_minmax(0,1fr)] lg:items-center">
-      <ImageComparisonCard title="Current Visa photo" objectUrl={sourceObjectUrl} />
-      <div className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm">
+    <div className="flex min-h-[28rem] flex-1 flex-col gap-5">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)_minmax(0,1fr)] lg:items-center">
+      <ImageComparisonCard
+        title="Original Visa photo"
+        imageUrl={originalImageUrl}
+        isCurrent={originalIsCurrent}
+        isUsing={usingImageId === "original"}
+        disabled={busy || originalIsCurrent}
+        onUse={onUseOriginal}
+      />
+      <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
         <label htmlFor="visa-ai-prompt" className="text-sm font-semibold text-slate-900">
           AI edit instruction
         </label>
@@ -528,11 +601,11 @@ function VisaAiPanel({
           maxLength={1000}
           rows={8}
           placeholder="Example: Replace the background with an even plain white studio background and balance the lighting. Preserve the person exactly."
-          className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 disabled:bg-slate-50"
+          className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50"
         />
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
           <span>{prompt.length}/1000</span>
-          <span>Preview is not saved automatically</span>
+          <span>Saved automatically after verification</span>
         </div>
         {isGenerating ? (
           <Button
@@ -546,34 +619,109 @@ function VisaAiPanel({
         ) : (
           <Button
             type="button"
-            className="mt-4 w-full gap-2 bg-violet-600 hover:bg-violet-700"
+            className="mt-4 w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
             disabled={busy || prompt.trim().length < 3}
             onClick={onGenerate}
           >
-            <Sparkles className="h-4 w-4" /> Generate preview
+            <Sparkles className="h-4 w-4" /> Generate and save
           </Button>
         )}
       </div>
-      {generatedObjectUrl ? (
-        <ImageComparisonCard title="Generated preview" objectUrl={generatedObjectUrl} />
+      {featured ? (
+        <ImageComparisonCard
+          title="Latest generated image"
+          imageUrl={featured.image_url}
+          isCurrent={featured.is_current}
+          isUsing={usingImageId === featured.id}
+          disabled={busy || featured.is_current}
+          onUse={() => onUseGeneration(featured.id)}
+        />
+      ) : isLoadingLibrary ? (
+        <div className="flex min-h-80 items-center justify-center rounded-2xl border border-dashed border-emerald-200 bg-white text-sm text-slate-500">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading saved images
+        </div>
       ) : (
-        <div className="flex min-h-80 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 text-center text-sm text-slate-500">
-          The verified regenerated image will appear here.
+        <div className="flex min-h-80 items-center justify-center rounded-2xl border border-dashed border-emerald-300 bg-white px-6 text-center text-sm text-slate-500">
+          Your verified image will appear here and be saved to the library.
         </div>
       )}
+      </div>
+
+      <section aria-labelledby="visa-ai-library-title" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 id="visa-ai-library-title" className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <Images className="h-4 w-4 text-emerald-600" /> Saved AI image library
+            </h3>
+            <p className="mt-1 text-xs text-slate-500">Every verified generation remains available until the submission is deleted.</p>
+          </div>
+          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+            {library.length} saved
+          </span>
+        </div>
+        {library.length > 0 ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {library.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                disabled={busy}
+                onClick={() => onFeature(item.id)}
+                className={`overflow-hidden rounded-xl border bg-white text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${featured?.id === item.id ? "border-emerald-500 ring-1 ring-emerald-500" : "border-slate-200 hover:border-emerald-300"}`}
+              >
+                {/* Same-origin authorized endpoint; native lazy loading avoids eager library downloads. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img loading="lazy" src={item.image_url} alt="Saved AI Visa photo" className="h-44 w-full bg-slate-100 object-contain" />
+                <span className="block truncate px-3 pt-2 text-xs font-medium text-slate-700">{item.prompt}</span>
+                <span className="flex items-center justify-between px-3 pb-3 pt-1 text-[11px] text-slate-400">
+                  {new Date(item.created_at).toLocaleString()}
+                  {item.is_current && <span className="font-semibold text-emerald-700">In use</span>}
+                </span>
+              </button>
+            ))}
+          </div>
+        ) : !isLoadingLibrary ? (
+          <p className="mt-4 rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">No AI images have been generated yet.</p>
+        ) : null}
+      </section>
     </div>
   );
 }
 
-function ImageComparisonCard({ title, objectUrl }: { title: string; objectUrl: string }) {
+function ImageComparisonCard({
+  title,
+  imageUrl,
+  isCurrent,
+  isUsing,
+  disabled,
+  onUse,
+}: {
+  title: string;
+  imageUrl: string;
+  isCurrent: boolean;
+  isUsing: boolean;
+  disabled: boolean;
+  onUse: () => void;
+}) {
   return (
     <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <figcaption className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-800">
         {title}
       </figcaption>
-      {/* Blob URLs are authenticated, short-lived, and released when the editor closes. */}
+      {/* Same-origin endpoints authorize each request and explicitly disable shared caching. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={objectUrl} alt={title} className="max-h-[58vh] w-full bg-slate-100 object-contain" />
+      <img src={imageUrl} alt={title} className="max-h-[58vh] w-full bg-slate-100 object-contain" />
+      <div className="border-t border-slate-100 p-3">
+        <Button
+          type="button"
+          className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
+          disabled={disabled}
+          onClick={onUse}
+        >
+          {isUsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          {isCurrent ? "Currently in use" : "Use this image"}
+        </Button>
+      </div>
     </figure>
   );
 }
@@ -609,7 +757,7 @@ function SharpnessControl({
         className="mt-3 w-full accent-blue-600"
       />
       <div className="mt-1 flex justify-between text-[11px] text-slate-400">
-        <span>Original</span><span>Maximum</span>
+        <span>Enhanced</span><span>Maximum</span>
       </div>
     </div>
   );
@@ -671,7 +819,8 @@ function applySharpnessPreview(
   const source = context.getImageData(0, 0, width, height);
   const target = context.createImageData(width, height);
   target.data.set(source.data);
-  const strength = (clampSharpness(sharpness) - 1) * 0.22;
+  const effectiveSharpness = 3 + ((clampSharpness(sharpness) - 1) * 2);
+  const strength = (effectiveSharpness - 1) * 0.22;
   const centerWeight = 1 + 4 * strength;
   for (let y = 1; y < height - 1; y += 1) {
     for (let x = 1; x < width - 1; x += 1) {

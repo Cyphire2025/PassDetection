@@ -99,9 +99,7 @@ def _response(
     part = {
         "text": json.dumps(
             {
-                "document": (
-                    document if document is not None else _provider_document()
-                ),
+                "document": (document if document is not None else _provider_document()),
                 "fields": fields,
             }
         )
@@ -110,28 +108,16 @@ def _response(
         part["thoughtSignature"] = thought_signature
     return httpx.Response(
         200,
-        json={
-            "candidates": [
-                {
-                    "content": {
-                        "parts": [part]
-                    }
-                }
-            ]
-        },
+        json={"candidates": [{"content": {"parts": [part]}}]},
     )
 
 
-class GeminiPostSubmissionVerificationServiceTests(
-    unittest.IsolatedAsyncioTestCase
-):
+class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
     async def test_country_name_and_alpha3_are_the_same_identity(self) -> None:
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(_provider_fields())
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -162,18 +148,16 @@ class GeminiPostSubmissionVerificationServiceTests(
 
         async def handler(request: httpx.Request) -> httpx.Response:
             payload = json.loads(request.content)
-            reason_codes = payload["generationConfig"]["responseSchema"][
-                "properties"
-            ]["fields"]["items"]["properties"]["reason_code"]["enum"]
+            reason_codes = payload["generationConfig"]["responseSchema"]["properties"]["fields"][
+                "items"
+            ]["properties"]["reason_code"]["enum"]
             self.assertIn("not_present", reason_codes)
             system_text = payload["systemInstruction"]["parts"][0]["text"]
             self.assertIn("Never copy given names into surname", system_text)
             self.assertIn("reason_code not_present", system_text)
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -210,9 +194,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -237,9 +219,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(_provider_fields())
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -271,9 +251,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -309,6 +287,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         )
         for override in cases:
             with self.subTest(override=override):
+
                 async def handler(
                     _request: httpx.Request,
                     provider_override: dict[
@@ -316,13 +295,9 @@ class GeminiPostSubmissionVerificationServiceTests(
                         dict[str, object],
                     ] = override,
                 ) -> httpx.Response:
-                    return _response(
-                        _provider_fields(override=provider_override)
-                    )
+                    return _response(_provider_fields(override=provider_override))
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     result = await GeminiPostSubmissionVerificationService(
                         settings=_settings(),
                         http_client=client,
@@ -367,9 +342,7 @@ class GeminiPostSubmissionVerificationServiceTests(
             )
             return _response(_provider_fields())
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -398,6 +371,7 @@ class GeminiPostSubmissionVerificationServiceTests(
             ("invalid-confidence", invalid_confidence),
         ):
             with self.subTest(label=label):
+
                 async def handler(
                     _request: httpx.Request,
                     response_document: dict[str, object] = document,
@@ -407,9 +381,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                         document=response_document,
                     )
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     result = await GeminiPostSubmissionVerificationService(
                         settings=_settings(),
                         http_client=client,
@@ -467,6 +439,7 @@ class GeminiPostSubmissionVerificationServiceTests(
 
         for label, document, reason_code, explanation in cases:
             with self.subTest(label=label):
+
                 async def handler(
                     _request: httpx.Request,
                     response_document: dict[str, object] = document,
@@ -476,9 +449,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                         document=response_document,
                     )
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     result = await GeminiPostSubmissionVerificationService(
                         settings=_settings(),
                         http_client=client,
@@ -530,6 +501,7 @@ class GeminiPostSubmissionVerificationServiceTests(
 
         for label, document, reason_code, explanation in cases:
             with self.subTest(label=label):
+
                 async def handler(
                     _request: httpx.Request,
                     response_document: dict[str, object] = document,
@@ -539,9 +511,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                         document=response_document,
                     )
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     result = await GeminiPostSubmissionVerificationService(
                         settings=_settings(),
                         http_client=client,
@@ -576,9 +546,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -604,9 +572,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -616,9 +582,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=_submitted_fields(),
             )
 
-        date_result = next(
-            field for field in result.fields if field.field == "date_of_issue"
-        )
+        date_result = next(field for field in result.fields if field.field == "date_of_issue")
         self.assertEqual(result.decision.value, "needs_review")
         self.assertEqual(date_result.verdict.value, "suspicious")
         self.assertEqual(date_result.reason_code, "ambiguous")
@@ -631,9 +595,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(_provider_fields())
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -643,9 +605,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=submitted,
             )
 
-        date_result = next(
-            field for field in result.fields if field.field == "date_of_birth"
-        )
+        date_result = next(field for field in result.fields if field.field == "date_of_birth")
         self.assertEqual(result.decision.value, "needs_review")
         self.assertEqual(date_result.reason_code, "missing_submitted_value")
         self.assertEqual(date_result.confidence, 0.0)
@@ -665,9 +625,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -677,9 +635,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=_submitted_fields(),
             )
 
-        date_result = next(
-            field for field in result.fields if field.field == "date_of_issue"
-        )
+        date_result = next(field for field in result.fields if field.field == "date_of_issue")
         self.assertEqual(date_result.reason_code, "unreadable")
         self.assertEqual(date_result.confidence, 0.0)
         self.assertLess(result.confidence, 1.0)
@@ -701,9 +657,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -724,9 +678,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 thought_signature="opaque-provider-signature",
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -759,9 +711,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 thought_signature="opaque-provider-signature",
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -790,9 +740,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -822,9 +770,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -834,9 +780,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=submitted,
             )
 
-        nationality = next(
-            field for field in result.fields if field.field == "nationality"
-        )
+        nationality = next(field for field in result.fields if field.field == "nationality")
         self.assertEqual(result.decision.value, "ai_approved")
         self.assertEqual(nationality.verdict.value, "correct")
         self.assertEqual(nationality.reason_code, "match")
@@ -857,9 +801,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(fields)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -869,9 +811,7 @@ class GeminiPostSubmissionVerificationServiceTests(
                 submitted_fields=_submitted_fields(),
             )
 
-        passport_number = next(
-            field for field in result.fields if field.field == "passport_number"
-        )
+        passport_number = next(field for field in result.fields if field.field == "passport_number")
         self.assertEqual(result.decision.value, "needs_review")
         self.assertEqual(passport_number.verdict.value, "suspicious")
         self.assertEqual(passport_number.reason_code, "low_confidence")
@@ -883,9 +823,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(invalid)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -913,13 +851,9 @@ class GeminiPostSubmissionVerificationServiceTests(
                     calls += 1
                     return httpx.Response(status_code)
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     await GeminiPostSubmissionVerificationService(
-                        settings=_settings(
-                            gemini_max_retries=configured_retries
-                        ),
+                        settings=_settings(gemini_max_retries=configured_retries),
                         http_client=client,
                     ).verify(
                         b"passport-image",
@@ -937,9 +871,9 @@ class GeminiPostSubmissionVerificationServiceTests(
             async def post(self, _endpoint: str, **kwargs) -> httpx.Response:  # type: ignore[no-untyped-def]
                 payload = kwargs["json"]
                 self.payload_ids.append(id(payload))
-                submitted = json.loads(
-                    payload["contents"][0]["parts"][0]["text"]
-                )["submitted_fields"]
+                submitted = json.loads(payload["contents"][0]["parts"][0]["text"])[
+                    "submitted_fields"
+                ]
                 self.prompt_lengths.append(len(submitted["surname"]))
                 if len(self.payload_ids) == 1:
                     return httpx.Response(503)
@@ -968,9 +902,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         self.assertEqual(result.decision.value, "needs_review")
         counters = shared_metrics.snapshot()["counters"]
         self.assertEqual(
-            counters[
-                "ai_provider.events.total.verification.upstream_failure"
-            ],
+            counters["ai_provider.events.total.verification.upstream_failure"],
             1,
         )
         self.assertEqual(
@@ -988,9 +920,7 @@ class GeminiPostSubmissionVerificationServiceTests(
         requested_models: list[str] = []
 
         async def handler(request: httpx.Request) -> httpx.Response:
-            requested_models.append(
-                str(request.url).split("/models/", 1)[1].split(":", 1)[0]
-            )
+            requested_models.append(str(request.url).split("/models/", 1)[1].split(":", 1)[0])
             if len(requested_models) == 1:
                 return httpx.Response(503)
             return _response(
@@ -998,12 +928,8 @@ class GeminiPostSubmissionVerificationServiceTests(
                 thought_signature="opaque-provider-signature",
             )
 
-        settings = _settings().model_copy(
-            update={"gemini_fallback_model": "gemini-3.1-flash-lite"}
-        )
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        settings = _settings().model_copy(update={"gemini_fallback_model": "gemini-3.1-flash-lite"})
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPostSubmissionVerificationService(
                 settings=settings,
                 http_client=client,
@@ -1019,3 +945,39 @@ class GeminiPostSubmissionVerificationServiceTests(
         )
         self.assertEqual(result.provider_status, "verified")
         self.assertEqual(result.model, "gemini-3.1-flash-lite")
+
+    async def test_gemini_36_thinking_level_is_changed_for_older_fallback(
+        self,
+    ) -> None:
+        requests: list[tuple[str, str]] = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            body = json.loads(request.content)
+            model = str(request.url).split("/models/", 1)[1].split(":", 1)[0]
+            requests.append((model, body["generationConfig"]["thinkingConfig"]["thinkingLevel"]))
+            if len(requests) == 1:
+                return httpx.Response(503)
+            return _response(_provider_fields())
+
+        settings = _settings(
+            gemini_model="gemini-3.6-flash",
+            gemini_fallback_model="gemini-3.1-flash-lite",
+        )
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=settings,
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        self.assertEqual(
+            requests,
+            [
+                ("gemini-3.6-flash", "medium"),
+                ("gemini-3.1-flash-lite", "minimal"),
+            ],
+        )
+        self.assertEqual(result.provider_status, "verified")

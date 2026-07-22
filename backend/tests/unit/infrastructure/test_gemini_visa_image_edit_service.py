@@ -26,8 +26,8 @@ def _jpeg() -> bytes:
     return output.getvalue()
 
 
-def _settings() -> SimpleNamespace:
-    return SimpleNamespace(
+def _settings(**overrides: object) -> SimpleNamespace:
+    values = dict(
         gemini_image_edit_model="gemini-image-model",
         google_api_key=SecretStr("test-key"),
         upload_max_file_size_bytes=5 * 1024 * 1024,
@@ -38,22 +38,28 @@ def _settings() -> SimpleNamespace:
         gemini_max_retries=1,
         gemini_retry_max_attempts=3,
     )
+    values.update(overrides)
+    return SimpleNamespace(**values)
 
 
 def _image_response(content: bytes) -> httpx.Response:
     return httpx.Response(
         200,
         json={
-            "candidates": [{
-                "content": {
-                    "parts": [{
-                        "inlineData": {
-                            "mimeType": "image/jpeg",
-                            "data": base64.b64encode(content).decode("ascii"),
-                        }
-                    }]
+            "candidates": [
+                {
+                    "content": {
+                        "parts": [
+                            {
+                                "inlineData": {
+                                    "mimeType": "image/jpeg",
+                                    "data": base64.b64encode(content).decode("ascii"),
+                                }
+                            }
+                        ]
+                    }
                 }
-            }]
+            ]
         },
     )
 
@@ -65,19 +71,17 @@ def _verdict_response(
     artifact_free: bool = True,
     confidence: float = 0.99,
 ) -> httpx.Response:
-    verdict = json.dumps({
-        "same_identity": same_identity,
-        "presentation_only": presentation_only,
-        "artifact_free": artifact_free,
-        "confidence": confidence,
-    })
+    verdict = json.dumps(
+        {
+            "same_identity": same_identity,
+            "presentation_only": presentation_only,
+            "artifact_free": artifact_free,
+            "confidence": confidence,
+        }
+    )
     return httpx.Response(
         200,
-        json={
-            "candidates": [{
-                "content": {"parts": [{"text": verdict}]}
-            }]
-        },
+        json={"candidates": [{"content": {"parts": [{"text": verdict}]}}]},
     )
 
 
@@ -92,31 +96,39 @@ async def test_service_generates_then_verifies_identity_before_returning_image()
             return httpx.Response(
                 200,
                 json={
-                    "candidates": [{
-                        "content": {
-                            "parts": [{
-                                "inlineData": {
-                                    "mimeType": "image/jpeg",
-                                    "data": base64.b64encode(source).decode("ascii"),
-                                }
-                            }]
+                    "candidates": [
+                        {
+                            "content": {
+                                "parts": [
+                                    {
+                                        "inlineData": {
+                                            "mimeType": "image/jpeg",
+                                            "data": base64.b64encode(source).decode("ascii"),
+                                        }
+                                    }
+                                ]
+                            }
                         }
-                    }]
+                    ]
                 },
             )
         return httpx.Response(
             200,
             json={
-                "candidates": [{
-                    "content": {
-                        "parts": [{
-                            "text": (
-                                '{"same_identity":true,"presentation_only":true,'
-                                '"artifact_free":true,"confidence":0.99}'
-                            )
-                        }]
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {
+                                    "text": (
+                                        '{"same_identity":true,"presentation_only":true,'
+                                        '"artifact_free":true,"confidence":0.99}'
+                                    )
+                                }
+                            ]
+                        }
                     }
-                }]
+                ]
             },
         )
 
@@ -206,6 +218,48 @@ async def test_verifier_503_retries_once_with_fallback_and_same_candidate() -> N
     fallback_payload = json.loads(requests[2].content)
     assert primary_payload == fallback_payload
     assert primary_payload["contents"][0]["parts"][3]["inlineData"]["data"]
+
+
+@pytest.mark.asyncio
+async def test_gemini_36_verifier_uses_medium_and_older_fallback_uses_minimal() -> None:
+    source = _jpeg()
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if "gemini-3-pro-image" in request.url.path:
+            return _image_response(source)
+        if "gemini-3.1-flash-lite" in request.url.path:
+            return _verdict_response()
+        return httpx.Response(503, headers={"Retry-After": "0"})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = GeminiVisaImageEditService(  # type: ignore[arg-type]
+            settings=_settings(
+                gemini_image_edit_model="gemini-3-pro-image",
+                gemini_model="gemini-3.6-flash",
+                gemini_fallback_model="gemini-3.1-flash-lite",
+            ),
+            http_client=client,
+        )
+        with patch(
+            "app.infrastructure.imaging.passport_image_cropper.get_settings",
+            return_value=SimpleNamespace(
+                upload_max_file_size_bytes=5 * 1024 * 1024,
+                upload_max_pixels=24_000_000,
+            ),
+        ):
+            result = await service.edit(
+                source,
+                prompt="Make the background plain white and balance exposure",
+            )
+
+    assert result.model == "gemini-3-pro-image"
+    assert len(requests) == 3
+    primary_payload = json.loads(requests[1].content)
+    fallback_payload = json.loads(requests[2].content)
+    assert primary_payload["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "medium"}
+    assert fallback_payload["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "minimal"}
 
 
 @pytest.mark.asyncio

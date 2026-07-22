@@ -43,15 +43,7 @@ def _gemini_response(payload: dict) -> httpx.Response:
     }
     return httpx.Response(
         200,
-        json={
-            "candidates": [
-                {
-                    "content": {
-                        "parts": [{"text": json.dumps(classified_payload)}]
-                    }
-                }
-            ]
-        },
+        json={"candidates": [{"content": {"parts": [{"text": json.dumps(classified_payload)}]}}]},
     )
 
 
@@ -119,18 +111,45 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["status"], "verified")
         self.assertEqual(result.metadata["attempts"], 2)
         self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
+        self.assertTrue(client.endpoints[0].endswith("/models/gemini-3.5-flash:generateContent"))
         self.assertTrue(
-            client.endpoints[0].endswith(
-                "/models/gemini-3.5-flash:generateContent"
-            )
-        )
-        self.assertTrue(
-            client.endpoints[1].endswith(
-                "/models/gemini-3.1-flash-lite:generateContent"
-            )
+            client.endpoints[1].endswith("/models/gemini-3.1-flash-lite:generateContent")
         )
         self.assertEqual(len(client.payload_ids), 2)
         self.assertEqual(len(set(client.payload_ids)), 1)
+
+    async def test_gemini_36_uses_medium_then_older_fallback_uses_minimal(self) -> None:
+        requests: list[tuple[str, str]] = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            body = json.loads(request.content)
+            model = str(request.url).split("/models/", 1)[1].split(":", 1)[0]
+            requests.append((model, body["generationConfig"]["thinkingConfig"]["thinkingLevel"]))
+            if len(requests) == 1:
+                return httpx.Response(503)
+            return _gemini_response({"s": "match", "f": []})
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(
+                    gemini_model="gemini-3.6-flash",
+                    gemini_fallback_model="gemini-3.1-flash-lite",
+                ),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={},
+            )
+
+        self.assertEqual(
+            requests,
+            [
+                ("gemini-3.6-flash", "medium"),
+                ("gemini-3.1-flash-lite", "minimal"),
+            ],
+        )
+        self.assertEqual(result.metadata["status"], "verified")
 
     async def test_network_failure_uses_fallback_model(self) -> None:
         endpoints: list[str] = []
@@ -227,18 +246,16 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
 
         async def handler(request: httpx.Request) -> httpx.Response:
             payload = json.loads(request.content)
-            actions = payload["generationConfig"]["responseSchema"][
+            actions = payload["generationConfig"]["responseSchema"]["properties"]["f"]["items"][
                 "properties"
-            ]["f"]["items"]["properties"]["a"]["enum"]
+            ]["a"]["enum"]
             self.assertIn("absent", actions)
             system_text = payload["systemInstruction"]["parts"][0]["text"]
             self.assertIn("Never copy the given names into surname", system_text)
             self.assertIn("unreadable, obscured, or ambiguous", system_text)
             return _gemini_response(provider)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -255,10 +272,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("surname", result.metadata["corrected_fields"])
         self.assertNotIn(
             "surname",
-            {
-                issue["field"]
-                for issue in result.merged_fields["field_validation"]["issues"]
-            },
+            {issue["field"] for issue in result.merged_fields["field_validation"]["issues"]},
         )
 
     async def test_provider_cannot_copy_filled_given_name_into_blank_surname(
@@ -276,9 +290,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _gemini_response(provider)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -295,10 +307,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["absent_fields"], [])
         self.assertIn(
             "surname",
-            {
-                issue["field"]
-                for issue in result.merged_fields["field_validation"]["issues"]
-            },
+            {issue["field"] for issue in result.merged_fields["field_validation"]["issues"]},
         )
 
     async def test_reextraction_cannot_copy_kept_given_name_into_blank_surname(
@@ -315,9 +324,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _gemini_response(provider)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -349,9 +356,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _gemini_response(provider)
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -380,9 +385,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 }
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -402,17 +405,14 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         )
         for invalid in invalid_fields:
             with self.subTest(invalid=invalid):
+
                 async def handler(
                     _request: httpx.Request,
                     item: dict[str, object] = invalid,
                 ) -> httpx.Response:
-                    return _gemini_response(
-                        {"s": "changes", "f": [item]}
-                    )
+                    return _gemini_response({"s": "changes", "f": [item]})
 
-                async with httpx.AsyncClient(
-                    transport=httpx.MockTransport(handler)
-                ) as client:
+                async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
                     result = await GeminiPassportVerificationService(
                         settings=_settings(),
                         http_client=client,
@@ -497,9 +497,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 }
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -528,9 +526,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 }
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -553,9 +549,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 }
             )
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(),
                 http_client=client,
@@ -653,9 +647,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             calls += 1
             return _gemini_response({"s": "match", "f": []})
 
-        async with httpx.AsyncClient(
-            transport=httpx.MockTransport(handler)
-        ) as client:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
                 settings=_settings(gemini_verification_enabled=False),
                 http_client=client,

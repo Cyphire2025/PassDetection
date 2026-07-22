@@ -140,6 +140,51 @@ def test_renderer_applies_bounded_sharpness_and_strips_metadata() -> None:
         assert result.getexif() == {}
 
 
+def test_strong_100_percent_matches_legacy_300_percent() -> None:
+    source = Image.new("RGB", (120, 120), "white")
+    for offset in range(30, 90):
+        source.putpixel((offset, 60), (20, 20, 20))
+    output = io.BytesIO()
+    source.save(output, format="JPEG", quality=95)
+    source.close()
+
+    legacy_maximum = render_passport_image_crop(
+        output.getvalue(),
+        x=0,
+        y=0,
+        width=1,
+        height=1,
+        rotation_degrees=0,
+        sharpness=3,
+        sharpness_algorithm_version=1,
+    )
+    strong_minimum = render_passport_image_crop(
+        output.getvalue(),
+        x=0,
+        y=0,
+        width=1,
+        height=1,
+        rotation_degrees=0,
+        sharpness=1,
+        sharpness_algorithm_version=2,
+    )
+
+    assert strong_minimum.content == legacy_maximum.content
+
+
+def test_renderer_rejects_unknown_sharpness_algorithm() -> None:
+    with pytest.raises(PassportImageCropError, match="algorithm version"):
+        render_passport_image_crop(
+            _jpeg(),
+            x=0,
+            y=0,
+            width=1,
+            height=1,
+            rotation_degrees=0,
+            sharpness_algorithm_version=3,
+        )
+
+
 @pytest.mark.parametrize("sharpness", (0.99, 3.01, math.inf))
 def test_renderer_rejects_out_of_range_sharpness(sharpness: float) -> None:
     with pytest.raises(PassportImageCropError, match="Sharpness|finite"):
