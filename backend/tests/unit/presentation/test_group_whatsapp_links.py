@@ -217,7 +217,7 @@ async def _seed(db_session: AsyncSession) -> dict[str, object]:
 
 
 @pytest.mark.asyncio
-async def test_view_only_manager_can_read_deduped_links_and_matches(
+async def test_same_agency_manager_can_manage_links_and_read_matches(
     db_session: AsyncSession,
 ) -> None:
     seeded = await _seed(db_session)
@@ -241,7 +241,7 @@ async def test_view_only_manager_can_read_deduped_links_and_matches(
         session=db_session,
     )
 
-    assert links.can_manage is False
+    assert links.can_manage is True
     assert links.broadcast_count == 2
     assert links.recipient_count == 1
     assert matches.counts.total_recipients == 1
@@ -249,24 +249,25 @@ async def test_view_only_manager_can_read_deduped_links_and_matches(
     assert matches.total == 1
     assert len(matches.matches[0].recipient_ids) == 2
 
-    with pytest.raises(HTTPException) as put_error:
-        await replace_client_group_whatsapp_links(
-            group.id,
-            ReplaceWhatsAppBroadcastLinksRequest(
-                whatsapp_broadcast_group_ids=[]
-            ),
-            current_user=viewer,
-            session=db_session,
-        )
-    assert put_error.value.status_code == 403
+    options = await list_whatsapp_broadcast_options_for_group(
+        group.id,
+        current_user=viewer,
+        session=db_session,
+    )
+    assert {option.id for option in options} == {
+        broadcast.id for broadcast in seeded["broadcasts"]
+    }
 
-    with pytest.raises(HTTPException) as options_error:
-        await list_whatsapp_broadcast_options_for_group(
-            group.id,
-            current_user=viewer,
-            session=db_session,
-        )
-    assert options_error.value.status_code == 403
+    replacement = await replace_client_group_whatsapp_links(
+        group.id,
+        ReplaceWhatsAppBroadcastLinksRequest(
+            whatsapp_broadcast_group_ids=[]
+        ),
+        current_user=viewer,
+        session=db_session,
+    )
+    assert replacement.can_manage is True
+    assert replacement.broadcast_count == 0
 
 
 @pytest.mark.asyncio

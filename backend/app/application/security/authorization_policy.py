@@ -28,14 +28,16 @@ class AuthorizationPolicy:
         self._session = session
 
     @staticmethod
-    def manager_group_visibility_filter(user: User) -> ColumnElement[bool]:
+    def staff_group_visibility_filter(user: User) -> ColumnElement[bool]:
+        """Limit staff to groups they created or were explicitly assigned."""
+
         return (ClientGroupModel.created_by_user_id == user.id) | ClientGroupModel.id.in_(
             select(ManagerGroupAccessModel.group_id).where(ManagerGroupAccessModel.manager_id == user.id)
         )
 
     @staticmethod
-    def manager_passport_visibility_filter(user: User) -> ColumnElement[bool]:
-        """Scope passports by group id without adding an unjoined group table."""
+    def staff_passport_visibility_filter(user: User) -> ColumnElement[bool]:
+        """Scope staff passports by group id without an unjoined group table."""
 
         owned_group_ids = select(ClientGroupModel.id).where(
             ClientGroupModel.created_by_user_id == user.id
@@ -52,11 +54,8 @@ class AuthorizationPolicy:
         if user.role == UserRole.SUPER_ADMIN:
             return stmt
         stmt = stmt.where(ClientGroupModel.agency_id == user.agency_id)
-        if user.role in {
-            UserRole.AGENCY_MANAGER,
-            UserRole.AGENCY_STAFF,
-        }:
-            stmt = stmt.where(AuthorizationPolicy.manager_group_visibility_filter(user))
+        if user.role == UserRole.AGENCY_STAFF:
+            stmt = stmt.where(AuthorizationPolicy.staff_group_visibility_filter(user))
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
                 ClientGroupModel.id.in_(
@@ -73,12 +72,9 @@ class AuthorizationPolicy:
         if user.role == UserRole.SUPER_ADMIN:
             return stmt
         stmt = stmt.where(PassportSubmissionModel.agency_id == user.agency_id)
-        if user.role in {
-            UserRole.AGENCY_MANAGER,
-            UserRole.AGENCY_STAFF,
-        }:
+        if user.role == UserRole.AGENCY_STAFF:
             stmt = stmt.where(
-                AuthorizationPolicy.manager_passport_visibility_filter(user)
+                AuthorizationPolicy.staff_passport_visibility_filter(user)
             )
         elif user.role == UserRole.AGENCY_COORDINATOR:
             stmt = stmt.where(
@@ -99,9 +95,9 @@ class AuthorizationPolicy:
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
-            return await self.manager_can_access_group(user.id, group.id)
+            return True
         if user.role == UserRole.AGENCY_STAFF:
-            return await self.manager_can_access_group(user.id, group.id)
+            return await self.staff_can_access_group(user.id, group.id)
         if user.role == UserRole.AGENCY_COORDINATOR:
             return await self.coordinator_has_group(user.id, group.id)
         return False
@@ -114,9 +110,9 @@ class AuthorizationPolicy:
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
-            return group.created_by_user_id == user.id
+            return True
         if user.role == UserRole.AGENCY_STAFF:
-            return await self.manager_can_access_group(user.id, group.id)
+            return await self.staff_can_access_group(user.id, group.id)
         return False
 
     async def can_view_passport(self, user: User, passport: Any) -> bool:
@@ -127,9 +123,9 @@ class AuthorizationPolicy:
         if user.role == UserRole.AGENCY_ADMIN:
             return True
         if user.role == UserRole.AGENCY_MANAGER:
-            return await self.manager_can_access_group(user.id, passport.group_id)
+            return True
         if user.role == UserRole.AGENCY_STAFF:
-            return await self.manager_can_access_group(user.id, passport.group_id)
+            return await self.staff_can_access_group(user.id, passport.group_id)
         if user.role == UserRole.AGENCY_COORDINATOR:
             return await self.coordinator_has_passenger(user.id, passport.group_id, passport.id)
         return False
@@ -173,7 +169,7 @@ class AuthorizationPolicy:
         if user.role == UserRole.AGENCY_MANAGER:
             return await self.can_manage_group(user, group)
         if user.role == UserRole.AGENCY_STAFF:
-            return await self.manager_can_access_group(user.id, group.id)
+            return await self.staff_can_access_group(user.id, group.id)
         return False
 
     async def require_view_group(self, user: User, group: Any) -> None:
@@ -208,13 +204,15 @@ class AuthorizationPolicy:
         if not await self.can_delete_data(user, group, permanent=permanent):
             raise AuthorizationError("You cannot delete data for this group")
 
-    async def manager_can_access_group(self, manager_id: uuid.UUID, group_id: uuid.UUID) -> bool:
+    async def staff_can_access_group(self, staff_id: uuid.UUID, group_id: uuid.UUID) -> bool:
+        """Allow staff-owned or assigned groups while rejecting removed groups."""
+
         result = await self._session.execute(
             select(ClientGroupModel.id)
             .outerjoin(
                 ManagerGroupAccessModel,
                 (ManagerGroupAccessModel.group_id == ClientGroupModel.id)
-                & (ManagerGroupAccessModel.manager_id == manager_id),
+                & (ManagerGroupAccessModel.manager_id == staff_id),
             )
             .where(
                 ClientGroupModel.id == group_id,
@@ -222,8 +220,8 @@ class AuthorizationPolicy:
                     [GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value]
                 ),
                 or_(
-                    ClientGroupModel.created_by_user_id == manager_id,
-                    ManagerGroupAccessModel.manager_id == manager_id,
+                    ClientGroupModel.created_by_user_id == staff_id,
+                    ManagerGroupAccessModel.manager_id == staff_id,
                 ),
             )
             .limit(1)
