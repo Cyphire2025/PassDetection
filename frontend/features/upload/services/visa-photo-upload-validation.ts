@@ -1,9 +1,7 @@
-import type { Detection } from "@mediapipe/face_detection";
 import {
   encodeVisaJpegUnderLimit,
-  evaluateFinalVisaPhoto,
-  type VisaPhotoFaceGeometry,
-  type VisaPhotoFinalValidation,
+  evaluateWhiteBackground,
+  type WhiteBackgroundMetrics,
 } from "../components/visa-selfie-quality";
 import type { VisaPhotoRejectionReason } from "./public-flow-telemetry";
 import { CAMERA_QUALITY_POLICY } from "./camera-quality-policy";
@@ -30,10 +28,8 @@ export const VISA_PHOTO_UPLOAD_MAX_PIXELS = 24_000_000;
 
 const ANALYSIS_WIDTH = 96;
 const ANALYSIS_HEIGHT = 144;
-const DETECTOR_TIMEOUT_MS = 8_000;
 const MIN_SOURCE_WIDTH = 300;
 const MIN_SOURCE_HEIGHT = 400;
-const FACE_DETECTION_CONFIDENCE = 0.55;
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -54,28 +50,26 @@ export interface VisaPhotoCropBounds {
 
 export interface VerifiedVisaPhotoUpload {
   file: File;
-  validation: VisaPhotoFinalValidation;
+  validation: VisaPhotoUploadValidation;
 }
 
-let validationTail: Promise<void> = Promise.resolve();
+export interface VisaPhotoUploadValidation {
+  outcome: "pass" | "hard_failure";
+  message: string;
+  background: WhiteBackgroundMetrics;
+}
 
 /**
- * Serializes the legacy MediaPipe WASM runtime across file selections. This
- * prevents rapid re-selection (or React effect replay) from running two native
- * detector calls concurrently on browsers where that can corrupt the runtime.
+ * File uploads intentionally use a separate, lightweight policy from live
+ * capture. A studio-supplied portrait may already be cropped to many valid
+ * head sizes, so uploaded files are gated only on a light, neutral background
+ * after the exact outgoing JPEG has been produced. Camera framing, face size,
+ * sharpness and pose checks remain exclusive to the live-camera workflow.
  */
 export function verifyUploadedVisaPhoto(
   sourceFile: File,
 ): Promise<VerifiedVisaPhotoUpload> {
-  const validation = validationTail.then(
-    () => verifyUploadedVisaPhotoInternal(sourceFile),
-    () => verifyUploadedVisaPhotoInternal(sourceFile),
-  );
-  validationTail = validation.then(
-    () => undefined,
-    () => undefined,
-  );
-  return validation;
+  return verifyUploadedVisaPhotoInternal(sourceFile);
 }
 
 export function centeredVisaPhotoCrop(
@@ -104,62 +98,35 @@ export function centeredVisaPhotoCrop(
 }
 
 export function uploadedVisaPhotoFailureMessage(
-  validation: VisaPhotoFinalValidation,
+  validation: VisaPhotoUploadValidation,
 ): string {
-  if (validation.faceCount === "no_face") {
-    return "No face was found. Choose a clear original studio photo with the full head visible.";
-  }
-  if (validation.faceCount === "multiple") {
-    return "More than one face is visible. Choose a studio photo containing only the applicant.";
-  }
-  if (validation.facePlacement === "too_far") {
-    return "The face is too small. Choose a closer studio portrait with the head and shoulders clearly visible.";
-  }
-  if (validation.facePlacement === "too_close") {
-    return "Part of the head may be cut off. Choose a studio photo with the full head visible.";
-  }
-  if (validation.facePlacement === "off_center") {
-    return "The face is not centred. Choose a properly centred studio portrait.";
-  }
-  if (validation.facePlacement === "head_tilt") {
-    return "The head is tilted beyond the accepted limit. Choose a straight, front-facing studio portrait.";
-  }
-  if (validation.clarity?.status === "blurry") {
-    return "The face is not sharp enough. Choose a clear, high-quality studio photo.";
-  }
-  if (validation.clarity?.status === "too_dark") {
-    return "The face is too dark. Choose an evenly lit studio photo.";
-  }
-  if (validation.clarity?.status === "too_bright") {
-    return "The face is overexposed. Choose an evenly lit studio photo with visible facial detail.";
-  }
-  if (validation.background && !validation.background.isPlain) {
-    return "The background contains a pattern, line, edge, or object. Choose a studio photo with a plain white background.";
-  }
-  if (validation.background && !validation.background.isWhite) {
-    return "The background is not plain white or is strongly coloured. Choose a studio photo with a plain white background.";
-  }
-  return "This photo did not meet the Visa Photo requirements. Choose a different original studio photo.";
+  return validation.message;
 }
 
 export function visaPhotoUploadRejectionReason(
-  validation: VisaPhotoFinalValidation,
+  validation: VisaPhotoUploadValidation,
 ): VisaPhotoRejectionReason | null {
-  if (validation.faceCount === "no_face") return "no_face";
-  if (validation.faceCount === "multiple") return "multiple_faces";
-  if (validation.facePlacement && validation.facePlacement !== "ready") {
-    return validation.facePlacement;
-  }
-  if (validation.clarity?.status && validation.clarity.status !== "good") {
-    return validation.clarity.status;
-  }
-  if (validation.background && !validation.background.isPlain) {
-    return "background_not_plain";
-  }
-  if (validation.background && !validation.background.isWhite) {
+  if (!validation.background.isLightNeutral) {
     return "background_not_light_neutral";
   }
   return null;
+}
+
+export function evaluateUploadedVisaPhotoBackground(
+  background: WhiteBackgroundMetrics,
+): VisaPhotoUploadValidation {
+  if (!background.isLightNeutral) {
+    return {
+      outcome: "hard_failure",
+      message: "The background is not white or off-white. Choose a studio photo with a plain white background.",
+      background,
+    };
+  }
+  return {
+    outcome: "pass",
+    message: "White background check passed.",
+    background,
+  };
 }
 
 async function verifyUploadedVisaPhotoInternal(
@@ -203,10 +170,6 @@ async function verifyUploadedVisaPhotoInternal(
     );
     const exactPhoto = await decodeVisaPhoto(blob);
     try {
-      const detections = await detectVisaPhotoFaces(exactPhoto.image);
-      const face = detections.length === 1
-        ? faceGeometryFromDetection(detections[0])
-        : null;
       const analysisCanvas = document.createElement("canvas");
       analysisCanvas.width = ANALYSIS_WIDTH;
       analysisCanvas.height = ANALYSIS_HEIGHT;
@@ -229,13 +192,15 @@ async function verifyUploadedVisaPhotoInternal(
         ANALYSIS_WIDTH,
         ANALYSIS_HEIGHT,
       ).data;
-      const validation = evaluateFinalVisaPhoto({
-        faceCount: detections.length,
-        face,
+      // Deliberately omit face geometry so the shared sampler examines only
+      // conservative outer wall strips. This prevents hair, shoulders, caps or
+      // clothing edges from being misclassified as background defects.
+      const background = evaluateWhiteBackground(
         pixels,
-        width: ANALYSIS_WIDTH,
-        height: ANALYSIS_HEIGHT,
-      });
+        ANALYSIS_WIDTH,
+        ANALYSIS_HEIGHT,
+      );
+      const validation = evaluateUploadedVisaPhotoBackground(background);
       return {
         file: new File([blob], `visa-photo-${Date.now()}.jpg`, {
           type: "image/jpeg",
@@ -282,112 +247,6 @@ function validateSourceDimensions(width: number, height: number): void {
   }
 }
 
-async function detectVisaPhotoFaces(
-  image: HTMLImageElement,
-): Promise<Detection[]> {
-  let detector: import("@mediapipe/face_detection").FaceDetection | null = null;
-  let initialization: Promise<void> | null = null;
-  let send: Promise<void> | null = null;
-  try {
-    const { FaceDetection } = await import("@mediapipe/face_detection");
-    detector = new FaceDetection({
-      locateFile: (file) => `/mediapipe/face_detection/${file}`,
-    });
-    detector.setOptions({
-      model: "short",
-      selfieMode: false,
-      minDetectionConfidence: FACE_DETECTION_CONFIDENCE,
-    });
-    let resolveDetections!: (detections: Detection[]) => void;
-    const results = new Promise<Detection[]>((resolve) => {
-      resolveDetections = resolve;
-    });
-    detector.onResults((value) => resolveDetections(value.detections));
-    initialization = detector.initialize();
-    await withTimeout(
-      initialization,
-      DETECTOR_TIMEOUT_MS,
-      "Automatic Visa Photo checks could not start. Try again or use the live camera.",
-    );
-    send = detector.send({ image });
-    const [detections] = await withTimeout(
-      Promise.all([results, send]),
-      DETECTOR_TIMEOUT_MS,
-      "Automatic Visa Photo checks took too long. Try again or use the live camera.",
-    );
-    return detections;
-  } catch (error) {
-    console.error("Uploaded Visa Photo verification failed", error);
-    if (
-      error instanceof Error
-      && error.message.startsWith("Automatic Visa Photo checks")
-    ) {
-      throw error;
-    }
-    throw new Error("Automatic Visa Photo checks could not finish safely. Try again or use the live camera.");
-  } finally {
-    if (detector) {
-      const operations = [initialization, send].filter(
-        (operation): operation is Promise<void> => operation !== null,
-      );
-      const safeToClose = (
-        await Promise.all(operations.map((operation) => settlesWithin(
-          operation,
-          1_500,
-        )))
-      ).every(Boolean);
-      if (safeToClose) {
-        await withTimeout(
-          detector.close(),
-          1_500,
-          "Visa Photo detector cleanup timed out.",
-        ).catch((error) => {
-          console.error("Uploaded Visa Photo detector cleanup failed", error);
-        });
-      } else {
-        // Closing legacy MediaPipe while a native send/initialize call is
-        // active can fault Safari's WASM runtime. Leave this already-failed
-        // instance unreachable instead; the next serialized attempt creates a
-        // clean detector.
-        console.error("Uploaded Visa Photo detector did not settle safely");
-      }
-    }
-  }
-}
-
-function faceGeometryFromDetection(
-  detection: Detection,
-): VisaPhotoFaceGeometry | null {
-  const box = detection.boundingBox;
-  if (![box.xCenter, box.yCenter, box.width, box.height].every(Number.isFinite)) {
-    return null;
-  }
-  const eyes = detection.landmarks.slice(0, 2).map((landmark) => ({
-    x: landmark.x,
-    y: landmark.y,
-  }));
-  const validEyes = eyes.length === 2 && eyes.every((eye) => (
-    Number.isFinite(eye.x)
-    && Number.isFinite(eye.y)
-    && eye.x >= 0
-    && eye.x <= 1
-    && eye.y >= 0
-    && eye.y <= 1
-  ));
-  const orderedEyes = validEyes
-    ? [...eyes].sort((first, second) => first.x - second.x)
-    : [];
-  return {
-    centerX: box.xCenter,
-    centerY: box.yCenter,
-    width: box.width,
-    height: box.height,
-    ...(validEyes
-      ? { leftEye: orderedEyes[0], rightEye: orderedEyes[1] }
-      : {}),
-  };
-}
-
 function decodeVisaPhoto(blob: Blob): Promise<{
   image: HTMLImageElement;
   close: () => void;
@@ -419,53 +278,6 @@ function canvasToJpeg(
         : reject(new Error("This browser could not prepare the selected Visa Photo.")),
       "image/jpeg",
       quality,
-    );
-  });
-}
-
-function withTimeout<T>(
-  operation: Promise<T>,
-  timeoutMs: number,
-  message: string,
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timeoutId = window.setTimeout(
-      () => reject(new Error(message)),
-      timeoutMs,
-    );
-    operation.then(
-      (value) => {
-        window.clearTimeout(timeoutId);
-        resolve(value);
-      },
-      (error) => {
-        window.clearTimeout(timeoutId);
-        reject(error);
-      },
-    );
-  });
-}
-
-function settlesWithin(
-  operation: Promise<unknown>,
-  timeoutMs: number,
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    let settled = false;
-    const timeoutId = window.setTimeout(() => {
-      if (!settled) resolve(false);
-    }, timeoutMs);
-    operation.then(
-      () => {
-        settled = true;
-        window.clearTimeout(timeoutId);
-        resolve(true);
-      },
-      () => {
-        settled = true;
-        window.clearTimeout(timeoutId);
-        resolve(true);
-      },
     );
   });
 }

@@ -184,9 +184,9 @@ test("every Visa-enabled link offers live capture and verified studio upload tog
   assert.doesNotMatch(source.slice(choiceStart, choiceEnd), /allowFilesFromDevice/);
 });
 
-test("the upload method repeats the studio-original prohibition before selection", () => {
+test("the upload method shows only the plain studio-photo instruction", () => {
   assert.match(source, /studio-taken photo with a plain white background/);
-  assert.match(source, /another phone or screen/);
-  assert.match(source, /printed or passport-size photograph/);
-  assert.match(source, /strictly prohibited/);
+  assert.doesNotMatch(source, /another phone or screen/);
+  assert.doesNotMatch(source, /printed or passport-size photograph/);
+  assert.doesNotMatch(source, /Live scanning is required\. Gallery and file-picker options are disabled/);
 });

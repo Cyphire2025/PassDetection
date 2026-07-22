@@ -7,7 +7,7 @@ const source = readFileSync(
   "utf8",
 );
 
-test("file selection runs the shared strict verifier before a Visa Photo can be used", () => {
+test("file selection runs the upload-only background verifier before a Visa Photo can be used", () => {
   assert.match(source, /verifyUploadedVisaPhoto\(file\)/);
   assert.match(source, /result\.validation\.outcome !== "pass"/);
   assert.match(source, /setVerifiedFile\(result\.file\)/);
@@ -15,19 +15,19 @@ test("file selection runs the shared strict verifier before a Visa Photo can be 
   assert.match(source, /onCapture\(verifiedFile\)/);
 });
 
-test("the picker clearly prohibits photos of screens and printed photographs", () => {
+test("the picker shows only the requested plain studio-photo instruction", () => {
   assert.match(source, /studio-taken photo with a plain white background/);
-  assert.match(source, /another phone or screen/);
-  assert.match(source, /printed or passport-size photograph/);
-  assert.match(source, /strictly prohibited/);
-  assert.match(source, /may delay your application/);
+  assert.doesNotMatch(source, /<strong[\s>]/);
+  assert.doesNotMatch(source, /underline/);
+  assert.doesNotMatch(source, /another phone or screen|printed or passport-size photograph/);
 });
 
 test("checking is announced and raw detector failures are not displayed", () => {
   assert.match(source, /role="status"/);
   assert.match(source, /Verifying Visa Photo/);
-  assert.match(source, /face, framing, lighting, sharpness, and background/);
-  assert.match(source, /quality_model_unavailable/);
+  assert.match(source, /white or off-white background/);
+  assert.doesNotMatch(source, /face, framing, lighting, sharpness/);
+  assert.doesNotMatch(source, /quality_model_unavailable/);
   assert.doesNotMatch(source, /invoker\(|Out of bounds memory access/);
 });
 

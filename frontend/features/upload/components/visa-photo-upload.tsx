@@ -83,9 +83,6 @@ export function VisaPhotoUpload({
       const message = validationError instanceof Error
         ? validationError.message
         : "The selected Visa Photo could not be verified. Try again or use the live camera.";
-      if (message.startsWith("Automatic Visa Photo checks")) {
-        onTelemetryReason("quality_model_unavailable");
-      }
       setStatus("failed");
       setError(message);
     }
@@ -112,7 +109,7 @@ export function VisaPhotoUpload({
             Upload Studio Visa Photo
           </h1>
           <p className="mt-0.5 text-xs text-slate-500">
-            Automatic checks run before the photo can be used
+            The background is checked before the photo can be used
           </p>
         </div>
         <div className="h-11 w-11" aria-hidden="true" />
@@ -124,8 +121,7 @@ export function VisaPhotoUpload({
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
               <p className="text-sm leading-6">
-                Upload only a <strong className="font-extrabold underline decoration-amber-500 decoration-2 underline-offset-2">studio-taken photo with a plain white background</strong>.
-                {" "}Photos displayed on another phone or screen, and photos taken of a printed or passport-size photograph, are strictly prohibited. Any non-compliant image will be rejected and may delay your application.
+                Upload only a studio-taken photo with a plain white background.
               </p>
             </div>
           </div>
@@ -174,7 +170,7 @@ export function VisaPhotoUpload({
                   <div>
                     <p className="font-bold">Verifying Visa Photo</p>
                     <p className="mt-1 text-xs leading-5 text-slate-200">
-                      Checking the face, framing, lighting, sharpness, and background. This usually takes 1–2 seconds.
+                      Checking for a white or off-white background. This usually takes 1–2 seconds.
                     </p>
                   </div>
                 </div>
@@ -182,7 +178,7 @@ export function VisaPhotoUpload({
               {status === "passed" && (
                 <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-lg">
                   <ShieldCheck className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  Photo passed all automatic checks
+                  White background check passed
                 </div>
               )}
             </div>

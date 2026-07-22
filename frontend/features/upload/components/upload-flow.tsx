@@ -2215,8 +2215,7 @@ function VisaSelfieChoice({
       </div>
 
       <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
-        Upload only a <strong className="font-extrabold underline decoration-amber-500 decoration-2 underline-offset-2">studio-taken photo with a plain white background</strong>.
-        {" "}Photos displayed on another phone or screen, and photos taken of a printed or passport-size photograph, are strictly prohibited. Any non-compliant image will be rejected and may delay your application.
+        Upload only a studio-taken photo with a plain white background.
       </div>
 
       <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>
@@ -2286,12 +2285,6 @@ function PassportDocumentBundlePanel({
           </p>
         </div>
       </div>
-
-      {!allowFilesFromDevice && (
-        <div role="status" className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm font-medium leading-5 text-blue-900">
-          Live scanning is required. Gallery and file-picker options are disabled for this group.
-        </div>
-      )}
 
       <div
         className="grid gap-3"
