@@ -63,6 +63,7 @@ import {
   nextExtractionPollDelay,
 } from "./extraction-polling";
 import { SmartCamera } from "./smart-camera";
+import { VisaPhotoUpload } from "./visa-photo-upload";
 import { VisaSelfieCamera } from "./visa-selfie-camera";
 import { RelationQualifierStep } from "./relation-qualifier-step";
 import { ProtectedUploadDocumentImage } from "./protected-upload-document-image";
@@ -82,6 +83,7 @@ type Step =
   | "FAMILY_SETUP"
   | "METHOD_SELECT"
   | "SELFIE_CAMERA"
+  | "SELFIE_UPLOAD"
   | "CAMERA"
   | "UPLOADING"
   | "REVIEW"
@@ -578,7 +580,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       return;
     }
     if (selfieRequired && !activeVisaSelfie) {
-      setUploadError("Capture the required Visa Photo before continuing.");
+      setUploadError("Capture or upload the required Visa Photo before continuing.");
       return;
     }
     const acquisitionMode = documentBundle.frontSource === "camera"
@@ -1441,6 +1443,27 @@ export function UploadFlow({ token }: UploadFlowProps) {
     );
   }
 
+  if (step === "SELFIE_UPLOAD") {
+    return (
+      <VisaPhotoUpload
+        onCapture={handleSelfieCapture}
+        onCancel={() => {
+          void reportTelemetry({
+            event: "public_flow",
+            reason: "upload_abandoned",
+          });
+          setStep("METHOD_SELECT");
+        }}
+        onTelemetryReason={(reason) => {
+          void reportTelemetry({
+            event: "visa_photo_rejection",
+            reason,
+          });
+        }}
+      />
+    );
+  }
+
   if (isPreparingFile) {
     return <ProcessingScreen title="Preparing Passport Image" description="Straightening the capture and optimizing it before secure upload." />;
   }
@@ -1923,7 +1946,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
                       {selfieRequired && (
                         <VisaSelfieChoice
                           file={activeVisaSelfie}
-                          onClick={() => setStep("SELFIE_CAMERA")}
+                          onCameraClick={() => setStep("SELFIE_CAMERA")}
+                          onUploadClick={() => setStep("SELFIE_UPLOAD")}
                         />
                       )}
                       {activeFamilyMember.submission ? (
@@ -1957,7 +1981,13 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     </button>
                   </div>
                   <div className="space-y-4">
-                    {selfieRequired && <VisaSelfieChoice file={activeVisaSelfie} onClick={() => setStep("SELFIE_CAMERA")} />}
+                    {selfieRequired && (
+                      <VisaSelfieChoice
+                        file={activeVisaSelfie}
+                        onCameraClick={() => setStep("SELFIE_CAMERA")}
+                        onUploadClick={() => setStep("SELFIE_UPLOAD")}
+                      />
+                    )}
                     {submission ? (
                       <SavedPassportActions
                         onResume={() => setStep("REVIEW")}
@@ -2131,21 +2161,68 @@ function ChoiceCard({ icon, title, description, onClick }: { icon: ReactNode; ti
   );
 }
 
-function VisaSelfieChoice({ file, onClick }: { file: File | null; onClick: () => void }) {
+function VisaSelfieChoice({
+  file,
+  onCameraClick,
+  onUploadClick,
+}: {
+  file: File | null;
+  onCameraClick: () => void;
+  onUploadClick: () => void;
+}) {
   return (
-    <div className="relative">
-      <ChoiceCard
-        icon={file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
-        title={file ? "Visa Photo ready" : "Upload Photo for Visa"}
-        description={file
-          ? "Original Visa Photo captured after live checks. Tap to retake it."
-          : "Required. Use a plain white or off-white wall; capture unlocks when photo checks pass."}
-        onClick={onClick}
-      />
+    <section
+      data-testid="visa-photo-choice"
+      className="relative rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="flex items-start gap-3 pr-20 sm:gap-4">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${
+          file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-600"
+        }`}>
+          {file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
+        </div>
+        <div className="min-w-0">
+          <h4 className="text-base font-bold text-slate-900">
+            {file ? "Visa Photo ready" : "Upload Photo for Visa"}
+          </h4>
+          <p className="mt-1 text-sm leading-5 text-slate-500">
+            {file
+              ? "The selected Visa Photo passed the required checks. You can replace it using either option below."
+              : "Required. Choose live capture or upload the original digital photo supplied by a studio."}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCameraClick}
+          className="h-11 border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300 hover:bg-blue-100"
+        >
+          <Camera className="h-4 w-4" />
+          Use live camera
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onUploadClick}
+          className="h-11 border-blue-200 bg-white text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+        >
+          <ImagePlus className="h-4 w-4" />
+          Upload studio photo
+        </Button>
+      </div>
+
+      <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
+        Upload only a <strong className="font-extrabold underline decoration-amber-500 decoration-2 underline-offset-2">studio-taken photo with a plain white background</strong>.
+        {" "}Photos displayed on another phone or screen, and photos taken of a printed or passport-size photograph, are strictly prohibited. Any non-compliant image will be rejected and may delay your application.
+      </div>
+
       <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>
         {file ? "Completed" : "Required"}
       </span>
-    </div>
+    </section>
   );
 }
 

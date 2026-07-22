@@ -161,12 +161,32 @@ test("public upload entry uses Global Connect branding and requested copy", () =
     /Global Connect Travels has requested passport details for/,
   );
   assert.match(source, />Upload Travel Documents<\/h1>/);
-  assert.match(
-    source,
-    /title=\{file \? "Visa Photo ready" : "Upload Photo for Visa"\}/,
-  );
+  assert.match(source, /file \? "Visa Photo ready" : "Upload Photo for Visa"/);
   assert.doesNotMatch(
     source,
     /Your travel agency has requested passport details for|Capture Visa Photo/,
   );
+});
+
+test("every Visa-enabled link offers live capture and verified studio upload together", () => {
+  assert.match(source, /\| "SELFIE_CAMERA"/);
+  assert.match(source, /\| "SELFIE_UPLOAD"/);
+  assert.equal(
+    source.match(/<VisaSelfieChoice/g)?.length,
+    2,
+    "single and family method selection must use the paired Visa Photo choice",
+  );
+  assert.match(source, /onCameraClick=\{\(\) => setStep\("SELFIE_CAMERA"\)\}/);
+  assert.match(source, /onUploadClick=\{\(\) => setStep\("SELFIE_UPLOAD"\)\}/);
+  assert.match(source, /step === "SELFIE_UPLOAD"[\s\S]*?<VisaPhotoUpload/);
+  const choiceStart = source.indexOf("function VisaSelfieChoice");
+  const choiceEnd = source.indexOf("function PassportUploadSection", choiceStart);
+  assert.doesNotMatch(source.slice(choiceStart, choiceEnd), /allowFilesFromDevice/);
+});
+
+test("the upload method repeats the studio-original prohibition before selection", () => {
+  assert.match(source, /studio-taken photo with a plain white background/);
+  assert.match(source, /another phone or screen/);
+  assert.match(source, /printed or passport-size photograph/);
+  assert.match(source, /strictly prohibited/);
 });
