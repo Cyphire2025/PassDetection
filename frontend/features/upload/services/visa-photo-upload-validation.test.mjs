@@ -19,13 +19,14 @@ test("normalizes every accepted upload to the existing exact 2:3 output", () => 
   assert.match(source, /CAMERA_QUALITY_POLICY\.maxVisaOutputBytes/);
 });
 
-test("validates only the background of the exact re-encoded JPEG", () => {
+test("validates relaxed face presence and background on the exact re-encoded JPEG", () => {
   assert.match(source, /const exactPhoto = await decodeVisaPhoto\(blob\)/);
+  assert.match(source, /detectVisaPhotoFaces\(exactPhoto\.image\)/);
   assert.match(source, /evaluateWhiteBackground\(/);
-  assert.match(source, /evaluateUploadedVisaPhotoBackground\(background\)/);
+  assert.match(source, /evaluateUploadedVisaPhoto\(\s*detections\.length,\s*background/);
+  assert.match(source, /facePresent = Number\.isFinite\(faceCount\) && faceCount >= 1/);
   assert.match(source, /if \(!background\.isLightNeutral\)/);
-  assert.doesNotMatch(source, /detectVisaPhotoFaces|evaluateFinalVisaPhoto/);
-  assert.doesNotMatch(source, /faceCount|facePlacement|clarity/);
+  assert.doesNotMatch(source, /evaluateFinalVisaPhoto|facePlacement|clarity/);
   assert.match(source, /const ANALYSIS_WIDTH = 96/);
   assert.match(source, /const ANALYSIS_HEIGHT = 144/);
   assert.match(source, /return \{[\s\S]*?validation,[\s\S]*?\};/);
@@ -39,15 +40,21 @@ test("source validation mirrors production limits and rejects weak inputs early"
   assert.match(source, /if \(width > height\)/);
 });
 
-test("the upload path does not initialize the live-camera MediaPipe runtime", () => {
-  assert.doesNotMatch(source, /@mediapipe\/face_detection/);
-  assert.doesNotMatch(source, /FaceDetection|detector\.send|detector\.initialize/);
+test("face-presence calls are serialized and never close active MediaPipe work", () => {
+  assert.match(source, /let validationTail: Promise<void> = Promise\.resolve\(\)/);
+  assert.match(source, /validationTail\.then\(/);
+  assert.match(source, /minDetectionConfidence: FACE_DETECTION_CONFIDENCE/);
+  assert.match(source, /const safeToClose =/);
+  assert.match(source, /settlesWithin\(/);
+  assert.match(source, /if \(safeToClose\)/);
 });
 
-test("uploaded-photo failures mention only the white-background requirement", () => {
+test("uploaded-photo failures require a face and a white background without framing rules", () => {
+  assert.match(source, /No face was found/);
+  assert.match(source, /applicant's face/);
   assert.match(source, /background is not white or off-white/);
   assert.match(source, /plain white background/);
-  assert.doesNotMatch(source, /face is too small|More than one face|face is not centred/i);
+  assert.doesNotMatch(source, /face is too small|More than one face|face is not centred|head is tilted|sharp enough/i);
   assert.doesNotMatch(
     source.slice(
       source.indexOf("export function uploadedVisaPhotoFailureMessage"),

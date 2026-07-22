@@ -83,6 +83,9 @@ export function VisaPhotoUpload({
       const message = validationError instanceof Error
         ? validationError.message
         : "The selected Visa Photo could not be verified. Try again or use the live camera.";
+      if (message.startsWith("Automatic face detection")) {
+        onTelemetryReason("quality_model_unavailable");
+      }
       setStatus("failed");
       setError(message);
     }
@@ -109,7 +112,7 @@ export function VisaPhotoUpload({
             Upload Studio Visa Photo
           </h1>
           <p className="mt-0.5 text-xs text-slate-500">
-            The background is checked before the photo can be used
+            A face and white background are checked before the photo can be used
           </p>
         </div>
         <div className="h-11 w-11" aria-hidden="true" />
@@ -170,7 +173,7 @@ export function VisaPhotoUpload({
                   <div>
                     <p className="font-bold">Verifying Visa Photo</p>
                     <p className="mt-1 text-xs leading-5 text-slate-200">
-                      Checking for a white or off-white background. This usually takes 1–2 seconds.
+                      Checking for a face and a white or off-white background. This usually takes 1–2 seconds.
                     </p>
                   </div>
                 </div>
@@ -178,7 +181,7 @@ export function VisaPhotoUpload({
               {status === "passed" && (
                 <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-lg">
                   <ShieldCheck className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  White background check passed
+                  Face and white background checks passed
                 </div>
               )}
             </div>

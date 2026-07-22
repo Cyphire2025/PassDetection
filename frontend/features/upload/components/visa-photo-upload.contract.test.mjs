@@ -7,7 +7,7 @@ const source = readFileSync(
   "utf8",
 );
 
-test("file selection runs the upload-only background verifier before a Visa Photo can be used", () => {
+test("file selection requires relaxed face presence and background verification", () => {
   assert.match(source, /verifyUploadedVisaPhoto\(file\)/);
   assert.match(source, /result\.validation\.outcome !== "pass"/);
   assert.match(source, /setVerifiedFile\(result\.file\)/);
@@ -25,9 +25,9 @@ test("the picker shows only the requested plain studio-photo instruction", () =>
 test("checking is announced and raw detector failures are not displayed", () => {
   assert.match(source, /role="status"/);
   assert.match(source, /Verifying Visa Photo/);
-  assert.match(source, /white or off-white background/);
+  assert.match(source, /face and a white or off-white background/);
   assert.doesNotMatch(source, /face, framing, lighting, sharpness/);
-  assert.doesNotMatch(source, /quality_model_unavailable/);
+  assert.match(source, /quality_model_unavailable/);
   assert.doesNotMatch(source, /invoker\(|Out of bounds memory access/);
 });
 
