@@ -110,6 +110,10 @@ from app.domain.value_objects.passport_image_crop import (
 )
 from app.infrastructure.ai.gemini_visa_image_edit_service import (
     GeminiVisaImageEditError,
+    GeminiVisaImageEditNotConfigured,
+    GeminiVisaImageEditProviderRejected,
+    GeminiVisaImageEditProviderUnavailable,
+    GeminiVisaImageEditRejected,
     GeminiVisaImageEditService,
 )
 from app.infrastructure.database.models import (
@@ -2895,10 +2899,7 @@ async def preview_visa_ai_image_edit(
             detail=exc.message,
         ) from exc
     except GeminiVisaImageEditError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
-        ) from exc
+        raise _visa_ai_edit_http_exception(exc) from exc
 
     revision = crop_row.revision if crop_row else 0
     token = issue_passport_ai_edit_token(
@@ -2934,6 +2935,33 @@ async def preview_visa_ai_image_edit(
             "X-Content-Type-Options": "nosniff",
             "X-Visa-AI-Edit-Token": token,
         },
+    )
+
+
+def _visa_ai_edit_http_exception(exc: GeminiVisaImageEditError) -> HTTPException:
+    if isinstance(exc, GeminiVisaImageEditRejected):
+        return HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        )
+    if isinstance(exc, GeminiVisaImageEditNotConfigured):
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        )
+    if isinstance(exc, GeminiVisaImageEditProviderUnavailable):
+        return HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        )
+    if isinstance(exc, GeminiVisaImageEditProviderRejected):
+        return HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        )
+    return HTTPException(
+        status_code=status.HTTP_502_BAD_GATEWAY,
+        detail=str(exc),
     )
 
 

@@ -12,6 +12,13 @@ from pydantic import ValidationError
 
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.domain.value_objects.passport_image_crop import PassportImageType
+from app.infrastructure.ai.gemini_visa_image_edit_service import (
+    GeminiVisaImageEditError,
+    GeminiVisaImageEditNotConfigured,
+    GeminiVisaImageEditProviderRejected,
+    GeminiVisaImageEditProviderUnavailable,
+    GeminiVisaImageEditRejected,
+)
 from app.infrastructure.imaging.passport_thumbnail_cache import (
     PassportThumbnailCache,
 )
@@ -21,6 +28,7 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
 from app.presentation.api.v1.routes.passports import (
     _authorized_staff_passport_image,
     _staff_image_urls,
+    _visa_ai_edit_http_exception,
     get_passport_image_thumbnail,
     update_passport_image_crop,
 )
@@ -207,6 +215,28 @@ def test_crop_schema_rejects_non_finite_values() -> None:
             rotation_degrees=0,
             expected_revision=0,
         )
+
+
+@pytest.mark.parametrize(
+    ("error", "expected_status", "expected_retry_after"),
+    [
+        (GeminiVisaImageEditRejected("unsafe edit"), 422, None),
+        (GeminiVisaImageEditNotConfigured("not configured"), 503, None),
+        (GeminiVisaImageEditProviderUnavailable("retry later"), 503, None),
+        (GeminiVisaImageEditProviderRejected("provider rejected"), 502, None),
+        (GeminiVisaImageEditError("unreadable provider response"), 502, None),
+    ],
+)
+def test_visa_ai_edit_errors_map_to_truthful_http_statuses(
+    error: GeminiVisaImageEditError,
+    expected_status: int,
+    expected_retry_after: str | None,
+) -> None:
+    mapped = _visa_ai_edit_http_exception(error)
+
+    assert mapped.status_code == expected_status
+    assert mapped.detail == str(error)
+    assert mapped.headers is None or mapped.headers.get("Retry-After") == expected_retry_after
 
 
 @pytest.mark.asyncio

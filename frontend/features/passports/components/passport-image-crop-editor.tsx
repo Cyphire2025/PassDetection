@@ -736,11 +736,12 @@ function readEditError(error: unknown, fallback: string) {
   if (
     typeof error === "object"
     && error !== null
-    && "response" in error
   ) {
-    const detail = (error as { response?: { data?: { detail?: unknown } } })
-      .response?.data?.detail;
-    if (typeof detail === "string" && detail.trim()) return detail;
+    if ("response" in error) {
+      const detail = (error as { response?: { data?: { detail?: unknown } } })
+        .response?.data?.detail;
+      if (typeof detail === "string" && detail.trim()) return detail;
+    }
     const message = (error as { message?: unknown }).message;
     if (typeof message === "string" && message.trim()) return message;
   }

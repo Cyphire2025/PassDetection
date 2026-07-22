@@ -94,6 +94,11 @@ test("Visa AI preview supports cancellation and preserves structured Blob errors
   assert.match(api, /generateVisaAiPreview:[\s\S]*?signal\?: AbortSignal/);
   assert.match(apiClient, /responseData instanceof Blob/);
   assert.match(apiClient, /JSON\.parse\(await responseData\.text\(\)\)/);
+  assert.match(
+    editor,
+    /typeof error === "object"\s*&& error !== null\s*\) \{/,
+  );
+  assert.match(editor, /if \("response" in error\)/);
   assert.match(editor, /const message = \(error as \{ message\?: unknown \}\)\.message/);
 });
 
