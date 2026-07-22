@@ -1248,14 +1248,7 @@ function DocumentCell({
               aria-label={`Open ${label} in a new tab`}
               className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={url}
-                alt={label}
-                loading="lazy"
-                decoding="async"
-                className="h-24 w-36 rounded-lg border border-slate-200 bg-slate-50 object-contain"
-              />
+              <DeferredDocumentThumbnail key={url} url={url} label={label} />
             </a>
           ) : null}
           <div className="max-w-44 truncate text-xs text-slate-500">{filename ?? "Saved document"}</div>
@@ -1266,6 +1259,54 @@ function DocumentCell({
         </div>
       )}
     </td>
+  );
+}
+
+function DeferredDocumentThumbnail({ url, label }: { url: string; label: string }) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const timer = globalThis.setTimeout(() => setShouldLoad(true), 0);
+      return () => globalThis.clearTimeout(timer);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setShouldLoad(true);
+        observer.disconnect();
+      },
+      { rootMargin: "320px 0px" },
+    );
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={frameRef}
+      className="flex h-24 w-36 items-center justify-center rounded-lg border border-slate-200 bg-slate-50"
+    >
+      {shouldLoad ? (
+        <>
+          {/* Keep this browser-side so the HttpOnly authentication cookie is attached. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt={label}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full rounded-lg object-contain"
+          />
+        </>
+      ) : (
+        <span className="text-xs text-slate-400" aria-hidden="true">Preview</span>
+      )}
+    </div>
   );
 }
 

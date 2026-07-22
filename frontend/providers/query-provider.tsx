@@ -56,6 +56,10 @@ function shouldRetryQuery(failureCount: number, error: unknown) {
       ? String(error.code)
       : "";
 
-  if (code.startsWith("AUTH_") || /^HTTP_4\d\d$/.test(code)) return false;
+  if (
+    code.startsWith("AUTH_")
+    || /^HTTP_4\d\d$/.test(code)
+    || code.includes("RATE_LIMITED")
+  ) return false;
   return failureCount < 2;
 }

@@ -158,6 +158,9 @@ test("DOCS view prefers real saved or local image previews and never shows an Ac
   assert.match(source, /url=\{passport\.image_url\}/);
   assert.match(source, /url=\{passport\.passport_back_url\}/);
   assert.match(source, /LocalDocumentThumbnail/);
+  assert.match(source, /DeferredDocumentThumbnail/);
+  assert.match(source, /new IntersectionObserver/);
+  assert.match(source, /rootMargin: "320px 0px"/);
   assert.match(source, /\{file \? \([\s\S]*?<LocalDocumentThumbnail file=\{file\}[\s\S]*?\) : url \? \(/);
   assert.match(source, /URL\.revokeObjectURL\(nextUrl\)/);
   assert.match(source, /object-contain/);
@@ -166,4 +169,11 @@ test("DOCS view prefers real saved or local image previews and never shows an Ac
   assert.doesNotMatch(source, /object-cover/);
   assert.doesNotMatch(source, />\s*Accepted\s*</);
   assert.match(source, /No document/);
+});
+
+test("completed group pages stop idle polling and rely on focused invalidation", () => {
+  assert.match(
+    hooks,
+    /useGroupSubmissionsView[\s\S]*?isPassportWorkflowPending[\s\S]*?\? 2_000[\s\S]*?: false/,
+  );
 });

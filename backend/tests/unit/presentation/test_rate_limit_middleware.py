@@ -4,12 +4,14 @@ import json
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from starlette.requests import Request
 from starlette.responses import Response
 
 from app.core.config.settings import Settings
 from app.core.security.upload_session import upload_session_matches_identifier
+from app.domain.exceptions.exceptions import AuthenticationError
 from app.main import create_application
 from app.presentation.middleware.rate_limit import RateLimitMiddleware
 
@@ -42,6 +44,8 @@ def _request(
     real_ip: str = "203.0.113.10",
     forwarded_for: str | None = None,
     origin: str | None = None,
+    access_token: str | None = None,
+    use_cookie: bool = False,
 ) -> Request:
     headers: list[tuple[bytes, bytes]] = [(b"x-real-ip", real_ip.encode("ascii"))]
     if session_id is not None:
@@ -50,6 +54,11 @@ def _request(
         headers.append((b"x-forwarded-for", forwarded_for.encode("ascii")))
     if origin is not None:
         headers.append((b"origin", origin.encode("ascii")))
+    if access_token is not None:
+        if use_cookie:
+            headers.append((b"cookie", f"access_token={access_token}".encode("ascii")))
+        else:
+            headers.append((b"authorization", f"Bearer {access_token}".encode("ascii")))
     return Request(
         {
             "type": "http",
@@ -74,6 +83,10 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
             app_secret_key="test-only-secret-with-sufficient-entropy",
             allowed_origins=["https://tech.gctravels.com"],
             rate_limit_per_minute=60,
+            dashboard_rate_limit_per_minute=5_000,
+            dashboard_media_rate_limit_per_minute=30_000,
+            dashboard_rate_limit_require_redis=True,
+            jwt=SimpleNamespace(access_cookie_name="access_token"),
             public_upload_bootstrap_session_rate_limit_per_minute=30,
             public_upload_bootstrap_aggregate_rate_limit_per_minute=600,
             public_upload_session_rate_limit_per_minute=6,
@@ -400,6 +413,133 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertNotIn("Access-Control-Allow-Origin", response.headers)
 
+    async def test_authenticated_dashboard_limit_is_per_verified_account(self) -> None:
+        self.settings.dashboard_rate_limit_per_minute = 2
+        first_user = "11111111-1111-4111-8111-111111111111"
+        second_user = "22222222-2222-4222-8222-222222222222"
+
+        def decode(token: str) -> dict[str, str]:
+            return {"sub": first_user if token == "first" else second_user}
+
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            side_effect=decode,
+        ):
+            for _ in range(2):
+                response = await self.middleware.dispatch(
+                    _request(
+                        path="/api/v1/dashboard/stats",
+                        method="GET",
+                        access_token="first",
+                    ),
+                    _ok,
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response.headers["X-RateLimit-Policy"],
+                    "dashboard-user",
+                )
+
+            rejected = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/dashboard/stats",
+                    method="GET",
+                    access_token="first",
+                ),
+                _ok,
+            )
+            other_user = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/dashboard/stats",
+                    method="GET",
+                    access_token="second",
+                ),
+                _ok,
+            )
+
+        self.assertEqual(rejected.status_code, 429)
+        self.assertEqual(
+            json.loads(rejected.body)["error"]["code"],
+            "DASHBOARD_RATE_LIMITED",
+        )
+        self.assertEqual(other_user.status_code, 200)
+
+    async def test_document_images_use_an_independent_authenticated_budget(self) -> None:
+        self.settings.dashboard_rate_limit_per_minute = 1
+        self.settings.dashboard_media_rate_limit_per_minute = 2
+        user_id = "33333333-3333-4333-8333-333333333333"
+        image_path = (
+            "/api/v1/passports/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/"
+            "images/passport_front"
+        )
+
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            return_value={"sub": user_id},
+        ):
+            dashboard = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/passports/groups/example/submissions-view",
+                    method="GET",
+                    access_token="valid",
+                    use_cookie=True,
+                ),
+                _ok,
+            )
+            first_image = await self.middleware.dispatch(
+                _request(
+                    path=image_path,
+                    method="GET",
+                    access_token="valid",
+                    use_cookie=True,
+                ),
+                _ok,
+            )
+            second_image = await self.middleware.dispatch(
+                _request(
+                    path=image_path,
+                    method="GET",
+                    access_token="valid",
+                    use_cookie=True,
+                ),
+                _ok,
+            )
+            dashboard_rejected = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/passports/groups/example/submissions-view",
+                    method="GET",
+                    access_token="valid",
+                    use_cookie=True,
+                ),
+                _ok,
+            )
+
+        self.assertEqual(dashboard.status_code, 200)
+        self.assertEqual(first_image.status_code, 200)
+        self.assertEqual(second_image.status_code, 200)
+        self.assertEqual(
+            first_image.headers["X-RateLimit-Policy"],
+            "dashboard-media",
+        )
+        self.assertEqual(dashboard_rejected.status_code, 429)
+
+    async def test_invalid_access_token_uses_untrusted_ip_fallback(self) -> None:
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            side_effect=AuthenticationError("invalid"),
+        ):
+            response = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/dashboard/stats",
+                    method="GET",
+                    access_token="invalid",
+                ),
+                _ok,
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["X-RateLimit-Policy"], "api")
+
 
 class PublicUploadProxyContractTests(unittest.TestCase):
     def test_nginx_and_browser_client_keep_the_two_tier_contract(self) -> None:
@@ -424,6 +564,7 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         )
         self.assertIn("zone=upload_aggregate:10m rate=120r/m", nginx_main)
         self.assertIn("zone=upload_followup_aggregate:10m rate=100r/s", nginx_main)
+        self.assertIn("zone=dashboard_media:10m rate=500r/s", nginx_main)
         self.assertIn("client_submit_id", nginx_main)
         self.assertIn("limit_req_status=$limit_req_status", nginx_main)
         self.assertIn("upstream_status=$upstream_status", nginx_main)
@@ -467,6 +608,14 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         )
         self.assertIn(
             "location ~ ^/api/v1/upload-links/token/[^/]+",
+            nginx_site,
+        )
+        self.assertIn(
+            "images/(?:visa_photo|passport_front|passport_back)(?:/original)?",
+            nginx_site,
+        )
+        self.assertIn(
+            "limit_req zone=dashboard_media burst=1000 nodelay",
             nginx_site,
         )
         self.assertNotIn("limit_req zone=upload burst=5", nginx_site)

@@ -7,6 +7,7 @@ import hmac
 import ipaddress
 import re
 import time
+import uuid
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -20,7 +21,9 @@ from starlette.responses import Response
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.core.security.jwt import decode_access_token
 from app.core.security.upload_session import is_valid_upload_session_id
+from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
@@ -38,8 +41,14 @@ _PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE = re.compile(
     r"^/api/v1/upload-links/token/[^/]+"
     r"(?:/(?:qualifier-selection|telemetry))?/?$"
 )
+_DASHBOARD_MEDIA_PATH_RE = re.compile(
+    r"^/api/v1/passports/[^/]+/images/"
+    r"(?:visa_photo|passport_front|passport_back)(?:/original)?/?$"
+)
 _RATE_LIMIT_METRIC_REASONS = {
     "APP_RATE_LIMITED": "app_api",
+    "DASHBOARD_RATE_LIMITED": "dashboard_user",
+    "DASHBOARD_MEDIA_RATE_LIMITED": "dashboard_media",
     "UPLOAD_BOOTSTRAP_SESSION_RATE_LIMITED": "upload_bootstrap_session",
     "UPLOAD_BOOTSTRAP_AGGREGATE_RATE_LIMITED": "upload_bootstrap_aggregate",
     "UPLOAD_SESSION_RATE_LIMITED": "upload_session",
@@ -156,7 +165,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 request,
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 code="RATE_LIMIT_SERVICE_UNAVAILABLE",
-                message="Upload protection is temporarily unavailable. Please try again shortly.",
+                message="Request protection is temporarily unavailable. Please try again shortly.",
                 retry_after=5,
             )
 
@@ -177,6 +186,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             limit > 0
             for limit in (
                 self._settings.rate_limit_per_minute,
+                self._settings.dashboard_rate_limit_per_minute,
+                self._settings.dashboard_media_rate_limit_per_minute,
                 self._settings.public_upload_bootstrap_session_rate_limit_per_minute,
                 self._settings.public_upload_bootstrap_aggregate_rate_limit_per_minute,
                 self._settings.public_upload_session_rate_limit_per_minute,
@@ -314,6 +325,53 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 None,
             )
 
+        authenticated_user_id = self._authenticated_user_id(request)
+        if authenticated_user_id is not None:
+            is_dashboard_media = bool(
+                request.method.upper() == "GET"
+                and _DASHBOARD_MEDIA_PATH_RE.match(request.url.path)
+            )
+            if is_dashboard_media:
+                media_limit = self._settings.dashboard_media_rate_limit_per_minute
+                if media_limit <= 0:
+                    return (), False, None
+                return (
+                    (
+                        _RateLimitGuard(
+                            scope="dashboard-media",
+                            identifier=authenticated_user_id,
+                            limit=media_limit,
+                            error_code="DASHBOARD_MEDIA_RATE_LIMITED",
+                            error_message=(
+                                "Too many document previews were requested. "
+                                "Please wait briefly and try again."
+                            ),
+                        ),
+                    ),
+                    self._settings.dashboard_rate_limit_require_redis,
+                    None,
+                )
+
+            dashboard_limit = self._settings.dashboard_rate_limit_per_minute
+            if dashboard_limit <= 0:
+                return (), False, None
+            return (
+                (
+                    _RateLimitGuard(
+                        scope="dashboard-user",
+                        identifier=authenticated_user_id,
+                        limit=dashboard_limit,
+                        error_code="DASHBOARD_RATE_LIMITED",
+                        error_message=(
+                            "This dashboard account is sending requests too quickly. "
+                            "Please wait briefly and try again."
+                        ),
+                    ),
+                ),
+                self._settings.dashboard_rate_limit_require_redis,
+                None,
+            )
+
         base_limit = self._settings.rate_limit_per_minute
         if base_limit <= 0:
             return (), False, None
@@ -330,6 +388,28 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             False,
             None,
         )
+
+    def _authenticated_user_id(self, request: Request) -> str | None:
+        authorization = request.headers.get("authorization", "").strip()
+        token = ""
+        if authorization:
+            scheme, separator, credentials = authorization.partition(" ")
+            if separator and scheme.lower() == "bearer":
+                token = credentials.strip()
+        if not token:
+            token = request.cookies.get(
+                self._settings.jwt.access_cookie_name,
+                "",
+            ).strip()
+        if not token:
+            return None
+        try:
+            payload = decode_access_token(token)
+            return str(uuid.UUID(str(payload["sub"])))
+        except (AuthenticationError, KeyError, TypeError, ValueError):
+            # The route's normal authentication dependency owns the response.
+            # An invalid or expired token never receives a trusted user bucket.
+            return None
 
     @staticmethod
     def _trusted_client_ip(request: Request) -> str:

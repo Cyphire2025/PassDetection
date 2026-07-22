@@ -53,7 +53,10 @@ warnings log only exception types.
 | Nginx | Status/image/scan/discard/client-submit | 120/minute, burst 20 | 100/second, burst 200 |
 | App/Redis | Status/image/scan/discard/client-submit | 120/minute | 6000/minute |
 | Nginx | Other `/api/` traffic | n/a | 30/second, burst 20 |
-| App/Redis | Other `/api/` traffic | n/a | 60/minute |
+| Nginx | Authenticated passport/Visa previews | n/a | 500/second, burst 1000 |
+| App/Redis | Authenticated dashboard actions | 5000/minute per verified account | n/a |
+| App/Redis | Authenticated passport/Visa previews | 30000/minute per verified account | n/a |
+| App/Redis | Other unauthenticated `/api/` traffic | n/a | 60/minute |
 
 The per-session check runs before the aggregate app check so one misbehaving
 delegate cannot consume the entire shared-NAT app budget. Rotating session ids
@@ -72,6 +75,22 @@ PUBLIC_UPLOAD_FOLLOWUP_SESSION_RATE_LIMIT_PER_MINUTE=120
 PUBLIC_UPLOAD_FOLLOWUP_AGGREGATE_RATE_LIMIT_PER_MINUTE=6000
 PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS=true
 ```
+
+Authenticated dashboard limits use the verified access-token subject, not the
+office IP address. Protected passport and Visa image streams use a separate
+media budget so a large DOCS view does not consume the account's dashboard
+action allowance:
+
+```dotenv
+DASHBOARD_RATE_LIMIT_PER_MINUTE=5000
+DASHBOARD_MEDIA_RATE_LIMIT_PER_MINUTE=30000
+DASHBOARD_RATE_LIMIT_REQUIRE_REDIS=true
+```
+
+The browser still requests each protected image independently so authorization
+can be enforced per document. DOCS view defers those requests until a thumbnail
+is close to the viewport; they are not counted against the dashboard-action
+bucket.
 
 Nginx rates are static in `nginx/nginx.conf`; keep them coordinated with the app
 settings when tuning.

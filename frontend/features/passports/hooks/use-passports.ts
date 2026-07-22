@@ -100,7 +100,7 @@ export function useGroupSubmissionsView(
         isPassportWorkflowPending(passport.status, passport.extraction_status)
       ))
         ? 2_000
-        : 30_000
+        : false
     ),
   });
 }

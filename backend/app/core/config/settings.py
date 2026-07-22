@@ -150,7 +150,24 @@ class Settings(BaseSettings):
 
         return value
 
+    # Anonymous/non-dashboard API fallback. Authenticated dashboard traffic is
+    # keyed by the verified JWT subject below so staff behind one office NAT do
+    # not consume a shared bucket.
     rate_limit_per_minute: int = Field(default=60, ge=0, le=100_000)
+    dashboard_rate_limit_per_minute: int = Field(
+        default=5_000,
+        ge=0,
+        le=100_000,
+    )
+    # Protected image streams use an independent budget. A DOCS view can load
+    # many authorized images without consuming the staff member's dashboard
+    # action allowance, while still retaining a bounded abuse guard.
+    dashboard_media_rate_limit_per_minute: int = Field(
+        default=30_000,
+        ge=0,
+        le=100_000,
+    )
+    dashboard_rate_limit_require_redis: bool = True
     public_upload_bootstrap_session_rate_limit_per_minute: int = Field(
         default=30,
         ge=1,
