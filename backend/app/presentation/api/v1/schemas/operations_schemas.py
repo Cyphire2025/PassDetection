@@ -127,6 +127,7 @@ class DeleteManagerResponse(BaseModel):
 
 class ManagerGroupAccessResponse(BaseModel):
     id: uuid.UUID
+    agency_id: uuid.UUID
     name: str
     status: str
     created_by_user_id: uuid.UUID | None = None

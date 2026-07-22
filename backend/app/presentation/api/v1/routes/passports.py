@@ -6,11 +6,13 @@ Passport Routes — /api/v1/passports
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import io
 import mimetypes
 import uuid
 from dataclasses import replace
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Literal
 
 from fastapi import (
@@ -112,8 +114,10 @@ from app.infrastructure.export.passport_image_zip_exporter import (
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
     render_passport_image_crop,
+    render_passport_image_thumbnail,
     render_saved_passport_image_crop,
 )
+from app.infrastructure.imaging.passport_thumbnail_cache import PassportThumbnailCache
 from app.infrastructure.imports.passport_document_importer import (
     PassportDocumentFile,
     PassportDocumentImporter,
@@ -2251,6 +2255,54 @@ async def _delete_crop_derivative_best_effort(
         )
 
 
+@lru_cache(maxsize=1)
+def _dashboard_thumbnail_cache() -> PassportThumbnailCache:
+    return PassportThumbnailCache(
+        max_bytes=get_settings().dashboard_thumbnail_cache_max_bytes,
+    )
+
+
+async def _load_effective_passport_image(
+    *,
+    storage: MinioStorageRepository,
+    source_key: str,
+    effective_crop: PassportImageCrop | None,
+) -> tuple[bytes, str, str]:
+    content_type = mimetypes.guess_type(source_key)[0] or "image/jpeg"
+    extension = mimetypes.guess_extension(content_type) or ".jpg"
+    if effective_crop and effective_crop.derived_storage_key:
+        try:
+            content = await storage.get_file(effective_crop.derived_storage_key)
+            return content, "image/jpeg", ".jpg"
+        except StorageError:
+            try:
+                original = await storage.get_file(source_key)
+                rendered = await asyncio.to_thread(
+                    render_saved_passport_image_crop,
+                    original,
+                    effective_crop,
+                )
+            except StorageError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=exc.message,
+                ) from exc
+            except PassportImageCropError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=str(exc),
+                ) from exc
+            return rendered.content, rendered.content_type, rendered.extension
+    try:
+        content = await storage.get_file(source_key)
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        ) from exc
+    return content, content_type, extension
+
+
 @router.get(
     "/{submission_id}/images/{image_type}",
     status_code=status.HTTP_200_OK,
@@ -2274,32 +2326,85 @@ async def get_passport_image_view(
     crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
     effective = _effective_crop(crop_row, source_storage_key=source_key)
     storage = MinioStorageRepository()
-    content_type = mimetypes.guess_type(source_key)[0] or "image/jpeg"
-    extension = mimetypes.guess_extension(content_type) or ".jpg"
-    if effective and effective.derived_storage_key:
-        try:
-            content = await storage.get_file(effective.derived_storage_key)
-            content_type, extension = "image/jpeg", ".jpg"
-        except StorageError:
-            try:
-                original = await storage.get_file(source_key)
-                rendered = await asyncio.to_thread(render_saved_passport_image_crop, original, effective)
-            except StorageError as exc:
-                raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=exc.message) from exc
-            except PassportImageCropError as exc:
-                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
-            content, content_type, extension = rendered.content, rendered.content_type, rendered.extension
-    else:
-        try:
-            content = await storage.get_file(source_key)
-        except StorageError as exc:
-            raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=exc.message) from exc
+    content, content_type, extension = await _load_effective_passport_image(
+        storage=storage,
+        source_key=source_key,
+        effective_crop=effective,
+    )
     return StreamingResponse(
         io.BytesIO(content),
         media_type=content_type,
         headers={
             "Cache-Control": "private, no-store",
             "Content-Disposition": f'inline; filename="{image_type.value}{extension}"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+@router.get(
+    "/{submission_id}/images/{image_type}/thumbnail",
+    status_code=status.HTTP_200_OK,
+    summary="Return a bounded authenticated dashboard thumbnail",
+)
+async def get_passport_image_thumbnail(
+    submission_id: uuid.UUID,
+    image_type: PassportImageType,
+    crop_revision: int | None = Query(default=None, ge=0),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    del crop_revision  # cache-buster only; callers cannot select crop history
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=False,
+    )
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    effective_identity = (
+        effective.derived_storage_key
+        if effective and effective.derived_storage_key
+        else source_key
+    )
+    cache_key = hashlib.sha256(effective_identity.encode("utf-8")).hexdigest()
+    storage = MinioStorageRepository()
+
+    async def create_thumbnail():  # type: ignore[no-untyped-def]
+        content, _, _ = await _load_effective_passport_image(
+            storage=storage,
+            source_key=source_key,
+            effective_crop=effective,
+        )
+        try:
+            return await asyncio.to_thread(
+                render_passport_image_thumbnail,
+                content,
+                max_dimension=get_settings().dashboard_thumbnail_max_dimension,
+            )
+        except PassportImageCropError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
+
+    thumbnail = await _dashboard_thumbnail_cache().get_or_create(
+        cache_key,
+        create_thumbnail,
+    )
+    return Response(
+        content=thumbnail.content,
+        media_type=thumbnail.content_type,
+        headers={
+            # Passport/Visa previews are private PII. Keep them out of shared
+            # and persistent browser caches; the bounded worker cache absorbs
+            # repeat rendering without weakening the authorization boundary.
+            "Cache-Control": "private, no-store",
+            "Content-Disposition": (
+                f'inline; filename="{image_type.value}-thumbnail.jpg"'
+            ),
             "X-Content-Type-Options": "nosniff",
         },
     )

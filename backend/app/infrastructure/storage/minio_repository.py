@@ -5,6 +5,8 @@ MinIO / S3 Storage Repository
 
 import asyncio
 import hashlib
+from functools import lru_cache
+from typing import Any
 
 import boto3
 from botocore.client import Config
@@ -18,36 +20,46 @@ from app.domain.repositories.interfaces import IObjectStorageRepository
 logger = get_logger(__name__)
 
 
+@lru_cache(maxsize=1)
+def _shared_s3_clients() -> tuple[Any, Any]:
+    """Build one thread-safe boto client pair per backend worker process."""
+
+    settings = get_settings().s3
+    client_config = Config(
+        signature_version="s3v4",
+        connect_timeout=settings.connect_timeout_seconds,
+        read_timeout=settings.read_timeout_seconds,
+        max_pool_connections=settings.max_pool_connections,
+        retries={
+            "total_max_attempts": settings.max_attempts,
+            "mode": "standard",
+        },
+    )
+    client = boto3.client(
+        "s3",
+        endpoint_url=settings.endpoint_url,
+        aws_access_key_id=settings.access_key_id,
+        aws_secret_access_key=settings.secret_access_key,
+        region_name=settings.region,
+        config=client_config,
+    )
+    presign_client = boto3.client(
+        "s3",
+        endpoint_url=settings.public_endpoint_url or settings.endpoint_url,
+        aws_access_key_id=settings.access_key_id,
+        aws_secret_access_key=settings.secret_access_key,
+        region_name=settings.region,
+        config=client_config,
+    )
+    return client, presign_client
+
+
 class MinioStorageRepository(IObjectStorageRepository):
     """Implementation of object storage using boto3."""
 
     def __init__(self) -> None:
         self.settings = get_settings().s3
-        client_config = Config(
-            signature_version="s3v4",
-            connect_timeout=self.settings.connect_timeout_seconds,
-            read_timeout=self.settings.read_timeout_seconds,
-            retries={
-                "total_max_attempts": self.settings.max_attempts,
-                "mode": "standard",
-            },
-        )
-        self._client = boto3.client(
-            "s3",
-            endpoint_url=self.settings.endpoint_url,
-            aws_access_key_id=self.settings.access_key_id,
-            aws_secret_access_key=self.settings.secret_access_key,
-            region_name=self.settings.region,
-            config=client_config,
-        )
-        self._presign_client = boto3.client(
-            "s3",
-            endpoint_url=self.settings.public_endpoint_url or self.settings.endpoint_url,
-            aws_access_key_id=self.settings.access_key_id,
-            aws_secret_access_key=self.settings.secret_access_key,
-            region_name=self.settings.region,
-            config=client_config,
-        )
+        self._client, self._presign_client = _shared_s3_clients()
     async def ensure_bucket_exists(self) -> None:
         """Provision the bucket during startup, never in a request constructor."""
 
@@ -111,7 +123,10 @@ class MinioStorageRepository(IObjectStorageRepository):
                 Key=key,
             )
             body = response["Body"]
-            return await asyncio.to_thread(body.read)
+            try:
+                return await asyncio.to_thread(body.read)
+            finally:
+                await asyncio.to_thread(body.close)
         except Exception as e:
             logger.error(
                 "s3_download_failed",

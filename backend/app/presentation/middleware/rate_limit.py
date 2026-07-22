@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import ipaddress
+import math
 import re
 import time
 import uuid
@@ -43,7 +44,7 @@ _PUBLIC_UPLOAD_BOOTSTRAP_PATH_RE = re.compile(
 )
 _DASHBOARD_MEDIA_PATH_RE = re.compile(
     r"^/api/v1/passports/[^/]+/images/"
-    r"(?:visa_photo|passport_front|passport_back)(?:/original)?/?$"
+    r"(?:visa_photo|passport_front|passport_back)(?:/(?:original|thumbnail))?/?$"
 )
 _RATE_LIMIT_METRIC_REASONS = {
     "APP_RATE_LIMITED": "app_api",
@@ -56,6 +57,40 @@ _RATE_LIMIT_METRIC_REASONS = {
     "RATE_LIMIT_SERVICE_UNAVAILABLE": "rate_limit_backend_unavailable",
 }
 
+_TOKEN_BUCKET_SCRIPT = """
+local key = KEYS[1]
+local refill_per_second = tonumber(ARGV[1])
+local capacity = tonumber(ARGV[2])
+local ttl_ms = tonumber(ARGV[3])
+
+local redis_time = redis.call('TIME')
+local now_ms = (tonumber(redis_time[1]) * 1000) + math.floor(tonumber(redis_time[2]) / 1000)
+local state = redis.call('HMGET', key, 'tokens', 'updated_ms')
+local tokens = tonumber(state[1])
+local updated_ms = tonumber(state[2])
+
+if tokens == nil or updated_ms == nil then
+    tokens = capacity
+    updated_ms = now_ms
+else
+    local elapsed_ms = math.max(0, now_ms - updated_ms)
+    tokens = math.min(capacity, tokens + ((elapsed_ms / 1000) * refill_per_second))
+end
+
+local allowed = 0
+local retry_ms = 0
+if tokens >= 1 then
+    tokens = tokens - 1
+    allowed = 1
+else
+    retry_ms = math.ceil(((1 - tokens) / refill_per_second) * 1000)
+end
+
+redis.call('HSET', key, 'tokens', tostring(tokens), 'updated_ms', tostring(now_ms))
+redis.call('PEXPIRE', key, ttl_ms)
+return {allowed, math.floor(tokens), retry_ms}
+"""
+
 
 @dataclass(frozen=True, slots=True)
 class _RateLimitGuard:
@@ -64,6 +99,8 @@ class _RateLimitGuard:
     limit: int
     error_code: str
     error_message: str
+    burst_rate_per_second: int = 0
+    burst_capacity: int = 0
 
 
 class _RateLimitBackendUnavailable(RuntimeError):
@@ -72,6 +109,7 @@ class _RateLimitBackendUnavailable(RuntimeError):
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     _local_counts: dict[str, tuple[int, float]] = defaultdict(lambda: (0, 0.0))
+    _local_token_buckets: dict[str, tuple[float, float]] = {}
 
     def __init__(
         self,
@@ -139,27 +177,51 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         bucket = int(now // self._window_seconds)
         retry_after = max(1, self._window_seconds - int(now % self._window_seconds))
         results: list[tuple[_RateLimitGuard, int]] = []
+        burst_results: list[tuple[_RateLimitGuard, int]] = []
         try:
             for guard in guards:
-                key = self._counter_key(
-                    scope=guard.scope,
-                    identifier=guard.identifier,
-                    bucket=bucket,
-                )
-                count = await self._increment(
-                    key,
-                    require_distributed=requires_distributed,
-                )
-                results.append((guard, count))
-                if count > guard.limit:
-                    return self._error_response(
-                        request,
-                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                        code=guard.error_code,
-                        message=guard.error_message,
-                        retry_after=retry_after,
-                        limit=guard.limit,
+                if guard.limit > 0:
+                    key = self._counter_key(
+                        scope=guard.scope,
+                        identifier=guard.identifier,
+                        bucket=bucket,
                     )
+                    count = await self._increment(
+                        key,
+                        require_distributed=requires_distributed,
+                    )
+                    results.append((guard, count))
+                    if count > guard.limit:
+                        return self._error_response(
+                            request,
+                            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                            code=guard.error_code,
+                            message=guard.error_message,
+                            retry_after=retry_after,
+                            limit=guard.limit,
+                        )
+
+                if guard.burst_rate_per_second > 0 and guard.burst_capacity > 0:
+                    burst_key = self._token_bucket_key(
+                        scope=f"{guard.scope}-burst",
+                        identifier=guard.identifier,
+                    )
+                    allowed, remaining, burst_retry_ms = await self._consume_token_bucket(
+                        burst_key,
+                        refill_per_second=guard.burst_rate_per_second,
+                        capacity=guard.burst_capacity,
+                        require_distributed=requires_distributed,
+                    )
+                    burst_results.append((guard, remaining))
+                    if not allowed:
+                        return self._error_response(
+                            request,
+                            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                            code=guard.error_code,
+                            message=guard.error_message,
+                            retry_after=max(1, math.ceil(burst_retry_ms / 1000)),
+                            limit=guard.burst_capacity,
+                        )
         except _RateLimitBackendUnavailable:
             return self._error_response(
                 request,
@@ -170,15 +232,27 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
 
         response = await call_next(request)
-        tightest_guard, tightest_count = min(
-            results,
-            key=lambda item: item[0].limit - item[1],
-        )
-        response.headers["X-RateLimit-Limit"] = str(tightest_guard.limit)
-        response.headers["X-RateLimit-Remaining"] = str(
-            max(0, tightest_guard.limit - tightest_count)
-        )
-        response.headers["X-RateLimit-Policy"] = tightest_guard.scope
+        if results:
+            tightest_guard, tightest_count = min(
+                results,
+                key=lambda item: item[0].limit - item[1],
+            )
+            response.headers["X-RateLimit-Limit"] = str(tightest_guard.limit)
+            response.headers["X-RateLimit-Remaining"] = str(
+                max(0, tightest_guard.limit - tightest_count)
+            )
+            response.headers["X-RateLimit-Policy"] = tightest_guard.scope
+        elif burst_results:
+            tightest_guard, remaining = min(burst_results, key=lambda item: item[1])
+            response.headers["X-RateLimit-Limit"] = str(tightest_guard.burst_capacity)
+            response.headers["X-RateLimit-Remaining"] = str(remaining)
+            response.headers["X-RateLimit-Policy"] = tightest_guard.scope
+        if burst_results:
+            burst_guard, burst_remaining = min(burst_results, key=lambda item: item[1])
+            response.headers["X-RateLimit-Burst-Capacity"] = str(
+                burst_guard.burst_capacity
+            )
+            response.headers["X-RateLimit-Burst-Remaining"] = str(burst_remaining)
         return response
 
     def _has_enabled_policy(self) -> bool:
@@ -187,7 +261,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             for limit in (
                 self._settings.rate_limit_per_minute,
                 self._settings.dashboard_rate_limit_per_minute,
+                self._settings.dashboard_rate_limit_per_second,
                 self._settings.dashboard_media_rate_limit_per_minute,
+                self._settings.dashboard_media_rate_limit_per_second,
                 self._settings.public_upload_bootstrap_session_rate_limit_per_minute,
                 self._settings.public_upload_bootstrap_aggregate_rate_limit_per_minute,
                 self._settings.public_upload_session_rate_limit_per_minute,
@@ -333,7 +409,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             )
             if is_dashboard_media:
                 media_limit = self._settings.dashboard_media_rate_limit_per_minute
-                if media_limit <= 0:
+                media_burst_rate = self._settings.dashboard_media_rate_limit_per_second
+                media_burst = self._settings.dashboard_media_rate_limit_burst
+                if media_limit <= 0 and (media_burst_rate <= 0 or media_burst <= 0):
                     return (), False, None
                 return (
                     (
@@ -346,6 +424,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                                 "Too many document previews were requested. "
                                 "Please wait briefly and try again."
                             ),
+                            burst_rate_per_second=media_burst_rate,
+                            burst_capacity=media_burst,
                         ),
                     ),
                     self._settings.dashboard_rate_limit_require_redis,
@@ -353,7 +433,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 )
 
             dashboard_limit = self._settings.dashboard_rate_limit_per_minute
-            if dashboard_limit <= 0:
+            dashboard_burst_rate = self._settings.dashboard_rate_limit_per_second
+            dashboard_burst = self._settings.dashboard_rate_limit_burst
+            if dashboard_limit <= 0 and (
+                dashboard_burst_rate <= 0 or dashboard_burst <= 0
+            ):
                 return (), False, None
             return (
                 (
@@ -366,6 +450,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                             "This dashboard account is sending requests too quickly. "
                             "Please wait briefly and try again."
                         ),
+                        burst_rate_per_second=dashboard_burst_rate,
+                        burst_capacity=dashboard_burst,
                     ),
                 ),
                 self._settings.dashboard_rate_limit_require_redis,
@@ -454,6 +540,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ).hexdigest()
         return f"rate-limit:v2:{scope}:{digest}:{bucket}"
 
+    def _token_bucket_key(self, *, scope: str, identifier: str) -> str:
+        digest = hmac.new(
+            self._key_secret,
+            f"{scope}\0{identifier}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return f"rate-limit:v3:{scope}:{digest}"
+
     async def _increment(self, key: str, *, require_distributed: bool) -> int:
         if self._redis is not None:
             try:
@@ -478,6 +572,60 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         count += 1
         self._local_counts[key] = (count, expires_at)
         return count
+
+    async def _consume_token_bucket(
+        self,
+        key: str,
+        *,
+        refill_per_second: int,
+        capacity: int,
+        require_distributed: bool,
+    ) -> tuple[bool, int, int]:
+        ttl_ms = max(60_000, math.ceil((capacity / refill_per_second) * 2_000))
+        if self._redis is not None:
+            try:
+                result = await self._redis.eval(
+                    _TOKEN_BUCKET_SCRIPT,
+                    1,
+                    key,
+                    refill_per_second,
+                    capacity,
+                    ttl_ms,
+                )
+                if not isinstance(result, (list, tuple)) or len(result) != 3:
+                    raise ValueError("unexpected token bucket response")
+                return (
+                    bool(int(result[0])),
+                    max(0, int(result[1])),
+                    max(0, int(result[2])),
+                )
+            except Exception as exc:
+                logger.warning(
+                    "rate_limit_redis_token_bucket_failed",
+                    error_type=type(exc).__name__,
+                )
+
+        if require_distributed:
+            raise _RateLimitBackendUnavailable
+
+        now = time.monotonic()
+        tokens, updated_at = self._local_token_buckets.get(
+            key,
+            (float(capacity), now),
+        )
+        tokens = min(
+            float(capacity),
+            tokens + (max(0.0, now - updated_at) * refill_per_second),
+        )
+        if tokens >= 1:
+            tokens -= 1
+            allowed = True
+            retry_ms = 0
+        else:
+            allowed = False
+            retry_ms = math.ceil(((1 - tokens) / refill_per_second) * 1000)
+        self._local_token_buckets[key] = (tokens, now)
+        return allowed, max(0, math.floor(tokens)), retry_ms
 
     def _error_response(
         self,

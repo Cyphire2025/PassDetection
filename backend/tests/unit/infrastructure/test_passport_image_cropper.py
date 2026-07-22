@@ -10,6 +10,7 @@ from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
     inspect_passport_image,
     render_passport_image_crop,
+    render_passport_image_thumbnail,
 )
 
 
@@ -91,3 +92,16 @@ def test_renderer_rejects_unknown_rotation() -> None:
             height=1.0,
             rotation_degrees=45,
         )
+
+
+def test_thumbnail_renderer_bounds_dimensions_and_strips_metadata() -> None:
+    rendered = render_passport_image_thumbnail(
+        _jpeg(1200, 600, orientation=1),
+        max_dimension=320,
+    )
+
+    assert rendered.content_type == "image/jpeg"
+    assert (rendered.width, rendered.height) == (320, 160)
+    with Image.open(io.BytesIO(rendered.content)) as result:
+        assert result.size == (320, 160)
+        assert result.getexif() == {}

@@ -28,6 +28,7 @@ export function ManagedAccountsPanel() {
   const [showCreateStaff, setShowCreateStaff] = useState(false);
   const [staffForm, setStaffForm] = useState<StaffForm>({ full_name: "", email: "", password: "" });
   const [staffFormError, setStaffFormError] = useState<string | null>(null);
+  const [staffAccessError, setStaffAccessError] = useState<{ staffId: string; message: string } | null>(null);
 
   const handleCreateStaff = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,6 +44,18 @@ export function ManagedAccountsPanel() {
       setShowCreateStaff(false);
     } catch {
       setStaffFormError("Could not create staff. Check whether the email already exists.");
+    }
+  };
+
+  const updateStaffGroups = async (staffId: string, groupIds: string[]) => {
+    setStaffAccessError(null);
+    try {
+      await assignStaffGroups.mutateAsync({ staffId, groupIds });
+    } catch (assignmentError) {
+      setStaffAccessError({
+        staffId,
+        message: getStaffAccessError(assignmentError),
+      });
     }
   };
 
@@ -96,17 +109,18 @@ export function ManagedAccountsPanel() {
                           staff={account}
                           groups={groups}
                           disabled={assignStaffGroups.isPending}
+                          error={staffAccessError?.staffId === account.id ? staffAccessError.message : null}
                           onAssign={(groupId) => {
                             const assignedIds = account.assigned_groups.map((group) => group.id);
-                            assignStaffGroups.mutate({ staffId: account.id, groupIds: [...assignedIds, groupId] });
+                            void updateStaffGroups(account.id, [...assignedIds, groupId]);
                           }}
                           onRemove={(groupId) => {
-                            assignStaffGroups.mutate({
-                              staffId: account.id,
-                              groupIds: account.assigned_groups
+                            void updateStaffGroups(
+                              account.id,
+                              account.assigned_groups
                                 .map((group) => group.id)
                                 .filter((assignedId) => assignedId !== groupId),
-                            });
+                            );
                           }}
                         />
                       </td>
@@ -151,18 +165,26 @@ function StaffAccessControl({
   staff,
   groups,
   disabled,
+  error,
   onAssign,
   onRemove,
 }: {
   staff: StaffAccount;
   groups: ManagerGroupAccess[];
   disabled: boolean;
+  error: string | null;
   onAssign: (groupId: string) => void;
   onRemove: (groupId: string) => void;
 }) {
   const createdIds = new Set(staff.created_groups.map((group) => group.id));
   const assignedIds = new Set(staff.assigned_groups.map((group) => group.id));
-  const assignableGroups = groups.filter((group) => !createdIds.has(group.id) && !assignedIds.has(group.id));
+  const assignableGroups = groups.filter((group) =>
+    group.agency_id === staff.agency_id
+    && group.status !== "archived"
+    && group.status !== "deleted"
+    && !createdIds.has(group.id)
+    && !assignedIds.has(group.id),
+  );
 
   return (
     <div className="space-y-2">
@@ -204,8 +226,22 @@ function StaffAccessControl({
           </option>
         ))}
       </select>
+      {error && <p role="alert" className="text-xs text-red-700">{error}</p>}
     </div>
   );
+}
+
+function getStaffAccessError(error: unknown): string {
+  if (
+    typeof error === "object"
+    && error !== null
+    && "message" in error
+    && typeof error.message === "string"
+    && error.message.trim()
+  ) {
+    return error.message;
+  }
+  return "Group access could not be updated. Please try again.";
 }
 
 function CreateStaffDialog({

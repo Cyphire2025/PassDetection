@@ -22,6 +22,10 @@ const constants = readFileSync(
   new URL("../../../constants/index.ts", import.meta.url),
   "utf8",
 );
+const thumbnailScheduler = readFileSync(
+  new URL("../services/document-thumbnail-scheduler.ts", import.meta.url),
+  "utf8",
+);
 
 test("group confidence displays the same server-computed value used for sorting", () => {
   assert.match(
@@ -160,15 +164,32 @@ test("DOCS view prefers real saved or local image previews and never shows an Ac
   assert.match(source, /LocalDocumentThumbnail/);
   assert.match(source, /DeferredDocumentThumbnail/);
   assert.match(source, /new IntersectionObserver/);
-  assert.match(source, /rootMargin: "320px 0px"/);
+  assert.match(source, /rootMargin: "200px 0px"/);
+  assert.match(source, /acquireDocumentThumbnailSlot\(controller\.signal\)/);
+  assert.match(source, /documentThumbnailUrl\(url\)/);
+  assert.match(source, /src=\{loadUrl\}/);
+  assert.match(source, /fetchPriority="low"/);
   assert.match(source, /\{file \? \([\s\S]*?<LocalDocumentThumbnail file=\{file\}[\s\S]*?\) : url \? \(/);
   assert.match(source, /URL\.revokeObjectURL\(nextUrl\)/);
   assert.match(source, /object-contain/);
-  assert.equal((source.match(/loading="lazy"/g) ?? []).length, 2);
+  assert.equal((source.match(/loading="lazy"/g) ?? []).length, 1);
+  assert.equal((source.match(/loading="eager"/g) ?? []).length, 1);
   assert.equal((source.match(/decoding="async"/g) ?? []).length, 2);
   assert.doesNotMatch(source, /object-cover/);
   assert.doesNotMatch(source, />\s*Accepted\s*</);
   assert.match(source, /No document/);
+});
+
+test("DOCS network previews use bounded same-origin thumbnail scheduling", () => {
+  assert.match(thumbnailScheduler, /DOCUMENT_THUMBNAIL_MAX_CONCURRENCY = 6/);
+  assert.match(thumbnailScheduler, /activeSlots < DOCUMENT_THUMBNAIL_MAX_CONCURRENCY/);
+  assert.match(thumbnailScheduler, /signal\.addEventListener\("abort"/);
+  assert.match(thumbnailScheduler, /signal\.removeEventListener\("abort"/);
+  assert.match(
+    thumbnailScheduler,
+    /PASSPORT_IMAGE_PATH = \/\^\\\/api\\\/v1\\\/passports/,
+  );
+  assert.match(thumbnailScheduler, /\/thumbnail\$\{query\}/);
 });
 
 test("completed group pages stop idle polling and rely on focused invalidation", () => {

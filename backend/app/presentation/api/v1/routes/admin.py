@@ -16,6 +16,7 @@ from app.core.security.password import hash_password
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     PENDING_REVIEW_PASSPORT_STATUS_VALUES,
+    GroupStatus,
     PassportProcessingStatus,
     User,
     UserRole,
@@ -61,6 +62,7 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 PLATFORM_SETTINGS_KEY = "global"
 DEFAULT_PLATFORM_SETTINGS = PlatformSettingsResponse().model_dump(exclude={"updated_at"})
+REMOVED_GROUP_STATUSES = (GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -333,7 +335,9 @@ async def list_admin_groups(
     current_user: User = Depends(require_role([UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER])),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagerGroupAccessResponse]:
-    filters = [] if current_user.role == UserRole.SUPER_ADMIN else [ClientGroupModel.agency_id == current_user.agency_id]
+    filters = [ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES)]
+    if current_user.role != UserRole.SUPER_ADMIN:
+        filters.append(ClientGroupModel.agency_id == current_user.agency_id)
     result = await session.execute(
         select(ClientGroupModel)
         .where(*filters)
@@ -383,6 +387,7 @@ async def assign_staff_groups(
             select(ClientGroupModel).where(
                 ClientGroupModel.id.in_(group_ids),
                 ClientGroupModel.agency_id == staff.agency_id,
+                ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES),
             )
         )
         valid_groups = list(groups_result.scalars().all())
@@ -429,6 +434,7 @@ async def assign_manager_groups(
             select(ClientGroupModel).where(
                 ClientGroupModel.id.in_(group_ids),
                 ClientGroupModel.agency_id == manager.agency_id,
+                ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES),
             )
         )
         valid_groups = list(groups_result.scalars().all())
@@ -692,6 +698,7 @@ async def _load_platform_settings(session: AsyncSession) -> PlatformSettingsResp
 def _group_response(group: ClientGroupModel) -> ManagerGroupAccessResponse:
     return ManagerGroupAccessResponse(
         id=group.id,
+        agency_id=group.agency_id,
         name=group.name,
         status=group.status,
         created_by_user_id=group.created_by_user_id,
@@ -702,6 +709,7 @@ async def _manager_response(session: AsyncSession, manager: UserModel) -> Manage
     groups_result = await session.execute(
         select(ClientGroupModel).where(
             ClientGroupModel.agency_id == manager.agency_id,
+            ClientGroupModel.status.notin_(REMOVED_GROUP_STATUSES),
             or_(
                 ClientGroupModel.created_by_user_id == manager.id,
                 ClientGroupModel.id.in_(

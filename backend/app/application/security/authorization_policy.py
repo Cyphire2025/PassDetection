@@ -9,7 +9,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.domain.entities.entities import User, UserRole
+from app.domain.entities.entities import GroupStatus, User, UserRole
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import (
     AttendanceSessionModel,
@@ -218,6 +218,9 @@ class AuthorizationPolicy:
             )
             .where(
                 ClientGroupModel.id == group_id,
+                ClientGroupModel.status.notin_(
+                    [GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value]
+                ),
                 or_(
                     ClientGroupModel.created_by_user_id == manager_id,
                     ManagerGroupAccessModel.manager_id == manager_id,

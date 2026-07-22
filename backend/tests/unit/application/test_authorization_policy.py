@@ -97,6 +97,47 @@ async def test_manager_direct_passport_access_respects_group_assignment() -> Non
     )
 
 
+@pytest.mark.asyncio
+async def test_staff_direct_group_and_passport_access_respects_assignment() -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    agency_id = uuid.uuid4()
+    staff = _user(UserRole.AGENCY_STAFF, agency_id)
+    assigned_group = _group(agency_id, created_by_user_id=uuid.uuid4())
+    unrelated_group = _group(agency_id, created_by_user_id=uuid.uuid4())
+    assigned_passport = _passport(agency_id, assigned_group.id)
+    unrelated_passport = _passport(agency_id, unrelated_group.id)
+
+    policy.manager_can_access_group = AsyncMock(
+        side_effect=lambda staff_id, group_id: (
+            staff_id == staff.id and group_id == assigned_group.id
+        )
+    )
+
+    assert await policy.can_view_group(staff, assigned_group) is True
+    assert await policy.can_manage_group(staff, assigned_group) is True
+    assert await policy.can_view_passport(staff, assigned_passport) is True
+    assert await policy.can_view_group(staff, unrelated_group) is False
+    assert await policy.can_view_passport(staff, unrelated_passport) is False
+
+
+@pytest.mark.asyncio
+async def test_removed_group_is_not_accessible_through_an_old_assignment() -> None:
+    result = SimpleNamespace(scalar_one_or_none=lambda: None)
+    session = SimpleNamespace(execute=AsyncMock(return_value=result))
+    policy = AuthorizationPolicy(session)  # type: ignore[arg-type]
+
+    assert await policy.manager_can_access_group(uuid.uuid4(), uuid.uuid4()) is False
+
+    statement = session.execute.await_args.args[0]
+    sql = str(
+        statement.compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+    assert "client_groups.status NOT IN ('archived', 'deleted')" in sql
+
+
 def test_manager_passport_query_scope_does_not_add_an_unjoined_group_table() -> None:
     agency_id = uuid.uuid4()
     manager = _user(UserRole.AGENCY_MANAGER, agency_id)

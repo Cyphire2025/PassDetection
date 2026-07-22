@@ -101,6 +101,7 @@ class S3Settings(BaseSettings):
     connect_timeout_seconds: float = Field(default=5.0, ge=0.5, le=30.0)
     read_timeout_seconds: float = Field(default=10.0, ge=1.0, le=120.0)
     max_attempts: int = Field(default=3, ge=1, le=10)
+    max_pool_connections: int = Field(default=64, ge=10, le=512)
 
 
 class MRZSettings(BaseSettings):
@@ -159,6 +160,12 @@ class Settings(BaseSettings):
         ge=0,
         le=100_000,
     )
+    # A short token bucket sits in front of the minute allowance so one noisy
+    # account cannot monopolize the shared dashboard edge lane. The capacity
+    # admits normal page-load bursts while the refill rate bounds sustained
+    # pressure from one verified account.
+    dashboard_rate_limit_per_second: int = Field(default=50, ge=0, le=10_000)
+    dashboard_rate_limit_burst: int = Field(default=150, ge=0, le=100_000)
     # Protected image streams use an independent budget. A DOCS view can load
     # many authorized images without consuming the staff member's dashboard
     # action allowance, while still retaining a bounded abuse guard.
@@ -166,6 +173,16 @@ class Settings(BaseSettings):
         default=30_000,
         ge=0,
         le=100_000,
+    )
+    dashboard_media_rate_limit_per_second: int = Field(default=30, ge=0, le=10_000)
+    dashboard_media_rate_limit_burst: int = Field(default=60, ge=0, le=100_000)
+    # Per Gunicorn worker. The cache contains only metadata-stripped dashboard
+    # thumbnails and never changes the original files or database rows.
+    dashboard_thumbnail_max_dimension: int = Field(default=320, ge=128, le=1_024)
+    dashboard_thumbnail_cache_max_bytes: int = Field(
+        default=16 * 1024 * 1024,
+        ge=1024 * 1024,
+        le=512 * 1024 * 1024,
     )
     dashboard_rate_limit_require_redis: bool = True
     public_upload_bootstrap_session_rate_limit_per_minute: int = Field(

@@ -20,6 +20,7 @@ class _FakeRedis:
     def __init__(self, *, fail: bool = False) -> None:
         self.counts: dict[str, int] = {}
         self.expirations: dict[str, int] = {}
+        self.token_buckets: dict[str, int] = {}
         self.fail = fail
 
     async def incr(self, key: str) -> int:
@@ -30,6 +31,25 @@ class _FakeRedis:
 
     async def expire(self, key: str, ttl: int) -> None:
         self.expirations[key] = ttl
+
+    async def eval(
+        self,
+        _script: str,
+        _numkeys: int,
+        key: str,
+        _refill_per_second: int,
+        capacity: int,
+        ttl_ms: int,
+    ) -> list[int]:
+        if self.fail:
+            raise ConnectionError("redis unavailable")
+        remaining = self.token_buckets.get(key, int(capacity))
+        if remaining <= 0:
+            return [0, 0, 1000]
+        remaining -= 1
+        self.token_buckets[key] = remaining
+        self.expirations[key] = int(ttl_ms)
+        return [1, remaining, 0]
 
 
 async def _ok(_: Request) -> Response:
@@ -78,13 +98,18 @@ def _request(
 class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         RateLimitMiddleware._local_counts.clear()
+        RateLimitMiddleware._local_token_buckets.clear()
         self.redis = _FakeRedis()
         self.settings = SimpleNamespace(
             app_secret_key="test-only-secret-with-sufficient-entropy",
             allowed_origins=["https://tech.gctravels.com"],
             rate_limit_per_minute=60,
             dashboard_rate_limit_per_minute=5_000,
+            dashboard_rate_limit_per_second=50,
+            dashboard_rate_limit_burst=150,
             dashboard_media_rate_limit_per_minute=30_000,
+            dashboard_media_rate_limit_per_second=30,
+            dashboard_media_rate_limit_burst=60,
             dashboard_rate_limit_require_redis=True,
             jwt=SimpleNamespace(access_cookie_name="access_token"),
             public_upload_bootstrap_session_rate_limit_per_minute=30,
@@ -464,6 +489,65 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(other_user.status_code, 200)
 
+    async def test_twenty_verified_accounts_on_one_ip_have_independent_bursts(
+        self,
+    ) -> None:
+        self.settings.dashboard_rate_limit_per_minute = 5_000
+        self.settings.dashboard_rate_limit_per_second = 1
+        self.settings.dashboard_rate_limit_burst = 2
+
+        def decode(token: str) -> dict[str, str]:
+            account_number = int(token.removeprefix("account-")) + 1
+            return {
+                "sub": f"{account_number:08d}-1111-4111-8111-111111111111"
+            }
+
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            side_effect=decode,
+        ):
+            for account_number in range(20):
+                for _ in range(2):
+                    response = await self.middleware.dispatch(
+                        _request(
+                            path="/api/v1/passports/groups/example/submissions-view",
+                            method="GET",
+                            access_token=f"account-{account_number}",
+                            use_cookie=True,
+                            real_ip="203.0.113.50",
+                        ),
+                        _ok,
+                    )
+                    self.assertEqual(response.status_code, 200)
+
+            rejected = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/dashboard/stats",
+                    method="GET",
+                    access_token="account-0",
+                    use_cookie=True,
+                    real_ip="203.0.113.50",
+                ),
+                _ok,
+            )
+            another_account = await self.middleware.dispatch(
+                _request(
+                    path="/api/v1/dashboard/stats",
+                    method="GET",
+                    access_token="account-20",
+                    use_cookie=True,
+                    real_ip="203.0.113.50",
+                ),
+                _ok,
+            )
+
+        self.assertEqual(rejected.status_code, 429)
+        self.assertEqual(
+            json.loads(rejected.body)["error"]["code"],
+            "DASHBOARD_RATE_LIMITED",
+        )
+        self.assertEqual(another_account.status_code, 200)
+
     async def test_document_images_use_an_independent_authenticated_budget(self) -> None:
         self.settings.dashboard_rate_limit_per_minute = 1
         self.settings.dashboard_media_rate_limit_per_minute = 2
@@ -523,6 +607,32 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(dashboard_rejected.status_code, 429)
 
+    async def test_document_thumbnail_uses_media_budget_and_burst_headers(self) -> None:
+        user_id = "44444444-4444-4444-8444-444444444444"
+        image_path = (
+            "/api/v1/passports/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa/"
+            "images/visa_photo/thumbnail"
+        )
+
+        with patch(
+            "app.presentation.middleware.rate_limit.decode_access_token",
+            return_value={"sub": user_id},
+        ):
+            response = await self.middleware.dispatch(
+                _request(
+                    path=image_path,
+                    method="GET",
+                    access_token="valid",
+                    use_cookie=True,
+                ),
+                _ok,
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["X-RateLimit-Policy"], "dashboard-media")
+        self.assertEqual(response.headers["X-RateLimit-Burst-Capacity"], "60")
+        self.assertEqual(response.headers["X-RateLimit-Burst-Remaining"], "59")
+
     async def test_invalid_access_token_uses_untrusted_ip_fallback(self) -> None:
         with patch(
             "app.presentation.middleware.rate_limit.decode_access_token",
@@ -564,7 +674,10 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         )
         self.assertIn("zone=upload_aggregate:10m rate=120r/m", nginx_main)
         self.assertIn("zone=upload_followup_aggregate:10m rate=100r/s", nginx_main)
+        self.assertIn("worker_connections 4096", nginx_main)
+        self.assertIn("zone=dashboard_api:10m rate=300r/s", nginx_main)
         self.assertIn("zone=dashboard_media:10m rate=500r/s", nginx_main)
+        self.assertIn("keepalive 128", nginx_main)
         self.assertIn("client_submit_id", nginx_main)
         self.assertIn("limit_req_status=$limit_req_status", nginx_main)
         self.assertIn("upstream_status=$upstream_status", nginx_main)
@@ -611,13 +724,20 @@ class PublicUploadProxyContractTests(unittest.TestCase):
             nginx_site,
         )
         self.assertIn(
-            "images/(?:visa_photo|passport_front|passport_back)(?:/original)?",
+            "images/(?:visa_photo|passport_front|passport_back)(?:/(?:original|thumbnail))?",
             nginx_site,
         )
         self.assertIn(
-            "limit_req zone=dashboard_media burst=1000 nodelay",
+            "limit_req zone=dashboard_media burst=1000 delay=250",
             nginx_site,
         )
+        self.assertIn("limit_req zone=dashboard_api burst=600 delay=150", nginx_site)
+        self.assertIn("upload-links(?:$|/(?!token(?:/|$)))", nginx_site)
+        self.assertIn(
+            "passports(?:$|/(?!upload(?:/|$)|[^/]+/client-submit/?$))",
+            nginx_site,
+        )
+        self.assertIn("whatsapp(?:$|/(?!webhook/?$))", nginx_site)
         self.assertNotIn("limit_req zone=upload burst=5", nginx_site)
 
         self.assertIn('"X-Upload-Session-ID": sessionId', upload_api)

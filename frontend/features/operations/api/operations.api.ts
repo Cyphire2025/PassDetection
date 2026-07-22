@@ -26,6 +26,7 @@ export interface ManagerAccount {
 
 export interface ManagerGroupAccess {
   id: string;
+  agency_id: string;
   name: string;
   status: string;
   created_by_user_id: string | null;

@@ -35,6 +35,10 @@ import type {
   PassportGroupSubmissionFilter,
   PassportGroupSubmissionSort,
 } from "../api/passports.api";
+import {
+  acquireDocumentThumbnailSlot,
+  documentThumbnailUrl,
+} from "../services/document-thumbnail-scheduler";
 import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
 import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
@@ -1264,7 +1268,13 @@ function DocumentCell({
 
 function DeferredDocumentThumbnail({ url, label }: { url: string; label: string }) {
   const frameRef = useRef<HTMLDivElement | null>(null);
+  const releaseSlotRef = useRef<(() => void) | null>(null);
+  const retryTimerRef = useRef<number | null>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [loadUrl, setLoadUrl] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [failed, setFailed] = useState(false);
+  const thumbnailUrl = documentThumbnailUrl(url);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -1280,29 +1290,92 @@ function DeferredDocumentThumbnail({ url, label }: { url: string; label: string 
         setShouldLoad(true);
         observer.disconnect();
       },
-      { rootMargin: "320px 0px" },
+      { rootMargin: "200px 0px" },
     );
     observer.observe(frame);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!shouldLoad || failed) return;
+    const controller = new AbortController();
+    let disposed = false;
+
+    void acquireDocumentThumbnailSlot(controller.signal)
+      .then((release) => {
+        if (disposed) {
+          release();
+          return;
+        }
+        releaseSlotRef.current = release;
+        setLoadUrl(thumbnailUrl);
+      })
+      .catch((error: unknown) => {
+        if (
+          !disposed
+          && (!(error instanceof Error) || error.name !== "AbortError")
+        ) {
+          setFailed(true);
+        }
+      });
+
+    return () => {
+      disposed = true;
+      controller.abort();
+      releaseSlotRef.current?.();
+      releaseSlotRef.current = null;
+      if (retryTimerRef.current !== null) {
+        window.clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
+  }, [failed, loadAttempt, shouldLoad, thumbnailUrl]);
+
+  const releaseSlot = () => {
+    releaseSlotRef.current?.();
+    releaseSlotRef.current = null;
+  };
+
+  const handleLoadError = () => {
+    releaseSlot();
+    setLoadUrl(null);
+    if (loadAttempt === 0) {
+      retryTimerRef.current = window.setTimeout(() => {
+        retryTimerRef.current = null;
+        setLoadAttempt(1);
+      }, 1_000);
+      return;
+    }
+    setFailed(true);
+  };
+
   return (
     <div
       ref={frameRef}
       className="flex h-24 w-36 items-center justify-center rounded-lg border border-slate-200 bg-slate-50"
+      aria-live="polite"
     >
-      {shouldLoad ? (
+      {loadUrl ? (
         <>
           {/* Keep this browser-side so the HttpOnly authentication cookie is attached. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={url}
+            src={loadUrl}
             alt={label}
-            loading="lazy"
+            loading="eager"
             decoding="async"
+            fetchPriority="low"
+            onLoad={releaseSlot}
+            onError={handleLoadError}
             className="h-full w-full rounded-lg object-contain"
           />
         </>
+      ) : failed ? (
+        <span className="px-2 text-center text-xs text-slate-400">
+          Preview unavailable
+        </span>
+      ) : shouldLoad ? (
+        <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-label="Loading preview" />
       ) : (
         <span className="text-xs text-slate-400" aria-hidden="true">Preview</span>
       )}

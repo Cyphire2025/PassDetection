@@ -52,10 +52,11 @@ warnings log only exception types.
 | App/Redis | Initial upload | 6/minute | 180/minute |
 | Nginx | Status/image/scan/discard/client-submit | 120/minute, burst 20 | 100/second, burst 200 |
 | App/Redis | Status/image/scan/discard/client-submit | 120/minute | 6000/minute |
-| Nginx | Other `/api/` traffic | n/a | 30/second, burst 20 |
-| Nginx | Authenticated passport/Visa previews | n/a | 500/second, burst 1000 |
-| App/Redis | Authenticated dashboard actions | 5000/minute per verified account | n/a |
-| App/Redis | Authenticated passport/Visa previews | 30000/minute per verified account | n/a |
+| Nginx | Anonymous/auth `/api/` fallback | n/a | 30/second, burst 20 |
+| Nginx | Authenticated dashboard route lane | n/a | 300/second, burst 600 (excess is briefly queued) |
+| Nginx | Authenticated passport/Visa previews | n/a | 500/second, burst 1000 (excess is briefly queued) |
+| App/Redis | Authenticated dashboard actions | 5000/minute plus 50/second, burst 150, per verified account | n/a |
+| App/Redis | Authenticated passport/Visa previews | 30000/minute plus 30/second, burst 60, per verified account | n/a |
 | App/Redis | Other unauthenticated `/api/` traffic | n/a | 60/minute |
 
 The per-session check runs before the aggregate app check so one misbehaving
@@ -83,14 +84,32 @@ action allowance:
 
 ```dotenv
 DASHBOARD_RATE_LIMIT_PER_MINUTE=5000
+DASHBOARD_RATE_LIMIT_PER_SECOND=50
+DASHBOARD_RATE_LIMIT_BURST=150
 DASHBOARD_MEDIA_RATE_LIMIT_PER_MINUTE=30000
+DASHBOARD_MEDIA_RATE_LIMIT_PER_SECOND=30
+DASHBOARD_MEDIA_RATE_LIMIT_BURST=60
+DASHBOARD_THUMBNAIL_MAX_DIMENSION=320
+DASHBOARD_THUMBNAIL_CACHE_MAX_BYTES=16777216
 DASHBOARD_RATE_LIMIT_REQUIRE_REDIS=true
 ```
 
+The minute budgets prevent long-running abuse; an atomic Redis token bucket
+also prevents one noisy verified account from consuming the broad shared-Wi-Fi
+lane in a short burst. Redis server time is used inside one Lua operation, so
+all four Gunicorn workers share one race-free account bucket. If Redis is
+required and unavailable, authenticated dashboard limits fail closed with 503
+instead of silently reverting to per-process counters.
+
 The browser still requests each protected image independently so authorization
-can be enforced per document. DOCS view defers those requests until a thumbnail
-is close to the viewport; they are not counted against the dashboard-action
-bucket.
+and object-level agency access can be enforced per document. DOCS view requests
+a metadata-stripped 320-pixel thumbnail only after it is close to the viewport,
+and a browser-wide scheduler permits at most six simultaneous preview loads.
+Each backend worker deduplicates concurrent renders of the same effective crop
+and retains at most 16 MiB of thumbnail bytes in a private in-memory LRU. The
+original stored object and database rows are never modified. Preview responses
+remain `private, no-store`; the server-side cache improves repeated reads
+without allowing passport PII into a shared proxy cache.
 
 Nginx rates are static in `nginx/nginx.conf`; keep them coordinated with the app
 settings when tuning.
@@ -105,7 +124,8 @@ media-type, and content checks.
 The ordinary `/api/` envelope is `16M`; it no longer inherits the historical
 server-wide `512M` ceiling. A `512M` exception exists only for the exact
 authenticated passport archive-import and multi-document distribution/rename
-routes that require it. Those exceptions retain the staff API rate limiter.
+routes that require it. Those exceptions retain the authenticated dashboard
+lane and the verified per-account application limits.
 
 ## Failure contract
 

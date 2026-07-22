@@ -32,6 +32,14 @@ class RenderedPassportImage:
     output_height: int
 
 
+@dataclass(frozen=True, slots=True)
+class RenderedPassportThumbnail:
+    content: bytes
+    content_type: str
+    width: int
+    height: int
+
+
 def inspect_passport_image(content: bytes, *, rotation_degrees: int = 0) -> tuple[int, int]:
     """Return canonical dimensions after the requested clockwise rotation."""
 
@@ -133,10 +141,49 @@ def render_saved_passport_image_crop(
     return rendered
 
 
+def render_passport_image_thumbnail(
+    content: bytes,
+    *,
+    max_dimension: int,
+) -> RenderedPassportThumbnail:
+    """Render a bounded, metadata-free JPEG for authenticated list views."""
+
+    if max_dimension < 1:
+        raise PassportImageCropError("Thumbnail dimensions must be positive.")
+    image = _open_canonical_image(content)
+    rgb: Image.Image | None = None
+    try:
+        image.thumbnail(
+            (max_dimension, max_dimension),
+            Image.Resampling.LANCZOS,
+        )
+        rgb = _to_rgb(image)
+        output = io.BytesIO()
+        rgb.save(
+            output,
+            format="JPEG",
+            quality=82,
+            optimize=True,
+            progressive=True,
+        )
+        return RenderedPassportThumbnail(
+            content=output.getvalue(),
+            content_type="image/jpeg",
+            width=rgb.width,
+            height=rgb.height,
+        )
+    finally:
+        if rgb is not None:
+            rgb.close()
+        image.close()
+
+
 def _open_canonical_image(content: bytes) -> Image.Image:
     if not content:
         raise PassportImageCropError("The stored image is empty.")
     settings = get_settings()
+    if len(content) > settings.upload_max_file_size_bytes:
+        raise PassportImageCropError("The stored image file is too large.")
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)

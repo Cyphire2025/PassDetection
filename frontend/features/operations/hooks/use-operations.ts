@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
-import { operationsApi } from "../api/operations.api";
+import { operationsApi, type StaffAccount } from "../api/operations.api";
 
 export function useAdminOverview() {
   return useQuery({
@@ -108,7 +108,10 @@ export function useAssignStaffGroups() {
   return useMutation({
     mutationFn: ({ staffId, groupIds }: { staffId: string; groupIds: string[] }) =>
       operationsApi.assignStaffGroups(staffId, groupIds),
-    onSuccess: () => {
+    onSuccess: (updatedStaff) => {
+      queryClient.setQueryData<StaffAccount[]>(STAFF_ACCESS_QUERY_KEY, (accounts) =>
+        accounts?.map((account) => account.id === updatedStaff.id ? updatedStaff : account),
+      );
       queryClient.invalidateQueries({ queryKey: STAFF_ACCESS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.adminGroups });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });

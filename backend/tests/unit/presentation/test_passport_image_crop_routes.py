@@ -1,21 +1,27 @@
 from __future__ import annotations
 
+import io
 import uuid
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
+from PIL import Image
 from pydantic import ValidationError
 
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.domain.value_objects.passport_image_crop import PassportImageType
+from app.infrastructure.imaging.passport_thumbnail_cache import (
+    PassportThumbnailCache,
+)
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRevisionConflict,
 )
 from app.presentation.api.v1.routes.passports import (
     _authorized_staff_passport_image,
     _staff_image_urls,
+    get_passport_image_thumbnail,
     update_passport_image_crop,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
@@ -32,6 +38,68 @@ def _submission(*, front_key: str = "original/front.jpg") -> SimpleNamespace:
         passport_photo_s3_key="original/photo.jpg",
         passport_back_s3_key="original/back.jpg",
     )
+
+
+def _jpeg(*, size: tuple[int, int] = (900, 600)) -> bytes:
+    output = io.BytesIO()
+    Image.new("RGB", size, color=(235, 235, 235)).save(output, format="JPEG")
+    return output.getvalue()
+
+
+@pytest.mark.asyncio
+async def test_thumbnail_is_private_bounded_and_cached_after_authorization() -> None:
+    submission = _submission()
+    storage = MagicMock()
+    storage.get_file = AsyncMock(return_value=_jpeg())
+    crop_repository = MagicMock()
+    crop_repository.get = AsyncMock(return_value=None)
+    thumbnail_cache = PassportThumbnailCache(max_bytes=1024 * 1024)
+    current_user = SimpleNamespace(id=uuid.uuid4(), email="staff@example.com")
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            new=AsyncMock(return_value=(submission, submission.image_s3_key)),
+        ) as authorize,
+        patch(
+            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            return_value=crop_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports._dashboard_thumbnail_cache",
+            return_value=thumbnail_cache,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.get_settings",
+            return_value=SimpleNamespace(dashboard_thumbnail_max_dimension=320),
+        ),
+    ):
+        first = await get_passport_image_thumbnail(
+            submission_id=submission.id,
+            image_type=PassportImageType.PASSPORT_FRONT,
+            crop_revision=None,
+            current_user=current_user,  # type: ignore[arg-type]
+            session=MagicMock(),
+        )
+        second = await get_passport_image_thumbnail(
+            submission_id=submission.id,
+            image_type=PassportImageType.PASSPORT_FRONT,
+            crop_revision=1,
+            current_user=current_user,  # type: ignore[arg-type]
+            session=MagicMock(),
+        )
+
+    assert first.media_type == "image/jpeg"
+    assert first.headers["cache-control"] == "private, no-store"
+    assert first.body == second.body
+    with Image.open(io.BytesIO(first.body)) as thumbnail:
+        assert max(thumbnail.size) == 320
+    assert authorize.await_count == 2
+    storage.get_file.assert_awaited_once()
 
 
 @pytest.mark.asyncio
