@@ -1,0 +1,328 @@
+"""Guarded Gemini image editing for staff-managed Visa photographs."""
+
+from __future__ import annotations
+
+import asyncio
+import base64
+import hashlib
+import io
+import json
+import re
+from dataclasses import dataclass
+from typing import Any
+
+import httpx
+from PIL import Image
+
+from app.core.config.settings import Settings, get_settings
+from app.core.logging.logger import get_logger
+from app.infrastructure.imaging.passport_image_cropper import (
+    PassportImageCropError,
+    render_passport_image_crop,
+)
+
+logger = get_logger(__name__)
+
+_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+_CONTROL_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+_DISALLOWED_PROMPT_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"\b(change|replace|swap)\b.{0,30}\b(face|identity|person|gender|ethnicity|skin)\b",
+        r"\b(make|look)\b.{0,20}\b(younger|older|different person)\b",
+        r"\b(add|remove)\b.{0,30}\b(glasses|scar|mole|tattoo|beard|moustache|mustache|hair)\b",
+        r"\b(deepfake|face[ -]?swap|impersonat)\b",
+    )
+)
+_SYSTEM_INSTRUCTION = """
+You are editing a Visa application portrait. Preserve the exact same person's
+identity, facial geometry, age, skin tone, expression, hair, clothing, and all
+biometric traits. Only apply presentation-quality corrections requested by the
+operator, such as plain white background cleanup, exposure, neutral color,
+minor lighting balance, noise reduction, or photographic sharpness. Do not add
+or remove people, accessories, facial features, marks, hair, or clothing. Keep
+the original framing, pose, dimensions, and aspect ratio. Return one edited
+image and no invented content.
+""".strip()
+_VERIFY_INSTRUCTION = """
+Compare the original Visa portrait and edited candidate. Approve only when they
+show the same person and the candidate preserves facial geometry, age, skin
+tone, expression, hair, clothing, pose, framing, and biometric traits, with no
+generated artifacts. Return JSON only.
+""".strip()
+_VERIFY_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "same_identity": {"type": "BOOLEAN"},
+        "presentation_only": {"type": "BOOLEAN"},
+        "artifact_free": {"type": "BOOLEAN"},
+        "confidence": {"type": "NUMBER"},
+    },
+    "required": ["same_identity", "presentation_only", "artifact_free", "confidence"],
+}
+
+
+class GeminiVisaImageEditError(RuntimeError):
+    """Safe, user-facing failure for a Visa image edit request."""
+
+
+class GeminiVisaImageEditNotConfigured(GeminiVisaImageEditError):
+    pass
+
+
+class GeminiVisaImageEditRejected(GeminiVisaImageEditError):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class GeminiVisaImageEditResult:
+    content: bytes
+    content_type: str
+    prompt_sha256: str
+
+
+class GeminiVisaImageEditService:
+    _semaphore = asyncio.Semaphore(2)
+
+    def __init__(
+        self,
+        *,
+        settings: Settings | None = None,
+        http_client: httpx.AsyncClient | None = None,
+    ) -> None:
+        self._settings = settings or get_settings()
+        self._http_client = http_client
+
+    async def edit(self, image_content: bytes, *, prompt: str) -> GeminiVisaImageEditResult:
+        normalized_prompt = " ".join(prompt.strip().split())
+        self._validate_prompt(normalized_prompt)
+        model = self._settings.gemini_image_edit_model.strip()
+        api_key = (
+            self._settings.google_api_key.get_secret_value()
+            if self._settings.google_api_key
+            else ""
+        )
+        if not model or not api_key:
+            raise GeminiVisaImageEditNotConfigured(
+                "Visa AI editing is not configured. Add GEMINI_IMAGE_EDIT_MODEL and a Google API key."
+            )
+        if not _MODEL_PATTERN.fullmatch(model):
+            raise GeminiVisaImageEditNotConfigured("The configured Visa image model name is invalid.")
+
+        try:
+            canonical = await asyncio.to_thread(self._canonical_image, image_content)
+        except PassportImageCropError as exc:
+            raise GeminiVisaImageEditError(str(exc)) from exc
+
+        prompt_hash = hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest()
+        async with self._semaphore:
+            generated = await self._generate(
+                model=model,
+                api_key=api_key,
+                image_content=canonical,
+                prompt=normalized_prompt,
+            )
+            candidate = await asyncio.to_thread(
+                self._canonical_image,
+                generated,
+                self._image_size(canonical),
+            )
+            await self._verify_identity(
+                api_key=api_key,
+                original=canonical,
+                candidate=candidate,
+            )
+        logger.info(
+            "visa_ai_image_edit_generated",
+            model=model,
+            prompt_sha256=prompt_hash,
+            output_bytes=len(candidate),
+        )
+        return GeminiVisaImageEditResult(
+            content=candidate,
+            content_type="image/jpeg",
+            prompt_sha256=prompt_hash,
+        )
+
+    async def _generate(
+        self,
+        *,
+        model: str,
+        api_key: str,
+        image_content: bytes,
+        prompt: str,
+    ) -> bytes:
+        payload = {
+            "systemInstruction": {"parts": [{"text": _SYSTEM_INSTRUCTION}]},
+            "contents": [{
+                "role": "user",
+                "parts": [
+                    {"text": prompt},
+                    {"inlineData": {
+                        "mimeType": "image/jpeg",
+                        "data": base64.b64encode(image_content).decode("ascii"),
+                    }},
+                ],
+            }],
+            "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
+        }
+        response = await self._post(model=model, api_key=api_key, payload=payload)
+        for part in self._response_parts(response):
+            inline = part.get("inlineData") or part.get("inline_data")
+            if not isinstance(inline, dict):
+                continue
+            mime_type = str(inline.get("mimeType") or inline.get("mime_type") or "")
+            encoded = inline.get("data")
+            if mime_type not in {"image/jpeg", "image/png", "image/webp"} or not isinstance(encoded, str):
+                continue
+            try:
+                content = base64.b64decode(encoded, validate=True)
+            except ValueError as exc:
+                raise GeminiVisaImageEditError("Gemini returned an unreadable image.") from exc
+            if not content or len(content) > self._settings.upload_max_file_size_bytes:
+                raise GeminiVisaImageEditError("Gemini returned an image outside the allowed size.")
+            return content
+        raise GeminiVisaImageEditError("Gemini did not return an edited image. Try a clearer prompt.")
+
+    async def _verify_identity(
+        self,
+        *,
+        api_key: str,
+        original: bytes,
+        candidate: bytes,
+    ) -> None:
+        payload = {
+            "systemInstruction": {"parts": [{"text": _VERIFY_INSTRUCTION}]},
+            "contents": [{
+                "role": "user",
+                "parts": [
+                    {"text": "Original image"},
+                    {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(original).decode("ascii")}},
+                    {"text": "Edited candidate"},
+                    {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(candidate).decode("ascii")}},
+                ],
+            }],
+            "generationConfig": {
+                "responseMimeType": "application/json",
+                "responseSchema": _VERIFY_SCHEMA,
+                "maxOutputTokens": 256,
+            },
+        }
+        response = await self._post(
+            model=self._settings.gemini_model,
+            api_key=api_key,
+            payload=payload,
+        )
+        text = next(
+            (
+                part.get("text")
+                for part in self._response_parts(response)
+                if isinstance(part.get("text"), str)
+            ),
+            None,
+        )
+        try:
+            verdict = json.loads(text or "")
+            approved = (
+                verdict.get("same_identity") is True
+                and verdict.get("presentation_only") is True
+                and verdict.get("artifact_free") is True
+                and float(verdict.get("confidence", 0)) >= 0.90
+            )
+        except (TypeError, ValueError, json.JSONDecodeError):
+            approved = False
+        if not approved:
+            raise GeminiVisaImageEditRejected(
+                "The generated image could not be verified as an identity-preserving Visa edit. Refine the prompt and try again."
+            )
+
+    async def _post(self, *, model: str, api_key: str, payload: dict[str, Any]) -> dict[str, Any]:
+        if not _MODEL_PATTERN.fullmatch(model):
+            raise GeminiVisaImageEditNotConfigured("The configured Gemini model name is invalid.")
+        endpoint = (
+            f"{self._settings.gemini_api_base_url.rstrip('/')}"
+            f"/models/{model}:generateContent"
+        )
+        timeout_seconds = max(60.0, self._settings.gemini_timeout_seconds)
+        timeout = httpx.Timeout(timeout_seconds, connect=5.0, write=15.0, pool=5.0)
+        try:
+            if self._http_client is not None:
+                response = await self._http_client.post(
+                    endpoint,
+                    headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+                    json=payload,
+                    timeout=timeout,
+                )
+            else:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    response = await client.post(
+                        endpoint,
+                        headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+                        json=payload,
+                    )
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            logger.warning("visa_ai_image_edit_provider_unavailable", error_type=type(exc).__name__)
+            raise GeminiVisaImageEditError(
+                "Gemini image editing is temporarily unavailable. Please try again."
+            ) from exc
+        if response.status_code >= 400:
+            logger.warning(
+                "visa_ai_image_edit_provider_rejected",
+                status_code=response.status_code,
+                model=model,
+            )
+            raise GeminiVisaImageEditError(
+                "Gemini could not edit this image. Check the configured model and try again."
+            )
+        try:
+            payload_json = response.json()
+        except ValueError as exc:
+            raise GeminiVisaImageEditError("Gemini returned an unreadable response.") from exc
+        if not isinstance(payload_json, dict):
+            raise GeminiVisaImageEditError("Gemini returned an unreadable response.")
+        return payload_json
+
+    @staticmethod
+    def _response_parts(payload: dict[str, Any]) -> list[dict[str, Any]]:
+        candidates = payload.get("candidates")
+        if not isinstance(candidates, list) or not candidates:
+            raise GeminiVisaImageEditError("Gemini returned no usable result.")
+        content = candidates[0].get("content") if isinstance(candidates[0], dict) else None
+        parts = content.get("parts") if isinstance(content, dict) else None
+        if not isinstance(parts, list):
+            raise GeminiVisaImageEditError("Gemini returned no usable result.")
+        return [part for part in parts if isinstance(part, dict)]
+
+    @staticmethod
+    def _validate_prompt(prompt: str) -> None:
+        if len(prompt) < 3 or len(prompt) > 1000 or _CONTROL_PATTERN.search(prompt):
+            raise GeminiVisaImageEditRejected("Enter a valid presentation-edit prompt.")
+        if any(pattern.search(prompt) for pattern in _DISALLOWED_PROMPT_PATTERNS):
+            raise GeminiVisaImageEditRejected(
+                "Visa AI editing cannot change identity, facial traits, age, skin tone, hair, clothing, or accessories."
+            )
+
+    @staticmethod
+    def _canonical_image(content: bytes, target_size: tuple[int, int] | None = None) -> bytes:
+        rendered = render_passport_image_crop(
+            content,
+            x=0.0,
+            y=0.0,
+            width=1.0,
+            height=1.0,
+            rotation_degrees=0,
+            sharpness=1.0,
+        )
+        if target_size is None or (rendered.output_width, rendered.output_height) == target_size:
+            return rendered.content
+        with Image.open(io.BytesIO(rendered.content)) as image:
+            resized = image.resize(target_size, Image.Resampling.LANCZOS)
+            output = io.BytesIO()
+            resized.save(output, format="JPEG", quality=93, optimize=True, progressive=True)
+            resized.close()
+            return output.getvalue()
+
+    @staticmethod
+    def _image_size(content: bytes) -> tuple[int, int]:
+        with Image.open(io.BytesIO(content)) as image:
+            return image.size

@@ -136,7 +136,10 @@ class PassportImageZipExporter:
                                 content = await storage.get_file(effective_crop.derived_storage_key)
                                 extension = ".jpg"
                             except StorageError:
-                                original = await storage.get_file(storage_key)
+                                render_source_key = (
+                                    effective_crop.edit_source_storage_key or storage_key
+                                )
+                                original = await storage.get_file(render_source_key)
                                 rendered = await asyncio.to_thread(
                                     render_saved_passport_image_crop,
                                     original,

@@ -75,14 +75,15 @@ apiClient.interceptors.response.use(
       return apiClient(originalRequest);
     }
 
-    return Promise.reject(buildApiError(error));
+    return Promise.reject(await buildApiError(error));
   },
 );
 
-function buildApiError(error: AxiosError<ApiErrorResponse>): ApiError {
-  const structuredError = error.response?.data?.error;
+async function buildApiError(error: AxiosError<ApiErrorResponse>): Promise<ApiError> {
+  const responseData = await decodeApiErrorResponse(error.response?.data);
+  const structuredError = responseData?.error;
   if (structuredError) return structuredError;
-  const detail = error.response?.data?.detail;
+  const detail = responseData?.detail;
   if (detail) {
     return {
       code: `HTTP_${error.response?.status ?? "ERROR"}`,
@@ -105,6 +106,21 @@ function buildApiError(error: AxiosError<ApiErrorResponse>): ApiError {
     code: `HTTP_${error.response.status}`,
     message: "The request could not be completed. Please try again.",
   };
+}
+
+async function decodeApiErrorResponse(
+  responseData: ApiErrorResponse | Blob | undefined,
+): Promise<ApiErrorResponse | undefined> {
+  if (typeof Blob !== "undefined" && responseData instanceof Blob) {
+    try {
+      const parsed: unknown = JSON.parse(await responseData.text());
+      if (typeof parsed !== "object" || parsed === null) return undefined;
+      return parsed as ApiErrorResponse;
+    } catch {
+      return undefined;
+    }
+  }
+  return responseData as ApiErrorResponse | undefined;
 }
 
 function getRefreshPromise(observedEpoch: string) {

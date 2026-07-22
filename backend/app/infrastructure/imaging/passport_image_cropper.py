@@ -7,7 +7,7 @@ import math
 import warnings
 from dataclasses import dataclass
 
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageEnhance, ImageOps, UnidentifiedImageError
 
 from app.core.config.settings import get_settings
 from app.domain.value_objects.passport_image_crop import PassportImageCrop
@@ -15,6 +15,8 @@ from app.domain.value_objects.passport_image_crop import PassportImageCrop
 MIN_NORMALIZED_CROP_SIZE = 0.08
 MIN_RENDERED_CROP_PIXELS = 32
 SUPPORTED_ROTATIONS = frozenset({0, 90, 180, 270})
+MIN_SHARPNESS = 1.0
+MAX_SHARPNESS = 3.0
 
 
 class PassportImageCropError(ValueError):
@@ -62,8 +64,9 @@ def render_passport_image_crop(
     width: float,
     height: float,
     rotation_degrees: int,
+    sharpness: float = 1.0,
 ) -> RenderedPassportImage:
-    """Rotate then crop canonical source pixels and emit metadata-free JPEG."""
+    """Rotate, crop, sharpen and emit bounded metadata-free JPEG pixels."""
 
     _validate_normalized_crop(
         x=x,
@@ -71,6 +74,7 @@ def render_passport_image_crop(
         width=width,
         height=height,
         rotation_degrees=rotation_degrees,
+        sharpness=sharpness,
     )
     image = _open_canonical_image(content)
     rotated: Image.Image | None = None
@@ -93,6 +97,10 @@ def render_passport_image_crop(
             )
         cropped = rotated.crop((left, top, right, bottom))
         rgb = _to_rgb(cropped)
+        if sharpness != 1.0:
+            sharpened = ImageEnhance.Sharpness(rgb).enhance(sharpness)
+            rgb.close()
+            rgb = sharpened
         output = io.BytesIO()
         rgb.save(
             output,
@@ -133,6 +141,7 @@ def render_saved_passport_image_crop(
         width=crop.width,
         height=crop.height,
         rotation_degrees=crop.rotation_degrees,
+        sharpness=crop.sharpness,
     )
     if rendered.source_width != crop.source_width or rendered.source_height != crop.source_height:
         raise PassportImageCropError(
@@ -215,12 +224,15 @@ def _validate_normalized_crop(
     width: float,
     height: float,
     rotation_degrees: int,
+    sharpness: float = 1.0,
 ) -> None:
-    values = (x, y, width, height)
+    values = (x, y, width, height, sharpness)
     if not all(math.isfinite(value) for value in values):
         raise PassportImageCropError("Crop coordinates must be finite numbers.")
     if rotation_degrees not in SUPPORTED_ROTATIONS:
         raise PassportImageCropError("Choose a supported image rotation.")
+    if sharpness < MIN_SHARPNESS or sharpness > MAX_SHARPNESS:
+        raise PassportImageCropError("Sharpness must be between 100% and 300%.")
     if x < 0 or y < 0 or x > 1 or y > 1:
         raise PassportImageCropError("Crop coordinates must stay inside the image.")
     if width < MIN_NORMALIZED_CROP_SIZE or height < MIN_NORMALIZED_CROP_SIZE:

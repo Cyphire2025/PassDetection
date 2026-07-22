@@ -92,6 +92,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
         f"passport-crops/{submission_ids[0]}/front/1.jpg",
         f"passport-crops/{submission_ids[1]}/photo/2.jpg",
     ]
+    edit_keys = [f"passport-edits/{submission_ids[0]}/photo/3.jpg"]
 
     with (
         patch.object(
@@ -108,6 +109,11 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=derived_keys),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=edit_keys),
         ),
         patch(
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
@@ -136,11 +142,12 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             f"back/{submission_ids[1]}.jpg",
             f"photo/{submission_ids[1]}.jpg",
             *derived_keys,
+            *edit_keys,
         ]
     )
     assert response.deleted_count == 2
     assert response.deleted_submission_ids == submission_ids
-    assert response.deleted_storage_objects == 10
+    assert response.deleted_storage_objects == 11
     assert response.deleted_notifications == 3
     assert response.storage_cleanup_deferred is False
     assert events == ["commit", "storage"]
@@ -154,7 +161,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
     assert audit.await_args.kwargs["action"] == "passport_submissions_bulk_deleted"
     assert audit.await_args.kwargs["metadata"]["deleted_count"] == 2
     assert audit.await_args.kwargs["metadata"]["deleted_notifications"] == 3
-    assert audit.await_args.kwargs["metadata"]["storage_objects_scheduled_for_cleanup"] == 10
+    assert audit.await_args.kwargs["metadata"]["storage_objects_scheduled_for_cleanup"] == 11
 
 
 @pytest.mark.asyncio
@@ -265,6 +272,11 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
             "derived_storage_keys",
             AsyncMock(return_value=["passport-crops/derived.jpg"]),
         ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[]),
+        ),
         patch(
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
             return_value=storage,
@@ -319,6 +331,11 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=["passport-crops/derived.jpg"]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[]),
         ),
         patch(
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",

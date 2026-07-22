@@ -130,7 +130,8 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
         submission=submission,
     )
     derived_key = "passport-crops/manager/front/1.jpg"
-    storage = SimpleNamespace(delete_files=AsyncMock(return_value=5))
+    edit_source_key = "passport-edits/manager/photo/1.jpg"
+    storage = SimpleNamespace(delete_files=AsyncMock(return_value=6))
 
     with (
         patch(
@@ -141,6 +142,11 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=[derived_key]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[edit_source_key]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -170,9 +176,10 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
             "back/original.jpg",
             "visa-photo/original.jpg",
             derived_key,
+            edit_source_key,
         ]
     )
-    assert response.deleted_storage_objects == 5
+    assert response.deleted_storage_objects == 6
     session.delete.assert_awaited_once_with(manager)
     session.flush.assert_awaited_once_with()
 
@@ -206,6 +213,11 @@ async def test_manager_deletion_does_not_mutate_database_after_storage_failure()
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=["passport-crops/manager/front/1.jpg"]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=["passport-edits/manager/photo/1.jpg"]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -241,7 +253,8 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
         submission=submission,
     )
     derived_key = "passport-crops/global/photo/1.jpg"
-    storage = SimpleNamespace(delete_files=AsyncMock(return_value=5))
+    edit_source_key = "passport-edits/global/photo/1.jpg"
+    storage = SimpleNamespace(delete_files=AsyncMock(return_value=6))
 
     with (
         patch(
@@ -252,6 +265,11 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=[derived_key]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[edit_source_key]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",
@@ -292,9 +310,10 @@ async def test_global_passport_data_purge_removes_every_passport_object() -> Non
             "back/original.jpg",
             "visa-photo/original.jpg",
             derived_key,
+            edit_source_key,
         ]
     )
-    assert response.deleted_storage_objects == 5
+    assert response.deleted_storage_objects == 6
 
 
 @pytest.mark.asyncio
@@ -315,6 +334,11 @@ async def test_agency_purge_scopes_submissions_through_authorized_groups() -> No
         patch.object(
             PassportImageCropRepository,
             "derived_storage_keys",
+            AsyncMock(return_value=[]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
             AsyncMock(return_value=[]),
         ),
         patch(
@@ -377,6 +401,11 @@ async def test_global_purge_does_not_delete_database_rows_after_storage_failure(
             PassportImageCropRepository,
             "derived_storage_keys",
             AsyncMock(return_value=["passport-crops/global/photo/1.jpg"]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=["passport-edits/global/photo/1.jpg"]),
         ),
         patch(
             "app.presentation.api.v1.routes.admin._delete_entity_rows",

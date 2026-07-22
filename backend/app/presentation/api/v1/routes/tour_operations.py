@@ -19,6 +19,7 @@ from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.security.password import hash_password
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
+    GroupStatus,
     User,
     UserRole,
 )
@@ -112,6 +113,10 @@ COORDINATOR_ACCOUNT_ROLES = [
 ]
 SUBMITTED_PASSENGER_STATUSES = OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 SCANNABLE_ATTENDANCE_STATUSES = ("active", "completed")
+TOUR_OPERATION_GROUP_STATUSES = (
+    GroupStatus.ACTIVE.value,
+    GroupStatus.CLOSED.value,
+)
 
 
 def _require_agency(current_user: User) -> uuid.UUID:
@@ -373,7 +378,7 @@ async def list_tour_operation_groups(
 ) -> list[TourOperationsGroupResponse]:
     agency_id = _agency_scope(current_user)
     filters = [
-        ClientGroupModel.status != "deleted",
+        ClientGroupModel.status.in_(TOUR_OPERATION_GROUP_STATUSES),
     ]
     if agency_id is not None:
         filters.append(ClientGroupModel.agency_id == agency_id)

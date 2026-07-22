@@ -41,16 +41,18 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     submission_id = uuid.uuid4()
     user_id = uuid.uuid4()
 
-    first, previous = await repository.upsert(
+    first, previous, previous_edit = await repository.upsert(
         submission_id=submission_id,
         image_type=PassportImageType.PASSPORT_FRONT,
         source_storage_key="original/front-v1.jpg",
+        edit_source_storage_key=None,
         derived_storage_key="derived/front-r1.jpg",
         x=0.1,
         y=0.1,
         width=0.8,
         height=0.8,
         rotation_degrees=0,
+        sharpness=1.0,
         source_width=1000,
         source_height=700,
         updated_by_user_id=user_id,
@@ -59,8 +61,9 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert first.revision == 1
     assert first.active is True
     assert previous is None
+    assert previous_edit is None
 
-    reset, removed = await repository.reset(
+    reset, removed, removed_edit = await repository.reset(
         submission_id=submission_id,
         image_type=PassportImageType.PASSPORT_FRONT,
         updated_by_user_id=user_id,
@@ -70,10 +73,11 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert reset.revision == 2
     assert reset.active is False
     assert removed == "derived/front-r1.jpg"
+    assert removed_edit is None
 
     # Resetting an already-reset image is idempotent and does not create an
     # ABA revision window.
-    repeated, removed_again = await repository.reset(
+    repeated, removed_again, removed_edit_again = await repository.reset(
         submission_id=submission_id,
         image_type=PassportImageType.PASSPORT_FRONT,
         updated_by_user_id=user_id,
@@ -82,18 +86,21 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert repeated is not None
     assert repeated.revision == 2
     assert removed_again is None
+    assert removed_edit_again is None
 
     with pytest.raises(PassportImageCropRevisionConflict) as stale:
         await repository.upsert(
             submission_id=submission_id,
             image_type=PassportImageType.PASSPORT_FRONT,
             source_storage_key="original/front-v1.jpg",
+            edit_source_storage_key=None,
             derived_storage_key="derived/stale.jpg",
             x=0.1,
             y=0.1,
             width=0.8,
             height=0.8,
             rotation_degrees=0,
+            sharpness=1.0,
             source_width=1000,
             source_height=700,
             updated_by_user_id=user_id,
@@ -101,16 +108,18 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
         )
     assert stale.value.current_revision == 2
 
-    third, _ = await repository.upsert(
+    third, _, _ = await repository.upsert(
         submission_id=submission_id,
         image_type=PassportImageType.PASSPORT_FRONT,
         source_storage_key="original/front-v2.jpg",
+        edit_source_storage_key=None,
         derived_storage_key="derived/front-r3.jpg",
         x=0.0,
         y=0.0,
         width=1.0,
         height=1.0,
         rotation_degrees=90,
+        sharpness=1.5,
         source_width=700,
         source_height=1000,
         updated_by_user_id=user_id,
@@ -119,3 +128,4 @@ async def test_revision_is_monotonic_across_reset_and_recrop() -> None:
     assert third.revision == 3
     assert third.active is True
     assert third.source_storage_key == "original/front-v2.jpg"
+    assert third.sharpness == 1.5

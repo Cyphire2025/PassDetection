@@ -31,6 +31,7 @@ class PassportImageCropRepository:
             submission_id=model.submission_id,
             image_type=PassportImageType(model.image_type),
             source_storage_key=model.source_storage_key,
+            edit_source_storage_key=model.edit_source_storage_key,
             derived_storage_key=model.derived_storage_key,
             active=model.active,
             x=model.crop_x,
@@ -38,6 +39,7 @@ class PassportImageCropRepository:
             width=model.crop_width,
             height=model.crop_height,
             rotation_degrees=model.rotation_degrees,
+            sharpness=model.sharpness,
             source_width=model.source_width,
             source_height=model.source_height,
             revision=model.revision,
@@ -86,17 +88,19 @@ class PassportImageCropRepository:
         submission_id: uuid.UUID,
         image_type: PassportImageType,
         source_storage_key: str,
+        edit_source_storage_key: str | None,
         derived_storage_key: str,
         x: float,
         y: float,
         width: float,
         height: float,
         rotation_degrees: int,
+        sharpness: float,
         source_width: int,
         source_height: int,
         updated_by_user_id: uuid.UUID,
         expected_revision: int | None,
-    ) -> tuple[PassportImageCrop, str | None]:
+    ) -> tuple[PassportImageCrop, str | None, str | None]:
         result = await self._session.execute(
             select(PassportImageCropModel)
             .where(
@@ -111,12 +115,14 @@ class PassportImageCropRepository:
             raise PassportImageCropRevisionConflict(current_revision)
 
         previous_derived_key = model.derived_storage_key if model else None
+        previous_edit_source_key = model.edit_source_storage_key if model else None
         now = datetime.now(tz=UTC)
         if model is None:
             model = PassportImageCropModel(
                 submission_id=submission_id,
                 image_type=image_type.value,
                 source_storage_key=source_storage_key,
+                edit_source_storage_key=edit_source_storage_key,
                 derived_storage_key=derived_storage_key,
                 active=True,
                 crop_x=x,
@@ -124,6 +130,7 @@ class PassportImageCropRepository:
                 crop_width=width,
                 crop_height=height,
                 rotation_degrees=rotation_degrees,
+                sharpness=sharpness,
                 source_width=source_width,
                 source_height=source_height,
                 revision=1,
@@ -134,6 +141,7 @@ class PassportImageCropRepository:
             self._session.add(model)
         else:
             model.source_storage_key = source_storage_key
+            model.edit_source_storage_key = edit_source_storage_key
             model.derived_storage_key = derived_storage_key
             model.active = True
             model.crop_x = x
@@ -141,13 +149,14 @@ class PassportImageCropRepository:
             model.crop_width = width
             model.crop_height = height
             model.rotation_degrees = rotation_degrees
+            model.sharpness = sharpness
             model.source_width = source_width
             model.source_height = source_height
             model.revision += 1
             model.updated_by_user_id = updated_by_user_id
             model.updated_at = now
         await self._session.flush()
-        return self._to_value(model), previous_derived_key
+        return self._to_value(model), previous_derived_key, previous_edit_source_key
 
     async def reset(
         self,
@@ -156,7 +165,7 @@ class PassportImageCropRepository:
         image_type: PassportImageType,
         updated_by_user_id: uuid.UUID,
         expected_revision: int | None,
-    ) -> tuple[PassportImageCrop | None, str | None]:
+    ) -> tuple[PassportImageCrop | None, str | None, str | None]:
         result = await self._session.execute(
             select(PassportImageCropModel)
             .where(
@@ -170,18 +179,21 @@ class PassportImageCropRepository:
         if expected_revision is not None and expected_revision != current_revision:
             raise PassportImageCropRevisionConflict(current_revision)
         if model is None:
-            return None, None
-        if not model.active and not model.derived_storage_key:
-            return self._to_value(model), None
+            return None, None, None
+        if not model.active and not model.derived_storage_key and not model.edit_source_storage_key:
+            return self._to_value(model), None, None
 
         previous_derived_key = model.derived_storage_key
+        previous_edit_source_key = model.edit_source_storage_key
         model.active = False
         model.derived_storage_key = None
+        model.edit_source_storage_key = None
+        model.sharpness = 1.0
         model.revision += 1
         model.updated_by_user_id = updated_by_user_id
         model.updated_at = datetime.now(tz=UTC)
         await self._session.flush()
-        return self._to_value(model), previous_derived_key
+        return self._to_value(model), previous_derived_key, previous_edit_source_key
 
     async def derived_storage_keys(
         self,
@@ -193,6 +205,20 @@ class PassportImageCropRepository:
             select(PassportImageCropModel.derived_storage_key).where(
                 PassportImageCropModel.submission_id.in_(set(submission_ids)),
                 PassportImageCropModel.derived_storage_key.is_not(None),
+            )
+        )
+        return list(dict.fromkeys(key for key in result.scalars().all() if key))
+
+    async def edit_storage_keys(
+        self,
+        submission_ids: list[uuid.UUID] | set[uuid.UUID],
+    ) -> list[str]:
+        if not submission_ids:
+            return []
+        result = await self._session.execute(
+            select(PassportImageCropModel.edit_source_storage_key).where(
+                PassportImageCropModel.submission_id.in_(set(submission_ids)),
+                PassportImageCropModel.edit_source_storage_key.is_not(None),
             )
         )
         return list(dict.fromkeys(key for key in result.scalars().all() if key))

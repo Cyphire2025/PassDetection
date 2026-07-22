@@ -169,7 +169,7 @@ test("DOCS view prefers real saved or local image previews and never shows an Ac
   assert.match(source, /documentThumbnailUrl\(url\)/);
   assert.match(source, /src=\{loadUrl\}/);
   assert.match(source, /fetchPriority="low"/);
-  assert.match(source, /\{file \? \([\s\S]*?<LocalDocumentThumbnail file=\{file\}[\s\S]*?\) : url \? \(/);
+  assert.match(source, /\{file \? \([\s\S]*?<LocalDocumentThumbnail file=\{file\}[\s\S]*?\) : effectiveUrl \? \(/);
   assert.match(source, /URL\.revokeObjectURL\(nextUrl\)/);
   assert.match(source, /object-contain/);
   assert.equal((source.match(/loading="lazy"/g) ?? []).length, 1);
@@ -178,6 +178,7 @@ test("DOCS view prefers real saved or local image previews and never shows an Ac
   assert.doesNotMatch(source, /object-cover/);
   assert.doesNotMatch(source, />\s*Accepted\s*</);
   assert.match(source, /No document/);
+  assert.match(source, /<Pencil className="h-3\.5 w-3\.5" \/> Edit/);
 });
 
 test("DOCS network previews use bounded same-origin thumbnail scheduling", () => {

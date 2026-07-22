@@ -219,6 +219,7 @@ async def test_stale_crop_save_returns_409_and_cleans_uncommitted_derivative() -
     submission_repository = MagicMock()
     submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
     crop_repository = MagicMock()
+    crop_repository.get = AsyncMock(return_value=None)
     crop_repository.upsert = AsyncMock(side_effect=PassportImageCropRevisionConflict(4))
     session = MagicMock()
     session.rollback = AsyncMock()

@@ -22,9 +22,9 @@ export function LoginForm() {
   });
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h2 className="mb-1 text-base font-semibold text-slate-900">Sign in to your account</h2>
-      <p className="mb-6 text-sm text-slate-500">
+    <div className="bg-transparent p-3 text-white sm:p-4 [&_label]:text-white [&_label]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
+      <h2 className="mb-1 text-base font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">Sign in to your account</h2>
+      <p className="mb-4 text-sm font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
         Enter your credentials to access the platform
       </p>
 
@@ -63,7 +63,7 @@ export function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-5 text-center text-xs text-slate-500">
+      <p className="mt-3 text-center text-xs font-medium text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
         Contact your manager or super-admin if your access needs to be reset.
       </p>
     </div>

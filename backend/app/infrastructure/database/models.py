@@ -695,7 +695,7 @@ class PassportSubmissionModel(Base):
 
 
 class PassportImageCropModel(Base):
-    """Non-destructive crop metadata and its revisioned display derivative."""
+    """Non-destructive image-edit metadata and its revisioned display derivative."""
 
     __tablename__ = "passport_image_crops"
     __table_args__ = (
@@ -711,6 +711,10 @@ class PassportImageCropModel(Base):
             name="ck_passport_image_crops_bounds",
         ),
         CheckConstraint("source_width > 0 AND source_height > 0", name="ck_passport_image_crops_source_size"),
+        CheckConstraint(
+            "sharpness >= 1.0 AND sharpness <= 3.0",
+            name="ck_passport_image_crops_sharpness",
+        ),
         CheckConstraint("revision > 0", name="ck_passport_image_crops_revision"),
     )
 
@@ -723,6 +727,7 @@ class PassportImageCropModel(Base):
     )
     image_type: Mapped[str] = mapped_column(String(24), nullable=False)
     source_storage_key: Mapped[str] = mapped_column(String(512), nullable=False)
+    edit_source_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     derived_storage_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
     crop_x: Mapped[float] = mapped_column(Float, nullable=False)
@@ -730,6 +735,12 @@ class PassportImageCropModel(Base):
     crop_width: Mapped[float] = mapped_column(Float, nullable=False)
     crop_height: Mapped[float] = mapped_column(Float, nullable=False)
     rotation_degrees: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sharpness: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+        default=1.0,
+        server_default="1.0",
+    )
     source_width: Mapped[int] = mapped_column(Integer, nullable=False)
     source_height: Mapped[int] = mapped_column(Integer, nullable=False)
     revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)

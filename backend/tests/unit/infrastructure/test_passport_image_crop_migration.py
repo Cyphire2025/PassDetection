@@ -7,12 +7,12 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 
-def _load_migration():
+def _load_migration(filename: str = "0044_passport_image_crops.py"):
     migration_path = (
         Path(__file__).resolve().parents[3]
         / "alembic"
         / "versions"
-        / "0044_passport_image_crops.py"
+        / filename
     )
     spec = importlib.util.spec_from_file_location("passport_image_crop_migration", migration_path)
     assert spec is not None and spec.loader is not None
@@ -42,3 +42,21 @@ def test_crop_migration_is_reversible_without_touching_submission_images() -> No
         migration.downgrade()
     operation_proxy.drop_index.assert_called_once()
     operation_proxy.drop_table.assert_called_once_with("passport_image_crops")
+
+
+def test_image_edit_migration_is_additive_and_follows_current_head() -> None:
+    migration = _load_migration("0047_passport_image_edits.py")
+    assert migration.revision == "0047_passport_image_edits"
+    assert migration.down_revision == "0046_agent_employee_code"
+
+    operation_proxy = MagicMock()
+    with patch.object(migration, "op", operation_proxy):
+        migration.upgrade()
+
+    assert operation_proxy.add_column.call_count == 2
+    operation_proxy.create_check_constraint.assert_called_once_with(
+        "ck_passport_image_crops_sharpness",
+        "passport_image_crops",
+        "sharpness >= 1.0 AND sharpness <= 3.0",
+    )
+    operation_proxy.drop_table.assert_not_called()

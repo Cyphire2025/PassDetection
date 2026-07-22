@@ -38,6 +38,15 @@ from app.infrastructure.repositories.user_repository import UserRepository
 
 _bearer = HTTPBearer(auto_error=False)
 
+# WhatsApp broadcasts expose recipient lists and outbound messaging controls.
+# Keep the capability allowlist centralized so the main broadcast routes and
+# group-link integration cannot drift apart.
+WHATSAPP_BROADCAST_ROLES = [
+    UserRole.SUPER_ADMIN,
+    UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
+]
+
 
 # ── Repository Dependency ─────────────────────────────────────────────────────
 

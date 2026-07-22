@@ -152,8 +152,14 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
     )
     worksheet = _worksheet(content)
     headers = [cell.value for cell in worksheet[4]]
+    group_column = headers.index("Group") + 1
+    second_row = next(
+        row
+        for row in range(5, worksheet.max_row + 1)
+        if worksheet.cell(row=row, column=group_column).value == "Second"
+    )
     second_values = {
-        header: worksheet.cell(row=6, column=index + 1).value
+        header: worksheet.cell(row=second_row, column=index + 1).value
         for index, header in enumerate(headers)
     }
 
@@ -167,6 +173,54 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
     assert second_values["Staff Code"] == "STF_GC-77"
     assert second_values["Agent/Employee Code"] == "AGT_9988"
     assert second_values["Meal Preference"] == "Jain"
+
+
+def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> None:
+    group_id = uuid.uuid4()
+    delhi_two = _submission(group_id, client_name="Zed", fields={"passport_number": "D2"})
+    mumbai_two = _submission(group_id, client_name="Beta", fields={"passport_number": "M2"})
+    delhi_one = _submission(group_id, client_name="Alpha", fields={"passport_number": "D1"})
+    mumbai_one = _submission(group_id, client_name="Alpha", fields={"passport_number": "M1"})
+    without_zone = _submission(group_id, client_name="No Zone", fields={"passport_number": "NZ"})
+    zone_names = {
+        delhi_two.id: "Delhi",
+        delhi_one.id: "Delhi",
+        mumbai_one.id: "Mumbai-1",
+        mumbai_two.id: "Mumbai-2",
+    }
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [mumbai_two, delhi_two, without_zone, mumbai_one, delhi_one],
+            group_name="Zone Group",
+            group_details={group_id: {"name": "Zone Group", **_OPTION_FLAGS}},
+            zone_names=zone_names,
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+    zone_column = headers.index("Zone Name") + 1
+    name_column = headers.index("Client Name") + 1
+    data_or_gap_rows = [
+        (
+            worksheet.cell(row=row, column=zone_column).value,
+            worksheet.cell(row=row, column=name_column).value,
+        )
+        for row in range(5, worksheet.max_row + 1)
+    ]
+
+    assert data_or_gap_rows == [
+        ("Delhi", "Alpha"),
+        ("Delhi", "Zed"),
+        (None, None),
+        (None, None),
+        ("Mumbai-1", "Alpha"),
+        (None, None),
+        (None, None),
+        ("Mumbai-2", "Beta"),
+        (None, None),
+        (None, None),
+        (None, "No Zone"),
+    ]
 
 
 @pytest.mark.parametrize(

@@ -117,15 +117,30 @@ export interface PassportImageCropRect {
 export interface PassportImageCropState {
   image_type: PassportImageType;
   original_url: string;
+  editable_source_url: string;
   cropped_url: string;
   crop: PassportImageCropRect | null;
   revision: number;
   source_width: number | null;
   source_height: number | null;
+  sharpness: number;
+  ai_edited: boolean;
 }
 
 export interface SavePassportImageCropRequest extends PassportImageCropRect {
+  sharpness: number;
   expected_revision: number;
+}
+
+export interface VisaAiEditPreview {
+  blob: Blob;
+  token: string;
+}
+
+export interface ApplyVisaAiEditRequest extends SavePassportImageCropRequest {
+  image: Blob;
+  previewToken: string;
+  prompt: string;
 }
 
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
@@ -189,6 +204,60 @@ export const passportsApi = {
     const { data } = await apiClient.get<Blob>(
       API_ENDPOINTS.passports.originalImage(id, imageType),
       { responseType: "blob", signal },
+    );
+    return data;
+  },
+
+  getEditableImage: async (
+    url: string,
+    signal?: AbortSignal,
+  ): Promise<Blob> => {
+    const { data } = await apiClient.get<Blob>(url, {
+      responseType: "blob",
+      signal,
+    });
+    return data;
+  },
+
+  generateVisaAiPreview: async (
+    id: string,
+    prompt: string,
+    signal?: AbortSignal,
+  ): Promise<VisaAiEditPreview> => {
+    const response = await apiClient.post<Blob>(
+      API_ENDPOINTS.passports.visaAiPreview(id),
+      { prompt },
+      { responseType: "blob", timeout: 120_000, signal },
+    );
+    const token = response.headers["x-visa-ai-edit-token"];
+    if (typeof token !== "string" || !token) {
+      throw new Error("The generated Visa image could not be verified.");
+    }
+    return { blob: response.data, token };
+  },
+
+  applyVisaAiEdit: async (
+    id: string,
+    request: ApplyVisaAiEditRequest,
+  ): Promise<PassportImageCropState> => {
+    const formData = new FormData();
+    formData.append("image", request.image, "visa-ai-preview.jpg");
+    formData.append("preview_token", request.previewToken);
+    formData.append("prompt", request.prompt);
+    formData.append("x", String(request.x));
+    formData.append("y", String(request.y));
+    formData.append("width", String(request.width));
+    formData.append("height", String(request.height));
+    formData.append("rotation_degrees", String(request.rotation_degrees));
+    formData.append("sharpness", String(request.sharpness));
+    formData.append("expected_revision", String(request.expected_revision));
+    const { data } = await apiClient.post<PassportImageCropState>(
+      API_ENDPOINTS.passports.visaAiApply(id),
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 120_000,
+      },
     );
     return data;
   },

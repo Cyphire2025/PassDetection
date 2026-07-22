@@ -41,6 +41,7 @@ _COLUMNS = (
     _ExportColumn("Travel/Departure Date", 22, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Return Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Client Name", 24),
+    _ExportColumn("Zone Name", 22),
     _ExportColumn("Email", 28),
     _ExportColumn("Phone", 18),
     _ExportColumn(
@@ -164,6 +165,7 @@ class PassportExcelExporter:
         *,
         group_name: str,
         group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None = None,
+        zone_names: dict[uuid.UUID, str] | None = None,
     ) -> bytes:
         columns = self._enabled_columns(submissions, group_details)
         headers = [column.header for column in columns]
@@ -187,16 +189,33 @@ class PassportExcelExporter:
             cell.fill = PatternFill("solid", fgColor="1D4ED8")
             cell.alignment = Alignment(horizontal="center")
 
-        for submission in submissions:
+        ordered_submissions = sorted(
+            submissions,
+            key=lambda submission: self._submission_sort_key(
+                submission,
+                zone_names,
+            ),
+        )
+        previous_zone_key: str | None = None
+        has_written_submission = False
+        for submission in ordered_submissions:
             fields = submission.confirmed_fields or submission.extracted_fields or {}
             staff_metadata = submission.staff_metadata or {}
             details = (group_details or {}).get(submission.group_id, {})
+            zone_name = self._zone_name(submission, zone_names)
+            zone_key = zone_name.casefold()
+            if has_written_submission and zone_key != previous_zone_key:
+                # Keep operational zone batches visually separate without
+                # mutating the underlying submission or WhatsApp data.
+                worksheet.append([])
+                worksheet.append([])
             values = {
                 "Group": details.get("name") or group_name,
                 "Destination": details.get("destination"),
                 "Travel/Departure Date": details.get("travel_date"),
                 "Return Date": details.get("return_date"),
                 "Client Name": submission.client_name,
+                "Zone Name": zone_name or None,
                 "Email": submission.client_email,
                 "Phone": submission.client_phone,
                 "Nearest International Airport": submission.departure_city,
@@ -240,10 +259,12 @@ class PassportExcelExporter:
                 cell = worksheet.cell(row=row_index, column=column_index)
                 if column.number_format and isinstance(cell.value, (date, datetime)):
                     cell.number_format = column.number_format
+            previous_zone_key = zone_key
+            has_written_submission = True
 
-        if submissions:
+        if ordered_submissions:
             last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter
-            table_ref = f"A{header_row}:{last_column}{header_row + len(submissions)}"
+            table_ref = f"A{header_row}:{last_column}{worksheet.max_row}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
@@ -261,6 +282,30 @@ class PassportExcelExporter:
         buffer = io.BytesIO()
         workbook.save(buffer)
         return buffer.getvalue()
+
+    @staticmethod
+    def _zone_name(
+        submission: PassportSubmission,
+        zone_names: dict[uuid.UUID, str] | None,
+    ) -> str:
+        matched_zone = (zone_names or {}).get(submission.id)
+        fallback_zone = (submission.staff_metadata or {}).get("zone_name")
+        value = matched_zone if matched_zone not in (None, "") else fallback_zone
+        return " ".join(str(value or "").strip().split())
+
+    @classmethod
+    def _submission_sort_key(
+        cls,
+        submission: PassportSubmission,
+        zone_names: dict[uuid.UUID, str] | None,
+    ) -> tuple[bool, str, str, str]:
+        zone_name = cls._zone_name(submission, zone_names)
+        return (
+            not bool(zone_name),
+            zone_name.casefold(),
+            submission.client_name.casefold(),
+            str(submission.id),
+        )
 
     @staticmethod
     def _enabled_columns(

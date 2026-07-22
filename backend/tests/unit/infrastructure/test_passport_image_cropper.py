@@ -105,3 +105,50 @@ def test_thumbnail_renderer_bounds_dimensions_and_strips_metadata() -> None:
     with Image.open(io.BytesIO(rendered.content)) as result:
         assert result.size == (320, 160)
         assert result.getexif() == {}
+
+
+def test_renderer_applies_bounded_sharpness_and_strips_metadata() -> None:
+    source = Image.new("RGB", (120, 120), "white")
+    for offset in range(40, 80):
+        source.putpixel((offset, 60), (30, 30, 30))
+    output = io.BytesIO()
+    source.save(output, format="JPEG", quality=95)
+    source.close()
+
+    normal = render_passport_image_crop(
+        output.getvalue(),
+        x=0,
+        y=0,
+        width=1,
+        height=1,
+        rotation_degrees=0,
+        sharpness=1,
+    )
+    sharpened = render_passport_image_crop(
+        output.getvalue(),
+        x=0,
+        y=0,
+        width=1,
+        height=1,
+        rotation_degrees=0,
+        sharpness=3,
+    )
+
+    assert sharpened.content != normal.content
+    with Image.open(io.BytesIO(sharpened.content)) as result:
+        assert result.size == (120, 120)
+        assert result.getexif() == {}
+
+
+@pytest.mark.parametrize("sharpness", (0.99, 3.01, math.inf))
+def test_renderer_rejects_out_of_range_sharpness(sharpness: float) -> None:
+    with pytest.raises(PassportImageCropError, match="Sharpness|finite"):
+        render_passport_image_crop(
+            _jpeg(),
+            x=0,
+            y=0,
+            width=1,
+            height=1,
+            rotation_degrees=0,
+            sharpness=sharpness,
+        )

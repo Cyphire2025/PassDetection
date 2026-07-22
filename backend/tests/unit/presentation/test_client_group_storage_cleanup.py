@@ -78,6 +78,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
         delete_files=AsyncMock(return_value=5),
     )
     derived_key = "passport-crops/group/front/1.jpg"
+    edit_source_key = "passport-edits/group/photo/1.jpg"
 
     with (
         patch.object(
@@ -106,6 +107,11 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             AsyncMock(return_value=[derived_key]),
         ),
         patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[edit_source_key]),
+        ),
+        patch.object(
             AuditLogRepository,
             "record",
             AsyncMock(return_value=None),
@@ -125,6 +131,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             "back/original.jpg",
             "visa/original.jpg",
             derived_key,
+            edit_source_key,
         ]
     )
     statements = [

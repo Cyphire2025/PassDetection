@@ -237,6 +237,7 @@ class Settings(BaseSettings):
     gemini_verification_enabled: bool = True
     gemini_model: str = "gemini-3.5-flash"
     gemini_fallback_model: str = "gemini-3.1-flash-lite"
+    gemini_image_edit_model: str = ""
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_project_alias: str = Field(
         default="unconfigured",

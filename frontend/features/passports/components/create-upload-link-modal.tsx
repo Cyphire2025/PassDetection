@@ -7,6 +7,8 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
+import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import {
   getPassportUploadTargets,
   type PassportUploadTarget,
@@ -22,6 +24,8 @@ interface CreateUploadLinkModalProps {
 }
 
 export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModalProps) {
+  const role = useAuthStore(selectUserRole);
+  const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
   const [cityInput, setCityInput] = useState("");
@@ -126,6 +130,9 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
           ? normalizeCities(data.departure_cities)
           : [],
         notes: data.notes || null,
+        whatsapp_broadcast_group_ids: canAccessWhatsApp
+          ? data.whatsapp_broadcast_group_ids
+          : [],
       });
       setGeneratedTargets(getPassportUploadTargets(result.token));
     } catch {
@@ -403,16 +410,18 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 />
               </div>
 
-              <WhatsAppBroadcastSelector
-                selectedIds={whatsappBroadcastGroupIds}
-                onChange={(ids) => setValue(
-                  "whatsapp_broadcast_group_ids",
-                  ids,
-                  { shouldDirty: true, shouldValidate: true },
-                )}
-                disabled={isPending}
-                description="Optional. Link the group to one or more existing broadcasts now so recipient submissions can be tracked from the beginning."
-              />
+              {canAccessWhatsApp && (
+                <WhatsAppBroadcastSelector
+                  selectedIds={whatsappBroadcastGroupIds}
+                  onChange={(ids) => setValue(
+                    "whatsapp_broadcast_group_ids",
+                    ids,
+                    { shouldDirty: true, shouldValidate: true },
+                  )}
+                  disabled={isPending}
+                  description="Optional. Link the group to one or more existing broadcasts now so recipient submissions can be tracked from the beginning."
+                />
+              )}
 
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 This will generate:

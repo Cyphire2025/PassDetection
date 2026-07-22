@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle2, Crop, ExternalLink, Loader2, QrCode, RotateCcw, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
@@ -332,7 +332,7 @@ function PassportImagePreview({
                 data-image-type={imageType}
                 className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                <Crop className="h-3.5 w-3.5" /> Crop
+                <Pencil className="h-3.5 w-3.5" /> Edit
               </button>
             )}
           </div>

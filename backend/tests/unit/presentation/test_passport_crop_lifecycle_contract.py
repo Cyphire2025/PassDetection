@@ -17,10 +17,14 @@ def test_both_staff_import_paths_version_sources_and_tombstone_existing_crops() 
 
 
 def test_permanent_deletion_paths_collect_crop_derivatives() -> None:
-    assert "derived_storage_keys" in inspect.getsource(passports.bulk_delete_passport_submissions)
-    assert "derived_storage_keys" in inspect.getsource(client_groups.permanently_delete_client_group)
-    assert "derived_storage_keys" in inspect.getsource(admin.delete_manager)
-    assert "derived_storage_keys" in inspect.getsource(admin.purge_passport_data)
+    for source in (
+        inspect.getsource(passports.bulk_delete_passport_submissions),
+        inspect.getsource(client_groups.permanently_delete_client_group),
+        inspect.getsource(admin.delete_manager),
+        inspect.getsource(admin.purge_passport_data),
+    ):
+        assert "derived_storage_keys" in source
+        assert "edit_storage_keys" in source
 
 
 def test_crop_routes_do_not_mutate_original_storage_keys() -> None:

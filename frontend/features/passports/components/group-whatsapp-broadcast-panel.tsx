@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import {
@@ -26,6 +27,12 @@ import {
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils/cn";
 import { formatDateTime } from "@/lib/utils/format";
+import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
+import {
+  selectHasHydrated,
+  selectUserRole,
+  useAuthStore,
+} from "@/stores/auth.store";
 import type {
   GroupWhatsAppMatch,
   GroupWhatsAppMatchStatus,
@@ -71,6 +78,22 @@ export function GroupWhatsAppBroadcastTrackingPage({
 }: {
   groupId: string;
 }) {
+  const router = useRouter();
+  const hasHydrated = useAuthStore(selectHasHydrated);
+  const role = useAuthStore(selectUserRole);
+  const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
+
+  useEffect(() => {
+    if (!hasHydrated || role === null || canAccessWhatsApp) return;
+    router.replace(
+      (role === "agency_coordinator"
+        ? ROUTES.coordinator
+        : ROUTES.dashboard.passports) as never,
+    );
+  }, [canAccessWhatsApp, hasHydrated, role, router]);
+
+  if (!hasHydrated || !canAccessWhatsApp) return null;
+
   return (
     <div className="space-y-6">
       <PageHeader

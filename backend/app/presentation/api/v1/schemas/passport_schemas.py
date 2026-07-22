@@ -22,6 +22,7 @@ class PassportImageCropCoordinates(BaseModel):
     width: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
     height: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
     rotation_degrees: Literal[0, 90, 180, 270] = 0
+    sharpness: float = Field(default=1.0, ge=1.0, le=3.0, allow_inf_nan=False)
 
     @model_validator(mode="after")
     def validate_bounds(self) -> PassportImageCropCoordinates:
@@ -45,11 +46,20 @@ class PassportImageCropResponse(BaseModel):
 
     image_type: PassportImageTypeValue
     original_url: str
+    editable_source_url: str
     cropped_url: str
     crop: PassportImageCropCoordinates | None = None
     source_width: int | None = Field(default=None, ge=1)
     source_height: int | None = Field(default=None, ge=1)
+    sharpness: float = Field(default=1.0, ge=1.0, le=3.0)
+    ai_edited: bool = False
     revision: int = Field(default=0, ge=0)
+
+
+class PassportVisaAiPreviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    prompt: str = Field(..., min_length=3, max_length=1000)
 
 
 class ConfirmPassportSubmissionRequest(BaseModel):

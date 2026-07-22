@@ -495,9 +495,9 @@ async def delete_manager(
         submissions = list(submission_rows.all()) if submission_rows else []
         submission_ids = [row.id for row in submissions]
         storage_keys = passport_storage_keys(submissions)
-        storage_keys.extend(
-            await PassportImageCropRepository(session).derived_storage_keys(submission_ids)
-        )
+        crop_repository = PassportImageCropRepository(session)
+        storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
+        storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
         response.deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
         group_entity_ids = [str(group_id) for group_id in group_ids]
@@ -613,9 +613,9 @@ async def purge_passport_data(
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
     storage_keys = passport_storage_keys(submissions)
-    storage_keys.extend(
-        await PassportImageCropRepository(session).derived_storage_keys(submission_ids)
-    )
+    crop_repository = PassportImageCropRepository(session)
+    storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
+    storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
     deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
 

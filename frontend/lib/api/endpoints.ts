@@ -108,6 +108,10 @@ export const API_ENDPOINTS = {
       id: string,
       imageType: "visa_photo" | "passport_front" | "passport_back",
     ) => `/api/v1/passports/${id}/images/${imageType}/original`,
+    visaAiPreview: (id: string) =>
+      `/api/v1/passports/${id}/images/visa_photo/ai-preview`,
+    visaAiApply: (id: string) =>
+      `/api/v1/passports/${id}/images/visa_photo/ai-apply`,
     upload: (token: string) => `/api/v1/passports/upload/${token}`,
     reconcileUpload: (token: string) => `/api/v1/passports/upload/${token}`,
     uploadStatus: (token: string, id: string) => `/api/v1/passports/upload/${token}/${id}/status`,

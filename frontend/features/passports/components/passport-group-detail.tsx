@@ -17,6 +17,7 @@ import {
 } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
@@ -34,7 +35,9 @@ import type {
   PassportDocumentImportPreview,
   PassportGroupSubmissionFilter,
   PassportGroupSubmissionSort,
+  PassportImageType,
 } from "../api/passports.api";
+import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
 import {
   acquireDocumentThumbnailSlot,
   documentThumbnailUrl,
@@ -42,6 +45,7 @@ import {
 import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
 import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
+import { PassportImageCropEditor } from "./passport-image-crop-editor";
 
 interface PassportGroupDetailProps {
   groupId: string;
@@ -52,6 +56,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const includeDeleted = searchParams.get("old_data") === "1";
   const role = useAuthStore(selectUserRole);
   const canPermanentlyDelete = role === "super_admin" || role === "agency_admin";
+  const canEditImages = canEditPassportImages(role);
+  const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedPassports, setSelectedPassports] = useState<string[]>([]);
@@ -61,6 +67,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const [page, setPage] = useState(1);
   const pageSize = 50;
   const [viewMode, setViewMode] = useState<"table" | "docs">("table");
+  const [imageRevision, setImageRevision] = useState(0);
+  const [imageEditor, setImageEditor] = useState<{
+    submissionId: string;
+    imageType: PassportImageType;
+    label: string;
+    returnFocusTarget: HTMLButtonElement;
+  } | null>(null);
   const [isExpiryAlertsExpanded, setIsExpiryAlertsExpanded] = useState(true);
   const expiryAlertsRegionId = useId();
   const {
@@ -68,6 +81,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     isLoading,
     error,
     isFetching,
+    refetch: refetchSubmissions,
   } = useGroupSubmissionsView(groupId, {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
     include_deleted: includeDeleted,
@@ -430,7 +444,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
 
       {!includeDeleted && (
         <>
-          <GroupWhatsAppBroadcastPanel groupId={groupId} />
+          {canAccessWhatsApp && (
+            <GroupWhatsAppBroadcastPanel groupId={groupId} />
+          )}
           <GroupDocumentDeliveryPanel groupId={groupId} />
         </>
       )}
@@ -713,7 +729,14 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           }}
         />
       ) : viewMode === "docs" ? (
-        <PassportDocumentMatrix passports={filteredPassports} />
+        <PassportDocumentMatrix
+          passports={filteredPassports}
+          canEdit={canEditImages && !includeDeleted}
+          revision={imageRevision}
+          onEdit={(submissionId, imageType, label, returnFocusTarget) => {
+            setImageEditor({ submissionId, imageType, label, returnFocusTarget });
+          }}
+        />
       ) : (
         <>
           <div className="grid gap-4 lg:hidden">
@@ -890,6 +913,19 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               },
               { onSuccess: () => setIsEditingTrip(false) },
             );
+          }}
+        />
+      )}
+      {imageEditor && canEditImages && (
+        <PassportImageCropEditor
+          submissionId={imageEditor.submissionId}
+          imageType={imageEditor.imageType}
+          label={imageEditor.label}
+          returnFocusTarget={imageEditor.returnFocusTarget}
+          onClose={() => setImageEditor(null)}
+          onSaved={() => {
+            setImageRevision((current) => current + 1);
+            void refetchSubmissions();
           }}
         />
       )}
@@ -1156,10 +1192,21 @@ function PassportDocumentMatrix({
   passports,
   preview,
   files = [],
+  canEdit = false,
+  revision = 0,
+  onEdit,
 }: {
   passports: PassportSubmission[];
   preview?: PassportDocumentImportPreview;
   files?: File[];
+  canEdit?: boolean;
+  revision?: number;
+  onEdit?: (
+    submissionId: string,
+    imageType: PassportImageType,
+    label: string,
+    returnFocusTarget: HTMLButtonElement,
+  ) => void;
 }) {
   const matchedFiles = useMemo(
     () => matchPreviewFiles(preview?.accepted_documents ?? [], files),
@@ -1199,22 +1246,31 @@ function PassportDocumentMatrix({
                       <div className="mt-1 text-xs text-slate-500">{getPersonnelCode(passport) || "No staff or Agent/Employee code"}</div>
                     </td>
                     <DocumentCell
-                      label="Passport pic"
+                      label="Visa Photo"
                       url={passport.passport_photo_url}
                       file={previewDocs?.photo ? matchedFiles.get(previewDocs.photo) : undefined}
                       filename={previewDocs?.photo?.filename}
+                      revision={revision}
+                      canEdit={canEdit}
+                      onEdit={(trigger) => onEdit?.(passport.id, "visa_photo", "Visa Photo", trigger)}
                     />
                     <DocumentCell
                       label="Passport front"
                       url={passport.image_url}
                       file={previewDocs?.front ? matchedFiles.get(previewDocs.front) : undefined}
                       filename={previewDocs?.front?.filename}
+                      revision={revision}
+                      canEdit={canEdit}
+                      onEdit={(trigger) => onEdit?.(passport.id, "passport_front", "Passport front", trigger)}
                     />
                     <DocumentCell
                       label="Passport back"
                       url={passport.passport_back_url}
                       file={previewDocs?.back ? matchedFiles.get(previewDocs.back) : undefined}
                       filename={previewDocs?.back?.filename}
+                      revision={revision}
+                      canEdit={canEdit}
+                      onEdit={(trigger) => onEdit?.(passport.id, "passport_back", "Passport back", trigger)}
                     />
                   </tr>
                 );
@@ -1232,30 +1288,48 @@ function DocumentCell({
   url,
   file,
   filename,
+  revision = 0,
+  canEdit = false,
+  onEdit,
 }: {
   label: string;
   url?: string | null;
   file?: File;
   filename?: string | null;
+  revision?: number;
+  canEdit?: boolean;
+  onEdit?: (trigger: HTMLButtonElement) => void;
 }) {
+  const effectiveUrl = url ? appendCacheRevision(url, revision) : null;
   return (
     <td className="px-5 py-4">
-      {url || file ? (
+      {effectiveUrl || file ? (
         <div className="space-y-2">
           {file ? (
             <LocalDocumentThumbnail file={file} label={label} />
-          ) : url ? (
+          ) : effectiveUrl ? (
             <a
-              href={url}
+              href={effectiveUrl}
               target="_blank"
               rel="noreferrer"
               aria-label={`Open ${label} in a new tab`}
               className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              <DeferredDocumentThumbnail key={url} url={url} label={label} />
+              <DeferredDocumentThumbnail key={effectiveUrl} url={effectiveUrl} label={label} />
             </a>
           ) : null}
-          <div className="max-w-44 truncate text-xs text-slate-500">{filename ?? "Saved document"}</div>
+          <div className="flex max-w-44 items-center justify-between gap-2">
+            <div className="min-w-0 truncate text-xs text-slate-500">{filename ?? "Saved document"}</div>
+            {!file && effectiveUrl && canEdit && onEdit && (
+              <button
+                type="button"
+                onClick={(event) => onEdit(event.currentTarget)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <Pencil className="h-3.5 w-3.5" /> Edit
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="flex h-24 w-36 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-xs font-medium text-slate-400">
@@ -1381,6 +1455,12 @@ function DeferredDocumentThumbnail({ url, label }: { url: string; label: string 
       )}
     </div>
   );
+}
+
+function appendCacheRevision(url: string, revision: number) {
+  if (revision === 0) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}ui_edit_revision=${revision}`;
 }
 
 function needsReextraction(passport: PassportSubmission) {

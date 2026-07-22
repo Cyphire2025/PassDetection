@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "My Tour",      href: ROUTES.coordinator,          icon: CalendarCheck, roles: ["agency_coordinator"] },
   { label: "All Groups",   href: ROUTES.dashboard.passports,  icon: FileText, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
   { label: "Group Links",  href: ROUTES.dashboard.uploadLinks, icon: Link2, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
-  { label: "WhatsApp",     href: ROUTES.dashboard.whatsapp,    icon: MessageCircle, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "WhatsApp",     href: ROUTES.dashboard.whatsapp,    icon: MessageCircle, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
   { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },

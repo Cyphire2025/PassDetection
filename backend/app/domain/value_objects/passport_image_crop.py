@@ -1,4 +1,4 @@
-"""Non-destructive crop metadata for stored passport submission images."""
+"""Non-destructive edit metadata for stored passport submission images."""
 
 from __future__ import annotations
 
@@ -45,6 +45,8 @@ class PassportImageCrop:
     source_width: int
     source_height: int
     revision: int
+    edit_source_storage_key: str | None = None
+    sharpness: float = 1.0
     updated_by_user_id: uuid.UUID | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None

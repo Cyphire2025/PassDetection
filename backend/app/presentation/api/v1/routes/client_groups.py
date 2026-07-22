@@ -116,7 +116,10 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
     WhatsAppSubmissionMatchEvidenceResponse,
     WhatsAppSubmissionMatchRowResponse,
 )
-from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.dependencies.auth import (
+    WHATSAPP_BROADCAST_ROLES,
+    get_current_active_user,
+)
 
 router = APIRouter()
 
@@ -167,6 +170,14 @@ def _get_restore_use_case(session: AsyncSession = Depends(get_db_session)) -> Re
 
 def _owner_scope_for(user: User) -> uuid.UUID | None:
     return user.id if user.role == UserRole.AGENCY_STAFF else None
+
+
+def _require_whatsapp_broadcast_access(user: User) -> None:
+    if user.role not in WHATSAPP_BROADCAST_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="WhatsApp broadcast access is not available for this account.",
+        )
 
 
 async def _broadcast_summaries(
@@ -447,6 +458,9 @@ async def create_client_group(
             detail="User must be associated with an agency to create upload links."
         )
 
+    if request.whatsapp_broadcast_group_ids:
+        _require_whatsapp_broadcast_access(current_user)
+
     dto = CreateClientGroupInputDTO(
         name=request.name,
         destination=request.destination,
@@ -539,6 +553,7 @@ async def list_whatsapp_broadcast_options_for_create(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[WhatsAppBroadcastSummaryResponse]:
+    _require_whatsapp_broadcast_access(current_user)
     if not current_user.agency_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -561,6 +576,7 @@ async def list_whatsapp_broadcast_options_for_group(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[WhatsAppBroadcastSummaryResponse]:
+    _require_whatsapp_broadcast_access(current_user)
     group = await _require_managed_group(
         session, current_user, link_id
     )
@@ -720,6 +736,7 @@ async def get_client_group_whatsapp_links(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
+    _require_whatsapp_broadcast_access(current_user)
     group = await _require_viewable_group(
         session, current_user, link_id
     )
@@ -757,6 +774,7 @@ async def replace_client_group_whatsapp_links(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
+    _require_whatsapp_broadcast_access(current_user)
     group = await _require_managed_group(
         session, current_user, link_id
     )
@@ -822,6 +840,7 @@ async def get_client_group_whatsapp_matches(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppMatchesResponse:
+    _require_whatsapp_broadcast_access(current_user)
     group = await _require_viewable_group(
         session, current_user, link_id
     )
@@ -1045,6 +1064,9 @@ async def update_client_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
+    if request.whatsapp_broadcast_group_ids is not None:
+        _require_whatsapp_broadcast_access(current_user)
+
     previous_qualifier_enabled = group.relation_with_qualifier_enabled
     group.update_configuration(
         name=request.name,
@@ -1200,9 +1222,9 @@ async def permanently_delete_client_group(
     submissions = list(submission_rows.all())
     submission_ids = [row.id for row in submissions]
     storage_keys = passport_storage_keys(submissions)
-    storage_keys.extend(
-        await PassportImageCropRepository(session).derived_storage_keys(submission_ids)
-    )
+    crop_repository = PassportImageCropRepository(session)
+    storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
+    storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
     await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id))
     await session.execute(

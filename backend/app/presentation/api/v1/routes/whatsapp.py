@@ -80,17 +80,15 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 from app.infrastructure.whatsapp.document_delivery_runtime import (
     apply_document_provider_status,
 )
-from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.auth import (
+    WHATSAPP_BROADCAST_ROLES,
+    require_role,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-WHATSAPP_ROLES = [
-    UserRole.SUPER_ADMIN,
-    UserRole.AGENCY_ADMIN,
-    UserRole.AGENCY_MANAGER,
-    UserRole.AGENCY_STAFF,
-]
+WHATSAPP_ROLES = [*WHATSAPP_BROADCAST_ROLES]
 PHONE_RE = re.compile(r"(?:\+|00)?\d[\d\s().-]{7,}\d")
 WHATSAPP_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 WHATSAPP_ACCEPTED_STATUS_RANK = {
@@ -1499,7 +1497,7 @@ async def _parse_excel_contact_preview(
         payload.extend(chunk)
         if len(payload) > MAX_WHATSAPP_CONTACT_FILE_BYTES:
             raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail=(
                     "The Excel contact file must be "
                     f"{MAX_WHATSAPP_CONTACT_FILE_BYTES // (1024 * 1024)} MB or smaller"
@@ -2701,7 +2699,7 @@ async def upload_welcome_media(
         payload.extend(chunk)
         if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
             raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail="The Welcome image must be 5 MB or smaller",
             )
     try:

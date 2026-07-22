@@ -75,11 +75,22 @@ from app.application.use_cases.passports.submission_view import (
     build_submission_view,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+from app.application.use_cases.whatsapp.group_submission_matching import (
+    RecipientForComparison,
+    SubmissionForComparison,
+    compare_group_submissions,
+)
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.core.security.passport_ai_edit_token import (
+    PassportAiEditTokenError,
+    issue_passport_ai_edit_token,
+    verify_passport_ai_edit_token,
+)
 from app.core.security.upload_session import upload_session_matches_identifier
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    PassportSubmission,
     StaffApprovalOutcome,
     User,
     UserRole,
@@ -97,11 +108,18 @@ from app.domain.value_objects.passport_image_crop import (
     PassportImageType,
     passport_image_storage_key,
 )
+from app.infrastructure.ai.gemini_visa_image_edit_service import (
+    GeminiVisaImageEditError,
+    GeminiVisaImageEditService,
+)
 from app.infrastructure.database.models import (
     ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
     NotificationModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
+    WhatsAppBroadcastGroupModel,
+    WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
@@ -178,6 +196,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportSubmissionResponse,
     PassportSubmissionsViewResponse,
     PassportSubmissionViewItemResponse,
+    PassportVisaAiPreviewRequest,
     ReconcilePassportUploadRequest,
     ReconcilePassportUploadResponse,
     StaffApprovePassportRequest,
@@ -204,6 +223,18 @@ def _passport_image_api_url(
     if not original and revision is not None:
         url = f"{url}?crop_revision={revision}"
     return url
+
+
+def _passport_image_edit_source_api_url(
+    submission_id: uuid.UUID,
+    image_type: PassportImageType,
+    *,
+    revision: int,
+) -> str:
+    return (
+        f"{get_settings().api_v1_prefix}/passports/{submission_id}/images/"
+        f"{image_type.value}/edit-source?crop_revision={revision}"
+    )
 
 
 def _effective_crop(
@@ -454,6 +485,156 @@ async def _export_group_details(
         return {}
     result = await session.execute(select(ClientGroupModel).where(ClientGroupModel.id.in_(set(group_ids))))
     return {group.id: _group_export_details(group) for group in result.scalars().all()}
+
+
+def _normalized_imported_field_key(value: str) -> str:
+    return "_".join(
+        part
+        for part in "".join(
+            character.casefold() if character.isalnum() else " "
+            for character in value
+        ).split()
+        if part
+    )
+
+
+def _imported_zone_name(fields: dict[str, str]) -> str | None:
+    for key, value in fields.items():
+        if _normalized_imported_field_key(str(key)) not in {
+            "zone_name",
+            "zonename",
+            "zone",
+        }:
+            continue
+        normalized = " ".join(str(value or "").strip().split())
+        if normalized and normalized.casefold() not in {"null", "none", "n/a", "na"}:
+            return normalized
+    return None
+
+
+async def _export_zone_names(
+    session: AsyncSession,
+    submissions: list[PassportSubmission],
+) -> dict[uuid.UUID, str]:
+    """Resolve exact imported WhatsApp zones using the production matcher."""
+
+    if not submissions:
+        return {}
+    submissions_by_group: dict[uuid.UUID, list[PassportSubmission]] = {}
+    agency_ids: set[uuid.UUID] = set()
+    for submission in submissions:
+        submissions_by_group.setdefault(submission.group_id, []).append(submission)
+        if submission.agency_id:
+            agency_ids.add(submission.agency_id)
+
+    linked_result = await session.execute(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.name,
+        )
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id
+            == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id.in_(
+                set(submissions_by_group)
+            ),
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id.in_(agency_ids),
+            WhatsAppBroadcastGroupModel.agency_id.in_(agency_ids),
+        )
+    )
+    linked_by_group: dict[uuid.UUID, dict[uuid.UUID, str]] = {}
+    for group_id, broadcast_id, broadcast_name in linked_result.all():
+        linked_by_group.setdefault(group_id, {})[broadcast_id] = broadcast_name
+    broadcast_ids = {
+        broadcast_id
+        for broadcasts in linked_by_group.values()
+        for broadcast_id in broadcasts
+    }
+    if not broadcast_ids:
+        return {}
+
+    recipient_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(broadcast_ids),
+            WhatsAppBroadcastRecipientModel.agency_id.in_(agency_ids),
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+    )
+    recipients_by_broadcast: dict[
+        uuid.UUID,
+        list[WhatsAppBroadcastRecipientModel],
+    ] = {}
+    for recipient in recipient_result.scalars().all():
+        recipients_by_broadcast.setdefault(
+            recipient.broadcast_group_id,
+            [],
+        ).append(recipient)
+
+    resolved: dict[uuid.UUID, str] = {}
+    for group_id, group_submissions in submissions_by_group.items():
+        linked_broadcasts = linked_by_group.get(group_id, {})
+        if not linked_broadcasts:
+            continue
+        comparison_recipients = [
+            RecipientForComparison(
+                id=recipient.id,
+                broadcast_id=broadcast_id,
+                broadcast_name=broadcast_name,
+                name=recipient.name,
+                phone=recipient.normalized_phone_number,
+                updated_at=recipient.created_at,
+                imported_fields=dict(recipient.imported_fields or {}),
+            )
+            for broadcast_id, broadcast_name in linked_broadcasts.items()
+            for recipient in recipients_by_broadcast.get(broadcast_id, [])
+        ]
+        comparison_submissions = [
+            SubmissionForComparison(
+                id=submission.id,
+                name=submission.client_name,
+                client_phone=submission.client_phone,
+                family_head_phone=submission.family_head_phone,
+                updated_at=submission.updated_at,
+                client_email=submission.client_email,
+                family_head_email=submission.family_head_email,
+                confirmed_fields=dict(submission.confirmed_fields or {}),
+                extracted_fields=dict(submission.extracted_fields or {}),
+                staff_metadata=dict(submission.staff_metadata or {}),
+            )
+            for submission in group_submissions
+        ]
+        rows, _ = compare_group_submissions(
+            comparison_recipients,
+            comparison_submissions,
+        )
+        submissions_by_id = {
+            submission.id: submission for submission in group_submissions
+        }
+        for row in rows:
+            if row.status not in {"submitted", "multiple_submissions"}:
+                continue
+            zones_by_key: dict[str, str] = {}
+            for field_set in row.recipient_fields:
+                zone_name = _imported_zone_name(field_set.fields)
+                if zone_name:
+                    zones_by_key.setdefault(zone_name.casefold(), zone_name)
+            if not zones_by_key:
+                continue
+            for submission_id in row.submission_ids:
+                if len(zones_by_key) == 1:
+                    resolved[submission_id] = next(iter(zones_by_key.values()))
+                    continue
+                submission = submissions_by_id.get(submission_id)
+                stored_zone = _imported_zone_name(
+                    dict(submission.staff_metadata or {}) if submission else {}
+                )
+                if stored_zone and stored_zone.casefold() in zones_by_key:
+                    resolved[submission_id] = zones_by_key[stored_zone.casefold()]
+    return resolved
 
 
 async def _dispatch_processing_job(
@@ -1370,9 +1551,9 @@ async def bulk_delete_passport_submissions(
         )
 
     storage_keys = passport_storage_keys(submissions)
-    storage_keys.extend(
-        await PassportImageCropRepository(session).derived_storage_keys(submission_ids)
-    )
+    crop_repository = PassportImageCropRepository(session)
+    storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
+    storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
     notification_result = await session.execute(
         delete(NotificationModel).where(
             NotificationModel.agency_id == group.agency_id,
@@ -1517,6 +1698,7 @@ async def export_passports_by_group(
         submissions,
         group_name=group.name,
         group_details={group.id: _group_export_details(group)},
+        zone_names=await _export_zone_names(session, submissions),
     )
 
     await AuditLogRepository(session).record(
@@ -1883,7 +2065,7 @@ async def save_passport_documents_by_group(
             uploaded_keys.append(key)
             setattr(submission, attr, key)
             if old_key and old_key != key:
-                _, old_crop_key = await crop_repo.reset(
+                _, old_crop_key, old_edit_key = await crop_repo.reset(
                     submission_id=submission.id,
                     image_type={
                         "front": PassportImageType.PASSPORT_FRONT,
@@ -1895,6 +2077,8 @@ async def save_passport_documents_by_group(
                 )
                 if old_crop_key:
                     replaced_crop_keys.append(old_crop_key)
+                if old_edit_key:
+                    replaced_crop_keys.append(old_edit_key)
             if old_key and not old_key.startswith("excel-imports/") and old_key != key:
                 replaced_keys.append(old_key)
         await AuditLogRepository(session).record(
@@ -1998,7 +2182,7 @@ async def _save_loose_passport_documents_by_group(
                 uploaded_keys.append(key)
                 setattr(submission, attr, key)
                 if old_key and old_key != key:
-                    _, old_crop_key = await crop_repo.reset(
+                    _, old_crop_key, old_edit_key = await crop_repo.reset(
                         submission_id=submission.id,
                         image_type={
                             "front": PassportImageType.PASSPORT_FRONT,
@@ -2010,6 +2194,8 @@ async def _save_loose_passport_documents_by_group(
                     )
                     if old_crop_key:
                         replaced_crop_keys.append(old_crop_key)
+                    if old_edit_key:
+                        replaced_crop_keys.append(old_edit_key)
                 submission.updated_at = datetime.now(tz=UTC)
                 touched_submissions[submission.id] = submission
                 accepted_documents.append(PassportDocumentImportItem(
@@ -2129,6 +2315,7 @@ async def export_selected_passports(
         submissions,
         group_name="Selected Passports",
         group_details=await _export_group_details(session, [submission.group_id for submission in submissions]),
+        zone_names=await _export_zone_names(session, submissions),
     )
     return StreamingResponse(
         io.BytesIO(content),
@@ -2168,6 +2355,7 @@ async def export_selected_groups(
         submissions,
         group_name="Selected Groups",
         group_details=await _export_group_details(session, body.group_ids),
+        zone_names=await _export_zone_names(session, submissions),
     )
     return StreamingResponse(
         io.BytesIO(content),
@@ -2223,16 +2411,24 @@ def _crop_response(
             width=effective.width,
             height=effective.height,
             rotation_degrees=effective.rotation_degrees,
+            sharpness=effective.sharpness,
         )
         source_width = effective.source_width
         source_height = effective.source_height
     return PassportImageCropResponse(
         image_type=image_type.value,
         original_url=_passport_image_api_url(submission_id, image_type, original=True),
+        editable_source_url=_passport_image_edit_source_api_url(
+            submission_id,
+            image_type,
+            revision=revision,
+        ),
         cropped_url=_passport_image_api_url(submission_id, image_type, revision=revision),
         crop=coordinates,
         source_width=source_width,
         source_height=source_height,
+        sharpness=effective.sharpness if effective else 1.0,
+        ai_edited=bool(effective and effective.edit_source_storage_key),
         revision=revision,
     )
 
@@ -2276,7 +2472,8 @@ async def _load_effective_passport_image(
             return content, "image/jpeg", ".jpg"
         except StorageError:
             try:
-                original = await storage.get_file(source_key)
+                edit_source_key = effective_crop.edit_source_storage_key or source_key
+                original = await storage.get_file(edit_source_key)
                 rendered = await asyncio.to_thread(
                     render_saved_passport_image_crop,
                     original,
@@ -2301,6 +2498,53 @@ async def _load_effective_passport_image(
             detail=exc.message,
         ) from exc
     return content, content_type, extension
+
+
+@router.get(
+    "/{submission_id}/images/{image_type}/edit-source",
+    status_code=status.HTTP_200_OK,
+    summary="Stream the current full-resolution source to an authorized image editor",
+)
+async def get_passport_image_edit_source(
+    submission_id: uuid.UUID,
+    image_type: PassportImageType,
+    crop_revision: int | None = Query(default=None, ge=0),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    del crop_revision
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    edit_source_key = (
+        effective.edit_source_storage_key
+        if effective and effective.edit_source_storage_key
+        else source_key
+    )
+    try:
+        content = await MinioStorageRepository().get_file(edit_source_key)
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        ) from exc
+    content_type = mimetypes.guess_type(edit_source_key)[0] or "image/jpeg"
+    extension = mimetypes.guess_extension(content_type) or ".jpg"
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=content_type,
+        headers={
+            "Cache-Control": "private, no-store",
+            "Content-Disposition": f'inline; filename="{image_type.value}-edit-source{extension}"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.get(
@@ -2500,8 +2744,15 @@ async def update_passport_image_crop(
         require_editor=True,
     )
     storage = MinioStorageRepository()
+    existing_crop = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective_existing = _effective_crop(existing_crop, source_storage_key=source_key)
+    edit_source_key = (
+        effective_existing.edit_source_storage_key
+        if effective_existing and effective_existing.edit_source_storage_key
+        else source_key
+    )
     try:
-        original = await storage.get_file(source_key)
+        original = await storage.get_file(edit_source_key)
         rendered = await asyncio.to_thread(
             render_passport_image_crop,
             original,
@@ -2510,6 +2761,7 @@ async def update_passport_image_crop(
             width=body.width,
             height=body.height,
             rotation_degrees=body.rotation_degrees,
+            sharpness=body.sharpness,
         )
     except StorageError as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=exc.message) from exc
@@ -2527,6 +2779,7 @@ async def update_passport_image_crop(
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=exc.message) from exc
 
     previous_derived_key: str | None = None
+    previous_edit_source_key: str | None = None
     try:
         locked = await PassportSubmissionRepository(session).get_by_id_for_update(submission.id)
         if not locked or passport_image_storage_key(locked, image_type) != source_key:
@@ -2534,16 +2787,22 @@ async def update_passport_image_crop(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="The source image changed. Refresh it and crop again.",
             )
-        crop_row, previous_derived_key = await PassportImageCropRepository(session).upsert(
+        crop_row, previous_derived_key, previous_edit_source_key = await PassportImageCropRepository(session).upsert(
             submission_id=submission.id,
             image_type=image_type,
             source_storage_key=source_key,
+            edit_source_storage_key=(
+                effective_existing.edit_source_storage_key
+                if effective_existing
+                else None
+            ),
             derived_storage_key=derived_key,
             x=body.x,
             y=body.y,
             width=body.width,
             height=body.height,
             rotation_degrees=body.rotation_degrees,
+            sharpness=body.sharpness,
             source_width=rendered.source_width,
             source_height=rendered.source_height,
             updated_by_user_id=current_user.id,
@@ -2556,7 +2815,12 @@ async def update_passport_image_crop(
             agency_id=submission.agency_id,
             user_id=current_user.id,
             actor_email=current_user.email,
-            metadata={"image_type": image_type.value, "crop_revision": crop_row.revision},
+            metadata={
+                "image_type": image_type.value,
+                "crop_revision": crop_row.revision,
+                "sharpness": crop_row.sharpness,
+                "ai_edited": bool(crop_row.edit_source_storage_key),
+            },
         )
         await session.commit()
     except PassportImageCropRevisionConflict as exc:
@@ -2574,6 +2838,285 @@ async def update_passport_image_crop(
 
     if previous_derived_key and previous_derived_key != derived_key:
         await _delete_crop_derivative_best_effort(storage, previous_derived_key, submission_id=submission.id)
+    if (
+        previous_edit_source_key
+        and previous_edit_source_key != crop_row.edit_source_storage_key
+    ):
+        await _delete_crop_derivative_best_effort(
+            storage,
+            previous_edit_source_key,
+            submission_id=submission.id,
+        )
+    return _crop_response(
+        submission_id=submission.id,
+        image_type=image_type,
+        crop_row=crop_row,
+        source_storage_key=source_key,
+    )
+
+
+@router.post(
+    "/{submission_id}/images/visa_photo/ai-preview",
+    status_code=status.HTTP_200_OK,
+    summary="Generate an identity-preserving Visa photo edit preview",
+)
+async def preview_visa_ai_image_edit(
+    submission_id: uuid.UUID,
+    body: PassportVisaAiPreviewRequest,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    image_type = PassportImageType.VISA_PHOTO
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    edit_source_key = (
+        effective.edit_source_storage_key
+        if effective and effective.edit_source_storage_key
+        else source_key
+    )
+    normalized_prompt = " ".join(body.prompt.strip().split())
+    try:
+        source_content = await MinioStorageRepository().get_file(edit_source_key)
+        result = await GeminiVisaImageEditService().edit(
+            source_content,
+            prompt=normalized_prompt,
+        )
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        ) from exc
+    except GeminiVisaImageEditError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    revision = crop_row.revision if crop_row else 0
+    token = issue_passport_ai_edit_token(
+        secret=get_settings().app_secret_key,
+        submission_id=submission.id,
+        user_id=current_user.id,
+        image_type=image_type.value,
+        expected_revision=revision,
+        source_storage_key=source_key,
+        prompt=normalized_prompt,
+        image_content=result.content,
+    )
+    await AuditLogRepository(session).record(
+        action="passport_visa_ai_edit_previewed",
+        entity_type="passport_submission",
+        entity_id=str(submission.id),
+        agency_id=submission.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "image_type": image_type.value,
+            "crop_revision": revision,
+            "prompt_sha256": result.prompt_sha256,
+        },
+    )
+    await session.commit()
+    return Response(
+        content=result.content,
+        media_type=result.content_type,
+        headers={
+            "Cache-Control": "private, no-store",
+            "Content-Disposition": 'inline; filename="visa-ai-preview.jpg"',
+            "X-Content-Type-Options": "nosniff",
+            "X-Visa-AI-Edit-Token": token,
+        },
+    )
+
+
+@router.post(
+    "/{submission_id}/images/visa_photo/ai-apply",
+    response_model=PassportImageCropResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Save a verified Visa AI edit with crop and sharpness metadata",
+)
+async def apply_visa_ai_image_edit(
+    submission_id: uuid.UUID,
+    image: UploadFile = File(...),
+    preview_token: str = Form(..., min_length=20, max_length=2048),
+    prompt: str = Form(..., min_length=3, max_length=1000),
+    x: float = Form(...),
+    y: float = Form(...),
+    width: float = Form(...),
+    height: float = Form(...),
+    rotation_degrees: int = Form(...),
+    sharpness: float = Form(...),
+    expected_revision: int = Form(..., ge=0),
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportImageCropResponse:
+    image_type = PassportImageType.VISA_PHOTO
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    normalized_prompt = " ".join(prompt.strip().split())
+    limit = get_settings().upload_max_file_size_bytes
+    content = await image.read(limit + 1)
+    if not content or len(content) > limit:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="The generated Visa image is empty or too large.",
+        )
+    try:
+        verify_passport_ai_edit_token(
+            preview_token,
+            secret=get_settings().app_secret_key,
+            submission_id=submission.id,
+            user_id=current_user.id,
+            image_type=image_type.value,
+            expected_revision=expected_revision,
+            source_storage_key=source_key,
+            prompt=normalized_prompt,
+            image_content=content,
+        )
+        coordinates = PassportImageCropCoordinates(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            rotation_degrees=rotation_degrees,
+            sharpness=sharpness,
+        )
+        canonical = await asyncio.to_thread(
+            render_passport_image_crop,
+            content,
+            x=0.0,
+            y=0.0,
+            width=1.0,
+            height=1.0,
+            rotation_degrees=0,
+            sharpness=1.0,
+        )
+        rendered = await asyncio.to_thread(
+            render_passport_image_crop,
+            canonical.content,
+            x=coordinates.x,
+            y=coordinates.y,
+            width=coordinates.width,
+            height=coordinates.height,
+            rotation_degrees=coordinates.rotation_degrees,
+            sharpness=coordinates.sharpness,
+        )
+    except PassportAiEditTokenError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+    except (PassportImageCropError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    edit_source_key = (
+        f"passport-edits/{submission.agency_id}/{submission.id}/visa_photo/"
+        f"{uuid.uuid4().hex}.jpg"
+    )
+    derived_key = (
+        f"passport-crops/{submission.agency_id}/{submission.id}/visa_photo/"
+        f"{uuid.uuid4().hex}{rendered.extension}"
+    )
+    storage = MinioStorageRepository()
+    try:
+        await storage.upload_file(canonical.content, edit_source_key, canonical.content_type)
+        await storage.upload_file(rendered.content, derived_key, rendered.content_type)
+    except StorageError as exc:
+        await _delete_crop_derivative_best_effort(
+            storage,
+            edit_source_key,
+            submission_id=submission.id,
+        )
+        await _delete_crop_derivative_best_effort(
+            storage,
+            derived_key,
+            submission_id=submission.id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=exc.message,
+        ) from exc
+
+    previous_derived_key: str | None = None
+    previous_edit_source_key: str | None = None
+    try:
+        locked = await PassportSubmissionRepository(session).get_by_id_for_update(submission.id)
+        if not locked or passport_image_storage_key(locked, image_type) != source_key:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The source image changed. Refresh it and generate the edit again.",
+            )
+        crop_row, previous_derived_key, previous_edit_source_key = await PassportImageCropRepository(session).upsert(
+            submission_id=submission.id,
+            image_type=image_type,
+            source_storage_key=source_key,
+            edit_source_storage_key=edit_source_key,
+            derived_storage_key=derived_key,
+            x=coordinates.x,
+            y=coordinates.y,
+            width=coordinates.width,
+            height=coordinates.height,
+            rotation_degrees=coordinates.rotation_degrees,
+            sharpness=coordinates.sharpness,
+            source_width=rendered.source_width,
+            source_height=rendered.source_height,
+            updated_by_user_id=current_user.id,
+            expected_revision=expected_revision,
+        )
+        await AuditLogRepository(session).record(
+            action="passport_visa_ai_edit_saved",
+            entity_type="passport_submission",
+            entity_id=str(submission.id),
+            agency_id=submission.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={
+                "image_type": image_type.value,
+                "crop_revision": crop_row.revision,
+                "sharpness": crop_row.sharpness,
+                "prompt_sha256": hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest(),
+            },
+        )
+        await session.commit()
+    except PassportImageCropRevisionConflict as exc:
+        await session.rollback()
+        await _delete_crop_derivative_best_effort(storage, edit_source_key, submission_id=submission.id)
+        await _delete_crop_derivative_best_effort(storage, derived_key, submission_id=submission.id)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"The image edit changed (current revision {exc.current_revision}). Refresh it and try again.",
+            headers={"X-Current-Crop-Revision": str(exc.current_revision)},
+        ) from exc
+    except Exception:
+        await session.rollback()
+        await _delete_crop_derivative_best_effort(storage, edit_source_key, submission_id=submission.id)
+        await _delete_crop_derivative_best_effort(storage, derived_key, submission_id=submission.id)
+        raise
+
+    for prior_key in (previous_derived_key, previous_edit_source_key):
+        if prior_key and prior_key not in {derived_key, edit_source_key}:
+            await _delete_crop_derivative_best_effort(
+                storage,
+                prior_key,
+                submission_id=submission.id,
+            )
     return _crop_response(
         submission_id=submission.id,
         image_type=image_type,
@@ -2610,7 +3153,7 @@ async def reset_passport_image_crop(
             detail="The source image changed. Refresh it and try again.",
         )
     try:
-        crop_row, previous_derived_key = await PassportImageCropRepository(session).reset(
+        crop_row, previous_derived_key, previous_edit_source_key = await PassportImageCropRepository(session).reset(
             submission_id=submission.id,
             image_type=image_type,
             updated_by_user_id=current_user.id,
@@ -2637,6 +3180,9 @@ async def reset_passport_image_crop(
 
     await _delete_crop_derivative_best_effort(
         MinioStorageRepository(), previous_derived_key, submission_id=submission.id
+    )
+    await _delete_crop_derivative_best_effort(
+        MinioStorageRepository(), previous_edit_source_key, submission_id=submission.id
     )
     return _crop_response(
         submission_id=submission.id,

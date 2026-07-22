@@ -7,7 +7,15 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { Crop, Loader2, RotateCw, X } from "lucide-react";
+import {
+  Loader2,
+  Pencil,
+  RotateCw,
+  Save,
+  SlidersHorizontal,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui";
 import {
   passportsApi,
@@ -31,6 +39,13 @@ interface PassportImageCropEditorProps {
   onSaved: () => void;
 }
 
+interface VisaAiPreviewState {
+  blob: Blob;
+  objectUrl: string;
+  token: string;
+  prompt: string;
+}
+
 const FULL_IMAGE_CROP: PassportImageCropRect = {
   x: 0,
   y: 0,
@@ -47,17 +62,24 @@ export function PassportImageCropEditor({
   onClose,
   onSaved,
 }: PassportImageCropEditorProps) {
+  const isVisaPhoto = imageType === "visa_photo";
   const [metadata, setMetadata] = useState<PassportImageCropState | null>(null);
   const [cropRect, setCropRect] = useState<PassportImageCropRect>(FULL_IMAGE_CROP);
-  const [originalObjectUrl, setOriginalObjectUrl] = useState<string | null>(null);
+  const [sharpness, setSharpness] = useState(1);
+  const [sourceObjectUrl, setSourceObjectUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [activePanel, setActivePanel] = useState<"adjust" | "ai">("adjust");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiPreview, setAiPreview] = useState<VisaAiPreviewState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const aiRequestRef = useRef<AbortController | null>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const busyRef = useRef(false);
@@ -72,20 +94,24 @@ export function PassportImageCropEditor({
   useEffect(() => {
     const controller = new AbortController();
     let objectUrl: string | null = null;
-    void Promise.all([
-      passportsApi.getImageCrop(submissionId, imageType),
-      passportsApi.getOriginalImage(submissionId, imageType, controller.signal),
-    ]).then(([state, blob]) => {
-      if (controller.signal.aborted) return;
-      objectUrl = URL.createObjectURL(blob);
-      setMetadata(state);
-      setCropRect(normalizeCrop(state.crop ?? FULL_IMAGE_CROP));
-      setOriginalObjectUrl(objectUrl);
-    }).catch((loadError) => {
-      if (!controller.signal.aborted) {
-        setError(readCropError(loadError, "Could not load the original image for cropping."));
-      }
-    });
+    void passportsApi.getImageCrop(submissionId, imageType)
+      .then(async (state) => {
+        const blob = await passportsApi.getEditableImage(
+          state.editable_source_url,
+          controller.signal,
+        );
+        if (controller.signal.aborted) return;
+        objectUrl = URL.createObjectURL(blob);
+        setMetadata(state);
+        setCropRect(normalizeCrop(state.crop ?? FULL_IMAGE_CROP));
+        setSharpness(clampSharpness(state.sharpness));
+        setSourceObjectUrl(objectUrl);
+      })
+      .catch((loadError) => {
+        if (!controller.signal.aborted) {
+          setError(readEditError(loadError, "Could not load this image for editing."));
+        }
+      });
     return () => {
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -93,38 +119,58 @@ export function PassportImageCropEditor({
   }, [imageType, submissionId]);
 
   useEffect(() => {
-    if (!originalObjectUrl) return;
+    return () => {
+      if (aiPreview) URL.revokeObjectURL(aiPreview.objectUrl);
+    };
+  }, [aiPreview]);
+
+  useEffect(() => {
+    return () => aiRequestRef.current?.abort();
+  }, []);
+
+  const workingObjectUrl = aiPreview?.objectUrl ?? sourceObjectUrl;
+
+  useEffect(() => {
+    if (!workingObjectUrl) return;
     const image = new window.Image();
     image.onload = () => setImageSize({
       width: image.naturalWidth,
       height: image.naturalHeight,
     });
-    image.onerror = () => setError("The original image could not be displayed.");
-    image.src = originalObjectUrl;
+    image.onerror = () => setError("The image could not be displayed.");
+    image.src = workingObjectUrl;
     return () => {
       image.onload = null;
       image.onerror = null;
     };
-  }, [originalObjectUrl]);
+  }, [workingObjectUrl]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !originalObjectUrl || imageSize.width === 0) return;
+    if (!canvas || !workingObjectUrl || imageSize.width === 0) return;
     const image = new window.Image();
-    image.onload = () => drawRotatedImage(canvas, image, cropRect.rotation_degrees);
-    image.src = originalObjectUrl;
+    const timer = window.setTimeout(() => {
+      image.onload = () => drawEditedImage(
+        canvas,
+        image,
+        cropRect.rotation_degrees,
+        sharpness,
+      );
+      image.src = workingObjectUrl;
+    }, 60);
     return () => {
+      window.clearTimeout(timer);
       image.onload = null;
     };
-  }, [cropRect.rotation_degrees, imageSize.width, originalObjectUrl]);
+  }, [cropRect.rotation_degrees, imageSize.width, sharpness, workingObjectUrl]);
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
   useEffect(() => {
-    busyRef.current = isSaving || isResetting;
-  }, [isResetting, isSaving]);
+    busyRef.current = isSaving || isResetting || isGenerating;
+  }, [isGenerating, isResetting, isSaving]);
 
   useEffect(() => {
     returnFocusRef.current = returnFocusTarget;
@@ -136,7 +182,7 @@ export function PassportImageCropEditor({
       }
       if (event.key !== "Tab") return;
       const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        'button:not([disabled]), textarea:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
       );
       if (!focusable || focusable.length === 0) return;
       const first = focusable[0];
@@ -206,30 +252,77 @@ export function PassportImageCropEditor({
     setCropRect((current) => resizeCrop(current, mode, delta.x, delta.y));
   };
 
-  const rotateClockwise = () => {
-    setCropRect((current) => rotateCropClockwise(current));
+  const updatePrompt = (value: string) => {
+    setAiPrompt(value);
+    setAiPreview(null);
+  };
+
+  const generateAiPreview = async () => {
+    const prompt = aiPrompt.trim().split(/\s+/).join(" ");
+    if (!metadata || prompt.length < 3 || isGenerating) return;
+    setError(null);
+    setIsGenerating(true);
+    const controller = new AbortController();
+    aiRequestRef.current = controller;
+    try {
+      const generated = await passportsApi.generateVisaAiPreview(
+        submissionId,
+        prompt,
+        controller.signal,
+      );
+      setAiPreview({
+        ...generated,
+        objectUrl: URL.createObjectURL(generated.blob),
+        prompt,
+      });
+    } catch (generationError) {
+      if (!controller.signal.aborted) {
+        setError(readEditError(
+          generationError,
+          "Could not generate a safe Visa photo preview.",
+        ));
+      }
+    } finally {
+      if (aiRequestRef.current === controller) aiRequestRef.current = null;
+      setIsGenerating(false);
+    }
+  };
+
+  const cancelAiGeneration = () => {
+    aiRequestRef.current?.abort();
   };
 
   const save = async () => {
-    if (!metadata || isSaving || isResetting) return;
+    if (!metadata || isSaving || isResetting || isGenerating) return;
     setError(null);
     setIsSaving(true);
     try {
-      await passportsApi.saveImageCrop(submissionId, imageType, {
+      const editRequest = {
         ...cropRect,
+        sharpness,
         expected_revision: metadata.revision,
-      });
+      };
+      if (aiPreview) {
+        await passportsApi.applyVisaAiEdit(submissionId, {
+          ...editRequest,
+          image: aiPreview.blob,
+          previewToken: aiPreview.token,
+          prompt: aiPreview.prompt,
+        });
+      } else {
+        await passportsApi.saveImageCrop(submissionId, imageType, editRequest);
+      }
       onSaved();
       onClose();
     } catch (saveError) {
-      setError(readCropError(saveError, "Could not save this crop. Please try again."));
+      setError(readEditError(saveError, "Could not save these image edits."));
     } finally {
       setIsSaving(false);
     }
   };
 
   const reset = async () => {
-    if (!metadata || isSaving || isResetting) return;
+    if (!metadata || isSaving || isResetting || isGenerating) return;
     setError(null);
     setIsResetting(true);
     try {
@@ -241,35 +334,39 @@ export function PassportImageCropEditor({
       onSaved();
       onClose();
     } catch (resetError) {
-      setError(readCropError(resetError, "Could not reset this crop. Please try again."));
+      setError(readEditError(resetError, "Could not reset this image."));
     } finally {
       setIsResetting(false);
     }
   };
 
-  const busy = isSaving || isResetting;
+  const busy = isSaving || isResetting || isGenerating;
+  const canReset = Boolean(
+    metadata?.crop || metadata?.ai_edited || (metadata?.sharpness ?? 1) > 1,
+  );
 
   return (
     <div
       className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 p-2 sm:p-5"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="passport-crop-title"
+      aria-labelledby="passport-edit-title"
     >
-      <div ref={dialogRef} className="flex max-h-[96vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div ref={dialogRef} className="flex max-h-[96vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
           <div>
-            <h2 id="passport-crop-title" className="font-semibold text-slate-950">
-              Crop {label}
+            <h2 id="passport-edit-title" className="flex items-center gap-2 font-semibold text-slate-950">
+              <Pencil className="h-4 w-4 text-blue-600" aria-hidden="true" />
+              Edit {label}
             </h2>
             <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-              Drag the clear frame or its corner handles. The dimmed area will be removed.
+              Crop, rotate, and sharpen the saved image without changing its immutable original.
             </p>
           </div>
           <button
             ref={closeButtonRef}
             type="button"
-            aria-label="Close crop editor"
+            aria-label="Close image editor"
             disabled={busy}
             onClick={onClose}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
@@ -278,64 +375,105 @@ export function PassportImageCropEditor({
           </button>
         </header>
 
+        {isVisaPhoto && (
+          <div className="flex gap-2 border-b border-slate-200 bg-white px-4 py-2 sm:px-6" role="tablist" aria-label="Visa image editing tools">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activePanel === "adjust"}
+              onClick={() => setActivePanel("adjust")}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "adjust" ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}
+            >
+              <SlidersHorizontal className="h-4 w-4" /> Adjust
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activePanel === "ai"}
+              onClick={() => setActivePanel("ai")}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "ai" ? "bg-violet-50 text-violet-700" : "text-slate-600 hover:bg-slate-50"}`}
+            >
+              <Sparkles className="h-4 w-4" /> AI
+            </button>
+          </div>
+        )}
+
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-slate-100 p-3 sm:p-5">
           {error && (
             <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
-          {!originalObjectUrl || imageSize.width === 0 ? (
+          {!sourceObjectUrl || imageSize.width === 0 ? (
             <div className="flex min-h-80 flex-1 items-center justify-center text-sm text-slate-500" role="status">
-              {error ? "Crop editor unavailable" : <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading original image</>}
+              {error ? "Image editor unavailable" : <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading image</>}
             </div>
+          ) : activePanel === "ai" && isVisaPhoto ? (
+            <VisaAiPanel
+              sourceObjectUrl={sourceObjectUrl}
+              generatedObjectUrl={aiPreview?.objectUrl ?? null}
+              prompt={aiPrompt}
+              busy={busy}
+              isGenerating={isGenerating}
+              onPromptChange={updatePrompt}
+              onGenerate={() => void generateAiPreview()}
+              onCancelGenerate={cancelAiGeneration}
+            />
           ) : (
-            <div className="flex flex-1 items-center justify-center overflow-auto">
-              <div ref={stageRef} className="relative inline-block max-w-full select-none overflow-hidden bg-black shadow-xl">
-                <canvas
-                  ref={canvasRef}
-                  aria-label={`Full original ${label}`}
-                  className="block max-h-[58vh] max-w-full"
-                />
-                <CropShade crop={cropRect} />
-                <div
-                  role="group"
-                  tabIndex={0}
-                  aria-label="Crop frame. Use arrow keys to move it; hold Shift for larger steps."
-                  className="absolute cursor-move touch-none border-2 border-white shadow-[0_0_0_1px_rgba(15,23,42,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                  style={cropStyle(cropRect)}
-                  onPointerDown={(event) => beginPointerDrag(event, "move")}
-                  onPointerMove={movePointerDrag}
-                  onPointerUp={endPointerDrag}
-                  onPointerCancel={endPointerDrag}
-                  onKeyDown={(event) => handleKeyboard(event, "move")}
-                >
-                  {(["nw", "ne", "sw", "se"] as const).map((corner) => (
-                    <button
-                      key={corner}
-                      type="button"
-                      aria-label={`Resize crop from ${cornerLabel(corner)} corner`}
-                      className={`absolute h-7 w-7 touch-none rounded-full border-2 border-slate-800 bg-white shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${cornerClassName(corner)}`}
-                      onPointerDown={(event) => beginPointerDrag(event, corner)}
-                      onPointerMove={movePointerDrag}
-                      onPointerUp={endPointerDrag}
-                      onPointerCancel={endPointerDrag}
-                      onKeyDown={(event) => handleKeyboard(event, corner)}
-                    />
-                  ))}
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              <div className="flex flex-1 items-center justify-center overflow-auto">
+                <div ref={stageRef} className="relative inline-block max-w-full select-none overflow-hidden bg-black shadow-xl">
+                  <canvas
+                    ref={canvasRef}
+                    aria-label={`Editable ${label}`}
+                    className="block max-h-[54vh] max-w-full"
+                  />
+                  <CropShade crop={cropRect} />
+                  <div
+                    role="group"
+                    tabIndex={0}
+                    aria-label="Crop frame. Use arrow keys to move it; hold Shift for larger steps."
+                    className="absolute cursor-move touch-none border-2 border-white shadow-[0_0_0_1px_rgba(15,23,42,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                    style={cropStyle(cropRect)}
+                    onPointerDown={(event) => beginPointerDrag(event, "move")}
+                    onPointerMove={movePointerDrag}
+                    onPointerUp={endPointerDrag}
+                    onPointerCancel={endPointerDrag}
+                    onKeyDown={(event) => handleKeyboard(event, "move")}
+                  >
+                    {(["nw", "ne", "sw", "se"] as const).map((corner) => (
+                      <button
+                        key={corner}
+                        type="button"
+                        aria-label={`Resize crop from ${cornerLabel(corner)} corner`}
+                        className={`absolute h-7 w-7 touch-none rounded-full border-2 border-slate-800 bg-white shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${cornerClassName(corner)}`}
+                        onPointerDown={(event) => beginPointerDrag(event, corner)}
+                        onPointerMove={movePointerDrag}
+                        onPointerUp={endPointerDrag}
+                        onPointerCancel={endPointerDrag}
+                        onKeyDown={(event) => handleKeyboard(event, corner)}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
+              <SharpnessControl
+                value={sharpness}
+                disabled={busy}
+                onChange={setSharpness}
+              />
             </div>
           )}
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={rotateClockwise}>
+            <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={() => setCropRect((current) => rotateCropClockwise(current))}>
               <RotateCw className="h-4 w-4" /> Rotate 90 degrees
             </Button>
-            <Button type="button" variant="secondary" disabled={busy || !metadata?.crop} onClick={() => void reset()}>
+            <Button type="button" variant="secondary" disabled={busy || !metadata || !canReset} onClick={() => void reset()}>
               {isResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Reset crop
+              Reset edits
             </Button>
           </div>
           <div className="flex gap-2 sm:justify-end">
@@ -343,11 +481,135 @@ export function PassportImageCropEditor({
               Cancel
             </Button>
             <Button type="button" className="flex-1 gap-2 sm:flex-none" disabled={busy || !metadata} onClick={() => void save()}>
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crop className="h-4 w-4" />}
-              Save crop
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save edits
             </Button>
           </div>
         </footer>
+      </div>
+    </div>
+  );
+}
+
+function VisaAiPanel({
+  sourceObjectUrl,
+  generatedObjectUrl,
+  prompt,
+  busy,
+  isGenerating,
+  onPromptChange,
+  onGenerate,
+  onCancelGenerate,
+}: {
+  sourceObjectUrl: string;
+  generatedObjectUrl: string | null;
+  prompt: string;
+  busy: boolean;
+  isGenerating: boolean;
+  onPromptChange: (value: string) => void;
+  onGenerate: () => void;
+  onCancelGenerate: () => void;
+}) {
+  return (
+    <div className="grid min-h-[28rem] flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)_minmax(0,1fr)] lg:items-center">
+      <ImageComparisonCard title="Current Visa photo" objectUrl={sourceObjectUrl} />
+      <div className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm">
+        <label htmlFor="visa-ai-prompt" className="text-sm font-semibold text-slate-900">
+          AI edit instruction
+        </label>
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          Request presentation fixes only, such as a clean white background, balanced exposure, or noise reduction. Identity and biometric features cannot be changed.
+        </p>
+        <textarea
+          id="visa-ai-prompt"
+          value={prompt}
+          onChange={(event) => onPromptChange(event.target.value)}
+          disabled={busy}
+          maxLength={1000}
+          rows={8}
+          placeholder="Example: Replace the background with an even plain white studio background and balance the lighting. Preserve the person exactly."
+          className="mt-3 w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 disabled:bg-slate-50"
+        />
+        <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
+          <span>{prompt.length}/1000</span>
+          <span>Preview is not saved automatically</span>
+        </div>
+        {isGenerating ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 w-full gap-2"
+            onClick={onCancelGenerate}
+          >
+            <X className="h-4 w-4" /> Cancel generation
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            className="mt-4 w-full gap-2 bg-violet-600 hover:bg-violet-700"
+            disabled={busy || prompt.trim().length < 3}
+            onClick={onGenerate}
+          >
+            <Sparkles className="h-4 w-4" /> Generate preview
+          </Button>
+        )}
+      </div>
+      {generatedObjectUrl ? (
+        <ImageComparisonCard title="Generated preview" objectUrl={generatedObjectUrl} />
+      ) : (
+        <div className="flex min-h-80 items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 text-center text-sm text-slate-500">
+          The verified regenerated image will appear here.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ImageComparisonCard({ title, objectUrl }: { title: string; objectUrl: string }) {
+  return (
+    <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <figcaption className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-800">
+        {title}
+      </figcaption>
+      {/* Blob URLs are authenticated, short-lived, and released when the editor closes. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={objectUrl} alt={title} className="max-h-[58vh] w-full bg-slate-100 object-contain" />
+    </figure>
+  );
+}
+
+function SharpnessControl({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: number;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="mx-auto w-full max-w-2xl rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <label htmlFor="passport-image-sharpness" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+          <SlidersHorizontal className="h-4 w-4 text-blue-600" /> Sharpness
+        </label>
+        <output htmlFor="passport-image-sharpness" className="text-sm font-semibold tabular-nums text-blue-700">
+          {Math.round(value * 100)}%
+        </output>
+      </div>
+      <input
+        id="passport-image-sharpness"
+        type="range"
+        min="1"
+        max="3"
+        step="0.05"
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(clampSharpness(Number(event.target.value)))}
+        className="mt-3 w-full accent-blue-600"
+      />
+      <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+        <span>Original</span><span>Maximum</span>
       </div>
     </div>
   );
@@ -367,20 +629,21 @@ function CropShade({ crop }: { crop: PassportImageCropRect }) {
   );
 }
 
-function drawRotatedImage(
+function drawEditedImage(
   canvas: HTMLCanvasElement,
   image: HTMLImageElement,
   rotation: PassportImageCropRect["rotation_degrees"],
+  sharpness: number,
 ) {
   const swapsAxes = rotation === 90 || rotation === 270;
   const sourceWidth = image.naturalWidth;
   const sourceHeight = image.naturalHeight;
   const rotatedWidth = swapsAxes ? sourceHeight : sourceWidth;
   const rotatedHeight = swapsAxes ? sourceWidth : sourceHeight;
-  const scale = Math.min(1, 1600 / Math.max(rotatedWidth, rotatedHeight));
+  const scale = Math.min(1, 1200 / Math.max(rotatedWidth, rotatedHeight));
   canvas.width = Math.max(1, Math.round(rotatedWidth * scale));
   canvas.height = Math.max(1, Math.round(rotatedHeight * scale));
-  const context = canvas.getContext("2d");
+  const context = canvas.getContext("2d", { willReadFrequently: sharpness > 1.001 });
   if (!context) return;
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.save();
@@ -394,6 +657,43 @@ function drawRotatedImage(
     sourceHeight * scale,
   );
   context.restore();
+  if (sharpness > 1.001) applySharpnessPreview(context, canvas, sharpness);
+}
+
+function applySharpnessPreview(
+  context: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  sharpness: number,
+) {
+  const width = canvas.width;
+  const height = canvas.height;
+  if (width < 3 || height < 3) return;
+  const source = context.getImageData(0, 0, width, height);
+  const target = context.createImageData(width, height);
+  target.data.set(source.data);
+  const strength = (clampSharpness(sharpness) - 1) * 0.22;
+  const centerWeight = 1 + 4 * strength;
+  for (let y = 1; y < height - 1; y += 1) {
+    for (let x = 1; x < width - 1; x += 1) {
+      const offset = (y * width + x) * 4;
+      const left = offset - 4;
+      const right = offset + 4;
+      const above = offset - width * 4;
+      const below = offset + width * 4;
+      for (let channel = 0; channel < 3; channel += 1) {
+        target.data[offset + channel] = Math.max(0, Math.min(255,
+          source.data[offset + channel] * centerWeight
+          - strength * (
+            source.data[left + channel]
+            + source.data[right + channel]
+            + source.data[above + channel]
+            + source.data[below + channel]
+          ),
+        ));
+      }
+    }
+  }
+  context.putImageData(target, 0, 0);
 }
 
 function cropStyle(crop: PassportImageCropRect) {
@@ -427,14 +727,22 @@ function percent(value: number) {
   return `${value * 100}%`;
 }
 
-function readCropError(error: unknown, fallback: string) {
+function clampSharpness(value: number) {
+  if (!Number.isFinite(value)) return 1;
+  return Math.min(3, Math.max(1, Math.round(value * 20) / 20));
+}
+
+function readEditError(error: unknown, fallback: string) {
   if (
     typeof error === "object"
     && error !== null
     && "response" in error
   ) {
-    const detail = (error as { response?: { data?: { detail?: unknown } } }).response?.data?.detail;
+    const detail = (error as { response?: { data?: { detail?: unknown } } })
+      .response?.data?.detail;
     if (typeof detail === "string" && detail.trim()) return detail;
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
   }
   return error instanceof Error && error.message ? error.message : fallback;
 }
