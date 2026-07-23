@@ -32,27 +32,30 @@ _CONTROL_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _DISALLOWED_PROMPT_PATTERNS = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"\b(change|replace|swap)\b.{0,30}\b(face|identity|person|gender|ethnicity|skin)\b",
-        r"\b(make|look)\b.{0,20}\b(younger|older|different person)\b",
-        r"\b(add|remove)\b.{0,30}\b(glasses|scar|mole|tattoo|beard|moustache|mustache|hair)\b",
+        r"\b(change|replace|swap)\b.{0,40}\b(identity|person)\b",
+        r"\b(different|another|new)\s+person\b",
         r"\b(deepfake|face[ -]?swap|impersonat)\b",
     )
 )
 _SYSTEM_INSTRUCTION = """
 You are editing a Visa application portrait. Preserve the exact same person's
-identity, facial geometry, age, skin tone, expression, hair, clothing, and all
-biometric traits. Only apply presentation-quality corrections requested by the
-operator, such as plain white background cleanup, exposure, neutral color,
-minor lighting balance, noise reduction, or photographic sharpness. Do not add
-or remove people, accessories, facial features, marks, hair, or clothing. Keep
-the original framing, pose, dimensions, and aspect ratio. Return one edited
-image and no invented content.
+identity, facial geometry, age, skin tone, and all biometric traits. Apply the
+operator's requested presentation edits while keeping the subject recognizably
+the same person. Presentation edits may include background cleanup, exposure,
+color, lighting, noise reduction, sharpness, crop/framing, and attire styling.
+Do not replace the subject, invent a different face, or add another person.
+Keep the original dimensions and aspect ratio. Return one edited image.
 """.strip()
 _VERIFY_INSTRUCTION = """
 Compare the original Visa portrait and edited candidate. Approve only when they
-show the same person and the candidate preserves facial geometry, age, skin
-tone, expression, hair, clothing, pose, framing, and biometric traits, with no
-generated artifacts. Return JSON only.
+show the same natural person. Judge identity from stable facial geometry and
+biometric traits. Background, lighting, color, sharpness, crop, pose,
+expression, hair styling, attire, and other presentation changes must not by
+themselves cause an identity rejection. The confidence value must represent
+only confidence that both images show the same person. Set same_identity false
+when the face belongs to a different person, has been replaced, or cannot be
+matched confidently. presentation_only and artifact_free are advisory quality
+signals and do not determine identity. Return JSON only.
 """.strip()
 _VERIFY_SCHEMA = {
     "type": "OBJECT",
@@ -307,13 +310,19 @@ class GeminiVisaImageEditService:
             )
         approved = (
             verdict.get("same_identity") is True
-            and verdict.get("presentation_only") is True
-            and verdict.get("artifact_free") is True
             and float(raw_confidence) >= 0.90
         )
         if not approved:
+            logger.warning(
+                "visa_ai_image_edit_identity_rejected",
+                same_identity=verdict.get("same_identity") is True,
+                presentation_only=verdict.get("presentation_only") is True,
+                artifact_free=verdict.get("artifact_free") is True,
+                identity_confidence=float(raw_confidence),
+            )
             raise GeminiVisaImageEditRejected(
-                "The generated image could not be verified as an identity-preserving Visa edit. Refine the prompt and try again."
+                "The generated image could not be verified as the same person. "
+                "Try generating it again."
             )
 
     async def _post(
@@ -496,7 +505,8 @@ class GeminiVisaImageEditService:
             raise GeminiVisaImageEditRejected("Enter a valid presentation-edit prompt.")
         if any(pattern.search(normalized) for pattern in _DISALLOWED_PROMPT_PATTERNS):
             raise GeminiVisaImageEditRejected(
-                "Visa AI editing cannot change identity, facial traits, age, skin tone, hair, clothing, or accessories."
+                "Visa AI editing cannot replace the person, change identity, "
+                "or create a face swap."
             )
         return normalized
 

@@ -83,7 +83,9 @@ test("sharpness is available for every image while guarded AI editing is Visa-on
   assert.match(editor, /passportsApi\.useVisaAiLibraryImage/);
   assert.match(editor, /Saved automatically after verification/);
   assert.match(editor, /Use this image/);
-  assert.match(editor, /bg-emerald-600/);
+  assert.match(editor, /bg-\[#C8CE32\]/);
+  assert.match(editor, /text-slate-950/);
+  assert.doesNotMatch(editor, /bg-emerald-/);
   assert.match(editor, /const effectiveSharpness = 3/);
   assert.match(endpoints, /visa_photo\/ai-library/);
   assert.match(endpoints, /visa_photo\/ai-jobs/);
@@ -109,10 +111,15 @@ test("Visa AI jobs enqueue quickly, resume after reopening, and poll until a per
   assert.match(editor, /mergeVisaAiLibraryItems\(items, current\)/);
 });
 
-test("stopping Visa AI polling leaves its durable server job running and preserves structured errors", () => {
+test("Visa AI polling shows non-cancellable progress while close cleanup and structured errors remain", () => {
   assert.match(editor, /new AbortController\(\)/);
   assert.match(editor, /controller\.signal/);
-  assert.match(editor, /Stop waiting/);
+  assert.match(editor, /role="status" aria-live="polite"/);
+  assert.match(editor, /aria-busy="true"/);
+  assert.match(editor, /Loader2 className="h-4 w-4 animate-spin"/);
+  assert.match(editor, /Generating and saving…/);
+  assert.doesNotMatch(editor, /Stop waiting/);
+  assert.doesNotMatch(editor, /onCancelGenerate/);
   assert.match(editor, /aiRequestRef\.current\?\.abort\(\)/);
   assert.match(api, /createVisaAiGenerationJob:[\s\S]*?signal\?: AbortSignal/);
   assert.match(api, /getVisaAiGenerationJob:[\s\S]*?signal\?: AbortSignal/);

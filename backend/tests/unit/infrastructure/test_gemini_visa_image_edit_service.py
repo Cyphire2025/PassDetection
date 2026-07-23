@@ -173,10 +173,83 @@ async def test_service_rejects_identity_or_biometric_change_prompts_before_api_c
             settings=_settings(),
             http_client=client,
         )
-        with pytest.raises(GeminiVisaImageEditRejected, match="cannot change identity"):
+        with pytest.raises(GeminiVisaImageEditRejected, match="cannot replace the person"):
             await service.edit(_jpeg(), prompt="Change the face to a different person")
 
     assert calls == 0
+
+
+@pytest.mark.asyncio
+async def test_service_allows_arbitrary_presentation_prompt_wording() -> None:
+    source = _jpeg()
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if "gemini-image-model" in request.url.path:
+            return _image_response(source)
+        return _verdict_response()
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = GeminiVisaImageEditService(  # type: ignore[arg-type]
+            settings=_settings(),
+            http_client=client,
+        )
+        with patch(
+            "app.infrastructure.imaging.passport_image_cropper.get_settings",
+            return_value=SimpleNamespace(
+                upload_max_file_size_bytes=5 * 1024 * 1024,
+                upload_max_pixels=24_000_000,
+            ),
+        ):
+            result = await service.edit(
+                source,
+                prompt=(
+                    "Remove the glasses, tidy the hair, use formal clothing, "
+                    "and make this look like a studio Visa portrait"
+                ),
+            )
+
+    assert result.content_type == "image/jpeg"
+    assert len(requests) == 2
+    generation_payload = json.loads(requests[0].content)
+    assert generation_payload["contents"][0]["parts"][0]["text"].startswith(
+        "Remove the glasses"
+    )
+
+
+@pytest.mark.asyncio
+async def test_same_identity_is_accepted_when_quality_signals_are_advisory() -> None:
+    source = _jpeg()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if "gemini-image-model" in request.url.path:
+            return _image_response(source)
+        return _verdict_response(
+            same_identity=True,
+            presentation_only=False,
+            artifact_free=False,
+            confidence=0.99,
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        service = GeminiVisaImageEditService(  # type: ignore[arg-type]
+            settings=_settings(),
+            http_client=client,
+        )
+        with patch(
+            "app.infrastructure.imaging.passport_image_cropper.get_settings",
+            return_value=SimpleNamespace(
+                upload_max_file_size_bytes=5 * 1024 * 1024,
+                upload_max_pixels=24_000_000,
+            ),
+        ):
+            result = await service.edit(
+                source,
+                prompt="Turn this into a clean studio Visa portrait",
+            )
+
+    assert result.content_type == "image/jpeg"
 
 
 @pytest.mark.asyncio
@@ -352,7 +425,7 @@ async def test_negative_identity_verdict_never_uses_fallback() -> None:
                     upload_max_pixels=24_000_000,
                 ),
             ),
-            pytest.raises(GeminiVisaImageEditRejected, match="identity-preserving"),
+            pytest.raises(GeminiVisaImageEditRejected, match="same person"),
         ):
             await service.edit(source, prompt="Make the background plain white")
 
