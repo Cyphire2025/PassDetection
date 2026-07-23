@@ -175,6 +175,51 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
     assert second_values["Meal Preference"] == "Jain"
 
 
+def test_pending_only_group_can_enable_optional_columns() -> None:
+    submitted_group_id = uuid.uuid4()
+    pending_group_id = uuid.uuid4()
+
+    content = PassportExcelExporter().export_group(
+        [_submission(submitted_group_id)],
+        group_name="Selected Groups",
+        group_details={
+            submitted_group_id: {
+                "name": "Submitted Group",
+                **_OPTION_FLAGS,
+            },
+            pending_group_id: {
+                "name": "Pending Group",
+                **_OPTION_FLAGS,
+                "staff_code_enabled": True,
+            },
+        },
+        pending_rows=[
+            {
+                "Group": "Pending Group",
+                "Client Name": "Pending Traveller",
+                "Staff Code": "STF_42",
+            }
+        ],
+    )
+    worksheet = _worksheet(content)
+    headers = [cell.value for cell in worksheet[4]]
+
+    assert "Staff Code" in headers
+    pending_row = next(
+        row
+        for row in range(5, worksheet.max_row + 1)
+        if worksheet.cell(
+            row=row,
+            column=headers.index("Client Name") + 1,
+        ).value
+        == "Pending Traveller"
+    )
+    assert worksheet.cell(
+        row=pending_row,
+        column=headers.index("Staff Code") + 1,
+    ).value == "STF_42"
+
+
 def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> None:
     group_id = uuid.uuid4()
     delhi_two = _submission(group_id, client_name="Zed", fields={"passport_number": "D2"})

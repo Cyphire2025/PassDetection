@@ -630,7 +630,7 @@ export function WhatsAppPage() {
                       <td className="px-6 py-4 text-slate-700">
                         <span className="inline-flex items-center gap-1.5">
                           <Users className="h-4 w-4 text-slate-400" />
-                          {group.recipient_count}
+                          {group.total_contact_count}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600">

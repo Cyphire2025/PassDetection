@@ -55,6 +55,8 @@ const FULL_IMAGE_CROP: PassportImageCropRect = {
 
 const VISA_AI_JOB_POLL_INTERVAL_MS = 2_000;
 const VISA_AI_JOB_POLL_FAILURE_LIMIT = 4;
+const DEFAULT_VISA_AI_PROMPT =
+  "Regenerate the image of the person in this image to a studio clicked photo for visa application , it should have a plain white background , keep the current details preserved";
 
 export function PassportImageCropEditor({
   submissionId,
@@ -71,7 +73,9 @@ export function PassportImageCropEditor({
   const [sourceObjectUrl, setSourceObjectUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [activePanel, setActivePanel] = useState<"adjust" | "ai">("adjust");
-  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiPrompt, setAiPrompt] = useState(
+    isVisaPhoto ? DEFAULT_VISA_AI_PROMPT : "",
+  );
   const [aiLibrary, setAiLibrary] = useState<VisaAiLibraryImage[]>([]);
   const [featuredGenerationId, setFeaturedGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +83,7 @@ export function PassportImageCropEditor({
   const [isResetting, setIsResetting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingLibrary, setIsLoadingLibrary] = useState(isVisaPhoto);
-  const [usingImageId, setUsingImageId] = useState<string | "original" | null>(null);
+  const [usingImageId, setUsingImageId] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -382,21 +386,6 @@ export function PassportImageCropEditor({
     }
   };
 
-  const activateOriginalImage = async () => {
-    if (!metadata || busyRef.current || !canReset) return;
-    setError(null);
-    setUsingImageId("original");
-    try {
-      await passportsApi.resetImageCrop(submissionId, imageType, metadata.revision);
-      onSaved();
-      onClose();
-    } catch (useError) {
-      setError(readEditError(useError, "Could not restore the original Visa photo."));
-    } finally {
-      setUsingImageId(null);
-    }
-  };
-
   const save = async () => {
     if (!metadata || isSaving || isResetting || isGenerating) return;
     setError(null);
@@ -507,7 +496,7 @@ export function PassportImageCropEditor({
             </div>
           ) : activePanel === "ai" && isVisaPhoto ? (
             <VisaAiPanel
-              originalImageUrl={metadata.original_url}
+              currentImageUrl={metadata.cropped_url}
               library={aiLibrary}
               featuredGenerationId={featuredGenerationId}
               prompt={aiPrompt}
@@ -515,11 +504,9 @@ export function PassportImageCropEditor({
               isGenerating={isGenerating}
               isLoadingLibrary={isLoadingLibrary}
               usingImageId={usingImageId}
-              originalIsCurrent={!canReset}
               onPromptChange={updatePrompt}
               onGenerate={() => void generateAiPreview()}
               onFeature={setFeaturedGenerationId}
-              onUseOriginal={() => void activateOriginalImage()}
               onUseGeneration={(generationId) => void activateAiGeneration(generationId)}
             />
           ) : (
@@ -604,7 +591,7 @@ export function PassportImageCropEditor({
 }
 
 function VisaAiPanel({
-  originalImageUrl,
+  currentImageUrl,
   library,
   featuredGenerationId,
   prompt,
@@ -612,26 +599,22 @@ function VisaAiPanel({
   isGenerating,
   isLoadingLibrary,
   usingImageId,
-  originalIsCurrent,
   onPromptChange,
   onGenerate,
   onFeature,
-  onUseOriginal,
   onUseGeneration,
 }: {
-  originalImageUrl: string;
+  currentImageUrl: string;
   library: VisaAiLibraryImage[];
   featuredGenerationId: string | null;
   prompt: string;
   busy: boolean;
   isGenerating: boolean;
   isLoadingLibrary: boolean;
-  usingImageId: string | "original" | null;
-  originalIsCurrent: boolean;
+  usingImageId: string | null;
   onPromptChange: (value: string) => void;
   onGenerate: () => void;
   onFeature: (generationId: string) => void;
-  onUseOriginal: () => void;
   onUseGeneration: (generationId: string) => void;
 }) {
   const featured = library.find((item) => item.id === featuredGenerationId) ?? library[0] ?? null;
@@ -639,12 +622,12 @@ function VisaAiPanel({
     <div className="flex min-h-[28rem] flex-1 flex-col gap-5">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)_minmax(0,1fr)] lg:items-center">
       <ImageComparisonCard
-        title="Original Visa photo"
-        imageUrl={originalImageUrl}
-        isCurrent={originalIsCurrent}
-        isUsing={usingImageId === "original"}
-        disabled={busy || originalIsCurrent}
-        onUse={onUseOriginal}
+        title="Current Visa photo"
+        imageUrl={currentImageUrl}
+        isCurrent
+        isUsing={false}
+        disabled
+        onUse={() => undefined}
       />
       <div className="rounded-2xl border border-[#C8CE32] bg-white p-4 shadow-sm">
         <label htmlFor="visa-ai-prompt" className="text-sm font-semibold text-slate-900">

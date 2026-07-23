@@ -11,6 +11,7 @@ from openpyxl import Workbook
 
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
+    WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
     WhatsAppRecipientMessageStateModel,
@@ -23,6 +24,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     _parse_excel_contact_bytes,
     _rejected_contact_fingerprint,
     get_broadcast_recipient_roster,
+    list_broadcast_groups,
 )
 
 
@@ -106,6 +108,18 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         removed_at=None,
         created_at=now + timedelta(seconds=2),
     )
+    never_sent_recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(),
+        broadcast_group_id=group_id,
+        agency_id=agency_id,
+        name="Accepted Never Sent",
+        phone_number="+919876543212",
+        normalized_phone_number="+919876543212",
+        imported_fields={"source_order": "4"},
+        display_order=4,
+        removed_at=None,
+        created_at=now + timedelta(seconds=3),
+    )
     rejected = WhatsAppBroadcastRejectedContactModel(
         id=uuid.uuid4(),
         broadcast_group_id=group_id,
@@ -146,6 +160,18 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         created_at=now,
         updated_at=now,
     )
+    mixed_failure_state = WhatsAppRecipientMessageStateModel(
+        id=uuid.uuid4(),
+        broadcast_group_id=group_id,
+        recipient_id=sent_recipient.id,
+        agency_id=agency_id,
+        message_type="passport_link",
+        status="failed",
+        submitted_at=now,
+        status_updated_at=now,
+        created_at=now,
+        updated_at=now,
+    )
 
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = group_id
@@ -153,11 +179,16 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     recipients_result.scalars.return_value.all.return_value = [
         sent_recipient,
         failed_recipient,
+        never_sent_recipient,
     ]
     rejected_result = MagicMock()
     rejected_result.scalars.return_value.all.return_value = [rejected]
     states_result = MagicMock()
-    states_result.scalars.return_value.all.return_value = [sent_state, failed_state]
+    states_result.scalars.return_value.all.return_value = [
+        sent_state,
+        mixed_failure_state,
+        failed_state,
+    ]
     resend_result = MagicMock()
     resend_result.scalars.return_value.all.return_value = []
     session = MagicMock()
@@ -180,23 +211,62 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         session=session,
     )
 
-    assert [item.display_order for item in response.items] == [1, 2, 3]
+    assert [item.display_order for item in response.items] == [1, 2, 3, 4]
     assert [item.kind for item in response.items] == [
         "recipient",
         "rejected",
         "recipient",
+        "recipient",
     ]
     assert response.items[0].recipient is not None
-    assert response.items[0].recipient.message_statuses[0].status == "sent"
+    assert {
+        status.status for status in response.items[0].recipient.message_statuses
+    } == {"sent", "failed"}
     assert response.items[1].rejected_contact is not None
     assert response.items[2].recipient is not None
     assert response.items[2].recipient.message_statuses[0].status == "failed"
+    assert response.items[3].recipient is not None
+    assert response.items[3].recipient.message_statuses == []
     assert response.counts.model_dump() == {
-        "all": 3,
+        # All counts unique roster rows. It is deliberately not derived from
+        # Sent + Failed because those filters overlap and never-sent rows exist.
+        "all": 4,
         "sent": 1,
-        "failed": 1,
+        "failed": 2,
         "rejected": 1,
     }
+
+
+@pytest.mark.asyncio
+async def test_broadcast_list_exposes_total_roster_without_changing_send_count() -> None:
+    group_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    group = WhatsAppBroadcastGroupModel(
+        id=group_id,
+        agency_id=agency_id,
+        name="Delegates",
+        organizing_company_name="Global Connect Travels",
+        recipient_opt_in_confirmed_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    result = MagicMock()
+    result.all.return_value = [(group, 162, 3)]
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=result)
+
+    response = await list_broadcast_groups(
+        current_user=SimpleNamespace(
+            role=UserRole.AGENCY_ADMIN,
+            agency_id=agency_id,
+        ),
+        session=session,
+    )
+
+    assert len(response) == 1
+    assert response[0].recipient_count == 162
+    assert response[0].total_contact_count == 165
 
 
 def test_existing_rows_keep_their_roster_order_when_reimported() -> None:

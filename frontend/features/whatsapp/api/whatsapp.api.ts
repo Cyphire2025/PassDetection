@@ -92,7 +92,10 @@ export interface WhatsAppSupportContact {
 export interface WhatsAppBroadcastGroup {
   id: string;
   name: string;
+  /** Active, valid recipients that can receive a message. */
   recipient_count: number;
+  /** Complete visible roster: valid recipients plus rejected import rows. */
+  total_contact_count: number;
   recipient_opt_in_confirmed: boolean;
   created_at: string;
   updated_at: string;

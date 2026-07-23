@@ -51,7 +51,7 @@ test("editor fetches the current full-resolution edit source through the authent
   assert.match(editor, /passportsApi\.getEditableImage/);
   assert.match(api, /getEditableImage:[\s\S]*?responseType: "blob"/);
   assert.match(api, /editable_source_url: string/);
-  assert.doesNotMatch(editor, /cropped_url/);
+  assert.match(editor, /currentImageUrl=\{metadata\.cropped_url\}/);
 });
 
 test("editor supports pointer, touch, keyboard, rotation, dimming, reset, and focus containment", () => {
@@ -76,8 +76,12 @@ test("sharpness is available for every image while guarded AI editing is Visa-on
   assert.match(editor, /max="3"/);
   assert.match(editor, /const isVisaPhoto = imageType === "visa_photo"/);
   assert.match(editor, /activePanel === "ai" && isVisaPhoto/);
-  assert.match(editor, /Original Visa photo/);
+  assert.match(editor, /Current Visa photo/);
   assert.match(editor, /AI edit instruction/);
+  assert.match(
+    editor,
+    /Regenerate the image of the person in this image to a studio clicked photo for visa application , it should have a plain white background , keep the current details preserved/,
+  );
   assert.match(editor, /Saved AI image library/);
   assert.match(editor, /passportsApi\.createVisaAiGenerationJob/);
   assert.match(editor, /passportsApi\.useVisaAiLibraryImage/);

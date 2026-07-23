@@ -31,6 +31,7 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
 from app.presentation.api.v1.routes.passports import (
     _authorized_staff_passport_image,
     _staff_image_urls,
+    _visa_ai_input_storage_key,
     _visa_ai_edit_http_exception,
     create_visa_ai_library_image,
     get_passport_image_thumbnail,
@@ -57,6 +58,19 @@ def _jpeg(*, size: tuple[int, int] = (900, 600)) -> bytes:
     output = io.BytesIO()
     Image.new("RGB", size, color=(235, 235, 235)).save(output, format="JPEG")
     return output.getvalue()
+
+
+def test_visa_ai_uses_the_current_effective_crop_as_its_input() -> None:
+    effective_crop = SimpleNamespace(derived_storage_key="derived/current-visa.jpg")
+
+    assert _visa_ai_input_storage_key(
+        source_key="original/visa.jpg",
+        effective_crop=effective_crop,  # type: ignore[arg-type]
+    ) == "derived/current-visa.jpg"
+    assert _visa_ai_input_storage_key(
+        source_key="original/visa.jpg",
+        effective_crop=None,
+    ) == "original/visa.jpg"
 
 
 @pytest.mark.asyncio

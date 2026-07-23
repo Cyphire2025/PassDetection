@@ -423,18 +423,16 @@ class PassportExcelExporter:
 
     @staticmethod
     def _enabled_columns(
-        submissions: list[PassportSubmission],
+        _submissions: list[PassportSubmission],
         group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None,
     ) -> list[_ExportColumn]:
         if group_details is None:
             return list(_COLUMNS)
 
-        submitted_group_ids = {submission.group_id for submission in submissions}
-        relevant_details = [
-            details
-            for group_id, details in group_details.items()
-            if not submitted_group_ids or group_id in submitted_group_ids
-        ]
+        # Callers provide details only for groups included in the workbook.
+        # Consider every included group so a pending-only group can still
+        # enable and export its configured optional fields.
+        relevant_details = list(group_details.values())
         if not relevant_details:
             return list(_COLUMNS)
 

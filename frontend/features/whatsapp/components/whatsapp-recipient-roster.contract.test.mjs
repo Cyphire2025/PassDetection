@@ -48,6 +48,12 @@ test("recipient dialog exposes All, Sent, Failed, and Rejected tabs with server 
   assert.match(pageSource, /filterRecipientRosterItems\(/);
 });
 
+test("broadcast list shows the complete roster while delivery keeps the valid count", () => {
+  assert.match(apiSource, /total_contact_count: number/);
+  assert.match(pageSource, /\{group\.total_contact_count\}/);
+  assert.match(pageSource, /group\.recipient_count === 0/);
+});
+
 test("roster filtering preserves overlapping sent and failed outcomes", () => {
   assert.match(
     rosterSource,

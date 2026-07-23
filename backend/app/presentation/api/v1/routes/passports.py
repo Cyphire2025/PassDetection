@@ -2757,11 +2757,30 @@ async def export_selected_groups(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
 
+    group_stmt = select(ClientGroupModel).where(
+        ClientGroupModel.id.in_(set(body.group_ids))
+    )
+    group_stmt = AuthorizationPolicy.apply_group_visibility_scope(
+        group_stmt,
+        current_user,
+    )
+    group_result = await session.execute(group_stmt)
+    groups = [
+        ClientGroupRepository._to_entity(model)
+        for model in group_result.scalars().all()
+    ]
+    if not groups:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No exportable passport groups found",
+        )
+
+    visible_group_ids = [group.id for group in groups]
     stmt = (
         select(PassportSubmissionModel)
         .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
         .where(
-            PassportSubmissionModel.group_id.in_(body.group_ids),
+            PassportSubmissionModel.group_id.in_(visible_group_ids),
             PassportSubmissionModel.status.in_(_submitted_statuses()),
         )
     )
@@ -2770,16 +2789,38 @@ async def export_selected_groups(
     submissions = [
         PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()
     ]
-    if not submissions:
+
+    match_rows_by_group = await _export_whatsapp_match_rows(
+        session,
+        submissions,
+        groups=groups,
+    )
+    pending_rows = [
+        pending_row
+        for group in groups
+        for pending_row in _pending_recipient_export_rows(
+            group=group,
+            rows=match_rows_by_group.get(group.id, []),
+        )
+    ]
+    if not submissions and not pending_rows:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No exportable passport submissions found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No exportable passport submissions or pending recipients found",
         )
 
     content = PassportExcelExporter().export_group(
         submissions,
         group_name="Selected Groups",
-        group_details=await _export_group_details(session, body.group_ids),
-        zone_names=await _export_zone_names(session, submissions),
+        group_details={
+            group.id: _group_export_details(group)
+            for group in groups
+        },
+        zone_names=_export_zone_names_from_match_rows(
+            submissions,
+            match_rows_by_group,
+        ),
+        pending_rows=pending_rows,
     )
     return StreamingResponse(
         io.BytesIO(content),
@@ -2944,6 +2985,18 @@ async def _load_effective_passport_image(
             detail=exc.message,
         ) from exc
     return content, content_type, extension
+
+
+def _visa_ai_input_storage_key(
+    *,
+    source_key: str,
+    effective_crop: PassportImageCrop | None,
+) -> str:
+    """Use the exact effective image staff currently see as the Visa AI input."""
+
+    if effective_crop and effective_crop.derived_storage_key:
+        return effective_crop.derived_storage_key
+    return source_key
 
 
 @router.get(
@@ -3331,10 +3384,9 @@ async def preview_visa_ai_image_edit(
     )
     crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
     effective = _effective_crop(crop_row, source_storage_key=source_key)
-    edit_source_key = (
-        effective.edit_source_storage_key
-        if effective and effective.edit_source_storage_key
-        else source_key
+    edit_source_key = _visa_ai_input_storage_key(
+        source_key=source_key,
+        effective_crop=effective,
     )
     normalized_prompt = " ".join(body.prompt.strip().split())
     try:
@@ -3550,10 +3602,9 @@ async def create_visa_ai_image_job(
 
     crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
     effective = _effective_crop(crop_row, source_storage_key=source_key)
-    input_storage_key = (
-        effective.edit_source_storage_key
-        if effective and effective.edit_source_storage_key
-        else source_key
+    input_storage_key = _visa_ai_input_storage_key(
+        source_key=source_key,
+        effective_crop=effective,
     )
     repository = PassportVisaAiImageJobRepository(session)
     job, created = await repository.enqueue(
@@ -3770,10 +3821,9 @@ async def create_visa_ai_library_image(
     )
     crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
     effective = _effective_crop(crop_row, source_storage_key=source_key)
-    input_storage_key = (
-        effective.edit_source_storage_key
-        if effective and effective.edit_source_storage_key
-        else source_key
+    input_storage_key = _visa_ai_input_storage_key(
+        source_key=source_key,
+        effective_crop=effective,
     )
     normalized_prompt = " ".join(body.prompt.strip().split())
     storage = MinioStorageRepository()

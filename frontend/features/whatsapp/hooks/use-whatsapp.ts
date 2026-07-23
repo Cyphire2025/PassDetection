@@ -176,6 +176,10 @@ export function useDeleteWhatsAppRecipient() {
           ? {
               ...current,
               recipient_count: Math.max(0, current.recipient_count - 1),
+              total_contact_count: Math.max(
+                0,
+                current.total_contact_count - 1,
+              ),
               recipients: current.recipients.filter(
                 (recipient) => recipient.id !== recipientId,
               ),

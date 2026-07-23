@@ -271,7 +271,10 @@ class WhatsAppBroadcastGroupResponse(BaseModel):
     id: uuid.UUID
     name: str
     organizing_company_name: str
+    # Delivery actions use active valid recipients. The total is the visible
+    # roster size and also includes unresolved rejected spreadsheet rows.
     recipient_count: int
+    total_contact_count: int
     recipient_opt_in_confirmed: bool
     created_at: datetime
     updated_at: datetime
@@ -2174,6 +2177,7 @@ async def _group_detail(
         name=group.name,
         organizing_company_name=group.organizing_company_name,
         recipient_count=len(recipients),
+        total_contact_count=len(recipients) + rejected_contact_count,
         recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
         created_at=group.created_at,
         updated_at=group.updated_at,
@@ -2616,10 +2620,20 @@ async def list_broadcast_groups(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[WhatsAppBroadcastGroupResponse]:
+    rejected_contact_count = (
+        select(func.count(WhatsAppBroadcastRejectedContactModel.id))
+        .where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id
+            == WhatsAppBroadcastGroupModel.id,
+        )
+        .correlate(WhatsAppBroadcastGroupModel)
+        .scalar_subquery()
+    )
     result = await session.execute(
         select(
             WhatsAppBroadcastGroupModel,
             func.count(WhatsAppBroadcastRecipientModel.id).label("recipient_count"),
+            rejected_contact_count.label("rejected_contact_count"),
         )
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
@@ -2638,12 +2652,15 @@ async def list_broadcast_groups(
             id=group.id,
             name=group.name,
             organizing_company_name=group.organizing_company_name,
-            recipient_count=count,
+            recipient_count=int(recipient_count or 0),
+            total_contact_count=(
+                int(recipient_count or 0) + int(rejected_count or 0)
+            ),
             recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
             created_at=group.created_at,
             updated_at=group.updated_at,
         )
-        for group, count in result.all()
+        for group, recipient_count, rejected_count in result.all()
     ]
 
 
