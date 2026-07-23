@@ -411,6 +411,11 @@ export const passportsApi = {
   exportGroupImages: async (groupId: string): Promise<void> => {
     const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupImageExport(groupId), {
       responseType: "blob",
+      // The backend builds a deterministic archive from private object storage
+      // before sending it. Keep this one bulk download outside the ordinary
+      // 30-second JSON request timeout; proxy and storage timeouts remain
+      // bounded server-side.
+      timeout: 0,
     });
     downloadBlob(response.data, getAttachmentFilename(response.headers["content-disposition"], `passport-images-${groupId}.zip`));
   },

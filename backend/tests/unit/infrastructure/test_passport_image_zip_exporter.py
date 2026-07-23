@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import unittest
 import uuid
 import zipfile
@@ -18,6 +19,22 @@ class FakeStorage:
 
     async def get_file(self, key: str) -> bytes:
         return self.objects[key]
+
+
+class ConcurrentStorage(FakeStorage):
+    def __init__(self, objects: dict[str, bytes]) -> None:
+        super().__init__(objects)
+        self.active = 0
+        self.peak_active = 0
+
+    async def get_file(self, key: str) -> bytes:
+        self.active += 1
+        self.peak_active = max(self.peak_active, self.active)
+        try:
+            await asyncio.sleep(0.01)
+            return self.objects[key]
+        finally:
+            self.active -= 1
 
 
 class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
@@ -282,6 +299,50 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 zone_folders = {PurePosixPath(name).parts[1] for name in files}
                 self.assertEqual(zone_folders, {"Delhi_West", "Delhi_West_2"})
                 self.assertTrue(all(".." not in name and "\\" not in name for name in files))
+        finally:
+            spool.close()
+
+    async def test_export_fetches_images_with_bounded_concurrency(self) -> None:
+        group = self._group()
+        submissions = [
+            self._submission(group, include_selfie=True)
+            for _ in range(4)
+        ]
+        objects = {
+            key: key.encode()
+            for submission in submissions
+            for key in (
+                submission.passport_photo_s3_key,
+                submission.image_s3_key,
+                submission.passport_back_s3_key,
+            )
+            if key
+        }
+        storage = ConcurrentStorage(objects)
+        exporter = PassportImageZipExporter()
+
+        spool, entry_count, total_bytes = await exporter.export_group(
+            submissions,
+            group_name=group.name,
+            staff_code_enabled=False,
+            storage=storage,  # type: ignore[arg-type]
+        )
+        try:
+            self.assertEqual(entry_count, len(objects))
+            self.assertEqual(
+                total_bytes,
+                sum(len(content) for content in objects.values()),
+            )
+            self.assertGreater(storage.peak_active, 1)
+            self.assertLessEqual(
+                storage.peak_active,
+                exporter.STORAGE_FETCH_BATCH_SIZE,
+            )
+            with zipfile.ZipFile(spool) as archive:
+                self.assertEqual(
+                    len([name for name in archive.namelist() if not name.endswith("/")]),
+                    len(objects),
+                )
         finally:
             spool.close()
 

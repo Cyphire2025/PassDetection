@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from celery import Celery
+from celery.signals import worker_process_init, worker_process_shutdown
 from kombu import Queue
 
 from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
+from app.infrastructure.celery_async_runtime import celery_async_runtime
 
 settings = get_settings()
 
@@ -42,3 +44,17 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
+
+
+@worker_process_init.connect(weak=False)  # type: ignore[untyped-decorator]
+def initialize_worker_async_runtime(**_: object) -> None:
+    """Create loop-bound resources only after the prefork child starts."""
+
+    celery_async_runtime.initialize()
+
+
+@worker_process_shutdown.connect(weak=False)  # type: ignore[untyped-decorator]
+def shutdown_worker_async_runtime(**_: object) -> None:
+    """Close the process-local loop and its pooled database connections."""
+
+    celery_async_runtime.shutdown()

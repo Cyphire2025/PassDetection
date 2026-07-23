@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from celery.exceptions import Reject
 
 from app.core.config.settings import get_settings
@@ -11,6 +9,7 @@ from app.infrastructure.ai_priority import (
     VERIFICATION_QUEUE,
     AiPriorityAdmissionDeferred,
 )
+from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.processing.celery_app import celery_app
 from app.infrastructure.verification.runtime import (
     PostSubmissionVerificationRetryRequested,
@@ -33,7 +32,7 @@ def verify_submitted_passport(
     verification_revision: int,
 ) -> None:
     try:
-        asyncio.run(
+        celery_async_runtime.run(
             run_post_submission_verification(
                 job_id=job_id,
                 submission_id=submission_id,

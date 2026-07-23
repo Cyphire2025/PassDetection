@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from celery.utils.log import get_task_logger
 
 from app.application.use_cases.whatsapp.message_templates import WhatsAppMessageType
+from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.processing.celery_app import celery_app
 from app.infrastructure.whatsapp.document_delivery_runtime import (
     mark_document_batch_failed,
@@ -38,7 +37,7 @@ def process_whatsapp_broadcast(
     passport_intro: str | None = None,
 ) -> None:
     try:
-        asyncio.run(
+        celery_async_runtime.run(
             run_whatsapp_broadcast(
                 batch_id=batch_id,
                 message_type=message_type,
@@ -55,7 +54,7 @@ def process_whatsapp_broadcast(
             type(exc).__name__,
         )
         if self.request.retries >= self.max_retries:
-            asyncio.run(
+            celery_async_runtime.run(
                 mark_whatsapp_batch_failed(
                     batch_id=batch_id,
                     error_message=(
@@ -81,7 +80,7 @@ def process_document_whatsapp_broadcast(
     send_batch_id: str,
 ) -> None:
     try:
-        asyncio.run(
+        celery_async_runtime.run(
             run_document_whatsapp_broadcast(send_batch_id=send_batch_id)
         )
     except Exception as exc:
@@ -91,7 +90,7 @@ def process_document_whatsapp_broadcast(
             type(exc).__name__,
         )
         if self.request.retries >= self.max_retries:
-            asyncio.run(
+            celery_async_runtime.run(
                 mark_document_batch_failed(
                     send_batch_id=send_batch_id,
                     error_message=(

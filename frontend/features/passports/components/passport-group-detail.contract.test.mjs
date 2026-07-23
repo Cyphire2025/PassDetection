@@ -35,6 +35,17 @@ test("group confidence displays the same server-computed value used for sorting"
   assert.doesNotMatch(source, /getGroupVerificationConfidence/);
 });
 
+test("passport image ZIP export is not cut off by the ordinary API timeout", () => {
+  assert.match(
+    api,
+    /exportGroupImages:[\s\S]*?groupImageExport\(groupId\)[\s\S]*?responseType: "blob"[\s\S]*?timeout: 0/,
+  );
+  assert.match(
+    source,
+    /mutationErrorMessage\(exportError, "Image download failed"\)/,
+  );
+});
+
 test("submission controls expose only requested sort, direction, and workflow filters", () => {
   assert.match(source, /Sort by: Name/);
   assert.match(source, /Sort by: Updated/);

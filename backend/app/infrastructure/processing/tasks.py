@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from celery.exceptions import Reject
 from celery.utils.log import get_task_logger
 
@@ -16,6 +14,7 @@ from app.infrastructure.ai_priority import (
     EXTRACTION_QUEUE,
     AiPriorityAdmissionDeferred,
 )
+from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.processing.celery_app import celery_app
 from app.infrastructure.processing.worker_runtime import run_passport_processing_job
 
@@ -31,7 +30,12 @@ logger = get_task_logger(__name__)
 )
 def process_passport_submission(self, *, job_id: str, submission_id: str) -> None:  # type: ignore[no-untyped-def]
     try:
-        asyncio.run(run_passport_processing_job(job_id=job_id, submission_id=submission_id))
+        celery_async_runtime.run(
+            run_passport_processing_job(
+                job_id=job_id,
+                submission_id=submission_id,
+            )
+        )
     except (AiPriorityAdmissionDeferred, ProcessingJobBusy) as exc:
         # Scheduler and fresh RUNNING-claim deferrals are not provider
         # attempts. Publish a new delivery so they never consume the durable

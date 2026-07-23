@@ -323,7 +323,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     setIsActionsMenuOpen(false);
                     setImportMessage(null);
                     exportImagesMutation.mutate(groupId, {
-                      onError: (exportError) => setImportMessage(exportError instanceof Error ? exportError.message : "Image download failed"),
+                      onError: (exportError) => setImportMessage(
+                        mutationErrorMessage(exportError, "Image download failed"),
+                      ),
                     });
                   }}
                 >

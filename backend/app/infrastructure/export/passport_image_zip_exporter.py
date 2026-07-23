@@ -7,6 +7,7 @@ import re
 import tempfile
 import unicodedata
 import zipfile
+from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import BinaryIO, Iterable, Mapping
 
@@ -30,6 +31,19 @@ _WINDOWS_RESERVED = {
 }
 
 
+@dataclass(frozen=True, slots=True)
+class _ArchiveImageSpec:
+    path_stem: str
+    storage_key: str
+    crop: PassportImageCrop | None
+
+
+@dataclass(frozen=True, slots=True)
+class _LoadedArchiveImage:
+    path: str
+    content: bytes
+
+
 class PassportImageExportError(ValueError):
     """Base error for a ZIP export that cannot be produced safely."""
 
@@ -48,6 +62,7 @@ class PassportImageZipExporter:
     MAX_SUBMISSIONS = 5_000
     MAX_UNCOMPRESSED_BYTES = 2 * 1024 * 1024 * 1024
     SPOOL_MEMORY_BYTES = 8 * 1024 * 1024
+    STORAGE_FETCH_BATCH_SIZE = 8
 
     async def export_group(
         self,
@@ -113,6 +128,7 @@ class PassportImageZipExporter:
         root = f"{sanitize_zip_component(group_name, fallback='GROUP')}_PASSPORT_IMAGES"
         used_folders: set[str] = set()
         written_zone_folders: set[str] = set()
+        image_specs: list[_ArchiveImageSpec] = []
 
         try:
             with zipfile.ZipFile(spool, mode="w", compression=zipfile.ZIP_STORED, allowZip64=True) as archive:
@@ -178,35 +194,34 @@ class PassportImageZipExporter:
                             if crop and crop.active and crop.source_storage_key == storage_key
                             else None
                         )
-                        extension = safe_storage_extension(storage_key)
-                        if effective_crop and effective_crop.derived_storage_key:
-                            try:
-                                content = await storage.get_file(effective_crop.derived_storage_key)
-                                extension = ".jpg"
-                            except StorageError:
-                                render_source_key = (
-                                    effective_crop.edit_source_storage_key or storage_key
-                                )
-                                original = await storage.get_file(render_source_key)
-                                rendered = await asyncio.to_thread(
-                                    render_saved_passport_image_crop,
-                                    original,
-                                    effective_crop,
-                                )
-                                content = rendered.content
-                                extension = rendered.extension
-                        else:
-                            content = await storage.get_file(storage_key)
-                        total_bytes += len(content)
+                        image_specs.append(
+                            _ArchiveImageSpec(
+                                path_stem=(
+                                    f"{root}/{folder_path}/"
+                                    f"{passenger_folder}_{label}"
+                                ),
+                                storage_key=storage_key,
+                                crop=effective_crop,
+                            )
+                        )
+
+                for offset in range(0, len(image_specs), self.STORAGE_FETCH_BATCH_SIZE):
+                    loaded_images = await self._load_batch(
+                        image_specs[
+                            offset : offset + self.STORAGE_FETCH_BATCH_SIZE
+                        ],
+                        storage=storage,
+                    )
+                    for loaded_image in loaded_images:
+                        total_bytes += len(loaded_image.content)
                         if total_bytes > self.MAX_UNCOMPRESSED_BYTES:
                             raise PassportImageExportLimitError(
                                 "Image export exceeds the 2 GB uncompressed safety limit."
                             )
-                        archive_path = (
-                            f"{root}/{folder_path}/"
-                            f"{passenger_folder}_{label}{extension}"
+                        archive.writestr(
+                            self._zip_info(loaded_image.path),
+                            loaded_image.content,
                         )
-                        archive.writestr(self._zip_info(archive_path), content)
                         entry_count += 1
 
             spool.seek(0)
@@ -214,6 +229,53 @@ class PassportImageZipExporter:
         except Exception:
             spool.close()
             raise
+
+    async def _load_batch(
+        self,
+        specs: list[_ArchiveImageSpec],
+        *,
+        storage: IObjectStorageRepository,
+    ) -> list[_LoadedArchiveImage]:
+        tasks = [
+            asyncio.create_task(self._load_image(spec, storage=storage))
+            for spec in specs
+        ]
+        try:
+            return list(await asyncio.gather(*tasks))
+        except BaseException:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+            raise
+
+    @staticmethod
+    async def _load_image(
+        spec: _ArchiveImageSpec,
+        *,
+        storage: IObjectStorageRepository,
+    ) -> _LoadedArchiveImage:
+        extension = safe_storage_extension(spec.storage_key)
+        crop = spec.crop
+        if crop and crop.derived_storage_key:
+            try:
+                content = await storage.get_file(crop.derived_storage_key)
+                extension = ".jpg"
+            except StorageError:
+                render_source_key = crop.edit_source_storage_key or spec.storage_key
+                original = await storage.get_file(render_source_key)
+                rendered = await asyncio.to_thread(
+                    render_saved_passport_image_crop,
+                    original,
+                    crop,
+                )
+                content = rendered.content
+                extension = rendered.extension
+        else:
+            content = await storage.get_file(spec.storage_key)
+        return _LoadedArchiveImage(
+            path=f"{spec.path_stem}{extension}",
+            content=content,
+        )
 
     @staticmethod
     def _passenger_folder_base(
