@@ -7,6 +7,8 @@ export const WHATSAPP_QUERY_KEYS = {
   group: (groupId: string) => ["whatsapp", "groups", groupId] as const,
   rejectedContacts: (groupId: string) =>
     ["whatsapp", "groups", groupId, "rejected-contacts"] as const,
+  recipientRoster: (groupId: string) =>
+    ["whatsapp", "groups", groupId, "recipient-roster"] as const,
   rejectedContactsPage: (groupId: string, limit: number, offset: number) =>
     [
       ...WHATSAPP_QUERY_KEYS.rejectedContacts(groupId),
@@ -36,6 +38,36 @@ export function useWhatsAppGroup(groupId: string | null) {
               || status.latest_resend_status === "processing"
             ),
         ),
+      )
+        ? 2_000
+        : false
+    ),
+  });
+}
+
+export function useWhatsAppRecipientRoster(groupId: string | null) {
+  return useQuery({
+    queryKey: groupId
+      ? WHATSAPP_QUERY_KEYS.recipientRoster(groupId)
+      : ["whatsapp", "groups", "none", "recipient-roster"],
+    queryFn: () => whatsappApi.recipientRoster(groupId as string),
+    enabled: Boolean(groupId),
+    refetchInterval: (query) => (
+      query.state.data?.items.some(
+        (item) =>
+          item.kind === "recipient"
+          && item.recipient.message_statuses.some(
+            (status) =>
+              status.status === "queued"
+              || status.status === "processing"
+              || (
+                status.resend_blocked
+                && (
+                  status.latest_resend_status === "queued"
+                  || status.latest_resend_status === "processing"
+                )
+              ),
+          ),
       )
         ? 2_000
         : false
@@ -76,6 +108,9 @@ export function useResolveWhatsAppRejectedContact() {
         queryClient.invalidateQueries({
           queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
         }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
+        }),
       ]);
     },
   });
@@ -112,6 +147,9 @@ export function useAddWhatsAppRecipients() {
       queryClient.invalidateQueries({
         queryKey: WHATSAPP_QUERY_KEYS.rejectedContacts(group.id),
       });
+      queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
+      });
     },
   });
 }
@@ -146,6 +184,9 @@ export function useDeleteWhatsAppRecipient() {
       );
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+      queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
+      });
     },
   });
 }
@@ -160,6 +201,9 @@ export function useUpdateWhatsAppRecipientPhone() {
         group,
       );
       queryClient.invalidateQueries({ queryKey: WHATSAPP_QUERY_KEYS.groups });
+      queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(group.id),
+      });
     },
   });
 }
@@ -174,6 +218,9 @@ export function useResendWhatsAppRecipientMessage() {
       });
       await queryClient.invalidateQueries({
         queryKey: WHATSAPP_QUERY_KEYS.groups,
+      });
+      await queryClient.invalidateQueries({
+        queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
       });
     },
   });
@@ -211,6 +258,7 @@ export function usePreviewWhatsAppMessage() {
 }
 
 export function useSendWhatsAppWelcome() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       groupId,
@@ -231,10 +279,24 @@ export function useSendWhatsAppWelcome() {
       headerImageId,
       recipientIds,
     ),
+    onSuccess: async (_, { groupId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.groups,
+        }),
+      ]);
+    },
   });
 }
 
 export function useSendWhatsAppPassportLink() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       groupId,
@@ -264,5 +326,18 @@ export function useSendWhatsAppPassportLink() {
       recipientIds,
       supportContactIds,
     ),
+    onSuccess: async (_, { groupId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.groups,
+        }),
+      ]);
+    },
   });
 }

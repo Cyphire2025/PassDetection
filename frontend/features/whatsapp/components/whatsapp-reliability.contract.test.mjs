@@ -132,28 +132,27 @@ test("create and add flows persist rejected contacts separately from valid recip
   assert.match(pageSource, /source_file_name: contact\.source_file_name/);
 });
 
-test("saved rejected contacts are lazy-loaded and paginated from the recipient list", () => {
-  assert.match(endpointsSource, /rejected-contacts/);
-  assert.match(apiSource, /params: \{ limit, offset \}/);
-  assert.match(hooksSource, /enabled,/);
+test("saved rejected contacts are loaded in the unified ordered recipient roster", () => {
+  assert.match(endpointsSource, /recipient-roster/);
   assert.match(
-    pageSource,
-    /enabled: showRejectedContacts && rejectedContactCount > 0/,
+    apiSource,
+    /type WhatsAppRecipientRosterItem[\s\S]*kind: "recipient"[\s\S]*kind: "rejected"/,
   );
-  assert.match(
-    pageSource,
-    /Rejected contacts \(\{detail\.rejected_contact_count\}\)/,
-  );
+  assert.match(apiSource, /display_order: number/);
+  assert.match(apiSource, /rejected_contact: WhatsAppRejectedContact/);
+  assert.match(apiSource, /counts:[\s\S]*all: number[\s\S]*rejected: number/);
+  assert.match(hooksSource, /useWhatsAppRecipientRoster/);
+  assert.match(pageSource, /useWhatsAppRecipientRoster\(group\.id\)/);
+  assert.match(pageSource, /\{ id: "rejected", label: "Rejected" \}/);
+  assert.match(pageSource, /filterRecipientRosterItems\(/);
+  assert.match(pageSource, /item\.kind === "rejected"/);
+  assert.match(pageSource, /<RejectedRosterRows/);
   assert.match(pageSource, /contact\.source_file_name/);
   assert.match(pageSource, /contact\.sheet_name/);
   assert.match(pageSource, /contact\.row_number/);
   assert.match(pageSource, /contact\.raw_name/);
   assert.match(pageSource, /contact\.raw_phone_number/);
   assert.match(pageSource, /contact\.reason/);
-  assert.match(pageSource, /rejectedContactsLoading/);
-  assert.match(pageSource, /rejectedContactsError/);
-  assert.match(pageSource, /Previous/);
-  assert.match(pageSource, /Next/);
 });
 
 test("saved rejected contacts can be corrected into unsent recipients", () => {
@@ -166,16 +165,18 @@ test("saved rejected contacts can be corrected into unsent recipients", () => {
   assert.match(pageSource, /added to the valid recipient list as Not sent/);
 });
 
-test("rejected rows retain imported fields and use a responsive non-scrolling editor", () => {
+test("rejected rows retain imported fields and expose inline correction controls", () => {
   assert.match(apiSource, /interface WhatsAppRejectedContactInput[\s\S]*imported_fields\?: Record<string, string>/);
   assert.match(pageSource, /imported_fields: contact\.imported_fields/);
-  assert.match(pageSource, /contact\.imported_fields \?\? \{\}/);
-  assert.match(pageSource, /aria-label=\{`Edit rejected WhatsApp number/);
-  const rejectedStart = pageSource.indexOf('id="saved-rejected-contacts"');
-  const rejectedEnd = pageSource.indexOf("Add recipients", rejectedStart);
-  const rejectedSection = pageSource.slice(rejectedStart, rejectedEnd);
-  assert.doesNotMatch(rejectedSection, /overflow-(?:auto|x-auto|y-auto)/);
-  assert.doesNotMatch(rejectedSection, /min-w-\[1080px\]/);
+  assert.match(pageSource, /visibleImportedFieldEntries\(\s*contact\.imported_fields/);
+  assert.match(pageSource, /ROSTER_SOURCE_FIELD_KEYS/);
+  assert.match(pageSource, /function RejectedRosterRows/);
+  assert.match(pageSource, /aria-expanded=\{isEditing\}/);
+  assert.match(pageSource, />\s*Correct\s*<\/button>/);
+  assert.match(pageSource, /Corrected name/);
+  assert.match(pageSource, /Corrected WhatsApp number/);
+  assert.match(pageSource, /Recipient agreed to WhatsApp updates/);
+  assert.match(pageSource, /Save and add/);
 });
 
 test("passport-link sends custom recipients with one selected support contact", () => {

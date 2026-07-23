@@ -68,6 +68,8 @@ export const API_ENDPOINTS = {
     recipients: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/recipients`,
     rejectedContacts: (groupId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/rejected-contacts`,
+    recipientRoster: (groupId: string) =>
+      `/api/v1/whatsapp/groups/${groupId}/recipient-roster`,
     resolveRejectedContact: (groupId: string, rejectedContactId: string) =>
       `/api/v1/whatsapp/groups/${groupId}/rejected-contacts/${rejectedContactId}/resolve`,
     recipient: (groupId: string, recipientId: string) =>

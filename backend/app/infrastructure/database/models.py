@@ -11,6 +11,7 @@ from datetime import UTC, date, datetime
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
     CheckConstraint,
     Date,
@@ -283,6 +284,11 @@ class WhatsAppBroadcastRecipientModel(Base):
             name="uq_whatsapp_recipient_group_phone",
         ),
         Index("ix_whatsapp_recipients_group_created", "broadcast_group_id", "created_at"),
+        Index(
+            "ix_whatsapp_recipients_group_display_order",
+            "broadcast_group_id",
+            "display_order",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -307,6 +313,7 @@ class WhatsAppBroadcastRecipientModel(Base):
         default=dict,
         server_default="{}",
     )
+    display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
@@ -333,6 +340,11 @@ class WhatsAppBroadcastRejectedContactModel(Base):
             "ix_whatsapp_rejected_contacts_group_created",
             "broadcast_group_id",
             "created_at",
+        ),
+        Index(
+            "ix_whatsapp_rejected_contacts_group_display_order",
+            "broadcast_group_id",
+            "display_order",
         ),
     )
 
@@ -363,6 +375,7 @@ class WhatsAppBroadcastRejectedContactModel(Base):
         default=dict,
         server_default="{}",
     )
+    display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     reason_code: Mapped[str] = mapped_column(String(32), nullable=False)
     reason: Mapped[str] = mapped_column(String(256), nullable=False)
     fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)

@@ -63,7 +63,7 @@ test("sent messages expose resend and failed messages expose retry", () => {
   );
   assert.match(
     pageSource,
-    /knownMessageType\s*&& hasAlreadySentMessage\(recipient, messageType\)/,
+    /knownMessageType\s*&&\s*hasAlreadySentMessage\(\s*recipient,\s*messageType,\s*\)/,
   );
   assert.match(pageSource, /messageStatus\?\.status === "failed"/);
   assert.match(pageSource, /\{\(canResend \|\| canRetry\) && \(/);

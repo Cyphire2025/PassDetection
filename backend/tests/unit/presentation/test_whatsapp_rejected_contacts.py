@@ -285,6 +285,7 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
         reason_code="invalid_phone",
         reason=_WHATSAPP_CONTACT_REJECTION_REASONS["invalid_phone"],
         fingerprint="b" * 64,
+        display_order=7,
         created_at=now,
     )
     group_result = MagicMock()
@@ -335,6 +336,7 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
     assert response is group
     assert recipient.name == "Corrected Contact"
     assert recipient.normalized_phone_number == "+919876543211"
+    assert recipient.display_order == 7
     assert recipient.imported_fields["source_row"] == "14"
     assert recipient.imported_fields["email"] == "rejected@example.com"
     assert recipient.imported_fields["staff_code"] == "GC-14"

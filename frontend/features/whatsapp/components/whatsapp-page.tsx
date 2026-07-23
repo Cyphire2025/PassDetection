@@ -21,6 +21,7 @@ import Image from "next/image";
 import {
   type Dispatch,
   type FormEvent,
+  Fragment,
   type SetStateAction,
   useEffect,
   useId,
@@ -54,6 +55,7 @@ import {
   type WhatsAppBroadcastGroup,
   type WhatsAppMessageType,
   type WhatsAppPreviewResponse,
+  type WhatsAppRejectedContact,
   type WhatsAppRejectedContactInput,
   type WhatsAppRecipientInput,
   type WhatsAppRecipientMessageStatus,
@@ -75,7 +77,7 @@ import {
   useWhatsAppBatchStatus,
   useWhatsAppGroup,
   useWhatsAppGroups,
-  useWhatsAppRejectedContacts,
+  useWhatsAppRecipientRoster,
 } from "../hooks/use-whatsapp";
 import {
   countEligibleRecipients,
@@ -88,6 +90,10 @@ import {
   mergeRecipientImportPreview,
   type RecipientImportRejectedRowWithSource,
 } from "../utils/recipient-import";
+import {
+  filterRecipientRosterItems,
+  type WhatsAppRecipientRosterTab,
+} from "../utils/recipient-roster";
 import { mergeWhatsAppSendProgress } from "../utils/send-progress";
 
 type MessageTarget = {
@@ -113,17 +119,39 @@ type RecipientResendTarget = {
 
 type RejectedContactDraft = RecipientImportRejectedRowWithSource;
 
+type RejectedContactCorrection = {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  optInConfirmed: boolean;
+};
+
 const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
 const MAX_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024;
 const WELCOME_IMAGE_TYPES = new Set(["image/jpeg", "image/png"]);
-const REJECTED_CONTACT_PAGE_SIZE = 50;
-
 function importedFieldLabel(value: string): string {
   return value
     .split("_")
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+const ROSTER_SOURCE_FIELD_KEYS = new Set([
+  "source_file",
+  "source_order",
+  "source_sheet",
+  "source_row",
+]);
+
+function visibleImportedFieldEntries(
+  importedFields: Record<string, string> | null | undefined,
+): Array<[string, string]> {
+  return Object.entries(importedFields ?? {})
+    .filter(([key]) => !ROSTER_SOURCE_FIELD_KEYS.has(key))
+    .sort(([left], [right]) =>
+      importedFieldLabel(left).localeCompare(importedFieldLabel(right)),
+    );
 }
 
 function toRejectedContactInputs(
@@ -886,6 +914,177 @@ function ActionMenu({
     </div>
   );
 }
+
+function RejectedRosterRows({
+  contact,
+  serialNumber,
+  messageColumnCount,
+  correction,
+  isSaving,
+  onEdit,
+  onCorrectionChange,
+  onCancel,
+  onSave,
+}: {
+  contact: WhatsAppRejectedContact;
+  serialNumber: number;
+  messageColumnCount: number;
+  correction: RejectedContactCorrection | null;
+  isSaving: boolean;
+  onEdit: () => void;
+  onCorrectionChange: (value: RejectedContactCorrection) => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  const isEditing = correction?.id === contact.id;
+  const importedEntries = visibleImportedFieldEntries(
+    contact.imported_fields,
+  );
+
+  return (
+    <Fragment>
+      <tr className="bg-amber-50/40">
+        <td className="px-4 py-3 text-center font-semibold text-slate-500">
+          {serialNumber}
+        </td>
+        <td className="px-4 py-3">
+          <div className="font-medium text-slate-900">
+            {contact.raw_name?.trim() || "Unnamed rejected contact"}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            {contact.source_file_name} · {contact.sheet_name}, row{" "}
+            {contact.row_number}
+          </p>
+          {importedEntries.length > 0 && (
+            <details className="mt-1">
+              <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+                View {importedEntries.length} imported detail
+                {importedEntries.length === 1 ? "" : "s"}
+              </summary>
+              <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-white p-3 sm:grid-cols-2">
+                {importedEntries.map(([key, value]) => (
+                  <div key={key} className="min-w-0">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                      {importedFieldLabel(key)}
+                    </dt>
+                    <dd className="break-words text-xs font-normal text-slate-700">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+          )}
+        </td>
+        <td className="px-4 py-3">
+          <span className="break-all font-mono text-slate-700">
+            {contact.raw_phone_number?.trim() || "Missing"}
+          </span>
+        </td>
+        {Array.from({ length: messageColumnCount }, (_, index) => (
+          <td key={index} className="px-4 py-3">
+            <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+              Rejected
+            </span>
+          </td>
+        ))}
+        <td className="px-4 py-3 text-right">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+            aria-expanded={isEditing}
+            onClick={onEdit}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Correct
+          </button>
+        </td>
+      </tr>
+      {isEditing && correction && (
+        <tr className="bg-amber-50/40">
+          <td colSpan={messageColumnCount + 4} className="px-4 pb-4 pt-0">
+            <div className="rounded-xl border border-amber-200 bg-white p-4">
+              <p className="mb-3 break-words rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                {contact.reason}
+              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                  Corrected name
+                  <input
+                    type="text"
+                    value={correction.name}
+                    className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm font-normal normal-case tracking-normal text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(event) =>
+                      onCorrectionChange({
+                        ...correction,
+                        name: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+                  Corrected WhatsApp number
+                  <input
+                    type="tel"
+                    value={correction.phoneNumber}
+                    autoFocus
+                    className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm font-normal normal-case tracking-normal text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    onChange={(event) =>
+                      onCorrectionChange({
+                        ...correction,
+                        phoneNumber: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-amber-100 pt-3">
+                <label className="flex items-start gap-2 text-xs text-slate-600">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    checked={correction.optInConfirmed}
+                    onChange={(event) =>
+                      onCorrectionChange({
+                        ...correction,
+                        optInConfirmed: event.target.checked,
+                      })
+                    }
+                  />
+                  Recipient agreed to WhatsApp updates
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                    disabled={isSaving}
+                    onClick={onCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={
+                      isSaving
+                      || !correction.name.trim()
+                      || !correction.phoneNumber.trim()
+                      || !correction.optInConfirmed
+                    }
+                    onClick={onSave}
+                  >
+                    Save and add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </Fragment>
+  );
+}
+
 function RecipientListDialog({
   group,
   onClose,
@@ -917,14 +1116,10 @@ function RecipientListDialog({
   });
   const [contacts, setContacts] = useState<ManualContact[]>([]);
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
-  const [showRejectedContacts, setShowRejectedContacts] = useState(false);
-  const [rejectedContactOffset, setRejectedContactOffset] = useState(0);
-  const [rejectedContactEdit, setRejectedContactEdit] = useState<{
-    id: string;
-    name: string;
-    phoneNumber: string;
-    optInConfirmed: boolean;
-  } | null>(null);
+  const [recipientRosterTab, setRecipientRosterTab] =
+    useState<WhatsAppRecipientRosterTab>("all");
+  const [rejectedContactEdit, setRejectedContactEdit] =
+    useState<RejectedContactCorrection | null>(null);
   const [rejectedContactError, setRejectedContactError] = useState<
     string | null
   >(null);
@@ -964,18 +1159,12 @@ function RecipientListDialog({
       setSuccessMessage(null);
     },
   });
-  const rejectedContactCount = detail?.rejected_contact_count ?? 0;
   const {
-    data: rejectedContactPage,
-    isLoading: rejectedContactsLoading,
-    error: rejectedContactsError,
-    refetch: refetchRejectedContacts,
-  } = useWhatsAppRejectedContacts({
-    groupId: group.id,
-    enabled: showRejectedContacts && rejectedContactCount > 0,
-    limit: REJECTED_CONTACT_PAGE_SIZE,
-    offset: rejectedContactOffset,
-  });
+    data: recipientRoster,
+    isLoading: recipientRosterLoading,
+    error: recipientRosterError,
+    refetch: refetchRecipientRoster,
+  } = useWhatsAppRecipientRoster(group.id);
 
   useEffect(() => {
     if (!detail || initializedGroupRef.current === detail.id) return;
@@ -1087,8 +1276,7 @@ function RecipientListDialog({
       setContacts([]);
       resetImport();
       setRecipientOptInConfirmed(false);
-      setShowRejectedContacts(false);
-      setRejectedContactOffset(0);
+      setRecipientRosterTab("all");
       setSuccessMessage(
         `Recipient list updated. It now contains ${updated.recipient_count} valid recipient${updated.recipient_count === 1 ? "" : "s"}.${savedRejectedCount > 0 ? ` ${savedRejectedCount} rejected contact${savedRejectedCount === 1 ? " was" : "s were"} saved for correction.` : ""}`,
       );
@@ -1167,13 +1355,26 @@ function RecipientListDialog({
   const messageTypes = [
     "welcome",
     "passport_link",
-    ...(detail?.recipients.flatMap(
-      (recipient) =>
-        recipient.message_statuses?.map((status) => status.message_type) ?? [],
+    ...(recipientRoster?.items.flatMap((item) =>
+      item.kind === "recipient"
+        ? item.recipient.message_statuses.map((status) => status.message_type)
+        : [],
     ) ?? []),
   ].filter(
     (messageType, index, allTypes) => allTypes.indexOf(messageType) === index,
   );
+  const visibleRosterItems = recipientRoster
+    ? filterRecipientRosterItems(recipientRoster.items, recipientRosterTab)
+    : [];
+  const rosterTabs: Array<{
+    id: WhatsAppRecipientRosterTab;
+    label: string;
+  }> = [
+    { id: "all", label: "All" },
+    { id: "sent", label: "Sent" },
+    { id: "failed", label: "Failed" },
+    { id: "rejected", label: "Rejected" },
+  ];
   const lastResendMessageStatus =
     lastResendTarget && detail
       ? getMessageStatus(
@@ -1323,38 +1524,60 @@ function RecipientListDialog({
             </section>
 
             <section>
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-slate-900">
-                    Current recipients
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Delivery checks prevent a successfully sent message type
-                    from being sent to the same person twice. Use Resend on a
-                    sent message only when you intentionally want to send it
-                    again to that one person.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-                    {detail.recipient_count} valid
-                  </span>
-                  {detail.rejected_contact_count > 0 && (
+              <div>
+                <h3 className="font-semibold text-slate-900">
+                  Current recipients
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Review everyone in their original import order. Sent and
+                  Failed can overlap when different message types have
+                  different outcomes.
+                </p>
+              </div>
+
+              <div
+                className="mt-4 flex flex-wrap gap-2"
+                role="tablist"
+                aria-label="Recipient delivery filters"
+              >
+                {rosterTabs.map((tab) => {
+                  const isActive = recipientRosterTab === tab.id;
+                  const count = recipientRoster?.counts[tab.id] ?? 0;
+                  return (
                     <button
+                      key={tab.id}
                       type="button"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800 hover:bg-amber-100"
-                      aria-expanded={showRejectedContacts}
-                      aria-controls="saved-rejected-contacts"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls="recipient-roster-panel"
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                        isActive
+                          ? "border-blue-600 bg-blue-600 text-white"
+                          : tab.id === "failed"
+                            ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
+                            : tab.id === "rejected"
+                              ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                      }`}
                       onClick={() => {
-                        setRejectedContactOffset(0);
-                        setShowRejectedContacts((current) => !current);
+                        setRecipientRosterTab(tab.id);
+                        setRejectedContactEdit(null);
+                        setRejectedContactError(null);
                       }}
                     >
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                      Rejected contacts ({detail.rejected_contact_count})
+                      {tab.label}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {count}
+                      </span>
                     </button>
-                  )}
-                </div>
+                  );
+                })}
               </div>
 
               {displayedResendError && (
@@ -1370,572 +1593,361 @@ function RecipientListDialog({
                   {displayedResendNotice}
                 </div>
               )}
+              {rejectedContactError && (
+                <div className="mt-3">
+                  <ErrorBanner message={rejectedContactError} />
+                </div>
+              )}
 
-              <div className="mt-3 max-h-72 overflow-auto rounded-xl border border-slate-200">
-                <table className="w-full min-w-[820px] text-left text-sm">
-                  <thead className="sticky top-0 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    <tr>
-                      <th className="px-4 py-3">Recipient</th>
-                      <th className="px-4 py-3">WhatsApp number</th>
-                      {messageTypes.map((messageType) => (
-                        <th key={messageType} className="px-4 py-3">
-                          {formatMessageType(messageType)}
-                        </th>
-                      ))}
-                      <th className="px-4 py-3 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {detail.recipients.map((recipient) => {
-                      return (
-                        <tr key={recipient.id}>
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-slate-900">
-                              {recipient.name || "Unnamed recipient"}
-                            </div>
-                            {Object.keys(recipient.imported_fields).length > 0 && (
-                              <details className="mt-1">
-                                <summary className="cursor-pointer text-xs font-semibold text-blue-700">
-                                  View{" "}
-                                  {Object.keys(recipient.imported_fields).length}{" "}
-                                  imported detail
-                                  {Object.keys(recipient.imported_fields).length === 1
-                                    ? ""
-                                    : "s"}
-                                </summary>
-                                <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
-                                  {Object.entries(recipient.imported_fields)
-                                    .sort(([left], [right]) =>
-                                      importedFieldLabel(left).localeCompare(
-                                        importedFieldLabel(right),
-                                      ),
-                                    )
-                                    .map(([key, value]) => (
-                                      <div key={key} className="min-w-0">
-                                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                          {importedFieldLabel(key)}
-                                        </dt>
-                                        <dd className="break-words text-xs font-normal text-slate-700">
-                                          {value}
-                                        </dd>
-                                      </div>
-                                    ))}
-                                </dl>
-                              </details>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-slate-600">
-                            {editingRecipientId === recipient.id ? (
-                              <div className="flex min-w-64 items-center gap-2">
-                                <input
-                                  type="tel"
-                                  value={editedPhoneNumber}
-                                  autoFocus
-                                  aria-label={`WhatsApp number for ${recipient.name || "unnamed recipient"}`}
-                                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                  onChange={(event) =>
-                                    setEditedPhoneNumber(event.target.value)
-                                  }
-                                />
-                                <button
-                                  type="button"
-                                  className="rounded-md px-2 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50"
-                                  disabled={
-                                    updateRecipientPhone.isPending
-                                    || !editedPhoneNumber.trim()
-                                  }
-                                  onClick={async () => {
-                                    setRecipientError(null);
-                                    try {
-                                      await updateRecipientPhone.mutateAsync({
-                                        groupId: group.id,
-                                        recipientId: recipient.id,
-                                        phoneNumber: editedPhoneNumber.trim(),
-                                      });
-                                      setEditingRecipientId(null);
-                                      setSuccessMessage(
-                                        `WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`,
-                                      );
-                                    } catch (phoneError) {
-                                      setRecipientError(
-                                        readErrorMessage(
-                                          phoneError,
-                                          "Could not update this WhatsApp number.",
-                                        ),
-                                      );
-                                    }
-                                  }}
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                                  disabled={updateRecipientPhone.isPending}
-                                  onClick={() => setEditingRecipientId(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <span>{recipient.normalized_phone_number}</span>
-                                <button
-                                  type="button"
-                                  className="rounded-md p-1 text-blue-700 hover:bg-blue-50"
-                                  aria-label={`Edit WhatsApp number for ${recipient.name || "unnamed recipient"}`}
-                                  title="Edit WhatsApp number"
-                                  onClick={() => {
-                                    setRecipientError(null);
-                                    setEditingRecipientId(recipient.id);
-                                    setEditedPhoneNumber(recipient.phone_number);
-                                  }}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                          {messageTypes.map((messageType) => {
-                            const messageStatus = getMessageStatus(
-                              recipient,
-                              messageType,
-                            );
-                            const knownMessageType =
-                              isWhatsAppMessageType(messageType);
-                            const canResend =
-                              knownMessageType
-                              && hasAlreadySentMessage(recipient, messageType);
-                            const canRetry =
-                              knownMessageType
-                              && messageStatus?.status === "failed";
-                            const resendBlocked =
-                              messageStatus?.resend_blocked ?? false;
-                            const latestResendStatus =
-                              messageStatus?.latest_resend_status;
-                            const isResendProcessing =
-                              latestResendStatus === "queued"
-                              || latestResendStatus === "processing";
-                            const needsResendReview =
-                              latestResendStatus === "delivery_unknown";
-                            return (
-                              <td key={messageType} className="px-4 py-3">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <DeliveryBadge status={messageStatus} />
-                                  {(canResend || canRetry) && (
-                                    <button
-                                      type="button"
-                                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                      disabled={
-                                        resendRecipientMessage.isPending
-                                        || resendBlocked
-                                      }
-                                      title={
-                                        needsResendReview
-                                          ? "The latest resend outcome is unknown. Review it before sending another duplicate."
-                                          : isResendProcessing
-                                            ? "A resend is already in progress for this person."
-                                            : undefined
-                                      }
-                                      aria-label={`${canRetry ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
-                                      onClick={() => {
-                                        setResendError(null);
-                                        setResendNotice(null);
-                                        setLastResendTarget(null);
-                                        setRecipientToResend({
-                                          recipientId: recipient.id,
-                                          recipientName:
-                                            recipient.name
-                                            || "Unnamed recipient",
-                                          phoneNumber:
-                                            recipient.normalized_phone_number,
-                                          messageType,
-                                          action: canRetry ? "retry" : "resend",
-                                        });
-                                      }}
-                                    >
-                                      <RotateCw className="h-3.5 w-3.5" />
-                                      {needsResendReview
-                                        ? "Review required"
-                                        : isResendProcessing
-                                          ? "Resending..."
-                                          : canRetry
-                                            ? "Retry"
-                                            : "Resend"}
-                                    </button>
-                                  )}
-                                  {latestResendStatus === "failed" && (
-                                    <span className="text-xs font-medium text-red-600">
-                                      Last resend failed
-                                    </span>
-                                  )}
-                                  {(
-                                    latestResendStatus === "sent"
-                                    || latestResendStatus === "delivered"
-                                    || latestResendStatus === "read"
-                                  ) && (
-                                    <span className="text-xs font-medium text-emerald-700">
-                                      Resent
-                                    </span>
-                                  )}
-                                </div>
-                              </td>
-                            );
-                          })}
-                          <td className="px-4 py-3 text-right">
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
-                              disabled={
-                                detail.recipient_count <= 1 ||
-                                deleteRecipient.isPending
-                              }
-                              title={
-                                detail.recipient_count <= 1
-                                  ? "A broadcast must keep at least one recipient"
-                                  : undefined
-                              }
-                              onClick={() =>
-                                setRecipientToRemove({
-                                  id: recipient.id,
-                                  name: recipient.name,
-                                  phone_number: recipient.phone_number,
-                                })
-                              }
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Remove
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {showRejectedContacts && (
-                <section
-                  id="saved-rejected-contacts"
-                  className="mt-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4"
-                >
-                  <div>
-                    <h4 className="font-semibold text-amber-950">
-                      Rejected contacts
-                    </h4>
-                    <p className="mt-1 text-sm text-amber-800">
-                      Correct the name or phone number and save it. Once valid,
-                      the person moves into the recipient list as Not sent and
-                      can receive messages normally.
+              <div
+                id="recipient-roster-panel"
+                role="tabpanel"
+                className="mt-3"
+              >
+                {recipientRosterError ? (
+                  <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                    <p role="alert" className="text-sm text-red-700">
+                      The recipient roster could not be loaded.
                     </p>
-                  </div>
-
-                  {rejectedContactError && (
-                    <div className="mt-3">
-                      <ErrorBanner message={rejectedContactError} />
-                    </div>
-                  )}
-
-                  {rejectedContactsError ? (
-                    <div className="mt-3 rounded-lg border border-red-200 bg-white p-3">
-                      <p role="alert" className="text-sm text-red-700">
-                        The rejected contacts could not be loaded.
-                      </p>
-                      <button
-                        type="button"
-                        className="mt-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
-                        onClick={() => void refetchRejectedContacts()}
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  ) : rejectedContactsLoading || !rejectedContactPage ? (
-                    <div
-                      className="mt-3 space-y-2"
-                      role="status"
-                      aria-label="Loading rejected contacts"
+                    <button
+                      type="button"
+                      className="mt-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                      onClick={() => void refetchRecipientRoster()}
                     >
-                      <Skeleton className="h-10" />
-                      <Skeleton className="h-10" />
-                    </div>
-                  ) : rejectedContactPage.items.length === 0 ? (
-                    <p className="mt-3 rounded-lg border border-amber-200 bg-white p-3 text-sm text-amber-800">
-                      No rejected contacts were found on this page.
-                    </p>
-                  ) : (
-                    <>
-                      <div
-                        className="mt-3 space-y-3"
-                        aria-label="Saved rejected contacts"
-                      >
-                        {rejectedContactPage.items.map((contact) => {
-                          const isEditing = rejectedContactEdit?.id === contact.id;
-                          const importedEntries = Object.entries(
-                            contact.imported_fields ?? {},
-                          ).sort(([left], [right]) =>
-                            importedFieldLabel(left).localeCompare(
-                              importedFieldLabel(right),
-                            ),
-                          );
+                      Try again
+                    </button>
+                  </div>
+                ) : recipientRosterLoading || !recipientRoster ? (
+                  <div
+                    className="space-y-2"
+                    role="status"
+                    aria-label="Loading recipient roster"
+                  >
+                    <Skeleton className="h-12" />
+                    <Skeleton className="h-12" />
+                    <Skeleton className="h-12" />
+                  </div>
+                ) : visibleRosterItems.length === 0 ? (
+                  <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    No {recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}
+                    contacts were found.
+                  </p>
+                ) : (
+                  <div className="max-h-96 overflow-auto rounded-xl border border-slate-200">
+                    <table className="w-full min-w-[880px] text-left text-sm">
+                      <thead className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <tr>
+                          <th className="w-14 px-4 py-3 text-center">#</th>
+                          <th className="px-4 py-3">Recipient</th>
+                          <th className="px-4 py-3">WhatsApp number</th>
+                          {messageTypes.map((messageType) => (
+                            <th key={messageType} className="px-4 py-3">
+                              {formatMessageType(messageType)}
+                            </th>
+                          ))}
+                          <th className="px-4 py-3 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {visibleRosterItems.map((item, index) => {
+                          const serialNumber = index + 1;
+                          if (item.kind === "rejected") {
+                            const contact = item.rejected_contact;
+                            return (
+                              <RejectedRosterRows
+                                key={`rejected:${contact.id}`}
+                                contact={contact}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                                correction={rejectedContactEdit}
+                                isSaving={resolveRejectedContact.isPending}
+                                onEdit={() => {
+                                  setRejectedContactError(null);
+                                  setRejectedContactEdit({
+                                    id: contact.id,
+                                    name: contact.raw_name?.trim() || "",
+                                    phoneNumber:
+                                      contact.raw_phone_number?.trim() || "",
+                                    optInConfirmed:
+                                      detail.recipient_opt_in_confirmed,
+                                  });
+                                }}
+                                onCorrectionChange={setRejectedContactEdit}
+                                onCancel={() => {
+                                  setRejectedContactEdit(null);
+                                  setRejectedContactError(null);
+                                }}
+                                onSave={async () => {
+                                  const correction = rejectedContactEdit;
+                                  if (!correction || correction.id !== contact.id) {
+                                    return;
+                                  }
+                                  setRejectedContactError(null);
+                                  try {
+                                    await resolveRejectedContact.mutateAsync({
+                                      groupId: group.id,
+                                      rejectedContactId: contact.id,
+                                      name: correction.name.trim(),
+                                      phoneNumber:
+                                        correction.phoneNumber.trim(),
+                                      recipientOptInConfirmed:
+                                        correction.optInConfirmed,
+                                    });
+                                    setRejectedContactEdit(null);
+                                    setSuccessMessage(
+                                      `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
+                                    );
+                                    await refetchRecipientRoster();
+                                  } catch (correctionError) {
+                                    setRejectedContactError(
+                                      readErrorMessage(
+                                        correctionError,
+                                        "Could not add this corrected contact.",
+                                      ),
+                                    );
+                                  }
+                                }}
+                              />
+                            );
+                          }
+
+                          const recipient = item.recipient;
+                          const importedEntries =
+                            visibleImportedFieldEntries(
+                              recipient.imported_fields,
+                            );
                           return (
-                            <article
-                              key={contact.id}
-                              className="rounded-xl border border-amber-200 bg-white p-4 text-sm text-slate-700"
-                            >
-                              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)]">
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                                    Source
-                                  </p>
-                                  <p className="mt-1 break-words font-medium text-slate-900">
-                                    {contact.source_file_name}
-                                  </p>
-                                  <p className="mt-1 text-xs text-slate-500">
-                                    {contact.sheet_name}, row {contact.row_number}
-                                  </p>
+                            <tr key={`recipient:${recipient.id}`}>
+                              <td className="px-4 py-3 text-center font-semibold text-slate-500">
+                                {serialNumber}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="font-medium text-slate-900">
+                                  {recipient.name || "Unnamed recipient"}
                                 </div>
-
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                                    Entered name
-                                  </p>
-                                  {isEditing ? (
-                                    <input
-                                      type="text"
-                                      value={rejectedContactEdit.name}
-                                      aria-label={`Corrected name for row ${contact.row_number}`}
-                                      className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                      onChange={(event) =>
-                                        setRejectedContactEdit((current) =>
-                                          current
-                                            ? { ...current, name: event.target.value }
-                                            : current,
-                                        )
-                                      }
-                                    />
-                                  ) : (
-                                    <p className="mt-1 break-words text-slate-900">
-                                      {contact.raw_name?.trim() || "Blank"}
-                                    </p>
-                                  )}
-                                </div>
-
-                                <div className="min-w-0">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                                    Entered phone
-                                  </p>
-                                  {isEditing ? (
+                                {importedEntries.length > 0 && (
+                                  <details className="mt-1">
+                                    <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+                                      View {importedEntries.length}{" "}
+                                      imported detail
+                                      {importedEntries.length === 1 ? "" : "s"}
+                                    </summary>
+                                    <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2">
+                                      {importedEntries.map(([key, value]) => (
+                                          <div key={key} className="min-w-0">
+                                            <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                              {importedFieldLabel(key)}
+                                            </dt>
+                                            <dd className="break-words text-xs font-normal text-slate-700">
+                                              {value}
+                                            </dd>
+                                          </div>
+                                        ))}
+                                    </dl>
+                                  </details>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-slate-600">
+                                {editingRecipientId === recipient.id ? (
+                                  <div className="flex min-w-64 items-center gap-2">
                                     <input
                                       type="tel"
-                                      value={rejectedContactEdit.phoneNumber}
+                                      value={editedPhoneNumber}
                                       autoFocus
-                                      aria-label={`Corrected WhatsApp number for row ${contact.row_number}`}
-                                      className="mt-1.5 w-full rounded-md border border-amber-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                      aria-label={`WhatsApp number for ${recipient.name || "unnamed recipient"}`}
+                                      className="min-w-0 flex-1 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                                       onChange={(event) =>
-                                        setRejectedContactEdit((current) =>
-                                          current
-                                            ? {
-                                                ...current,
-                                                phoneNumber: event.target.value,
-                                              }
-                                            : current,
-                                        )
+                                        setEditedPhoneNumber(event.target.value)
                                       }
                                     />
-                                  ) : (
-                                    <div className="mt-1 flex min-w-0 items-center gap-1.5">
-                                      <span className="break-all font-mono text-slate-900">
-                                        {contact.raw_phone_number?.trim() || "Blank"}
-                                      </span>
-                                      <button
-                                        type="button"
-                                        className="shrink-0 rounded-md p-1 text-blue-700 hover:bg-blue-50"
-                                        aria-label={`Edit rejected WhatsApp number for row ${contact.row_number}`}
-                                        title="Edit rejected WhatsApp number"
-                                        onClick={() => {
-                                          setRejectedContactError(null);
-                                          setRejectedContactEdit({
-                                            id: contact.id,
-                                            name: contact.raw_name?.trim() || "",
-                                            phoneNumber:
-                                              contact.raw_phone_number?.trim() || "",
-                                            optInConfirmed:
-                                              detail.recipient_opt_in_confirmed,
-                                          });
-                                        }}
-                                      >
-                                        <Pencil className="h-3.5 w-3.5" />
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              <p className="mt-3 break-words rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                                {contact.reason}
-                              </p>
-
-                              {importedEntries.length > 0 && (
-                                <details className="mt-3">
-                                  <summary className="cursor-pointer text-xs font-semibold text-blue-700">
-                                    View {importedEntries.length} imported detail
-                                    {importedEntries.length === 1 ? "" : "s"}
-                                  </summary>
-                                  <dl className="mt-2 grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-2 lg:grid-cols-3">
-                                    {importedEntries.map(([key, value]) => (
-                                      <div key={key} className="min-w-0">
-                                        <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                          {importedFieldLabel(key)}
-                                        </dt>
-                                        <dd className="break-words text-xs text-slate-700">
-                                          {value}
-                                        </dd>
-                                      </div>
-                                    ))}
-                                  </dl>
-                                </details>
-                              )}
-
-                              {isEditing && (
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-amber-100 pt-3">
-                                  <label className="flex items-start gap-2 text-xs text-slate-600">
-                                    <input
-                                      type="checkbox"
-                                      className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                      checked={rejectedContactEdit.optInConfirmed}
-                                      onChange={(event) =>
-                                        setRejectedContactEdit((current) =>
-                                          current
-                                            ? {
-                                                ...current,
-                                                optInConfirmed: event.target.checked,
-                                              }
-                                            : current,
-                                        )
-                                      }
-                                    />
-                                    Recipient agreed to WhatsApp updates
-                                  </label>
-                                  <div className="flex gap-2">
                                     <button
                                       type="button"
-                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                                      disabled={resolveRejectedContact.isPending}
-                                      onClick={() => {
-                                        setRejectedContactEdit(null);
-                                        setRejectedContactError(null);
-                                      }}
-                                    >
-                                      Cancel
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-50"
                                       disabled={
-                                        resolveRejectedContact.isPending
-                                        || !rejectedContactEdit.name.trim()
-                                        || !rejectedContactEdit.phoneNumber.trim()
-                                        || !rejectedContactEdit.optInConfirmed
+                                        updateRecipientPhone.isPending
+                                        || !editedPhoneNumber.trim()
                                       }
                                       onClick={async () => {
-                                        const correction = rejectedContactEdit;
-                                        setRejectedContactError(null);
+                                        setRecipientError(null);
                                         try {
-                                          await resolveRejectedContact.mutateAsync({
+                                          await updateRecipientPhone.mutateAsync({
                                             groupId: group.id,
-                                            rejectedContactId: contact.id,
-                                            name: correction.name.trim(),
-                                            phoneNumber: correction.phoneNumber.trim(),
-                                            recipientOptInConfirmed:
-                                              correction.optInConfirmed,
+                                            recipientId: recipient.id,
+                                            phoneNumber:
+                                              editedPhoneNumber.trim(),
                                           });
-                                          setRejectedContactEdit(null);
+                                          setEditingRecipientId(null);
                                           setSuccessMessage(
-                                            `${correction.name.trim()} was added to the valid recipient list as Not sent.`,
+                                            `WhatsApp number updated for ${recipient.name || "this recipient"}. Previous message statuses are ready to retry on the new number.`,
                                           );
-                                          if (
-                                            rejectedContactPage.items.length === 1
-                                            && rejectedContactPage.offset > 0
-                                          ) {
-                                            setRejectedContactOffset(
-                                              Math.max(
-                                                0,
-                                                rejectedContactPage.offset
-                                                  - REJECTED_CONTACT_PAGE_SIZE,
-                                              ),
-                                            );
-                                          } else {
-                                            await refetchRejectedContacts();
-                                          }
-                                        } catch (correctionError) {
-                                          setRejectedContactError(
+                                        } catch (phoneError) {
+                                          setRecipientError(
                                             readErrorMessage(
-                                              correctionError,
-                                              "Could not add this corrected contact.",
+                                              phoneError,
+                                              "Could not update this WhatsApp number.",
                                             ),
                                           );
                                         }
                                       }}
                                     >
-                                      Save and add
+                                      Save
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                                      disabled={updateRecipientPhone.isPending}
+                                      onClick={() => setEditingRecipientId(null)}
+                                    >
+                                      Cancel
                                     </button>
                                   </div>
-                                </div>
-                              )}
-                            </article>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span>
+                                      {recipient.normalized_phone_number}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      className="rounded-md p-1 text-blue-700 hover:bg-blue-50"
+                                      aria-label={`Edit WhatsApp number for ${recipient.name || "unnamed recipient"}`}
+                                      title="Edit WhatsApp number"
+                                      onClick={() => {
+                                        setRecipientError(null);
+                                        setEditingRecipientId(recipient.id);
+                                        setEditedPhoneNumber(
+                                          recipient.phone_number,
+                                        );
+                                      }}
+                                    >
+                                      <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                              {messageTypes.map((messageType) => {
+                                const messageStatus = getMessageStatus(
+                                  recipient,
+                                  messageType,
+                                );
+                                const knownMessageType =
+                                  isWhatsAppMessageType(messageType);
+                                const canResend =
+                                  knownMessageType
+                                  && hasAlreadySentMessage(
+                                    recipient,
+                                    messageType,
+                                  );
+                                const canRetry =
+                                  knownMessageType
+                                  && messageStatus?.status === "failed";
+                                const resendBlocked =
+                                  messageStatus?.resend_blocked ?? false;
+                                const latestResendStatus =
+                                  messageStatus?.latest_resend_status;
+                                const isResendProcessing =
+                                  latestResendStatus === "queued"
+                                  || latestResendStatus === "processing";
+                                const needsResendReview =
+                                  latestResendStatus === "delivery_unknown";
+                                return (
+                                  <td key={messageType} className="px-4 py-3">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <DeliveryBadge status={messageStatus} />
+                                      {(canResend || canRetry) && (
+                                        <button
+                                          type="button"
+                                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                          disabled={
+                                            resendRecipientMessage.isPending
+                                            || resendBlocked
+                                          }
+                                          title={
+                                            needsResendReview
+                                              ? "The latest resend outcome is unknown. Review it before sending another duplicate."
+                                              : isResendProcessing
+                                                ? "A resend is already in progress for this person."
+                                                : undefined
+                                          }
+                                          aria-label={`${canRetry ? "Retry" : "Resend"} ${formatMessageType(messageType)} to ${recipient.name || "unnamed recipient"}`}
+                                          onClick={() => {
+                                            setResendError(null);
+                                            setResendNotice(null);
+                                            setLastResendTarget(null);
+                                            setRecipientToResend({
+                                              recipientId: recipient.id,
+                                              recipientName:
+                                                recipient.name
+                                                || "Unnamed recipient",
+                                              phoneNumber:
+                                                recipient.normalized_phone_number,
+                                              messageType,
+                                              action: canRetry
+                                                ? "retry"
+                                                : "resend",
+                                            });
+                                          }}
+                                        >
+                                          <RotateCw className="h-3.5 w-3.5" />
+                                          {needsResendReview
+                                            ? "Review required"
+                                            : isResendProcessing
+                                              ? "Resending..."
+                                              : canRetry
+                                                ? "Retry"
+                                                : "Resend"}
+                                        </button>
+                                      )}
+                                      {latestResendStatus === "failed" && (
+                                        <span className="text-xs font-medium text-red-600">
+                                          Last resend failed
+                                        </span>
+                                      )}
+                                      {(
+                                        latestResendStatus === "sent"
+                                        || latestResendStatus === "delivered"
+                                        || latestResendStatus === "read"
+                                      ) && (
+                                        <span className="text-xs font-medium text-emerald-700">
+                                          Resent
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                );
+                              })}
+                              <td className="px-4 py-3 text-right">
+                                <button
+                                  type="button"
+                                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                  disabled={
+                                    detail.recipient_count <= 1
+                                    || deleteRecipient.isPending
+                                  }
+                                  title={
+                                    detail.recipient_count <= 1
+                                      ? "A broadcast must keep at least one recipient"
+                                      : undefined
+                                  }
+                                  onClick={() =>
+                                    setRecipientToRemove({
+                                      id: recipient.id,
+                                      name: recipient.name,
+                                      phone_number: recipient.phone_number,
+                                    })
+                                  }
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                  Remove
+                                </button>
+                              </td>
+                            </tr>
                           );
                         })}
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-900">
-                        <span>
-                          Showing {rejectedContactPage.offset + 1}-
-                          {Math.min(
-                            rejectedContactPage.offset +
-                              rejectedContactPage.items.length,
-                            rejectedContactPage.total,
-                          )}{" "}
-                          of {rejectedContactPage.total}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={rejectedContactPage.offset === 0}
-                            onClick={() =>
-                              setRejectedContactOffset((current) =>
-                                Math.max(
-                                  0,
-                                  current - REJECTED_CONTACT_PAGE_SIZE,
-                                ),
-                              )
-                            }
-                          >
-                            Previous
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={
-                              rejectedContactPage.offset +
-                                rejectedContactPage.items.length >=
-                              rejectedContactPage.total
-                            }
-                            onClick={() =>
-                              setRejectedContactOffset(
-                                rejectedContactPage.offset +
-                                  REJECTED_CONTACT_PAGE_SIZE,
-                              )
-                            }
-                          >
-                            Next
-                          </Button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </section>
-              )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </section>
 
             <section className="space-y-4 rounded-xl border border-blue-100 bg-blue-50/30 p-4">

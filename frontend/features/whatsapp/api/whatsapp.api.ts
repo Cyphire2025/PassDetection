@@ -48,6 +48,28 @@ export interface WhatsAppRejectedContactPage {
   offset: number;
 }
 
+export type WhatsAppRecipientRosterItem =
+  | {
+      kind: "recipient";
+      display_order: number;
+      recipient: WhatsAppRecipient;
+    }
+  | {
+      kind: "rejected";
+      display_order: number;
+      rejected_contact: WhatsAppRejectedContact;
+    };
+
+export interface WhatsAppRecipientRosterResponse {
+  items: WhatsAppRecipientRosterItem[];
+  counts: {
+    all: number;
+    sent: number;
+    failed: number;
+    rejected: number;
+  };
+}
+
 export type WhatsAppContactPreviewResponse = RecipientImportPreview;
 
 export interface WhatsAppRecipientMessageStatus {
@@ -179,6 +201,15 @@ export const whatsappApi = {
 
   group: async (groupId: string): Promise<WhatsAppBroadcastGroupDetail> => {
     const { data } = await apiClient.get<WhatsAppBroadcastGroupDetail>(API_ENDPOINTS.whatsapp.group(groupId));
+    return data;
+  },
+
+  recipientRoster: async (
+    groupId: string,
+  ): Promise<WhatsAppRecipientRosterResponse> => {
+    const { data } = await apiClient.get<WhatsAppRecipientRosterResponse>(
+      API_ENDPOINTS.whatsapp.recipientRoster(groupId),
+    );
     return data;
   },
 

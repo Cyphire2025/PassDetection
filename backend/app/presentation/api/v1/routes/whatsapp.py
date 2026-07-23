@@ -35,7 +35,7 @@ from fastapi.responses import PlainTextResponse
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from pydantic import BaseModel, Field
-from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy import and_, delete, func, or_, select, union_all, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -123,6 +123,9 @@ MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
 MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
 MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = 8 * 1024
 WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
+WHATSAPP_ROSTER_SOURCE_FIELDS = frozenset(
+    {"source_file", "source_order", "source_sheet", "source_row"}
+)
 
 
 class WhatsAppRecipientInput(BaseModel):
@@ -236,6 +239,25 @@ class WhatsAppRecipientMessageStatusResponse(BaseModel):
     resend_blocked: bool = False
     submitted_at: datetime | None
     status_updated_at: datetime
+
+
+class WhatsAppRecipientRosterItemResponse(BaseModel):
+    kind: Literal["recipient", "rejected"]
+    display_order: int
+    recipient: WhatsAppRecipientResponse | None = None
+    rejected_contact: WhatsAppRejectedContactResponse | None = None
+
+
+class WhatsAppRecipientRosterCountsResponse(BaseModel):
+    all: int
+    sent: int
+    failed: int
+    rejected: int
+
+
+class WhatsAppRecipientRosterResponse(BaseModel):
+    items: list[WhatsAppRecipientRosterItemResponse]
+    counts: WhatsAppRecipientRosterCountsResponse
 
 
 class WhatsAppSupportContactResponse(BaseModel):
@@ -856,6 +878,7 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
         )
 
     cleaned: dict[str, str] = {}
+    imported_field_count = 0
     total_size = 0
     for raw_key, raw_value in value.items():
         key = _excel_field_key(raw_key)
@@ -886,7 +909,12 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
             text_value = " ".join(text_value.split())
         if not text_value:
             continue
-        if len(cleaned) >= MAX_WHATSAPP_IMPORTED_FIELDS and key not in cleaned:
+        is_roster_source_field = key in WHATSAPP_ROSTER_SOURCE_FIELDS
+        if (
+            not is_roster_source_field
+            and imported_field_count >= MAX_WHATSAPP_IMPORTED_FIELDS
+            and key not in cleaned
+        ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
@@ -904,6 +932,8 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
                 detail="A WhatsApp recipient's imported fields are too large",
             )
         cleaned[key] = text_value
+        if not is_roster_source_field:
+            imported_field_count += 1
     return cleaned
 
 
@@ -1190,6 +1220,9 @@ def _excel_fields_from_row(
     header_row: tuple[Any, ...],
     row_values: list[Any],
     sheet_name: str,
+    source_file_name: str,
+    row_number: int,
+    source_order: int,
 ) -> dict[str, str]:
     fields: dict[str, str] = {}
     for index, raw_header in enumerate(header_row):
@@ -1204,8 +1237,10 @@ def _excel_fields_from_row(
         ):
             continue
         fields.setdefault(key, text_value)
-    if sheet_name:
-        fields.setdefault("source_sheet", sheet_name)
+    fields.setdefault("source_file", source_file_name)
+    fields.setdefault("source_order", str(source_order))
+    fields.setdefault("source_sheet", sheet_name)
+    fields.setdefault("source_row", str(row_number))
     return _safe_imported_fields(fields)
 
 
@@ -1216,6 +1251,9 @@ def _merge_recipient_inputs(
     merged_fields = dict(existing.imported_fields)
     conflicting_keys: set[str] = set()
     for key, value in incoming.imported_fields.items():
+        if key in WHATSAPP_ROSTER_SOURCE_FIELDS:
+            merged_fields.setdefault(key, value)
+            continue
         current = merged_fields.get(key)
         if current is None:
             merged_fields[key] = value
@@ -1246,7 +1284,11 @@ def _parse_excel_contact_bytes(
     *,
     filename: str,
 ) -> _WhatsAppExcelContactParseResult:
-    suffix = filename.rsplit(".", maxsplit=1)[-1].lower()
+    source_file_name = (
+        filename.replace("\\", "/").rsplit("/", maxsplit=1)[-1].strip()
+        or "contacts.xlsx"
+    )
+    suffix = source_file_name.rsplit(".", maxsplit=1)[-1].lower()
     suffix = f".{suffix}" if "." in filename else ".xlsx"
     if suffix not in {".xlsx", ".xlsm"}:
         raise HTTPException(
@@ -1321,6 +1363,7 @@ def _parse_excel_contact_bytes(
     contacts_by_phone: dict[str, WhatsAppRecipientInput] = {}
     rejected_rows: list[WhatsAppContactPreviewRejectedRow] = []
     rejected_counts: dict[WhatsAppContactRejectionCode, int] = {}
+    source_order = 0
     for sheet_index, (sheet_name, rows) in enumerate(sheet_rows):
         if not rows:
             continue
@@ -1356,15 +1399,26 @@ def _parse_excel_contact_bytes(
             row_values = list(row)
             if header_row and _is_repeated_excel_header(row_values, header_row):
                 continue
+            source_order += 1
             candidates: list[tuple[str | None, str, dict[str, str]]] = []
             imported_fields = (
                 _excel_fields_from_row(
                     header_row=header_row,
                     row_values=row_values,
-                    sheet_name=sheet_name if len(sheet_rows) > 1 else "",
+                    sheet_name=sheet_name,
+                    source_file_name=source_file_name,
+                    row_number=row_number,
+                    source_order=source_order,
                 )
                 if header_row
-                else {}
+                else _safe_imported_fields(
+                    {
+                        "source_file": source_file_name,
+                        "source_order": str(source_order),
+                        "source_sheet": sheet_name,
+                        "source_row": str(row_number),
+                    }
+                )
             )
             name = _excel_name_from_row(
                 row_values,
@@ -1418,7 +1472,7 @@ def _parse_excel_contact_bytes(
                     if (text := _excel_cell_text(cell))
                 )
                 for match in PHONE_RE.findall(row_text):
-                    candidates.append((name, match, {}))
+                    candidates.append((name, match, imported_fields))
 
             for name, phone, fields in candidates:
                 normalized = _normalize_phone(phone)
@@ -1651,6 +1705,129 @@ def _parse_rejected_contacts(value: str) -> list[WhatsAppRejectedContactInput]:
         ) from exc
 
 
+def _positive_int(value: Any) -> int | None:
+    try:
+        parsed = int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
+
+
+def _roster_source_sort_key(
+    imported_fields: dict[str, str],
+    *,
+    fallback_source_file: str = "",
+    fallback_source_sheet: str = "",
+    fallback_source_row: int | None = None,
+    stable_index: int,
+) -> tuple[int, str, int, str, int, int]:
+    source_file = (
+        imported_fields.get("source_file")
+        or fallback_source_file
+        or ""
+    ).casefold()
+    source_sheet = (
+        imported_fields.get("source_sheet")
+        or fallback_source_sheet
+        or ""
+    ).casefold()
+    source_row = (
+        _positive_int(imported_fields.get("source_row"))
+        or fallback_source_row
+        or 0
+    )
+    source_order = _positive_int(imported_fields.get("source_order"))
+    is_imported = bool(source_file or source_sheet or source_row or source_order)
+    return (
+        0 if is_imported else 1,
+        source_file,
+        source_order or source_row,
+        source_sheet,
+        source_row,
+        stable_index,
+    )
+
+
+def _new_roster_display_orders(
+    *,
+    normalized_contacts: dict[str, WhatsAppRecipientInput],
+    rejected_contacts: list[WhatsAppRejectedContactInput],
+    existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel],
+    existing_by_fingerprint: dict[str, WhatsAppBroadcastRejectedContactModel],
+    start_order: int,
+) -> tuple[dict[str, int], dict[str, int]]:
+    candidates: list[
+        tuple[
+            tuple[int, str, int, str, int, int],
+            Literal["recipient", "rejected"],
+            str,
+        ]
+    ] = []
+    stable_index = 0
+    for normalized_phone, contact in normalized_contacts.items():
+        if normalized_phone not in existing_by_phone:
+            candidates.append(
+                (
+                    _roster_source_sort_key(
+                        contact.imported_fields,
+                        stable_index=stable_index,
+                    ),
+                    "recipient",
+                    normalized_phone,
+                )
+            )
+        stable_index += 1
+    for contact in rejected_contacts:
+        fingerprint = _rejected_contact_fingerprint(contact)
+        if fingerprint not in existing_by_fingerprint:
+            candidates.append(
+                (
+                    _roster_source_sort_key(
+                        contact.imported_fields,
+                        fallback_source_file=contact.source_file_name,
+                        fallback_source_sheet=contact.sheet_name,
+                        fallback_source_row=contact.row_number,
+                        stable_index=stable_index,
+                    ),
+                    "rejected",
+                    fingerprint,
+                )
+            )
+        stable_index += 1
+
+    recipient_orders: dict[str, int] = {}
+    rejected_orders: dict[str, int] = {}
+    for offset, (_, kind, identity) in enumerate(sorted(candidates)):
+        display_order = start_order + offset
+        if kind == "recipient":
+            recipient_orders[identity] = display_order
+        else:
+            rejected_orders[identity] = display_order
+    return recipient_orders, rejected_orders
+
+
+async def _next_roster_display_order(
+    session: AsyncSession,
+    group_id: uuid.UUID,
+) -> int:
+    existing_orders = union_all(
+        select(
+            WhatsAppBroadcastRecipientModel.display_order.label("display_order")
+        ).where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+        ),
+        select(
+            WhatsAppBroadcastRejectedContactModel.display_order.label("display_order")
+        ).where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
+        ),
+    ).subquery()
+    result = await session.execute(
+        select(func.coalesce(func.max(existing_orders.c.display_order), 0))
+    )
+    return int(result.scalar_one()) + 1
+
+
 def _add_rejected_contact_models(
     *,
     session: AsyncSession,
@@ -1661,7 +1838,9 @@ def _add_rejected_contact_models(
         WhatsAppBroadcastRejectedContactModel,
     ],
     now: datetime,
+    display_orders_by_fingerprint: dict[str, int] | None = None,
 ) -> int:
+    display_orders_by_fingerprint = display_orders_by_fingerprint or {}
     new_contacts: list[WhatsAppRejectedContactInput] = []
     for contact in contacts:
         fingerprint = _rejected_contact_fingerprint(contact)
@@ -1696,6 +1875,7 @@ def _add_rejected_contact_models(
             raw_name=contact.raw_name,
             raw_phone_number=contact.raw_phone_number,
             imported_fields=_safe_imported_fields(contact.imported_fields),
+            display_order=display_orders_by_fingerprint.get(fingerprint),
             reason_code=contact.reason_code,
             reason=_WHATSAPP_CONTACT_REJECTION_REASONS[contact.reason_code],
             fingerprint=fingerprint,
@@ -1768,9 +1948,11 @@ def _activate_recipient_models(
     existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel],
     normalized_contacts: dict[str, WhatsAppRecipientInput],
     now: datetime,
+    display_orders_by_phone: dict[str, int] | None = None,
 ) -> None:
     """Reactivate matching rows so their durable message checklist survives."""
 
+    display_orders_by_phone = display_orders_by_phone or {}
     for normalized, contact in normalized_contacts.items():
         existing = existing_by_phone.get(normalized)
         if existing:
@@ -1788,6 +1970,7 @@ def _activate_recipient_models(
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
                 imported_fields=contact.imported_fields,
+                display_order=display_orders_by_phone.get(normalized),
                 removed_at=None,
                 created_at=now,
             )
@@ -1905,6 +2088,60 @@ async def _support_contacts_for_group(
     return list(result.scalars().all())
 
 
+async def _recipient_delivery_state_maps(
+    session: AsyncSession,
+    recipients: list[WhatsAppBroadcastRecipientModel],
+) -> tuple[
+    dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]],
+    dict[uuid.UUID, dict[str, str]],
+]:
+    states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
+    resend_statuses_by_recipient: dict[uuid.UUID, dict[str, str]] = {}
+    if not recipients:
+        return states_by_recipient, resend_statuses_by_recipient
+
+    recipient_ids = [recipient.id for recipient in recipients]
+    states_result = await session.execute(
+        select(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.recipient_id.in_(recipient_ids)
+        )
+        .order_by(WhatsAppRecipientMessageStateModel.message_type.asc())
+    )
+    for state_model in states_result.scalars().all():
+        states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
+
+    resend_result = await session.execute(
+        select(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.recipient_id.in_(recipient_ids),
+            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
+        )
+        .order_by(WhatsAppMessageLogModel.created_at.desc())
+    )
+    for resend_log in resend_result.scalars().all():
+        current_state = next(
+            (
+                state
+                for state in states_by_recipient.get(resend_log.recipient_id, [])
+                if state.message_type == resend_log.message_type
+            ),
+            None,
+        )
+        if (
+            current_state
+            and current_state.status == "failed"
+            and resend_log.created_at <= current_state.status_updated_at
+        ):
+            continue
+        recipient_statuses = resend_statuses_by_recipient.setdefault(
+            resend_log.recipient_id,
+            {},
+        )
+        recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
+    return states_by_recipient, resend_statuses_by_recipient
+
+
 async def _group_detail(
     session: AsyncSession, group: WhatsAppBroadcastGroupModel
 ) -> WhatsAppBroadcastGroupDetailResponse:
@@ -1920,50 +2157,9 @@ async def _group_detail(
         )
     )
     recipients = list(recipients_result.scalars().all())
-    states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
-    resend_statuses_by_recipient: dict[uuid.UUID, dict[str, str]] = {}
-    if recipients:
-        states_result = await session.execute(
-            select(WhatsAppRecipientMessageStateModel)
-            .where(
-                WhatsAppRecipientMessageStateModel.recipient_id.in_(
-                    [recipient.id for recipient in recipients]
-                )
-            )
-            .order_by(WhatsAppRecipientMessageStateModel.message_type.asc())
-        )
-        for state_model in states_result.scalars().all():
-            states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
-        resend_result = await session.execute(
-            select(WhatsAppMessageLogModel)
-            .where(
-                WhatsAppMessageLogModel.recipient_id.in_(
-                    [recipient.id for recipient in recipients]
-                ),
-                WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            )
-            .order_by(WhatsAppMessageLogModel.created_at.desc())
-        )
-        for resend_log in resend_result.scalars().all():
-            current_state = next(
-                (
-                    state
-                    for state in states_by_recipient.get(resend_log.recipient_id, [])
-                    if state.message_type == resend_log.message_type
-                ),
-                None,
-            )
-            if (
-                current_state
-                and current_state.status == "failed"
-                and resend_log.created_at <= current_state.status_updated_at
-            ):
-                continue
-            recipient_statuses = resend_statuses_by_recipient.setdefault(
-                resend_log.recipient_id,
-                {},
-            )
-            recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
+    states_by_recipient, resend_statuses_by_recipient = (
+        await _recipient_delivery_state_maps(session, recipients)
+    )
     support_contacts = await _support_contacts_for_group(session, group.id)
     rejected_count_result = await session.execute(
         select(func.count())
@@ -2472,6 +2668,149 @@ async def get_broadcast_group(
 
 
 @router.get(
+    "/groups/{group_id}/recipient-roster",
+    response_model=WhatsAppRecipientRosterResponse,
+)
+async def get_broadcast_recipient_roster(
+    group_id: uuid.UUID,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppRecipientRosterResponse:
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel.id).where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+    )
+    if group_result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
+        )
+
+    recipients_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+        .order_by(
+            WhatsAppBroadcastRecipientModel.display_order.asc().nullslast(),
+            WhatsAppBroadcastRecipientModel.created_at.asc(),
+            WhatsAppBroadcastRecipientModel.id.asc(),
+        )
+    )
+    recipients = list(recipients_result.scalars().all())
+    rejected_result = await session.execute(
+        select(WhatsAppBroadcastRejectedContactModel)
+        .where(
+            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
+        )
+        .order_by(
+            WhatsAppBroadcastRejectedContactModel.display_order.asc().nullslast(),
+            WhatsAppBroadcastRejectedContactModel.created_at.asc(),
+            WhatsAppBroadcastRejectedContactModel.id.asc(),
+        )
+    )
+    rejected_contacts = list(rejected_result.scalars().all())
+    states_by_recipient, resend_statuses_by_recipient = (
+        await _recipient_delivery_state_maps(session, recipients)
+    )
+
+    roster_models: list[
+        tuple[
+            Literal["recipient", "rejected"],
+            WhatsAppBroadcastRecipientModel
+            | WhatsAppBroadcastRejectedContactModel,
+        ]
+    ] = [
+        ("recipient", recipient)
+        for recipient in recipients
+    ] + [
+        ("rejected", rejected_contact)
+        for rejected_contact in rejected_contacts
+    ]
+    roster_models.sort(
+        key=lambda item: (
+            item[1].display_order is None,
+            item[1].display_order or 0,
+            item[1].created_at,
+            item[0],
+            str(item[1].id),
+        )
+    )
+    next_fallback_order = (
+        max(
+            (
+                model.display_order or 0
+                for _, model in roster_models
+            ),
+            default=0,
+        )
+        + 1
+    )
+    items: list[WhatsAppRecipientRosterItemResponse] = []
+    for kind, model in roster_models:
+        display_order = model.display_order
+        if display_order is None:
+            display_order = next_fallback_order
+            next_fallback_order += 1
+        if kind == "recipient":
+            recipient = model
+            assert isinstance(recipient, WhatsAppBroadcastRecipientModel)
+            items.append(
+                WhatsAppRecipientRosterItemResponse(
+                    kind="recipient",
+                    display_order=display_order,
+                    recipient=_recipient_response(
+                        recipient,
+                        states_by_recipient.get(recipient.id, []),
+                        resend_statuses_by_recipient.get(recipient.id, {}),
+                    ),
+                )
+            )
+        else:
+            rejected_contact = model
+            assert isinstance(
+                rejected_contact,
+                WhatsAppBroadcastRejectedContactModel,
+            )
+            items.append(
+                WhatsAppRecipientRosterItemResponse(
+                    kind="rejected",
+                    display_order=display_order,
+                    rejected_contact=_rejected_contact_response(rejected_contact),
+                )
+            )
+
+    sent_count = 0
+    failed_count = 0
+    for recipient in recipients:
+        recipient_states = states_by_recipient.get(recipient.id, [])
+        resend_statuses = resend_statuses_by_recipient.get(recipient.id, {})
+        if any(
+            state.status in WHATSAPP_ACCEPTED_STATUSES
+            for state in recipient_states
+        ):
+            sent_count += 1
+        if (
+            any(state.status == "failed" for state in recipient_states)
+            or "failed" in resend_statuses.values()
+        ):
+            failed_count += 1
+
+    return WhatsAppRecipientRosterResponse(
+        items=items,
+        counts=WhatsAppRecipientRosterCountsResponse(
+            all=len(items),
+            sent=sent_count,
+            failed=failed_count,
+            rejected=len(rejected_contacts),
+        ),
+    )
+
+
+@router.get(
     "/groups/{group_id}/rejected-contacts",
     response_model=WhatsAppRejectedContactListResponse,
 )
@@ -2630,10 +2969,15 @@ async def resolve_broadcast_rejected_contact(
     imported_fields.setdefault("source_sheet", rejected_contact.sheet_name)
     imported_fields.setdefault("source_row", str(rejected_contact.row_number))
     imported_fields = _safe_imported_fields(imported_fields)
+    resolved_display_order = rejected_contact.display_order
+    if resolved_display_order is None:
+        resolved_display_order = await _next_roster_display_order(session, group.id)
     if existing_recipient:
         existing_recipient.name = name
         existing_recipient.phone_number = body.phone_number.strip()
         existing_recipient.imported_fields = imported_fields
+        if existing_recipient.display_order is None:
+            existing_recipient.display_order = resolved_display_order
         existing_recipient.removed_at = None
         await session.execute(
             delete(WhatsAppRecipientMessageStateModel).where(
@@ -2650,6 +2994,7 @@ async def resolve_broadcast_rejected_contact(
                 phone_number=body.phone_number.strip(),
                 normalized_phone_number=normalized_phone,
                 imported_fields=imported_fields,
+                display_order=resolved_display_order,
                 created_at=now,
             )
         )
@@ -3050,6 +3395,15 @@ async def create_broadcast_group(
     )
     session.add(group)
     await session.flush()
+    recipient_display_orders, rejected_display_orders = (
+        _new_roster_display_orders(
+            normalized_contacts=normalized_contacts,
+            rejected_contacts=rejected_contacts,
+            existing_by_phone={},
+            existing_by_fingerprint={},
+            start_order=1,
+        )
+    )
     for normalized, contact in normalized_contacts.items():
         session.add(
             WhatsAppBroadcastRecipientModel(
@@ -3059,6 +3413,7 @@ async def create_broadcast_group(
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
                 imported_fields=contact.imported_fields,
+                display_order=recipient_display_orders[normalized],
                 created_at=now,
             )
         )
@@ -3068,6 +3423,7 @@ async def create_broadcast_group(
         contacts=rejected_contacts,
         existing_by_fingerprint={},
         now=now,
+        display_orders_by_fingerprint=rejected_display_orders,
     )
     for sort_order, (normalized, support_contact) in enumerate(normalized_support_contacts.items()):
         session.add(
@@ -3244,14 +3600,10 @@ async def add_broadcast_recipients(
                 ),
             )
 
-    now = datetime.now(tz=UTC)
-    _activate_recipient_models(
-        session=session,
-        group=group,
-        existing_by_phone=existing_by_phone,
-        normalized_contacts=normalized_contacts,
-        now=now,
-    )
+    existing_rejected_by_fingerprint: dict[
+        str,
+        WhatsAppBroadcastRejectedContactModel,
+    ] = {}
     if rejected_contacts:
         existing_rejected_result = await session.execute(
             select(WhatsAppBroadcastRejectedContactModel).where(
@@ -3259,15 +3611,53 @@ async def add_broadcast_recipients(
             )
         )
         existing_rejected_contacts = list(existing_rejected_result.scalars().all())
+        existing_rejected_by_fingerprint = {
+            contact.fingerprint: contact
+            for contact in existing_rejected_contacts
+        }
+
+    new_roster_count = sum(
+        1
+        for normalized in normalized_contacts
+        if normalized not in existing_by_phone
+    ) + sum(
+        1
+        for contact in rejected_contacts
+        if _rejected_contact_fingerprint(contact)
+        not in existing_rejected_by_fingerprint
+    )
+    start_order = (
+        await _next_roster_display_order(session, group.id)
+        if new_roster_count
+        else 1
+    )
+    recipient_display_orders, rejected_display_orders = (
+        _new_roster_display_orders(
+            normalized_contacts=normalized_contacts,
+            rejected_contacts=rejected_contacts,
+            existing_by_phone=existing_by_phone,
+            existing_by_fingerprint=existing_rejected_by_fingerprint,
+            start_order=start_order,
+        )
+    )
+
+    now = datetime.now(tz=UTC)
+    _activate_recipient_models(
+        session=session,
+        group=group,
+        existing_by_phone=existing_by_phone,
+        normalized_contacts=normalized_contacts,
+        now=now,
+        display_orders_by_phone=recipient_display_orders,
+    )
+    if rejected_contacts:
         _add_rejected_contact_models(
             session=session,
             group=group,
             contacts=rejected_contacts,
-            existing_by_fingerprint={
-                contact.fingerprint: contact
-                for contact in existing_rejected_contacts
-            },
+            existing_by_fingerprint=existing_rejected_by_fingerprint,
             now=now,
+            display_orders_by_fingerprint=rejected_display_orders,
         )
 
     if normalized_contacts:

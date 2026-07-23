@@ -773,13 +773,19 @@ async def test_excel_contact_upload_preserves_bounded_fields_across_sheets() -> 
         "staff_code": "25523",
         "passport_number": "Z4160891",
         "agent_company": "Bluechip",
+        "source_file": "contacts.xlsx",
+        "source_order": "1",
         "source_sheet": "North",
+        "source_row": "2",
     }
     assert contacts[1].imported_fields == {
         "name": "Meera Patel",
         "phone_number": "+919355926411",
         "custom_field": "Useful value",
+        "source_file": "contacts.xlsx",
+        "source_order": "2",
         "source_sheet": "South",
+        "source_row": "2",
     }
 
 
@@ -907,6 +913,10 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                     "name_2": "Duplicate Aarav",
                     "s_no_2": "3",
                     "duplicate_conflicting_fields": "name, s_no",
+                    "source_file": "contacts.xlsx",
+                    "source_order": "1",
+                    "source_sheet": "Sheet",
+                    "source_row": "3",
                 },
             },
             {
@@ -916,6 +926,10 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                     "name": "Meera Patel",
                     "phone_number": "+919355926411",
                     "s_no": "2",
+                    "source_file": "contacts.xlsx",
+                    "source_order": "2",
+                    "source_sheet": "Sheet",
+                    "source_row": "4",
                 },
             },
         ],
@@ -930,6 +944,10 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                     "s_no": "3",
                     "name": "Duplicate Aarav",
                     "phone_number": "+919873361557",
+                    "source_file": "contacts.xlsx",
+                    "source_order": "3",
+                    "source_sheet": "Sheet",
+                    "source_row": "5",
                 },
                 "reason_code": "duplicate_phone",
                 "reason": (
