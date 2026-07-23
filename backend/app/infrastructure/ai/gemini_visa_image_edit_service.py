@@ -107,8 +107,7 @@ class GeminiVisaImageEditService:
         self._http_client = http_client
 
     async def edit(self, image_content: bytes, *, prompt: str) -> GeminiVisaImageEditResult:
-        normalized_prompt = " ".join(prompt.strip().split())
-        self._validate_prompt(normalized_prompt)
+        normalized_prompt = self.validate_prompt(prompt)
         model = self._settings.gemini_image_edit_model.strip()
         api_key = (
             self._settings.google_api_key.get_secret_value()
@@ -469,9 +468,10 @@ class GeminiVisaImageEditService:
         raise GeminiVisaImageEditProviderUnavailable(message) from last_error
 
     def _operation_timeout_seconds(self) -> float:
-        return min(
-            105.0,
-            max(60.0, self._settings.gemini_timeout_seconds * 2),
+        # Keep lightweight test/alternate settings objects compatible while
+        # production Settings supplies the validated configurable value.
+        return float(
+            getattr(self._settings, "gemini_image_edit_timeout_seconds", 300)
         )
 
     @staticmethod
@@ -486,13 +486,19 @@ class GeminiVisaImageEditService:
         return [part for part in parts if isinstance(part, dict)]
 
     @staticmethod
-    def _validate_prompt(prompt: str) -> None:
-        if len(prompt) < 3 or len(prompt) > 1000 or _CONTROL_PATTERN.search(prompt):
+    def validate_prompt(prompt: str) -> str:
+        normalized = " ".join(prompt.strip().split())
+        if (
+            len(normalized) < 3
+            or len(normalized) > 1000
+            or _CONTROL_PATTERN.search(normalized)
+        ):
             raise GeminiVisaImageEditRejected("Enter a valid presentation-edit prompt.")
-        if any(pattern.search(prompt) for pattern in _DISALLOWED_PROMPT_PATTERNS):
+        if any(pattern.search(normalized) for pattern in _DISALLOWED_PROMPT_PATTERNS):
             raise GeminiVisaImageEditRejected(
                 "Visa AI editing cannot change identity, facial traits, age, skin tone, hair, clothing, or accessories."
             )
+        return normalized
 
     @staticmethod
     def _canonical_image(content: bytes, target_size: tuple[int, int] | None = None) -> bytes:

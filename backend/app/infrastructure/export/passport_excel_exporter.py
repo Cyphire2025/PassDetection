@@ -78,6 +78,11 @@ _COLUMNS = (
 )
 
 _FORMULA_PREFIXES = ("=", "+", "-", "@")
+_PENDING_ROW_FILL = PatternFill("solid", fgColor="FFF2CC")
+_PENDING_HEADER_FILL = PatternFill("solid", fgColor="D97706")
+_PENDING_TITLE_FILL = PatternFill("solid", fgColor="FDE68A")
+_PENDING_SECTION_BLANK_ROWS = 5
+_ZONE_SEPARATOR_BLANK_ROWS = 2
 
 
 def _safe_xlsx_value(value: Any) -> Any:
@@ -166,6 +171,7 @@ class PassportExcelExporter:
         group_name: str,
         group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None = None,
         zone_names: dict[uuid.UUID, str] | None = None,
+        pending_rows: list[dict[str, Any]] | None = None,
     ) -> bytes:
         columns = self._enabled_columns(submissions, group_details)
         headers = [column.header for column in columns]
@@ -207,8 +213,8 @@ class PassportExcelExporter:
             if has_written_submission and zone_key != previous_zone_key:
                 # Keep operational zone batches visually separate without
                 # mutating the underlying submission or WhatsApp data.
-                worksheet.append([])
-                worksheet.append([])
+                for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
+                    worksheet.append([])
             values = {
                 "Group": details.get("name") or group_name,
                 "Destination": details.get("destination"),
@@ -262,9 +268,10 @@ class PassportExcelExporter:
             previous_zone_key = zone_key
             has_written_submission = True
 
+        submitted_last_row = worksheet.max_row
         if ordered_submissions:
             last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter
-            table_ref = f"A{header_row}:{last_column}{worksheet.max_row}"
+            table_ref = f"A{header_row}:{last_column}{submitted_last_row}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
@@ -275,6 +282,13 @@ class PassportExcelExporter:
             )
             worksheet.add_table(table)
 
+        if pending_rows:
+            self._append_pending_section(
+                worksheet,
+                columns=columns,
+                pending_rows=pending_rows,
+            )
+
         for index, column in enumerate(columns, start=1):
             column_letter = worksheet.cell(row=header_row, column=index).column_letter
             worksheet.column_dimensions[column_letter].width = column.width
@@ -282,6 +296,106 @@ class PassportExcelExporter:
         buffer = io.BytesIO()
         workbook.save(buffer)
         return buffer.getvalue()
+
+    @classmethod
+    def _append_pending_section(
+        cls,
+        worksheet: Any,
+        *,
+        columns: list[_ExportColumn],
+        pending_rows: list[dict[str, Any]],
+    ) -> None:
+        """Append non-submitters as a separate, visibly distinct export section."""
+
+        headers = [column.header for column in columns]
+        for _ in range(_PENDING_SECTION_BLANK_ROWS):
+            worksheet.append([])
+
+        worksheet.append(["PENDING"])
+        title_row = worksheet.max_row
+        worksheet.merge_cells(
+            start_row=title_row,
+            start_column=1,
+            end_row=title_row,
+            end_column=len(headers),
+        )
+        title_cell = worksheet.cell(row=title_row, column=1)
+        title_cell.font = Font(bold=True, size=18, color="92400E")
+        title_cell.fill = _PENDING_TITLE_FILL
+        title_cell.alignment = Alignment(horizontal="center", vertical="center")
+        worksheet.row_dimensions[title_row].height = 28
+
+        worksheet.append(headers)
+        pending_header_row = worksheet.max_row
+        for cell in worksheet[pending_header_row]:
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = _PENDING_HEADER_FILL
+            cell.alignment = Alignment(horizontal="center")
+
+        ordered_rows = sorted(pending_rows, key=cls._pending_row_sort_key)
+        previous_zone_key: str | None = None
+        has_written_row = False
+        for values in ordered_rows:
+            zone_key = cls._pending_zone_name(values).casefold()
+            if has_written_row and zone_key != previous_zone_key:
+                for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
+                    worksheet.append([])
+
+            row_values: list[Any] = []
+            for column in columns:
+                value = values.get(column.header)
+                if column.number_format:
+                    value = _excel_date_value(value)
+                row_values.append(_safe_xlsx_value(value))
+            worksheet.append(row_values)
+            row_index = worksheet.max_row
+            for column_index, column in enumerate(columns, start=1):
+                cell = worksheet.cell(row=row_index, column=column_index)
+                cell.fill = _PENDING_ROW_FILL
+                if column.number_format and isinstance(cell.value, (date, datetime)):
+                    cell.number_format = column.number_format
+
+            previous_zone_key = zone_key
+            has_written_row = True
+
+        if ordered_rows:
+            last_column = worksheet.cell(
+                row=pending_header_row,
+                column=len(headers),
+            ).column_letter
+            pending_table = Table(
+                displayName="PendingPassportSubmissions",
+                ref=f"A{pending_header_row}:{last_column}{worksheet.max_row}",
+            )
+            pending_table.tableStyleInfo = TableStyleInfo(
+                name="TableStyleMedium4",
+                showFirstColumn=False,
+                showLastColumn=False,
+                showRowStripes=False,
+                showColumnStripes=False,
+            )
+            worksheet.add_table(pending_table)
+
+    @staticmethod
+    def _pending_zone_name(values: dict[str, Any]) -> str:
+        return " ".join(str(values.get("Zone Name") or "").strip().split())
+
+    @classmethod
+    def _pending_row_sort_key(
+        cls,
+        values: dict[str, Any],
+    ) -> tuple[bool, str, str, str, str]:
+        zone_name = cls._pending_zone_name(values)
+        client_name = " ".join(str(values.get("Client Name") or "").strip().split())
+        phone = str(values.get("Phone") or "")
+        email = str(values.get("Email") or "")
+        return (
+            not bool(zone_name),
+            zone_name.casefold(),
+            client_name.casefold(),
+            phone,
+            email.casefold(),
+        )
 
     @staticmethod
     def _zone_name(

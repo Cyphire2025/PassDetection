@@ -13,7 +13,7 @@ import uuid
 from dataclasses import replace
 from datetime import UTC, datetime
 from functools import lru_cache
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import (
     APIRouter,
@@ -78,6 +78,7 @@ from app.application.use_cases.passports.submit_passport_use_case import SubmitP
 from app.application.use_cases.whatsapp.group_submission_matching import (
     RecipientForComparison,
     SubmissionForComparison,
+    SubmissionMatchRow,
     compare_group_submissions,
 )
 from app.core.config.settings import get_settings
@@ -90,6 +91,7 @@ from app.core.security.passport_ai_edit_token import (
 from app.core.security.upload_session import upload_session_matches_identifier
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    ClientGroup,
     PassportSubmission,
     StaffApprovalOutcome,
     User,
@@ -109,6 +111,9 @@ from app.domain.value_objects.passport_image_crop import (
     passport_image_storage_key,
 )
 from app.domain.value_objects.passport_visa_ai_image import PassportVisaAiImage
+from app.domain.value_objects.passport_visa_ai_image_job import (
+    PassportVisaAiImageJob,
+)
 from app.infrastructure.ai.gemini_visa_image_edit_service import (
     GeminiVisaImageEditError,
     GeminiVisaImageEditNotConfigured,
@@ -169,6 +174,9 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.passport_visa_ai_image_job_repository import (
+    PassportVisaAiImageJobRepository,
+)
 from app.infrastructure.repositories.passport_visa_ai_image_repository import (
     PassportVisaAiImageRepository,
 )
@@ -183,6 +191,9 @@ from app.infrastructure.verification.dispatcher import (
 )
 from app.infrastructure.verification.job_repository import (
     PostSubmissionVerificationJobRepository,
+)
+from app.infrastructure.visa_ai_image_jobs.dispatcher import (
+    dispatch_visa_ai_image_job,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
     BulkDeletePassportSubmissionsRequest,
@@ -204,6 +215,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportSubmissionResponse,
     PassportSubmissionsViewResponse,
     PassportSubmissionViewItemResponse,
+    PassportVisaAiImageJobResponse,
     PassportVisaAiImageListResponse,
     PassportVisaAiImageResponse,
     PassportVisaAiImageUseRequest,
@@ -532,20 +544,26 @@ def _imported_zone_name(fields: dict[str, str]) -> str | None:
     return None
 
 
-async def _export_zone_names(
+async def _export_whatsapp_match_rows(
     session: AsyncSession,
     submissions: list[PassportSubmission],
-) -> dict[uuid.UUID, str]:
-    """Resolve exact imported WhatsApp zones using the production matcher."""
-
-    if not submissions:
-        return {}
-    submissions_by_group: dict[uuid.UUID, list[PassportSubmission]] = {}
+    *,
+    groups: list[ClientGroup] | None = None,
+) -> dict[uuid.UUID, list[SubmissionMatchRow]]:
+    """Build one production-grade recipient/submission comparison per group."""
+    submissions_by_group: dict[uuid.UUID, list[PassportSubmission]] = {
+        group.id: [] for group in (groups or [])
+    }
     agency_ids: set[uuid.UUID] = set()
+    for group in groups or []:
+        if group.agency_id:
+            agency_ids.add(group.agency_id)
     for submission in submissions:
         submissions_by_group.setdefault(submission.group_id, []).append(submission)
         if submission.agency_id:
             agency_ids.add(submission.agency_id)
+    if not submissions_by_group or not agency_ids:
+        return {}
 
     linked_result = await session.execute(
         select(
@@ -590,7 +608,7 @@ async def _export_zone_names(
             [],
         ).append(recipient)
 
-    resolved: dict[uuid.UUID, str] = {}
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]] = {}
     for group_id, group_submissions in submissions_by_group.items():
         linked_broadcasts = linked_by_group.get(group_id, {})
         if not linked_broadcasts:
@@ -627,6 +645,21 @@ async def _export_zone_names(
             comparison_recipients,
             comparison_submissions,
         )
+        rows_by_group[group_id] = rows
+    return rows_by_group
+
+
+def _export_zone_names_from_match_rows(
+    submissions: list[PassportSubmission],
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
+) -> dict[uuid.UUID, str]:
+    resolved: dict[uuid.UUID, str] = {}
+    submissions_by_group: dict[uuid.UUID, list[PassportSubmission]] = {}
+    for submission in submissions:
+        submissions_by_group.setdefault(submission.group_id, []).append(submission)
+
+    for group_id, group_submissions in submissions_by_group.items():
+        rows = rows_by_group.get(group_id, [])
         submissions_by_id = {submission.id: submission for submission in group_submissions}
         for row in rows:
             if row.status not in {"submitted", "multiple_submissions"}:
@@ -649,6 +682,196 @@ async def _export_zone_names(
                 if stored_zone and stored_zone.casefold() in zones_by_key:
                     resolved[submission_id] = zones_by_key[stored_zone.casefold()]
     return resolved
+
+
+async def _export_zone_names(
+    session: AsyncSession,
+    submissions: list[PassportSubmission],
+) -> dict[uuid.UUID, str]:
+    """Resolve exact imported WhatsApp zones using the production matcher."""
+
+    rows_by_group = await _export_whatsapp_match_rows(session, submissions)
+    return _export_zone_names_from_match_rows(submissions, rows_by_group)
+
+
+def _recipient_export_value(
+    row: SubmissionMatchRow,
+    *keys: str,
+) -> str | None:
+    values_by_key: dict[str, str] = {}
+    accepted_keys = {
+        _normalized_imported_field_key(key)
+        for key in keys
+    }
+    for field_set in sorted(row.recipient_fields, key=lambda item: str(item.recipient_id)):
+        for raw_key, raw_value in field_set.fields.items():
+            if _normalized_imported_field_key(str(raw_key)) not in accepted_keys:
+                continue
+            value = " ".join(str(raw_value or "").strip().split())
+            if not value or value.casefold() in {"null", "none", "n/a", "na"}:
+                continue
+            values_by_key.setdefault(value.casefold(), value)
+    if len(values_by_key) == 1:
+        return next(iter(values_by_key.values()))
+    # Conflicting imported identities must not be silently assigned to a
+    # random zone/person. Leave the ambiguous field empty for staff review.
+    return None
+
+
+def _pending_recipient_export_rows(
+    *,
+    group: ClientGroup,
+    rows: list[SubmissionMatchRow],
+) -> list[dict[str, Any]]:
+    details = _group_export_details(group)
+    pending_rows: list[dict[str, Any]] = []
+    for row in rows:
+        if not row.recipient_ids or row.status not in {"not_submitted", "needs_review"}:
+            continue
+        given_names = _recipient_export_value(
+            row,
+            "given_names",
+            "given_name",
+            "first_name",
+        )
+        surname = _recipient_export_value(
+            row,
+            "surname",
+            "last_name",
+            "family_name",
+        )
+        imported_name = _recipient_export_value(
+            row,
+            "name",
+            "full_name",
+            "client_name",
+            "passenger_name",
+            "recipient_name",
+            "staff_name",
+            "employee_name",
+        )
+        recipient_names_by_key = {
+            normalized.casefold(): normalized
+            for name in row.recipient_names
+            if (normalized := " ".join(str(name or "").strip().split()))
+        }
+        unambiguous_recipient_name = (
+            next(iter(recipient_names_by_key.values()))
+            if len(recipient_names_by_key) == 1
+            else None
+        )
+        client_name = (
+            unambiguous_recipient_name
+            or imported_name
+            or " ".join(part for part in (given_names, surname) if part)
+            or row.normalized_phone
+            or "Pending recipient"
+        )
+        pending_rows.append(
+            {
+                "Group": details.get("name") or group.name,
+                "Destination": details.get("destination"),
+                "Travel/Departure Date": details.get("travel_date"),
+                "Return Date": details.get("return_date"),
+                "Client Name": client_name,
+                "Zone Name": _recipient_export_value(
+                    row,
+                    "zone_name",
+                    "zonename",
+                    "zone",
+                ),
+                "Email": _recipient_export_value(
+                    row,
+                    "email",
+                    "email_address",
+                    "e_mail",
+                    "mail",
+                ),
+                "Phone": (
+                    row.normalized_phone
+                    or _recipient_export_value(
+                        row,
+                        "phone_number",
+                        "phone",
+                        "mobile",
+                        "mobile_number",
+                        "whatsapp",
+                        "whatsapp_number",
+                        "contact",
+                        "contact_number",
+                    )
+                ),
+                "Nearest International Airport": _recipient_export_value(
+                    row,
+                    "nearest_international_airport",
+                    "international_airport",
+                    "departure_city",
+                ),
+                "Nearest Domestic Airport": _recipient_export_value(
+                    row,
+                    "nearest_domestic_airport",
+                    "domestic_airport",
+                ),
+                "Base City": _recipient_export_value(row, "base_city"),
+                "Staff Code": _recipient_export_value(
+                    row,
+                    "staff_code",
+                    "staffcode",
+                    "employee_code",
+                    "staff_id",
+                ),
+                "Agent/Employee Code": _recipient_export_value(
+                    row,
+                    "agent_employee_code",
+                    "agent_code",
+                    "employee_code",
+                ),
+                "Meal Preference": _recipient_export_value(
+                    row,
+                    "meal_preference",
+                    "meal",
+                    "food_preference",
+                ),
+                "Relation with Qualifier": _recipient_export_value(
+                    row,
+                    "relation_with_qualifier",
+                    "qualifier_relation",
+                    "relation",
+                ),
+                "Surname": surname.upper() if surname else None,
+                "Given Names": given_names.upper() if given_names else None,
+                "Passport Number": _recipient_export_value(
+                    row,
+                    "passport_number",
+                    "passport_no",
+                    "passport",
+                ),
+                "Nationality": _recipient_export_value(row, "nationality"),
+                "Date of Birth": _recipient_export_value(
+                    row,
+                    "date_of_birth",
+                    "dob",
+                    "birth_date",
+                ),
+                "Date of Issue": _recipient_export_value(
+                    row,
+                    "date_of_issue",
+                    "issue_date",
+                ),
+                "Date of Expiry": _recipient_export_value(
+                    row,
+                    "date_of_expiry",
+                    "expiry_date",
+                    "expiration_date",
+                ),
+                "Sex": (
+                    value.upper()
+                    if (value := _recipient_export_value(row, "sex", "gender"))
+                    else None
+                ),
+            }
+        )
+    return pending_rows
 
 
 async def _dispatch_processing_job(
@@ -1703,11 +1926,24 @@ async def export_passports_by_group(
         created_by_user_id=_owner_scope_for(current_user),
         visible_to_user=current_user,
     )
+    match_rows_by_group = await _export_whatsapp_match_rows(
+        session,
+        submissions,
+        groups=[group],
+    )
+    pending_rows = _pending_recipient_export_rows(
+        group=group,
+        rows=match_rows_by_group.get(group.id, []),
+    )
     content = PassportExcelExporter().export_group(
         submissions,
         group_name=group.name,
         group_details={group.id: _group_export_details(group)},
-        zone_names=await _export_zone_names(session, submissions),
+        zone_names=_export_zone_names_from_match_rows(
+            submissions,
+            match_rows_by_group,
+        ),
+        pending_rows=pending_rows,
     )
 
     await AuditLogRepository(session).record(
@@ -1717,7 +1953,10 @@ async def export_passports_by_group(
         agency_id=current_user.agency_id,
         user_id=current_user.id,
         actor_email=current_user.email,
-        metadata={"submission_count": len(submissions)},
+        metadata={
+            "submission_count": len(submissions),
+            "pending_recipient_count": len(pending_rows),
+        },
     )
 
     filename = f"passport-export-{group_id}.xlsx"
@@ -3192,6 +3431,239 @@ def _visa_ai_library_response(
         model=generation.model,
         created_at=generation.created_at,
         is_current=(generation.generated_storage_key == current_storage_key),
+    )
+
+
+async def _visa_ai_job_response(
+    *,
+    submission_id: uuid.UUID,
+    job: PassportVisaAiImageJob,
+    current_storage_key: str | None,
+    session: AsyncSession,
+) -> PassportVisaAiImageJobResponse:
+    result = None
+    if job.result_image_id:
+        generation = await PassportVisaAiImageRepository(session).get_for_submission(
+            submission_id,
+            job.result_image_id,
+        )
+        if generation:
+            result = _visa_ai_library_response(
+                submission_id=submission_id,
+                generation=generation,
+                current_storage_key=current_storage_key,
+            )
+    return PassportVisaAiImageJobResponse(
+        id=job.id,
+        status=job.status,
+        prompt=job.prompt,
+        attempts=job.attempts,
+        max_attempts=job.max_attempts,
+        error_message=job.error_message,
+        result=result,
+        created_at=job.created_at,
+        updated_at=job.updated_at,
+    )
+
+
+async def _dispatch_queued_visa_ai_job(
+    *,
+    job: PassportVisaAiImageJob,
+    session: AsyncSession,
+) -> PassportVisaAiImageJob:
+    if job.status != "queued" or job.celery_task_id:
+        return job
+
+    # Commit the durable outbox row before publishing. If publishing fails, a
+    # later short status poll retries it without rerunning work in the request.
+    await session.commit()
+    task_id = await dispatch_visa_ai_image_job(
+        job_id=job.id,
+        submission_id=job.submission_id,
+    )
+    repository = PassportVisaAiImageJobRepository(session)
+    if task_id:
+        current = await repository.get_for_submission(job.submission_id, job.id)
+        if current and current.status == "queued" and not current.celery_task_id:
+            await repository.set_task_id(job.id, task_id)
+            await session.commit()
+    refreshed = await repository.get_for_submission(job.submission_id, job.id)
+    return refreshed or job
+
+
+async def _recover_and_dispatch_visa_ai_job(
+    *,
+    job: PassportVisaAiImageJob,
+    session: AsyncSession,
+) -> PassportVisaAiImageJob:
+    if job.status == "running":
+        recovered = await PassportVisaAiImageJobRepository(session).recover_stale(job.id)
+        if recovered:
+            await session.commit()
+            job = recovered
+    return await _dispatch_queued_visa_ai_job(job=job, session=session)
+
+
+@router.post(
+    "/{submission_id}/images/visa_photo/ai-jobs",
+    response_model=PassportVisaAiImageJobResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Queue a durable verified Visa AI image generation",
+)
+async def create_visa_ai_image_job(
+    submission_id: uuid.UUID,
+    body: PassportVisaAiPreviewRequest,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportVisaAiImageJobResponse:
+    image_type = PassportImageType.VISA_PHOTO
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    try:
+        normalized_prompt = GeminiVisaImageEditService.validate_prompt(body.prompt)
+    except GeminiVisaImageEditRejected as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+    settings = get_settings()
+    google_key = (
+        settings.google_api_key.get_secret_value()
+        if settings.google_api_key
+        else ""
+    )
+    if not settings.gemini_image_edit_model.strip() or not google_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Visa AI editing is not configured. Add "
+                "GEMINI_IMAGE_EDIT_MODEL and a Google API key."
+            ),
+        )
+
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    input_storage_key = (
+        effective.edit_source_storage_key
+        if effective and effective.edit_source_storage_key
+        else source_key
+    )
+    repository = PassportVisaAiImageJobRepository(session)
+    job, created = await repository.enqueue(
+        submission_id=submission.id,
+        original_source_storage_key=source_key,
+        input_storage_key=input_storage_key,
+        prompt=normalized_prompt,
+        requested_by_user_id=current_user.id,
+    )
+    if created:
+        await AuditLogRepository(session).record(
+            action="passport_visa_ai_image_queued",
+            entity_type="passport_submission",
+            entity_id=str(submission.id),
+            agency_id=submission.agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={
+                "image_type": image_type.value,
+                "job_id": str(job.id),
+                "prompt_sha256": job.prompt_sha256,
+            },
+        )
+    job = await _dispatch_queued_visa_ai_job(job=job, session=session)
+    return await _visa_ai_job_response(
+        submission_id=submission.id,
+        job=job,
+        current_storage_key=(
+            effective.edit_source_storage_key if effective else None
+        ),
+        session=session,
+    )
+
+
+@router.get(
+    "/{submission_id}/images/visa_photo/ai-jobs/active",
+    response_model=PassportVisaAiImageJobResponse | None,
+    status_code=status.HTTP_200_OK,
+    summary="Resume the active Visa AI image generation, if any",
+)
+async def get_active_visa_ai_image_job(
+    submission_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportVisaAiImageJobResponse | None:
+    image_type = PassportImageType.VISA_PHOTO
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    job = await PassportVisaAiImageJobRepository(session).active_for_submission(
+        submission.id
+    )
+    if job is None:
+        return None
+    job = await _recover_and_dispatch_visa_ai_job(job=job, session=session)
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    return await _visa_ai_job_response(
+        submission_id=submission.id,
+        job=job,
+        current_storage_key=(
+            effective.edit_source_storage_key if effective else None
+        ),
+        session=session,
+    )
+
+
+@router.get(
+    "/{submission_id}/images/visa_photo/ai-jobs/{job_id}",
+    response_model=PassportVisaAiImageJobResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get one durable Visa AI image generation job",
+)
+async def get_visa_ai_image_job(
+    submission_id: uuid.UUID,
+    job_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportVisaAiImageJobResponse:
+    image_type = PassportImageType.VISA_PHOTO
+    submission, source_key = await _authorized_staff_passport_image(
+        submission_id=submission_id,
+        image_type=image_type,
+        current_user=current_user,
+        session=session,
+        require_editor=True,
+    )
+    job = await PassportVisaAiImageJobRepository(session).get_for_submission(
+        submission.id,
+        job_id,
+    )
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The Visa AI generation job was not found.",
+        )
+    job = await _recover_and_dispatch_visa_ai_job(job=job, session=session)
+    crop_row = await PassportImageCropRepository(session).get(submission.id, image_type)
+    effective = _effective_crop(crop_row, source_storage_key=source_key)
+    return await _visa_ai_job_response(
+        submission_id=submission.id,
+        job=job,
+        current_storage_key=(
+            effective.edit_source_storage_key if effective else None
+        ),
+        session=session,
     )
 
 

@@ -4,8 +4,10 @@ import {
   useEffect,
   useRef,
   useState,
+  type Dispatch,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
+  type SetStateAction,
 } from "react";
 import {
   Check,
@@ -24,6 +26,7 @@ import {
   type PassportImageCropRect,
   type PassportImageCropState,
   type PassportImageType,
+  type VisaAiGenerationJob,
   type VisaAiLibraryImage,
 } from "../api/passports.api";
 import {
@@ -49,6 +52,9 @@ const FULL_IMAGE_CROP: PassportImageCropRect = {
   height: 1,
   rotation_degrees: 0,
 };
+
+const VISA_AI_JOB_POLL_INTERVAL_MS = 2_000;
+const VISA_AI_JOB_POLL_FAILURE_LIMIT = 4;
 
 export function PassportImageCropEditor({
   submissionId,
@@ -127,7 +133,7 @@ export function PassportImageCropEditor({
     void passportsApi.listVisaAiLibrary(submissionId)
       .then((items) => {
         if (controller.signal.aborted) return;
-        setAiLibrary(items);
+        setAiLibrary((current) => mergeVisaAiLibraryItems(items, current));
         setFeaturedGenerationId((current) => current ?? items[0]?.id ?? null);
       })
       .catch((loadError) => {
@@ -138,6 +144,50 @@ export function PassportImageCropEditor({
       .finally(() => {
         if (!controller.signal.aborted) setIsLoadingLibrary(false);
       });
+    return () => controller.abort();
+  }, [isVisaPhoto, submissionId]);
+
+  useEffect(() => {
+    if (!isVisaPhoto) return;
+    const controller = new AbortController();
+    aiRequestRef.current?.abort();
+    aiRequestRef.current = controller;
+    void (async () => {
+      try {
+        const activeJob = await passportsApi.getActiveVisaAiGenerationJob(
+          submissionId,
+          controller.signal,
+        );
+        if (!activeJob || controller.signal.aborted) return;
+        setAiPrompt(activeJob.prompt);
+        setIsGenerating(true);
+        const terminalJob = await waitForVisaAiGenerationJob(
+          submissionId,
+          activeJob,
+          controller.signal,
+        );
+        if (!controller.signal.aborted) {
+          applyTerminalVisaAiJob(
+            terminalJob,
+            setAiLibrary,
+            setFeaturedGenerationId,
+            setError,
+          );
+        }
+      } catch (resumeError) {
+        if (!controller.signal.aborted) {
+          setError(readEditError(
+            resumeError,
+            "Could not resume the saved Visa photo generation.",
+          ));
+        }
+      } finally {
+        if (aiRequestRef.current === controller) {
+          aiRequestRef.current = null;
+          setIsGenerating(false);
+        }
+      }
+    })();
     return () => controller.abort();
   }, [isVisaPhoto, submissionId]);
 
@@ -182,8 +232,8 @@ export function PassportImageCropEditor({
   }, [onClose]);
 
   useEffect(() => {
-    busyRef.current = isSaving || isResetting || isGenerating || usingImageId !== null;
-  }, [isGenerating, isResetting, isSaving, usingImageId]);
+    busyRef.current = isSaving || isResetting || usingImageId !== null;
+  }, [isResetting, isSaving, usingImageId]);
 
   useEffect(() => {
     returnFocusRef.current = returnFocusTarget;
@@ -274,16 +324,30 @@ export function PassportImageCropEditor({
     if (!metadata || prompt.length < 3 || isGenerating) return;
     setError(null);
     setIsGenerating(true);
+    aiRequestRef.current?.abort();
     const controller = new AbortController();
     aiRequestRef.current = controller;
     try {
-      const generated = await passportsApi.generateVisaAiLibraryImage(
+      const job = await passportsApi.createVisaAiGenerationJob(
         submissionId,
         prompt,
         controller.signal,
       );
-      setAiLibrary((current) => [generated, ...current.filter((item) => item.id !== generated.id)]);
-      setFeaturedGenerationId(generated.id);
+      if (controller.signal.aborted) return;
+      setAiPrompt(job.prompt);
+      const terminalJob = await waitForVisaAiGenerationJob(
+        submissionId,
+        job,
+        controller.signal,
+      );
+      if (!controller.signal.aborted) {
+        applyTerminalVisaAiJob(
+          terminalJob,
+          setAiLibrary,
+          setFeaturedGenerationId,
+          setError,
+        );
+      }
     } catch (generationError) {
       if (!controller.signal.aborted) {
         setError(readEditError(
@@ -292,8 +356,10 @@ export function PassportImageCropEditor({
         ));
       }
     } finally {
-      if (aiRequestRef.current === controller) aiRequestRef.current = null;
-      setIsGenerating(false);
+      if (aiRequestRef.current === controller) {
+        aiRequestRef.current = null;
+        setIsGenerating(false);
+      }
     }
   };
 
@@ -332,7 +398,13 @@ export function PassportImageCropEditor({
   };
 
   const cancelAiGeneration = () => {
-    aiRequestRef.current?.abort();
+    const controller = aiRequestRef.current;
+    if (!controller) return;
+    controller.abort();
+    if (aiRequestRef.current === controller) {
+      aiRequestRef.current = null;
+      setIsGenerating(false);
+    }
   };
 
   const save = async () => {
@@ -375,6 +447,7 @@ export function PassportImageCropEditor({
   };
 
   const busy = isSaving || isResetting || isGenerating || usingImageId !== null;
+  const closeBlocked = isSaving || isResetting || usingImageId !== null;
   const canReset = Boolean(
     metadata?.crop || metadata?.ai_edited || (metadata?.sharpness ?? 1) > 1,
   );
@@ -401,7 +474,7 @@ export function PassportImageCropEditor({
             ref={closeButtonRef}
             type="button"
             aria-label="Close image editor"
-            disabled={busy}
+            disabled={closeBlocked}
             onClick={onClose}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
@@ -511,7 +584,7 @@ export function PassportImageCropEditor({
           {activePanel === "ai" && isVisaPhoto ? (
             <>
               <p className="text-xs text-slate-500">Generated images are saved automatically. Choose one from the library when ready.</p>
-              <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Close</Button>
+              <Button type="button" variant="outline" disabled={closeBlocked} onClick={onClose}>Close</Button>
             </>
           ) : (
             <>
@@ -614,7 +687,7 @@ function VisaAiPanel({
             className="mt-4 w-full gap-2"
             onClick={onCancelGenerate}
           >
-            <X className="h-4 w-4" /> Cancel generation
+            <X className="h-4 w-4" /> Stop waiting
           </Button>
         ) : (
           <Button
@@ -879,6 +952,88 @@ function percent(value: number) {
 function clampSharpness(value: number) {
   if (!Number.isFinite(value)) return 1;
   return Math.min(3, Math.max(1, Math.round(value * 20) / 20));
+}
+
+async function waitForVisaAiGenerationJob(
+  submissionId: string,
+  initialJob: VisaAiGenerationJob,
+  signal: AbortSignal,
+) {
+  let job = initialJob;
+  let consecutiveFailures = 0;
+  while (job.status === "queued" || job.status === "running") {
+    await abortableDelay(VISA_AI_JOB_POLL_INTERVAL_MS, signal);
+    try {
+      job = await passportsApi.getVisaAiGenerationJob(
+        submissionId,
+        job.id,
+        signal,
+      );
+      consecutiveFailures = 0;
+    } catch (pollError) {
+      if (signal.aborted) throw pollError;
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= VISA_AI_JOB_POLL_FAILURE_LIMIT) {
+        throw pollError;
+      }
+    }
+  }
+  return job;
+}
+
+function abortableDelay(milliseconds: number, signal: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException("Polling stopped.", "AbortError"));
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      signal.removeEventListener("abort", handleAbort);
+      resolve();
+    }, milliseconds);
+    const handleAbort = () => {
+      window.clearTimeout(timer);
+      reject(new DOMException("Polling stopped.", "AbortError"));
+    };
+    signal.addEventListener("abort", handleAbort, { once: true });
+  });
+}
+
+function applyTerminalVisaAiJob(
+  job: VisaAiGenerationJob,
+  setLibrary: Dispatch<SetStateAction<VisaAiLibraryImage[]>>,
+  setFeaturedGenerationId: Dispatch<SetStateAction<string | null>>,
+  setError: Dispatch<SetStateAction<string | null>>,
+) {
+  if (job.status === "succeeded" && job.result) {
+    const result = job.result;
+    setLibrary((current) => [
+      result,
+      ...current.filter((item) => item.id !== result.id),
+    ]);
+    setFeaturedGenerationId(result.id);
+    setError(null);
+    return;
+  }
+  if (job.status === "failed") {
+    setError(
+      job.error_message?.trim()
+      || "Could not generate a safe Visa photo. Please try again.",
+    );
+    return;
+  }
+  setError("The Visa photo was generated, but its saved result is unavailable.");
+}
+
+function mergeVisaAiLibraryItems(
+  serverItems: VisaAiLibraryImage[],
+  currentItems: VisaAiLibraryImage[],
+) {
+  const serverIds = new Set(serverItems.map((item) => item.id));
+  return [
+    ...serverItems,
+    ...currentItems.filter((item) => !serverIds.has(item.id)),
+  ];
 }
 
 function readEditError(error: unknown, fallback: string) {

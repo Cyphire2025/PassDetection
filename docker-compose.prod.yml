@@ -55,6 +55,12 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
 
+  visa-ai-worker:
+    volumes: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
   frontend:
     build:
       args:

@@ -25,6 +25,7 @@ BACKEND_SERVICES = (
     "worker",
     "extraction-worker",
     "verification-worker",
+    "visa-ai-worker",
 )
 INTERNAL_SERVICES = ("db", "redis", "minio", "backend")
 DEVELOPMENT_PUBLISHED_TARGETS = {
@@ -64,6 +65,10 @@ WORKER_QUEUE_CONTRACTS = {
     "verification-worker": (
         "verification@",
         "post-submission-ai-verification",
+    ),
+    "visa-ai-worker": (
+        "visa-ai@",
+        "visa-ai-image-edit",
     ),
 }
 

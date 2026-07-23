@@ -291,6 +291,16 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               void handlePassportImportFiles(files);
             }}
           />
+          {exportImagesMutation.isPending && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-600"
+            >
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <span>Downloading passport images</span>
+            </div>
+          )}
           <Link href={ROUTES.dashboard.passports}>
             <Button variant="outline" className="gap-2">
               <ArrowLeft className="h-4 w-4" />

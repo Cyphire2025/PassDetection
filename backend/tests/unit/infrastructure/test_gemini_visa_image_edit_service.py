@@ -29,6 +29,7 @@ def _jpeg() -> bytes:
 def _settings(**overrides: object) -> SimpleNamespace:
     values = dict(
         gemini_image_edit_model="gemini-image-model",
+        gemini_image_edit_timeout_seconds=300.0,
         google_api_key=SecretStr("test-key"),
         upload_max_file_size_bytes=5 * 1024 * 1024,
         gemini_model="gemini-verifier",

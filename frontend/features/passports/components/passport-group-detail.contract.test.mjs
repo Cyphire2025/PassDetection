@@ -44,6 +44,10 @@ test("passport image ZIP export is not cut off by the ordinary API timeout", () 
     source,
     /mutationErrorMessage\(exportError, "Image download failed"\)/,
   );
+  assert.match(
+    source,
+    /\{exportImagesMutation\.isPending && \([\s\S]*?role="status"[\s\S]*?<Loader2 className="h-4 w-4 animate-spin"[\s\S]*?Downloading passport images[\s\S]*?\)\}[\s\S]*?<Link href=\{ROUTES\.dashboard\.passports\}>/,
+  );
 });
 
 test("submission controls expose only requested sort, direction, and workflow filters", () => {

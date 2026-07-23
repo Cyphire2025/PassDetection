@@ -157,6 +157,24 @@ export interface VisaAiLibrary {
   items: VisaAiLibraryImage[];
 }
 
+export type VisaAiGenerationJobStatus =
+  | "queued"
+  | "running"
+  | "succeeded"
+  | "failed";
+
+export interface VisaAiGenerationJob {
+  id: string;
+  status: VisaAiGenerationJobStatus;
+  prompt: string;
+  attempts: number;
+  max_attempts: number;
+  error_message: string | null;
+  result: VisaAiLibraryImage | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type PassportDocumentImportSaveResult = PassportDocumentImportPreview & { saved_count: number };
 export type PassportReextractOutcome = "completed" | "failed" | "timed_out";
 
@@ -292,6 +310,42 @@ export const passportsApi = {
       API_ENDPOINTS.passports.visaAiLibrary(id),
       { prompt },
       { timeout: 120_000, signal },
+    );
+    return data;
+  },
+
+  createVisaAiGenerationJob: async (
+    id: string,
+    prompt: string,
+    signal?: AbortSignal,
+  ): Promise<VisaAiGenerationJob> => {
+    const { data } = await apiClient.post<VisaAiGenerationJob>(
+      API_ENDPOINTS.passports.visaAiJobs(id),
+      { prompt },
+      { signal },
+    );
+    return data;
+  },
+
+  getActiveVisaAiGenerationJob: async (
+    id: string,
+    signal?: AbortSignal,
+  ): Promise<VisaAiGenerationJob | null> => {
+    const { data } = await apiClient.get<VisaAiGenerationJob | null>(
+      API_ENDPOINTS.passports.visaAiActiveJob(id),
+      { signal },
+    );
+    return data ?? null;
+  },
+
+  getVisaAiGenerationJob: async (
+    id: string,
+    jobId: string,
+    signal?: AbortSignal,
+  ): Promise<VisaAiGenerationJob> => {
+    const { data } = await apiClient.get<VisaAiGenerationJob>(
+      API_ENDPOINTS.passports.visaAiJob(id, jobId),
+      { signal },
     );
     return data;
   },

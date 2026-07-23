@@ -43,7 +43,7 @@ class PassportVisaAiImageRepository:
         prompt_sha256: str,
         content_sha256: str,
         model: str,
-        created_by_user_id: uuid.UUID,
+        created_by_user_id: uuid.UUID | None,
     ) -> PassportVisaAiImage:
         row = PassportVisaAiImageModel(
             submission_id=submission_id,
@@ -60,6 +60,18 @@ class PassportVisaAiImageRepository:
         self._session.add(row)
         await self._session.flush()
         return self._to_value(row)
+
+    async def get_by_storage_key(
+        self,
+        storage_key: str,
+    ) -> PassportVisaAiImage | None:
+        result = await self._session.execute(
+            select(PassportVisaAiImageModel).where(
+                PassportVisaAiImageModel.generated_storage_key == storage_key
+            )
+        )
+        row = result.scalar_one_or_none()
+        return self._to_value(row) if row else None
 
     async def list_for_submission(
         self,

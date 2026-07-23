@@ -80,6 +80,20 @@ class PassportVisaAiImageListResponse(BaseModel):
     items: list[PassportVisaAiImageResponse]
 
 
+class PassportVisaAiImageJobResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    status: Literal["queued", "running", "succeeded", "failed"]
+    prompt: str = Field(..., min_length=3, max_length=1000)
+    attempts: int = Field(..., ge=0)
+    max_attempts: int = Field(..., ge=1, le=3)
+    error_message: str | None = None
+    result: PassportVisaAiImageResponse | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
 class PassportVisaAiImageUseRequest(PassportImageCropCoordinates):
     expected_revision: int = Field(..., ge=0)
 

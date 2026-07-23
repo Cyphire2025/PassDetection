@@ -79,24 +79,43 @@ test("sharpness is available for every image while guarded AI editing is Visa-on
   assert.match(editor, /Original Visa photo/);
   assert.match(editor, /AI edit instruction/);
   assert.match(editor, /Saved AI image library/);
-  assert.match(editor, /passportsApi\.generateVisaAiLibraryImage/);
+  assert.match(editor, /passportsApi\.createVisaAiGenerationJob/);
   assert.match(editor, /passportsApi\.useVisaAiLibraryImage/);
   assert.match(editor, /Saved automatically after verification/);
   assert.match(editor, /Use this image/);
   assert.match(editor, /bg-emerald-600/);
   assert.match(editor, /const effectiveSharpness = 3/);
   assert.match(endpoints, /visa_photo\/ai-library/);
+  assert.match(endpoints, /visa_photo\/ai-jobs/);
   assert.match(api, /listVisaAiLibrary/);
-  assert.match(api, /generateVisaAiLibraryImage/);
+  assert.match(api, /createVisaAiGenerationJob/);
+  assert.match(api, /getActiveVisaAiGenerationJob/);
+  assert.match(api, /getVisaAiGenerationJob/);
   assert.match(api, /useVisaAiLibraryImage/);
 });
 
-test("Visa AI preview supports cancellation and preserves structured Blob errors", () => {
+test("Visa AI jobs enqueue quickly, resume after reopening, and poll until a persisted result exists", () => {
+  assert.match(api, /export interface VisaAiGenerationJob/);
+  assert.match(api, /"queued"/);
+  assert.match(api, /"running"/);
+  assert.match(api, /"succeeded"/);
+  assert.match(api, /"failed"/);
+  assert.match(editor, /getActiveVisaAiGenerationJob/);
+  assert.match(editor, /waitForVisaAiGenerationJob/);
+  assert.match(editor, /VISA_AI_JOB_POLL_INTERVAL_MS = 2_000/);
+  assert.match(editor, /job\.status === "queued" \|\| job\.status === "running"/);
+  assert.match(editor, /setLibrary\(\(current\) => \[/);
+  assert.match(editor, /setFeaturedGenerationId\(result\.id\)/);
+  assert.match(editor, /mergeVisaAiLibraryItems\(items, current\)/);
+});
+
+test("stopping Visa AI polling leaves its durable server job running and preserves structured errors", () => {
   assert.match(editor, /new AbortController\(\)/);
   assert.match(editor, /controller\.signal/);
-  assert.match(editor, /Cancel generation/);
+  assert.match(editor, /Stop waiting/);
   assert.match(editor, /aiRequestRef\.current\?\.abort\(\)/);
-  assert.match(api, /generateVisaAiLibraryImage:[\s\S]*?signal\?: AbortSignal/);
+  assert.match(api, /createVisaAiGenerationJob:[\s\S]*?signal\?: AbortSignal/);
+  assert.match(api, /getVisaAiGenerationJob:[\s\S]*?signal\?: AbortSignal/);
   assert.match(apiClient, /responseData instanceof Blob/);
   assert.match(apiClient, /JSON\.parse\(await responseData\.text\(\)\)/);
   assert.match(

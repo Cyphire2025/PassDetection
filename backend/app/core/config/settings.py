@@ -238,6 +238,13 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"
     gemini_fallback_model: str = "gemini-3.1-flash-lite"
     gemini_image_edit_model: str = ""
+    gemini_image_edit_timeout_seconds: float = Field(
+        default=300.0,
+        ge=60.0,
+        le=600.0,
+    )
+    gemini_image_edit_job_max_attempts: int = Field(default=2, ge=1, le=3)
+    gemini_image_edit_max_concurrency: int = Field(default=1, ge=1, le=4)
     gemini_api_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
     gemini_project_alias: str = Field(
         default="unconfigured",

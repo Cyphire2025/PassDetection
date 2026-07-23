@@ -279,6 +279,55 @@ services:
       retries: 3
       start_period: 30s
 
+  # ── Visa AI image-generation worker ─────────────────────────────────────────
+  visa-ai-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-visa-ai-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=visa-ai@%h
+      --loglevel=INFO
+      --concurrency=${GEMINI_IMAGE_EDIT_MAX_CONCURRENCY:-1}
+      -Q visa-ai-image-edit"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "visa-ai@$$(hostname)"
+          --queue visa-ai-image-edit
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   # ── Frontend (Next.js) ──────────────────────────────────────────────────────
   frontend:
     build:

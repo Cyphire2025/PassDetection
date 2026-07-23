@@ -9,6 +9,10 @@ from kombu import Queue
 from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
+from app.infrastructure.visa_ai_image_jobs import (
+    VISA_AI_IMAGE_QUEUE,
+    VISA_AI_IMAGE_TASK,
+)
 
 settings = get_settings()
 
@@ -19,6 +23,7 @@ celery_app = Celery(
     include=[
         "app.infrastructure.processing.tasks",
         "app.infrastructure.verification.tasks",
+        "app.infrastructure.visa_ai_image_jobs.tasks",
         "app.infrastructure.whatsapp.tasks",
     ],
 )
@@ -30,10 +35,12 @@ celery_app.conf.update(
         Queue("whatsapp", durable=True),
         Queue(EXTRACTION_QUEUE, durable=True),
         Queue(VERIFICATION_QUEUE, durable=True),
+        Queue(VISA_AI_IMAGE_QUEUE, durable=True),
     ),
     task_routes={
         "passport.process_submission": {"queue": EXTRACTION_QUEUE},
         "passport.verify_submitted": {"queue": VERIFICATION_QUEUE},
+        VISA_AI_IMAGE_TASK: {"queue": VISA_AI_IMAGE_QUEUE},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,

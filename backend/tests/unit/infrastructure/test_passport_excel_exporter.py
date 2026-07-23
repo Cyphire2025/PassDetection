@@ -223,6 +223,144 @@ def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> N
     ]
 
 
+def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() -> None:
+    group_id = uuid.uuid4()
+    submitted_mumbai = _submission(
+        group_id,
+        client_name="Submitted Mumbai",
+        fields={"passport_number": "M100"},
+    )
+    submitted_delhi = _submission(
+        group_id,
+        client_name="Submitted Delhi",
+        fields={"passport_number": "D100"},
+    )
+    pending_rows = [
+        {
+            "Client Name": "Pending No Zone",
+            "Email": "no-zone@example.com",
+            "Phone": "9000000005",
+        },
+        {
+            "Client Name": "Pending Mumbai Two",
+            "Zone Name": "Mumbai-2",
+            "Email": "mumbai-two@example.com",
+            "Phone": "9000000004",
+        },
+        {
+            "Client Name": "Pending Delhi Zed",
+            "Zone Name": "Delhi",
+            "Email": "delhi-zed@example.com",
+            "Phone": "9000000002",
+        },
+        {
+            "Client Name": "Pending Mumbai One",
+            "Zone Name": "Mumbai-1",
+            "Email": "mumbai-one@example.com",
+            "Phone": "9000000003",
+        },
+        {
+            "Client Name": "Pending Delhi Alpha",
+            "Zone Name": "Delhi",
+            "Email": "delhi-alpha@example.com",
+            "Phone": "9000000001",
+        },
+    ]
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submitted_mumbai, submitted_delhi],
+            group_name="Overall Group",
+            group_details={group_id: {"name": "Overall Group", **_OPTION_FLAGS}},
+            zone_names={
+                submitted_mumbai.id: "Mumbai",
+                submitted_delhi.id: "Delhi",
+            },
+            pending_rows=pending_rows,
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+    name_column = headers.index("Client Name") + 1
+    zone_column = headers.index("Zone Name") + 1
+    pending_title_row = next(
+        row
+        for row in range(1, worksheet.max_row + 1)
+        if worksheet.cell(row=row, column=1).value == "PENDING"
+    )
+    submitted_rows = [
+        row
+        for row in range(5, pending_title_row)
+        if worksheet.cell(row=row, column=name_column).value
+    ]
+
+    assert [
+        worksheet.cell(row=row, column=name_column).value for row in submitted_rows
+    ] == ["Submitted Delhi", "Submitted Mumbai"]
+    assert pending_title_row == submitted_rows[-1] + 6
+    assert all(
+        all(cell.value is None for cell in worksheet[row])
+        for row in range(submitted_rows[-1] + 1, pending_title_row)
+    )
+    assert worksheet.cell(row=pending_title_row, column=1).font.bold
+    assert worksheet.cell(row=pending_title_row, column=1).font.sz == 18
+
+    pending_data_start = pending_title_row + 2
+    pending_data_or_gap_rows = [
+        (
+            worksheet.cell(row=row, column=zone_column).value,
+            worksheet.cell(row=row, column=name_column).value,
+        )
+        for row in range(pending_data_start, worksheet.max_row + 1)
+    ]
+    assert pending_data_or_gap_rows == [
+        ("Delhi", "Pending Delhi Alpha"),
+        ("Delhi", "Pending Delhi Zed"),
+        (None, None),
+        (None, None),
+        ("Mumbai-1", "Pending Mumbai One"),
+        (None, None),
+        (None, None),
+        ("Mumbai-2", "Pending Mumbai Two"),
+        (None, None),
+        (None, None),
+        (None, "Pending No Zone"),
+    ]
+    pending_data_rows = [
+        row
+        for row in range(pending_data_start, worksheet.max_row + 1)
+        if worksheet.cell(row=row, column=name_column).value
+    ]
+    for row in pending_data_rows:
+        assert all(
+            cell.fill.fill_type == "solid" and cell.fill.fgColor.rgb == "00FFF2CC"
+            for cell in worksheet[row]
+        )
+
+    assert worksheet.tables["PassportSubmissions"].ref.endswith(
+        str(submitted_rows[-1])
+    )
+    assert worksheet.tables["PendingPassportSubmissions"].ref.startswith(
+        f"A{pending_title_row + 1}:"
+    )
+
+
+def test_selected_export_is_unchanged_when_pending_rows_are_not_provided() -> None:
+    group_id = uuid.uuid4()
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [_submission(group_id, client_name="Selected Traveller")],
+            group_name="Selected Passports",
+            group_details={group_id: {"name": "Selected Passports", **_OPTION_FLAGS}},
+        )
+    )
+
+    assert all(
+        worksheet.cell(row=row, column=1).value != "PENDING"
+        for row in range(1, worksheet.max_row + 1)
+    )
+    assert set(worksheet.tables) == {"PassportSubmissions"}
+
+
 @pytest.mark.parametrize(
     ("person_type", "expected"),
     (("agent", "AGT_12345"), ("employee", "EMP_12345")),
