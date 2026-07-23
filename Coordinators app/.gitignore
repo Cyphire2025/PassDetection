@@ -1,0 +1,12 @@
+.gradle/
+.idea/
+local.properties
+**/build/
+*.iml
+captures/
+
+# Keep the deliberately packaged APKs under artifacts/.
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/*.apk
+!artifacts/*.sha256

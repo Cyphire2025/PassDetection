@@ -59,6 +59,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
   /*
    * Dashboard routes own their scrolling through #main-content. Locking the
    * root scroller prevents wheel/touch scroll chaining from moving the whole
@@ -69,6 +77,52 @@
     height: 100%;
     overflow: hidden;
     overscroll-behavior: none;
+  }
+}
+
+[data-coordinator-shell] {
+  min-height: 100svh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  overscroll-behavior-y: contain;
+}
+
+[data-coordinator-fixed-viewport] {
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  [data-coordinator-scanner-main] {
+    flex-direction: row;
+  }
+
+  [data-coordinator-scanner-camera] {
+    flex: 1 1 52%;
+    min-width: 0;
+  }
+
+  [data-coordinator-scanner-controls] {
+    flex: 0 0 48%;
+    width: 48%;
+    max-height: none;
+    border-left: 1px solid rgb(226 232 240);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

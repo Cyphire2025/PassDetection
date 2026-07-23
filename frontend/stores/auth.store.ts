@@ -73,9 +73,12 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
     ]);
 
     if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-      const destination = reason === "session_expired"
-        ? "/login?reason=session_expired"
-        : "/login";
+      const params = new URLSearchParams();
+      if (reason === "session_expired") params.set("reason", "session_expired");
+      if (window.location.pathname.startsWith("/coordinator")) {
+        params.set("from", `${window.location.pathname}${window.location.search}`);
+      }
+      const destination = `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
       window.location.replace(destination);
     }
   },

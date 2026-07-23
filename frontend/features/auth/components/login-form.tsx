@@ -45,6 +45,7 @@ export function LoginForm() {
           required
           error={errors.email?.message}
           leftAddon={<Mail className="h-4 w-4" aria-hidden="true" />}
+          className="h-12 text-base"
         />
 
         <PasswordInput
@@ -56,9 +57,10 @@ export function LoginForm() {
           required
           error={errors.password?.message}
           leftAddon={<Lock className="h-4 w-4" aria-hidden="true" />}
+          className="h-12 pr-12 text-base"
         />
 
-        <Button type="submit" isLoading={isPending} className="mt-1 w-full" id="login-submit">
+        <Button type="submit" isLoading={isPending} className="mt-1 h-12 w-full text-base" id="login-submit">
           Sign in
         </Button>
       </form>

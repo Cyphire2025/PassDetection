@@ -5,7 +5,7 @@ export interface PassportUploadTarget {
   url: string;
 }
 
-const DEFAULT_PUBLIC_APP_URL = "https://pass.cyphire.in";
+const DEFAULT_PUBLIC_APP_URL = "https://tech.gctravels.com";
 
 /**
  * Returns the application's current public URL. In the browser, the active

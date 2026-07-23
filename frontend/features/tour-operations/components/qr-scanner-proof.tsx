@@ -35,7 +35,7 @@ export function QrScannerProof() {
     stopScanner,
     toggleTorch,
     resetProofStats,
-  } = useContinuousQrScanner();
+  } = useContinuousQrScanner({ trackStats: true });
   const isStarting = status === "starting";
   const isScanning = status === "scanning";
   const isSecureCameraContext =

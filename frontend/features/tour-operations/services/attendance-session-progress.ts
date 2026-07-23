@@ -36,11 +36,22 @@ export function mergeAttendanceSessionProgress(sessions: AttendanceSession[]): A
 
     return {
       ...session,
-      scanned_count: Math.max(session.scanned_count, local.scanned_count),
-      assigned_count: Math.max(session.assigned_count, local.assigned_count),
+      scanned_count: local.scanned_count,
+      assigned_count: local.assigned_count,
       status: local.status ?? session.status,
     };
   });
+}
+
+export function reconcileAttendanceSessionProgress(sessions: AttendanceSession[]) {
+  const map = readProgressMap();
+  let changed = false;
+  for (const session of sessions) {
+    if (!(session.id in map)) continue;
+    delete map[session.id];
+    changed = true;
+  }
+  if (changed) writeProgressMap(map);
 }
 
 function readProgressMap(): Record<string, AttendanceSessionProgress> {

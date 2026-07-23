@@ -15,11 +15,11 @@ export function PasswordInput({ autoComplete, ...props }: InputProps) {
       rightAddon={
         <button
           type="button"
-          className="text-slate-400 transition-colors hover:text-slate-600"
+          className="-mr-2 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-md text-slate-400 transition-colors hover:text-slate-600"
           aria-label={showPassword ? "Hide password" : "Show password"}
           onClick={() => setShowPassword((current) => !current)}
         >
-          {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
+          {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
         </button>
       }
     />

@@ -16,6 +16,7 @@ export const ROUTES = {
 
   auth: {
     login: "/login",
+    coordinatorLogin: (from = "/coordinator") => `/login?from=${encodeURIComponent(from)}`,
   },
 
   dashboard: {

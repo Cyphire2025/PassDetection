@@ -1,0 +1,178 @@
+plugins {
+    id "com.android.application"
+}
+
+import java.net.URI
+
+def productionAppUrl = "https://tech.gctravels.com/coordinator"
+def localAppUrl = "http://localhost:3100/coordinator"
+def requestedProductionAppUrl = providers.gradleProperty("appUrl").orNull
+def requestedLocalAppUrl = providers.gradleProperty("localAppUrl").orNull
+
+if (requestedProductionAppUrl != null
+    && requestedProductionAppUrl.trim() != productionAppUrl) {
+    throw new GradleException(
+        "Production origin is locked to https://tech.gctravels.com/coordinator."
+    )
+}
+if (requestedLocalAppUrl != null && requestedLocalAppUrl.trim() != localAppUrl) {
+    throw new GradleException(
+        "Local QA origin is locked to http://localhost:3100/coordinator."
+    )
+}
+
+def validateAppUrl = { String value, boolean allowLocalHttp ->
+    URI uri
+    try {
+        uri = new URI(value)
+    } catch (Exception exception) {
+        throw new GradleException("Coordinator app URL is not a valid URI.", exception)
+    }
+
+    def scheme = uri.scheme?.toLowerCase(Locale.ROOT)
+    def host = uri.host?.toLowerCase(Locale.ROOT)
+    def localHosts = ["127.0.0.1", "localhost", "10.0.2.2"]
+    def isAllowedLocalHttp = allowLocalHttp && scheme == "http" && localHosts.contains(host)
+
+    if ((scheme != "https" && !isAllowedLocalHttp)
+        || host == null
+        || uri.userInfo != null
+        || uri.fragment != null) {
+        throw new GradleException(
+            allowLocalHttp
+                ? "Local URL must be HTTPS or HTTP on localhost, 127.0.0.1, or 10.0.2.2."
+                : "Production URL must be an HTTPS origin without credentials or a fragment."
+        )
+    }
+    return uri.toString()
+}
+
+def quoteBuildConfig = { String value ->
+    "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+}
+
+productionAppUrl = validateAppUrl(productionAppUrl, false)
+localAppUrl = validateAppUrl(localAppUrl, true)
+
+def releaseSigningValues = [
+    file: System.getenv("COORDINATOR_KEYSTORE_FILE"),
+    password: System.getenv("COORDINATOR_KEYSTORE_PASSWORD"),
+    alias: System.getenv("COORDINATOR_KEY_ALIAS"),
+    keyPassword: System.getenv("COORDINATOR_KEY_PASSWORD"),
+]
+def hasAnyReleaseSigningValue = releaseSigningValues.values().any { it != null && !it.isBlank() }
+def hasAllReleaseSigningValues = releaseSigningValues.values().every { it != null && !it.isBlank() }
+
+if (hasAnyReleaseSigningValue && !hasAllReleaseSigningValues) {
+    throw new GradleException(
+        "Release signing is incomplete. Set all four COORDINATOR_KEYSTORE_* / COORDINATOR_KEY_* variables."
+    )
+}
+
+android {
+    namespace "com.globalconnects.coordinator"
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.globalconnects.coordinator"
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        production {
+            dimension "environment"
+            buildConfigField "String", "APP_URL", quoteBuildConfig(productionAppUrl)
+            buildConfigField "boolean", "ALLOW_LOCAL_CLEARTEXT", "false"
+        }
+        local {
+            dimension "environment"
+            applicationIdSuffix ".local"
+            versionNameSuffix "-local"
+            buildConfigField "String", "APP_URL", quoteBuildConfig(localAppUrl)
+            buildConfigField "boolean", "ALLOW_LOCAL_CLEARTEXT", "true"
+            resValue "string", "app_name", "Coordinator Local"
+        }
+    }
+
+    signingConfigs {
+        if (hasAllReleaseSigningValues) {
+            release {
+                storeFile file(releaseSigningValues.file)
+                storePassword releaseSigningValues.password
+                keyAlias releaseSigningValues.alias
+                keyPassword releaseSigningValues.keyPassword
+                enableV1Signing true
+                enableV2Signing true
+                enableV3Signing true
+                enableV4Signing true
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            debuggable true
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            if (hasAllReleaseSigningValues) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError true
+        checkReleaseBuilds true
+        htmlReport true
+        xmlReport true
+        sarifReport true
+        explainIssues true
+    }
+
+    packaging {
+        resources {
+            excludes += [
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+                "META-INF/LICENSE.md",
+                "META-INF/NOTICE.md",
+            ]
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    implementation "androidx.activity:activity:1.12.4"
+    implementation "androidx.core:core:1.17.0"
+
+    testImplementation "junit:junit:4.13.2"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ["-Xlint:deprecation"]
+}

@@ -34,8 +34,15 @@ export function useLogin() {
 }
 
 function getSafeNextPath(from: string | null) {
-  if (!from || !from.startsWith("/") || from.startsWith("//")) {
+  if (
+    !from
+    || !from.startsWith("/")
+    || from.startsWith("//")
+    || from.includes("\\")
+  ) {
     return ROUTES.dashboard.root;
   }
-  return from;
+  const target = new URL(from, window.location.origin);
+  if (target.origin !== window.location.origin) return ROUTES.dashboard.root;
+  return `${target.pathname}${target.search}${target.hash}`;
 }

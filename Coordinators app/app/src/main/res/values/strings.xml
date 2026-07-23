@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Global Connects Coordinator</string>
+    <string name="loading">Loading coordinator workspace</string>
+    <string name="retry">Try again</string>
+    <string name="close">Close</string>
+    <string name="open_settings">Open settings</string>
+    <string name="camera_permission_title">Camera access is off</string>
+    <string name="camera_permission_message">Enable camera access in Android settings to scan passenger QR codes.</string>
+    <string name="camera_permission_denied">Camera access was not granted. You can still choose an existing file.</string>
+    <string name="choose_file">Choose a file</string>
+    <string name="unsupported_file_selection">This file selection mode is not supported.</string>
+    <string name="invalid_file_selection">The selected file type could not be accepted.</string>
+    <string name="no_compatible_app">No compatible Android app is available for this link.</string>
+    <string name="blocked_link">This link was blocked because it is not a supported secure destination.</string>
+    <string name="download_started">Download started</string>
+    <string name="download_failed">The download could not be started.</string>
+    <string name="network_error_title">Can’t reach the coordinator service</string>
+    <string name="network_error_message">Check your internet connection, then try again. Pending offline scans remain on this device.</string>
+    <string name="server_error_title">Coordinator service is unavailable</string>
+    <string name="server_error_message">The server returned an error. Please wait a moment and try again.</string>
+    <string name="secure_connection_error_title">Secure connection failed</string>
+    <string name="secure_connection_error_message">The app refused an untrusted or invalid certificate. Contact your administrator if this continues.</string>
+    <string name="renderer_error_title">Workspace restarted</string>
+    <string name="renderer_error_message">Android stopped the page process. Reload to continue; saved server data and queued offline scans are preserved.</string>
+    <string name="camera_capture">Take photo</string>
+    <string name="file_saved_private">The file was saved in the app’s private Downloads folder.</string>
+</resources>

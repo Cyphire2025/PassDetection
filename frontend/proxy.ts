@@ -11,6 +11,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PREFIXES = [
+  "/coordinator",
   "/dashboard",
   "/passports",
   "/upload-links",
@@ -34,13 +35,20 @@ export function proxy(request: NextRequest): NextResponse {
   // Redirect unauthenticated users away from protected pages
   if (isProtected && !isAuthenticated) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
+    loginUrl.searchParams.set("from", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const requestedPath = request.nextUrl.searchParams.get("from");
+    const destination = requestedPath
+      && requestedPath.startsWith("/")
+      && !requestedPath.startsWith("//")
+      && !requestedPath.includes("\\")
+      ? requestedPath
+      : "/dashboard";
+    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   return NextResponse.next();

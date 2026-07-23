@@ -2,20 +2,34 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Global Connects Dashboard",
+    id: "/coordinator",
+    name: "Global Connects Coordinator",
     short_name: "Tour Ops",
-    description: "Mobile coordinator workflow for tour attendance.",
+    description: "Fast mobile tour attendance and hotel check-in workflows for coordinators.",
     start_url: "/coordinator",
     scope: "/",
     display: "standalone",
-    orientation: "portrait",
+    orientation: "any",
     background_color: "#f8fafc",
     theme_color: "#0f172a",
+    categories: ["business", "productivity", "travel"],
     icons: [
       {
-        src: "/pwa-icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/pwa-icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/pwa-icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/pwa-icon-maskable-512.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "maskable",
       },
     ],

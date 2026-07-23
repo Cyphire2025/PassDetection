@@ -1,7 +1,11 @@
-const CACHE_NAME = "passdetection-public-static-v6";
+const CACHE_NAME = "passdetection-public-static-v7";
 const PUBLIC_STATIC_ASSETS = [
+  "/offline.html",
   "/manifest.webmanifest",
-  "/pwa-icon.svg",
+  "/pwa-icon-192.png",
+  "/pwa-icon-512.png",
+  "/pwa-icon-maskable-512.png",
+  "/apple-touch-icon.png",
 ];
 const PUBLIC_STATIC_PATHS = new Set(PUBLIC_STATIC_ASSETS);
 
@@ -29,11 +33,19 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  if (!PUBLIC_STATIC_PATHS.has(url.pathname)) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached ?? fetch(event.request)),
-  );
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match("/offline.html")),
+    );
+    return;
+  }
+
+  if (PUBLIC_STATIC_PATHS.has(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => cached ?? fetch(event.request)),
+    );
+  }
 });
 
 self.addEventListener("message", (event) => {
