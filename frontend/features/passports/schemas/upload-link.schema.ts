@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+export const customQuestionSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string().trim().min(1, "Enter a question or activity name").max(100),
+  options: z.array(z.string().trim().min(1).max(120)).min(
+    2,
+    "Add at least two options",
+  ).max(50).superRefine((options, context) => {
+    const normalized = options.map((option) => option.toLocaleLowerCase());
+    if (new Set(normalized).size !== normalized.length) {
+      context.addIssue({
+        code: "custom",
+        message: "Options must be unique",
+      });
+    }
+  }),
+  enabled: z.boolean(),
+});
+
 export const createUploadLinkSchema = z.object({
   name: z.string().trim().min(1, "Group name is required").max(100),
   destination: z.string().trim().min(1, "Destination is required").max(255),
@@ -15,9 +33,20 @@ export const createUploadLinkSchema = z.object({
   allow_files_from_device: z.boolean(),
   ask_nearest_domestic_airport: z.boolean(),
   relation_with_qualifier_enabled: z.boolean(),
+  custom_questions: z.array(customQuestionSchema).max(20),
   whatsapp_broadcast_group_ids: z.array(z.string().uuid()).max(50),
   notes: z.string().trim().max(2000).optional(),
 }).superRefine((data, context) => {
+  const questionNames = data.custom_questions.map(
+    (question) => question.label.trim().toLocaleLowerCase(),
+  );
+  if (new Set(questionNames).size !== questionNames.length) {
+    context.addIssue({
+      code: "custom",
+      path: ["custom_questions"],
+      message: "Custom question names must be unique",
+    });
+  }
   if (data.nearest_international_airport_enabled && data.departure_cities.length === 0) {
     context.addIssue({
       code: "custom",

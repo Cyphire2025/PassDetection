@@ -10,7 +10,10 @@ import { ConfirmDialog } from "@/components/ui";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
-import type { UploadLinkResponse } from "../api/upload-links.api";
+import type {
+  CustomUploadQuestion,
+  UploadLinkResponse,
+} from "../api/upload-links.api";
 import {
   useDeleteUploadLink,
   usePermanentlyDeleteUploadLink,
@@ -21,6 +24,7 @@ import {
 } from "../hooks/use-upload-links";
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 import { GroupOptionToggle } from "./group-option-toggle";
+import { CustomQuestionBuilder } from "./custom-question-builder";
 
 export function UploadLinkList() {
   const role = useAuthStore(selectUserRole);
@@ -41,6 +45,7 @@ export function UploadLinkList() {
   const [editAllowFilesFromDevice, setEditAllowFilesFromDevice] = useState(true);
   const [editAskNearestDomesticAirport, setEditAskNearestDomesticAirport] = useState(false);
   const [editRelationWithQualifier, setEditRelationWithQualifier] = useState(false);
+  const [editCustomQuestions, setEditCustomQuestions] = useState<CustomUploadQuestion[]>([]);
   const { data: activeLinks = [], isLoading: isLoadingActive } = useUploadLinks();
   const { data: archivedLinks = [], isLoading: isLoadingArchived } = useUploadLinks("archived");
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
@@ -55,6 +60,7 @@ export function UploadLinkList() {
     setEditAllowFilesFromDevice(link.allow_files_from_device ?? true);
     setEditAskNearestDomesticAirport(link.ask_nearest_domestic_airport ?? false);
     setEditRelationWithQualifier(link.relation_with_qualifier_enabled ?? false);
+    setEditCustomQuestions(link.custom_questions ?? []);
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -174,11 +180,13 @@ export function UploadLinkList() {
         allowFilesFromDevice={editAllowFilesFromDevice}
         askNearestDomesticAirport={editAskNearestDomesticAirport}
         relationWithQualifier={editRelationWithQualifier}
+        customQuestions={editCustomQuestions}
         isLoading={isRenaming}
         onNameChange={setRenameValue}
         onAllowFilesFromDeviceChange={setEditAllowFilesFromDevice}
         onAskNearestDomesticAirportChange={setEditAskNearestDomesticAirport}
         onRelationWithQualifierChange={setEditRelationWithQualifier}
+        onCustomQuestionsChange={setEditCustomQuestions}
         onClose={() => setRenameTarget(null)}
         onConfirm={() => {
           if (!renameTarget) return;
@@ -187,7 +195,9 @@ export function UploadLinkList() {
             || editAllowFilesFromDevice !== (renameTarget.allow_files_from_device ?? true)
             || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false)
             || editRelationWithQualifier
-              !== (renameTarget.relation_with_qualifier_enabled ?? false);
+              !== (renameTarget.relation_with_qualifier_enabled ?? false)
+            || JSON.stringify(editCustomQuestions)
+              !== JSON.stringify(renameTarget.custom_questions ?? []);
           if (!nextName || !hasChanges) {
             setRenameTarget(null);
             return;
@@ -210,6 +220,7 @@ export function UploadLinkList() {
               allow_files_from_device: editAllowFilesFromDevice,
               ask_nearest_domestic_airport: editAskNearestDomesticAirport,
               relation_with_qualifier_enabled: editRelationWithQualifier,
+              custom_questions: editCustomQuestions,
               notes: renameTarget.notes,
             },
             { onSuccess: () => setRenameTarget(null) },
@@ -245,11 +256,13 @@ function EditGroupDialog({
   allowFilesFromDevice,
   askNearestDomesticAirport,
   relationWithQualifier,
+  customQuestions,
   isLoading,
   onNameChange,
   onAllowFilesFromDeviceChange,
   onAskNearestDomesticAirportChange,
   onRelationWithQualifierChange,
+  onCustomQuestionsChange,
   onConfirm,
   onClose,
 }: {
@@ -258,15 +271,24 @@ function EditGroupDialog({
   allowFilesFromDevice: boolean;
   askNearestDomesticAirport: boolean;
   relationWithQualifier: boolean;
+  customQuestions: CustomUploadQuestion[];
   isLoading: boolean;
   onNameChange: (value: string) => void;
   onAllowFilesFromDeviceChange: (checked: boolean) => void;
   onAskNearestDomesticAirportChange: (checked: boolean) => void;
   onRelationWithQualifierChange: (checked: boolean) => void;
+  onCustomQuestionsChange: (questions: CustomUploadQuestion[]) => void;
   onConfirm: () => void;
   onClose: () => void;
 }) {
   if (!group) return null;
+  const customQuestionsValid = customQuestions.every((question) => {
+    const options = question.options.map((option) => option.trim()).filter(Boolean);
+    return Boolean(question.label.trim())
+      && options.length >= 2
+      && new Set(options.map((option) => option.toLocaleLowerCase())).size
+        === options.length;
+  });
 
   return (
     <div
@@ -276,7 +298,7 @@ function EditGroupDialog({
       aria-labelledby="edit-passport-group-title"
     >
       <form
-        className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+        className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
         onSubmit={(event) => {
           event.preventDefault();
           onConfirm();
@@ -301,7 +323,7 @@ function EditGroupDialog({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="space-y-4 px-6 py-5">
+        <div className="max-h-[calc(90vh-9rem)] space-y-4 overflow-y-auto px-6 py-5">
           <Input
             label="Group name"
             value={name}
@@ -332,12 +354,21 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={onRelationWithQualifierChange}
           />
+          <CustomQuestionBuilder
+            questions={customQuestions}
+            onChange={onCustomQuestionsChange}
+            disabled={isLoading}
+          />
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={isLoading} disabled={!name.trim()}>
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            disabled={!name.trim() || !customQuestionsValid}
+          >
             Save changes
           </Button>
         </div>

@@ -193,6 +193,9 @@ class ClientGroupModel(Base):
     relation_with_qualifier_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    custom_questions: Mapped[list[dict]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deleted_passport_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -755,6 +758,9 @@ class PassportSubmissionModel(Base):
     # Excel-derived organisational attributes (staff code, zone, designation,
     # etc.) are kept separately from passport OCR fields.
     staff_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    custom_answers: Mapped[list[dict]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
     passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     passport_back_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     acquisition_mode: Mapped[str] = mapped_column(

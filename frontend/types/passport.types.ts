@@ -168,6 +168,11 @@ export interface PassportSubmission extends TimestampedEntity {
   passport_back_url?: string | null;
   thumbnail_s3_key: string | null;
   staff_metadata?: Record<string, string> | null;
+  custom_answers?: Array<{
+    question_id: string;
+    label: string;
+    value: string;
+  }>;
   acquisition_mode: "camera" | "file";
   qualifier_enabled_snapshot?: boolean;
   qualifier_is_self?: boolean | null;

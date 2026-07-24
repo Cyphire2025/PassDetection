@@ -222,6 +222,8 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportExportHistoryItemResponse,
     PassportExportHistoryListResponse,
     PassportExportHistorySubmissionResponse,
+    PassportExportFieldOptionsResponse,
+    PassportExportFieldOptionResponse,
     PassportGroupSummaryResponse,
     PassportImageCropCoordinates,
     PassportImageCropResetRequest,
@@ -1114,6 +1116,11 @@ def _pending_recipient_export_rows(
                     "passport",
                 ),
                 "Nationality": _recipient_export_value(row, "nationality"),
+                "Place of Issue": _recipient_export_value(
+                    row,
+                    "place_of_issue",
+                    "issue_place",
+                ),
                 "Date of Birth": _recipient_export_value(
                     row,
                     "date_of_birth",
@@ -1139,6 +1146,221 @@ def _pending_recipient_export_rows(
             }
         )
     return pending_rows
+
+
+_FIXED_IMPORTED_EXPORT_KEYS = {
+    "name",
+    "full_name",
+    "client_name",
+    "passenger_name",
+    "recipient_name",
+    "staff_name",
+    "employee_name",
+    "given_names",
+    "given_name",
+    "first_name",
+    "surname",
+    "last_name",
+    "family_name",
+    "email",
+    "email_address",
+    "e_mail",
+    "mail",
+    "phone_number",
+    "phone",
+    "mobile",
+    "mobile_number",
+    "whatsapp",
+    "whatsapp_number",
+    "contact",
+    "contact_number",
+    "passport_number",
+    "passport_no",
+    "passport",
+    "nationality",
+    "place_of_issue",
+    "issue_place",
+    "date_of_birth",
+    "dob",
+    "birth_date",
+    "date_of_issue",
+    "issue_date",
+    "date_of_expiry",
+    "expiry_date",
+    "expiration_date",
+    "sex",
+    "gender",
+    "nearest_international_airport",
+    "international_airport",
+    "departure_city",
+    "nearest_domestic_airport",
+    "domestic_airport",
+    "base_city",
+    "staff_code",
+    "staffcode",
+    "staff_id",
+    "agent_employee_code",
+    "agent_code",
+    "employee_code",
+    "meal_preference",
+    "meal",
+    "food_preference",
+    "relation_with_qualifier",
+    "qualifier_relation",
+    "relation",
+    "source_file",
+    "source_sheet",
+    "sheet_name",
+    "row_number",
+}
+_ZONE_IMPORTED_KEYS = {"zone_name", "zonename", "zone"}
+
+
+def _export_field_catalog(
+    group: ClientGroup,
+    rows: list[SubmissionMatchRow],
+    submissions: list[PassportSubmission] | None = None,
+) -> list[dict[str, str | bool]]:
+    """List selectable supplemental columns with stable keys and labels."""
+
+    used_labels = {
+        str(header).casefold() for header in PassportExcelExporter.HEADERS
+    }
+
+    def unique_label(label: str, source_label: str) -> str:
+        candidate = label[:120]
+        suffix_index = 1
+        while candidate.casefold() in used_labels:
+            suffix = (
+                f" ({source_label})"
+                if suffix_index == 1
+                else f" ({source_label} {suffix_index})"
+            )
+            candidate = f"{label[: max(1, 120 - len(suffix))]}{suffix}"
+            suffix_index += 1
+        used_labels.add(candidate.casefold())
+        return candidate
+
+    imported_labels: dict[str, str] = {}
+    for row in rows:
+        for field_set in row.recipient_fields:
+            for raw_key in field_set.fields:
+                normalized = _normalized_imported_field_key(str(raw_key))
+                if not normalized or normalized in _FIXED_IMPORTED_EXPORT_KEYS:
+                    continue
+                if normalized in _ZONE_IMPORTED_KEYS:
+                    imported_labels["zone_name"] = "Zone Name"
+                    continue
+                imported_labels.setdefault(
+                    normalized,
+                    " ".join(str(raw_key).strip().split())[:120],
+                )
+
+    fields: list[dict[str, str | bool]] = []
+    for normalized, label in imported_labels.items():
+        key = "zone_name" if normalized == "zone_name" else f"whatsapp:{normalized}"
+        fields.append(
+            {
+                "key": key,
+                "label": (
+                    "Zone Name"
+                    if key == "zone_name"
+                    else unique_label(label, "WhatsApp")
+                ),
+                "source": "whatsapp",
+                "selected_by_default": key == "zone_name",
+            }
+        )
+    custom_labels: dict[str, str] = {
+        str(question["id"]): str(question["label"])
+        for question in group.custom_questions
+        if question.get("enabled")
+    }
+    for submission in submissions or []:
+        for answer in submission.custom_answers:
+            question_id = str(answer.get("question_id") or "")
+            label = " ".join(str(answer.get("label") or "").strip().split())
+            if question_id and label:
+                custom_labels.setdefault(question_id, label)
+    for question_id, label in custom_labels.items():
+        fields.append(
+            {
+                "key": f"custom:{question_id}",
+                "label": unique_label(label, "Custom"),
+                "source": "custom_question",
+                "selected_by_default": False,
+            }
+        )
+    return sorted(
+        fields,
+        key=lambda field: (
+            field["key"] != "zone_name",
+            str(field["label"]).casefold(),
+            str(field["key"]),
+        ),
+    )
+
+
+def _export_additional_values(
+    submissions: list[PassportSubmission],
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
+    selected_fields: list[dict[str, str | bool]],
+) -> dict[uuid.UUID, dict[str, str | None]]:
+    values: dict[uuid.UUID, dict[str, str | None]] = {
+        submission.id: {} for submission in submissions
+    }
+    selected_whatsapp = [
+        field
+        for field in selected_fields
+        if str(field["key"]).startswith("whatsapp:")
+    ]
+    for rows in rows_by_group.values():
+        for row in rows:
+            if row.status not in {"submitted", "multiple_submissions"}:
+                continue
+            for submission_id in row.submission_ids:
+                if submission_id not in values:
+                    continue
+                for field in selected_whatsapp:
+                    normalized = str(field["key"]).removeprefix("whatsapp:")
+                    values[submission_id][str(field["key"])] = _recipient_export_value(
+                        row,
+                        normalized,
+                    )
+
+    selected_custom = {
+        str(field["key"]).removeprefix("custom:"): str(field["key"])
+        for field in selected_fields
+        if str(field["key"]).startswith("custom:")
+    }
+    for submission in submissions:
+        for answer in submission.custom_answers:
+            export_key = selected_custom.get(str(answer.get("question_id", "")))
+            if export_key:
+                values[submission.id][export_key] = str(answer.get("value") or "") or None
+    return values
+
+
+def _apply_pending_export_fields(
+    pending_rows: list[dict[str, Any]],
+    match_rows: list[SubmissionMatchRow],
+    selected_fields: list[dict[str, str | bool]],
+) -> None:
+    source_rows = [
+        row
+        for row in match_rows
+        if row.recipient_ids and row.status in {"not_submitted", "needs_review"}
+    ]
+    for exported_row, source_row in zip(pending_rows, source_rows, strict=True):
+        for field in selected_fields:
+            key = str(field["key"])
+            if key.startswith("whatsapp:"):
+                exported_row[str(field["label"])] = _recipient_export_value(
+                    source_row,
+                    key.removeprefix("whatsapp:"),
+                )
+            elif key.startswith("custom:"):
+                exported_row[str(field["label"])] = None
 
 
 async def _dispatch_processing_job(
@@ -2510,6 +2732,68 @@ async def complete_passport_group_export_history(
 
 
 @router.get(
+    "/groups/{group_id}/export-fields",
+    response_model=PassportExportFieldOptionsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List selectable supplemental columns for a passport Excel export",
+)
+async def get_passport_group_export_fields(
+    group_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportExportFieldOptionsResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    submissions = await _current_group_export_submissions(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        current_user=current_user,
+    )
+    rows_by_group = await _export_whatsapp_match_rows(
+        session,
+        submissions,
+        groups=[group],
+    )
+    catalog = _export_field_catalog(
+        group,
+        rows_by_group.get(group.id, []),
+        submissions,
+    )
+    default_selected = [
+        str(field["key"]) for field in catalog if field["selected_by_default"]
+    ]
+    return PassportExportFieldOptionsResponse(
+        group_id=group.id,
+        fields=[
+            PassportExportFieldOptionResponse.model_validate(field)
+            for field in catalog
+        ],
+        default_selected_fields=default_selected,
+        default_group_by_field=(
+            "zone_name" if "zone_name" in default_selected else None
+        ),
+    )
+
+
+@router.get(
     "/groups/{group_id}/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export a client group's passport submissions to Excel",
@@ -2519,6 +2803,8 @@ async def export_passports_by_group(
     export_mode: PassportExportMode = Query(default="all", alias="mode"),
     baseline_export_id: uuid.UUID | None = Query(default=None),
     request_id: uuid.UUID | None = Query(default=None),
+    supplemental_fields: str | None = Query(default=None, max_length=20_000),
+    group_by_field: str | None = Query(default=None, max_length=180),
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
@@ -2565,9 +2851,47 @@ async def export_passports_by_group(
     )
     match_rows_by_group = await _export_whatsapp_match_rows(
         session,
-        submissions,
+        current_submissions,
         groups=[group],
     )
+    catalog = _export_field_catalog(
+        group,
+        match_rows_by_group.get(group.id, []),
+        current_submissions,
+    )
+    catalog_by_key = {str(field["key"]): field for field in catalog}
+    requested_field_keys = (
+        list(
+            dict.fromkeys(
+                key.strip()
+                for key in supplemental_fields.split(",")
+                if key.strip()
+            )
+        )
+        if supplemental_fields is not None
+        else [
+            str(field["key"])
+            for field in catalog
+            if field["selected_by_default"]
+        ]
+    )
+    unknown_fields = [
+        key for key in requested_field_keys if key not in catalog_by_key
+    ]
+    if unknown_fields:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="One or more selected Excel fields are unavailable for this group.",
+        )
+    selected_fields = [catalog_by_key[key] for key in requested_field_keys]
+    resolved_group_by = group_by_field or (
+        "zone_name" if "zone_name" in requested_field_keys else None
+    )
+    if resolved_group_by and resolved_group_by not in requested_field_keys:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The grouping field must also be included in the Excel export.",
+        )
     pending_rows = (
         _pending_recipient_export_rows(
             group=group,
@@ -2575,6 +2899,17 @@ async def export_passports_by_group(
         )
         if export_mode == "all"
         else []
+    )
+    if pending_rows:
+        _apply_pending_export_fields(
+            pending_rows,
+            match_rows_by_group.get(group.id, []),
+            selected_fields,
+        )
+    additional_values = _export_additional_values(
+        submissions,
+        match_rows_by_group,
+        selected_fields,
     )
     content = PassportExcelExporter().export_group(
         submissions,
@@ -2584,6 +2919,12 @@ async def export_passports_by_group(
             submissions,
             match_rows_by_group,
         ),
+        additional_fields=[
+            {"key": str(field["key"]), "label": str(field["label"])}
+            for field in selected_fields
+        ],
+        additional_values=additional_values,
+        group_by_field=resolved_group_by,
         pending_rows=pending_rows,
     )
     try:
@@ -2599,7 +2940,11 @@ async def export_passports_by_group(
                 exported_submission_ids=[submission.id for submission in submissions],
                 exported_people_snapshot=_export_people_snapshot(submissions),
                 pending_recipient_count=len(pending_rows),
-                artifact_metadata={"workbook_bytes": len(content)},
+                artifact_metadata={
+                    "workbook_bytes": len(content),
+                    "supplemental_fields": requested_field_keys,
+                    "group_by_field": resolved_group_by,
+                },
                 created_by_user_id=current_user.id,
                 actor_email=current_user.email,
             )
@@ -5124,6 +5469,9 @@ async def client_submit_passport(
             family_head_name=body.family_head_name,
             family_head_email=str(body.family_head_email) if body.family_head_email else None,
             family_head_phone=body.family_head_phone,
+            custom_answers=[
+                answer.model_dump(mode="json") for answer in body.custom_answers
+            ],
         )
         verification_job = await PostSubmissionVerificationJobRepository(session).enqueue(
             submission_id=result.id,

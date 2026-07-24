@@ -61,6 +61,7 @@ export function useSubmitClientPassportReview() {
       family_head_name,
       family_head_email,
       family_head_phone,
+      custom_answers,
     }: {
       submissionId: string;
       uploadSessionId: string;
@@ -83,6 +84,7 @@ export function useSubmitClientPassportReview() {
       family_head_name?: string | null;
       family_head_email?: string | null;
       family_head_phone?: string | null;
+      custom_answers?: Array<{ question_id: string; value: string }>;
     }) =>
       uploadApi.submitClientReview(submissionId, uploadSessionId, {
         group_token,
@@ -104,6 +106,7 @@ export function useSubmitClientPassportReview() {
         family_head_name,
         family_head_email,
         family_head_phone,
+        custom_answers,
       }),
   });
 }

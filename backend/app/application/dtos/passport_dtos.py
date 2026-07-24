@@ -40,6 +40,7 @@ class PassportSubmissionOutputDTO:
     passport_photo_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, Any] | None = None
+    custom_answers: list[dict[str, str]] | None = None
     acquisition_mode: str = "file"
     upload_idempotency_key: str | None = None
     qualifier_enabled_snapshot: bool = False
@@ -106,6 +107,7 @@ def passport_submission_output_from_entity(
         passport_photo_s3_key=submission.passport_photo_s3_key,
         passport_back_s3_key=submission.passport_back_s3_key,
         staff_metadata=submission.staff_metadata,
+        custom_answers=list(submission.custom_answers or []),
         acquisition_mode=submission.acquisition_mode,
         upload_idempotency_key=submission.upload_idempotency_key,
         qualifier_enabled_snapshot=submission.qualifier_enabled_snapshot,

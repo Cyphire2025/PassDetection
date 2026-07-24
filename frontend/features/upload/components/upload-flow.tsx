@@ -21,7 +21,10 @@ import {
   X,
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
-import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
+import {
+  uploadLinksApi,
+  type CustomUploadQuestion,
+} from "@/features/passports/api/upload-links.api";
 import {
   cleanPassportReviewFields as cleanReviewFields,
 } from "@/features/passports/utils/passport-review";
@@ -106,6 +109,7 @@ interface FamilyMember {
   agentEmployeeType: AgentEmployeeType;
   agentEmployeeCode: string;
   mealPreference: string;
+  customAnswers: Record<string, string>;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
   visaSelfie: File | null;
@@ -196,6 +200,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [agentEmployeeType, setAgentEmployeeType] = useState<AgentEmployeeType>("");
   const [agentEmployeeCode, setAgentEmployeeCode] = useState("");
   const [mealPreference, setMealPreference] = useState("");
+  const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
   const [submission, setSubmission] = useState<PassportSubmission | null>(null);
   const [reviewFields, setReviewFields] = useState<Record<string, string>>({});
   const [singleUploadIdempotencyKey, setSingleUploadIdempotencyKey] = useState(
@@ -242,6 +247,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const groupId = group?.id;
   const relationWithQualifierEnabled =
     group?.relation_with_qualifier_enabled ?? false;
+  const enabledCustomQuestions = (group?.custom_questions ?? []).filter(
+    (question) => question.enabled,
+  );
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
   const hasBlockedFamilyVerification = familyMembers.some((member) => (
@@ -1276,6 +1284,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Please select a meal preference before submitting.");
       return;
     }
+    if (enabledCustomQuestions.some((question) => !customAnswers[question.id])) {
+      setUploadError("Please answer every custom question before submitting.");
+      return;
+    }
 
     requestControllerRef.current?.abort();
     requestControllerRef.current = null;
@@ -1299,6 +1311,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
         agent_employee_code: agentEmployeeCode || null,
         meal_preference: mealPreference || null,
         submission_mode: "single",
+        custom_answers: enabledCustomQuestions.map((question) => ({
+          question_id: question.id,
+          value: customAnswers[question.id],
+        })),
       });
       setStep("SUCCESS");
     } catch (error: unknown) {
@@ -1353,6 +1369,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
         || !/^\d{1,10}$/.test(member.agentEmployeeCode)
       ))
       || (mealPreferenceEnabled && !member.mealPreference)
+      || enabledCustomQuestions.some(
+        (question) => !member.customAnswers[question.id],
+      )
     ));
     if (missingConfiguredField) {
       setUploadError(`Complete the required group fields for ${missingConfiguredField.name}.`);
@@ -1390,6 +1409,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
           family_head_name: familyMembers[0]?.name || member.name,
           family_head_email: headEmail,
           family_head_phone: headPhone,
+          custom_answers: enabledCustomQuestions.map((question) => ({
+            question_id: question.id,
+            value: member.customAnswers[question.id],
+          })),
         });
       }
       setStep("SUCCESS");
@@ -1668,6 +1691,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
               onAgentEmployeeCode={setAgentEmployeeCode}
               onMealPreference={setMealPreference}
             />
+            <CustomQuestionFields
+              questions={enabledCustomQuestions}
+              answers={customAnswers}
+              onChange={(questionId, value) => setCustomAnswers((current) => ({
+                ...current,
+                [questionId]: value,
+              }))}
+            />
             <Button
               type="submit"
               size="lg"
@@ -1817,6 +1848,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     onAgentEmployeeType={(value) => updateFamilyMember(index, { agentEmployeeType: value })}
                     onAgentEmployeeCode={(value) => updateFamilyMember(index, { agentEmployeeCode: value })}
                     onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
+                  />
+                  <CustomQuestionFields
+                    questions={enabledCustomQuestions}
+                    answers={member.customAnswers}
+                    onChange={(questionId, value) => updateFamilyMember(index, {
+                      customAnswers: {
+                        ...member.customAnswers,
+                        [questionId]: value,
+                      },
+                    })}
                   />
                 </>
               )}
@@ -2112,6 +2153,7 @@ function createFamilyMember(index: number): FamilyMember {
     agentEmployeeType: "",
     agentEmployeeCode: "",
     mealPreference: "",
+    customAnswers: {},
     submission: null,
     reviewFields: {},
     visaSelfie: null,
@@ -2686,6 +2728,41 @@ function ContactSection({
         <ContactInput icon={<Phone className="h-5 w-5" />} label="WhatsApp active number" type="tel" value={phone} onChange={onPhone} required={phoneRequired} />
         {departureCities.length > 0 && <DepartureCitySelect value={departureCity} cities={departureCities} onChange={onDepartureCity} className="sm:col-span-2" />}
       </div>
+    </div>
+  );
+}
+
+function CustomQuestionFields({
+  questions,
+  answers,
+  onChange,
+}: {
+  questions: CustomUploadQuestion[];
+  answers: Record<string, string>;
+  onChange: (questionId: string, value: string) => void;
+}) {
+  if (questions.length === 0) return null;
+
+  return (
+    <div className="mt-5 grid gap-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4 sm:grid-cols-2">
+      {questions.map((question) => (
+        <label key={question.id} className="block min-w-0 space-y-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            {question.label}
+          </span>
+          <select
+            value={answers[question.id] ?? ""}
+            onChange={(event) => onChange(question.id, event.target.value)}
+            className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            required
+          >
+            <option value="">Select an option</option>
+            {question.options.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </label>
+      ))}
     </div>
   );
 }

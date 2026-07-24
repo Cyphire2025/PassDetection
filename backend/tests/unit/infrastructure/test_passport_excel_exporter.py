@@ -608,3 +608,65 @@ def test_export_writes_all_visible_dates_as_native_dd_dot_mm_dot_yyyy() -> None:
         assert cell.is_date
         assert cell.number_format == "DD.MM.YYYY"
         assert cell.value.strftime("%d.%m.%Y") == display_value
+
+
+def test_dynamic_export_keeps_zone_at_column_f_and_appends_other_fields() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(group_id)
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Test Group",
+            group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
+            zone_names={submission.id: "West 1"},
+            additional_fields=[
+                {"key": "zone_name", "label": "Zone Name"},
+                {"key": "whatsapp:t_shirt_size", "label": "T Shirt Size"},
+                {"key": "custom:activity", "label": "Excursion"},
+            ],
+            additional_values={
+                submission.id: {
+                    "whatsapp:t_shirt_size": "Large",
+                    "custom:activity": "City tour",
+                }
+            },
+            group_by_field="zone_name",
+        )
+    )
+    headers, values = _row_values(worksheet)
+
+    assert headers[5] == "Zone Name"
+    assert headers[-2:] == ["T Shirt Size", "Excursion"]
+    assert values["Zone Name"] == "West 1"
+    assert values["T Shirt Size"] == "Large"
+    assert values["Excursion"] == "City tour"
+
+
+def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None:
+    group_id = uuid.uuid4()
+    beta = _submission(group_id, client_name="Beta")
+    alpha = _submission(group_id, client_name="Alpha")
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [beta, alpha],
+            group_name="Test Group",
+            group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
+            additional_fields=[
+                {"key": "whatsapp:session", "label": "Session"},
+            ],
+            additional_values={
+                beta.id: {"whatsapp:session": "B"},
+                alpha.id: {"whatsapp:session": "A"},
+            },
+            group_by_field="whatsapp:session",
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+
+    assert "Zone Name" not in headers
+    assert headers[5] == "Email"
+    assert headers[-1] == "Session"
+    assert worksheet.cell(row=5, column=headers.index("Client Name") + 1).value == "Alpha"
+    assert worksheet.cell(row=8, column=headers.index("Client Name") + 1).value == "Beta"

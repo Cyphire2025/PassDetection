@@ -164,6 +164,7 @@ export const uploadApi = {
       family_head_name?: string | null;
       family_head_email?: string | null;
       family_head_phone?: string | null;
+      custom_answers?: Array<{ question_id: string; value: string }>;
     },
   ): Promise<PassportSubmission> => {
     const response = await apiClient.post<PassportSubmission>(

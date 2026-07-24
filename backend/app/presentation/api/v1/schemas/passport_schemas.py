@@ -134,6 +134,17 @@ class ClientSubmitPassportRequest(BaseModel):
     family_head_name: str | None = Field(default=None, max_length=255)
     family_head_email: EmailStr | None = None
     family_head_phone: str | None = Field(default=None, min_length=7, max_length=32)
+    custom_answers: list["ClientCustomAnswerRequest"] = Field(
+        default_factory=list,
+        max_length=20,
+    )
+
+
+class ClientCustomAnswerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    question_id: uuid.UUID
+    value: str = Field(..., min_length=1, max_length=120)
 
 
 class ReconcilePassportUploadRequest(BaseModel):
@@ -239,6 +250,24 @@ class PassportExportHistoryCompletionResponse(BaseModel):
     export_kind: Literal["passport_images", "passport_excel"]
     status: Literal["completed"]
     completed_at: datetime
+
+
+class PassportExportFieldOptionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str = Field(..., min_length=1, max_length=180)
+    label: str = Field(..., min_length=1, max_length=120)
+    source: Literal["whatsapp", "custom_question"]
+    selected_by_default: bool = False
+
+
+class PassportExportFieldOptionsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: uuid.UUID
+    fields: list[PassportExportFieldOptionResponse] = Field(default_factory=list)
+    default_selected_fields: list[str] = Field(default_factory=list)
+    default_group_by_field: str | None = None
 
 
 class ImportPassportGroupResponse(BaseModel):
@@ -349,6 +378,7 @@ class PassportSubmissionResponse(BaseModel):
     passport_photo_s3_key: str | None = None
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
+    custom_answers: list[dict[str, str]] = Field(default_factory=list)
     acquisition_mode: Literal["camera", "file"] = "file"
     qualifier_enabled_snapshot: bool = False
     qualifier_is_self: bool | None = None

@@ -14,6 +14,9 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 )
 from app.domain.entities.entities import ClientGroup, GroupStatus
 from app.presentation.api.v1.routes.passports import (
+    _apply_pending_export_fields,
+    _export_additional_values,
+    _export_field_catalog,
     _export_whatsapp_match_rows,
     _pending_recipient_export_rows,
     _recipient_export_value,
@@ -151,6 +154,120 @@ def test_pending_mapper_includes_unresolved_recipients_and_excludes_submitted() 
     assert pending[0]["Phone"] == "+919876543210"
     assert pending[0]["Destination"] == "Vietnam"
     assert pending[0]["Travel/Departure Date"] == "2026-08-12"
+
+
+def test_export_field_catalog_discovers_whatsapp_and_custom_columns() -> None:
+    group = _group()
+    current_question_id = uuid.uuid4()
+    historical_question_id = uuid.uuid4()
+    group.custom_questions = [
+        {
+            "id": str(current_question_id),
+            "label": "T-shirt size",
+            "options": ["S", "M"],
+            "enabled": True,
+        },
+    ]
+    row = _match_row(
+        status="not_submitted",
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=uuid.uuid4(),
+                fields={
+                    "Zone Name": "Delhi",
+                    "Department": "Sales",
+                    "Phone": "9876543210",
+                },
+            ),
+        ),
+    )
+    historical_submission = SimpleNamespace(
+        custom_answers=[
+            {
+                "question_id": str(historical_question_id),
+                "label": "Dinner session",
+                "value": "Second",
+            },
+        ],
+    )
+
+    catalog = _export_field_catalog(group, [row], [historical_submission])
+    by_key = {str(field["key"]): field for field in catalog}
+
+    assert by_key["zone_name"]["selected_by_default"] is True
+    assert by_key["whatsapp:department"]["label"] == "Department"
+    assert f"custom:{current_question_id}" in by_key
+    assert f"custom:{historical_question_id}" in by_key
+    assert "whatsapp:phone" not in by_key
+
+
+def test_dynamic_export_values_preserve_exact_matches_and_pending_columns() -> None:
+    submission_id = uuid.uuid4()
+    question_id = uuid.uuid4()
+    row = SubmissionMatchRow(
+        status="submitted",
+        match_basis="phone",
+        normalized_phone="+919876543210",
+        recipient_ids=(uuid.uuid4(),),
+        submission_ids=(submission_id,),
+        broadcast_ids=(uuid.uuid4(),),
+        broadcast_names=("Vietnam recipients",),
+        recipient_names=("Submitted Passenger",),
+        submission_names=("Submitted Passenger",),
+        updated_at=NOW,
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=uuid.uuid4(),
+                fields={"Department": "Sales"},
+            ),
+        ),
+    )
+    submission = SimpleNamespace(
+        id=submission_id,
+        custom_answers=[
+            {
+                "question_id": str(question_id),
+                "label": "T-shirt size",
+                "value": "M",
+            },
+        ],
+    )
+    selected = [
+        {
+            "key": "whatsapp:department",
+            "label": "Department",
+            "source": "whatsapp",
+            "selected_by_default": False,
+        },
+        {
+            "key": f"custom:{question_id}",
+            "label": "T-shirt size",
+            "source": "custom_question",
+            "selected_by_default": False,
+        },
+    ]
+
+    values = _export_additional_values(
+        [submission],
+        {uuid.uuid4(): [row]},
+        selected,
+    )
+
+    assert values[submission_id]["whatsapp:department"] == "Sales"
+    assert values[submission_id][f"custom:{question_id}"] == "M"
+
+    pending_row = _match_row(
+        status="not_submitted",
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=uuid.uuid4(),
+                fields={"Department": "Operations"},
+            ),
+        ),
+    )
+    pending = [{}]
+    _apply_pending_export_fields(pending, [pending_row], selected)
+    assert pending == [{"Department": "Operations", "T-shirt size": None}]
 
 
 @pytest.mark.asyncio

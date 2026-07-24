@@ -78,6 +78,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_status=PassportExtractionStatus(model.extraction_status),
             extraction_revision=model.extraction_revision,
             staff_metadata=model.staff_metadata,
+            custom_answers=list(model.custom_answers or []),
             status=PassportProcessingStatus(model.status),
             extracted_fields=model.extracted_fields,
             confirmed_fields=model.confirmed_fields,
@@ -135,6 +136,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_status=entity.extraction_status.value,
             extraction_revision=entity.extraction_revision,
             staff_metadata=entity.staff_metadata,
+            custom_answers=entity.custom_answers,
             status=entity.status.value,
             extracted_fields=entity.extracted_fields,
             confirmed_fields=entity.confirmed_fields,
@@ -276,6 +278,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.extraction_status = submission.extraction_status.value
         model.extraction_revision = submission.extraction_revision
         model.staff_metadata = submission.staff_metadata
+        model.custom_answers = submission.custom_answers
         model.status = submission.status.value
         model.extracted_fields = submission.extracted_fields
         model.confirmed_fields = submission.confirmed_fields

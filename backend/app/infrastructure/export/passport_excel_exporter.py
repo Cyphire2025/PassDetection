@@ -172,10 +172,40 @@ class PassportExcelExporter:
         group_name: str,
         group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None = None,
         zone_names: dict[uuid.UUID, str] | None = None,
+        additional_fields: list[dict[str, str]] | None = None,
+        additional_values: dict[uuid.UUID, dict[str, str | None]] | None = None,
+        group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
     ) -> bytes:
-        columns = self._enabled_columns(submissions, group_details)
+        include_zone = (
+            True
+            if additional_fields is None
+            else any(field.get("key") == "zone_name" for field in additional_fields)
+        )
+        columns = self._enabled_columns(
+            submissions,
+            group_details,
+            include_zone=include_zone,
+        )
+        dynamic_fields = [
+            field
+            for field in (additional_fields or [])
+            if field.get("key") != "zone_name" and field.get("label")
+        ]
+        columns.extend(
+            _ExportColumn(str(field["label"]), 22) for field in dynamic_fields
+        )
         headers = [column.header for column in columns]
+        label_by_key = {
+            str(field["key"]): str(field["label"])
+            for field in (additional_fields or [])
+            if field.get("key") and field.get("label")
+        }
+        group_by_header = (
+            "Zone Name"
+            if additional_fields is None and group_by_field is None
+            else label_by_key.get(group_by_field or "")
+        )
         workbook = Workbook()
         worksheet = workbook.active
         worksheet.title = "Passport Submissions"
@@ -196,68 +226,42 @@ class PassportExcelExporter:
             cell.fill = PatternFill("solid", fgColor="1D4ED8")
             cell.alignment = Alignment(horizontal="center")
 
-        ordered_submissions = sorted(
-            submissions,
-            key=lambda submission: self._submission_sort_key(
-                submission,
-                zone_names,
+        prepared_rows: list[tuple[PassportSubmission, dict[str, Any]]] = []
+        for submission in submissions:
+            prepared_rows.append(
+                (
+                    submission,
+                    self._submission_values(
+                        submission,
+                        group_name=group_name,
+                        details=(group_details or {}).get(submission.group_id, {}),
+                        zone_names=zone_names,
+                        dynamic_fields=dynamic_fields,
+                        additional_values=additional_values,
+                    ),
+                )
+            )
+        ordered_rows = sorted(
+            prepared_rows,
+            key=lambda item: self._submission_sort_key(
+                item[0],
+                item[1],
+                group_by_header=group_by_header,
             ),
         )
-        previous_zone_key: str | None = None
+        previous_group_key: str | None = None
         has_written_submission = False
-        for submission in ordered_submissions:
-            fields = submission.confirmed_fields or submission.extracted_fields or {}
-            staff_metadata = submission.staff_metadata or {}
-            details = (group_details or {}).get(submission.group_id, {})
-            zone_name = self._zone_name(submission, zone_names)
-            zone_key = zone_name.casefold()
-            if has_written_submission and zone_key != previous_zone_key:
-                # Keep operational zone batches visually separate without
-                # mutating the underlying submission or WhatsApp data.
+        for submission, values in ordered_rows:
+            group_key = self._group_value(values, group_by_header).casefold()
+            if (
+                group_by_header
+                and has_written_submission
+                and group_key != previous_group_key
+            ):
+                # Keep operational batches visually separate without mutating
+                # the underlying submission or WhatsApp data.
                 for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
                     worksheet.append([])
-            values = {
-                "Group": details.get("name") or group_name,
-                "Destination": details.get("destination"),
-                "Travel/Departure Date": details.get("travel_date"),
-                "Return Date": details.get("return_date"),
-                "Client Name": submission.client_name,
-                "Zone Name": zone_name or None,
-                "Email": submission.client_email,
-                "Phone": submission.client_phone,
-                "Nearest International Airport": submission.departure_city,
-                "Nearest Domestic Airport": submission.nearest_domestic_airport,
-                "Base City": fields.get("base_city") or staff_metadata.get("base_city"),
-                "Staff Code": prefixed_staff_code(
-                    fields.get("staff_code") or staff_metadata.get("staff_code")
-                ),
-                "Agent/Employee Code": prefixed_agent_employee_code(
-                    fields.get("agent_employee_type")
-                    or staff_metadata.get("agent_employee_type"),
-                    fields.get("agent_employee_code")
-                    or staff_metadata.get("agent_employee_code"),
-                ),
-                "Meal Preference": (
-                    fields.get("meal_preference") or staff_metadata.get("meal_preference")
-                ),
-                "Relation with Qualifier": (
-                    submission.qualifier_relation_label
-                    if submission.qualifier_enabled_snapshot
-                    else None
-                ),
-                "Surname": _uppercase(fields.get("surname")),
-                "Given Names": _uppercase(fields.get("given_names")),
-                "Passport Number": fields.get("passport_number"),
-                "Nationality": _nationality_display_value(fields.get("nationality")),
-                # Do not relabel historical issuing-country values as a city
-                # or office. New canonical values are exported exactly as
-                # reviewed from the visible passport field.
-                "Place of Issue": fields.get("place_of_issue"),
-                "Date of Birth": fields.get("date_of_birth"),
-                "Date of Issue": fields.get("date_of_issue"),
-                "Date of Expiry": fields.get("date_of_expiry"),
-                "Sex": _gender_display_value(fields.get("sex")),
-            }
             row_values = []
             for column in columns:
                 value = values[column.header]
@@ -270,11 +274,11 @@ class PassportExcelExporter:
                 cell = worksheet.cell(row=row_index, column=column_index)
                 if column.number_format and isinstance(cell.value, (date, datetime)):
                     cell.number_format = column.number_format
-            previous_zone_key = zone_key
+            previous_group_key = group_key
             has_written_submission = True
 
         submitted_last_row = worksheet.max_row
-        if ordered_submissions:
+        if ordered_rows:
             last_column = worksheet.cell(row=header_row, column=len(headers)).column_letter
             table_ref = f"A{header_row}:{last_column}{submitted_last_row}"
             table = Table(displayName="PassportSubmissions", ref=table_ref)
@@ -292,6 +296,7 @@ class PassportExcelExporter:
                 worksheet,
                 columns=columns,
                 pending_rows=pending_rows,
+                group_by_header=group_by_header,
             )
 
         for index, column in enumerate(columns, start=1):
@@ -309,6 +314,7 @@ class PassportExcelExporter:
         *,
         columns: list[_ExportColumn],
         pending_rows: list[dict[str, Any]],
+        group_by_header: str | None,
     ) -> None:
         """Append non-submitters as a separate, visibly distinct export section."""
 
@@ -337,12 +343,18 @@ class PassportExcelExporter:
             cell.fill = _PENDING_HEADER_FILL
             cell.alignment = Alignment(horizontal="center")
 
-        ordered_rows = sorted(pending_rows, key=cls._pending_row_sort_key)
-        previous_zone_key: str | None = None
+        ordered_rows = sorted(
+            pending_rows,
+            key=lambda values: cls._pending_row_sort_key(
+                values,
+                group_by_header=group_by_header,
+            ),
+        )
+        previous_group_key: str | None = None
         has_written_row = False
         for values in ordered_rows:
-            zone_key = cls._pending_zone_name(values).casefold()
-            if has_written_row and zone_key != previous_zone_key:
+            group_key = cls._group_value(values, group_by_header).casefold()
+            if group_by_header and has_written_row and group_key != previous_group_key:
                 for _ in range(_ZONE_SEPARATOR_BLANK_ROWS):
                     worksheet.append([])
 
@@ -360,7 +372,7 @@ class PassportExcelExporter:
                 if column.number_format and isinstance(cell.value, (date, datetime)):
                     cell.number_format = column.number_format
 
-            previous_zone_key = zone_key
+            previous_group_key = group_key
             has_written_row = True
 
         if ordered_rows:
@@ -382,21 +394,28 @@ class PassportExcelExporter:
             worksheet.add_table(pending_table)
 
     @staticmethod
-    def _pending_zone_name(values: dict[str, Any]) -> str:
-        return " ".join(str(values.get("Zone Name") or "").strip().split())
+    def _group_value(
+        values: dict[str, Any],
+        group_by_header: str | None,
+    ) -> str:
+        if not group_by_header:
+            return ""
+        return " ".join(str(values.get(group_by_header) or "").strip().split())
 
     @classmethod
     def _pending_row_sort_key(
         cls,
         values: dict[str, Any],
+        *,
+        group_by_header: str | None,
     ) -> tuple[bool, str, str, str, str]:
-        zone_name = cls._pending_zone_name(values)
+        group_value = cls._group_value(values, group_by_header)
         client_name = " ".join(str(values.get("Client Name") or "").strip().split())
         phone = str(values.get("Phone") or "")
         email = str(values.get("Email") or "")
         return (
-            not bool(zone_name),
-            zone_name.casefold(),
+            not bool(group_value),
+            group_value.casefold(),
             client_name.casefold(),
             phone,
             email.casefold(),
@@ -416,34 +435,107 @@ class PassportExcelExporter:
     def _submission_sort_key(
         cls,
         submission: PassportSubmission,
-        zone_names: dict[uuid.UUID, str] | None,
+        values: dict[str, Any],
+        *,
+        group_by_header: str | None,
     ) -> tuple[bool, str, str, str]:
-        zone_name = cls._zone_name(submission, zone_names)
+        group_value = cls._group_value(values, group_by_header)
         return (
-            not bool(zone_name),
-            zone_name.casefold(),
+            not bool(group_value),
+            group_value.casefold(),
             submission.client_name.casefold(),
             str(submission.id),
         )
+
+    @classmethod
+    def _submission_values(
+        cls,
+        submission: PassportSubmission,
+        *,
+        group_name: str,
+        details: dict[str, Any],
+        zone_names: dict[uuid.UUID, str] | None,
+        dynamic_fields: list[dict[str, str]],
+        additional_values: dict[uuid.UUID, dict[str, str | None]] | None,
+    ) -> dict[str, Any]:
+        fields = submission.confirmed_fields or submission.extracted_fields or {}
+        staff_metadata = submission.staff_metadata or {}
+        values: dict[str, Any] = {
+            "Group": details.get("name") or group_name,
+            "Destination": details.get("destination"),
+            "Travel/Departure Date": details.get("travel_date"),
+            "Return Date": details.get("return_date"),
+            "Client Name": submission.client_name,
+            "Zone Name": cls._zone_name(submission, zone_names) or None,
+            "Email": submission.client_email,
+            "Phone": submission.client_phone,
+            "Nearest International Airport": submission.departure_city,
+            "Nearest Domestic Airport": submission.nearest_domestic_airport,
+            "Base City": fields.get("base_city") or staff_metadata.get("base_city"),
+            "Staff Code": prefixed_staff_code(
+                fields.get("staff_code") or staff_metadata.get("staff_code")
+            ),
+            "Agent/Employee Code": prefixed_agent_employee_code(
+                fields.get("agent_employee_type")
+                or staff_metadata.get("agent_employee_type"),
+                fields.get("agent_employee_code")
+                or staff_metadata.get("agent_employee_code"),
+            ),
+            "Meal Preference": (
+                fields.get("meal_preference") or staff_metadata.get("meal_preference")
+            ),
+            "Relation with Qualifier": (
+                submission.qualifier_relation_label
+                if submission.qualifier_enabled_snapshot
+                else None
+            ),
+            "Surname": _uppercase(fields.get("surname")),
+            "Given Names": _uppercase(fields.get("given_names")),
+            "Passport Number": fields.get("passport_number"),
+            "Nationality": _nationality_display_value(fields.get("nationality")),
+            "Place of Issue": fields.get("place_of_issue"),
+            "Date of Birth": fields.get("date_of_birth"),
+            "Date of Issue": fields.get("date_of_issue"),
+            "Date of Expiry": fields.get("date_of_expiry"),
+            "Sex": _gender_display_value(fields.get("sex")),
+        }
+        row_metadata = (additional_values or {}).get(submission.id, {})
+        for field in dynamic_fields:
+            values[field["label"]] = row_metadata.get(field["key"])
+        return values
 
     @staticmethod
     def _enabled_columns(
         _submissions: list[PassportSubmission],
         group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None,
+        *,
+        include_zone: bool = True,
     ) -> list[_ExportColumn]:
         if group_details is None:
-            return list(_COLUMNS)
+            return [
+                column for column in _COLUMNS
+                if include_zone or column.header != "Zone Name"
+            ]
 
         # Callers provide details only for groups included in the workbook.
         # Consider every included group so a pending-only group can still
         # enable and export its configured optional fields.
         relevant_details = list(group_details.values())
         if not relevant_details:
-            return list(_COLUMNS)
+            return [
+                column for column in _COLUMNS
+                if include_zone or column.header != "Zone Name"
+            ]
 
         return [
             column
             for column in _COLUMNS
-            if column.enabled_flag is None
-            or any(bool(details.get(column.enabled_flag, True)) for details in relevant_details)
+            if (include_zone or column.header != "Zone Name")
+            and (
+                column.enabled_flag is None
+                or any(
+                    bool(details.get(column.enabled_flag, True))
+                    for details in relevant_details
+                )
+            )
         ]

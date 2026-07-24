@@ -99,6 +99,8 @@ export const API_ENDPOINTS = {
     groupSubmissionsView: (groupId: string) =>
       `/api/v1/passports/groups/${groupId}/submissions-view`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
+    groupExportFields: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/export-fields`,
     groupImageExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export-images`,
     groupExportHistory: (groupId: string) =>
       `/api/v1/passports/groups/${groupId}/export-history`,

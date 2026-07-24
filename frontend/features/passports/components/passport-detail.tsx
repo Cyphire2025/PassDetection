@@ -356,7 +356,7 @@ function PassportImagePreview({
 
 function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }) {
   const fields = passport.confirmed_fields ?? passport.extracted_fields ?? {};
-  const values = [
+  const values: Array<[string, string | null | undefined]> = [
     ["Email entered by client", passport.client_email],
     ["Phone entered by client", passport.client_phone],
     ["Nearest International Airport", passport.departure_city],
@@ -365,16 +365,22 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
     ["Staff Code", prefixedStaffCode(getStringField(fields, "staff_code"))],
     ["Agent/Employee Code", prefixedAgentEmployeeCode(fields)],
     ["Meal Preference", getStringField(fields, "meal_preference")],
-  ].filter((item): item is [string, string] => Boolean(item[1]));
+    ...(passport.custom_answers ?? []).map(
+      (answer): [string, string] => [answer.label, answer.value],
+    ),
+  ];
+  const visibleValues = values.filter(
+    (item): item is [string, string] => Boolean(item[1]),
+  );
 
-  if (values.length === 0) return null;
+  if (visibleValues.length === 0) return null;
 
   return (
     <Card className="rounded-3xl">
       <CardContent className="p-5">
         <h3 className="font-semibold text-slate-900">Client-provided group details</h3>
         <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
-          {values.map(([label, value]) => <MetaItem key={label} label={label} value={value} />)}
+          {visibleValues.map(([label, value]) => <MetaItem key={label} label={label} value={value} />)}
         </div>
       </CardContent>
     </Card>

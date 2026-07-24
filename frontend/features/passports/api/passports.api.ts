@@ -160,6 +160,22 @@ export interface PassportGroupExportRequest {
   mode: PassportGroupExportMode;
   baselineExportId?: string;
   requestId?: string;
+  supplementalFields?: string[];
+  groupByField?: string;
+}
+
+export interface PassportGroupExportFieldOption {
+  key: string;
+  label: string;
+  source: "whatsapp" | "custom_question";
+  selected_by_default: boolean;
+}
+
+export interface PassportGroupExportFieldOptions {
+  group_id: string;
+  fields: PassportGroupExportFieldOption[];
+  default_selected_fields: string[];
+  default_group_by_field: string | null;
 }
 
 export interface PassportGroupExportCompletion {
@@ -558,6 +574,8 @@ export const passportsApi = {
     mode,
     baselineExportId,
     requestId,
+    supplementalFields,
+    groupByField,
   }: PassportGroupExportRequest): Promise<void> => {
     const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
       responseType: "blob",
@@ -565,6 +583,10 @@ export const passportsApi = {
         mode,
         baseline_export_id: baselineExportId,
         request_id: requestId,
+        supplemental_fields: supplementalFields === undefined
+          ? undefined
+          : supplementalFields.join(","),
+        group_by_field: groupByField,
       },
     });
     const historyId = requireExportHistoryId(
@@ -572,6 +594,15 @@ export const passportsApi = {
     );
     downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
     await confirmStartedGroupExport(groupId, historyId);
+  },
+
+  getGroupExportFields: async (
+    groupId: string,
+  ): Promise<PassportGroupExportFieldOptions> => {
+    const response = await apiClient.get<PassportGroupExportFieldOptions>(
+      API_ENDPOINTS.passports.groupExportFields(groupId),
+    );
+    return response.data;
   },
 
   exportGroupImages: async ({

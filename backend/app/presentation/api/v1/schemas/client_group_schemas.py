@@ -37,6 +37,37 @@ def _normalize_broadcast_group_ids(
     return list(dict.fromkeys(values))
 
 
+class CustomQuestionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    id: uuid.UUID
+    label: str = Field(..., min_length=1, max_length=100)
+    options: list[str] = Field(..., min_length=2, max_length=50)
+    enabled: bool = True
+
+    @field_validator("options", mode="before")
+    @classmethod
+    def normalize_options(cls, values: list[str] | None) -> list[str]:
+        seen: set[str] = set()
+        options: list[str] = []
+        for value in values or []:
+            option = " ".join(str(value).strip().split())
+            if not option:
+                continue
+            if len(option) > 120:
+                raise ValueError("Custom options must be 120 characters or fewer.")
+            key = option.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+            options.append(option)
+        return options
+
+
+class CustomQuestionResponse(CustomQuestionRequest):
+    pass
+
+
 class CreateClientGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -55,6 +86,10 @@ class CreateClientGroupRequest(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[CustomQuestionRequest] = Field(
+        default_factory=list,
+        max_length=20,
+    )
     notes: str | None = Field(default=None, max_length=2000)
     whatsapp_broadcast_group_ids: list[uuid.UUID] = Field(
         default_factory=list,
@@ -105,6 +140,10 @@ class UpdateClientGroupRequest(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[CustomQuestionRequest] | None = Field(
+        default=None,
+        max_length=20,
+    )
     notes: str | None = Field(default=None, max_length=2000)
     whatsapp_broadcast_group_ids: list[uuid.UUID] | None = Field(
         default=None,
@@ -179,6 +218,7 @@ class ClientGroupResponse(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[CustomQuestionResponse] = Field(default_factory=list)
     qualifier_relation_options: list[QualifierRelationOptionResponse] = Field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None

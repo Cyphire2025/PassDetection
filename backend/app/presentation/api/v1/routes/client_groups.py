@@ -633,6 +633,9 @@ async def create_client_group(
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
+        custom_questions=[
+            question.model_dump(mode="json") for question in request.custom_questions
+        ],
         notes=request.notes,
     )
 
@@ -1950,6 +1953,14 @@ async def update_client_group(
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
+        custom_questions=(
+            [
+                question.model_dump(mode="json")
+                for question in request.custom_questions
+            ]
+            if request.custom_questions is not None
+            else None
+        ),
         notes=request.notes,
     )
     await repo.update(group)

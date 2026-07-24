@@ -13,6 +13,13 @@ const publicUploadHeaders = (token: string) => ({
   "X-Upload-Session-ID": getOrCreatePublicUploadSessionId(token),
 });
 
+export interface CustomUploadQuestion {
+  id: string;
+  label: string;
+  options: string[];
+  enabled: boolean;
+}
+
 export interface UpdateUploadLinkRequest {
   name: string;
   destination?: string | null;
@@ -29,6 +36,7 @@ export interface UpdateUploadLinkRequest {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  custom_questions?: CustomUploadQuestion[];
   whatsapp_broadcast_group_ids?: string[];
   notes?: string | null;
 }
@@ -37,6 +45,7 @@ export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
   destination: string;
   travel_date: string;
   return_date: string;
+  custom_questions: CustomUploadQuestion[];
 }
 
 export interface LinkedWhatsAppBroadcast {
@@ -200,6 +209,7 @@ export interface UploadLinkResponse {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  custom_questions: CustomUploadQuestion[];
   qualifier_relation_options: QualifierRelationOption[];
   notes: string | null;
   deleted_at: string | null;

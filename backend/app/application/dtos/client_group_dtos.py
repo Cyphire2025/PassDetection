@@ -29,6 +29,7 @@ class CreateClientGroupInputDTO:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[dict] | None = None
     notes: str | None = None
 
 
@@ -49,6 +50,7 @@ class UpdateClientGroupInputDTO:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[dict] | None = None
     notes: str | None = None
 
 
@@ -76,6 +78,7 @@ class ClientGroupOutputDTO:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    custom_questions: list[dict] = field(default_factory=list)
     qualifier_relation_options: list[dict[str, str]] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
@@ -107,6 +110,7 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         allow_files_from_device=link.allow_files_from_device,
         ask_nearest_domestic_airport=link.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=link.relation_with_qualifier_enabled,
+        custom_questions=list(link.custom_questions or []),
         qualifier_relation_options=qualifier_relation_options(),
         notes=link.notes,
         deleted_at=link.deleted_at,

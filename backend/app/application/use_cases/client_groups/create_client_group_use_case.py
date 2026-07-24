@@ -57,6 +57,7 @@ class CreateClientGroupUseCase:
             relation_with_qualifier_enabled=(
                 dto.relation_with_qualifier_enabled
             ),
+            custom_questions=dto.custom_questions,
             notes=dto.notes,
         )
 

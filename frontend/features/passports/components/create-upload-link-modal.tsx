@@ -17,6 +17,7 @@ import { createUploadLinkSchema, type CreateUploadLinkFormData } from "../schema
 import { useCreateUploadLink } from "../hooks/use-upload-links";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
+import { CustomQuestionBuilder } from "./custom-question-builder";
 
 interface CreateUploadLinkModalProps {
   isOpen: boolean;
@@ -59,6 +60,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       allow_files_from_device: true,
       ask_nearest_domestic_airport: false,
       relation_with_qualifier_enabled: false,
+      custom_questions: [],
       whatsapp_broadcast_group_ids: [],
       notes: "",
     },
@@ -83,6 +85,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     control,
     name: "whatsapp_broadcast_group_ids",
   }) ?? [];
+  const customQuestions = useWatch({ control, name: "custom_questions" }) ?? [];
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
@@ -407,6 +410,17 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   description="Require each client to choose Veg, Non Veg, or Jain."
                   checked={mealPreferenceEnabled}
                   onChange={(checked) => setValue("meal_preference_enabled", checked, { shouldDirty: true })}
+                />
+
+                <CustomQuestionBuilder
+                  questions={customQuestions}
+                  disabled={isPending}
+                  error={errors.custom_questions?.message}
+                  onChange={(questions) => setValue(
+                    "custom_questions",
+                    questions,
+                    { shouldDirty: true, shouldValidate: true },
+                  )}
                 />
               </div>
 

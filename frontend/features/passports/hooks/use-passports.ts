@@ -83,6 +83,18 @@ export function usePassportGroupExportHistory(
   });
 }
 
+export function usePassportGroupExportFields(
+  groupId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ["passport-export-fields", groupId],
+    queryFn: () => passportsApi.getGroupExportFields(groupId),
+    enabled: enabled && Boolean(groupId),
+    staleTime: 30_000,
+  });
+}
+
 export function usePassportGroupExportHistoryDetail(
   groupId: string,
   historyId: string | undefined,

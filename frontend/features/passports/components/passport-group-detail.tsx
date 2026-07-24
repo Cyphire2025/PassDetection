@@ -958,7 +958,12 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               : exportMutation.isPending
           }
           onClose={() => setExportDialogKind(null)}
-          onDownload={({ mode, baselineExportId }) => {
+          onDownload={({
+            mode,
+            baselineExportId,
+            supplementalFields,
+            groupByField,
+          }) => {
             const mutation = exportDialogKind === "passport_images"
               ? exportImagesMutation
               : exportMutation;
@@ -967,6 +972,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 groupId,
                 mode,
                 baselineExportId,
+                supplementalFields,
+                groupByField,
                 requestId: createExportRequestId(),
               },
               {

@@ -31,6 +31,7 @@ from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
+from app.domain.value_objects.custom_questions import normalize_custom_answers
 
 logger = get_logger(__name__)
 
@@ -76,6 +77,7 @@ class ClientSubmitPassportUseCase:
         family_head_name: str | None = None,
         family_head_email: str | None = None,
         family_head_phone: str | None = None,
+        custom_answers: list[dict] | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
@@ -186,6 +188,10 @@ class ClientSubmitPassportUseCase:
             meal_preference,
             enabled=group.meal_preference_enabled,
         )
+        normalized_custom_answers = normalize_custom_answers(
+            group.custom_questions,
+            custom_answers,
+        )
 
         if normalized_mode == "single" and (normalized_email or normalized_phone) and await self._passport_repo.exists_contact_in_group(
             group.id,
@@ -250,6 +256,7 @@ class ClientSubmitPassportUseCase:
                     family_broadcast_to_member=bool(
                         normalized_email or normalized_phone
                     ),
+                    custom_answers=normalized_custom_answers,
                 )
             ):
                 return replace(
@@ -314,6 +321,7 @@ class ClientSubmitPassportUseCase:
                 family_head_email=normalized_head_email,
                 family_head_phone=normalized_head_phone,
                 family_broadcast_to_member=bool(normalized_email or normalized_phone),
+                custom_answers=normalized_custom_answers,
             )
             await self._passport_repo.update(submission)
         except Exception:
@@ -352,6 +360,7 @@ class ClientSubmitPassportUseCase:
         family_head_email: str | None,
         family_head_phone: str | None,
         family_broadcast_to_member: bool,
+        custom_answers: list[dict],
     ) -> bool:
         return (
             dict(submission.confirmed_fields or {}) == clean_fields
@@ -370,6 +379,7 @@ class ClientSubmitPassportUseCase:
             and submission.family_head_phone == family_head_phone
             and submission.family_broadcast_to_member
             == family_broadcast_to_member
+            and list(submission.custom_answers or []) == custom_answers
         )
 
     def _normalize_phone(self, value: str | None) -> str:

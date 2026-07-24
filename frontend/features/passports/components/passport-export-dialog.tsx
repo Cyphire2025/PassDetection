@@ -19,6 +19,7 @@ import type {
 } from "../api/passports.api";
 import {
   usePassportGroupExportHistory,
+  usePassportGroupExportFields,
   usePassportGroupExportHistoryDetail,
 } from "../hooks/use-passports";
 
@@ -30,6 +31,8 @@ interface PassportExportDialogProps {
   onDownload: (selection: {
     mode: PassportGroupExportMode;
     baselineExportId?: string;
+    supplementalFields?: string[];
+    groupByField?: string;
   }) => void;
 }
 
@@ -53,6 +56,10 @@ export function PassportExportDialog({
   const [detailHistoryId, setDetailHistoryId] = useState<string>();
   const [detailPage, setDetailPage] = useState(1);
   const [isStartingDownload, setIsStartingDownload] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [selectedFields, setSelectedFields] = useState<string[]>([]);
+  const [groupByField, setGroupByField] = useState("");
+  const fieldsInitializedRef = useRef(false);
   const history = usePassportGroupExportHistory(groupId, kind, historyPage);
   const historyDetail = usePassportGroupExportHistoryDetail(
     groupId,
@@ -60,10 +67,18 @@ export function PassportExportDialog({
     detailPage,
   );
   const isImages = kind === "passport_images";
+  const exportFields = usePassportGroupExportFields(groupId, !isImages);
   const isBusy = isDownloading || isStartingDownload;
   const selectedBaseline = history.data?.items.find(
     (item) => item.id === baselineExportId,
   );
+
+  useEffect(() => {
+    if (!exportFields.data || fieldsInitializedRef.current) return;
+    fieldsInitializedRef.current = true;
+    setSelectedFields(exportFields.data.default_selected_fields);
+    setGroupByField(exportFields.data.default_group_by_field ?? "");
+  }, [exportFields.data]);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -132,6 +147,7 @@ export function PassportExportDialog({
       )
     )
   );
+  const isExcelFieldStep = !isImages && step === 2;
 
   return (
     <div
@@ -163,7 +179,9 @@ export function PassportExportDialog({
                 {isImages ? "Download passport images" : "Export passport Excel"}
               </h2>
               <p id={descriptionId} className="mt-1 text-sm text-slate-600">
-                Choose the complete group or only uploads added after a recorded download.
+                {isExcelFieldStep
+                  ? "Choose the saved fields and grouping for this Excel file."
+                  : "Choose the complete group or only uploads added after a recorded download."}
               </p>
             </div>
           </div>
@@ -180,7 +198,105 @@ export function PassportExportDialog({
         </div>
 
         <div className="max-h-[calc(90vh-9rem)] space-y-3 overflow-y-auto p-5 sm:p-6">
-          {history.isLoading ? (
+          {isExcelFieldStep ? (
+            exportFields.isLoading ? (
+              <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-slate-600">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                Loading saved Excel fields
+              </div>
+            ) : exportFields.error ? (
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                Saved Excel fields could not be loaded. Go back and try again.
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-950">Step 2: Choose Excel columns</h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Select any saved WhatsApp spreadsheet fields or custom answers to append.
+                      </p>
+                    </div>
+                    {(exportFields.data?.fields.length ?? 0) > 0 && (
+                      <button
+                        type="button"
+                        className="shrink-0 text-sm font-semibold text-blue-700 hover:underline"
+                        onClick={() => {
+                          const allFields = exportFields.data?.fields.map((field) => field.key) ?? [];
+                          setSelectedFields(
+                            selectedFields.length === allFields.length ? [] : allFields,
+                          );
+                          if (selectedFields.length === allFields.length) setGroupByField("");
+                        }}
+                      >
+                        {selectedFields.length === exportFields.data?.fields.length
+                          ? "Clear all"
+                          : "Select all"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {exportFields.data?.fields.map((field) => (
+                      <label
+                        key={field.key}
+                        className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/40"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedFields.includes(field.key)}
+                          onChange={(event) => {
+                            if (event.target.checked) {
+                              setSelectedFields((current) => [...current, field.key]);
+                            } else {
+                              setSelectedFields((current) => current.filter((key) => key !== field.key));
+                              if (groupByField === field.key) setGroupByField("");
+                            }
+                          }}
+                          className="mt-1 h-4 w-4 accent-blue-600"
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-slate-900">
+                            {field.label}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {field.source === "whatsapp"
+                              ? "WhatsApp spreadsheet"
+                              : "Custom upload question"}
+                            {field.key === "zone_name" ? " · fixed at column F" : ""}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {!exportFields.data?.fields.length && (
+                    <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+                      No additional saved fields are available. The standard passport template will still be exported.
+                    </div>
+                  )}
+                </div>
+
+                <label className="block space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <span className="block font-semibold text-slate-900">Sort by</span>
+                  <span className="block text-sm text-slate-600">
+                    Groups equal values together and adds blank rows between groups.
+                  </span>
+                  <select
+                    value={groupByField}
+                    onChange={(event) => setGroupByField(event.target.value)}
+                    className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="">No grouping</option>
+                    {exportFields.data?.fields
+                      .filter((field) => selectedFields.includes(field.key))
+                      .map((field) => (
+                        <option key={field.key} value={field.key}>{field.label}</option>
+                      ))}
+                  </select>
+                </label>
+              </div>
+            )
+          ) : history.isLoading ? (
             <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-slate-600">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               Loading download history
@@ -422,15 +538,28 @@ export function PassportExportDialog({
             type="button"
             variant="secondary"
             disabled={isBusy}
-            onClick={onClose}
+            onClick={() => {
+              if (isExcelFieldStep) {
+                setStep(1);
+              } else {
+                onClose();
+              }
+            }}
           >
-            Cancel
+            {isExcelFieldStep ? "Back" : "Cancel"}
           </Button>
           <Button
             type="button"
-            disabled={!canDownload}
+            disabled={
+              !canDownload
+              || (isExcelFieldStep && (exportFields.isLoading || Boolean(exportFields.error)))
+            }
             isLoading={isBusy}
             onClick={() => {
+              if (!isImages && step === 1) {
+                setStep(2);
+                return;
+              }
               if (downloadStartedRef.current || isDownloading) return;
               downloadStartedRef.current = true;
               setIsStartingDownload(true);
@@ -440,6 +569,10 @@ export function PassportExportDialog({
                   ...(mode === "incremental" && baselineExportId
                     ? { baselineExportId }
                     : {}),
+                  ...(!isImages ? {
+                    supplementalFields: selectedFields,
+                    ...(groupByField ? { groupByField } : {}),
+                  } : {}),
                 });
               } catch (downloadError) {
                 downloadStartedRef.current = false;
@@ -448,10 +581,19 @@ export function PassportExportDialog({
               }
             }}
           >
-            <Download className="h-4 w-4" aria-hidden="true" />
-            {mode === "all"
-              ? "Download all"
-              : `Download ${selectedBaseline?.new_submission_count ?? 0} new`}
+            {!isImages && step === 1 ? (
+              <>
+                Next
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" aria-hidden="true" />
+                {mode === "all"
+                  ? (isImages ? "Download all" : "Download Excel")
+                  : `Download ${selectedBaseline?.new_submission_count ?? 0} new`}
+              </>
+            )}
           </Button>
         </div>
       </section>
