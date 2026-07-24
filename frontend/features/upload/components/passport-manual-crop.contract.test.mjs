@@ -33,7 +33,7 @@ test("crop editor is a touch and keyboard accessible modal", () => {
   assert.match(editor, /dialogRef\.current\?\.querySelectorAll/);
 });
 
-test("camera and device-file passport images both enter the crop step before bundle acceptance", () => {
+test("upload links bypass manual crop while retaining its implementation for later use", () => {
   assert.match(flow, /\| "PASSPORT_CROP"/);
   assert.match(
     flow,
@@ -50,6 +50,18 @@ test("camera and device-file passport images both enter the crop step before bun
   assert.match(
     flow,
     /const handlePassportCropConfirm = \([\s\S]*?croppedFile: File,[\s\S]*?manuallyCropped: boolean/,
+  );
+  assert.match(
+    flow,
+    /Manual passport cropping is intentionally unwired from upload links/,
+  );
+  assert.match(
+    flow,
+    /\[`\$\{pageSide\}ManuallyCropped`\]: false/,
+  );
+  assert.match(
+    flow,
+    /source === "camera" && pageSide === "front" && !documentBundle\.back[\s\S]*?setStep\("CAMERA"\)[\s\S]*?setStep\("METHOD_SELECT"\)/,
   );
 });
 

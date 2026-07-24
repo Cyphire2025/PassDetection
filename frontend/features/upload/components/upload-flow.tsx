@@ -618,9 +618,28 @@ export function UploadFlow({ token }: UploadFlowProps) {
     pageSide: "front" | "back",
     source: "camera" | "file",
   ) => {
-    setPendingPassportCrop({ file, pageSide, source });
+    /*
+     * Manual passport cropping is intentionally unwired from upload links.
+     * Keep this activation code available for a future controlled rollout:
+     *
+     * setPendingPassportCrop({ file, pageSide, source });
+     * setUploadError(null);
+     * setStep("PASSPORT_CROP");
+     * return;
+     */
+    setDocumentBundle((current) => ({
+      ...current,
+      [pageSide]: file,
+      [`${pageSide}Source`]: source,
+      [`${pageSide}ManuallyCropped`]: false,
+    }));
     setUploadError(null);
-    setStep("PASSPORT_CROP");
+    if (source === "camera" && pageSide === "front" && !documentBundle.back) {
+      setScannerPageSide("back");
+      setStep("CAMERA");
+      return;
+    }
+    setStep("METHOD_SELECT");
   };
 
   const handleCameraCapture = (file: File) => {
