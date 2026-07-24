@@ -28,6 +28,7 @@ from app.infrastructure.whatsapp.worker_runtime import (
     run_whatsapp_broadcast,
 )
 from app.presentation.api.v1.routes.whatsapp import (
+    MAX_WHATSAPP_IMPORTED_FIELDS,
     WhatsAppContactPreviewResponse,
     WhatsAppRecipientInput,
     WhatsAppResendRequest,
@@ -42,6 +43,7 @@ from app.presentation.api.v1.routes.whatsapp import (
     _provider_status_state_predicates,
     _recipient_delivery_counts,
     _recipient_response,
+    _safe_imported_fields,
     _template_snapshot_from_log,
     delete_broadcast_group,
     get_broadcast_batch_status,
@@ -748,6 +750,29 @@ def test_manual_recipient_rejects_non_phone_characters_and_excess_digits() -> No
             )
 
         assert exc_info.value.status_code == 400
+
+
+def test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded() -> None:
+    at_limit = {
+        f"field_{index}": f"value_{index}"
+        for index in range(MAX_WHATSAPP_IMPORTED_FIELDS)
+    }
+
+    assert len(_safe_imported_fields(at_limit)) == MAX_WHATSAPP_IMPORTED_FIELDS
+
+    with pytest.raises(HTTPException) as exc_info:
+        _safe_imported_fields(
+            {
+                **at_limit,
+                "one_field_over_limit": "blocked",
+            }
+        )
+
+    assert exc_info.value.status_code == 400
+    assert (
+        exc_info.value.detail
+        == "Each WhatsApp recipient can contain at most 256 imported fields"
+    )
 
 
 @pytest.mark.asyncio
