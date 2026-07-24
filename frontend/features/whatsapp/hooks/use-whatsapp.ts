@@ -116,6 +116,45 @@ export function useResolveWhatsAppRejectedContact() {
   });
 }
 
+export function useRestoreWhatsAppReplacedRecipient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      clientGroupId,
+      resolutionId,
+    }: {
+      broadcastGroupId: string;
+      clientGroupId: string;
+      resolutionId: string;
+    }) => whatsappApi.restoreReplacedRecipient({
+      clientGroupId,
+      resolutionId,
+    }),
+    onSettled: async (_data, _error, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["whatsapp"] }),
+        queryClient.invalidateQueries({
+          queryKey: [
+            "upload-links",
+            variables.clientGroupId,
+            "whatsapp-matches",
+          ],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [
+            "upload-links",
+            variables.clientGroupId,
+            "replacement-candidates",
+          ],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["passport-export-history", variables.clientGroupId],
+        }),
+      ]);
+    },
+  });
+}
+
 export function useCreateWhatsAppGroup() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -47,17 +47,11 @@ class SubmissionViewResult:
 
 def _normalized_tokens(value: Any) -> str:
     text = unicodedata.normalize("NFKC", str(value or "")).casefold()
-    return " ".join(
-        token for token in re.split(r"[^\w]+", text) if token
-    )
+    return " ".join(token for token in re.split(r"[^\w]+", text) if token)
 
 
 def _normalized_identifier(value: Any) -> str:
-    return "".join(
-        character
-        for character in _normalized_tokens(value)
-        if character.isalnum()
-    )
+    return "".join(character for character in _normalized_tokens(value) if character.isalnum())
 
 
 def _field_value(submission: Any, field: str) -> str:
@@ -76,39 +70,36 @@ def _passport_name(submission: Any) -> str:
         _field_value(submission, "given_names"),
         _field_value(submission, "surname"),
     ]
-    passport_name = _normalized_tokens(
-        " ".join(component for component in components if component)
-    )
+    passport_name = _normalized_tokens(" ".join(component for component in components if component))
     if passport_name:
         return passport_name
     return _normalized_tokens(submission.client_name)
 
 
-def duplicate_identity_key(submission: Any) -> str | None:
-    """Prefer passport+country, with a cautious demographic fallback."""
+def _place_of_issue_identity(submission: Any) -> str:
+    confirmed = submission.confirmed_fields or {}
+    extracted = submission.extracted_fields or {}
+    if "place_of_issue" in confirmed or "place_of_issue" in extracted:
+        return _normalized_identifier(_field_value(submission, "place_of_issue"))
 
-    passport_number = _normalized_identifier(
-        _field_value(submission, "passport_number")
-    )
-    issuing_country_value = _field_value(submission, "issuing_country")
-    issuing_country = (
-        canonical_country_identity(issuing_country_value)
-        if issuing_country_value
-        else ""
-    )
-    if passport_number and issuing_country:
-        return f"passport:{passport_number}:{issuing_country}"
+    # Preserve country-code/name equivalence for old records whose JSON used
+    # the previous field. New records use the visibly printed place text.
+    legacy_value = _field_value(submission, "issuing_country")
+    return canonical_country_identity(legacy_value) if legacy_value else ""
+
+
+def duplicate_identity_key(submission: Any) -> str | None:
+    """Prefer passport+place of issue, with a cautious demographic fallback."""
+
+    passport_number = _normalized_identifier(_field_value(submission, "passport_number"))
+    place_of_issue = _place_of_issue_identity(submission)
+    if passport_number and place_of_issue:
+        return f"passport:{passport_number}:{place_of_issue}"
 
     name = _passport_name(submission)
-    date_of_birth = _normalized_identifier(
-        _field_value(submission, "date_of_birth")
-    )
+    date_of_birth = _normalized_identifier(_field_value(submission, "date_of_birth"))
     nationality_value = _field_value(submission, "nationality")
-    nationality = (
-        canonical_country_identity(nationality_value)
-        if nationality_value
-        else ""
-    )
+    nationality = canonical_country_identity(nationality_value) if nationality_value else ""
     if name and date_of_birth and nationality:
         return f"fallback:{name}:{date_of_birth}:{nationality}"
     return None
@@ -136,17 +127,9 @@ def _verification_confidence(submission: Any) -> float | None:
                     or confidence <= 0
                 ):
                     continue
-                observed_value = str(
-                    field.get("observed_value") or ""
-                ).strip()
-                reason_code = str(
-                    field.get("reason_code") or ""
-                ).strip().casefold()
-                if (
-                    not observed_value
-                    or reason_code
-                    in {"unreadable", "missing_submitted_value"}
-                ):
+                observed_value = str(field.get("observed_value") or "").strip()
+                reason_code = str(field.get("reason_code") or "").strip().casefold()
+                if not observed_value or reason_code in {"unreadable", "missing_submitted_value"}:
                     verification_usable = False
                     break
         value = verification.get("confidence")
@@ -190,36 +173,17 @@ def _build_blocks(
     primary_indexes: dict[str, int] = {}
     fallback_buckets: dict[str, list[int]] = {}
     for index, submission in enumerate(submissions):
-        passport_number = _normalized_identifier(
-            _field_value(submission, "passport_number")
-        )
-        country_value = _field_value(submission, "issuing_country")
-        issuing_country = (
-            canonical_country_identity(country_value)
-            if country_value
-            else ""
-        )
+        passport_number = _normalized_identifier(_field_value(submission, "passport_number"))
+        place_of_issue = _place_of_issue_identity(submission)
         primary = (
-            f"{passport_number}:{issuing_country}"
-            if passport_number and issuing_country
-            else None
+            f"{passport_number}:{place_of_issue}" if passport_number and place_of_issue else None
         )
         name = _passport_name(submission)
-        birth = _normalized_identifier(
-            _field_value(submission, "date_of_birth")
-        )
+        birth = _normalized_identifier(_field_value(submission, "date_of_birth"))
         nationality_value = _field_value(submission, "nationality")
-        nationality = (
-            canonical_country_identity(nationality_value)
-            if nationality_value
-            else ""
-        )
-        fallback = (
-            f"{name}:{birth}:{nationality}"
-            if name and birth and nationality
-            else None
-        )
-        evidence.append((passport_number, issuing_country, fallback))
+        nationality = canonical_country_identity(nationality_value) if nationality_value else ""
+        fallback = f"{name}:{birth}:{nationality}" if name and birth and nationality else None
+        evidence.append((passport_number, place_of_issue, fallback))
         if primary:
             previous = primary_indexes.setdefault(primary, index)
             union(previous, index)
@@ -227,44 +191,36 @@ def _build_blocks(
             fallback_buckets.setdefault(fallback, []).append(index)
 
     # Fallback clustering is limited to rows whose primary identity is
-    # incomplete. A complete row can join a country-missing row only when the
+    # incomplete. A complete row can join a place-missing row only when the
     # passport number and demographic fallback both corroborate.
     for indexes in fallback_buckets.values():
         # First allow cautious fallback among rows whose primary pair is
         # incomplete, while honoring contradictory passport evidence.
         for position, left in enumerate(indexes):
-            left_passport, left_country, _ = evidence[left]
-            left_complete = bool(left_passport and left_country)
+            left_passport, left_place, _ = evidence[left]
+            left_complete = bool(left_passport and left_place)
             for right in indexes[position + 1 :]:
-                right_passport, right_country, _ = evidence[right]
-                right_complete = bool(right_passport and right_country)
+                right_passport, right_place, _ = evidence[right]
+                right_complete = bool(right_passport and right_place)
                 contradictory_passports = bool(
-                    left_passport
-                    and right_passport
-                    and left_passport != right_passport
+                    left_passport and right_passport and left_passport != right_passport
                 )
-                if (
-                    not left_complete
-                    and not right_complete
-                    and not contradictory_passports
-                ):
+                if not left_complete and not right_complete and not contradictory_passports:
                     union(left, right)
 
-        # A country-missing row may bridge to a complete primary row only
+        # A place-missing row may bridge to a complete primary row only
         # when this corroborated passport+fallback bucket contains exactly
-        # one complete country. Never bridge conflicting complete countries.
+        # one complete place. Never bridge conflicting complete places.
         by_passport: dict[str, list[int]] = {}
         for index in indexes:
             passport_number, _, _ = evidence[index]
             if passport_number:
                 by_passport.setdefault(passport_number, []).append(index)
         for passport_indexes in by_passport.values():
-            complete_countries = {
-                evidence[index][1]
-                for index in passport_indexes
-                if evidence[index][1]
+            complete_places = {
+                evidence[index][1] for index in passport_indexes if evidence[index][1]
             }
-            if len(complete_countries) == 1:
+            if len(complete_places) == 1:
                 anchor = passport_indexes[0]
                 for index in passport_indexes[1:]:
                     union(anchor, index)
@@ -285,9 +241,7 @@ def _build_blocks(
                     duplicate_cluster_id=cluster_id,
                     duplicate_cluster_size=len(ordered_members),
                     duplicate_cluster_member_ids=member_ids,
-                    verification_confidence=_verification_confidence(
-                        member
-                    ),
+                    verification_confidence=_verification_confidence(member),
                 )
                 for member in ordered_members
             ]
@@ -350,12 +304,8 @@ def _sort_entries(
             str(entry.submission.id),
         ),
     )
-    populated = [
-        entry for entry in entries if _sort_value(entry, sort_by) is not None
-    ]
-    missing = [
-        entry for entry in entries if _sort_value(entry, sort_by) is None
-    ]
+    populated = [entry for entry in entries if _sort_value(entry, sort_by) is not None]
+    missing = [entry for entry in entries if _sort_value(entry, sort_by) is None]
     populated.sort(
         key=lambda entry: _sort_value(entry, sort_by),
         reverse=sort_order == "desc",
@@ -370,27 +320,13 @@ def _sort_blocks(
     sort_order: str,
 ) -> list[list[SubmissionViewEntry]]:
     ordered_blocks = [
-        _sort_entries(
-            list(block), sort_by=sort_by, sort_order=sort_order
-        )
-        for block in blocks
+        _sort_entries(list(block), sort_by=sort_by, sort_order=sort_order) for block in blocks
     ]
     ordered_blocks.sort(
-        key=lambda block: (
-            block[0].duplicate_cluster_id
-            or str(block[0].submission.id)
-        )
+        key=lambda block: block[0].duplicate_cluster_id or str(block[0].submission.id)
     )
-    populated = [
-        block
-        for block in ordered_blocks
-        if _sort_value(block[0], sort_by) is not None
-    ]
-    missing = [
-        block
-        for block in ordered_blocks
-        if _sort_value(block[0], sort_by) is None
-    ]
+    populated = [block for block in ordered_blocks if _sort_value(block[0], sort_by) is not None]
+    missing = [block for block in ordered_blocks if _sort_value(block[0], sort_by) is None]
     populated.sort(
         key=lambda block: _sort_value(block[0], sort_by),
         reverse=sort_order == "desc",
@@ -447,9 +383,7 @@ def _expiry_alerts(
                 submission_id=submission.id,
                 client_name=submission.client_name,
                 client_email=submission.client_email,
-                passport_number=(
-                    _field_value(submission, "passport_number") or None
-                ),
+                passport_number=(_field_value(submission, "passport_number") or None),
                 date_of_expiry=expiry.isoformat(),
                 status="expired" if is_expired else "near_expiry",
             )
@@ -486,36 +420,21 @@ def build_submission_view(
         blocks = [
             block
             for block in blocks
-            if any(
-                _matches_search(entry, normalized_search)
-                for entry in block
-            )
+            if any(_matches_search(entry, normalized_search) for entry in block)
         ]
 
     if submission_filter == "duplicates":
-        blocks = [
-            block
-            for block in blocks
-            if block[0].duplicate_cluster_id is not None
-        ]
+        blocks = [block for block in blocks if block[0].duplicate_cluster_id is not None]
     elif submission_filter != "all":
         # Search may select a whole cluster, but status filters remain
         # truthful at member level while retaining full cluster metadata.
         blocks = [
             matching
             for block in blocks
-            if (
-                matching := [
-                    entry
-                    for entry in block
-                    if _status_matches(entry, submission_filter)
-                ]
-            )
+            if (matching := [entry for entry in block if _status_matches(entry, submission_filter)])
         ]
 
-    blocks = _sort_blocks(
-        blocks, sort_by=sort_by, sort_order=sort_order
-    )
+    blocks = _sort_blocks(blocks, sort_by=sort_by, sort_order=sort_order)
     total = sum(len(block) for block in blocks)
     pages = _paginate_blocks(blocks, page_size)
     page_items = pages[page - 1] if page <= len(pages) else []

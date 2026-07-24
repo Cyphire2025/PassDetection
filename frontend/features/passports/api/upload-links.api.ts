@@ -60,7 +60,9 @@ export type GroupWhatsAppMatchStatus =
   | "not_submitted"
   | "multiple_submissions"
   | "needs_review"
-  | "unmatched_submission";
+  | "unmatched_submission"
+  | "replacement"
+  | "rejected_upload";
 
 export interface GroupWhatsAppMatchCounts {
   total_recipients: number;
@@ -71,6 +73,8 @@ export interface GroupWhatsAppMatchCounts {
   needs_review_count: number;
   needs_review_submission_count: number;
   unmatched_submission_count: number;
+  replacement_count: number;
+  rejected_upload_count: number;
 }
 
 export interface GroupWhatsAppMatchEvidence {
@@ -92,6 +96,14 @@ export interface GroupWhatsAppRecipientFields {
   fields: Record<string, string>;
 }
 
+export interface GroupWhatsAppSubmissionDetail {
+  submission_id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  fields: Record<string, unknown>;
+}
+
 export interface GroupWhatsAppMatch {
   status: GroupWhatsAppMatchStatus;
   match_basis: string | null;
@@ -106,6 +118,8 @@ export interface GroupWhatsAppMatch {
   match_evidence: GroupWhatsAppMatchEvidence[];
   candidate_submission_ids: string[];
   recipient_fields: GroupWhatsAppRecipientFields[];
+  submission_details: GroupWhatsAppSubmissionDetail[];
+  resolution_id: string | null;
   updated_at: string | null;
 }
 
@@ -128,6 +142,34 @@ export interface GroupWhatsAppMatchesParams {
   sort_order?: "asc" | "desc";
   page?: number;
   page_size?: number;
+}
+
+export interface ReplacementCandidate {
+  recipient_id: string;
+  recipient_ids: string[];
+  name: string | null;
+  phone: string;
+  broadcast_ids: string[];
+  broadcast_names: string[];
+  imported_fields: Record<string, string>;
+}
+
+export interface ReplacementCandidateListResponse {
+  client_group_id: string;
+  items: ReplacementCandidate[];
+}
+
+export interface PassportRosterResolution {
+  id: string;
+  client_group_id: string;
+  submission_id: string;
+  resolution_type: "replacement" | "rejected";
+  status: "active" | "restored";
+  broadcast_recipient_id: string | null;
+  suppressed_recipient_ids: string[];
+  excluded_submission_ids: string[];
+  created_at: string;
+  restored_at: string | null;
 }
 
 export interface QualifierRelationOption {
@@ -229,6 +271,50 @@ export const uploadLinksApi = {
     const response = await apiClient.get<GroupWhatsAppMatchesResponse>(
       API_ENDPOINTS.uploadLinks.whatsappMatches(id),
       { params },
+    );
+    return response.data;
+  },
+
+  getReplacementCandidates: async (
+    id: string,
+  ): Promise<ReplacementCandidateListResponse> => {
+    const response = await apiClient.get<ReplacementCandidateListResponse>(
+      API_ENDPOINTS.uploadLinks.replacementCandidates(id),
+    );
+    return response.data;
+  },
+
+  resolveUnidentifiedReplacement: async (
+    id: string,
+    submissionId: string,
+    recipientId: string,
+    requestId: string,
+  ): Promise<PassportRosterResolution> => {
+    const response = await apiClient.post<PassportRosterResolution>(
+      API_ENDPOINTS.uploadLinks.resolveUnidentifiedReplacement(id, submissionId),
+      { recipient_id: recipientId, request_id: requestId },
+    );
+    return response.data;
+  },
+
+  rejectUnidentifiedUpload: async (
+    id: string,
+    submissionId: string,
+    requestId: string,
+  ): Promise<PassportRosterResolution> => {
+    const response = await apiClient.post<PassportRosterResolution>(
+      API_ENDPOINTS.uploadLinks.rejectUnidentifiedUpload(id, submissionId),
+      { request_id: requestId },
+    );
+    return response.data;
+  },
+
+  restoreRosterResolution: async (
+    id: string,
+    resolutionId: string,
+  ): Promise<PassportRosterResolution> => {
+    const response = await apiClient.post<PassportRosterResolution>(
+      API_ENDPOINTS.uploadLinks.restoreRosterResolution(id, resolutionId),
     );
     return response.data;
   },

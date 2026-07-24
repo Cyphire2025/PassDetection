@@ -236,7 +236,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 {"k": "gn", "v": "MOHIT", "a": "fill", "c": 0.99},
                 {"k": "pn", "v": "W6905713", "a": "fill", "c": 0.99},
                 {"k": "na", "v": "IND", "a": "fill", "c": 0.99},
-                {"k": "ic", "v": "IND", "a": "fill", "c": 0.99},
+                {"k": "pi", "v": "CHENNAI", "a": "fill", "c": 0.99},
                 {"k": "db", "v": "1998-09-08", "a": "fill", "c": 0.99},
                 {"k": "di", "v": "2023-04-13", "a": "fill", "c": 0.99},
                 {"k": "de", "v": "2033-04-12", "a": "fill", "c": 0.99},
@@ -253,6 +253,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             system_text = payload["systemInstruction"]["parts"][0]["text"]
             self.assertIn("Never copy the given names into surname", system_text)
             self.assertIn("unreadable, obscured, or ambiguous", system_text)
+            self.assertIn("pi place of issue exactly as visibly printed", system_text)
+            self.assertIn("not the issuing country", system_text)
             return _gemini_response(provider)
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
@@ -433,7 +435,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 {"k": "gn", "v": "KHUSHI", "a": "fill", "c": 0.97},
                 {"k": "pn", "v": "C9391041", "a": "fill", "c": 0.99},
                 {"k": "na", "v": "IND", "a": "fill", "c": 0.99},
-                {"k": "ic", "v": "IND", "a": "fill", "c": 0.99},
+                {"k": "pi", "v": "BENGALURU", "a": "fill", "c": 0.99},
                 {"k": "db", "v": "2004-12-15", "a": "fill", "c": 0.98},
                 {"k": "di", "v": "2025-03-18", "a": "fill", "c": 0.96},
                 {"k": "de", "v": "2035-03-18", "a": "fill", "c": 0.98},
@@ -452,6 +454,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result.merged_fields["passport_number"], "C9391041")
         self.assertEqual(result.merged_fields["given_names"], "KHUSHI")
+        self.assertEqual(result.merged_fields["place_of_issue"], "BENGALURU")
+        self.assertNotIn("issuing_country", result.merged_fields)
         self.assertEqual(len(result.metadata["filled_fields"]), 9)
         self.assertEqual(
             result.metadata["field_confidences"]["passport_number"],

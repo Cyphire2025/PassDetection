@@ -77,7 +77,9 @@ class CreateClientGroupRequest(BaseModel):
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> CreateClientGroupRequest:
         if self.nearest_international_airport_enabled and not self.departure_cities:
-            raise ValueError("Add at least one nearest international airport when the option is enabled.")
+            raise ValueError(
+                "Add at least one nearest international airport when the option is enabled."
+            )
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
         if self.return_date < self.travel_date:
@@ -127,7 +129,9 @@ class UpdateClientGroupRequest(BaseModel):
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> UpdateClientGroupRequest:
         if self.nearest_international_airport_enabled and not self.departure_cities:
-            raise ValueError("Add at least one nearest international airport when the option is enabled.")
+            raise ValueError(
+                "Add at least one nearest international airport when the option is enabled."
+            )
         if not self.nearest_international_airport_enabled:
             self.departure_cities = []
         if self.travel_date and self.return_date and self.return_date < self.travel_date:
@@ -175,9 +179,7 @@ class ClientGroupResponse(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
-    qualifier_relation_options: list[QualifierRelationOptionResponse] = Field(
-        default_factory=list
-    )
+    qualifier_relation_options: list[QualifierRelationOptionResponse] = Field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -207,9 +209,7 @@ class ClientGroupWhatsAppLinksResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     client_group_id: uuid.UUID
-    broadcasts: list[WhatsAppBroadcastSummaryResponse] = Field(
-        default_factory=list
-    )
+    broadcasts: list[WhatsAppBroadcastSummaryResponse] = Field(default_factory=list)
     broadcast_count: int = Field(default=0, ge=0)
     recipient_count: int = Field(default=0, ge=0)
     can_manage: bool = False
@@ -226,6 +226,8 @@ class WhatsAppSubmissionMatchCountsResponse(BaseModel):
     needs_review_count: int = Field(default=0, ge=0)
     needs_review_submission_count: int = Field(default=0, ge=0)
     unmatched_submission_count: int = Field(default=0, ge=0)
+    replacement_count: int = Field(default=0, ge=0)
+    rejected_upload_count: int = Field(default=0, ge=0)
 
 
 class WhatsAppSubmissionMatchEvidenceResponse(BaseModel):
@@ -252,6 +254,16 @@ class WhatsAppRecipientImportedFieldsResponse(BaseModel):
     fields: dict[str, str] = Field(default_factory=dict)
 
 
+class WhatsAppSubmissionDetailResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    name: str
+    phone: str | None = None
+    email: str | None = None
+    fields: dict[str, object] = Field(default_factory=dict)
+
+
 class WhatsAppSubmissionMatchRowResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -261,6 +273,8 @@ class WhatsAppSubmissionMatchRowResponse(BaseModel):
         "multiple_submissions",
         "needs_review",
         "unmatched_submission",
+        "replacement",
+        "rejected_upload",
     ]
     match_basis: str | None = None
     normalized_phone: str | None = None
@@ -271,13 +285,11 @@ class WhatsAppSubmissionMatchRowResponse(BaseModel):
     recipient_names: list[str] = Field(default_factory=list)
     submission_names: list[str] = Field(default_factory=list)
     confidence: Literal["high", "medium", "none"] = "none"
-    match_evidence: list[WhatsAppSubmissionMatchEvidenceResponse] = Field(
-        default_factory=list
-    )
+    match_evidence: list[WhatsAppSubmissionMatchEvidenceResponse] = Field(default_factory=list)
     candidate_submission_ids: list[uuid.UUID] = Field(default_factory=list)
-    recipient_fields: list[WhatsAppRecipientImportedFieldsResponse] = Field(
-        default_factory=list
-    )
+    recipient_fields: list[WhatsAppRecipientImportedFieldsResponse] = Field(default_factory=list)
+    submission_details: list[WhatsAppSubmissionDetailResponse] = Field(default_factory=list)
+    resolution_id: uuid.UUID | None = None
     updated_at: datetime
 
 
@@ -288,13 +300,58 @@ class ClientGroupWhatsAppMatchesResponse(BaseModel):
     selected_broadcast_id: uuid.UUID | None = None
     linked_broadcast_count: int = Field(ge=0)
     counts: WhatsAppSubmissionMatchCountsResponse
-    matches: list[WhatsAppSubmissionMatchRowResponse] = Field(
-        default_factory=list
-    )
+    matches: list[WhatsAppSubmissionMatchRowResponse] = Field(default_factory=list)
     total: int = Field(ge=0)
     page: int = Field(ge=1)
     page_size: int = Field(ge=1)
     total_pages: int = Field(ge=0)
+
+
+class ReplacementCandidateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recipient_id: uuid.UUID
+    recipient_ids: list[uuid.UUID] = Field(min_length=1)
+    name: str | None = None
+    phone: str
+    broadcast_ids: list[uuid.UUID] = Field(default_factory=list)
+    broadcast_names: list[str] = Field(default_factory=list)
+    imported_fields: dict[str, str] = Field(default_factory=dict)
+
+
+class ReplacementCandidateListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    client_group_id: uuid.UUID
+    items: list[ReplacementCandidateResponse] = Field(default_factory=list)
+
+
+class ResolveUnidentifiedReplacementRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    recipient_id: uuid.UUID
+    request_id: uuid.UUID
+
+
+class RejectUnidentifiedUploadRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    request_id: uuid.UUID
+
+
+class PassportRosterResolutionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    client_group_id: uuid.UUID
+    submission_id: uuid.UUID
+    resolution_type: Literal["replacement", "rejected"]
+    status: Literal["active", "restored"]
+    broadcast_recipient_id: uuid.UUID | None = None
+    suppressed_recipient_ids: list[uuid.UUID] = Field(default_factory=list)
+    excluded_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    created_at: datetime
+    restored_at: datetime | None = None
 
 
 class CreateQualifierSelectionRequest(BaseModel):

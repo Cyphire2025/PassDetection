@@ -71,6 +71,7 @@ _COLUMNS = (
     _ExportColumn("Given Names", 24),
     _ExportColumn("Passport Number", 20),
     _ExportColumn("Nationality", 22),
+    _ExportColumn("Place of Issue", 22),
     _ExportColumn("Date of Birth", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Date of Issue", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Date of Expiry", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
@@ -248,6 +249,10 @@ class PassportExcelExporter:
                 "Given Names": _uppercase(fields.get("given_names")),
                 "Passport Number": fields.get("passport_number"),
                 "Nationality": _nationality_display_value(fields.get("nationality")),
+                # Do not relabel historical issuing-country values as a city
+                # or office. New canonical values are exported exactly as
+                # reviewed from the visible passport field.
+                "Place of Issue": fields.get("place_of_issue"),
                 "Date of Birth": fields.get("date_of_birth"),
                 "Date of Issue": fields.get("date_of_issue"),
                 "Date of Expiry": fields.get("date_of_expiry"),

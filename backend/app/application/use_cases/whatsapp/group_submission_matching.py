@@ -22,9 +22,7 @@ from app.application.use_cases.whatsapp.contact_normalization import (
 )
 
 _EMAIL_KEYS = frozenset({"email", "email_address", "e_mail", "mail"})
-_PASSPORT_KEYS = frozenset(
-    {"passport", "passport_no", "passport_number", "passportnumber"}
-)
+_PASSPORT_KEYS = frozenset({"passport", "passport_no", "passport_number", "passportnumber"})
 _STAFF_CODE_KEYS = frozenset(
     {
         "employee_code",
@@ -125,6 +123,7 @@ class SubmissionMatchRow:
     match_evidence: tuple[MatchEvidence, ...] = ()
     candidate_submission_ids: tuple[uuid.UUID, ...] = ()
     recipient_fields: tuple[RecipientFieldSet, ...] = ()
+    resolution_id: uuid.UUID | None = None
 
 
 @dataclass(frozen=True)
@@ -137,6 +136,8 @@ class SubmissionMatchSummary:
     needs_review_count: int = 0
     needs_review_submission_count: int = 0
     unmatched_submission_count: int = 0
+    replacement_count: int = 0
+    rejected_upload_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -176,8 +177,7 @@ def _normalized_name(value: object) -> str | None:
         return None
     compatible = unicodedata.normalize("NFKC", cleaned).casefold()
     normalized = "".join(
-        character if character.isalnum() else " "
-        for character in compatible
+        character if character.isalnum() else " " for character in compatible
     ).strip()
     return " ".join(normalized.split()) or None
 
@@ -234,9 +234,7 @@ def _composed_names(mapping: dict[str, object]) -> list[str]:
     names: list[str] = []
     for given in given_values or [""]:
         for surname in surname_values or [""]:
-            combined = " ".join(
-                part for part in (str(given).strip(), str(surname).strip()) if part
-            )
+            combined = " ".join(part for part in (str(given).strip(), str(surname).strip()) if part)
             if combined:
                 names.append(combined)
     return names
@@ -250,46 +248,26 @@ def _recipient_profile(
         phones=_normalized_values(
             [
                 *(recipient.phone for recipient in recipients),
-                *(
-                    value
-                    for mapping in fields
-                    for value in _mapping_values(mapping, _PHONE_KEYS)
-                ),
+                *(value for mapping in fields for value in _mapping_values(mapping, _PHONE_KEYS)),
             ],
             normalize_whatsapp_phone,
         ),
         emails=_normalized_values(
-            (
-                value
-                for mapping in fields
-                for value in _mapping_values(mapping, _EMAIL_KEYS)
-            ),
+            (value for mapping in fields for value in _mapping_values(mapping, _EMAIL_KEYS)),
             _normalized_email,
         ),
         passport_numbers=_normalized_values(
-            (
-                value
-                for mapping in fields
-                for value in _mapping_values(mapping, _PASSPORT_KEYS)
-            ),
+            (value for mapping in fields for value in _mapping_values(mapping, _PASSPORT_KEYS)),
             _normalized_identifier,
         ),
         staff_codes=_normalized_values(
-            (
-                value
-                for mapping in fields
-                for value in _mapping_values(mapping, _STAFF_CODE_KEYS)
-            ),
+            (value for mapping in fields for value in _mapping_values(mapping, _STAFF_CODE_KEYS)),
             _normalized_identifier,
         ),
         names=_normalized_values(
             [
                 *(recipient.name for recipient in recipients),
-                *(
-                    value
-                    for mapping in fields
-                    for value in _mapping_values(mapping, _NAME_KEYS)
-                ),
+                *(value for mapping in fields for value in _mapping_values(mapping, _NAME_KEYS)),
                 *(name for mapping in fields for name in _composed_names(mapping)),
             ],
             _normalized_name,
@@ -347,11 +325,7 @@ def _submission_sort_key(
 
 
 def _timestamp_key(value: datetime) -> datetime:
-    return (
-        value.replace(tzinfo=UTC)
-        if value.tzinfo is None
-        else value.astimezone(UTC)
-    )
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
 
 
 def _logical_recipients(
@@ -365,9 +339,7 @@ def _logical_recipients(
     return [
         _LogicalRecipient(
             recipients=tuple(sorted(group, key=_recipient_sort_key)),
-            profile=_recipient_profile(
-                tuple(sorted(group, key=_recipient_sort_key))
-            ),
+            profile=_recipient_profile(tuple(sorted(group, key=_recipient_sort_key))),
         )
         for _, group in sorted(groups.items())
     ]
@@ -526,10 +498,7 @@ def _recipient_row(
 ) -> SubmissionMatchRow:
     source_recipients = logical_recipient.recipients
     broadcast_pairs = sorted(
-        {
-            (recipient.broadcast_id, recipient.broadcast_name)
-            for recipient in source_recipients
-        },
+        {(recipient.broadcast_id, recipient.broadcast_name) for recipient in source_recipients},
         key=lambda item: (item[1].casefold(), str(item[0])),
     )
     recipient_names = tuple(
@@ -582,15 +551,11 @@ def _recipient_row(
         broadcast_ids=tuple(item[0] for item in broadcast_pairs),
         broadcast_names=tuple(item[1] for item in broadcast_pairs),
         recipient_names=recipient_names,
-        submission_names=tuple(
-            submission.name for submission in ordered_submissions
-        ),
+        submission_names=tuple(submission.name for submission in ordered_submissions),
         updated_at=max(timestamps, key=_timestamp_key),
         confidence=confidence,
         match_evidence=all_evidence,
-        candidate_submission_ids=tuple(
-            sorted(candidate_submission_ids, key=str)
-        ),
+        candidate_submission_ids=tuple(sorted(candidate_submission_ids, key=str)),
         recipient_fields=_row_shared_fields(logical_recipient),
     )
 
@@ -623,7 +588,7 @@ def summarize_match_rows(
     matched_ids = {
         submission_id
         for row in recipient_rows
-        if row.status in {"submitted", "multiple_submissions"}
+        if row.status in {"submitted", "multiple_submissions", "replacement"}
         for submission_id in row.submission_ids
     }
     needs_review_ids = {
@@ -641,21 +606,19 @@ def summarize_match_rows(
     return SubmissionMatchSummary(
         total_recipients=len(recipient_rows),
         submitted_count=sum(
-            row.status in {"submitted", "multiple_submissions"}
+            row.status in {"submitted", "multiple_submissions", "replacement"}
             for row in recipient_rows
         ),
-        not_submitted_count=sum(
-            row.status == "not_submitted" for row in recipient_rows
-        ),
+        not_submitted_count=sum(row.status == "not_submitted" for row in recipient_rows),
         multiple_submission_count=sum(
             row.status == "multiple_submissions" for row in recipient_rows
         ),
         matched_submission_count=len(matched_ids),
-        needs_review_count=sum(
-            row.status == "needs_review" for row in recipient_rows
-        ),
+        needs_review_count=sum(row.status == "needs_review" for row in recipient_rows),
         needs_review_submission_count=len(needs_review_ids),
         unmatched_submission_count=len(unmatched_ids),
+        replacement_count=sum(row.status == "replacement" for row in recipient_rows),
+        rejected_upload_count=sum(row.status == "rejected_upload" for row in rows),
     )
 
 
@@ -667,9 +630,7 @@ def compare_group_submissions(
 
     logical_recipients = _logical_recipients(recipients)
     ordered_submissions = sorted(submissions, key=_submission_sort_key)
-    submission_profiles = [
-        _submission_profile(submission) for submission in ordered_submissions
-    ]
+    submission_profiles = [_submission_profile(submission) for submission in ordered_submissions]
     unique_names = _unique_compound_names(
         logical_recipients,
         submission_profiles,
@@ -721,61 +682,40 @@ def compare_group_submissions(
     for recipient_index, recipient in enumerate(logical_recipients):
         assigned = sorted(
             assigned_pairs.get(recipient_index, []),
-            key=lambda pair: _submission_sort_key(
-                ordered_submissions[pair.submission_index]
-            ),
+            key=lambda pair: _submission_sort_key(ordered_submissions[pair.submission_index]),
         )
         potential = pairs_by_recipient.get(recipient_index, [])
         potential = [
             pair
             for pair in potential
-            if (
-                pair.submission_index not in owned_submission_indexes
-                or pair in assigned
-            )
+            if (pair.submission_index not in owned_submission_indexes or pair in assigned)
         ]
         conflicts = conflicted_pairs.get(recipient_index, [])
         candidate_indexes = {
-            pair.submission_index
-            for pair in potential
-            if not pair.auto_match or pair in conflicts
+            pair.submission_index for pair in potential if not pair.auto_match or pair in conflicts
         }
         assigned_indexes = {pair.submission_index for pair in assigned}
 
-        contradictory_assignments = (
-            len(assigned) > 1 and not _same_identity_basis(assigned)
-        )
+        contradictory_assignments = len(assigned) > 1 and not _same_identity_basis(assigned)
         if contradictory_assignments:
             status = "needs_review"
             candidate_indexes.update(assigned_indexes)
             candidate_submission_indexes.update(assigned_indexes)
             candidate_submission_indexes.update(candidate_indexes)
-            row_pairs = assigned + [
-                pair for pair in potential if pair not in assigned
-            ]
-            row_submissions = [
-                ordered_submissions[index] for index in sorted(candidate_indexes)
-            ]
+            row_pairs = assigned + [pair for pair in potential if pair not in assigned]
+            row_submissions = [ordered_submissions[index] for index in sorted(candidate_indexes)]
         elif assigned:
             assigned_submission_indexes.update(assigned_indexes)
             candidate_indexes = set()
-            status = (
-                "multiple_submissions" if len(assigned) > 1 else "submitted"
-            )
+            status = "multiple_submissions" if len(assigned) > 1 else "submitted"
             row_pairs = assigned
-            row_submissions = [
-                ordered_submissions[pair.submission_index] for pair in assigned
-            ]
+            row_submissions = [ordered_submissions[pair.submission_index] for pair in assigned]
         elif potential:
             status = "needs_review"
-            candidate_indexes.update(
-                pair.submission_index for pair in potential
-            )
+            candidate_indexes.update(pair.submission_index for pair in potential)
             candidate_submission_indexes.update(candidate_indexes)
             row_pairs = potential
-            row_submissions = [
-                ordered_submissions[index] for index in sorted(candidate_indexes)
-            ]
+            row_submissions = [ordered_submissions[index] for index in sorted(candidate_indexes)]
         else:
             status = "not_submitted"
             row_pairs = []
@@ -788,8 +728,7 @@ def compare_group_submissions(
                 submissions=row_submissions,
                 matches=row_pairs,
                 candidate_submission_ids={
-                    ordered_submissions[index].id
-                    for index in candidate_indexes
+                    ordered_submissions[index].id for index in candidate_indexes
                 },
             )
         )
@@ -813,11 +752,7 @@ def filter_and_sort_match_rows(
     sort_by: str,
     sort_order: str,
 ) -> list[SubmissionMatchRow]:
-    filtered = (
-        rows
-        if status == "all"
-        else [row for row in rows if row.status == status]
-    )
+    filtered = rows if status == "all" else [row for row in rows if row.status == status]
 
     def name_key(row: SubmissionMatchRow) -> str | None:
         values = row.recipient_names or row.submission_names
@@ -830,11 +765,7 @@ def filter_and_sort_match_rows(
         return row.status
 
     def broadcast_key(row: SubmissionMatchRow) -> str | None:
-        return (
-            row.broadcast_names[0].casefold()
-            if row.broadcast_names
-            else None
-        )
+        return row.broadcast_names[0].casefold() if row.broadcast_names else None
 
     key_functions = {
         "name": name_key,
@@ -854,7 +785,5 @@ def filter_and_sort_match_rows(
         ),
         reverse=sort_order == "desc",
     )
-    missing.sort(
-        key=lambda row: (str(row.recipient_ids), str(row.submission_ids))
-    )
+    missing.sort(key=lambda row: (str(row.recipient_ids), str(row.submission_ids)))
     return populated + missing

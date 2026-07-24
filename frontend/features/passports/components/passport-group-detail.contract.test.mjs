@@ -26,6 +26,10 @@ const thumbnailScheduler = readFileSync(
   new URL("../services/document-thumbnail-scheduler.ts", import.meta.url),
   "utf8",
 );
+const exportDialog = readFileSync(
+  new URL("./passport-export-dialog.tsx", import.meta.url),
+  "utf8",
+);
 
 test("group confidence displays the same server-computed value used for sorting", () => {
   assert.match(
@@ -42,12 +46,23 @@ test("passport image ZIP export is not cut off by the ordinary API timeout", () 
   );
   assert.match(
     source,
-    /mutationErrorMessage\(exportError, "Image download failed"\)/,
+    /mutationErrorMessage\([\s\S]*?exportError,[\s\S]*?exportDialogKind === "passport_images"[\s\S]*?\? "Image download failed"[\s\S]*?: "Excel export failed"/,
   );
   assert.match(
     source,
-    /\{exportImagesMutation\.isPending && \([\s\S]*?role="status"[\s\S]*?<Loader2 className="h-4 w-4 animate-spin"[\s\S]*?Downloading passport images[\s\S]*?\)\}[\s\S]*?<Link href=\{ROUTES\.dashboard\.passports\}>/,
+    /<PassportExportDialog[\s\S]*?isDownloading=\{[\s\S]*?exportDialogKind === "passport_images"[\s\S]*?\? exportImagesMutation\.isPending[\s\S]*?: exportMutation\.isPending/,
   );
+});
+
+test("export dialog prevents duplicate checkpoints from rapid repeated clicks", () => {
+  assert.match(exportDialog, /const downloadStartedRef = useRef\(false\)/);
+  assert.match(
+    exportDialog,
+    /if \(downloadStartedRef\.current \|\| isDownloading\) return/,
+  );
+  assert.match(exportDialog, /downloadStartedRef\.current = true/);
+  assert.match(source, /requestId: createExportRequestId\(\)/);
+  assert.match(source, /crypto\.getRandomValues\(bytes\)/);
 });
 
 test("submission controls expose only requested sort, direction, and workflow filters", () => {
@@ -109,6 +124,14 @@ test("search is debounced and expiry alerts do not depend on the visible page", 
     /data \?\? \[\]\)\.filter\(\(passport\) => getExpiryStatus/,
   );
   assert.doesNotMatch(source, /passport\.client_email \|\| "No email provided"/);
+});
+
+test("full-group exports stay enabled when the current page is empty", () => {
+  const fullGroupGuards = source.match(
+    /\|\| \(submissionsView\?\.group_total \?\? 0\) === 0/g,
+  );
+  assert.equal(fullGroupGuards?.length, 2);
+  assert.doesNotMatch(source, /disabled=\{[^}]*!data\?\.length/);
 });
 
 test("expiry alerts are collapsible through an accessible disclosure control", () => {

@@ -25,7 +25,10 @@ _UNSAFE_COMPONENT = re.compile(r"[\\/:*?\"<>|\x00-\x1f\x7f]+")
 _SAFE_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 _UNASSIGNED_ZONE_FOLDER = "UNASSIGNED_ZONE"
 _WINDOWS_RESERVED = {
-    "CON", "PRN", "AUX", "NUL",
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
     *(f"COM{index}" for index in range(1, 10)),
     *(f"LPT{index}" for index in range(1, 10)),
 }
@@ -74,30 +77,32 @@ class PassportImageZipExporter:
         agent_employee_code_enabled: bool = False,
         crop_metadata: Mapping[object, Mapping[PassportImageType, PassportImageCrop]] | None = None,
         zone_names: Mapping[object, str] | None = None,
+        namespace_submissions: list[PassportSubmission] | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
             raise PassportImageExportLimitError(
                 f"Image export is limited to {self.MAX_SUBMISSIONS} passengers at a time."
             )
 
-        resolved_zones = {
-            item.id: self._zone_name(item, zone_names)
-            for item in submissions
-        }
+        namespace = submissions if namespace_submissions is None else namespace_submissions
+        if len(namespace) > self.MAX_SUBMISSIONS:
+            raise PassportImageExportLimitError(
+                f"Image export is limited to {self.MAX_SUBMISSIONS} passengers at a time."
+            )
+        payload_by_id = {submission.id: submission for submission in submissions}
+        namespace_ids = {submission.id for submission in namespace}
+        if not set(payload_by_id).issubset(namespace_ids):
+            raise PassportImageExportError(
+                "Every exported passenger must exist in the naming namespace."
+            )
+
+        resolved_zones = {item.id: self._zone_name(item, zone_names) for item in namespace}
         use_zone_folders = any(resolved_zones.values())
-        zone_folders = (
-            self._zone_folders(resolved_zones.values())
-            if use_zone_folders
-            else {}
-        )
-        ordered = sorted(
-            submissions,
+        zone_folders = self._zone_folders(resolved_zones.values()) if use_zone_folders else {}
+        ordered_namespace = sorted(
+            namespace,
             key=lambda item: (
-                (
-                    resolved_zones[item.id].casefold()
-                    if resolved_zones[item.id]
-                    else "\uffff"
-                )
+                (resolved_zones[item.id].casefold() if resolved_zones[item.id] else "\uffff")
                 if use_zone_folders
                 else "",
                 self._passenger_folder_base(
@@ -110,7 +115,7 @@ class PassportImageZipExporter:
         )
         missing = [
             item.client_name
-            for item in ordered
+            for item in submissions
             if not item.image_s3_key
             or item.image_s3_key.startswith("excel-imports/")
             or not item.passport_back_s3_key
@@ -131,57 +136,74 @@ class PassportImageZipExporter:
         image_specs: list[_ArchiveImageSpec] = []
 
         try:
-            with zipfile.ZipFile(spool, mode="w", compression=zipfile.ZIP_STORED, allowZip64=True) as archive:
+            with zipfile.ZipFile(
+                spool, mode="w", compression=zipfile.ZIP_STORED, allowZip64=True
+            ) as archive:
                 archive.writestr(self._zip_info(f"{root}/", is_directory=True), b"")
-                for submission in ordered:
+                for namespace_submission in ordered_namespace:
                     zone_folder = ""
                     if use_zone_folders:
-                        zone_name = resolved_zones[submission.id]
+                        zone_name = resolved_zones[namespace_submission.id]
                         zone_folder = (
                             zone_folders[zone_name.casefold()]
                             if zone_name
                             else _UNASSIGNED_ZONE_FOLDER
                         )
-                        if zone_folder.casefold() not in written_zone_folders:
-                            archive.writestr(
-                                self._zip_info(
-                                    f"{root}/{zone_folder}/",
-                                    is_directory=True,
-                                ),
-                                b"",
-                            )
-                            written_zone_folders.add(zone_folder.casefold())
 
                     base_folder = self._passenger_folder_base(
-                        submission,
+                        namespace_submission,
                         staff_code_enabled=staff_code_enabled,
                         agent_employee_code_enabled=agent_employee_code_enabled,
                     )
                     passenger_folder = base_folder
                     occurrence = 1
                     folder_path = (
-                        f"{zone_folder}/{passenger_folder}"
-                        if zone_folder
-                        else passenger_folder
+                        f"{zone_folder}/{passenger_folder}" if zone_folder else passenger_folder
                     )
                     while folder_path.casefold() in used_folders:
                         occurrence += 1
                         passenger_folder = f"{base_folder}_{occurrence}"
                         folder_path = (
-                            f"{zone_folder}/{passenger_folder}"
-                            if zone_folder
-                            else passenger_folder
+                            f"{zone_folder}/{passenger_folder}" if zone_folder else passenger_folder
                         )
                     used_folders.add(folder_path.casefold())
 
+                    submission = payload_by_id.get(namespace_submission.id)
+                    if submission is None:
+                        # Still reserve the folder name. This keeps a subset ZIP
+                        # byte-for-byte compatible with the full export's naming
+                        # namespace and prevents overwrites when archives merge.
+                        continue
+                    if use_zone_folders and zone_folder.casefold() not in written_zone_folders:
+                        archive.writestr(
+                            self._zip_info(
+                                f"{root}/{zone_folder}/",
+                                is_directory=True,
+                            ),
+                            b"",
+                        )
+                        written_zone_folders.add(zone_folder.casefold())
+
                     images = [
-                        ("passportfront", PassportImageType.PASSPORT_FRONT, submission.image_s3_key),
-                        ("passportback", PassportImageType.PASSPORT_BACK, submission.passport_back_s3_key),
+                        (
+                            "passportfront",
+                            PassportImageType.PASSPORT_FRONT,
+                            submission.image_s3_key,
+                        ),
+                        (
+                            "passportback",
+                            PassportImageType.PASSPORT_BACK,
+                            submission.passport_back_s3_key,
+                        ),
                     ]
                     if submission.passport_photo_s3_key:
                         images.insert(
                             0,
-                            ("visaimage", PassportImageType.VISA_PHOTO, submission.passport_photo_s3_key),
+                            (
+                                "visaimage",
+                                PassportImageType.VISA_PHOTO,
+                                submission.passport_photo_s3_key,
+                            ),
                         )
 
                     submission_crops = crop_metadata.get(submission.id, {}) if crop_metadata else {}
@@ -196,10 +218,7 @@ class PassportImageZipExporter:
                         )
                         image_specs.append(
                             _ArchiveImageSpec(
-                                path_stem=(
-                                    f"{root}/{folder_path}/"
-                                    f"{passenger_folder}_{label}"
-                                ),
+                                path_stem=(f"{root}/{folder_path}/{passenger_folder}_{label}"),
                                 storage_key=storage_key,
                                 crop=effective_crop,
                             )
@@ -207,9 +226,7 @@ class PassportImageZipExporter:
 
                 for offset in range(0, len(image_specs), self.STORAGE_FETCH_BATCH_SIZE):
                     loaded_images = await self._load_batch(
-                        image_specs[
-                            offset : offset + self.STORAGE_FETCH_BATCH_SIZE
-                        ],
+                        image_specs[offset : offset + self.STORAGE_FETCH_BATCH_SIZE],
                         storage=storage,
                     )
                     for loaded_image in loaded_images:
@@ -236,10 +253,7 @@ class PassportImageZipExporter:
         *,
         storage: IObjectStorageRepository,
     ) -> list[_LoadedArchiveImage]:
-        tasks = [
-            asyncio.create_task(self._load_image(spec, storage=storage))
-            for spec in specs
-        ]
+        tasks = [asyncio.create_task(self._load_image(spec, storage=storage)) for spec in specs]
         try:
             return list(await asyncio.gather(*tasks))
         except BaseException:
@@ -289,10 +303,8 @@ class PassportImageZipExporter:
         fields = submission.confirmed_fields or submission.extracted_fields or {}
         if agent_employee_code_enabled:
             agent_employee_code = prefixed_agent_employee_code(
-                fields.get("agent_employee_type")
-                or metadata.get("agent_employee_type"),
-                fields.get("agent_employee_code")
-                or metadata.get("agent_employee_code"),
+                fields.get("agent_employee_type") or metadata.get("agent_employee_type"),
+                fields.get("agent_employee_code") or metadata.get("agent_employee_code"),
             )
             safe_agent_employee_code = (
                 sanitize_zip_component(agent_employee_code, fallback="")
@@ -302,14 +314,8 @@ class PassportImageZipExporter:
             if safe_agent_employee_code:
                 return f"{safe_agent_employee_code}_{client_name}"
         if staff_code_enabled:
-            staff_code = prefixed_staff_code(
-                metadata.get("staff_code") or fields.get("staff_code")
-            )
-            safe_staff_code = (
-                sanitize_zip_component(staff_code, fallback="")
-                if staff_code
-                else ""
-            )
+            staff_code = prefixed_staff_code(metadata.get("staff_code") or fields.get("staff_code"))
+            safe_staff_code = sanitize_zip_component(staff_code, fallback="") if staff_code else ""
             if safe_staff_code:
                 return f"{safe_staff_code}_{client_name}"
         return client_name
@@ -389,6 +395,8 @@ def safe_storage_extension(storage_key: str) -> str:
 
 def safe_download_filename(group_name: str) -> str:
     component = sanitize_zip_component(group_name, fallback="GROUP")
-    ascii_component = unicodedata.normalize("NFKD", component).encode("ascii", "ignore").decode("ascii")
+    ascii_component = (
+        unicodedata.normalize("NFKD", component).encode("ascii", "ignore").decode("ascii")
+    )
     ascii_component = re.sub(r"[^A-Za-z0-9._ -]+", "_", ascii_component).strip(" ._") or "GROUP"
     return f"{ascii_component[:100]}_PASSPORT_IMAGES.zip"

@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 
+from app.domain.value_objects.passport_fields import canonical_passport_fields
+
 
 @dataclass(frozen=True)
 class PassportSubmissionOutputDTO:
@@ -116,8 +118,8 @@ def passport_submission_output_from_entity(
         status=submission.status.value,
         created_at=submission.created_at,
         updated_at=submission.updated_at,
-        extracted_fields=submission.extracted_fields,
-        confirmed_fields=submission.confirmed_fields,
+        extracted_fields=canonical_passport_fields(submission.extracted_fields),
+        confirmed_fields=canonical_passport_fields(submission.confirmed_fields),
         extraction_conflicts=list(submission.extraction_conflicts or []),
         overall_confidence=submission.overall_confidence,
         confidence_score=submission.confidence_score,
@@ -126,9 +128,7 @@ def passport_submission_output_from_entity(
         client_reviewed_at=submission.client_reviewed_at,
         confirmed_at=submission.confirmed_at,
         post_submission_verification=submission.post_submission_verification,
-        post_submission_verification_revision=(
-            submission.post_submission_verification_revision
-        ),
+        post_submission_verification_revision=(submission.post_submission_verification_revision),
         post_submission_verified_at=submission.post_submission_verified_at,
         verification_reviewed_by_user_id=submission.verification_reviewed_by_user_id,
         verification_reviewer_name=submission.verification_reviewer_name,

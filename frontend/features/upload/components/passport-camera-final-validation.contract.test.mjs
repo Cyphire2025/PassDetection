@@ -53,12 +53,13 @@ test("passport preview separates pass, confirmed borderline, and hard failure", 
   assert.match(cameraSource, /finalQuality\.outcome === "hard_failure"/);
 });
 
-test("camera front pages are not perspective-corrected again in mixed bundles", () => {
+test("camera and manually cropped front pages are not perspective-corrected again", () => {
   assert.match(
     uploadFlowSource,
-    /frontSource === "camera"\s*\?\s*file\s*:\s*\(await normalizePassportFile\(file\)\)\.file/,
+    /frontSource === "camera" \|\| frontManuallyCropped\s*\?\s*file\s*:\s*\(await normalizePassportFile\(file\)\)\.file/,
   );
   assert.match(uploadFlowSource, /documentBundle\.frontSource \?\? "file"/);
+  assert.match(uploadFlowSource, /documentBundle\.frontManuallyCropped/);
 });
 
 test("only the lightweight rectangular live detector is active", () => {

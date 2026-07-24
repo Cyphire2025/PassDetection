@@ -14,7 +14,7 @@ export const PASSPORT_REVIEW_FIELDS = [
   "given_names",
   "passport_number",
   "nationality",
-  "issuing_country",
+  "place_of_issue",
   "date_of_birth",
   "date_of_issue",
   "date_of_expiry",
@@ -172,13 +172,13 @@ export function getPassportFieldReview(
     const providerUnavailable = typeof verification?.provider_status === "string"
       && RETRYABLE_AI_PROVIDER_STATUSES.has(
         verification.provider_status.trim().toLowerCase(),
-      );
+    );
     const decisions = Array.isArray(verification?.fields) ? verification.fields : [];
     const decision = decisions.find((item) => item.field === field);
     if (decision?.verdict === "correct") return null;
     if (decision?.verdict === "suspicious" || decision?.verdict === "incorrect") {
       return {
-        field: decision.field,
+        field,
         verdict: decision.verdict,
         observed_value: decision.observed_value,
         confidence: decision.confidence,
@@ -364,7 +364,7 @@ function validationIssueMatchesField(
     given_names: [],
     passport_number: ["passport_number"],
     nationality: ["nationality"],
-    issuing_country: ["issuing_country"],
+    place_of_issue: ["place_of_issue"],
     date_of_birth: ["date_of_birth", "birth"],
     date_of_issue: ["date_of_issue", "issue_date"],
     date_of_expiry: ["date_of_expiry", "expiry"],

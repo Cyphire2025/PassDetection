@@ -50,8 +50,7 @@ DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES: dict[str, str] = {
         "details page, then scan again."
     ),
     "wrong_passport_page": (
-        "This is not the passport photo and details page. Open that page and "
-        "scan it again."
+        "This is not the passport photo and details page. Open that page and scan it again."
     ),
     "wrong_document": (
         "This image is not a passport photo and details page. Scan the correct "
@@ -76,8 +75,7 @@ HIGH_CONFIDENCE_WRONG_DOCUMENT_MESSAGES: dict[str, str] = {
         "details page and try again."
     ),
     "pan": (
-        "This appears to be a PAN Card. Scan the passport photo and details "
-        "page and try again."
+        "This appears to be a PAN Card. Scan the passport photo and details page and try again."
     ),
 }
 HIGH_CONFIDENCE_DOCUMENT_NAME_THRESHOLD = 0.90
@@ -86,7 +84,7 @@ GEMINI_EXTRACTION_FIELDS: tuple[str, ...] = (
     "given_names",
     "passport_number",
     "nationality",
-    "issuing_country",
+    "place_of_issue",
     "date_of_birth",
     "date_of_issue",
     "date_of_expiry",
@@ -138,9 +136,7 @@ class ProcessPassportSubmissionJobUseCase:
             return
         if not claimed:
             if job.status == ProcessingJobStatus.RUNNING:
-                raise ProcessingJobBusy(
-                    "Another worker is still processing this passport"
-                )
+                raise ProcessingJobBusy("Another worker is still processing this passport")
             logger.info(
                 "passport_processing_job_duplicate_delivery_ignored",
                 job_id=str(job_id),
@@ -233,18 +229,14 @@ class ProcessPassportSubmissionJobUseCase:
                     job.extraction_revision,
                 ):
                     return
-                classification = self._safe_document_classification(
-                    extracted_fields
-                )
+                classification = self._safe_document_classification(extracted_fields)
                 classification_status = classification.get("status")
                 if classification_status in DOCUMENT_CLASSIFICATION_FAILURE_MESSAGES:
                     record_operational_event(
                         OperationalEvent.DOCUMENT_CLASSIFICATION,
                         str(classification_status),
                     )
-                    public_message = self._document_classification_failure_message(
-                        classification
-                    )
+                    public_message = self._document_classification_failure_message(classification)
                     applied = await self._passport_repo.apply_extraction_failure(
                         submission_id=submission.id,
                         expected_revision=job.extraction_revision,
@@ -404,12 +396,7 @@ class ProcessPassportSubmissionJobUseCase:
         retry_allowed: bool = True,
     ) -> None:
         latest = await self._job_repo.get(job_id)
-        if (
-            retry_allowed
-            and self._allow_retry
-            and latest
-            and latest.attempts < latest.max_attempts
-        ):
+        if retry_allowed and self._allow_retry and latest and latest.attempts < latest.max_attempts:
             await self._job_repo.mark_retryable_failure(
                 job_id,
                 "Automatic extraction will be retried",
@@ -480,8 +467,7 @@ class ProcessPassportSubmissionJobUseCase:
         return {
             key: value
             for key, value in raw.items()
-            if key in allowed_keys
-            and isinstance(value, (str, int, float, bool, type(None)))
+            if key in allowed_keys and isinstance(value, (str, int, float, bool, type(None)))
         }
 
     @staticmethod
@@ -515,19 +501,11 @@ class ProcessPassportSubmissionJobUseCase:
         raw_metadata = extracted_fields.get("ai_verification")
         metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
         raw_field_confidences = metadata.get("field_confidences")
-        field_confidences = (
-            raw_field_confidences
-            if isinstance(raw_field_confidences, dict)
-            else {}
-        )
+        field_confidences = raw_field_confidences if isinstance(raw_field_confidences, dict) else {}
         raw_absent_fields = metadata.get("absent_fields")
         absent_fields = {
             field
-            for field in (
-                raw_absent_fields
-                if isinstance(raw_absent_fields, list)
-                else []
-            )
+            for field in (raw_absent_fields if isinstance(raw_absent_fields, list) else [])
             if field == "surname"
         }
         bounded_confidences: dict[str, float] = {}
@@ -537,10 +515,7 @@ class ProcessPassportSubmissionJobUseCase:
                 isinstance(raw_confidence, (int, float))
                 and not isinstance(raw_confidence, bool)
                 and 0.0 <= float(raw_confidence) <= 1.0
-                and (
-                    extracted_fields.get(field)
-                    or field in absent_fields
-                )
+                and (extracted_fields.get(field) or field in absent_fields)
             ):
                 bounded_confidences[field] = round(float(raw_confidence), 4)
 
@@ -550,9 +525,8 @@ class ProcessPassportSubmissionJobUseCase:
             4,
         )
         classification_confidence = metadata.get("classification_confidence")
-        if (
-            isinstance(classification_confidence, (int, float))
-            and not isinstance(classification_confidence, bool)
+        if isinstance(classification_confidence, (int, float)) and not isinstance(
+            classification_confidence, bool
         ):
             overall_confidence = min(
                 overall_confidence,

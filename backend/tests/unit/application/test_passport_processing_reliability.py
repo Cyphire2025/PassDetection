@@ -158,9 +158,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
         self.passport_repo.apply_extraction_result.return_value = self.submission
 
-        await self._use_case(
-            verification_service=verification_service
-        ).execute(
+        await self._use_case(verification_service=verification_service).execute(
             submission_id=self.submission_id,
             job_id=self.job_id,
         )
@@ -178,9 +176,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             saved["confidence_score"]["pipeline"]["name"],
             "gemini_image_primary",
         )
-        self.assertFalse(
-            saved["confidence_score"]["pipeline"]["local_ocr_mrz_invoked"]
-        )
+        self.assertFalse(saved["confidence_score"]["pipeline"]["local_ocr_mrz_invoked"])
         self.extraction_service.extract.assert_not_awaited()
         self.job_repo.mark_succeeded.assert_awaited_once_with(self.job_id)
 
@@ -192,7 +188,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             "given_names": "MOHIT",
             "passport_number": "W6905713",
             "nationality": "IND",
-            "issuing_country": "IND",
+            "place_of_issue": "CHENNAI",
             "date_of_birth": "1998-09-08",
             "date_of_issue": "2023-04-13",
             "date_of_expiry": "2033-04-12",
@@ -207,7 +203,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
                         "given_names",
                         "passport_number",
                         "nationality",
-                        "issuing_country",
+                        "place_of_issue",
                         "date_of_birth",
                         "date_of_issue",
                         "date_of_expiry",
@@ -217,9 +213,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             },
         }
 
-        result = ProcessPassportSubmissionJobUseCase._gemini_extraction_result(
-            fields
-        )
+        result = ProcessPassportSubmissionJobUseCase._gemini_extraction_result(fields)
 
         self.assertEqual(result.overall_confidence, 0.99)
         self.assertEqual(result.confidence_score["field_coverage"], 1.0)
@@ -252,9 +246,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
         self.passport_repo.apply_extraction_failure.return_value = self.submission
 
-        await self._use_case(
-            verification_service=verification_service
-        ).execute(
+        await self._use_case(verification_service=verification_service).execute(
             submission_id=self.submission_id,
             job_id=self.job_id,
         )
@@ -288,9 +280,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         )
         self.passport_repo.apply_extraction_failure.return_value = self.submission
 
-        await self._use_case(
-            verification_service=verification_service
-        ).execute(
+        await self._use_case(verification_service=verification_service).execute(
             submission_id=self.submission_id,
             job_id=self.job_id,
         )
@@ -329,17 +319,13 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
             (recovered_job, True),
         ]
         self.storage_repo.get_file.return_value = b"front-image"
-        self.extraction_service.extract.return_value = (
-            PassportExtractionResult(
-                extracted_fields={"passport_number": "P1234567"},
-                overall_confidence=0.91,
-                confidence_score={"overall": 0.91},
-                mrz_raw="MRZ",
-            )
+        self.extraction_service.extract.return_value = PassportExtractionResult(
+            extracted_fields={"passport_number": "P1234567"},
+            overall_confidence=0.91,
+            confidence_score={"overall": 0.91},
+            mrz_raw="MRZ",
         )
-        self.passport_repo.apply_extraction_result.return_value = (
-            self.submission
-        )
+        self.passport_repo.apply_extraction_result.return_value = self.submission
 
         with self.assertRaises(ProcessingJobBusy):
             await self._use_case().execute(
@@ -429,9 +415,7 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
                     metadata=classification,
                 )
 
-                await self._use_case(
-                    verification_service=verification_service
-                ).execute(
+                await self._use_case(verification_service=verification_service).execute(
                     submission_id=self.submission_id,
                     job_id=self.job_id,
                 )
@@ -637,9 +621,7 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
                 client_name="New Traveller",
                 passport_back=(b"new-back", "image/jpeg", "back.jpg"),
                 acquisition_mode="camera",
-                upload_idempotency_key=(
-                    "another-safe-upload-key-1234567890"
-                ),
+                upload_idempotency_key=("another-safe-upload-key-1234567890"),
             )
 
         self.storage_repo.delete_files.assert_awaited_once()

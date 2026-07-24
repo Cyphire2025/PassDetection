@@ -61,6 +61,44 @@ function rejectedItem({ id, displayOrder, rowNumber }) {
   };
 }
 
+function replacedItem({ id, displayOrder }) {
+  return {
+    kind: "replaced",
+    display_order: displayOrder,
+    replaced_recipient: {
+      recipient_id: id,
+      resolution_id: `resolution-${id}`,
+      client_group_id: `group-${id}`,
+      client_group_name: "Vietnam 2026",
+      name: id,
+      phone_number: `raw-${id}`,
+      normalized_phone_number: `+91${id}`,
+      imported_fields: {},
+      replacement_submission_id: `submission-${id}`,
+      replacement_name: `replacement-${id}`,
+      replacement_phone: "+919999999999",
+      replaced_at: "2026-07-24T00:00:00Z",
+    },
+  };
+}
+
+function unidentifiedItem({ id, displayOrder }) {
+  return {
+    kind: "unidentified",
+    display_order: displayOrder,
+    unidentified_upload: {
+      submission_id: id,
+      client_group_id: `group-${id}`,
+      client_group_name: "Vietnam 2026",
+      name: id,
+      phone_number: "+919999999998",
+      email: `${id}@example.com`,
+      details: { passport_number: "P1234567" },
+      updated_at: "2026-07-24T00:00:00Z",
+    },
+  };
+}
+
 const rejected = rejectedItem({
   id: "rejected-row",
   displayOrder: 10,
@@ -108,22 +146,33 @@ const neverSent = recipientItem({
   id: "never-sent-recipient",
   displayOrder: 40,
 });
+const replaced = replacedItem({
+  id: "replaced-recipient",
+  displayOrder: 15,
+});
+const unidentified = unidentifiedItem({
+  id: "unidentified-upload",
+  displayOrder: 45,
+});
 
 const unorderedRoster = [
   neverSent,
   sentAndFailed,
   rejected,
+  replaced,
+  unidentified,
   failedResend,
   sent,
 ];
 
 function itemId(item) {
-  return item.kind === "recipient"
-    ? item.recipient.id
-    : item.rejected_contact.id;
+  if (item.kind === "recipient") return item.recipient.id;
+  if (item.kind === "rejected") return item.rejected_contact.id;
+  if (item.kind === "replaced") return item.replaced_recipient.recipient_id;
+  return item.unidentified_upload.submission_id;
 }
 
-test("All retains valid, never-sent, failed, sent, and rejected rows in import order", () => {
+test("All retains active and rejected rows but excludes replaced and unidentified people", () => {
   const result = filterRecipientRosterItems(unorderedRoster, "all");
 
   assert.deepEqual(result.map(itemId), [
@@ -163,6 +212,23 @@ test("Rejected contains only invalid spreadsheet rows", () => {
   const result = filterRecipientRosterItems(unorderedRoster, "rejected");
 
   assert.deepEqual(result.map(itemId), ["rejected-row"]);
+});
+
+test("Replaced contains only suppressed recipients and preserves import order", () => {
+  const result = filterRecipientRosterItems(unorderedRoster, "replaced");
+
+  assert.deepEqual(result.map(itemId), ["replaced-recipient"]);
+  assert.equal(filterRecipientRosterItems(unorderedRoster, "all").includes(replaced), false);
+});
+
+test("Unidentified contains only passport uploads not in the broadcast", () => {
+  const result = filterRecipientRosterItems(unorderedRoster, "unidentified");
+
+  assert.deepEqual(result.map(itemId), ["unidentified-upload"]);
+  assert.equal(
+    filterRecipientRosterItems(unorderedRoster, "all").includes(unidentified),
+    false,
+  );
 });
 
 test("equal display orders keep the server response order for deterministic numbering", () => {

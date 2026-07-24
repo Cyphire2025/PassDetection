@@ -11,11 +11,15 @@ from openpyxl import Workbook
 
 from app.domain.entities.entities import UserRole
 from app.infrastructure.database.models import (
+    ClientGroupModel,
+    PassportRosterResolutionModel,
+    PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
     WhatsAppRecipientMessageStateModel,
 )
+from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     WhatsAppRecipientInput,
     WhatsAppRejectedContactInput,
@@ -84,6 +88,14 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
+    group = WhatsAppBroadcastGroupModel(
+        id=group_id,
+        agency_id=agency_id,
+        name="Delegates",
+        organizing_company_name="Global Connect Travels",
+        created_at=now,
+        updated_at=now,
+    )
     sent_recipient = WhatsAppBroadcastRecipientModel(
         id=uuid.uuid4(),
         broadcast_group_id=group_id,
@@ -136,6 +148,57 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         display_order=2,
         created_at=now + timedelta(seconds=1),
     )
+    resolution_id = uuid.uuid4()
+    client_group_id = uuid.uuid4()
+    replacement_submission_id = uuid.uuid4()
+    replaced_recipient = WhatsAppBroadcastRecipientModel(
+        id=uuid.uuid4(),
+        broadcast_group_id=group_id,
+        agency_id=agency_id,
+        name="Edited After Replacement",
+        phone_number="+919111111111",
+        normalized_phone_number="+919876543299",
+        imported_fields={"source_order": "5", "staff_code": "EDITED"},
+        display_order=5,
+        removed_at=now + timedelta(seconds=4),
+        suppressed_by_roster_resolution_id=resolution_id,
+        created_at=now + timedelta(seconds=4),
+    )
+    resolution = PassportRosterResolutionModel(
+        id=resolution_id,
+        agency_id=agency_id,
+        client_group_id=client_group_id,
+        submission_id=replacement_submission_id,
+        broadcast_recipient_id=replaced_recipient.id,
+        replaced_recipient_normalized_phone="+919876543299",
+        original_recipient_name="Original Traveller",
+        original_recipient_phone="+919876543299",
+        original_recipient_imported_fields={
+            "source_order": "5",
+            "staff_code": "OLD-5",
+        },
+        resolution_type="replacement",
+        request_id=uuid.uuid4(),
+        suppressed_recipient_ids=[str(replaced_recipient.id)],
+        excluded_submission_ids=[],
+        status="active",
+        created_at=now + timedelta(seconds=5),
+    )
+    client_group = ClientGroupModel(
+        id=client_group_id,
+        agency_id=agency_id,
+        name="Vietnam 2026",
+        token="test-roster-replacement",
+        status="active",
+        created_at=now,
+    )
+    replacement_submission = PassportSubmissionModel(
+        id=replacement_submission_id,
+        group_id=client_group_id,
+        agency_id=agency_id,
+        client_name="Replacement Traveller",
+        client_phone="+919876543288",
+    )
     sent_state = WhatsAppRecipientMessageStateModel(
         id=uuid.uuid4(),
         broadcast_group_id=group_id,
@@ -174,7 +237,7 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     )
 
     group_result = MagicMock()
-    group_result.scalar_one_or_none.return_value = group_id
+    group_result.scalar_one_or_none.return_value = group
     recipients_result = MagicMock()
     recipients_result.scalars.return_value.all.return_value = [
         sent_recipient,
@@ -183,6 +246,15 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     ]
     rejected_result = MagicMock()
     rejected_result.scalars.return_value.all.return_value = [rejected]
+    replaced_result = MagicMock()
+    replaced_result.all.return_value = [
+        (
+            replaced_recipient,
+            resolution,
+            client_group,
+            replacement_submission,
+        )
+    ]
     states_result = MagicMock()
     states_result.scalars.return_value.all.return_value = [
         sent_state,
@@ -191,14 +263,18 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     ]
     resend_result = MagicMock()
     resend_result.scalars.return_value.all.return_value = []
+    linked_client_groups_result = MagicMock()
+    linked_client_groups_result.scalars.return_value.all.return_value = []
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[
             group_result,
             recipients_result,
             rejected_result,
+            replaced_result,
             states_result,
             resend_result,
+            linked_client_groups_result,
         ]
     )
 
@@ -211,12 +287,13 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         session=session,
     )
 
-    assert [item.display_order for item in response.items] == [1, 2, 3, 4]
+    assert [item.display_order for item in response.items] == [1, 2, 3, 4, 5]
     assert [item.kind for item in response.items] == [
         "recipient",
         "rejected",
         "recipient",
         "recipient",
+        "replaced",
     ]
     assert response.items[0].recipient is not None
     assert {
@@ -227,6 +304,21 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
     assert response.items[2].recipient.message_statuses[0].status == "failed"
     assert response.items[3].recipient is not None
     assert response.items[3].recipient.message_statuses == []
+    assert response.items[4].replaced_recipient is not None
+    assert response.items[4].replaced_recipient.model_dump() == {
+        "recipient_id": replaced_recipient.id,
+        "resolution_id": resolution.id,
+        "client_group_id": client_group.id,
+        "client_group_name": "Vietnam 2026",
+        "name": "Original Traveller",
+        "phone_number": "+919876543299",
+        "normalized_phone_number": "+919876543299",
+        "imported_fields": {"source_order": "5", "staff_code": "OLD-5"},
+        "replacement_submission_id": replacement_submission.id,
+        "replacement_name": "Replacement Traveller",
+        "replacement_phone": "+919876543288",
+        "replaced_at": resolution.created_at,
+    }
     assert response.counts.model_dump() == {
         # All counts unique roster rows. It is deliberately not derived from
         # Sent + Failed because those filters overlap and never-sent rows exist.
@@ -234,7 +326,92 @@ async def test_recipient_roster_merges_rows_and_reports_delivery_counts() -> Non
         "sent": 1,
         "failed": 2,
         "rejected": 1,
+        "replaced": 1,
+        "unidentified": 0,
     }
+
+
+@pytest.mark.asyncio
+async def test_broadcast_unidentified_uploads_use_shared_group_matching(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    broadcast_group_id = uuid.uuid4()
+    client_group_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    client_group = ClientGroupModel(
+        id=client_group_id,
+        agency_id=agency_id,
+        name="Vietnam 2026",
+        token="unidentified-roster",
+        status="active",
+        created_at=now,
+    )
+    submission = PassportSubmissionModel(
+        id=submission_id,
+        group_id=client_group_id,
+        agency_id=agency_id,
+        client_name="Unexpected Traveller",
+        client_phone="+919800000001",
+        client_email="traveller@example.com",
+        family_head_name="Family Head",
+        confirmed_fields={"passport_number": "P1234567"},
+        extracted_fields={"place_of_issue": "Chennai"},
+        staff_metadata={"staff_code": "STF-9"},
+        updated_at=now,
+    )
+    linked_group_result = MagicMock()
+    linked_group_result.scalars.return_value.all.return_value = [client_group]
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=linked_group_result)
+    shared_loader = AsyncMock(
+        return_value=(
+            {broadcast_group_id: "Delegates"},
+            [],
+            [submission],
+            [
+                SimpleNamespace(
+                    status="unmatched_submission",
+                    submission_ids=(submission_id,),
+                )
+            ],
+        )
+    )
+    monkeypatch.setattr(
+        whatsapp_routes,
+        "load_unresolved_passport_whatsapp_match_context",
+        shared_loader,
+    )
+
+    uploads = await whatsapp_routes._unidentified_uploads_for_broadcast(
+        session,
+        broadcast_group_id=broadcast_group_id,
+        agency_id=agency_id,
+    )
+
+    assert len(uploads) == 1
+    assert uploads[0].model_dump() == {
+        "submission_id": submission_id,
+        "client_group_id": client_group_id,
+        "client_group_name": "Vietnam 2026",
+        "name": "Unexpected Traveller",
+        "phone_number": "+919800000001",
+        "email": "traveller@example.com",
+        "details": {
+            "family_head_name": "Family Head",
+            "staff_code": "STF-9",
+            "place_of_issue": "Chennai",
+            "passport_number": "P1234567",
+        },
+        "updated_at": now,
+    }
+    shared_loader.assert_awaited_once_with(
+        session,
+        group_id=client_group_id,
+        agency_id=agency_id,
+        broadcast_group_ids=[broadcast_group_id],
+    )
 
 
 @pytest.mark.asyncio

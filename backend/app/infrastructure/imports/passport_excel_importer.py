@@ -49,7 +49,15 @@ class PassportExcelImporter:
             "staff name",
         },
         "client_email": {"email", "client email", "passenger email", "email address"},
-        "client_phone": {"phone", "mobile", "contact", "contact no", "contact number", "client phone", "phone number"},
+        "client_phone": {
+            "phone",
+            "mobile",
+            "contact",
+            "contact no",
+            "contact number",
+            "client phone",
+            "phone number",
+        },
         "departure_city": {"departure city", "hub", "departure hub", "city"},
         "nearest_domestic_airport": {
             "nearest domestic airport",
@@ -60,7 +68,17 @@ class PassportExcelImporter:
         "given_names": {"given names", "given name", "first name", "forename"},
         "passport_number": {"passport number", "passport no", "passport", "passport #"},
         "nationality": {"nationality"},
-        "issuing_country": {"issuing country", "issue country", "country of issue"},
+        "place_of_issue": {
+            "place of issue",
+            "place of issuance",
+        },
+        "issuing_country": {
+            # Preserve legacy imports under their original meaning. These
+            # values are not Place of Issue and are never AI-verified as such.
+            "issuing country",
+            "issue country",
+            "country of issue",
+        },
         "date_of_birth": {
             "date of birth",
             "dob",
@@ -94,6 +112,7 @@ class PassportExcelImporter:
         "given_names",
         "passport_number",
         "nationality",
+        "place_of_issue",
         "issuing_country",
         "date_of_birth",
         "date_of_issue",
@@ -124,15 +143,11 @@ class PassportExcelImporter:
                 if not client_name:
                     continue
                 confirmed_fields = {
-                    key: value
-                    for key in self.FIELD_KEYS
-                    if (value := mapped.get(key))
+                    key: value for key in self.FIELD_KEYS if (value := mapped.get(key))
                 }
                 confirmed_fields = {
                     key: str(value)
-                    for key, value in normalize_extracted_passport_dates(
-                        confirmed_fields
-                    ).items()
+                    for key, value in normalize_extracted_passport_dates(confirmed_fields).items()
                 }
                 staff_metadata = self._map_metadata_row(metadata_headers, values)
                 if mapped.get("staff_code"):
@@ -167,9 +182,7 @@ class PassportExcelImporter:
         for index, row in enumerate(rows[:10]):
             normalized = {self._normalize_header(value) for value in row if value is not None}
             score = sum(
-                1
-                for aliases in self.HEADER_ALIASES.values()
-                if normalized.intersection(aliases)
+                1 for aliases in self.HEADER_ALIASES.values() if normalized.intersection(aliases)
             )
             if score > best_score:
                 best_score = score
@@ -240,7 +253,9 @@ class PassportExcelImporter:
         return "" if text.lower() in {"null", "n/a", "na", "none", "-"} else text
 
     def _name_from_parts(self, mapped: dict[str, str]) -> str:
-        return " ".join(part for part in [mapped.get("given_names"), mapped.get("surname")] if part).strip()
+        return " ".join(
+            part for part in [mapped.get("given_names"), mapped.get("surname")] if part
+        ).strip()
 
     def _normalize_email(self, value: str | None) -> str | None:
         if not value:

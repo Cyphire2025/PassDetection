@@ -12,7 +12,7 @@ POST_SUBMISSION_PASSPORT_FIELDS: Final[tuple[str, ...]] = (
     "given_names",
     "passport_number",
     "nationality",
-    "issuing_country",
+    "place_of_issue",
     "date_of_birth",
     "date_of_issue",
     "date_of_expiry",

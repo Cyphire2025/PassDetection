@@ -289,6 +289,10 @@ class WhatsAppBroadcastRecipientModel(Base):
             "broadcast_group_id",
             "display_order",
         ),
+        Index(
+            "ix_whatsapp_broadcast_recipients_roster_resolution",
+            "suppressed_by_roster_resolution_id",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -315,6 +319,16 @@ class WhatsAppBroadcastRecipientModel(Base):
     )
     display_order: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    suppressed_by_roster_resolution_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "passport_roster_resolutions.id",
+            name="fk_whatsapp_recipient_roster_resolution",
+            use_alter=True,
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
@@ -840,6 +854,258 @@ class PassportSubmissionModel(Base):
     )
 
     group: Mapped[ClientGroupModel] = relationship("ClientGroupModel", back_populates="submissions")
+
+
+class PassportExportHistoryModel(Base):
+    """Two-phase, immutable checkpoint for one group export."""
+
+    __tablename__ = "passport_export_history"
+    __table_args__ = (
+        UniqueConstraint(
+            "group_id",
+            "export_kind",
+            "request_id",
+            name="uq_passport_export_history_group_kind_request",
+        ),
+        CheckConstraint(
+            "export_kind IN ('passport_images', 'passport_excel')",
+            name="ck_passport_export_history_kind",
+        ),
+        CheckConstraint(
+            "export_mode IN ('all', 'incremental')",
+            name="ck_passport_export_history_mode",
+        ),
+        CheckConstraint(
+            "total_available_count >= 0 AND exported_count >= 0 AND pending_recipient_count >= 0",
+            name="ck_passport_export_history_counts",
+        ),
+        CheckConstraint(
+            "format_version >= 1",
+            name="ck_passport_export_history_format_version",
+        ),
+        CheckConstraint(
+            "(status = 'prepared' AND completed_at IS NULL) "
+            "OR (status = 'completed' AND completed_at IS NOT NULL)",
+            name="ck_passport_export_history_completion",
+        ),
+        Index(
+            "ix_passport_export_history_group_kind_created",
+            "group_id",
+            "export_kind",
+            "created_at",
+        ),
+        Index(
+            "ix_passport_export_history_group_kind_status_completed",
+            "group_id",
+            "export_kind",
+            "status",
+            "completed_at",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    export_kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    export_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    request_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False, default=uuid.uuid4
+    )
+    format_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default="1"
+    )
+    baseline_export_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_export_history.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    # The cumulative checkpoint is deliberately separate from the file payload.
+    # An incremental file may contain 19 people while its checkpoint represents
+    # all 189 people available when that file was prepared.
+    snapshot_submission_ids: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    exported_submission_ids: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    exported_people_snapshot: Mapped[list[dict[str, object]]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    total_available_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    exported_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    pending_recipient_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    artifact_metadata: Mapped[dict[str, object]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default="{}"
+    )
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    actor_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="prepared", server_default="prepared"
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+class PassportRosterResolutionModel(Base):
+    """Auditable resolution of an upload that did not match a broadcast recipient."""
+
+    __tablename__ = "passport_roster_resolutions"
+    __table_args__ = (
+        UniqueConstraint(
+            "client_group_id",
+            "request_id",
+            name="uq_passport_roster_resolution_group_request",
+        ),
+        CheckConstraint(
+            "resolution_type IN ('replacement', 'rejected')",
+            name="ck_passport_roster_resolution_type",
+        ),
+        CheckConstraint(
+            "status IN ('active', 'restored')",
+            name="ck_passport_roster_resolution_status",
+        ),
+        CheckConstraint(
+            "(status = 'active' AND restored_at IS NULL) "
+            "OR (status = 'restored' AND restored_at IS NOT NULL)",
+            name="ck_passport_roster_resolution_restored_at",
+        ),
+        CheckConstraint(
+            "(resolution_type = 'replacement' "
+            "AND replaced_recipient_normalized_phone IS NOT NULL "
+            "AND original_recipient_phone IS NOT NULL "
+            "AND (status = 'restored' OR broadcast_recipient_id IS NOT NULL)) "
+            "OR (resolution_type = 'rejected' "
+            "AND broadcast_recipient_id IS NULL "
+            "AND replaced_recipient_normalized_phone IS NULL)",
+            name="ck_passport_roster_resolution_recipient",
+        ),
+        Index(
+            "ix_passport_roster_resolutions_group_status_created",
+            "client_group_id",
+            "status",
+            "created_at",
+        ),
+        Index(
+            "ix_passport_roster_resolutions_active_phone",
+            "agency_id",
+            "client_group_id",
+            "replaced_recipient_normalized_phone",
+            postgresql_where=text(
+                "status = 'active' AND resolution_type = 'replacement'"
+            ),
+            sqlite_where=text(
+                "status = 'active' AND resolution_type = 'replacement'"
+            ),
+        ),
+        Index(
+            "uq_passport_roster_resolutions_active_submission",
+            "submission_id",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+            sqlite_where=text("status = 'active'"),
+        ),
+        Index(
+            "uq_passport_roster_resolutions_active_recipient",
+            "broadcast_recipient_id",
+            unique=True,
+            postgresql_where=text("status = 'active' AND broadcast_recipient_id IS NOT NULL"),
+            sqlite_where=text("status = 'active' AND broadcast_recipient_id IS NOT NULL"),
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    client_group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    submission_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    broadcast_recipient_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("whatsapp_broadcast_recipients.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    replaced_recipient_normalized_phone: Mapped[str | None] = mapped_column(
+        String(32), nullable=True
+    )
+    original_recipient_name: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
+    original_recipient_phone: Mapped[str | None] = mapped_column(
+        String(64), nullable=True
+    )
+    original_recipient_imported_fields: Mapped[dict[str, str]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=dict,
+        server_default="{}",
+    )
+    resolution_type: Mapped[str] = mapped_column(String(24), nullable=False)
+    request_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False, default=uuid.uuid4
+    )
+    suppressed_recipient_ids: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    excluded_submission_ids: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="active", server_default="active"
+    )
+    resolved_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    restored_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    restored_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class PassportImageCropModel(Base):

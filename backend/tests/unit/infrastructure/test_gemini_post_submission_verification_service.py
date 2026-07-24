@@ -39,7 +39,7 @@ def _submitted_fields() -> dict[str, str]:
         "given_names": "Aman",
         "passport_number": "Z5292389",
         "nationality": "IND",
-        "issuing_country": "India",
+        "place_of_issue": "Chennai",
         "date_of_birth": "1990-01-02",
         "date_of_issue": "2021-03-04",
         "date_of_expiry": "2031-03-03",
@@ -56,7 +56,7 @@ def _provider_fields(
         "given_names": "AMAN",
         "passport_number": "Z5292389",
         "nationality": "India",
-        "issuing_country": "IND",
+        "place_of_issue": "CHENNAI",
         "date_of_birth": "1990-01-02",
         "date_of_issue": "2021-03-04",
         "date_of_expiry": "2031-03-03",
@@ -113,7 +113,7 @@ def _response(
 
 
 class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
-    async def test_country_name_and_alpha3_are_the_same_identity(self) -> None:
+    async def test_place_of_issue_is_compared_as_visible_free_text(self) -> None:
         async def handler(_request: httpx.Request) -> httpx.Response:
             return _response(_provider_fields())
 
@@ -131,6 +131,32 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
         self.assertEqual(result.to_dict()["incorrect_fields"], [])
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
         self.assertIsNone(result.reason_code)
+
+    async def test_legacy_issuing_country_is_not_sent_as_place_of_issue(self) -> None:
+        submitted = _submitted_fields()
+        submitted.pop("place_of_issue")
+        submitted["issuing_country"] = "Chennai"
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            payload = json.loads(request.content)
+            prompt_fields = json.loads(payload["contents"][0]["parts"][0]["text"])[
+                "submitted_fields"
+            ]
+            self.assertEqual(prompt_fields["place_of_issue"], "")
+            self.assertNotIn("issuing_country", prompt_fields)
+            return _response(_provider_fields())
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=submitted,
+            )
+
+        self.assertEqual(result.decision.value, "needs_review")
 
     async def test_visibly_absent_surname_is_correct_and_ai_approved(self) -> None:
         submitted = _submitted_fields()
@@ -340,6 +366,11 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
                 "Never infer hidden values or decide the application's final status",
                 system_text,
             )
+            self.assertIn("For place_of_issue", system_text)
+            self.assertIn("do not substitute, infer, or return an issuing country", system_text)
+            submitted = json.loads(payload["contents"][0]["parts"][0]["text"])["submitted_fields"]
+            self.assertEqual(submitted["place_of_issue"], "Chennai")
+            self.assertNotIn("issuing_country", submitted)
             return _response(_provider_fields())
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:

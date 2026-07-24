@@ -79,5 +79,8 @@ test("individual review fields prefill imported confirmed passport dates", () =>
     source,
     /sourceFields=\{data\.confirmed_fields \?\? data\.extracted_fields \?\? \{\}\}/,
   );
-  assert.match(source, /fields\[key\] = getStringField\(sourceFields, key\)/);
+  assert.match(
+    source,
+    /fields\[key\] = getPassportTextField\(sourceFields, key\)/,
+  );
 });

@@ -29,6 +29,7 @@ from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import ValidationError
 from app.domain.value_objects.passport_fields import (
     canonical_country_identity,
+    canonical_passport_fields,
     normalize_passport_date,
 )
 from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
@@ -207,6 +208,8 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "unreadable, obscured, or ambiguous, return suspicious with reason_code unreadable or "
     "ambiguous instead. Put an empty observed_value when unreadable. For date "
     "fields, convert any visibly printed date format to YYYY-MM-DD in observed_value. "
+    "For place_of_issue, read the free-text Place of Issue entry exactly as visibly "
+    "printed; do not substitute, infer, or return an issuing country. "
     "Confidence measures visible value evidence; set it to zero when the value is unreadable. "
     "Never infer hidden values or decide the application's final status."
 )
@@ -236,9 +239,18 @@ def _normalize_passport_value(
     if field == "passport_number":
         candidate = re.sub(r"\s+", "", normalized).upper()
         return candidate if re.fullmatch(r"[A-Z0-9]{5,12}", candidate) else ""
-    if field in {"nationality", "issuing_country"}:
+    if field == "nationality":
         identity = canonical_country_identity(normalized)
         return identity if re.fullmatch(r"[A-Z]{3}", identity) else ""
+    if field == "place_of_issue":
+        candidate = normalized.upper()
+        if (
+            len(candidate) > _MAX_OBSERVED_VALUE_CHARACTERS
+            or not any(character.isalnum() for character in candidate)
+            or any(unicodedata.category(character).startswith("C") for character in candidate)
+        ):
+            return ""
+        return candidate
     if field in {"date_of_birth", "date_of_issue", "date_of_expiry"}:
         try:
             return normalize_passport_date(normalized, field=field)
@@ -655,6 +667,12 @@ class GeminiPostSubmissionVerificationService(IPostSubmissionPassportVerificatio
         content_type: str,
         submitted_fields: dict[str, Any],
     ) -> PostSubmissionVerificationResult:
+        canonical_fields = canonical_passport_fields(submitted_fields) or {}
+        submitted_fields = {
+            field: canonical_fields[field]
+            for field in POST_SUBMISSION_PASSPORT_FIELDS
+            if field in canonical_fields
+        }
         api_key = self._api_key()
         models = self._model_candidates()
         model = models[0]

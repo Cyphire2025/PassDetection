@@ -57,10 +57,12 @@ import {
   type WhatsAppPreviewResponse,
   type WhatsAppRejectedContact,
   type WhatsAppRejectedContactInput,
+  type WhatsAppReplacedRecipient,
   type WhatsAppRecipientInput,
   type WhatsAppRecipientMessageStatus,
   type WhatsAppSendResponse,
   type WhatsAppSupportContactInput,
+  type WhatsAppUnidentifiedUpload,
 } from "../api/whatsapp.api";
 import {
   useAddWhatsAppRecipients,
@@ -69,6 +71,7 @@ import {
   useDeleteWhatsAppRecipient,
   usePreviewWhatsAppMessage,
   useResolveWhatsAppRejectedContact,
+  useRestoreWhatsAppReplacedRecipient,
   useResendWhatsAppRecipientMessage,
   useSendWhatsAppPassportLink,
   useSendWhatsAppWelcome,
@@ -149,6 +152,33 @@ function visibleImportedFieldEntries(
 ): Array<[string, string]> {
   return Object.entries(importedFields ?? {})
     .filter(([key]) => !ROSTER_SOURCE_FIELD_KEYS.has(key))
+    .sort(([left], [right]) =>
+      importedFieldLabel(left).localeCompare(importedFieldLabel(right)),
+    );
+}
+
+function visibleUnidentifiedDetailEntries(
+  details: Record<string, unknown>,
+): Array<[string, string]> {
+  return Object.entries(details)
+    .filter(
+      ([key, value]) =>
+        !ROSTER_SOURCE_FIELD_KEYS.has(key)
+        && value !== null
+        && value !== undefined
+        && value !== "",
+    )
+    .map(([key, value]): [string, string] => {
+      if (typeof value === "string") return [key, value];
+      if (typeof value === "number" || typeof value === "boolean") {
+        return [key, String(value)];
+      }
+      try {
+        return [key, JSON.stringify(value) ?? String(value)];
+      } catch {
+        return [key, String(value)];
+      }
+    })
     .sort(([left], [right]) =>
       importedFieldLabel(left).localeCompare(importedFieldLabel(right)),
     );
@@ -1085,6 +1115,166 @@ function RejectedRosterRows({
   );
 }
 
+function ReplacedRosterRow({
+  recipient,
+  serialNumber,
+  messageColumnCount,
+  isRestoring,
+  onRestore,
+}: {
+  recipient: WhatsAppReplacedRecipient;
+  serialNumber: number;
+  messageColumnCount: number;
+  isRestoring: boolean;
+  onRestore: () => void;
+}) {
+  const importedEntries = visibleImportedFieldEntries(
+    recipient.imported_fields,
+  );
+  return (
+    <tr className="bg-blue-50/40">
+      <td className="px-4 py-3 text-center font-semibold text-slate-500">
+        {serialNumber}
+      </td>
+      <td className="px-4 py-3">
+        <div className="font-medium text-slate-900">
+          {recipient.name?.trim() || "Unnamed recipient"}
+        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Replaced in {recipient.client_group_name} ·{" "}
+          {formatDateTime(recipient.replaced_at)}
+        </p>
+        <div className="mt-2 rounded-lg border border-blue-200 bg-white px-3 py-2">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-blue-700">
+            Going instead
+          </div>
+          <div className="mt-1 text-xs font-semibold text-slate-800">
+            {recipient.replacement_name}
+          </div>
+          <div className="mt-0.5 text-xs text-slate-600">
+            {recipient.replacement_phone || "No submitted phone number"}
+          </div>
+        </div>
+        {importedEntries.length > 0 && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+              View {importedEntries.length} imported detail
+              {importedEntries.length === 1 ? "" : "s"}
+            </summary>
+            <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-white p-3 sm:grid-cols-2">
+              {importedEntries.map(([key, value]) => (
+                <div key={key} className="min-w-0">
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    {importedFieldLabel(key)}
+                  </dt>
+                  <dd className="break-words text-xs font-normal text-slate-700">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <span className="break-all font-mono text-slate-700">
+          {recipient.normalized_phone_number}
+        </span>
+      </td>
+      {Array.from({ length: messageColumnCount }, (_, index) => (
+        <td key={index} className="px-4 py-3">
+          <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-800">
+            Replaced
+          </span>
+        </td>
+      ))}
+      <td className="px-4 py-3 text-right">
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+          disabled={isRestoring}
+          onClick={onRestore}
+        >
+          <RotateCw className="h-3.5 w-3.5" />
+          Restore / add back
+        </button>
+      </td>
+    </tr>
+  );
+}
+
+function UnidentifiedRosterRow({
+  upload,
+  serialNumber,
+  messageColumnCount,
+}: {
+  upload: WhatsAppUnidentifiedUpload;
+  serialNumber: number;
+  messageColumnCount: number;
+}) {
+  const detailEntries = visibleUnidentifiedDetailEntries(upload.details);
+  return (
+    <tr className="bg-red-50/40">
+      <td className="px-4 py-3 text-center font-semibold text-slate-500">
+        {serialNumber}
+      </td>
+      <td className="px-4 py-3">
+        <div className="font-medium text-slate-900">{upload.name}</div>
+        <p className="mt-1 text-xs text-red-700">
+          Uploaded in {upload.client_group_name}, but is not in this WhatsApp
+          broadcast.
+        </p>
+        <p className="mt-1 text-xs text-slate-500">
+          {upload.email || "No submitted email"} · Updated{" "}
+          {formatDateTime(upload.updated_at)}
+        </p>
+        {detailEntries.length > 0 && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-xs font-semibold text-blue-700">
+              View {detailEntries.length} submitted detail
+              {detailEntries.length === 1 ? "" : "s"}
+            </summary>
+            <dl className="mt-2 grid min-w-64 gap-2 rounded-lg bg-white p-3 sm:grid-cols-2">
+              {detailEntries.map(([key, value]) => (
+                <div key={key} className="min-w-0">
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                    {importedFieldLabel(key)}
+                  </dt>
+                  <dd className="break-words text-xs font-normal text-slate-700">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <span className="break-all font-mono text-slate-700">
+          {upload.phone_number || "Not provided"}
+        </span>
+      </td>
+      {Array.from({ length: messageColumnCount }, (_, index) => (
+        <td key={index} className="px-4 py-3">
+          <span className="inline-flex rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+            Not in broadcast
+          </span>
+        </td>
+      ))}
+      <td className="px-4 py-3 text-right">
+        <a
+          href={`/passports/groups/${upload.client_group_id}/whatsapp`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+        >
+          Review / mark replacement
+        </a>
+      </td>
+    </tr>
+  );
+}
+
 function RecipientListDialog({
   group,
   onClose,
@@ -1103,6 +1293,7 @@ function RecipientListDialog({
   const deleteRecipient = useDeleteWhatsAppRecipient();
   const updateRecipientPhone = useUpdateWhatsAppRecipientPhone();
   const resolveRejectedContact = useResolveWhatsAppRejectedContact();
+  const restoreReplacedRecipient = useRestoreWhatsAppReplacedRecipient();
   const resendRecipientMessage = useResendWhatsAppRecipientMessage();
   const [name, setName] = useState(group.name);
   const [support, setSupport] = useState<ManualContact>({
@@ -1123,6 +1314,9 @@ function RecipientListDialog({
   const [rejectedContactError, setRejectedContactError] = useState<
     string | null
   >(null);
+  const [restoreReplacedError, setRestoreReplacedError] = useState<
+    string | null
+  >(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [recipientError, setRecipientError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -1135,6 +1329,8 @@ function RecipientListDialog({
   const [recipientToRemove, setRecipientToRemove] = useState<
     (WhatsAppRecipientInput & { id: string }) | null
   >(null);
+  const [replacedRecipientToRestore, setReplacedRecipientToRestore] =
+    useState<WhatsAppReplacedRecipient | null>(null);
   const [editingRecipientId, setEditingRecipientId] = useState<string | null>(
     null,
   );
@@ -1369,11 +1565,19 @@ function RecipientListDialog({
   const rosterTabs: Array<{
     id: WhatsAppRecipientRosterTab;
     label: string;
+    description?: string;
   }> = [
     { id: "all", label: "All" },
     { id: "sent", label: "Sent" },
     { id: "failed", label: "Failed" },
     { id: "rejected", label: "Rejected" },
+    {
+      id: "unidentified",
+      label: "Unidentified",
+      description:
+        "People who uploaded passport details but are not in this WhatsApp broadcast.",
+    },
+    { id: "replaced", label: "Replaced" },
   ];
   const lastResendMessageStatus =
     lastResendTarget && detail
@@ -1419,8 +1623,10 @@ function RecipientListDialog({
             || deleteRecipient.isPending
             || updateRecipientPhone.isPending
             || resolveRejectedContact.isPending
+            || restoreReplacedRecipient.isPending
             || resendRecipientMessage.isPending
             || Boolean(recipientToRemove)
+            || Boolean(replacedRecipientToRestore)
           }
           widthClass="max-w-5xl"
         >
@@ -1531,7 +1737,10 @@ function RecipientListDialog({
                 <p className="mt-1 text-sm text-slate-500">
                   Review everyone in their original import order. Sent and
                   Failed can overlap when different message types have
-                  different outcomes.
+                  different outcomes. Replaced people stay separate and cannot
+                  receive further messages unless they are restored.
+                  Unidentified uploads are people who submitted passport
+                  details but are not in this WhatsApp broadcast.
                 </p>
               </div>
 
@@ -1550,6 +1759,7 @@ function RecipientListDialog({
                       role="tab"
                       aria-selected={isActive}
                       aria-controls="recipient-roster-panel"
+                      title={tab.description}
                       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
                         isActive
                           ? "border-blue-600 bg-blue-600 text-white"
@@ -1557,15 +1767,23 @@ function RecipientListDialog({
                             ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
                             : tab.id === "rejected"
                               ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                              : tab.id === "replaced"
+                                ? "border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100"
+                              : tab.id === "unidentified"
+                                ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
                               : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                       }`}
                       onClick={() => {
                         setRecipientRosterTab(tab.id);
                         setRejectedContactEdit(null);
                         setRejectedContactError(null);
+                        setRestoreReplacedError(null);
                       }}
                     >
                       {tab.label}
+                      {tab.description && (
+                        <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs ${
                           isActive
@@ -1596,6 +1814,11 @@ function RecipientListDialog({
               {rejectedContactError && (
                 <div className="mt-3">
                   <ErrorBanner message={rejectedContactError} />
+                </div>
+              )}
+              {restoreReplacedError && (
+                <div className="mt-3">
+                  <ErrorBanner message={restoreReplacedError} />
                 </div>
               )}
 
@@ -1629,8 +1852,9 @@ function RecipientListDialog({
                   </div>
                 ) : visibleRosterItems.length === 0 ? (
                   <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    No {recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}
-                    contacts were found.
+                    {recipientRosterTab === "unidentified"
+                      ? "No unidentified uploads were found."
+                      : `No ${recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}contacts were found.`}
                   </p>
                 ) : (
                   <div className="max-h-96 overflow-auto rounded-xl border border-slate-200">
@@ -1651,6 +1875,34 @@ function RecipientListDialog({
                       <tbody className="divide-y divide-slate-100">
                         {visibleRosterItems.map((item, index) => {
                           const serialNumber = index + 1;
+                          if (item.kind === "unidentified") {
+                            return (
+                              <UnidentifiedRosterRow
+                                key={`unidentified:${item.unidentified_upload.submission_id}`}
+                                upload={item.unidentified_upload}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                              />
+                            );
+                          }
+                          if (item.kind === "replaced") {
+                            const replacedRecipient = item.replaced_recipient;
+                            return (
+                              <ReplacedRosterRow
+                                key={`replaced:${replacedRecipient.recipient_id}`}
+                                recipient={replacedRecipient}
+                                serialNumber={serialNumber}
+                                messageColumnCount={messageTypes.length}
+                                isRestoring={restoreReplacedRecipient.isPending}
+                                onRestore={() => {
+                                  setRestoreReplacedError(null);
+                                  setReplacedRecipientToRestore(
+                                    replacedRecipient,
+                                  );
+                                }}
+                              />
+                            );
+                          }
                           if (item.kind === "rejected") {
                             const contact = item.rejected_contact;
                             return (
@@ -2061,6 +2313,45 @@ function RecipientListDialog({
           onSend={resendSelectedMessage}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(replacedRecipientToRestore)}
+        title="Restore the original recipient?"
+        description={`${replacedRecipientToRestore?.name || replacedRecipientToRestore?.normalized_phone_number || "This recipient"} will become active for future WhatsApp messages again. ${replacedRecipientToRestore?.replacement_name || "The replacement upload"} will return to Unidentified uploads in ${replacedRecipientToRestore?.client_group_name || "the passport group"}.`}
+        confirmLabel="Restore / add back"
+        isLoading={restoreReplacedRecipient.isPending}
+        onClose={() => setReplacedRecipientToRestore(null)}
+        onConfirm={() => {
+          if (!replacedRecipientToRestore) return;
+          const target = replacedRecipientToRestore;
+          setRestoreReplacedError(null);
+          restoreReplacedRecipient.mutate(
+            {
+              broadcastGroupId: group.id,
+              clientGroupId: target.client_group_id,
+              resolutionId: target.resolution_id,
+            },
+            {
+              onSuccess: () => {
+                setReplacedRecipientToRestore(null);
+                setRecipientRosterTab("all");
+                setSuccessMessage(
+                  `${target.name || target.normalized_phone_number} was restored to the active recipient list.`,
+                );
+              },
+              onError: (restoreError) => {
+                setReplacedRecipientToRestore(null);
+                setRestoreReplacedError(
+                  readErrorMessage(
+                    restoreError,
+                    "Could not restore this recipient.",
+                  ),
+                );
+              },
+            },
+          );
+        }}
+      />
 
       <ConfirmDialog
         isOpen={Boolean(recipientToRemove)}

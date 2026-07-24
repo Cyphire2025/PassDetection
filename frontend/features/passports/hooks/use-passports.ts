@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants";
 import type { StaffApprovalRequest } from "@/types/passport.types";
 import { passportsApi } from "../api/passports.api";
-import type { PassportDocumentImportChunkRequest, PassportDocumentImportRequest } from "../api/passports.api";
+import type {
+  PassportDocumentImportChunkRequest,
+  PassportDocumentImportRequest,
+  PassportGroupExportKind,
+  PassportGroupExportRequest,
+} from "../api/passports.api";
 import type { PassportGroupSubmissionsViewParams } from "../api/passports.api";
 import { getStaffApprovalErrorFeedback } from "../utils/passport-review";
 import { isPassportWorkflowPending } from "../utils/passport-workflow";
@@ -39,14 +44,64 @@ export function usePassportsByGroup(groupId: string, search?: string, includeDel
 }
 
 export function useExportPassportGroup() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (groupId: string) => passportsApi.exportGroup(groupId),
+    mutationFn: (request: PassportGroupExportRequest) =>
+      passportsApi.exportGroup(request),
+    onSuccess: (_result, request) => {
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-history", request.groupId, "passport_excel"],
+      });
+    },
   });
 }
 
 export function useExportPassportGroupImages() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (groupId: string) => passportsApi.exportGroupImages(groupId),
+    mutationFn: (request: PassportGroupExportRequest) =>
+      passportsApi.exportGroupImages(request),
+    onSuccess: (_result, request) => {
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-history", request.groupId, "passport_images"],
+      });
+    },
+  });
+}
+
+export function usePassportGroupExportHistory(
+  groupId: string,
+  kind: PassportGroupExportKind,
+  page = 1,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ["passport-export-history", groupId, kind, page],
+    queryFn: () => passportsApi.getGroupExportHistory(groupId, kind, page),
+    enabled: enabled && Boolean(groupId),
+    staleTime: 5_000,
+  });
+}
+
+export function usePassportGroupExportHistoryDetail(
+  groupId: string,
+  historyId: string | undefined,
+  page: number,
+) {
+  return useQuery({
+    queryKey: [
+      "passport-export-history",
+      groupId,
+      historyId ?? "closed",
+      "detail",
+      page,
+    ],
+    queryFn: () => passportsApi.getGroupExportHistoryDetail(
+      groupId,
+      historyId!,
+      page,
+    ),
+    enabled: Boolean(groupId && historyId),
   });
 }
 

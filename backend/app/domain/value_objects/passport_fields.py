@@ -15,11 +15,16 @@ REVIEWABLE_PASSPORT_FIELDS = (
     "given_names",
     "passport_number",
     "nationality",
-    "issuing_country",
+    "place_of_issue",
     "date_of_birth",
     "date_of_issue",
     "date_of_expiry",
     "sex",
+)
+LEGACY_ISSUING_COUNTRY_FIELD = "issuing_country"
+_ACCEPTED_REVIEWABLE_PASSPORT_FIELDS = (
+    *REVIEWABLE_PASSPORT_FIELDS,
+    LEGACY_ISSUING_COUNTRY_FIELD,
 )
 _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 MAX_REVIEWED_FIELD_VALUE_LENGTH = 160
@@ -29,13 +34,13 @@ MAX_REVIEWED_FIELDS_TOTAL_LENGTH = 1_440
 def validate_reviewed_passport_payload(fields: dict[str, str]) -> None:
     """Bound and allowlist untrusted client review dictionaries."""
 
-    unknown = sorted(set(fields) - set(REVIEWABLE_PASSPORT_FIELDS))
+    unknown = sorted(set(fields) - set(_ACCEPTED_REVIEWABLE_PASSPORT_FIELDS))
     if unknown:
         raise ValidationError(
             "Unsupported reviewed passport field.",
             field="confirmed_fields",
         )
-    if len(fields) > len(REVIEWABLE_PASSPORT_FIELDS):
+    if len(fields) > len(_ACCEPTED_REVIEWABLE_PASSPORT_FIELDS):
         raise ValidationError(
             "Too many reviewed passport fields were supplied.",
             field="confirmed_fields",
@@ -65,7 +70,23 @@ def normalize_reviewed_passport_fields(fields: dict[str, str]) -> dict[str, str]
     """Trim reviewed values and reject impossible passport dates."""
 
     normalized: dict[str, str] = {}
-    for key, raw_value in fields.items():
+    canonical_fields = canonical_passport_fields(fields) or {}
+    for key, raw_value in canonical_fields.items():
+        if key == LEGACY_ISSUING_COUNTRY_FIELD:
+            # Older clients may still submit this key during a staggered
+            # deployment. Issuing country and the visibly printed place of
+            # issue are different facts. Preserve the legacy fact under its
+            # own key for audit compatibility, but never copy it into the new
+            # canonical field.
+            if not isinstance(raw_value, str):
+                raise ValidationError(
+                    "Reviewed passport fields must contain text values.",
+                    field="confirmed_fields",
+                )
+            legacy_value = " ".join(raw_value.strip().split())
+            if legacy_value:
+                normalized[key] = legacy_value
+            continue
         if not isinstance(key, str) or not isinstance(raw_value, str):
             raise ValidationError(
                 "Reviewed passport fields must contain text values.",
@@ -129,11 +150,12 @@ def reconcile_confirmed_with_extraction(
     if confirmed_fields is None:
         return None, []
 
-    merged = dict(confirmed_fields)
+    merged = canonical_passport_fields(confirmed_fields) or {}
+    canonical_extracted = canonical_passport_fields(extracted_fields) or {}
     conflicts: list[dict[str, str | None]] = []
     for field in REVIEWABLE_PASSPORT_FIELDS:
         manual_value = _text_value(merged.get(field))
-        extracted_value = _text_value(extracted_fields.get(field))
+        extracted_value = _text_value(canonical_extracted.get(field))
         if field == "surname" and field in merged and not manual_value:
             # An explicit blank surname is a reviewed value, not an extraction
             # gap. Preserve it and surface any later non-empty extraction for
@@ -175,6 +197,22 @@ def reconcile_confirmed_with_extraction(
                 }
             )
     return merged, conflicts
+
+
+def canonical_passport_fields(
+    fields: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Return a non-mutating passport-field view without semantic aliases.
+
+    Historical JSON may contain ``issuing_country`` while new records contain
+    ``place_of_issue``. Those values describe different passport facts. The
+    legacy key is preserved for audit/read compatibility, but it must never be
+    exposed, verified, or persisted as the canonical place-of-issue value.
+    """
+
+    if fields is None:
+        return None
+    return dict(fields)
 
 
 def normalize_passport_date(value: str, *, field: str) -> str:
@@ -251,7 +289,7 @@ def _comparable_passport_value(field: str, value: str) -> str:
     normalized = " ".join(unicodedata.normalize("NFKC", value).strip().split())
     if field == "passport_number":
         return re.sub(r"[^A-Z0-9]", "", normalized.upper())
-    if field in {"nationality", "issuing_country"}:
+    if field == "nationality":
         return canonical_country_identity(normalized)
     if field == "sex":
         key = normalized.casefold()

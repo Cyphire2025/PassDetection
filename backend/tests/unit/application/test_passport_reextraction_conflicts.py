@@ -53,7 +53,7 @@ class PassportReextractionConflictTests(unittest.TestCase):
                 "surname": "Kumar",
                 "given_names": "Nipun",
                 "passport_number": "a 1234567",
-                "issuing_country": "India",
+                "place_of_issue": "Chennai",
                 "date_of_birth": "1990-01-01",
             },
             client_email="traveller@example.com",
@@ -72,7 +72,7 @@ class PassportReextractionConflictTests(unittest.TestCase):
                 "surname": "KUMAR",
                 "given_names": "NIPIN",
                 "passport_number": "A1234567",
-                "issuing_country": "IND",
+                "place_of_issue": "CHENNAI",
                 "date_of_expiry": "2031-02-03",
                 "field_validation": {"status": "valid"},
                 "ai_verification": {"status": "verified"},
@@ -86,7 +86,7 @@ class PassportReextractionConflictTests(unittest.TestCase):
         self.assertEqual(submission.confirmed_fields["surname"], "Kumar")
         self.assertEqual(submission.confirmed_fields["given_names"], "Nipun")
         self.assertEqual(submission.confirmed_fields["passport_number"], "a 1234567")
-        self.assertEqual(submission.confirmed_fields["issuing_country"], "India")
+        self.assertEqual(submission.confirmed_fields["place_of_issue"], "Chennai")
         self.assertEqual(submission.confirmed_fields["date_of_expiry"], "2031-02-03")
         self.assertNotIn("field_validation", submission.confirmed_fields)
         self.assertNotIn("ai_verification", submission.confirmed_fields)
@@ -107,6 +107,19 @@ class PassportReextractionConflictTests(unittest.TestCase):
                 },
             ],
         )
+
+    def test_legacy_issuing_country_is_preserved_without_masking_extracted_place(
+        self,
+    ) -> None:
+        merged, conflicts = reconcile_confirmed_with_extraction(
+            {"issuing_country": "India"},
+            {"place_of_issue": "INDIA"},
+        )
+
+        assert merged is not None
+        self.assertEqual(merged["place_of_issue"], "INDIA")
+        self.assertEqual(merged["issuing_country"], "India")
+        self.assertEqual(conflicts, [])
 
     def test_saving_manual_review_clears_resolved_conflicts(self) -> None:
         submission = self._manually_submitted_passport()

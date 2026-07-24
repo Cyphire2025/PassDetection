@@ -23,6 +23,9 @@ const QUERY_KEYS = {
   whatsappMatches: (id: string, params: GroupWhatsAppMatchesParams) => (
     ["upload-links", id, "whatsapp-matches", params] as const
   ),
+  replacementCandidates: (id: string) => (
+    ["upload-links", id, "replacement-candidates"] as const
+  ),
 };
 
 export function useUploadLinks(statusFilter?: UploadLinkResponse["status"], enabled = true) {
@@ -135,6 +138,101 @@ export function useGroupWhatsAppMatches(
     queryFn: () => uploadLinksApi.getWhatsAppMatches(id, params),
     enabled: enabled && Boolean(id),
     refetchInterval: 30_000,
+  });
+}
+
+export function useReplacementCandidates(id: string, enabled = true) {
+  return useQuery({
+    queryKey: QUERY_KEYS.replacementCandidates(id),
+    queryFn: () => uploadLinksApi.getReplacementCandidates(id),
+    enabled: enabled && Boolean(id),
+  });
+}
+
+export function useResolveUnidentifiedReplacement(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      recipientId,
+      requestId,
+    }: {
+      submissionId: string;
+      recipientId: string;
+      requestId: string;
+    }) => uploadLinksApi.resolveUnidentifiedReplacement(
+      id,
+      submissionId,
+      recipientId,
+      requestId,
+    ),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["upload-links", id, "whatsapp-matches"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.replacementCandidates(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.whatsappLinks(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-history", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["whatsapp"] });
+    },
+  });
+}
+
+export function useRejectUnidentifiedUpload(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      requestId,
+    }: {
+      submissionId: string;
+      requestId: string;
+    }) => uploadLinksApi.rejectUnidentifiedUpload(
+      id,
+      submissionId,
+      requestId,
+    ),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["upload-links", id, "whatsapp-matches"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-history", id],
+      });
+    },
+  });
+}
+
+export function useRestoreRosterResolution(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (resolutionId: string) => (
+      uploadLinksApi.restoreRosterResolution(id, resolutionId)
+    ),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["upload-links", id, "whatsapp-matches"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.replacementCandidates(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.whatsappLinks(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-history", id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["whatsapp"] });
+    },
   });
 }
 

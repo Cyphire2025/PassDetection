@@ -7,7 +7,9 @@ export type WhatsAppRecipientRosterTab =
   | "all"
   | "sent"
   | "failed"
-  | "rejected";
+  | "rejected"
+  | "replaced"
+  | "unidentified";
 
 export function recipientHasSentMessage(
   recipient: Pick<WhatsAppRecipient, "message_statuses">,
@@ -32,8 +34,12 @@ export function filterRecipientRosterItems(
   return items
     .map((item, originalIndex) => ({ item, originalIndex }))
     .filter(({ item }) => {
-      if (tab === "all") return true;
+      if (tab === "all") {
+        return item.kind === "recipient" || item.kind === "rejected";
+      }
       if (tab === "rejected") return item.kind === "rejected";
+      if (tab === "replaced") return item.kind === "replaced";
+      if (tab === "unidentified") return item.kind === "unidentified";
       if (item.kind !== "recipient") return false;
       return tab === "sent"
         ? recipientHasSentMessage(item.recipient)

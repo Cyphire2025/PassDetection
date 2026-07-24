@@ -12,26 +12,30 @@ def _workbook_bytes() -> bytes:
     workbook = Workbook()
     asm = workbook.active
     asm.title = "ASM"
-    asm.append([
-        "Zone Name",
-        "Staffname",
-        "StaffCode",
-        "Designation",
-        "PASSPORT_NO",
-        "DOB",
-        "DOI",
-        "Passport Expiry Date",
-    ])
-    asm.append([
-        "ASSAM",
-        "BIPLAB DAS",
-        25523,
-        "ACE",
-        "Z4160891",
-        datetime(1979, 9, 5),
-        date(2021, 6, 14),
-        datetime(2031, 6, 13),
-    ])
+    asm.append(
+        [
+            "Zone Name",
+            "Staffname",
+            "StaffCode",
+            "Designation",
+            "PASSPORT_NO",
+            "DOB",
+            "DOI",
+            "Passport Expiry Date",
+        ]
+    )
+    asm.append(
+        [
+            "ASSAM",
+            "BIPLAB DAS",
+            25523,
+            "ACE",
+            "Z4160891",
+            datetime(1979, 9, 5),
+            date(2021, 6, 14),
+            datetime(2031, 6, 13),
+        ]
+    )
 
     delhi = workbook.create_sheet("DE1")
     delhi.append(["Zone Name", "Staff Name", "Staff Code", "Designation", "Gender"])
@@ -75,3 +79,24 @@ def test_null_markers_are_not_imported_as_passport_values() -> None:
 
     assert row.confirmed_fields == {"staff_code": "101"}
     assert "passport_no" not in row.staff_metadata
+
+
+def test_place_of_issue_and_legacy_issuing_country_keep_distinct_meanings() -> None:
+    for header, expected_field in (
+        ("Place of Issue", "place_of_issue"),
+        ("Issuing Country", "issuing_country"),
+    ):
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.append(["Staffname", header])
+        worksheet.append(["A PERSON", "Chennai"])
+        content = BytesIO()
+        workbook.save(content)
+
+        row = PassportExcelImporter().import_rows(content.getvalue())[0]
+
+        assert row.confirmed_fields[expected_field] == "Chennai"
+        unexpected_field = (
+            "issuing_country" if expected_field == "place_of_issue" else "place_of_issue"
+        )
+        assert unexpected_field not in row.confirmed_fields

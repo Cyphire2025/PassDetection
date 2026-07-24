@@ -60,15 +60,6 @@ export function formatPassportNationality(value: string | null | undefined) {
   return formatPassportCountry(trimmed);
 }
 
-export function formatPassportCountryField(
-  field: "nationality" | "issuing_country",
-  value: string | null | undefined,
-) {
-  return field === "nationality"
-    ? formatPassportNationality(value)
-    : formatPassportCountry(value);
-}
-
 export function isRecognizedPassportCountryCode(value: string | null | undefined) {
   const code = value?.trim().toUpperCase() ?? "";
   return /^[A-Z]{2}$/.test(code) || ISO3_TO_ISO2.has(code);

@@ -35,14 +35,13 @@ def _submission(
         post_submission_verification=verification,
         overall_confidence=overall_confidence,
         status=status,
-        updated_at=updated_at
-        or datetime(2026, 7, 20, 12, tzinfo=UTC),
+        updated_at=updated_at or datetime(2026, 7, 20, 12, tzinfo=UTC),
     )
 
 
 def _passport_fields(
     passport_number: str,
-    issuing_country: str,
+    place_of_issue: str,
     *,
     given_names: str = "Asha",
     surname: str = "Kumar",
@@ -52,7 +51,7 @@ def _passport_fields(
 ) -> dict[str, str]:
     return {
         "passport_number": passport_number,
-        "issuing_country": issuing_country,
+        "place_of_issue": place_of_issue,
         "given_names": given_names,
         "surname": surname,
         "date_of_birth": birth,
@@ -61,19 +60,15 @@ def _passport_fields(
     }
 
 
-def test_country_aliases_and_surname_empty_form_one_duplicate_cluster() -> None:
+def test_place_case_and_surname_empty_form_one_duplicate_cluster() -> None:
     first = _submission(
         name="Asha",
-        confirmed=_passport_fields(
-            "P123", "IND", surname="", given_names="Asha"
-        ),
+        confirmed=_passport_fields("P123", "Chennai", surname="", given_names="Asha"),
         extracted={"surname": "SHOULD NOT OVERRIDE"},
     )
     second = _submission(
         name="Asha",
-        confirmed=_passport_fields(
-            "P123", "India", surname="", given_names="Asha"
-        ),
+        confirmed=_passport_fields("P123", "CHENNAI", surname="", given_names="Asha"),
     )
     view = build_submission_view(
         [first, second],
@@ -94,10 +89,34 @@ def test_country_aliases_and_surname_empty_form_one_duplicate_cluster() -> None:
     assert all(item.duplicate_cluster_size == 2 for item in view.items)
 
 
-def test_mixed_country_missing_requires_corroboration_and_rejects_conflict() -> None:
+def test_legacy_issuing_country_aliases_remain_duplicate_compatible() -> None:
+    first_fields = _passport_fields("P124", "unused")
+    second_fields = _passport_fields("P124", "unused")
+    first_fields.pop("place_of_issue")
+    second_fields.pop("place_of_issue")
+    first_fields["issuing_country"] = "IND"
+    second_fields["issuing_country"] = "India"
+
+    view = build_submission_view(
+        [
+            _submission(name="Asha", confirmed=first_fields),
+            _submission(name="Asha", confirmed=second_fields),
+        ],
+        submission_filter="duplicates",
+        sort_by="name",
+        sort_order="asc",
+        search=None,
+        page=1,
+        page_size=50,
+    )
+
+    assert view.total == 2
+
+
+def test_mixed_place_missing_requires_corroboration_and_rejects_conflict() -> None:
     complete = _submission(
         name="Asha",
-        confirmed=_passport_fields("P900", "IND"),
+        confirmed=_passport_fields("P900", "Chennai"),
     )
     country_missing = _submission(
         name="Asha",
@@ -107,9 +126,9 @@ def test_mixed_country_missing_requires_corroboration_and_rejects_conflict() -> 
         name="Asha",
         confirmed=_passport_fields("P900", "", birth="1991-01-02"),
     )
-    conflicting_country = _submission(
+    conflicting_place = _submission(
         name="Asha",
-        confirmed=_passport_fields("P900", "USA"),
+        confirmed=_passport_fields("P900", "Mumbai"),
     )
     view = build_submission_view(
         [complete, country_missing, wrong_birth],
@@ -126,7 +145,7 @@ def test_mixed_country_missing_requires_corroboration_and_rejects_conflict() -> 
         country_missing.id,
     }
     conflicting_view = build_submission_view(
-        [complete, conflicting_country],
+        [complete, conflicting_place],
         submission_filter="duplicates",
         sort_by="name",
         sort_order="asc",
@@ -138,7 +157,7 @@ def test_mixed_country_missing_requires_corroboration_and_rejects_conflict() -> 
 
 
 def test_search_returns_whole_cluster_then_status_filter_is_member_truthful() -> None:
-    fields = _passport_fields("P777", "IND")
+    fields = _passport_fields("P777", "Chennai")
     approved = _submission(
         name="Asha",
         status="ai_approved",
@@ -174,29 +193,25 @@ def test_search_returns_whole_cluster_then_status_filter_is_member_truthful() ->
         approved.id,
         review.id,
     }
-    assert [item.submission.id for item in approved_only.items] == [
-        approved.id
-    ]
+    assert [item.submission.id for item in approved_only.items] == [approved.id]
     assert approved_only.items[0].duplicate_cluster_size == 2
-    assert set(
-        approved_only.items[0].duplicate_cluster_member_ids
-    ) == {approved.id, review.id}
+    assert set(approved_only.items[0].duplicate_cluster_member_ids) == {approved.id, review.id}
 
 
 def test_block_pagination_never_splits_cluster_beyond_first_hundred() -> None:
     singles = [
         _submission(
             name=f"A{index:03d}",
-            confirmed=_passport_fields(f"UNIQUE{index}", "IND"),
+            confirmed=_passport_fields(f"UNIQUE{index}", "Chennai"),
         )
         for index in range(99)
     ]
-    duplicate_fields = _passport_fields("DUP100", "IND")
+    duplicate_fields = _passport_fields("DUP100", "Chennai")
     duplicate_a = _submission(name="A099", confirmed=duplicate_fields)
     duplicate_b = _submission(name="A099", confirmed=duplicate_fields)
     tail = _submission(
         name="Z999",
-        confirmed=_passport_fields("TAIL", "IND"),
+        confirmed=_passport_fields("TAIL", "Chennai"),
     )
     submissions = [*singles, duplicate_a, duplicate_b, tail]
 
@@ -224,9 +239,7 @@ def test_block_pagination_never_splits_cluster_beyond_first_hundred() -> None:
     assert first_page.returned_count == 99
     assert {duplicate_a.id, duplicate_b.id}.issubset(second_ids)
     assert first_ids.isdisjoint(second_ids)
-    assert first_ids | second_ids == {
-        submission.id for submission in submissions
-    }
+    assert first_ids | second_ids == {submission.id for submission in submissions}
 
 
 def test_confidence_sort_uses_display_value_and_keeps_null_last_both_ways() -> None:
@@ -272,33 +285,23 @@ def test_confidence_sort_uses_display_value_and_keeps_null_last_both_ways() -> N
         page_size=50,
     )
 
-    assert [
-        item.verification_confidence for item in ascending.items
-    ] == [0.4, 0.8, 0.9, None]
-    assert [
-        item.verification_confidence for item in descending.items
-    ] == [0.9, 0.8, 0.4, None]
+    assert [item.verification_confidence for item in ascending.items] == [0.4, 0.8, 0.9, None]
+    assert [item.verification_confidence for item in descending.items] == [0.9, 0.8, 0.4, None]
 
 
 def test_expiry_alerts_are_full_group_and_filter_independent_at_boundary() -> None:
     today = date(2026, 1, 31)
     expired = _submission(
         name="Expired",
-        confirmed=_passport_fields(
-            "EXP", "IND", expiry="2026-01-30"
-        ),
+        confirmed=_passport_fields("EXP", "Chennai", expiry="2026-01-30"),
     )
     boundary = _submission(
         name="Boundary",
-        confirmed=_passport_fields(
-            "BOUND", "IND", expiry="2026-07-31"
-        ),
+        confirmed=_passport_fields("BOUND", "Chennai", expiry="2026-07-31"),
     )
     valid = _submission(
         name="Valid",
-        confirmed=_passport_fields(
-            "VALID", "IND", expiry="2026-08-01"
-        ),
+        confirmed=_passport_fields("VALID", "Chennai", expiry="2026-08-01"),
     )
     view = build_submission_view(
         [expired, boundary, valid],
@@ -332,15 +335,15 @@ def test_expiry_alerts_use_group_travel_date_but_keep_all_expired() -> None:
     travel_date = date(2026, 10, 1)
     expired = _submission(
         name="Expired",
-        confirmed=_passport_fields("EXP", "IND", expiry="2025-12-31"),
+        confirmed=_passport_fields("EXP", "Chennai", expiry="2025-12-31"),
     )
     after_current_window = _submission(
         name="Travel Window",
-        confirmed=_passport_fields("TRAVEL", "IND", expiry="2027-04-01"),
+        confirmed=_passport_fields("TRAVEL", "Chennai", expiry="2027-04-01"),
     )
     outside_travel_window = _submission(
         name="Outside",
-        confirmed=_passport_fields("OUT", "IND", expiry="2027-04-02"),
+        confirmed=_passport_fields("OUT", "Chennai", expiry="2027-04-02"),
     )
 
     view = build_submission_view(
@@ -355,10 +358,7 @@ def test_expiry_alerts_use_group_travel_date_but_keep_all_expired() -> None:
         travel_date=travel_date,
     )
 
-    assert [
-        (alert.passport_number, alert.status)
-        for alert in view.expiry_alerts
-    ] == [
+    assert [(alert.passport_number, alert.status) for alert in view.expiry_alerts] == [
         ("EXP", "expired"),
         ("TRAVEL", "near_expiry"),
     ]

@@ -9,6 +9,7 @@ from pathlib import PurePosixPath
 from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.infrastructure.export.passport_image_zip_exporter import (
     MissingPassportImagesError,
+    PassportImageExportError,
     PassportImageZipExporter,
 )
 
@@ -64,7 +65,9 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
             image_s3_key=f"originals/{uuid.uuid4()}/front.JPG",
         )
         submission.passport_back_s3_key = f"originals/{uuid.uuid4()}/back.png"
-        submission.passport_photo_s3_key = f"originals/{uuid.uuid4()}/selfie.jpeg" if include_selfie else None
+        submission.passport_photo_s3_key = (
+            f"originals/{uuid.uuid4()}/selfie.jpeg" if include_selfie else None
+        )
         submission.confirmed_fields = {
             key: value
             for key, value in {
@@ -108,7 +111,10 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(len(passenger_folders), 2)
                 self.assertTrue(any(folder.endswith("_2") for folder in passenger_folders))
                 self.assertTrue(any("STF_01_Alex _ Doe" in folder for folder in passenger_folders))
-                self.assertEqual(archive.read(next(name for name in files if name.endswith("_visaimage.jpeg"))), b"selfie-one")
+                self.assertEqual(
+                    archive.read(next(name for name in files if name.endswith("_visaimage.jpeg"))),
+                    b"selfie-one",
+                )
         finally:
             spool.close()
 
@@ -125,7 +131,9 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 storage=FakeStorage({}),  # type: ignore[arg-type]
             )
 
-    async def test_export_reserves_folder_names_globally_and_ignores_staff_code_when_disabled(self) -> None:
+    async def test_export_reserves_folder_names_globally_and_ignores_staff_code_when_disabled(
+        self,
+    ) -> None:
         group = self._group()
         first = self._submission(group, include_selfie=False, staff_code="S1")
         duplicate = self._submission(group, include_selfie=False, staff_code="S2")
@@ -153,12 +161,60 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 files = [name for name in archive.namelist() if not name.endswith("/")]
                 folders = {name.rsplit("/", 1)[0] for name in files}
                 self.assertEqual(len(folders), 3)
-                self.assertFalse(any("S1_" in name or "S2_" in name or "S3_" in name for name in files))
+                self.assertFalse(
+                    any("S1_" in name or "S2_" in name or "S3_" in name for name in files)
+                )
                 self.assertTrue(any(name.endswith("John_passportfront.jpg") for name in files))
                 self.assertTrue(any(name.endswith("John_2_passportfront.jpg") for name in files))
                 self.assertTrue(any(name.endswith("John_2_2_passportfront.bin") for name in files))
         finally:
             spool.close()
+
+    async def test_incremental_export_keeps_folder_suffix_from_full_group_namespace(self) -> None:
+        group = self._group()
+        same_name_uploads = [self._submission(group, include_selfie=False) for _ in range(2)]
+        downloaded_earlier, new_upload = sorted(
+            same_name_uploads,
+            key=lambda item: str(item.id),
+        )
+        downloaded_earlier.client_name = "Same Name"
+        new_upload.client_name = "Same Name"
+        objects = {
+            new_upload.image_s3_key: b"new-front",
+            new_upload.passport_back_s3_key: b"new-back",
+        }
+
+        spool, entry_count, _ = await PassportImageZipExporter().export_group(
+            [new_upload],
+            group_name=group.name,
+            staff_code_enabled=False,
+            storage=FakeStorage(objects),  # type: ignore[arg-type]
+            namespace_submissions=[downloaded_earlier, new_upload],
+        )
+        try:
+            with zipfile.ZipFile(spool) as archive:
+                files = [name for name in archive.namelist() if not name.endswith("/")]
+                self.assertEqual(entry_count, 2)
+                self.assertTrue(
+                    all("/Same Name_2/" in name for name in files),
+                    files,
+                )
+                self.assertFalse(any("/Same Name/" in name for name in files))
+        finally:
+            spool.close()
+
+    async def test_explicit_empty_namespace_cannot_bypass_payload_membership(self) -> None:
+        group = self._group()
+        submission = self._submission(group, include_selfie=False)
+
+        with self.assertRaises(PassportImageExportError):
+            await PassportImageZipExporter().export_group(
+                [submission],
+                group_name=group.name,
+                staff_code_enabled=False,
+                storage=FakeStorage({}),  # type: ignore[arg-type]
+                namespace_submissions=[],
+            )
 
     async def test_export_uses_agent_employee_prefix_before_staff_code(self) -> None:
         group = self._group()
@@ -234,13 +290,14 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
             with zipfile.ZipFile(spool) as archive:
                 files = [name for name in archive.namelist() if not name.endswith("/")]
                 self.assertTrue(any("/Delhi/STF_101_Delhi Person/" in name for name in files))
-                self.assertTrue(any("/Mumbai-1/STF_102_Mumbai One Person/" in name for name in files))
-                self.assertTrue(any("/Mumbai-2/STF_103_Mumbai Two Person/" in name for name in files))
                 self.assertTrue(
-                    any(
-                        "/UNASSIGNED_ZONE/STF_104_Unassigned Person/" in name
-                        for name in files
-                    )
+                    any("/Mumbai-1/STF_102_Mumbai One Person/" in name for name in files)
+                )
+                self.assertTrue(
+                    any("/Mumbai-2/STF_103_Mumbai Two Person/" in name for name in files)
+                )
+                self.assertTrue(
+                    any("/UNASSIGNED_ZONE/STF_104_Unassigned Person/" in name for name in files)
                 )
                 self.assertTrue(all(len(PurePosixPath(name).parts) == 4 for name in files))
         finally:
@@ -304,10 +361,7 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_export_fetches_images_with_bounded_concurrency(self) -> None:
         group = self._group()
-        submissions = [
-            self._submission(group, include_selfie=True)
-            for _ in range(4)
-        ]
+        submissions = [self._submission(group, include_selfie=True) for _ in range(4)]
         objects = {
             key: key.encode()
             for submission in submissions

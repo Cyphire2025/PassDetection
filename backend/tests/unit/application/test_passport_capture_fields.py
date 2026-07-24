@@ -13,6 +13,7 @@ from app.domain.entities.entities import (
 )
 from app.domain.exceptions.exceptions import ValidationError
 from app.domain.value_objects.passport_fields import (
+    canonical_passport_fields,
     normalize_extracted_passport_dates,
     normalize_reviewed_passport_fields,
 )
@@ -20,6 +21,27 @@ from app.infrastructure.export.passport_excel_exporter import PassportExcelExpor
 
 
 class PassportCaptureFieldTests(unittest.TestCase):
+    def test_place_of_issue_never_conflates_legacy_issuing_country(
+        self,
+    ) -> None:
+        normalized = normalize_reviewed_passport_fields({"issuing_country": "  India  "})
+        self.assertEqual(normalized, {"issuing_country": "India"})
+
+        legacy_view = canonical_passport_fields({"issuing_country": "India"})
+        self.assertEqual(
+            legacy_view,
+            {
+                "issuing_country": "India",
+            },
+        )
+        canonical_view = canonical_passport_fields(
+            {
+                "place_of_issue": "Chennai",
+                "issuing_country": "India",
+            }
+        )
+        self.assertEqual(canonical_view["place_of_issue"], "Chennai")
+
     def test_explicit_empty_surname_is_preserved_for_ai_and_staff_review(
         self,
     ) -> None:

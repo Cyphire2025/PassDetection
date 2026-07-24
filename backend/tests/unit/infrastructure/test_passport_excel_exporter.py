@@ -107,6 +107,30 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
     assert values["Surname"] == "VASHISTHA"
     assert values["Given Names"] == "NIPUN KUMAR"
     assert values["Nationality"] == "Indian"
+    assert "Place of Issue" in headers
+    assert values["Place of Issue"] is None
+
+
+def test_export_uses_only_canonical_place_of_issue() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        fields={
+            "place_of_issue": "CHENNAI",
+            "issuing_country": "IND",
+        },
+    )
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Test Group",
+            group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
+        )
+    )
+    _, values = _row_values(worksheet)
+
+    assert values["Place of Issue"] == "CHENNAI"
 
 
 @pytest.mark.parametrize("source", ("IN", "IND", "India", "indian"))

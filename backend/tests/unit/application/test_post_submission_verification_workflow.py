@@ -44,7 +44,7 @@ def _reviewed_fields() -> dict[str, str]:
         "given_names": "AMAN",
         "passport_number": "Z5292389",
         "nationality": "IND",
-        "issuing_country": "India",
+        "place_of_issue": "CHENNAI",
         "date_of_birth": "1990-01-02",
         "date_of_expiry": "2031-03-03",
         "sex": "M",
@@ -55,11 +55,7 @@ def _reviewed_fields() -> dict[str, str]:
 def _reviewable_passport_fields() -> dict[str, str]:
     """Return only fields accepted from the untrusted staff-review request."""
 
-    return {
-        key: value
-        for key, value in _reviewed_fields().items()
-        if key != "staff_code"
-    }
+    return {key: value for key, value in _reviewed_fields().items() if key != "staff_code"}
 
 
 class PostSubmissionVerificationWorkflowTests(unittest.TestCase):
@@ -393,7 +389,7 @@ class StaffApprovePassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
             "given_names": "AMAN",
             "passport_number": "Z5292390",
             "nationality": "IND",
-            "issuing_country": "India",
+            "place_of_issue": "CHENNAI",
             "date_of_birth": "1990-01-02",
             "date_of_issue": "2021-03-04",
             "date_of_expiry": "2031-03-03",
@@ -454,7 +450,7 @@ class StaffApprovePassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
             "given_names": "AMAN",
             "passport_number": "Z5292389",
             "nationality": "IND",
-            "issuing_country": "India",
+            "place_of_issue": "CHENNAI",
             "date_of_birth": "1990-01-02",
             "date_of_issue": "2021-03-04",
             "date_of_expiry": "2031-03-03",

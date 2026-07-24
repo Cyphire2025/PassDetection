@@ -494,6 +494,10 @@ async def test_old_passport_snapshot_prefills_current_image_template_resend(
         "app.presentation.api.v1.routes.whatsapp.AuditLogRepository.record",
         AsyncMock(),
     )
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp.active_replacement_resolution_id_for_recipient",
+        AsyncMock(return_value=None),
+    )
     queue_message = MagicMock()
     monkeypatch.setitem(
         sys.modules,

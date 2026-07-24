@@ -62,7 +62,11 @@ from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
     DocumentWhatsAppDeliveryModel,
+    PassportRosterResolutionModel,
+    PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -72,6 +76,14 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    active_replacement_phone_numbers_for_broadcast,
+    active_replacement_resolution_id_for_recipient,
+    suppress_active_replacement_recipients,
+)
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    load_unresolved_passport_whatsapp_match_context,
+)
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
@@ -241,11 +253,39 @@ class WhatsAppRecipientMessageStatusResponse(BaseModel):
     status_updated_at: datetime
 
 
+class WhatsAppReplacedRecipientResponse(BaseModel):
+    recipient_id: uuid.UUID
+    resolution_id: uuid.UUID
+    client_group_id: uuid.UUID
+    client_group_name: str
+    name: str | None
+    phone_number: str
+    normalized_phone_number: str
+    imported_fields: dict[str, str] = Field(default_factory=dict)
+    replacement_submission_id: uuid.UUID
+    replacement_name: str
+    replacement_phone: str | None = None
+    replaced_at: datetime
+
+
+class WhatsAppUnidentifiedUploadResponse(BaseModel):
+    submission_id: uuid.UUID
+    client_group_id: uuid.UUID
+    client_group_name: str
+    name: str
+    phone_number: str | None = None
+    email: str | None = None
+    details: dict[str, Any] = Field(default_factory=dict)
+    updated_at: datetime
+
+
 class WhatsAppRecipientRosterItemResponse(BaseModel):
-    kind: Literal["recipient", "rejected"]
+    kind: Literal["recipient", "rejected", "replaced", "unidentified"]
     display_order: int
     recipient: WhatsAppRecipientResponse | None = None
     rejected_contact: WhatsAppRejectedContactResponse | None = None
+    replaced_recipient: WhatsAppReplacedRecipientResponse | None = None
+    unidentified_upload: WhatsAppUnidentifiedUploadResponse | None = None
 
 
 class WhatsAppRecipientRosterCountsResponse(BaseModel):
@@ -253,6 +293,8 @@ class WhatsAppRecipientRosterCountsResponse(BaseModel):
     sent: int
     failed: int
     rejected: int
+    replaced: int
+    unidentified: int
 
 
 class WhatsAppRecipientRosterResponse(BaseModel):
@@ -854,9 +896,7 @@ _EXCEL_FIELD_ALIASES = {
     "given name": "given_names",
     "given names": "given_names",
 }
-_EMPTY_EXCEL_VALUES = frozenset(
-    {"-", "--", "n a", "na", "none", "null", "#n/a"}
-)
+_EMPTY_EXCEL_VALUES = frozenset({"-", "--", "n a", "na", "none", "null", "#n/a"})
 
 
 def _excel_field_key(value: Any) -> str:
@@ -866,9 +906,7 @@ def _excel_field_key(value: Any) -> str:
     alias = _EXCEL_FIELD_ALIASES.get(label)
     if alias:
         return alias
-    return re.sub(r"_+", "_", label.replace(" ", "_"))[
-        :MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH
-    ]
+    return re.sub(r"_+", "_", label.replace(" ", "_"))[:MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH]
 
 
 def _safe_imported_fields(value: Any) -> dict[str, str]:
@@ -886,11 +924,7 @@ def _safe_imported_fields(value: Any) -> dict[str, str]:
     for raw_key, raw_value in value.items():
         key = _excel_field_key(raw_key)
         text_value = _excel_cell_text(raw_value)
-        if (
-            not key
-            or not text_value
-            or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES
-        ):
+        if not key or not text_value or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES:
             continue
         if key == "name":
             text_value = _clean_name(text_value) or ""
@@ -966,14 +1000,8 @@ def _excel_header_columns(
         for index, label in enumerate(labels)
         if label and _is_excel_name_header(label) and index not in phone_columns
     ]
-    given_name_columns = [
-        index
-        for index, key in enumerate(field_keys)
-        if key == "given_names"
-    ]
-    surname_columns = [
-        index for index, key in enumerate(field_keys) if key == "surname"
-    ]
+    given_name_columns = [index for index, key in enumerate(field_keys) if key == "given_names"]
+    surname_columns = [index for index, key in enumerate(field_keys) if key == "surname"]
     return (
         phone_columns,
         name_columns,
@@ -985,14 +1013,17 @@ def _excel_header_columns(
 def _find_excel_contact_header(
     rows: list[tuple[Any, ...]],
 ) -> tuple[int, list[int], list[int], list[int], list[int]] | None:
-    best_match: tuple[
-        tuple[int, int, int],
-        int,
-        list[int],
-        list[int],
-        list[int],
-        list[int],
-    ] | None = None
+    best_match: (
+        tuple[
+            tuple[int, int, int],
+            int,
+            list[int],
+            list[int],
+            list[int],
+            list[int],
+        ]
+        | None
+    ) = None
     for row_index, row in enumerate(rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]):
         (
             phone_columns,
@@ -1070,9 +1101,7 @@ def _excel_name_from_row(
         ),
         None,
     )
-    composed = " ".join(
-        part for part in (given_name, surname) if part
-    )
+    composed = " ".join(part for part in (given_name, surname) if part)
     if composed:
         return composed
     if name_columns or given_name_columns or surname_columns:
@@ -1233,11 +1262,7 @@ def _excel_fields_from_row(
             continue
         key = _excel_field_key(raw_header)
         text_value = _excel_cell_text(row_values[index])
-        if (
-            not key
-            or not text_value
-            or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES
-        ):
+        if not key or not text_value or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES:
             continue
         fields.setdefault(key, text_value)
     fields.setdefault("source_file", source_file_name)
@@ -1272,9 +1297,7 @@ def _merge_recipient_inputs(
             else:
                 merged_fields[alternate_key] = value
     if conflicting_keys:
-        merged_fields["duplicate_conflicting_fields"] = ", ".join(
-            sorted(conflicting_keys)
-        )
+        merged_fields["duplicate_conflicting_fields"] = ", ".join(sorted(conflicting_keys))
     return WhatsAppRecipientInput(
         name=existing.name or incoming.name,
         phone_number=existing.phone_number,
@@ -1288,8 +1311,7 @@ def _parse_excel_contact_bytes(
     filename: str,
 ) -> _WhatsAppExcelContactParseResult:
     source_file_name = (
-        filename.replace("\\", "/").rsplit("/", maxsplit=1)[-1].strip()
-        or "contacts.xlsx"
+        filename.replace("\\", "/").rsplit("/", maxsplit=1)[-1].strip() or "contacts.xlsx"
     )
     suffix = source_file_name.rsplit(".", maxsplit=1)[-1].lower()
     suffix = f".{suffix}" if "." in filename else ".xlsx"
@@ -1464,16 +1486,9 @@ def _parse_excel_contact_bytes(
                             reason_code="missing_phone",
                         )
                     continue
-                candidates.extend(
-                    (name, phone, imported_fields)
-                    for phone in phone_values
-                )
+                candidates.extend((name, phone, imported_fields) for phone in phone_values)
             else:
-                row_text = " ".join(
-                    text
-                    for cell in row_values
-                    if (text := _excel_cell_text(cell))
-                )
+                row_text = " ".join(text for cell in row_values if (text := _excel_cell_text(cell)))
                 for match in PHONE_RE.findall(row_text):
                     candidates.append((name, match, imported_fields))
 
@@ -1724,21 +1739,9 @@ def _roster_source_sort_key(
     fallback_source_row: int | None = None,
     stable_index: int,
 ) -> tuple[int, str, int, str, int, int]:
-    source_file = (
-        imported_fields.get("source_file")
-        or fallback_source_file
-        or ""
-    ).casefold()
-    source_sheet = (
-        imported_fields.get("source_sheet")
-        or fallback_source_sheet
-        or ""
-    ).casefold()
-    source_row = (
-        _positive_int(imported_fields.get("source_row"))
-        or fallback_source_row
-        or 0
-    )
+    source_file = (imported_fields.get("source_file") or fallback_source_file or "").casefold()
+    source_sheet = (imported_fields.get("source_sheet") or fallback_source_sheet or "").casefold()
+    source_row = _positive_int(imported_fields.get("source_row")) or fallback_source_row or 0
     source_order = _positive_int(imported_fields.get("source_order"))
     is_imported = bool(source_file or source_sheet or source_row or source_order)
     return (
@@ -1814,14 +1817,10 @@ async def _next_roster_display_order(
     group_id: uuid.UUID,
 ) -> int:
     existing_orders = union_all(
-        select(
-            WhatsAppBroadcastRecipientModel.display_order.label("display_order")
-        ).where(
+        select(WhatsAppBroadcastRecipientModel.display_order.label("display_order")).where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
         ),
-        select(
-            WhatsAppBroadcastRejectedContactModel.display_order.label("display_order")
-        ).where(
+        select(WhatsAppBroadcastRejectedContactModel.display_order.label("display_order")).where(
             WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
         ),
     ).subquery()
@@ -1856,10 +1855,7 @@ def _add_rejected_contact_models(
         merged_fields = dict(existing.imported_fields or {})
         merged_fields.update(contact.imported_fields)
         existing.imported_fields = _safe_imported_fields(merged_fields)
-    if (
-        len(existing_by_fingerprint) + len(new_contacts)
-        > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP
-    ):
+    if len(existing_by_fingerprint) + len(new_contacts) > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
@@ -1906,9 +1902,7 @@ def _normalized_recipient_inputs(
         )
         existing = normalized_contacts.get(normalized)
         normalized_contacts[normalized] = (
-            _merge_recipient_inputs(existing, sanitized)
-            if existing
-            else sanitized
+            _merge_recipient_inputs(existing, sanitized) if existing else sanitized
         )
     if invalid_numbers:
         raise HTTPException(
@@ -1959,6 +1953,15 @@ def _activate_recipient_models(
     for normalized, contact in normalized_contacts.items():
         existing = existing_by_phone.get(normalized)
         if existing:
+            if existing.suppressed_by_roster_resolution_id is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "A recipient in this import is currently marked as "
+                        "replaced in a linked passport group. Restore that "
+                        "replacement from the group before adding them back."
+                    ),
+                )
             existing.name = _clean_name(contact.name)
             existing.phone_number = contact.phone_number.strip()
             if contact.imported_fields:
@@ -2106,9 +2109,7 @@ async def _recipient_delivery_state_maps(
     recipient_ids = [recipient.id for recipient in recipients]
     states_result = await session.execute(
         select(WhatsAppRecipientMessageStateModel)
-        .where(
-            WhatsAppRecipientMessageStateModel.recipient_id.in_(recipient_ids)
-        )
+        .where(WhatsAppRecipientMessageStateModel.recipient_id.in_(recipient_ids))
         .order_by(WhatsAppRecipientMessageStateModel.message_type.asc())
     )
     for state_model in states_result.scalars().all():
@@ -2148,20 +2149,9 @@ async def _recipient_delivery_state_maps(
 async def _group_detail(
     session: AsyncSession, group: WhatsAppBroadcastGroupModel
 ) -> WhatsAppBroadcastGroupDetailResponse:
-    recipients_result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel)
-        .where(
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-        )
-        .order_by(
-            WhatsAppBroadcastRecipientModel.name.asc().nullslast(),
-            WhatsAppBroadcastRecipientModel.created_at.asc(),
-        )
-    )
-    recipients = list(recipients_result.scalars().all())
-    states_by_recipient, resend_statuses_by_recipient = (
-        await _recipient_delivery_state_maps(session, recipients)
+    recipients = await _group_recipients(session, group.id)
+    states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
+        session, recipients
     )
     support_contacts = await _support_contacts_for_group(session, group.id)
     rejected_count_result = await session.execute(
@@ -2209,7 +2199,19 @@ async def _group_recipients(
             WhatsAppBroadcastRecipientModel.created_at.asc(),
         )
     )
-    return list(result.scalars().all())
+    recipients = list(result.scalars().all())
+    if not recipients:
+        return []
+    suppressed_phones = await active_replacement_phone_numbers_for_broadcast(
+        session,
+        broadcast_group_id=group_id,
+        agency_id=recipients[0].agency_id,
+    )
+    return [
+        recipient
+        for recipient in recipients
+        if recipient.normalized_phone_number not in suppressed_phones
+    ]
 
 
 def _select_group_recipients(
@@ -2225,9 +2227,7 @@ def _select_group_recipients(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Select at least one WhatsApp recipient",
         )
-    selected = [
-        recipient for recipient in recipients if recipient.id in requested_id_set
-    ]
+    selected = [recipient for recipient in recipients if recipient.id in requested_id_set]
     if len(selected) != len(requested_id_set):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -2251,9 +2251,7 @@ def _select_support_contacts(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Select at least one customer support contact",
         )
-    selected = [
-        contact for contact in support_contacts if contact.id in requested_id_set
-    ]
+    selected = [contact for contact in support_contacts if contact.id in requested_id_set]
     if len(selected) != len(requested_id_set):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -2576,22 +2574,30 @@ def _merge_composer_snapshot(
         passport_intro=(
             body.passport_intro
             if body.passport_intro is not None
-            else snapshot.passport_intro if snapshot else None
+            else snapshot.passport_intro
+            if snapshot
+            else None
         ),
         passport_link=(
             body.passport_link
             if body.passport_link is not None
-            else snapshot.passport_link if snapshot else None
+            else snapshot.passport_link
+            if snapshot
+            else None
         ),
         message_content=(
             body.message_content
             if body.message_content is not None
-            else snapshot.message_content if snapshot else None
+            else snapshot.message_content
+            if snapshot
+            else None
         ),
         header_image_id=(
             body.header_image_id
             if body.header_image_id is not None
-            else snapshot.header_image_id if snapshot else None
+            else snapshot.header_image_id
+            if snapshot
+            else None
         ),
         recipient_ids=body.recipient_ids,
         support_contact_ids=body.support_contact_ids,
@@ -2653,9 +2659,7 @@ async def list_broadcast_groups(
             name=group.name,
             organizing_company_name=group.organizing_company_name,
             recipient_count=int(recipient_count or 0),
-            total_contact_count=(
-                int(recipient_count or 0) + int(rejected_count or 0)
-            ),
+            total_contact_count=(int(recipient_count or 0) + int(rejected_count or 0)),
             recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
             created_at=group.created_at,
             updated_at=group.updated_at,
@@ -2684,6 +2688,109 @@ async def get_broadcast_group(
     return await _group_detail(session, group)
 
 
+def _unidentified_submission_details(
+    submission: PassportSubmissionModel,
+) -> dict[str, Any]:
+    details: dict[str, Any] = {
+        "family_head_name": submission.family_head_name,
+        "family_head_phone": submission.family_head_phone,
+        "family_head_email": submission.family_head_email,
+        "family_relation": submission.family_relation,
+        "family_gender": submission.family_gender,
+        "departure_city": submission.departure_city,
+        "nearest_domestic_airport": submission.nearest_domestic_airport,
+    }
+    for fields in (
+        submission.staff_metadata,
+        submission.extracted_fields,
+        submission.confirmed_fields,
+    ):
+        details.update(dict(fields or {}))
+    return {
+        str(key): value
+        for key, value in details.items()
+        if value is not None and value != ""
+    }
+
+
+async def _unidentified_uploads_for_broadcast(
+    session: AsyncSession,
+    *,
+    broadcast_group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> list[WhatsAppUnidentifiedUploadResponse]:
+    linked_group_result = await session.execute(
+        select(ClientGroupModel)
+        .join(
+            ClientGroupWhatsAppBroadcastLinkModel,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
+            == ClientGroupModel.id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
+            == broadcast_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+            ClientGroupModel.agency_id == agency_id,
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .order_by(ClientGroupModel.name.asc(), ClientGroupModel.id.asc())
+    )
+    linked_client_groups = list(linked_group_result.scalars().all())
+    unidentified: list[WhatsAppUnidentifiedUploadResponse] = []
+    seen_submission_ids: set[uuid.UUID] = set()
+
+    for client_group in linked_client_groups:
+        (
+            _linked_broadcasts,
+            _recipients,
+            submissions,
+            rows,
+        ) = await load_unresolved_passport_whatsapp_match_context(
+            session,
+            group_id=client_group.id,
+            agency_id=agency_id,
+            broadcast_group_ids=[broadcast_group_id],
+        )
+        submission_by_id = {submission.id: submission for submission in submissions}
+        unmatched_submission_ids = {
+            submission_id
+            for row in rows
+            if row.status == "unmatched_submission"
+            for submission_id in row.submission_ids
+        }
+        for submission_id in unmatched_submission_ids:
+            if submission_id in seen_submission_ids:
+                continue
+            submission = submission_by_id.get(submission_id)
+            if submission is None:
+                continue
+            seen_submission_ids.add(submission_id)
+            unidentified.append(
+                WhatsAppUnidentifiedUploadResponse(
+                    submission_id=submission.id,
+                    client_group_id=client_group.id,
+                    client_group_name=client_group.name,
+                    name=submission.client_name,
+                    phone_number=(
+                        submission.client_phone or submission.family_head_phone
+                    ),
+                    email=submission.client_email or submission.family_head_email,
+                    details=_unidentified_submission_details(submission),
+                    updated_at=submission.updated_at,
+                )
+            )
+
+    unidentified.sort(
+        key=lambda upload: (
+            upload.client_group_name.casefold(),
+            upload.name.casefold(),
+            upload.updated_at,
+            str(upload.submission_id),
+        )
+    )
+    return unidentified
+
+
 @router.get(
     "/groups/{group_id}/recipient-roster",
     response_model=WhatsAppRecipientRosterResponse,
@@ -2694,12 +2801,13 @@ async def get_broadcast_recipient_roster(
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppRecipientRosterResponse:
     group_result = await session.execute(
-        select(WhatsAppBroadcastGroupModel.id).where(
+        select(WhatsAppBroadcastGroupModel).where(
             WhatsAppBroadcastGroupModel.id == group_id,
             *_agency_filter(current_user),
         )
     )
-    if group_result.scalar_one_or_none() is None:
+    group = group_result.scalar_one_or_none()
+    if group is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp broadcast group not found",
@@ -2709,6 +2817,7 @@ async def get_broadcast_recipient_roster(
         select(WhatsAppBroadcastRecipientModel)
         .where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
             WhatsAppBroadcastRecipientModel.removed_at.is_(None),
         )
         .order_by(
@@ -2722,6 +2831,7 @@ async def get_broadcast_recipient_roster(
         select(WhatsAppBroadcastRejectedContactModel)
         .where(
             WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRejectedContactModel.agency_id == group.agency_id,
         )
         .order_by(
             WhatsAppBroadcastRejectedContactModel.display_order.asc().nullslast(),
@@ -2730,23 +2840,72 @@ async def get_broadcast_recipient_roster(
         )
     )
     rejected_contacts = list(rejected_result.scalars().all())
-    states_by_recipient, resend_statuses_by_recipient = (
-        await _recipient_delivery_state_maps(session, recipients)
+    replaced_result = await session.execute(
+        select(
+            WhatsAppBroadcastRecipientModel,
+            PassportRosterResolutionModel,
+            ClientGroupModel,
+            PassportSubmissionModel,
+        )
+        .join(
+            PassportRosterResolutionModel,
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
+            == PassportRosterResolutionModel.id,
+        )
+        .join(
+            ClientGroupModel,
+            PassportRosterResolutionModel.client_group_id
+            == ClientGroupModel.id,
+        )
+        .join(
+            PassportSubmissionModel,
+            PassportRosterResolutionModel.submission_id
+            == PassportSubmissionModel.id,
+        )
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_not(None),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_not(
+                None
+            ),
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+            PassportRosterResolutionModel.status == "active",
+            PassportRosterResolutionModel.resolution_type == "replacement",
+            ClientGroupModel.agency_id == group.agency_id,
+            PassportSubmissionModel.agency_id == group.agency_id,
+        )
+        .order_by(
+            WhatsAppBroadcastRecipientModel.display_order.asc().nullslast(),
+            PassportRosterResolutionModel.created_at.asc(),
+            WhatsAppBroadcastRecipientModel.id.asc(),
+        )
+    )
+    replaced_rows = list(replaced_result.all())
+    states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
+        session, recipients
+    )
+    unidentified_uploads = await _unidentified_uploads_for_broadcast(
+        session,
+        broadcast_group_id=group_id,
+        agency_id=group.agency_id,
     )
 
     roster_models: list[
         tuple[
-            Literal["recipient", "rejected"],
-            WhatsAppBroadcastRecipientModel
-            | WhatsAppBroadcastRejectedContactModel,
+            Literal["recipient", "rejected", "replaced"],
+            WhatsAppBroadcastRecipientModel | WhatsAppBroadcastRejectedContactModel,
         ]
-    ] = [
-        ("recipient", recipient)
-        for recipient in recipients
+    ] = [("recipient", recipient) for recipient in recipients] + [
+        ("rejected", rejected_contact) for rejected_contact in rejected_contacts
     ] + [
-        ("rejected", rejected_contact)
-        for rejected_contact in rejected_contacts
+        ("replaced", recipient)
+        for recipient, _resolution, _client_group, _submission in replaced_rows
     ]
+    replaced_by_recipient_id = {
+        recipient.id: (resolution, client_group, submission)
+        for recipient, resolution, client_group, submission in replaced_rows
+    }
     roster_models.sort(
         key=lambda item: (
             item[1].display_order is None,
@@ -2758,10 +2917,7 @@ async def get_broadcast_recipient_roster(
     )
     next_fallback_order = (
         max(
-            (
-                model.display_order or 0
-                for _, model in roster_models
-            ),
+            (model.display_order or 0 for _, model in roster_models),
             default=0,
         )
         + 1
@@ -2786,7 +2942,7 @@ async def get_broadcast_recipient_roster(
                     ),
                 )
             )
-        else:
+        elif kind == "rejected":
             rejected_contact = model
             assert isinstance(
                 rejected_contact,
@@ -2799,16 +2955,53 @@ async def get_broadcast_recipient_roster(
                     rejected_contact=_rejected_contact_response(rejected_contact),
                 )
             )
+        else:
+            recipient = model
+            assert isinstance(recipient, WhatsAppBroadcastRecipientModel)
+            resolution, client_group, submission = replaced_by_recipient_id[
+                recipient.id
+            ]
+            items.append(
+                WhatsAppRecipientRosterItemResponse(
+                    kind="replaced",
+                    display_order=display_order,
+                    replaced_recipient=WhatsAppReplacedRecipientResponse(
+                        recipient_id=recipient.id,
+                        resolution_id=resolution.id,
+                        client_group_id=client_group.id,
+                        client_group_name=client_group.name,
+                        name=resolution.original_recipient_name,
+                        phone_number=resolution.original_recipient_phone,
+                        normalized_phone_number=(
+                            resolution.replaced_recipient_normalized_phone
+                        ),
+                        imported_fields=dict(
+                            resolution.original_recipient_imported_fields
+                        ),
+                        replacement_submission_id=submission.id,
+                        replacement_name=submission.client_name,
+                        replacement_phone=submission.client_phone,
+                        replaced_at=resolution.created_at,
+                    ),
+                )
+            )
+
+    for upload in unidentified_uploads:
+        items.append(
+            WhatsAppRecipientRosterItemResponse(
+                kind="unidentified",
+                display_order=next_fallback_order,
+                unidentified_upload=upload,
+            )
+        )
+        next_fallback_order += 1
 
     sent_count = 0
     failed_count = 0
     for recipient in recipients:
         recipient_states = states_by_recipient.get(recipient.id, [])
         resend_statuses = resend_statuses_by_recipient.get(recipient.id, {})
-        if any(
-            state.status in WHATSAPP_ACCEPTED_STATUSES
-            for state in recipient_states
-        ):
+        if any(state.status in WHATSAPP_ACCEPTED_STATUSES for state in recipient_states):
             sent_count += 1
         if (
             any(state.status == "failed" for state in recipient_states)
@@ -2819,10 +3012,12 @@ async def get_broadcast_recipient_roster(
     return WhatsAppRecipientRosterResponse(
         items=items,
         counts=WhatsAppRecipientRosterCountsResponse(
-            all=len(items),
+            all=len(recipients) + len(rejected_contacts),
             sent=sent_count,
             failed=failed_count,
             rejected=len(rejected_contacts),
+            replaced=len(replaced_rows),
+            unidentified=len(unidentified_uploads),
         ),
     )
 
@@ -2874,10 +3069,7 @@ async def list_broadcast_rejected_contacts(
         .offset(offset)
     )
     return WhatsAppRejectedContactListResponse(
-        items=[
-            _rejected_contact_response(model)
-            for model in items_result.scalars().all()
-        ],
+        items=[_rejected_contact_response(model) for model in items_result.scalars().all()],
         total=total,
         limit=limit,
         offset=offset,
@@ -2950,8 +3142,7 @@ async def resolve_broadcast_rejected_contact(
         select(WhatsAppBroadcastRecipientModel)
         .where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-            WhatsAppBroadcastRecipientModel.normalized_phone_number
-            == normalized_phone,
+            WhatsAppBroadcastRecipientModel.normalized_phone_number == normalized_phone,
         )
         .with_for_update()
     )
@@ -2990,6 +3181,15 @@ async def resolve_broadcast_rejected_contact(
     if resolved_display_order is None:
         resolved_display_order = await _next_roster_display_order(session, group.id)
     if existing_recipient:
+        if existing_recipient.suppressed_by_roster_resolution_id is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "This recipient is currently marked as replaced in a "
+                    "linked passport group. Restore that replacement from "
+                    "the group before adding them back."
+                ),
+            )
         existing_recipient.name = name
         existing_recipient.phone_number = body.phone_number.strip()
         existing_recipient.imported_fields = imported_fields
@@ -2998,8 +3198,7 @@ async def resolve_broadcast_rejected_contact(
         existing_recipient.removed_at = None
         await session.execute(
             delete(WhatsAppRecipientMessageStateModel).where(
-                WhatsAppRecipientMessageStateModel.recipient_id
-                == existing_recipient.id,
+                WhatsAppRecipientMessageStateModel.recipient_id == existing_recipient.id,
             )
         )
     else:
@@ -3021,10 +3220,15 @@ async def resolve_broadcast_rejected_contact(
             WhatsAppBroadcastRejectedContactModel.id == rejected_contact.id,
         )
     )
-    group.recipient_opt_in_confirmed_at = (
-        group.recipient_opt_in_confirmed_at or now
-    )
+    group.recipient_opt_in_confirmed_at = group.recipient_opt_in_confirmed_at or now
     group.updated_at = now
+    await session.flush()
+    await suppress_active_replacement_recipients(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_ids=[group.id],
+        now=now,
+    )
     await session.flush()
     return await _group_detail(session, group)
 
@@ -3079,9 +3283,7 @@ async def upload_welcome_media(
 
     settings = get_settings()
     try:
-        async with httpx.AsyncClient(
-            timeout=httpx.Timeout(30.0, connect=5.0)
-        ) as client:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=5.0)) as client:
             media_id = await upload_whatsapp_image(
                 client=client,
                 settings=settings,
@@ -3139,8 +3341,10 @@ async def preview_broadcast_message(
             detail="Choose either a preview recipient or a resend recipient, not both",
         )
     recipients = _select_group_recipients(all_recipients, body.recipient_ids)
-    if body.resend_recipient_id and body.recipient_ids is not None and (
-        len(recipients) != 1 or recipients[0].id != body.resend_recipient_id
+    if (
+        body.resend_recipient_id
+        and body.recipient_ids is not None
+        and (len(recipients) != 1 or recipients[0].id != body.resend_recipient_id)
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -3166,8 +3370,7 @@ async def preview_broadcast_message(
     if body.resend_recipient_id:
         state_result = await session.execute(
             select(WhatsAppRecipientMessageStateModel).where(
-                WhatsAppRecipientMessageStateModel.recipient_id
-                == body.resend_recipient_id,
+                WhatsAppRecipientMessageStateModel.recipient_id == body.resend_recipient_id,
                 WhatsAppRecipientMessageStateModel.message_type == message_type,
             )
         )
@@ -3220,21 +3423,17 @@ async def preview_broadcast_message(
         rendered,
         header_parameters,
         parameters,
-    ) = (
-        _message_values(
-            group=group,
-            recipient=recipient,
-            support_contacts=support_contacts,
-            body=resolved_body,
-            preview=True,
-        )
+    ) = _message_values(
+        group=group,
+        recipient=recipient,
+        support_contacts=support_contacts,
+        body=resolved_body,
+        preview=True,
     )
     if body.resend_recipient_id is not None:
         recipient_count = 1
         eligible_count = 1
-        already_sent_count = (
-            1 if target_state.status in WHATSAPP_ACCEPTED_STATUSES else 0
-        )
+        already_sent_count = 1 if target_state.status in WHATSAPP_ACCEPTED_STATUSES else 0
         in_progress_count = 0
         uncertain_count = 0
     else:
@@ -3340,11 +3539,7 @@ async def create_broadcast_group(
 
     excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
     contacts = manual_contacts + excel_contacts
-    normalized_contacts = (
-        _normalized_recipient_inputs(contacts)
-        if contacts
-        else {}
-    )
+    normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
     if not normalized_contacts and not rejected_contacts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -3412,14 +3607,12 @@ async def create_broadcast_group(
     )
     session.add(group)
     await session.flush()
-    recipient_display_orders, rejected_display_orders = (
-        _new_roster_display_orders(
-            normalized_contacts=normalized_contacts,
-            rejected_contacts=rejected_contacts,
-            existing_by_phone={},
-            existing_by_fingerprint={},
-            start_order=1,
-        )
+    recipient_display_orders, rejected_display_orders = _new_roster_display_orders(
+        normalized_contacts=normalized_contacts,
+        rejected_contacts=rejected_contacts,
+        existing_by_phone={},
+        existing_by_fingerprint={},
+        start_order=1,
     )
     for normalized, contact in normalized_contacts.items():
         session.add(
@@ -3572,11 +3765,7 @@ async def add_broadcast_recipients(
     rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
     excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
     contacts = manual_contacts + excel_contacts
-    normalized_contacts = (
-        _normalized_recipient_inputs(contacts)
-        if contacts
-        else {}
-    )
+    normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
     if not normalized_contacts and not rejected_contacts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -3612,8 +3801,7 @@ async def add_broadcast_recipients(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
-                    "A WhatsApp list can contain at most "
-                    f"{MAX_WHATSAPP_RECIPIENTS} recipients"
+                    f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients"
                 ),
             )
 
@@ -3629,33 +3817,23 @@ async def add_broadcast_recipients(
         )
         existing_rejected_contacts = list(existing_rejected_result.scalars().all())
         existing_rejected_by_fingerprint = {
-            contact.fingerprint: contact
-            for contact in existing_rejected_contacts
+            contact.fingerprint: contact for contact in existing_rejected_contacts
         }
 
     new_roster_count = sum(
-        1
-        for normalized in normalized_contacts
-        if normalized not in existing_by_phone
+        1 for normalized in normalized_contacts if normalized not in existing_by_phone
     ) + sum(
         1
         for contact in rejected_contacts
-        if _rejected_contact_fingerprint(contact)
-        not in existing_rejected_by_fingerprint
+        if _rejected_contact_fingerprint(contact) not in existing_rejected_by_fingerprint
     )
-    start_order = (
-        await _next_roster_display_order(session, group.id)
-        if new_roster_count
-        else 1
-    )
-    recipient_display_orders, rejected_display_orders = (
-        _new_roster_display_orders(
-            normalized_contacts=normalized_contacts,
-            rejected_contacts=rejected_contacts,
-            existing_by_phone=existing_by_phone,
-            existing_by_fingerprint=existing_rejected_by_fingerprint,
-            start_order=start_order,
-        )
+    start_order = await _next_roster_display_order(session, group.id) if new_roster_count else 1
+    recipient_display_orders, rejected_display_orders = _new_roster_display_orders(
+        normalized_contacts=normalized_contacts,
+        rejected_contacts=rejected_contacts,
+        existing_by_phone=existing_by_phone,
+        existing_by_fingerprint=existing_rejected_by_fingerprint,
+        start_order=start_order,
     )
 
     now = datetime.now(tz=UTC)
@@ -3678,11 +3856,17 @@ async def add_broadcast_recipients(
         )
 
     if normalized_contacts:
-        group.recipient_opt_in_confirmed_at = (
-            group.recipient_opt_in_confirmed_at or now
-        )
+        group.recipient_opt_in_confirmed_at = group.recipient_opt_in_confirmed_at or now
     group.updated_at = now
     await session.flush()
+    if normalized_contacts:
+        await suppress_active_replacement_recipients(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_ids=[group.id],
+            now=now,
+        )
+        await session.flush()
     return await _group_detail(session, group)
 
 
@@ -3735,8 +3919,7 @@ async def update_broadcast_recipient_phone(
     duplicate_result = await session.execute(
         select(WhatsAppBroadcastRecipientModel.id).where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-            WhatsAppBroadcastRecipientModel.normalized_phone_number
-            == normalized_phone,
+            WhatsAppBroadcastRecipientModel.normalized_phone_number == normalized_phone,
             WhatsAppBroadcastRecipientModel.id != recipient.id,
         )
     )
@@ -3765,9 +3948,7 @@ async def update_broadcast_recipient_phone(
         select(WhatsAppMessageLogModel.id).where(
             WhatsAppMessageLogModel.recipient_id == recipient.id,
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status.in_(
-                WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
-            ),
+            WhatsAppMessageLogModel.status.in_(WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES),
         )
     )
     if active_resend_result.first():
@@ -3798,6 +3979,13 @@ async def update_broadcast_recipient_phone(
         .execution_options(synchronize_session=False)
     )
     group.updated_at = now
+    await session.flush()
+    await suppress_active_replacement_recipients(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_ids=[group.id],
+        now=now,
+    )
     await session.flush()
     return await _group_detail(session, group)
 
@@ -3917,6 +4105,17 @@ async def resend_recipient_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
+    if await active_replacement_resolution_id_for_recipient(
+        session,
+        recipient=recipient,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This recipient is marked as replaced in a linked passport "
+                "group. Restore that replacement before sending to them."
+            ),
+        )
     if body.recipient_ids is not None and set(body.recipient_ids) != {recipient.id}:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -3987,9 +4186,7 @@ async def resend_recipient_message(
             WhatsAppMessageLogModel.recipient_id == recipient.id,
             WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status.in_(
-                WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
-            ),
+            WhatsAppMessageLogModel.status.in_(WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES),
         )
     )
     active_resend = active_resend_result.scalar_one_or_none()
@@ -4181,11 +4378,7 @@ async def resend_recipient_message(
                 "message_content": parameters[0] if message_type == "welcome" else parameters[2],
                 "passport_intro": parameters[0] if message_type == "passport_link" else None,
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
-                "header_image_id": (
-                    header_parameters[0]
-                    if header_parameters
-                    else None
-                ),
+                "header_image_id": (header_parameters[0] if header_parameters else None),
             },
             queue="whatsapp",
         )
@@ -4248,6 +4441,29 @@ async def delete_broadcast_group(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="WhatsApp broadcast group not found"
         )
+    active_replacement_result = await session.execute(
+        select(PassportRosterResolutionModel.id)
+        .join(
+            WhatsAppBroadcastRecipientModel,
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
+            == PassportRosterResolutionModel.id,
+        )
+        .where(
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            PassportRosterResolutionModel.status == "active",
+            PassportRosterResolutionModel.resolution_type == "replacement",
+        )
+        .limit(1)
+    )
+    if active_replacement_result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This broadcast contains a person marked as replaced in a "
+                "linked passport group. Restore that replacement before "
+                "deleting the broadcast."
+            ),
+        )
     processing_result = await session.execute(
         select(func.count())
         .select_from(WhatsAppRecipientMessageStateModel)
@@ -4265,10 +4481,7 @@ async def delete_broadcast_group(
             WhatsAppMessageLogModel.status == "processing",
         )
     )
-    if (
-        int(processing_result.scalar_one()) > 0
-        or int(explicit_processing_result.scalar_one()) > 0
-    ):
+    if int(processing_result.scalar_one()) > 0 or int(explicit_processing_result.scalar_one()) > 0:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(

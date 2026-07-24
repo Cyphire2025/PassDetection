@@ -139,3 +139,55 @@ test("full tracking can filter unique recipients by a linked broadcast", () => {
   assert.match(panel, /whatsapp-broadcast-filter/);
   assert.match(panel, /links\?\.broadcasts\.length \?\? 0\) > 1/);
 });
+
+test("unidentified uploads can be resolved as replacements or removed safely", () => {
+  assert.match(
+    endpoints,
+    /replacementCandidates:[\s\S]*?\/replacement-candidates/,
+  );
+  assert.match(
+    endpoints,
+    /resolveUnidentifiedReplacement:[\s\S]*?\/unidentified\/\$\{submissionId\}\/replacement/,
+  );
+  assert.match(
+    endpoints,
+    /rejectUnidentifiedUpload:[\s\S]*?\/unidentified\/\$\{submissionId\}\/reject/,
+  );
+  assert.match(api, /recipient_id: recipientId, request_id: requestId/);
+  assert.match(api, /\{ request_id: requestId \}/);
+  assert.match(hooks, /useResolveUnidentifiedReplacement/);
+  assert.match(hooks, /useRejectUnidentifiedUpload/);
+  assert.match(panel, /Mark as replacement/);
+  assert.match(panel, /Reject\/remove/);
+  assert.match(panel, /Find the original recipient/);
+  assert.match(panel, /Confirm replacement/);
+});
+
+test("replacement decisions remain visible, detailed, and reversible", () => {
+  assert.match(api, /\| "replacement"/);
+  assert.match(api, /\| "rejected_upload"/);
+  assert.match(api, /replacement_count: number/);
+  assert.match(api, /rejected_upload_count: number/);
+  assert.match(api, /submission_details: GroupWhatsAppSubmissionDetail\[\]/);
+  assert.match(api, /resolution_id: string \| null/);
+  assert.match(
+    endpoints,
+    /restoreRosterResolution:[\s\S]*?\/roster-resolutions\/\$\{resolutionId\}\/restore/,
+  );
+  assert.match(hooks, /useRestoreRosterResolution/);
+  assert.match(panel, /label: "Replaced"/);
+  assert.match(panel, /label: "Removed uploads"/);
+  assert.match(panel, /View submitted details/);
+  assert.match(panel, /Restore original person/);
+  assert.match(panel, /Add upload back/);
+});
+
+test("unidentified filter explains who appears there", () => {
+  assert.match(
+    panel,
+    /People who uploaded their details but are not in the linked WhatsApp broadcast lists\./,
+  );
+  assert.match(panel, /role="tooltip"/);
+  assert.match(panel, /group-hover\/filter:block/);
+  assert.match(panel, /group-focus-within\/filter:block/);
+});

@@ -6,6 +6,7 @@ Upload Links Routes — /api/v1/upload-links
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 from math import ceil
 from typing import Literal
 
@@ -18,7 +19,8 @@ from fastapi import (
     Response,
     status,
 )
-from sqlalchemy import and_, delete, func, select, update
+from sqlalchemy import and_, delete, func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.client_group_dtos import (
@@ -54,8 +56,10 @@ from app.application.use_cases.whatsapp.contact_normalization import (
     normalize_whatsapp_phone,
 )
 from app.application.use_cases.whatsapp.group_submission_matching import (
+    RecipientFieldSet,
     RecipientForComparison,
     SubmissionForComparison,
+    SubmissionMatchRow,
     compare_group_submissions,
     filter_and_sort_match_rows,
     summarize_match_rows,
@@ -72,15 +76,19 @@ from app.domain.exceptions.exceptions import (
     PassDetectionError,
 )
 from app.infrastructure.database.models import (
+    ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     ManagerGroupAccessModel,
     NotificationModel,
     PassengerQRTokenModel,
     PassportProcessingJobModel,
+    PassportRosterResolutionModel,
     PassportSubmissionModel,
     QualifierSelectionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+    WhatsAppMessageLogModel,
+    WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.observability.operational_events import (
@@ -92,6 +100,13 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
+)
+from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    lock_whatsapp_broadcast_groups,
+    suppress_active_replacement_recipients,
+)
+from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    load_unresolved_passport_whatsapp_match_context,
 )
 from app.infrastructure.repositories.qualifier_selection_repository import (
     QualifierSelectionRepository,
@@ -106,12 +121,18 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
     CreateClientGroupRequest,
     CreateQualifierSelectionRequest,
     CreateQualifierSelectionResponse,
+    PassportRosterResolutionResponse,
     PublicFlowTelemetryRequest,
     QualifierSelectionStateResponse,
+    RejectUnidentifiedUploadRequest,
+    ReplacementCandidateListResponse,
+    ReplacementCandidateResponse,
     ReplaceWhatsAppBroadcastLinksRequest,
+    ResolveUnidentifiedReplacementRequest,
     UpdateClientGroupRequest,
     WhatsAppBroadcastSummaryResponse,
     WhatsAppRecipientImportedFieldsResponse,
+    WhatsAppSubmissionDetailResponse,
     WhatsAppSubmissionMatchCountsResponse,
     WhatsAppSubmissionMatchEvidenceResponse,
     WhatsAppSubmissionMatchRowResponse,
@@ -120,17 +141,23 @@ from app.presentation.dependencies.auth import (
     WHATSAPP_BROADCAST_ROLES,
     get_current_active_user,
 )
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
 
 # ── Dependency Factories ──────────────────────────────────────────────────
 
-def _get_create_use_case(session: AsyncSession = Depends(get_db_session)) -> CreateClientGroupUseCase:
+
+def _get_create_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> CreateClientGroupUseCase:
     return CreateClientGroupUseCase(ClientGroupRepository(session))
 
 
-def _get_get_by_token_use_case(session: AsyncSession = Depends(get_db_session)) -> GetClientGroupByTokenUseCase:
+def _get_get_by_token_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> GetClientGroupByTokenUseCase:
     return GetClientGroupByTokenUseCase(ClientGroupRepository(session))
 
 
@@ -156,15 +183,21 @@ def _get_list_use_case(session: AsyncSession = Depends(get_db_session)) -> ListC
     return ListClientGroupsUseCase(ClientGroupRepository(session))
 
 
-def _get_revoke_use_case(session: AsyncSession = Depends(get_db_session)) -> RevokeClientGroupUseCase:
+def _get_revoke_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> RevokeClientGroupUseCase:
     return RevokeClientGroupUseCase(ClientGroupRepository(session))
 
 
-def _get_delete_use_case(session: AsyncSession = Depends(get_db_session)) -> DeleteClientGroupUseCase:
+def _get_delete_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> DeleteClientGroupUseCase:
     return DeleteClientGroupUseCase(ClientGroupRepository(session))
 
 
-def _get_restore_use_case(session: AsyncSession = Depends(get_db_session)) -> RestoreClientGroupUseCase:
+def _get_restore_use_case(
+    session: AsyncSession = Depends(get_db_session),
+) -> RestoreClientGroupUseCase:
     return RestoreClientGroupUseCase(ClientGroupRepository(session))
 
 
@@ -189,9 +222,7 @@ async def _broadcast_summaries(
     stmt = (
         select(
             WhatsAppBroadcastGroupModel,
-            func.count(WhatsAppBroadcastRecipientModel.id).label(
-                "recipient_count"
-            ),
+            func.count(WhatsAppBroadcastRecipientModel.id).label("recipient_count"),
         )
         .outerjoin(
             WhatsAppBroadcastRecipientModel,
@@ -206,9 +237,7 @@ async def _broadcast_summaries(
     if broadcast_ids is not None:
         if not broadcast_ids:
             return []
-        stmt = stmt.where(
-            WhatsAppBroadcastGroupModel.id.in_(broadcast_ids)
-        )
+        stmt = stmt.where(WhatsAppBroadcastGroupModel.id.in_(broadcast_ids))
     result = await session.execute(
         stmt.group_by(WhatsAppBroadcastGroupModel.id).order_by(
             func.lower(WhatsAppBroadcastGroupModel.name).asc(),
@@ -241,10 +270,7 @@ async def _validate_broadcast_ids(
     if {summary.id for summary in summaries} != set(broadcast_ids):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "One or more WhatsApp broadcast groups are unavailable "
-                "for this agency."
-            ),
+            detail=("One or more WhatsApp broadcast groups are unavailable for this agency."),
         )
     return summaries
 
@@ -261,9 +287,7 @@ async def _linked_broadcast_summaries_by_group(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
             WhatsAppBroadcastGroupModel,
-            func.count(WhatsAppBroadcastRecipientModel.id).label(
-                "recipient_count"
-            ),
+            func.count(WhatsAppBroadcastRecipientModel.id).label("recipient_count"),
         )
         .join(
             WhatsAppBroadcastGroupModel,
@@ -280,9 +304,7 @@ async def _linked_broadcast_summaries_by_group(
         )
         .where(
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id.in_(
-                client_group_ids
-            ),
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id.in_(client_group_ids),
         )
         .group_by(
             ClientGroupWhatsAppBroadcastLinkModel.client_group_id,
@@ -294,9 +316,9 @@ async def _linked_broadcast_summaries_by_group(
             WhatsAppBroadcastGroupModel.id.asc(),
         )
     )
-    summaries: dict[
-        uuid.UUID, list[WhatsAppBroadcastSummaryResponse]
-    ] = {group_id: [] for group_id in client_group_ids}
+    summaries: dict[uuid.UUID, list[WhatsAppBroadcastSummaryResponse]] = {
+        group_id: [] for group_id in client_group_ids
+    }
     for group_id, broadcast, recipient_count in result.all():
         summaries.setdefault(group_id, []).append(
             WhatsAppBroadcastSummaryResponse(
@@ -318,30 +340,80 @@ async def _replace_whatsapp_links(
     created_by_user_id: uuid.UUID,
     broadcast_ids: list[uuid.UUID],
 ) -> tuple[list[WhatsAppBroadcastSummaryResponse], list[uuid.UUID], bool]:
-    summaries = await _validate_broadcast_ids(
-        session,
-        agency_id=agency_id,
-        broadcast_ids=broadcast_ids,
+    # Serialize link-set edits for this passport group. Broadcast rows are then
+    # locked in the same stable order used by replacement creation so an
+    # unlink cannot pass the active-replacement check concurrently.
+    await session.execute(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == agency_id,
+        )
+        .with_for_update()
     )
     existing_result = await session.execute(
-        select(
-            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-        ).where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == group_id,
+        select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
         )
     )
     previous_ids = sorted(set(existing_result.scalars().all()), key=str)
     requested_ids = sorted(set(broadcast_ids), key=str)
+    affected_broadcast_ids = sorted(
+        set(previous_ids).union(requested_ids),
+        key=str,
+    )
+    locked_broadcast_ids = await lock_whatsapp_broadcast_groups(
+        session,
+        agency_id=agency_id,
+        broadcast_group_ids=affected_broadcast_ids,
+    )
+    if set(locked_broadcast_ids) != set(affected_broadcast_ids):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "One or more WhatsApp broadcast groups changed while links "
+                "were being updated. Refresh and try again."
+            ),
+        )
+    summaries = await _validate_broadcast_ids(
+        session,
+        agency_id=agency_id,
+        broadcast_ids=requested_ids,
+    )
     changed = previous_ids != requested_ids
     if changed:
+        removed_broadcast_ids = set(previous_ids) - set(requested_ids)
+        if removed_broadcast_ids:
+            active_replacement_result = await session.execute(
+                select(PassportRosterResolutionModel.id)
+                .join(
+                    WhatsAppBroadcastRecipientModel,
+                    WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
+                    == PassportRosterResolutionModel.id,
+                )
+                .where(
+                    PassportRosterResolutionModel.client_group_id == group_id,
+                    PassportRosterResolutionModel.agency_id == agency_id,
+                    PassportRosterResolutionModel.status == "active",
+                    PassportRosterResolutionModel.resolution_type == "replacement",
+                    WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(removed_broadcast_ids),
+                )
+                .limit(1)
+            )
+            if active_replacement_result.scalar_one_or_none() is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "A broadcast cannot be unlinked while it contains a "
+                        "person marked as replaced in this passport group. "
+                        "Restore the replacement first."
+                    ),
+                )
         await session.execute(
             delete(ClientGroupWhatsAppBroadcastLinkModel).where(
-                ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-                == group_id,
-                ClientGroupWhatsAppBroadcastLinkModel.agency_id
-                == agency_id,
+                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
+                ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
             )
         )
         session.add_all(
@@ -357,6 +429,19 @@ async def _replace_whatsapp_links(
             ]
         )
         await session.flush()
+    if requested_ids:
+        await suppress_active_replacement_recipients(
+            session,
+            agency_id=agency_id,
+            broadcast_group_ids=requested_ids,
+            now=datetime.now(tz=UTC),
+        )
+        await session.flush()
+        summaries = await _validate_broadcast_ids(
+            session,
+            agency_id=agency_id,
+            broadcast_ids=requested_ids,
+        )
     return summaries, previous_ids, changed
 
 
@@ -372,9 +457,7 @@ async def _require_managed_group(
             detail="Client group was not found",
         )
     try:
-        await AuthorizationPolicy(session).require_manage_group(
-            current_user, group
-        )
+        await AuthorizationPolicy(session).require_manage_group(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -395,9 +478,7 @@ async def _require_viewable_group(
             detail="Client group was not found",
         )
     try:
-        await AuthorizationPolicy(session).require_view_group(
-            current_user, group
-        )
+        await AuthorizationPolicy(session).require_view_group(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -413,17 +494,14 @@ async def _unique_linked_recipient_count(
     agency_id: uuid.UUID,
 ) -> int:
     result = await session.execute(
-        select(
-            WhatsAppBroadcastRecipientModel.normalized_phone_number
-        )
+        select(WhatsAppBroadcastRecipientModel.normalized_phone_number)
         .join(
             ClientGroupWhatsAppBroadcastLinkModel,
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
             == WhatsAppBroadcastRecipientModel.broadcast_group_id,
         )
         .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
             WhatsAppBroadcastRecipientModel.agency_id == agency_id,
             WhatsAppBroadcastRecipientModel.removed_at.is_(None),
@@ -440,6 +518,84 @@ async def _unique_linked_recipient_count(
 
 # ── Routes ────────────────────────────────────────────────────────────────
 
+
+def _stored_uuid_list(values: object) -> list[uuid.UUID]:
+    if not isinstance(values, list):
+        return []
+    parsed: list[uuid.UUID] = []
+    for value in values:
+        try:
+            parsed.append(uuid.UUID(str(value)))
+        except (TypeError, ValueError, AttributeError):
+            continue
+    return list(dict.fromkeys(parsed))
+
+
+def _submission_detail_response(
+    submission: PassportSubmissionModel,
+) -> WhatsAppSubmissionDetailResponse:
+    fields: dict[str, object] = dict(
+        submission.confirmed_fields or submission.extracted_fields or {}
+    )
+    for key, value in dict(submission.staff_metadata or {}).items():
+        fields.setdefault(key, value)
+    supplemental = {
+        "nearest_international_airport": submission.departure_city,
+        "nearest_domestic_airport": submission.nearest_domestic_airport,
+        "family_relation": submission.family_relation,
+        "family_head_name": submission.family_head_name,
+    }
+    for key, value in supplemental.items():
+        if value not in (None, ""):
+            fields.setdefault(key, value)
+    return WhatsAppSubmissionDetailResponse(
+        submission_id=submission.id,
+        name=submission.client_name,
+        phone=submission.client_phone,
+        email=submission.client_email,
+        fields=fields,
+    )
+
+
+def _roster_resolution_response(
+    resolution: PassportRosterResolutionModel,
+) -> PassportRosterResolutionResponse:
+    return PassportRosterResolutionResponse(
+        id=resolution.id,
+        client_group_id=resolution.client_group_id,
+        submission_id=resolution.submission_id,
+        resolution_type=resolution.resolution_type,
+        status=resolution.status,
+        broadcast_recipient_id=resolution.broadcast_recipient_id,
+        suppressed_recipient_ids=_stored_uuid_list(resolution.suppressed_recipient_ids),
+        excluded_submission_ids=_stored_uuid_list(resolution.excluded_submission_ids),
+        created_at=resolution.created_at,
+        restored_at=resolution.restored_at,
+    )
+
+
+def _require_matching_roster_resolution_replay(
+    resolution: PassportRosterResolutionModel,
+    *,
+    client_group_id: uuid.UUID,
+    submission_id: uuid.UUID,
+    resolution_type: Literal["replacement", "rejected"],
+    broadcast_recipient_id: uuid.UUID | None,
+    conflict_detail: str,
+) -> PassportRosterResolutionModel:
+    if (
+        resolution.client_group_id != client_group_id
+        or resolution.submission_id != submission_id
+        or resolution.resolution_type != resolution_type
+        or resolution.broadcast_recipient_id != broadcast_recipient_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=conflict_detail,
+        )
+    return resolution
+
+
 @router.post(
     "",
     response_model=ClientGroupResponse,
@@ -455,7 +611,7 @@ async def create_client_group(
     if not current_user.agency_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User must be associated with an agency to create upload links."
+            detail="User must be associated with an agency to create upload links.",
         )
 
     if request.whatsapp_broadcast_group_ids:
@@ -506,12 +662,53 @@ async def create_client_group(
         actor_email=current_user.email,
         metadata={
             "whatsapp_broadcast_count": len(linked),
-            "whatsapp_broadcast_group_ids": [
-                str(summary.id) for summary in linked
-            ],
+            "whatsapp_broadcast_group_ids": [str(summary.id) for summary in linked],
         },
     )
     return ClientGroupResponse.model_validate(result)
+
+
+async def _linked_broadcast_names_for_group(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> dict[uuid.UUID, str]:
+    result = await session.execute(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.name,
+        )
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id
+            == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
+            WhatsAppBroadcastGroupModel.agency_id == agency_id,
+        )
+    )
+    return {broadcast_id: broadcast_name for broadcast_id, broadcast_name in result.all()}
+
+
+async def _current_unresolved_match_context(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> tuple[
+    dict[uuid.UUID, str],
+    list[WhatsAppBroadcastRecipientModel],
+    list[PassportSubmissionModel],
+    list[SubmissionMatchRow],
+]:
+    return await load_unresolved_passport_whatsapp_match_context(
+        session,
+        group_id=group_id,
+        agency_id=agency_id,
+    )
 
 
 @router.get(
@@ -530,7 +727,10 @@ async def list_client_groups(
     if not current_user.agency_id:
         return []
     if status_filter == "deleted" and current_user.role != UserRole.SUPER_ADMIN:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only super admins can view deleted group data")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super admins can view deleted group data",
+        )
 
     results = await use_case.execute(
         agency_id=current_user.agency_id,
@@ -577,9 +777,7 @@ async def list_whatsapp_broadcast_options_for_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> list[WhatsAppBroadcastSummaryResponse]:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(
-        session, current_user, link_id
-    )
+    group = await _require_managed_group(session, current_user, link_id)
     return await _broadcast_summaries(
         session,
         agency_id=group.agency_id,
@@ -619,9 +817,7 @@ async def record_public_flow_telemetry(
         min_length=8,
         max_length=128,
     ),
-    use_case: GetClientGroupByTokenUseCase = Depends(
-        _get_get_by_token_use_case
-    ),
+    use_case: GetClientGroupByTokenUseCase = Depends(_get_get_by_token_use_case),
 ) -> Response:
     """Accept only fixed, PII-free events for an active upload link."""
 
@@ -666,9 +862,7 @@ async def record_public_flow_telemetry(
 async def create_qualifier_selection(
     token: str,
     request: CreateQualifierSelectionRequest,
-    use_case: CreateQualifierSelectionUseCase = Depends(
-        _get_create_qualifier_selection_use_case
-    ),
+    use_case: CreateQualifierSelectionUseCase = Depends(_get_create_qualifier_selection_use_case),
 ) -> CreateQualifierSelectionResponse:
     try:
         result = await use_case.execute(
@@ -703,9 +897,7 @@ async def get_qualifier_selection(
         min_length=32,
         max_length=256,
     ),
-    use_case: GetQualifierSelectionUseCase = Depends(
-        _get_qualifier_selection_use_case
-    ),
+    use_case: GetQualifierSelectionUseCase = Depends(_get_qualifier_selection_use_case),
 ) -> QualifierSelectionStateResponse:
     try:
         result = await use_case.execute(
@@ -737,12 +929,8 @@ async def get_client_group_whatsapp_links(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_viewable_group(
-        session, current_user, link_id
-    )
-    can_manage = await AuthorizationPolicy(session).can_manage_group(
-        current_user, group
-    )
+    group = await _require_viewable_group(session, current_user, link_id)
+    can_manage = await AuthorizationPolicy(session).can_manage_group(current_user, group)
     linked = await _linked_broadcast_summaries_by_group(
         session,
         agency_id=group.agency_id,
@@ -775,9 +963,7 @@ async def replace_client_group_whatsapp_links(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(
-        session, current_user, link_id
-    )
+    group = await _require_managed_group(session, current_user, link_id)
     summaries, previous_ids, changed = await _replace_whatsapp_links(
         session,
         group_id=group.id,
@@ -796,9 +982,7 @@ async def replace_client_group_whatsapp_links(
             "changed": changed,
             "previous_broadcast_count": len(previous_ids),
             "broadcast_count": len(summaries),
-            "whatsapp_broadcast_group_ids": [
-                str(summary.id) for summary in summaries
-            ],
+            "whatsapp_broadcast_group_ids": [str(summary.id) for summary in summaries],
         },
     )
     return ClientGroupWhatsAppLinksResponse(
@@ -830,10 +1014,10 @@ async def get_client_group_whatsapp_matches(
         "multiple_submissions",
         "needs_review",
         "unmatched_submission",
+        "replacement",
+        "rejected_upload",
     ] = Query(default="all", alias="status"),
-    sort_by: Literal[
-        "name", "phone", "status", "broadcast", "updated_at"
-    ] = "name",
+    sort_by: Literal["name", "phone", "status", "broadcast", "updated_at"] = "name",
     sort_order: Literal["asc", "desc"] = "asc",
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=100, ge=1, le=200),
@@ -841,9 +1025,7 @@ async def get_client_group_whatsapp_matches(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppMatchesResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_viewable_group(
-        session, current_user, link_id
-    )
+    group = await _require_viewable_group(session, current_user, link_id)
     linked_result = await session.execute(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
@@ -855,65 +1037,83 @@ async def get_client_group_whatsapp_matches(
             == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
         )
         .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == group.id,
-            ClientGroupWhatsAppBroadcastLinkModel.agency_id
-            == group.agency_id,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
             WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
         )
     )
     linked_broadcasts = {
-        broadcast_id: broadcast_name
-        for broadcast_id, broadcast_name in linked_result.all()
+        broadcast_id: broadcast_name for broadcast_id, broadcast_name in linked_result.all()
     }
-    if (
-        broadcast_id is not None
-        and broadcast_id not in linked_broadcasts
-    ):
+    if broadcast_id is not None and broadcast_id not in linked_broadcasts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "The selected WhatsApp broadcast is not linked to this "
-                "client group."
-            ),
+            detail=("The selected WhatsApp broadcast is not linked to this client group."),
         )
 
-    recipients: list[RecipientForComparison] = []
+    resolution_result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+            PassportRosterResolutionModel.status == "active",
+        )
+    )
+    active_resolutions = list(resolution_result.scalars().all())
+    suppressed_recipient_ids = {
+        recipient_id
+        for resolution in active_resolutions
+        for recipient_id in _stored_uuid_list(resolution.suppressed_recipient_ids)
+    }
+    excluded_submission_ids = {
+        submission_id
+        for resolution in active_resolutions
+        for submission_id in (
+            [resolution.submission_id] + _stored_uuid_list(resolution.excluded_submission_ids)
+        )
+    }
+
+    recipient_models: list[WhatsAppBroadcastRecipientModel] = []
     if linked_broadcasts:
+        recipient_visibility = (
+            or_(
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                WhatsAppBroadcastRecipientModel.id.in_(suppressed_recipient_ids),
+            )
+            if suppressed_recipient_ids
+            else WhatsAppBroadcastRecipientModel.removed_at.is_(None)
+        )
         recipient_result = await session.execute(
             select(WhatsAppBroadcastRecipientModel).where(
-                WhatsAppBroadcastRecipientModel.agency_id
-                == group.agency_id,
-                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(
-                    list(linked_broadcasts)
-                ),
-                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(linked_broadcasts)),
+                recipient_visibility,
             )
         )
-        recipients = [
-            RecipientForComparison(
-                id=recipient.id,
-                broadcast_id=recipient.broadcast_group_id,
-                broadcast_name=linked_broadcasts[
-                    recipient.broadcast_group_id
-                ],
-                name=recipient.name,
-                phone=recipient.normalized_phone_number,
-                updated_at=recipient.created_at,
-                imported_fields=dict(recipient.imported_fields or {}),
-            )
-            for recipient in recipient_result.scalars().all()
-        ]
+        recipient_models = list(recipient_result.scalars().all())
+    recipient_model_by_id = {recipient.id: recipient for recipient in recipient_models}
+    recipients = [
+        RecipientForComparison(
+            id=recipient.id,
+            broadcast_id=recipient.broadcast_group_id,
+            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
+            name=recipient.name,
+            phone=recipient.normalized_phone_number,
+            updated_at=recipient.created_at,
+            imported_fields=dict(recipient.imported_fields or {}),
+        )
+        for recipient in recipient_models
+        if recipient.removed_at is None and recipient.id not in suppressed_recipient_ids
+    ]
 
     submission_result = await session.execute(
         select(PassportSubmissionModel).where(
             PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.agency_id == group.agency_id,
-            PassportSubmissionModel.status.in_(
-                OFFICE_VISIBLE_PASSPORT_STATUS_VALUES
-            ),
+            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
         )
     )
+    submission_models = list(submission_result.scalars().all())
+    submission_model_by_id = {submission.id: submission for submission in submission_models}
     submissions = [
         SubmissionForComparison(
             id=submission.id,
@@ -927,13 +1127,87 @@ async def get_client_group_whatsapp_matches(
             extracted_fields=dict(submission.extracted_fields or {}),
             staff_metadata=dict(submission.staff_metadata or {}),
         )
-        for submission in submission_result.scalars().all()
+        for submission in submission_models
+        if submission.id not in excluded_submission_ids
     ]
     rows, counts = compare_group_submissions(recipients, submissions)
+
+    for resolution in active_resolutions:
+        submission = submission_model_by_id.get(resolution.submission_id)
+        if submission is None:
+            continue
+        if resolution.resolution_type == "replacement":
+            suppressed = [
+                recipient_model_by_id[recipient_id]
+                for recipient_id in _stored_uuid_list(resolution.suppressed_recipient_ids)
+                if recipient_id in recipient_model_by_id
+            ]
+            broadcast_pairs = list(
+                dict.fromkeys(
+                    (
+                        recipient.broadcast_group_id,
+                        linked_broadcasts.get(
+                            recipient.broadcast_group_id,
+                            "Linked broadcast",
+                        ),
+                    )
+                    for recipient in suppressed
+                )
+            )
+            selected_recipient = recipient_model_by_id.get(resolution.broadcast_recipient_id)
+            rows.append(
+                SubmissionMatchRow(
+                    status="replacement",
+                    match_basis="manual_replacement",
+                    normalized_phone=(
+                        selected_recipient.normalized_phone_number if selected_recipient else None
+                    ),
+                    recipient_ids=tuple(recipient.id for recipient in suppressed),
+                    submission_ids=(submission.id,),
+                    broadcast_ids=tuple(item[0] for item in broadcast_pairs),
+                    broadcast_names=tuple(item[1] for item in broadcast_pairs),
+                    recipient_names=tuple(
+                        recipient.name or "Unnamed recipient" for recipient in suppressed
+                    ),
+                    submission_names=(submission.client_name,),
+                    updated_at=max(
+                        submission.updated_at,
+                        resolution.created_at,
+                    ),
+                    confidence="high",
+                    recipient_fields=tuple(
+                        RecipientFieldSet(
+                            recipient_id=recipient.id,
+                            fields=dict(recipient.imported_fields or {}),
+                        )
+                        for recipient in suppressed
+                    ),
+                    resolution_id=resolution.id,
+                )
+            )
+        else:
+            rows.append(
+                SubmissionMatchRow(
+                    status="rejected_upload",
+                    match_basis="manual_rejection",
+                    normalized_phone=normalize_whatsapp_phone(submission.client_phone or ""),
+                    recipient_ids=(),
+                    submission_ids=(submission.id,),
+                    broadcast_ids=(),
+                    broadcast_names=(),
+                    recipient_names=(),
+                    submission_names=(submission.client_name,),
+                    updated_at=max(
+                        submission.updated_at,
+                        resolution.created_at,
+                    ),
+                    confidence="high",
+                    resolution_id=resolution.id,
+                )
+            )
+    counts = summarize_match_rows(rows)
     if broadcast_id is not None:
-        rows = [
-            row for row in rows if broadcast_id in row.broadcast_ids
-        ]
+        rows = [row for row in rows if broadcast_id in row.broadcast_ids]
         counts = summarize_match_rows(rows)
     ordered_rows = filter_and_sort_match_rows(
         rows,
@@ -955,10 +1229,10 @@ async def get_client_group_whatsapp_matches(
             multiple_submission_count=counts.multiple_submission_count,
             matched_submission_count=counts.matched_submission_count,
             needs_review_count=counts.needs_review_count,
-            needs_review_submission_count=(
-                counts.needs_review_submission_count
-            ),
+            needs_review_submission_count=(counts.needs_review_submission_count),
             unmatched_submission_count=counts.unmatched_submission_count,
+            replacement_count=counts.replacement_count,
+            rejected_upload_count=counts.rejected_upload_count,
         ),
         matches=[
             WhatsAppSubmissionMatchRowResponse(
@@ -982,9 +1256,7 @@ async def get_client_group_whatsapp_matches(
                     )
                     for evidence in row.match_evidence
                 ],
-                candidate_submission_ids=list(
-                    row.candidate_submission_ids
-                ),
+                candidate_submission_ids=list(row.candidate_submission_ids),
                 recipient_fields=[
                     WhatsAppRecipientImportedFieldsResponse(
                         recipient_id=field_set.recipient_id,
@@ -992,6 +1264,12 @@ async def get_client_group_whatsapp_matches(
                     )
                     for field_set in row.recipient_fields
                 ],
+                submission_details=[
+                    _submission_detail_response(submission_model_by_id[submission_id])
+                    for submission_id in row.submission_ids
+                    if submission_id in submission_model_by_id
+                ],
+                resolution_id=row.resolution_id,
                 updated_at=row.updated_at,
             )
             for row in page_rows
@@ -1001,6 +1279,589 @@ async def get_client_group_whatsapp_matches(
         page_size=page_size,
         total_pages=ceil(total / page_size) if total else 0,
     )
+
+
+@router.get(
+    "/{link_id}/replacement-candidates",
+    response_model=ReplacementCandidateListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List active linked recipients that an unidentified upload can replace",
+)
+async def list_replacement_candidates(
+    link_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> ReplacementCandidateListResponse:
+    _require_whatsapp_broadcast_access(current_user)
+    group = await _require_managed_group(session, current_user, link_id)
+    linked_broadcasts = await _linked_broadcast_names_for_group(
+        session,
+        group_id=group.id,
+        agency_id=group.agency_id,
+    )
+    recipient_models: list[WhatsAppBroadcastRecipientModel] = []
+    if linked_broadcasts:
+        result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel).where(
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(linked_broadcasts)),
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
+            )
+        )
+        recipient_models = list(result.scalars().all())
+
+    grouped: dict[str, list[WhatsAppBroadcastRecipientModel]] = {}
+    for recipient in recipient_models:
+        normalized = normalize_whatsapp_phone(recipient.normalized_phone_number)
+        if normalized:
+            grouped.setdefault(normalized, []).append(recipient)
+    items: list[ReplacementCandidateResponse] = []
+    for phone, logical_recipients in grouped.items():
+        ordered = sorted(
+            logical_recipients,
+            key=lambda recipient: (
+                linked_broadcasts.get(recipient.broadcast_group_id, "").casefold(),
+                str(recipient.id),
+            ),
+        )
+        first = ordered[0]
+        items.append(
+            ReplacementCandidateResponse(
+                recipient_id=first.id,
+                recipient_ids=[recipient.id for recipient in ordered],
+                name=next(
+                    (recipient.name for recipient in ordered if recipient.name),
+                    None,
+                ),
+                phone=phone,
+                broadcast_ids=list(
+                    dict.fromkeys(recipient.broadcast_group_id for recipient in ordered)
+                ),
+                broadcast_names=list(
+                    dict.fromkeys(
+                        linked_broadcasts[recipient.broadcast_group_id] for recipient in ordered
+                    )
+                ),
+                imported_fields=dict(first.imported_fields or {}),
+            )
+        )
+    items.sort(
+        key=lambda item: (
+            (item.name or "").casefold(),
+            item.phone,
+            str(item.recipient_id),
+        )
+    )
+    return ReplacementCandidateListResponse(
+        client_group_id=group.id,
+        items=items,
+    )
+
+
+@router.post(
+    "/{link_id}/unidentified/{submission_id}/replacement",
+    response_model=PassportRosterResolutionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Mark an unidentified passport upload as a recipient replacement",
+)
+async def resolve_unidentified_as_replacement(
+    link_id: uuid.UUID,
+    submission_id: uuid.UUID,
+    body: ResolveUnidentifiedReplacementRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+    _csrf: None = Depends(require_cookie_csrf),
+) -> PassportRosterResolutionResponse:
+    _require_whatsapp_broadcast_access(current_user)
+    group = await _require_managed_group(session, current_user, link_id)
+    existing_result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.request_id == body.request_id,
+        )
+    )
+    existing = existing_result.scalar_one_or_none()
+    if existing is not None:
+        replay = _require_matching_roster_resolution_replay(
+            existing,
+            client_group_id=group.id,
+            submission_id=submission_id,
+            resolution_type="replacement",
+            broadcast_recipient_id=body.recipient_id,
+            conflict_detail="That replacement request ID was already used.",
+        )
+        return _roster_resolution_response(replay)
+
+    submission_result = await session.execute(
+        select(PassportSubmissionModel)
+        .where(
+            PassportSubmissionModel.id == submission_id,
+            PassportSubmissionModel.group_id == group.id,
+            PassportSubmissionModel.agency_id == group.agency_id,
+            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
+        )
+        .with_for_update()
+    )
+    submission = submission_result.scalar_one_or_none()
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport upload was not found in this group.",
+        )
+
+    (
+        linked_broadcasts,
+        _recipient_models,
+        _submission_models,
+        match_rows,
+    ) = await _current_unresolved_match_context(
+        session,
+        group_id=group.id,
+        agency_id=group.agency_id,
+    )
+    unidentified_row = next(
+        (
+            row
+            for row in match_rows
+            if row.status == "unmatched_submission" and submission_id in row.submission_ids
+        ),
+        None,
+    )
+    if unidentified_row is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This upload is no longer unidentified. Refresh the tracking "
+                "page before choosing a replacement."
+            ),
+        )
+
+    locked_broadcast_ids = await lock_whatsapp_broadcast_groups(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_ids=list(linked_broadcasts),
+    )
+    if set(locked_broadcast_ids) != set(linked_broadcasts):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "The linked WhatsApp broadcasts changed. Refresh the tracking "
+                "page before choosing a replacement."
+            ),
+        )
+    live_links_result = await session.execute(
+        select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id).where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+        )
+    )
+    live_linked_broadcast_ids = sorted(
+        set(live_links_result.scalars().all()),
+        key=str,
+    )
+    if set(live_linked_broadcast_ids) != set(linked_broadcasts):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "The linked WhatsApp broadcasts changed. Refresh the tracking "
+                "page before choosing a replacement."
+            ),
+        )
+    selected_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.id == body.recipient_id,
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(
+                live_linked_broadcast_ids or [uuid.uuid4()]
+            ),
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
+        )
+        .with_for_update()
+    )
+    selected_recipient = selected_result.scalar_one_or_none()
+    if selected_recipient is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The selected recipient is no longer available for replacement.",
+        )
+    recipient_row = next(
+        (row for row in match_rows if body.recipient_id in row.recipient_ids),
+        None,
+    )
+    if recipient_row is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The selected recipient could not be resolved in this group.",
+        )
+
+    suppressed_ids = list(dict.fromkeys(recipient_row.recipient_ids))
+    excluded_submission_ids = list(
+        dict.fromkeys(
+            (
+                *recipient_row.submission_ids,
+                *recipient_row.candidate_submission_ids,
+            )
+        )
+    )
+    locked_recipients_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.id.in_(suppressed_ids),
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
+        )
+        .with_for_update()
+    )
+    locked_recipients = list(locked_recipients_result.scalars().all())
+    if {recipient.id for recipient in locked_recipients} != set(suppressed_ids):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="One of the linked recipient records changed. Refresh and try again.",
+        )
+
+    now = datetime.now(tz=UTC)
+    resolution = PassportRosterResolutionModel(
+        id=uuid.uuid4(),
+        agency_id=group.agency_id,
+        client_group_id=group.id,
+        submission_id=submission.id,
+        broadcast_recipient_id=selected_recipient.id,
+        replaced_recipient_normalized_phone=selected_recipient.normalized_phone_number,
+        original_recipient_name=selected_recipient.name,
+        original_recipient_phone=selected_recipient.phone_number,
+        original_recipient_imported_fields=dict(
+            selected_recipient.imported_fields or {}
+        ),
+        resolution_type="replacement",
+        request_id=body.request_id,
+        suppressed_recipient_ids=[str(recipient_id) for recipient_id in suppressed_ids],
+        excluded_submission_ids=[
+            str(original_submission_id) for original_submission_id in excluded_submission_ids
+        ],
+        status="active",
+        resolved_by_user_id=current_user.id,
+        created_at=now,
+    )
+    try:
+        async with session.begin_nested():
+            session.add(resolution)
+            for recipient in locked_recipients:
+                recipient.removed_at = now
+                recipient.suppressed_by_roster_resolution_id = resolution.id
+            await session.execute(
+                update(WhatsAppMessageLogModel)
+                .where(
+                    WhatsAppMessageLogModel.recipient_id.in_(suppressed_ids),
+                    WhatsAppMessageLogModel.status == "queued",
+                )
+                .values(
+                    status="failed",
+                    status_updated_at=now,
+                    error_message=("Recipient replaced in linked passport group before delivery"),
+                )
+                .execution_options(synchronize_session=False)
+            )
+            await session.execute(
+                update(WhatsAppRecipientMessageStateModel)
+                .where(
+                    WhatsAppRecipientMessageStateModel.recipient_id.in_(suppressed_ids),
+                    WhatsAppRecipientMessageStateModel.status == "queued",
+                )
+                .values(
+                    status="failed",
+                    batch_id=None,
+                    status_updated_at=now,
+                    updated_at=now,
+                )
+                .execution_options(synchronize_session=False)
+            )
+            await session.execute(
+                update(WhatsAppBroadcastGroupModel)
+                .where(
+                    WhatsAppBroadcastGroupModel.id.in_(
+                        list({recipient.broadcast_group_id for recipient in locked_recipients})
+                    )
+                )
+                .values(updated_at=now)
+            )
+            await session.flush()
+            await suppress_active_replacement_recipients(
+                session,
+                agency_id=group.agency_id,
+                broadcast_group_ids=list(linked_broadcasts),
+                now=now,
+            )
+            await session.flush()
+    except IntegrityError:
+        retry_result = await session.execute(
+            select(PassportRosterResolutionModel).where(
+                PassportRosterResolutionModel.client_group_id == group.id,
+                PassportRosterResolutionModel.request_id == body.request_id,
+            )
+        )
+        retry = retry_result.scalar_one_or_none()
+        if retry is not None:
+            replay = _require_matching_roster_resolution_replay(
+                retry,
+                client_group_id=group.id,
+                submission_id=submission_id,
+                resolution_type="replacement",
+                broadcast_recipient_id=body.recipient_id,
+                conflict_detail="That replacement request ID was already used.",
+            )
+            return _roster_resolution_response(replay)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This upload or recipient was resolved by another request. "
+                "Refresh the tracking page."
+            ),
+        )
+
+    await AuditLogRepository(session).record(
+        action="passport_unidentified_marked_replacement",
+        entity_type="passport_roster_resolution",
+        entity_id=str(resolution.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "client_group_id": str(group.id),
+            "replacement_submission_id": str(submission.id),
+            "selected_recipient_id": str(selected_recipient.id),
+            "suppressed_recipient_ids": [str(recipient_id) for recipient_id in suppressed_ids],
+            "excluded_submission_ids": list(resolution.excluded_submission_ids),
+        },
+    )
+    return _roster_resolution_response(resolution)
+
+
+@router.post(
+    "/{link_id}/unidentified/{submission_id}/reject",
+    response_model=PassportRosterResolutionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Reject an unidentified passport upload from the active roster",
+)
+async def reject_unidentified_upload(
+    link_id: uuid.UUID,
+    submission_id: uuid.UUID,
+    body: RejectUnidentifiedUploadRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+    _csrf: None = Depends(require_cookie_csrf),
+) -> PassportRosterResolutionResponse:
+    _require_whatsapp_broadcast_access(current_user)
+    group = await _require_managed_group(session, current_user, link_id)
+    existing_result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.request_id == body.request_id,
+        )
+    )
+    existing = existing_result.scalar_one_or_none()
+    if existing is not None:
+        replay = _require_matching_roster_resolution_replay(
+            existing,
+            client_group_id=group.id,
+            submission_id=submission_id,
+            resolution_type="rejected",
+            broadcast_recipient_id=None,
+            conflict_detail="That rejection request ID was already used.",
+        )
+        return _roster_resolution_response(replay)
+
+    submission_result = await session.execute(
+        select(PassportSubmissionModel)
+        .where(
+            PassportSubmissionModel.id == submission_id,
+            PassportSubmissionModel.group_id == group.id,
+            PassportSubmissionModel.agency_id == group.agency_id,
+            PassportSubmissionModel.status.in_(OFFICE_VISIBLE_PASSPORT_STATUS_VALUES),
+        )
+        .with_for_update()
+    )
+    submission = submission_result.scalar_one_or_none()
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport upload was not found in this group.",
+        )
+    _linked, _recipients, _submissions, match_rows = await _current_unresolved_match_context(
+        session,
+        group_id=group.id,
+        agency_id=group.agency_id,
+    )
+    if not any(
+        row.status == "unmatched_submission" and submission_id in row.submission_ids
+        for row in match_rows
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This upload is no longer unidentified. Refresh the tracking "
+                "page before rejecting it."
+            ),
+        )
+    resolution = PassportRosterResolutionModel(
+        id=uuid.uuid4(),
+        agency_id=group.agency_id,
+        client_group_id=group.id,
+        submission_id=submission.id,
+        broadcast_recipient_id=None,
+        resolution_type="rejected",
+        request_id=body.request_id,
+        suppressed_recipient_ids=[],
+        excluded_submission_ids=[],
+        status="active",
+        resolved_by_user_id=current_user.id,
+        created_at=datetime.now(tz=UTC),
+    )
+    try:
+        async with session.begin_nested():
+            session.add(resolution)
+            await session.flush()
+    except IntegrityError:
+        retry_result = await session.execute(
+            select(PassportRosterResolutionModel).where(
+                PassportRosterResolutionModel.client_group_id == group.id,
+                PassportRosterResolutionModel.request_id == body.request_id,
+            )
+        )
+        retry = retry_result.scalar_one_or_none()
+        if retry is not None:
+            replay = _require_matching_roster_resolution_replay(
+                retry,
+                client_group_id=group.id,
+                submission_id=submission_id,
+                resolution_type="rejected",
+                broadcast_recipient_id=None,
+                conflict_detail="That rejection request ID was already used.",
+            )
+            return _roster_resolution_response(replay)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This upload was resolved by another request. Refresh the page.",
+        )
+    await AuditLogRepository(session).record(
+        action="passport_unidentified_rejected",
+        entity_type="passport_roster_resolution",
+        entity_id=str(resolution.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "client_group_id": str(group.id),
+            "submission_id": str(submission.id),
+        },
+    )
+    return _roster_resolution_response(resolution)
+
+
+@router.post(
+    "/{link_id}/roster-resolutions/{resolution_id}/restore",
+    response_model=PassportRosterResolutionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Restore a replaced recipient or rejected unidentified upload",
+)
+async def restore_roster_resolution(
+    link_id: uuid.UUID,
+    resolution_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+    _csrf: None = Depends(require_cookie_csrf),
+) -> PassportRosterResolutionResponse:
+    _require_whatsapp_broadcast_access(current_user)
+    group = await _require_managed_group(session, current_user, link_id)
+    result = await session.execute(
+        select(PassportRosterResolutionModel)
+        .where(
+            PassportRosterResolutionModel.id == resolution_id,
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+        )
+        .with_for_update()
+    )
+    resolution = result.scalar_one_or_none()
+    if resolution is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Roster resolution was not found.",
+        )
+    if resolution.status == "restored":
+        return _roster_resolution_response(resolution)
+
+    now = datetime.now(tz=UTC)
+    restored_recipient_ids: list[uuid.UUID] = []
+    if resolution.resolution_type == "replacement":
+        broadcast_ids_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel.broadcast_group_id).where(
+                WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
+                == resolution.id,
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            )
+        )
+        broadcast_ids = list(dict.fromkeys(broadcast_ids_result.scalars().all()))
+        await lock_whatsapp_broadcast_groups(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_ids=broadcast_ids,
+        )
+        recipients_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel)
+            .where(
+                WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id == resolution.id,
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            )
+            .with_for_update()
+        )
+        recipients = list(recipients_result.scalars().all())
+        for recipient in recipients:
+            recipient.removed_at = None
+            recipient.suppressed_by_roster_resolution_id = None
+            restored_recipient_ids.append(recipient.id)
+        if recipients:
+            await session.execute(
+                update(WhatsAppBroadcastGroupModel)
+                .where(
+                    WhatsAppBroadcastGroupModel.id.in_(
+                        list({recipient.broadcast_group_id for recipient in recipients})
+                    )
+                )
+                .values(updated_at=now)
+            )
+    resolution.status = "restored"
+    resolution.restored_by_user_id = current_user.id
+    resolution.restored_at = now
+    await session.flush()
+    if resolution.resolution_type == "replacement":
+        await suppress_active_replacement_recipients(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_ids=broadcast_ids,
+            now=now,
+        )
+        await session.flush()
+    await AuditLogRepository(session).record(
+        action="passport_roster_resolution_restored",
+        entity_type="passport_roster_resolution",
+        entity_id=str(resolution.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "client_group_id": str(group.id),
+            "submission_id": str(resolution.submission_id),
+            "resolution_type": resolution.resolution_type,
+            "restored_recipient_ids": [
+                str(recipient_id) for recipient_id in restored_recipient_ids
+            ],
+        },
+    )
+    return _roster_resolution_response(resolution)
 
 
 @router.post(
@@ -1017,13 +1878,14 @@ async def revoke_client_group(
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
 
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+        )
     try:
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
         result = await use_case.execute(
@@ -1053,12 +1915,16 @@ async def update_client_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
 
     repo = ClientGroupRepository(session)
     group = await repo.get_by_id(link_id)
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+        )
     try:
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
     except AuthorizationError as exc:
@@ -1106,9 +1972,7 @@ async def update_client_group(
                 "changed": changed,
                 "previous_broadcast_count": len(previous_ids),
                 "broadcast_count": len(summaries),
-                "whatsapp_broadcast_group_ids": [
-                    str(summary.id) for summary in summaries
-                ],
+                "whatsapp_broadcast_group_ids": [str(summary.id) for summary in summaries],
             },
         )
     passenger_ids_result = await session.execute(
@@ -1146,9 +2010,7 @@ async def update_client_group(
                 "enabled": group.relation_with_qualifier_enabled,
             },
         )
-    return ClientGroupResponse.model_validate(
-        client_group_output_from_entity(group)
-    )
+    return ClientGroupResponse.model_validate(client_group_output_from_entity(group))
 
 
 @router.delete(
@@ -1164,11 +2026,15 @@ async def delete_client_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
 
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+        )
     try:
         await AuthorizationPolicy(session).require_delete_data(current_user, group)
         result = await use_case.execute(
@@ -1197,18 +2063,43 @@ async def permanently_delete_client_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, int | bool]:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
 
     repo = ClientGroupRepository(session)
     group = await repo.get_by_id(link_id)
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+        )
     try:
         await AuthorizationPolicy(session).require_delete_data(current_user, group, permanent=True)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
     if group.status.value != "archived":
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Archive the group before permanent deletion")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Archive the group before permanent deletion",
+        )
+
+    active_resolution_result = await session.execute(
+        select(PassportRosterResolutionModel.id)
+        .where(
+            PassportRosterResolutionModel.client_group_id == link_id,
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+            PassportRosterResolutionModel.status == "active",
+        )
+        .limit(1)
+    )
+    if active_resolution_result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Restore all active replacement and rejection decisions "
+                "before permanently deleting this group."
+            ),
+        )
 
     submission_rows = await session.execute(
         select(
@@ -1226,11 +2117,12 @@ async def permanently_delete_client_group(
     storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
     storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
 
-    await session.execute(delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id))
+    await session.execute(
+        delete(ManagerGroupAccessModel).where(ManagerGroupAccessModel.group_id == link_id)
+    )
     await session.execute(
         delete(ClientGroupWhatsAppBroadcastLinkModel).where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == link_id
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == link_id
         )
     )
     deleted_storage_objects = 0
@@ -1252,13 +2144,9 @@ async def permanently_delete_client_group(
             submission_ids,
         )
         qualifier_result = await session.execute(
-            delete(QualifierSelectionModel).where(
-                QualifierSelectionModel.group_id == link_id
-            )
+            delete(QualifierSelectionModel).where(QualifierSelectionModel.group_id == link_id)
         )
-        deleted_qualifier_selections = int(
-            getattr(qualifier_result, "rowcount", 0) or 0
-        )
+        deleted_qualifier_selections = int(getattr(qualifier_result, "rowcount", 0) or 0)
     await session.execute(
         delete(NotificationModel).where(
             NotificationModel.entity_type == "client_group",
@@ -1268,7 +2156,9 @@ async def permanently_delete_client_group(
     group.mark_deleted(passport_count=len(submissions), retain_records=retain_records)
     await repo.update(group)
     await AuditLogRepository(session).record(
-        action="client_group_deleted_with_retention" if retain_records else "client_group_deleted_with_data_removal",
+        action="client_group_deleted_with_retention"
+        if retain_records
+        else "client_group_deleted_with_data_removal",
         entity_type="client_group",
         entity_id=str(link_id),
         agency_id=current_user.agency_id,
@@ -1308,11 +2198,15 @@ async def restore_client_group(
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
 
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+        )
     try:
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
         result = await use_case.execute(
@@ -1335,3 +2229,8 @@ async def _delete_by_ids(session: AsyncSession, model, column, ids: list) -> int
         return 0
     result = await session.execute(delete(model).where(column.in_(ids)))
     return int(result.rowcount or 0)
+    (PassportRosterResolutionResponse,)
+    (RejectUnidentifiedUploadRequest,)
+    (ReplacementCandidateListResponse,)
+    (ReplacementCandidateResponse,)
+    (ResolveUnidentifiedReplacementRequest,)

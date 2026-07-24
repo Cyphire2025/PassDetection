@@ -30,6 +30,7 @@ from fastapi import (
 )
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.dtos.passport_dtos import (
@@ -127,6 +128,8 @@ from app.infrastructure.database.models import (
     ClientGroupWhatsAppBroadcastLinkModel,
     NotificationModel,
     PassengerQRTokenModel,
+    PassportExportHistoryModel,
+    PassportRosterResolutionModel,
     PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -167,6 +170,13 @@ from app.infrastructure.qr.approved_passenger_qr_issuer import (
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.notification_repository import NotificationRepository
+from app.infrastructure.repositories.passport_export_history_repository import (
+    PassportExportHistoryRepository,
+    PassportExportKind,
+    PassportExportMode,
+    PassportExportPersonSnapshot,
+    validated_export_people_snapshot,
+)
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
     PassportImageCropRevisionConflict,
@@ -207,6 +217,11 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportDocumentImportPreviewResponse,
     PassportDocumentImportSaveResponse,
     PassportExpiryAlertResponse,
+    PassportExportHistoryCompletionResponse,
+    PassportExportHistoryDetailResponse,
+    PassportExportHistoryItemResponse,
+    PassportExportHistoryListResponse,
+    PassportExportHistorySubmissionResponse,
     PassportGroupSummaryResponse,
     PassportImageCropCoordinates,
     PassportImageCropResetRequest,
@@ -323,6 +338,261 @@ def _stream_binary_file(file_object, *, chunk_size: int = 1024 * 1024):  # type:
             yield chunk
     finally:
         file_object.close()
+
+
+def _validated_export_history_ids(
+    history: PassportExportHistoryModel,
+    *,
+    field_name: Literal[
+        "snapshot_submission_ids",
+        "exported_submission_ids",
+    ],
+) -> set[uuid.UUID]:
+    raw_ids = list(getattr(history, field_name) or [])
+    parsed_ids: list[uuid.UUID] = []
+    for value in raw_ids:
+        try:
+            parsed_ids.append(uuid.UUID(str(value)))
+        except (TypeError, ValueError, AttributeError):
+            logger.warning(
+                "passport_export_history_invalid_submission_id",
+                history_id=str(history.id),
+                field_name=field_name,
+                value=str(value),
+            )
+            raise ValueError("The export history entry contains an invalid ID.")
+    expected_count = (
+        history.total_available_count
+        if field_name == "snapshot_submission_ids"
+        else history.exported_count
+    )
+    if len(parsed_ids) != expected_count or len(set(parsed_ids)) != expected_count:
+        raise ValueError("The export history entry failed its integrity check.")
+    return set(parsed_ids)
+
+
+def _export_people_snapshot(
+    submissions: list[PassportSubmission],
+) -> list[PassportExportPersonSnapshot]:
+    people: list[PassportExportPersonSnapshot] = []
+    for submission in submissions:
+        fields = submission.confirmed_fields or submission.extracted_fields or {}
+        passport_number = fields.get("passport_number")
+        people.append(
+            {
+                "submission_id": str(submission.id),
+                "client_name": submission.client_name,
+                "client_phone": submission.client_phone,
+                "client_email": submission.client_email,
+                "passport_number": (
+                    str(passport_number).strip() if passport_number else None
+                ),
+            }
+        )
+    return people
+
+
+def _validated_export_history_people(
+    history: PassportExportHistoryModel,
+) -> list[PassportExportPersonSnapshot]:
+    _validated_export_history_ids(
+        history,
+        field_name="exported_submission_ids",
+    )
+    ordered_ids = [
+        uuid.UUID(str(value))
+        for value in (history.exported_submission_ids or [])
+    ]
+    return validated_export_people_snapshot(
+        history.exported_people_snapshot,
+        exported_submission_ids=ordered_ids,
+    )
+
+
+async def _active_roster_resolution_references(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> set[uuid.UUID]:
+    """Return submissions whose deletion would corrupt an active roster decision."""
+
+    result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group_id,
+            PassportRosterResolutionModel.agency_id == agency_id,
+            PassportRosterResolutionModel.status == "active",
+        )
+    )
+    referenced_ids: set[uuid.UUID] = set()
+    for resolution in result.scalars().all():
+        referenced_ids.add(resolution.submission_id)
+        for value in resolution.excluded_submission_ids or []:
+            try:
+                referenced_ids.add(uuid.UUID(str(value)))
+            except (TypeError, ValueError, AttributeError):
+                logger.warning(
+                    "passport_roster_resolution_invalid_excluded_submission",
+                    resolution_id=str(resolution.id),
+                    value=str(value),
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "An active replacement record failed its integrity "
+                        "check. Restore it before deleting passport uploads."
+                    ),
+                )
+    return referenced_ids
+
+
+async def _without_rejected_roster_submissions(
+    session: AsyncSession,
+    submissions: list[PassportSubmission],
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> list[PassportSubmission]:
+    if not submissions:
+        return []
+    result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group_id,
+            PassportRosterResolutionModel.agency_id == agency_id,
+            PassportRosterResolutionModel.status == "active",
+        )
+    )
+    excluded_ids: set[uuid.UUID] = set()
+    for resolution in result.scalars().all():
+        if resolution.resolution_type == "rejected":
+            excluded_ids.add(resolution.submission_id)
+            continue
+        for value in resolution.excluded_submission_ids or []:
+            try:
+                excluded_ids.add(uuid.UUID(str(value)))
+            except (TypeError, ValueError, AttributeError):
+                logger.warning(
+                    "passport_roster_resolution_invalid_excluded_submission",
+                    resolution_id=str(resolution.id),
+                    value=str(value),
+                )
+    return [submission for submission in submissions if submission.id not in excluded_ids]
+
+
+async def _current_group_export_submissions(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    current_user: User,
+) -> list[PassportSubmission]:
+    submissions = await PassportSubmissionRepository(session).list_by_group(
+        agency_id,
+        group_id,
+        limit=PassportImageZipExporter.MAX_SUBMISSIONS + 1,
+        exclude_archived_groups=True,
+        created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
+    )
+    if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=(
+                "A single export is limited to "
+                f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
+            ),
+        )
+    return await _without_rejected_roster_submissions(
+        session,
+        submissions,
+        group_id=group_id,
+        agency_id=agency_id,
+    )
+
+
+async def _resolve_group_export_payload(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    export_kind: PassportExportKind,
+    export_mode: PassportExportMode,
+    baseline_export_id: uuid.UUID | None,
+    submissions: list[PassportSubmission],
+    created_by_user_id: uuid.UUID | None,
+) -> tuple[list[PassportSubmission], PassportExportHistoryModel | None]:
+    if export_mode == "all":
+        if baseline_export_id is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A baseline download can only be used for an incremental export.",
+            )
+        return submissions, None
+    if baseline_export_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Choose a previous download to export uploads added after it.",
+        )
+
+    baseline = await PassportExportHistoryRepository(session).get_compatible_baseline(
+        history_id=baseline_export_id,
+        group_id=group_id,
+        agency_id=agency_id,
+        export_kind=export_kind,
+        created_by_user_id=created_by_user_id,
+    )
+    if baseline is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The selected download history entry was not found for this group.",
+        )
+
+    try:
+        baseline_ids = _validated_export_history_ids(
+            baseline,
+            field_name="snapshot_submission_ids",
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "The selected download history entry failed its integrity check "
+                "and cannot be used as a baseline."
+            ),
+        )
+    payload = [submission for submission in submissions if submission.id not in baseline_ids]
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="There are no new uploads after the selected download.",
+        )
+    return payload, baseline
+
+
+async def _require_new_export_request(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    export_kind: PassportExportKind,
+    request_id: uuid.UUID,
+    created_by_user_id: uuid.UUID | None,
+) -> None:
+    existing = await PassportExportHistoryRepository(session).get_by_request(
+        group_id=group_id,
+        agency_id=agency_id,
+        export_kind=export_kind,
+        request_id=request_id,
+        created_by_user_id=created_by_user_id,
+    )
+    if existing is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This download request was already prepared or completed. "
+                "Start a new download."
+            ),
+        )
 
 
 def _submitted_statuses() -> tuple[str, ...]:
@@ -699,10 +969,7 @@ def _recipient_export_value(
     *keys: str,
 ) -> str | None:
     values_by_key: dict[str, str] = {}
-    accepted_keys = {
-        _normalized_imported_field_key(key)
-        for key in keys
-    }
+    accepted_keys = {_normalized_imported_field_key(key) for key in keys}
     for field_set in sorted(row.recipient_fields, key=lambda item: str(item.recipient_id)):
         for raw_key, raw_value in field_set.fields.items():
             if _normalized_imported_field_key(str(raw_key)) not in accepted_keys:
@@ -1782,6 +2049,26 @@ async def bulk_delete_passport_submissions(
             ),
         )
 
+    # Replacement creation locks its submission before recording a roster
+    # decision. Taking the same locks first closes the check/delete race: either
+    # the decision commits first and is observed below, or it waits and then
+    # finds that the submission no longer exists.
+    protected_submission_ids = await _active_roster_resolution_references(
+        session,
+        group_id=group_id,
+        agency_id=group.agency_id,
+    )
+    selected_protected_ids = protected_submission_ids.intersection(submission_ids)
+    if selected_protected_ids:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "One or more selected uploads belong to an active "
+                "replacement or rejection. Restore that roster decision "
+                "before permanently deleting the upload."
+            ),
+        )
+
     storage_keys = passport_storage_keys(submissions)
     crop_repository = PassportImageCropRepository(session)
     storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
@@ -1892,12 +2179,346 @@ async def list_passports(
 
 
 @router.get(
+    "/groups/{group_id}/export-history",
+    response_model=PassportExportHistoryListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List successful passport export checkpoints for a client group",
+)
+async def list_passport_group_export_history(
+    group_id: uuid.UUID,
+    export_kind: PassportExportKind = Query(..., alias="kind"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=100),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportExportHistoryListResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
+        )
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    submissions = await _current_group_export_submissions(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        current_user=current_user,
+    )
+    current_ids = {submission.id for submission in submissions}
+    history_repository = PassportExportHistoryRepository(session)
+    owner_scope = _owner_scope_for(current_user)
+    total_count = await history_repository.count_for_group(
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind=export_kind,
+        created_by_user_id=owner_scope,
+    )
+    history = await history_repository.list_for_group(
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind=export_kind,
+        created_by_user_id=owner_scope,
+        offset=(page - 1) * page_size,
+        limit=page_size,
+    )
+    history_items: list[PassportExportHistoryItemResponse] = []
+    for item in history:
+        if item.completed_at is None:
+            logger.error(
+                "passport_export_history_completed_without_timestamp",
+                history_id=str(item.id),
+            )
+            continue
+        try:
+            snapshot_ids = _validated_export_history_ids(
+                item,
+                field_name="snapshot_submission_ids",
+            )
+            compatible = True
+            new_submission_count = len(current_ids - snapshot_ids)
+        except ValueError:
+            compatible = False
+            new_submission_count = 0
+        history_items.append(
+            PassportExportHistoryItemResponse(
+                id=item.id,
+                export_kind=item.export_kind,
+                export_mode=item.export_mode,
+                baseline_export_id=item.baseline_export_id,
+                total_available_count=item.total_available_count,
+                exported_count=item.exported_count,
+                pending_recipient_count=item.pending_recipient_count,
+                new_submission_count=new_submission_count,
+                compatible=compatible,
+                actor_email=item.actor_email,
+                created_at=item.created_at,
+                completed_at=item.completed_at,
+            )
+        )
+    return PassportExportHistoryListResponse(
+        group_id=group_id,
+        export_kind=export_kind,
+        current_submission_count=len(submissions),
+        items=history_items,
+        page=page,
+        page_size=page_size,
+        total_count=total_count,
+        total_pages=(
+            (total_count + page_size - 1) // page_size if total_count else 0
+        ),
+    )
+
+
+@router.get(
+    "/groups/{group_id}/export-history/{history_id}",
+    response_model=PassportExportHistoryDetailResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List the exact passport submissions included in one export",
+)
+async def get_passport_group_export_history_detail(
+    group_id: uuid.UUID,
+    history_id: uuid.UUID,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportExportHistoryDetailResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    history = await PassportExportHistoryRepository(session).get_for_group(
+        history_id=history_id,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        created_by_user_id=_owner_scope_for(current_user),
+    )
+    if history is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Download history entry was not found",
+        )
+    if history.completed_at is None:
+        logger.error(
+            "passport_export_history_completed_without_timestamp",
+            history_id=str(history.id),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This download history entry failed its integrity check.",
+        )
+    try:
+        people = _validated_export_history_people(history)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This download history entry failed its integrity check.",
+        )
+
+    offset = (page - 1) * page_size
+    page_people = people[offset : offset + page_size]
+    page_ids = [uuid.UUID(str(item["submission_id"])) for item in page_people]
+    available_ids: set[uuid.UUID] = set()
+    if page_ids:
+        result = await session.execute(
+            select(PassportSubmissionModel.id).where(
+                PassportSubmissionModel.id.in_(page_ids),
+                PassportSubmissionModel.group_id == group_id,
+                PassportSubmissionModel.agency_id == current_user.agency_id,
+            )
+        )
+        available_ids = set(result.scalars().all())
+
+    items: list[PassportExportHistorySubmissionResponse] = []
+    for person in page_people:
+        submission_id = uuid.UUID(str(person["submission_id"]))
+        items.append(
+            PassportExportHistorySubmissionResponse(
+                submission_id=submission_id,
+                record_available=submission_id in available_ids,
+                client_name=person["client_name"],
+                client_phone=person["client_phone"],
+                client_email=person["client_email"],
+                passport_number=person["passport_number"],
+            )
+        )
+    return PassportExportHistoryDetailResponse(
+        history_id=history.id,
+        group_id=group_id,
+        export_kind=history.export_kind,
+        created_at=history.created_at,
+        completed_at=history.completed_at,
+        exported_count=history.exported_count,
+        items=items,
+        page=page,
+        page_size=page_size,
+        total_pages=(
+            (history.exported_count + page_size - 1) // page_size if history.exported_count else 0
+        ),
+    )
+
+
+@router.post(
+    "/groups/{group_id}/export-history/{history_id}/complete",
+    response_model=PassportExportHistoryCompletionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Confirm that a prepared passport export reached the browser",
+)
+async def complete_passport_group_export_history(
+    group_id: uuid.UUID,
+    history_id: uuid.UUID,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportExportHistoryCompletionResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    history = await PassportExportHistoryRepository(session).get_for_completion(
+        history_id=history_id,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        created_by_user_id=current_user.id,
+    )
+    if history is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Prepared download was not found",
+        )
+    if history.status == "completed":
+        if history.completed_at is None:
+            logger.error(
+                "passport_export_history_completed_without_timestamp",
+                history_id=str(history.id),
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This prepared download failed its integrity check.",
+            )
+        return PassportExportHistoryCompletionResponse(
+            history_id=history.id,
+            group_id=history.group_id,
+            export_kind=history.export_kind,
+            status="completed",
+            completed_at=history.completed_at,
+        )
+    if history.status != "prepared" or history.completed_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This prepared download is in an invalid state.",
+        )
+
+    try:
+        snapshot_ids = _validated_export_history_ids(
+            history,
+            field_name="snapshot_submission_ids",
+        )
+        exported_ids = _validated_export_history_ids(
+            history,
+            field_name="exported_submission_ids",
+        )
+        _validated_export_history_people(history)
+        if not exported_ids.issubset(snapshot_ids):
+            raise ValueError("Export payload is outside its cumulative checkpoint.")
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This prepared download failed its integrity check.",
+        )
+
+    completed_at = datetime.now(tz=UTC)
+    history.status = "completed"
+    history.completed_at = completed_at
+    artifact_metadata = dict(history.artifact_metadata or {})
+    await AuditLogRepository(session).record(
+        action=(
+            "passport_group_images_exported"
+            if history.export_kind == "passport_images"
+            else "passport_group_exported"
+        ),
+        entity_type="client_group",
+        entity_id=str(group_id),
+        agency_id=current_user.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            **artifact_metadata,
+            "export_history_id": str(history.id),
+            "export_mode": history.export_mode,
+            "baseline_export_id": (
+                str(history.baseline_export_id)
+                if history.baseline_export_id
+                else None
+            ),
+            "total_available_count": history.total_available_count,
+            "submission_count": history.exported_count,
+            "pending_recipient_count": history.pending_recipient_count,
+        },
+    )
+    await session.commit()
+    return PassportExportHistoryCompletionResponse(
+        history_id=history.id,
+        group_id=history.group_id,
+        export_kind=history.export_kind,
+        status="completed",
+        completed_at=completed_at,
+    )
+
+
+@router.get(
     "/groups/{group_id}/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export a client group's passport submissions to Excel",
 )
 async def export_passports_by_group(
     group_id: uuid.UUID,
+    export_mode: PassportExportMode = Query(default="all", alias="mode"),
+    baseline_export_id: uuid.UUID | None = Query(default=None),
+    request_id: uuid.UUID | None = Query(default=None),
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
@@ -1917,23 +2538,43 @@ async def export_passports_by_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
-    passport_repo = PassportSubmissionRepository(session)
-    submissions = await passport_repo.list_by_group(
-        current_user.agency_id,
-        group_id,
-        limit=5000,
-        exclude_archived_groups=True,
+    current_submissions = await _current_group_export_submissions(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        current_user=current_user,
+    )
+    resolved_request_id = request_id or uuid.uuid4()
+    await _require_new_export_request(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind="passport_excel",
+        request_id=resolved_request_id,
         created_by_user_id=_owner_scope_for(current_user),
-        visible_to_user=current_user,
+    )
+    submissions, baseline = await _resolve_group_export_payload(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind="passport_excel",
+        export_mode=export_mode,
+        baseline_export_id=baseline_export_id,
+        submissions=current_submissions,
+        created_by_user_id=_owner_scope_for(current_user),
     )
     match_rows_by_group = await _export_whatsapp_match_rows(
         session,
         submissions,
         groups=[group],
     )
-    pending_rows = _pending_recipient_export_rows(
-        group=group,
-        rows=match_rows_by_group.get(group.id, []),
+    pending_rows = (
+        _pending_recipient_export_rows(
+            group=group,
+            rows=match_rows_by_group.get(group.id, []),
+        )
+        if export_mode == "all"
+        else []
     )
     content = PassportExcelExporter().export_group(
         submissions,
@@ -1945,25 +2586,45 @@ async def export_passports_by_group(
         ),
         pending_rows=pending_rows,
     )
+    try:
+        async with session.begin_nested():
+            history = await PassportExportHistoryRepository(session).record(
+                group_id=group_id,
+                agency_id=current_user.agency_id,
+                export_kind="passport_excel",
+                export_mode=export_mode,
+                request_id=resolved_request_id,
+                baseline_export_id=baseline.id if baseline else None,
+                snapshot_submission_ids=[submission.id for submission in current_submissions],
+                exported_submission_ids=[submission.id for submission in submissions],
+                exported_people_snapshot=_export_people_snapshot(submissions),
+                pending_recipient_count=len(pending_rows),
+                artifact_metadata={"workbook_bytes": len(content)},
+                created_by_user_id=current_user.id,
+                actor_email=current_user.email,
+            )
+    except IntegrityError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This download request was already prepared by another "
+                "request. Open download history or start a new download."
+            ),
+        ) from exc
 
-    await AuditLogRepository(session).record(
-        action="passport_group_exported",
-        entity_type="client_group",
-        entity_id=str(group_id),
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        metadata={
-            "submission_count": len(submissions),
-            "pending_recipient_count": len(pending_rows),
-        },
-    )
+    # Only persist a hidden prepared record here. The browser confirms it after
+    # the complete response has been received and its download has been started.
+    await session.commit()
 
     filename = f"passport-export-{group_id}.xlsx"
     return StreamingResponse(
         io.BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Passport-Export-History-ID": str(history.id),
+            "X-Content-Type-Options": "nosniff",
+        },
     )
 
 
@@ -1974,6 +2635,9 @@ async def export_passports_by_group(
 )
 async def export_passport_images_by_group(
     group_id: uuid.UUID,
+    export_mode: PassportExportMode = Query(default="all", alias="mode"),
+    baseline_export_id: uuid.UUID | None = Query(default=None),
+    request_id: uuid.UUID | None = Query(default=None),
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
@@ -1992,18 +2656,35 @@ async def export_passport_images_by_group(
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
 
-    submissions = await PassportSubmissionRepository(session).list_by_group(
-        current_user.agency_id,
-        group_id,
-        limit=PassportImageZipExporter.MAX_SUBMISSIONS + 1,
-        exclude_archived_groups=True,
+    current_submissions = await _current_group_export_submissions(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        current_user=current_user,
+    )
+    resolved_request_id = request_id or uuid.uuid4()
+    await _require_new_export_request(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind="passport_images",
+        request_id=resolved_request_id,
         created_by_user_id=_owner_scope_for(current_user),
-        visible_to_user=current_user,
+    )
+    submissions, baseline = await _resolve_group_export_payload(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        export_kind="passport_images",
+        export_mode=export_mode,
+        baseline_export_id=baseline_export_id,
+        submissions=current_submissions,
+        created_by_user_id=_owner_scope_for(current_user),
     )
     crop_metadata = await PassportImageCropRepository(session).list_for_submissions(
         [submission.id for submission in submissions]
     )
-    zone_names = await _export_zone_names(session, submissions)
+    zone_names = await _export_zone_names(session, current_submissions)
     try:
         spool, image_count, uncompressed_bytes = await PassportImageZipExporter().export_group(
             submissions,
@@ -2013,6 +2694,7 @@ async def export_passport_images_by_group(
             storage=MinioStorageRepository(),
             crop_metadata=crop_metadata,
             zone_names=zone_names,
+            namespace_submissions=current_submissions,
         )
     except MissingPassportImagesError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
@@ -2027,20 +2709,40 @@ async def export_passport_images_by_group(
     spool.seek(0, io.SEEK_END)
     archive_size = spool.tell()
     spool.seek(0)
-    await AuditLogRepository(session).record(
-        action="passport_group_images_exported",
-        entity_type="client_group",
-        entity_id=str(group_id),
-        agency_id=current_user.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        metadata={
-            "submission_count": len(submissions),
-            "image_count": image_count,
-            "uncompressed_bytes": uncompressed_bytes,
-            "archive_bytes": archive_size,
-        },
-    )
+    try:
+        async with session.begin_nested():
+            history = await PassportExportHistoryRepository(session).record(
+                group_id=group_id,
+                agency_id=current_user.agency_id,
+                export_kind="passport_images",
+                export_mode=export_mode,
+                request_id=resolved_request_id,
+                baseline_export_id=baseline.id if baseline else None,
+                snapshot_submission_ids=[submission.id for submission in current_submissions],
+                exported_submission_ids=[submission.id for submission in submissions],
+                exported_people_snapshot=_export_people_snapshot(submissions),
+                artifact_metadata={
+                    "image_count": image_count,
+                    "uncompressed_bytes": uncompressed_bytes,
+                    "archive_bytes": archive_size,
+                },
+                created_by_user_id=current_user.id,
+                actor_email=current_user.email,
+            )
+    except IntegrityError as exc:
+        spool.close()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This download request was already prepared by another "
+                "request. Open download history or start a new download."
+            ),
+        ) from exc
+    try:
+        await session.commit()
+    except Exception:
+        spool.close()
+        raise
 
     filename = safe_download_filename(group.name)
     return StreamingResponse(
@@ -2049,6 +2751,7 @@ async def export_passport_images_by_group(
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"',
             "Content-Length": str(archive_size),
+            "X-Passport-Export-History-ID": str(history.id),
             "X-Content-Type-Options": "nosniff",
         },
     )
@@ -2757,18 +3460,13 @@ async def export_selected_groups(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
 
-    group_stmt = select(ClientGroupModel).where(
-        ClientGroupModel.id.in_(set(body.group_ids))
-    )
+    group_stmt = select(ClientGroupModel).where(ClientGroupModel.id.in_(set(body.group_ids)))
     group_stmt = AuthorizationPolicy.apply_group_visibility_scope(
         group_stmt,
         current_user,
     )
     group_result = await session.execute(group_stmt)
-    groups = [
-        ClientGroupRepository._to_entity(model)
-        for model in group_result.scalars().all()
-    ]
+    groups = [ClientGroupRepository._to_entity(model) for model in group_result.scalars().all()]
     if not groups:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -2812,10 +3510,7 @@ async def export_selected_groups(
     content = PassportExcelExporter().export_group(
         submissions,
         group_name="Selected Groups",
-        group_details={
-            group.id: _group_export_details(group)
-            for group in groups
-        },
+        group_details={group.id: _group_export_details(group) for group in groups},
         zone_names=_export_zone_names_from_match_rows(
             submissions,
             match_rows_by_group,
@@ -3586,11 +4281,7 @@ async def create_visa_ai_image_job(
         ) from exc
 
     settings = get_settings()
-    google_key = (
-        settings.google_api_key.get_secret_value()
-        if settings.google_api_key
-        else ""
-    )
+    google_key = settings.google_api_key.get_secret_value() if settings.google_api_key else ""
     if not settings.gemini_image_edit_model.strip() or not google_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -3632,9 +4323,7 @@ async def create_visa_ai_image_job(
     return await _visa_ai_job_response(
         submission_id=submission.id,
         job=job,
-        current_storage_key=(
-            effective.edit_source_storage_key if effective else None
-        ),
+        current_storage_key=(effective.edit_source_storage_key if effective else None),
         session=session,
     )
 
@@ -3658,9 +4347,7 @@ async def get_active_visa_ai_image_job(
         session=session,
         require_editor=True,
     )
-    job = await PassportVisaAiImageJobRepository(session).active_for_submission(
-        submission.id
-    )
+    job = await PassportVisaAiImageJobRepository(session).active_for_submission(submission.id)
     if job is None:
         return None
     job = await _recover_and_dispatch_visa_ai_job(job=job, session=session)
@@ -3669,9 +4356,7 @@ async def get_active_visa_ai_image_job(
     return await _visa_ai_job_response(
         submission_id=submission.id,
         job=job,
-        current_storage_key=(
-            effective.edit_source_storage_key if effective else None
-        ),
+        current_storage_key=(effective.edit_source_storage_key if effective else None),
         session=session,
     )
 
@@ -3711,9 +4396,7 @@ async def get_visa_ai_image_job(
     return await _visa_ai_job_response(
         submission_id=submission.id,
         job=job,
-        current_storage_key=(
-            effective.edit_source_storage_key if effective else None
-        ),
+        current_storage_key=(effective.edit_source_storage_key if effective else None),
         session=session,
     )
 

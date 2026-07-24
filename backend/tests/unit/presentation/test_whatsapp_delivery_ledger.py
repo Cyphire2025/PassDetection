@@ -165,6 +165,7 @@ def test_readding_removed_phone_reactivates_same_row_and_preserves_identity() ->
         normalized_phone_number="+919876543210",
         imported_fields={"old": "value"},
         removed_at=datetime.now(tz=UTC),
+        suppressed_by_roster_resolution_id=None,
     )
     normalized = _normalized_recipient_inputs(
         [
@@ -204,6 +205,7 @@ def test_manual_reactivation_does_not_erase_imported_fields() -> None:
             "staff_code": "GC42",
         },
         removed_at=datetime.now(tz=UTC),
+        suppressed_by_roster_resolution_id=None,
     )
     normalized = _normalized_recipient_inputs(
         [
@@ -227,6 +229,43 @@ def test_manual_reactivation_does_not_erase_imported_fields() -> None:
         "email": "imported@example.com",
         "staff_code": "GC42",
     }
+
+
+def test_readding_replaced_phone_requires_roster_restore() -> None:
+    group = SimpleNamespace(id=uuid.uuid4(), agency_id=uuid.uuid4())
+    resolution_id = uuid.uuid4()
+    removed_at = datetime.now(tz=UTC)
+    existing = SimpleNamespace(
+        id=uuid.uuid4(),
+        name="Replaced Traveller",
+        phone_number="9876543210",
+        normalized_phone_number="+919876543210",
+        imported_fields={"staff_code": "GC42"},
+        removed_at=removed_at,
+        suppressed_by_roster_resolution_id=resolution_id,
+    )
+    normalized = _normalized_recipient_inputs(
+        [
+            WhatsAppRecipientInput(
+                name="Attempted Reactivation",
+                phone_number="+91 98765 43210",
+            )
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        _activate_recipient_models(
+            session=MagicMock(),
+            group=group,
+            existing_by_phone={existing.normalized_phone_number: existing},
+            normalized_contacts=normalized,
+            now=datetime.now(tz=UTC),
+        )
+
+    assert exc_info.value.status_code == 409
+    assert "marked as replaced" in str(exc_info.value.detail)
+    assert existing.removed_at == removed_at
+    assert existing.name == "Replaced Traveller"
 
 
 @pytest.mark.asyncio
@@ -416,7 +455,13 @@ async def test_worker_guard_rejects_removed_recipient_before_provider_call() -> 
 @pytest.mark.asyncio
 async def test_worker_guard_requires_current_processing_batch() -> None:
     batch_id = uuid.uuid4()
-    recipient = SimpleNamespace(id=uuid.uuid4(), removed_at=None)
+    recipient = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        broadcast_group_id=uuid.uuid4(),
+        normalized_phone_number="+919876543210",
+        removed_at=None,
+    )
     recipient_result = MagicMock()
     recipient_result.scalar_one_or_none.return_value = recipient
     state_result = MagicMock()
@@ -427,7 +472,14 @@ async def test_worker_guard_requires_current_processing_batch() -> None:
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(id=uuid.uuid4())
     session = AsyncMock()
-    session.execute.side_effect = [group_result, recipient_result, state_result]
+    active_replacement_result = MagicMock()
+    active_replacement_result.scalar_one_or_none.return_value = None
+    session.execute.side_effect = [
+        group_result,
+        recipient_result,
+        active_replacement_result,
+        state_result,
+    ]
 
     sendable, reason = await _load_sendable_recipient(
         session,
@@ -441,6 +493,45 @@ async def test_worker_guard_requires_current_processing_batch() -> None:
 
     assert sendable is recipient
     assert reason is None
+
+
+@pytest.mark.asyncio
+async def test_worker_guard_rejects_later_same_phone_replacement_row() -> None:
+    batch_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    recipient = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        broadcast_group_id=group_id,
+        normalized_phone_number="+919876543210",
+        removed_at=None,
+    )
+    group_result = MagicMock()
+    group_result.scalar_one_or_none.return_value = SimpleNamespace(id=group_id)
+    recipient_result = MagicMock()
+    recipient_result.scalar_one_or_none.return_value = recipient
+    replacement_result = MagicMock()
+    replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
+    session = AsyncMock()
+    session.execute.side_effect = [
+        group_result,
+        recipient_result,
+        replacement_result,
+    ]
+
+    sendable, reason = await _load_sendable_recipient(
+        session,
+        log=SimpleNamespace(
+            recipient_id=recipient.id,
+            broadcast_group_id=group_id,
+            message_type="welcome",
+        ),
+        expected_batch_id=batch_id,
+    )
+
+    assert sendable is None
+    assert reason == "WhatsApp recipient was replaced in a linked passport group"
+    assert session.execute.await_count == 3
 
 
 def test_late_failed_receipt_does_not_regress_accepted_checklist() -> None:
@@ -1012,9 +1103,7 @@ async def test_excel_contact_preview_returns_valid_rows_and_actionable_rejection
     ]
     assert "10-digit Indian mobile number" in response.rejected_rows[0].reason
     assert response.recipients[0].imported_fields["email_2"] == "alternate@example.com"
-    assert response.recipients[0].imported_fields["duplicate_conflicting_fields"] == (
-        "email, name"
-    )
+    assert response.recipients[0].imported_fields["duplicate_conflicting_fields"] == ("email, name")
     assert [recipient.name for recipient in response.recipients] == [
         "Aarav Sharma",
         "Meera Patel",
@@ -1348,15 +1437,28 @@ async def test_explicit_resend_never_mutates_baseline_delivery_ledger() -> None:
 @pytest.mark.asyncio
 async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state() -> None:
     batch_id = uuid.uuid4()
-    recipient = SimpleNamespace(id=uuid.uuid4(), removed_at=None)
+    recipient = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        broadcast_group_id=uuid.uuid4(),
+        normalized_phone_number="+919876543210",
+        removed_at=None,
+    )
     group_result = MagicMock()
     group_result.scalar_one_or_none.return_value = SimpleNamespace(id=uuid.uuid4())
     recipient_result = MagicMock()
     recipient_result.scalar_one_or_none.return_value = recipient
     claim_result = MagicMock()
     claim_result.scalar_one_or_none.return_value = uuid.uuid4()
+    active_replacement_result = MagicMock()
+    active_replacement_result.scalar_one_or_none.return_value = None
     session = AsyncMock()
-    session.execute.side_effect = [group_result, recipient_result, claim_result]
+    session.execute.side_effect = [
+        group_result,
+        recipient_result,
+        active_replacement_result,
+        claim_result,
+    ]
 
     sendable, reason = await _load_sendable_recipient(
         session,
@@ -1372,7 +1474,7 @@ async def test_explicit_resend_worker_guard_uses_log_claim_not_baseline_state() 
 
     assert sendable is recipient
     assert reason is None
-    assert session.execute.await_count == 3
+    assert session.execute.await_count == 4
 
 
 def test_explicit_resend_route_is_role_gated_and_returns_send_contract() -> None:
@@ -1406,6 +1508,7 @@ async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     recipient = SimpleNamespace(
         id=recipient_id,
         agency_id=agency_id,
+        broadcast_group_id=group_id,
         name="Aarav Sharma",
         normalized_phone_number="+919876543210",
         removed_at=None,
@@ -1436,6 +1539,7 @@ async def test_resend_endpoint_queues_one_edited_message_with_current_template(
     session.execute.side_effect = [
         scalar_result(group),
         scalar_result(recipient),
+        scalar_result(None),
         scalar_result(state),
         MagicMock(),
         MagicMock(),
@@ -1509,6 +1613,8 @@ async def test_resend_endpoint_blocks_delivery_unknown_explicit_attempt() -> Non
     recipient = SimpleNamespace(
         id=recipient_id,
         agency_id=group.agency_id,
+        broadcast_group_id=group_id,
+        normalized_phone_number="+919876543210",
         removed_at=None,
     )
 
@@ -1521,6 +1627,7 @@ async def test_resend_endpoint_blocks_delivery_unknown_explicit_attempt() -> Non
     session.execute.side_effect = [
         scalar_result(group),
         scalar_result(recipient),
+        scalar_result(None),
         scalar_result(SimpleNamespace(status="delivered")),
         MagicMock(),
         MagicMock(),
@@ -1596,6 +1703,7 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     recipient = SimpleNamespace(
         id=recipient_id,
         agency_id=agency_id,
+        broadcast_group_id=group_id,
         name="Aarav Sharma",
         normalized_phone_number="+919876543210",
         removed_at=None,
@@ -1626,6 +1734,7 @@ async def test_resend_queue_failure_does_not_release_baseline_sent_state(
     session.execute.side_effect = [
         scalar_result(group),
         scalar_result(recipient),
+        scalar_result(None),
         scalar_result(baseline_state),
         MagicMock(),
         MagicMock(),
@@ -1720,9 +1829,7 @@ async def test_explicit_resend_webhook_updates_log_without_loading_baseline_stat
             }
         ]
     }
-    request = SimpleNamespace(
-        body=AsyncMock(return_value=json.dumps(payload).encode("utf-8"))
-    )
+    request = SimpleNamespace(body=AsyncMock(return_value=json.dumps(payload).encode("utf-8")))
 
     response = await receive_whatsapp_webhook(
         request=request,
@@ -1785,9 +1892,12 @@ async def test_group_delete_blocks_processing_explicit_resend() -> None:
     baseline_processing_count.scalar_one.return_value = 0
     explicit_processing_count = MagicMock()
     explicit_processing_count.scalar_one.return_value = 1
+    active_replacement_result = MagicMock()
+    active_replacement_result.scalar_one_or_none.return_value = None
     session = AsyncMock()
     session.execute.side_effect = [
         group_result,
+        active_replacement_result,
         baseline_processing_count,
         explicit_processing_count,
     ]
@@ -1805,3 +1915,32 @@ async def test_group_delete_blocks_processing_explicit_resend() -> None:
 
     assert exc_info.value.status_code == 409
     assert "provider request is currently in progress" in str(exc_info.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_group_delete_blocks_active_passport_replacement() -> None:
+    group_id = uuid.uuid4()
+    group_result = MagicMock()
+    group_result.scalar_one_or_none.return_value = SimpleNamespace(id=group_id)
+    active_replacement_result = MagicMock()
+    active_replacement_result.scalar_one_or_none.return_value = uuid.uuid4()
+    session = AsyncMock()
+    session.execute.side_effect = [
+        group_result,
+        active_replacement_result,
+    ]
+    current_user = SimpleNamespace(
+        role=UserRole.SUPER_ADMIN,
+        agency_id=None,
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await delete_broadcast_group(
+            group_id=group_id,
+            current_user=current_user,
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 409
+    assert "marked as replaced" in str(exc_info.value.detail)
+    assert session.execute.await_count == 2

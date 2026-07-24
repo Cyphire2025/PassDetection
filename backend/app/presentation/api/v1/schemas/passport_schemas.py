@@ -175,6 +175,72 @@ class ExportSelectedGroupsRequest(BaseModel):
     group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
 
 
+class PassportExportHistoryItemResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: uuid.UUID
+    export_kind: Literal["passport_images", "passport_excel"]
+    export_mode: Literal["all", "incremental"]
+    baseline_export_id: uuid.UUID | None = None
+    total_available_count: int = Field(ge=0)
+    exported_count: int = Field(ge=0)
+    pending_recipient_count: int = Field(default=0, ge=0)
+    new_submission_count: int = Field(default=0, ge=0)
+    compatible: bool = True
+    actor_email: str | None = None
+    created_at: datetime
+    completed_at: datetime
+
+
+class PassportExportHistoryListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: uuid.UUID
+    export_kind: Literal["passport_images", "passport_excel"]
+    current_submission_count: int = Field(ge=0)
+    items: list[PassportExportHistoryItemResponse] = Field(default_factory=list)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1, le=100)
+    total_count: int = Field(ge=0)
+    total_pages: int = Field(ge=0)
+
+
+class PassportExportHistorySubmissionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    record_available: bool = True
+    client_name: str | None = None
+    client_phone: str | None = None
+    client_email: str | None = None
+    passport_number: str | None = None
+
+
+class PassportExportHistoryDetailResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    history_id: uuid.UUID
+    group_id: uuid.UUID
+    export_kind: Literal["passport_images", "passport_excel"]
+    created_at: datetime
+    completed_at: datetime
+    exported_count: int = Field(ge=0)
+    items: list[PassportExportHistorySubmissionResponse] = Field(default_factory=list)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    total_pages: int = Field(ge=0)
+
+
+class PassportExportHistoryCompletionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    history_id: uuid.UUID
+    group_id: uuid.UUID
+    export_kind: Literal["passport_images", "passport_excel"]
+    status: Literal["completed"]
+    completed_at: datetime
+
+
 class ImportPassportGroupResponse(BaseModel):
     imported_count: int
     updated_count: int = 0
@@ -224,6 +290,9 @@ PassportVerificationFieldName = Literal[
     "given_names",
     "passport_number",
     "nationality",
+    "place_of_issue",
+    # Backward-compatible read support for verification results persisted
+    # before place_of_issue became the canonical field.
     "issuing_country",
     "date_of_birth",
     "date_of_issue",

@@ -105,6 +105,10 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             "require_delete_data",
             authorize,
         ),
+        patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(return_value=set()),
+        ),
         patch.object(
             PassportImageCropRepository,
             "derived_storage_keys",
@@ -186,6 +190,10 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
             AsyncMock(return_value=None),
         ),
         patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(return_value=set()),
+        ),
+        patch(
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
             return_value=storage,
         ),
@@ -203,6 +211,59 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
     assert caught.value.status_code == 404
     assert session.execute.await_count == 1
     storage.delete_files.assert_not_awaited()
+    audit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions() -> None:
+    group_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    ordering: list[str] = []
+
+    async def execute_locked_submission(_query: object) -> _Result:
+        ordering.append("submission_locked")
+        return _Result(rows=[_submission_row(submission_id)])
+
+    async def protected_references(*_args: object, **_kwargs: object) -> set[uuid.UUID]:
+        assert ordering == ["submission_locked"]
+        ordering.append("references_checked")
+        return {submission_id}
+
+    session = SimpleNamespace(execute=AsyncMock(side_effect=execute_locked_submission))
+
+    with (
+        patch.object(
+            ClientGroupRepository,
+            "get_by_id",
+            AsyncMock(return_value=group),
+        ),
+        patch.object(
+            AuthorizationPolicy,
+            "require_delete_data",
+            AsyncMock(return_value=None),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(side_effect=protected_references),
+        ),
+        patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
+        pytest.raises(HTTPException) as caught,
+    ):
+        await bulk_delete_passport_submissions(
+            group_id=group_id,
+            body=BulkDeletePassportSubmissionsRequest(submission_ids=[submission_id]),
+            _csrf=None,
+            current_user=_super_admin(),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert caught.value.status_code == 409
+    assert "Restore that roster decision" in str(caught.value.detail)
+    session.execute.assert_awaited_once()
+    locked_submission_query = session.execute.await_args.args[0]
+    assert locked_submission_query._for_update_arg is not None
+    assert ordering == ["submission_locked", "references_checked"]
     audit.assert_not_awaited()
 
 
@@ -267,6 +328,10 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
             "require_delete_data",
             AsyncMock(return_value=None),
         ),
+        patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(return_value=set()),
+        ),
         patch.object(
             PassportImageCropRepository,
             "derived_storage_keys",
@@ -326,6 +391,10 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             AuthorizationPolicy,
             "require_delete_data",
             AsyncMock(return_value=None),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(return_value=set()),
         ),
         patch.object(
             PassportImageCropRepository,

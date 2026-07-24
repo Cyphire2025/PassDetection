@@ -14,11 +14,8 @@ import {
   formatPassportDateForUi,
   previousPassportIsoDate,
 } from "@/lib/utils/passport-date";
-import {
-  formatPassportCountry,
-  formatPassportCountryField,
-  formatPassportNationality,
-} from "@/lib/utils/passport-country";
+import { formatPassportNationality } from "@/lib/utils/passport-country";
+import { getPassportTextField } from "@/lib/utils/passport-fields";
 import type {
   ExtractedPassportFields,
   PassportExtractionConflict,
@@ -462,7 +459,7 @@ function ReviewFieldsCard({
   const initialFields = useMemo(
     () =>
       REVIEW_FIELDS.reduce<Record<string, string>>((fields, key) => {
-        fields[key] = getStringField(sourceFields, key);
+        fields[key] = getPassportTextField(sourceFields, key);
         return fields;
       }, {}),
     [sourceFields],
@@ -641,7 +638,7 @@ function ReviewFieldsCard({
         <div className="grid gap-4 sm:grid-cols-2">
           {REVIEW_FIELDS.map((key) => {
             const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
-            const isCountry = key === "nationality" || key === "issuing_country";
+            const isCountry = key === "nationality";
             const fieldReview = getPassportFieldReview(passport, validation, key);
             const fieldClassName = getPassportFieldReviewClassName(fieldReview?.verdict);
             return (
@@ -664,7 +661,6 @@ function ReviewFieldsCard({
                     onChange={(value) => handleFieldChange(key, value)}
                     className={fieldClassName}
                     ariaLabel={toLabel(key)}
-                    field={key}
                   />
                 ) : isDate ? (
                   <PassportDateInput
@@ -967,15 +963,13 @@ function PassportCountryTextField({
   onChange,
   className,
   ariaLabel,
-  field,
 }: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
   ariaLabel: string;
-  field: "nationality" | "issuing_country";
 }) {
-  const formattedValue = formatPassportCountryField(field, value) || value;
+  const formattedValue = formatPassportNationality(value) || value;
   const [draftValue, setDraftValue] = useState(formattedValue);
   const [isDirty, setIsDirty] = useState(false);
 
@@ -1112,9 +1106,6 @@ function formatConflictValue(field: string, value: string) {
   if (field === "nationality") {
     return formatPassportNationality(value) || value;
   }
-  if (field === "issuing_country") {
-    return formatPassportCountry(value) || value;
-  }
   if (field === "date_of_birth" || field === "date_of_issue" || field === "date_of_expiry") {
     return formatPassportDateForUi(value) || value;
   }
@@ -1132,6 +1123,8 @@ function MetaItem({ label, value }: { label: string; value: string }) {
 
 function toLabel(value: string) {
   if (value === "given_names") return "Name";
+  if (value === "place_of_issue") return "Place of Issue";
+  if (value === "issuing_country") return "Issuing Country (legacy)";
   return value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());

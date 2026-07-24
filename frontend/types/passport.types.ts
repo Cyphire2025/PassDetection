@@ -42,6 +42,8 @@ export interface ExtractedPassportFields {
   date_of_expiry?: string;
   passport_number?: string;
   personal_number?: string;
+  place_of_issue?: string;
+  /** @deprecated Read-only compatibility for records created before place_of_issue. */
   issuing_country?: string;
   mrz_line_1?: string;
   mrz_line_2?: string;
@@ -94,6 +96,8 @@ export type PassportVerificationFieldName =
   | "given_names"
   | "passport_number"
   | "nationality"
+  | "place_of_issue"
+  /** @deprecated Persisted legacy verification results may still contain this field. */
   | "issuing_country"
   | "date_of_birth"
   | "date_of_issue"

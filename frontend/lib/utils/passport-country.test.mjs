@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   formatPassportCountry,
-  formatPassportCountryField,
   formatPassportNationality,
   getPassportCountryOptions,
   getPassportNationalityOptions,
@@ -22,7 +21,7 @@ test("preserves country names and unknown values", () => {
   assert.equal(formatPassportCountry(""), "");
 });
 
-test("formats Indian nationality separately from the India issuing country", () => {
+test("formats Indian nationality separately from the India country label", () => {
   for (const value of ["IN", "IND", "India", "indian"]) {
     assert.equal(formatPassportNationality(value), "Indian");
   }
@@ -30,14 +29,11 @@ test("formats Indian nationality separately from the India issuing country", () 
   assert.equal(formatPassportCountry("IND"), "India");
 });
 
-test("formats dashboard country fields without changing their raw values", () => {
+test("formats dashboard nationality without changing its raw value", () => {
   const submittedNationality = "IND";
-  const submittedIssuingCountry = "IND";
 
-  assert.equal(formatPassportCountryField("nationality", submittedNationality), "Indian");
-  assert.equal(formatPassportCountryField("issuing_country", submittedIssuingCountry), "India");
+  assert.equal(formatPassportNationality(submittedNationality), "Indian");
   assert.equal(submittedNationality, "IND");
-  assert.equal(submittedIssuingCountry, "IND");
 });
 
 test("builds options that retain raw API code shapes", () => {

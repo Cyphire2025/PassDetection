@@ -14,6 +14,7 @@ from app.application.interfaces.confidence_scoring import (
     PassportConfidenceScore,
 )
 from app.application.interfaces.passport_field_validator import PassportFieldValidationResult
+from app.domain.value_objects.passport_fields import canonical_passport_fields
 
 
 class PassportConfidenceScoringService(IPassportConfidenceScoringService):
@@ -30,7 +31,7 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
     )
 
     IMPORTANT_FIELDS = (
-        "issuing_country",
+        "place_of_issue",
         "personal_number",
         "mrz_line_1",
         "mrz_line_2",
@@ -47,6 +48,7 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         image_quality: float | None = None,
         fallback_used: bool = False,
     ) -> PassportConfidenceScore:
+        extracted_fields = canonical_passport_fields(extracted_fields) or {}
         signals = [
             self._field_completeness_signal(extracted_fields),
             self._mrz_integrity_signal(extracted_fields, mrz_raw),
@@ -80,8 +82,12 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         )
 
     def _field_completeness_signal(self, fields: dict[str, Any]) -> ConfidenceSignal:
-        required_hits = sum(1 for field in self.REQUIRED_FIELDS if self._has_value(fields.get(field)))
-        important_hits = sum(1 for field in self.IMPORTANT_FIELDS if self._has_value(fields.get(field)))
+        required_hits = sum(
+            1 for field in self.REQUIRED_FIELDS if self._has_value(fields.get(field))
+        )
+        important_hits = sum(
+            1 for field in self.IMPORTANT_FIELDS if self._has_value(fields.get(field))
+        )
         score = ((required_hits / len(self.REQUIRED_FIELDS)) * 0.8) + (
             (important_hits / len(self.IMPORTANT_FIELDS)) * 0.2
         )
@@ -97,8 +103,12 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
             },
         )
 
-    def _mrz_integrity_signal(self, fields: dict[str, Any], mrz_raw: str | None) -> ConfidenceSignal:
-        has_mrz_lines = self._has_value(fields.get("mrz_line_1")) and self._has_value(fields.get("mrz_line_2"))
+    def _mrz_integrity_signal(
+        self, fields: dict[str, Any], mrz_raw: str | None
+    ) -> ConfidenceSignal:
+        has_mrz_lines = self._has_value(fields.get("mrz_line_1")) and self._has_value(
+            fields.get("mrz_line_2")
+        )
         has_raw_mrz = self._has_value(mrz_raw)
         score = 1.0 if has_mrz_lines else 0.65 if has_raw_mrz else 0.25
         return ConfidenceSignal(
@@ -192,9 +202,10 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         )
 
     def _template_consistency_signal(self, fields: dict[str, Any]) -> ConfidenceSignal:
-        has_td3 = len(str(fields.get("mrz_line_1", ""))) == 44 and len(
-            str(fields.get("mrz_line_2", ""))
-        ) == 44
+        has_td3 = (
+            len(str(fields.get("mrz_line_1", ""))) == 44
+            and len(str(fields.get("mrz_line_2", ""))) == 44
+        )
         score = 1.0 if has_td3 else 0.7
         return ConfidenceSignal(
             name="passport_template_consistency",
@@ -204,19 +215,22 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         )
 
     def _country_rules_signal(self, fields: dict[str, Any]) -> ConfidenceSignal:
-        nationality = str(fields.get("nationality", ""))
-        issuing_country = str(fields.get("issuing_country", ""))
-        valid_codes = all(
-            len(value) == 3 and value.isalpha()
-            for value in (nationality, issuing_country)
-            if value
+        canonical_fields = canonical_passport_fields(fields) or {}
+        nationality = str(canonical_fields.get("nationality", ""))
+        place_of_issue = str(canonical_fields.get("place_of_issue", ""))
+        nationality_valid = len(nationality) == 3 and nationality.isalpha()
+        place_valid = not place_of_issue or (
+            len(place_of_issue) <= 160 and any(character.isalnum() for character in place_of_issue)
         )
-        score = 1.0 if valid_codes and nationality else 0.7
+        score = 1.0 if nationality_valid and place_valid else 0.7
         return ConfidenceSignal(
             name="country_rule_validation",
             score=score,
             weight=0.025,
-            details={"nationality": nationality, "issuing_country": issuing_country},
+            details={
+                "nationality": nationality,
+                "place_of_issue": place_of_issue,
+            },
         )
 
     def _field_confidence(
@@ -225,6 +239,7 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         evidence: dict[str, Any] | None,
         validation: PassportFieldValidationResult,
     ) -> dict[str, float]:
+        fields = canonical_passport_fields(fields) or {}
         issue_fields = {issue.field for issue in validation.issues}
         result: dict[str, float] = {}
         for field_name in (*self.REQUIRED_FIELDS, *self.IMPORTANT_FIELDS):
@@ -244,7 +259,9 @@ class PassportConfidenceScoringService(IPassportConfidenceScoringService):
         overall: float,
     ) -> list[str]:
         reasons: list[str] = []
-        missing_fields = [field for field in self.REQUIRED_FIELDS if not self._has_value(fields.get(field))]
+        missing_fields = [
+            field for field in self.REQUIRED_FIELDS if not self._has_value(fields.get(field))
+        ]
         if missing_fields:
             reasons.append(f"Missing required fields: {', '.join(missing_fields)}")
         if validation.issues:

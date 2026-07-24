@@ -26,6 +26,9 @@ from app.infrastructure.database.models import (
     WhatsAppRecipientMessageStateModel,
 )
 from app.infrastructure.database.session import AsyncSessionFactory
+from app.infrastructure.repositories.passport_roster_resolution_repository import (
+    active_replacement_resolution_id_for_recipient,
+)
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
     send_whatsapp_template,
@@ -143,6 +146,11 @@ async def _load_sendable_recipient(
         return None, "WhatsApp recipient no longer exists"
     if recipient.removed_at is not None:
         return None, "WhatsApp recipient was removed"
+    if await active_replacement_resolution_id_for_recipient(
+        session,
+        recipient=recipient,
+    ):
+        return None, "WhatsApp recipient was replaced in a linked passport group"
 
     if getattr(log, "is_explicit_resend", False):
         resend_claim_result = await session.execute(

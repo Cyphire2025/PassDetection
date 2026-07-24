@@ -26,7 +26,7 @@ class TestPassportConfidenceScoringService:
                 "date_of_birth": "1990-01-01",
                 "date_of_expiry": "2030-01-01",
                 "sex": "M",
-                "issuing_country": "USA",
+                "place_of_issue": "NEW YORK",
                 "mrz_line_1": "P<USADOE<<JOHN<<<<<<<<<<<<<<<<<<<<<<",
                 "mrz_line_2": "A1234567<0USA9001011M3001012<<<<<<<<<<<<<<04",
             },
@@ -48,7 +48,11 @@ class TestPassportConfidenceScoringService:
             mrz_raw=None,
             validation=PassportFieldValidationResult(
                 status="review_required",
-                issues=[FieldValidationIssue(field="passport_number", message="Required field was not extracted.")],
+                issues=[
+                    FieldValidationIssue(
+                        field="passport_number", message="Required field was not extracted."
+                    )
+                ],
             ),
         )
 

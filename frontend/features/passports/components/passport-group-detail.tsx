@@ -33,6 +33,7 @@ import {
 } from "../hooks/use-passports";
 import type {
   PassportDocumentImportPreview,
+  PassportGroupExportKind,
   PassportGroupSubmissionFilter,
   PassportGroupSubmissionSort,
   PassportImageType,
@@ -46,6 +47,7 @@ import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
 import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { PassportImageCropEditor } from "./passport-image-crop-editor";
+import { PassportExportDialog } from "./passport-export-dialog";
 
 interface PassportGroupDetailProps {
   groupId: string;
@@ -134,6 +136,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [exportDialogKind, setExportDialogKind] =
+    useState<PassportGroupExportKind | null>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [bulkDeleteFeedback, setBulkDeleteFeedback] = useState<{
     tone: "success" | "warning" | "error";
@@ -327,16 +331,15 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 <button
                   type="button"
                   role="menuitem"
-                  disabled={exportImagesMutation.isPending || !data?.length}
+                  disabled={
+                    exportImagesMutation.isPending
+                    || (submissionsView?.group_total ?? 0) === 0
+                  }
                   className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() => {
                     setIsActionsMenuOpen(false);
                     setImportMessage(null);
-                    exportImagesMutation.mutate(groupId, {
-                      onError: (exportError) => setImportMessage(
-                        mutationErrorMessage(exportError, "Image download failed"),
-                      ),
-                    });
+                    setExportDialogKind("passport_images");
                   }}
                 >
                   <Download className="h-4 w-4 text-slate-500" />
@@ -371,11 +374,15 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 <button
                   type="button"
                   role="menuitem"
-                  disabled={exportMutation.isPending}
+                  disabled={
+                    exportMutation.isPending
+                    || (submissionsView?.group_total ?? 0) === 0
+                  }
                   className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() => {
                     setIsActionsMenuOpen(false);
-                    exportMutation.mutate(groupId);
+                    setImportMessage(null);
+                    setExportDialogKind("passport_excel");
                   }}
                 >
                   <Download className="h-4 w-4 text-slate-500" />
@@ -938,6 +945,45 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           onSaved={() => {
             setImageRevision((current) => current + 1);
             void refetchSubmissions();
+          }}
+        />
+      )}
+      {exportDialogKind && (
+        <PassportExportDialog
+          groupId={groupId}
+          kind={exportDialogKind}
+          isDownloading={
+            exportDialogKind === "passport_images"
+              ? exportImagesMutation.isPending
+              : exportMutation.isPending
+          }
+          onClose={() => setExportDialogKind(null)}
+          onDownload={({ mode, baselineExportId }) => {
+            const mutation = exportDialogKind === "passport_images"
+              ? exportImagesMutation
+              : exportMutation;
+            mutation.mutate(
+              {
+                groupId,
+                mode,
+                baselineExportId,
+                requestId: createExportRequestId(),
+              },
+              {
+                onSuccess: () => setExportDialogKind(null),
+                onError: (exportError) => {
+                  setExportDialogKind(null);
+                  setImportMessage(
+                    mutationErrorMessage(
+                      exportError,
+                      exportDialogKind === "passport_images"
+                        ? "Image download failed"
+                        : "Excel export failed",
+                    ),
+                  );
+                },
+              },
+            );
           }}
         />
       )}
@@ -1573,6 +1619,36 @@ function getPersonnelCode(passport: PassportSubmission) {
   const normalized = String(value).trim().toUpperCase();
   const prefixed = normalized.match(/^STF[_\-\s]+(.+)$/);
   return prefixed ? `STF_${prefixed[1]}` : `STF_${normalized}`;
+}
+
+function createExportRequestId() {
+  if (
+    typeof globalThis.crypto !== "undefined"
+    && typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+  const bytes = new Uint8Array(16);
+  if (
+    typeof globalThis.crypto !== "undefined"
+    && typeof globalThis.crypto.getRandomValues === "function"
+  ) {
+    globalThis.crypto.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+  bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
+  bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0"));
+  return [
+    hex.slice(0, 4).join(""),
+    hex.slice(4, 6).join(""),
+    hex.slice(6, 8).join(""),
+    hex.slice(8, 10).join(""),
+    hex.slice(10).join(""),
+  ].join("-");
 }
 
 function PassportDocumentImportProgress({

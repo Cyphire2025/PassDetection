@@ -37,11 +37,13 @@ test("recipient dialog loads the unified valid and rejected roster endpoint", ()
   assert.match(pageSource, /recipientRoster\.items/);
 });
 
-test("recipient dialog exposes All, Sent, Failed, and Rejected tabs with server counts", () => {
+test("recipient dialog exposes active, rejected, unidentified, and replaced tabs with server counts", () => {
   assert.match(pageSource, /\{ id: "all", label: "All" \}/);
   assert.match(pageSource, /\{ id: "sent", label: "Sent" \}/);
   assert.match(pageSource, /\{ id: "failed", label: "Failed" \}/);
   assert.match(pageSource, /\{ id: "rejected", label: "Rejected" \}/);
+  assert.match(pageSource, /id: "unidentified"[\s\S]*label: "Unidentified"/);
+  assert.match(pageSource, /\{ id: "replaced", label: "Replaced" \}/);
   assert.match(pageSource, /role="tablist"/);
   assert.match(pageSource, /role="tab"/);
   assert.match(pageSource, /recipientRoster\?\.counts\[tab\.id\] \?\? 0/);
@@ -81,4 +83,61 @@ test("rejected rows remain correctable inside the same filtered roster", () => {
   assert.match(pageSource, /<RejectedRosterRows/);
   assert.match(pageSource, /Save and add/);
   assert.match(pageSource, /resolveRejectedContact\.mutateAsync/);
+});
+
+test("replaced rows stay outside All and can restore the durable group decision", () => {
+  assert.match(
+    rosterSource,
+    /tab === "all"[\s\S]*item\.kind === "recipient"[\s\S]*item\.kind === "rejected"/,
+  );
+  assert.match(rosterSource, /tab === "replaced"\) return item\.kind === "replaced"/);
+  assert.match(apiSource, /interface WhatsAppReplacedRecipient/);
+  assert.match(apiSource, /replacement_submission_id: string/);
+  assert.match(apiSource, /client_group_name: string/);
+  assert.match(
+    apiSource,
+    /restoreReplacedRecipient:[\s\S]*restoreRosterResolution/,
+  );
+  assert.match(hooksSource, /useRestoreWhatsAppReplacedRecipient/);
+  assert.match(pageSource, /<ReplacedRosterRow/);
+  assert.match(pageSource, /Restore \/ add back/);
+  assert.match(
+    pageSource,
+    /cannot[\s\S]*receive further messages unless they are restored/,
+  );
+});
+
+test("unidentified tab explains unmatched uploads and deep-links to resolution workflow", () => {
+  assert.match(apiSource, /interface WhatsAppUnidentifiedUpload/);
+  assert.match(apiSource, /kind: "unidentified"/);
+  assert.match(apiSource, /unidentified: number/);
+  assert.match(
+    rosterSource,
+    /tab === "unidentified"\) return item\.kind === "unidentified"/,
+  );
+  assert.match(
+    pageSource,
+    /People who uploaded passport details but are not in this WhatsApp broadcast\./,
+  );
+  assert.match(pageSource, /<UnidentifiedRosterRow/);
+  assert.match(pageSource, /Review \/ mark replacement/);
+  assert.match(
+    pageSource,
+    /\/passports\/groups\/\$\{upload\.client_group_id\}\/whatsapp/,
+  );
+});
+
+test("restoring reconciles WhatsApp, passport tracking, and export history caches", () => {
+  assert.match(
+    hooksSource,
+    /useRestoreWhatsAppReplacedRecipient[\s\S]*queryKey: \["whatsapp"\]/,
+  );
+  assert.match(
+    hooksSource,
+    /useRestoreWhatsAppReplacedRecipient[\s\S]*"whatsapp-matches"/,
+  );
+  assert.match(
+    hooksSource,
+    /useRestoreWhatsAppReplacedRecipient[\s\S]*"passport-export-history"/,
+  );
 });

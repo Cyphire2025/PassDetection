@@ -21,7 +21,8 @@ test("staff review payload keeps only the nine passport fields", () => {
       given_names: "IRFAN",
       passport_number: " P7251478 ",
       nationality: "Indian",
-      issuing_country: "India",
+      place_of_issue: " Chennai ",
+      issuing_country: "legacy-value-must-not-leak",
       date_of_birth: "1988-06-28",
       date_of_issue: "2017-01-16",
       date_of_expiry: "2027-01-15",
@@ -36,7 +37,7 @@ test("staff review payload keeps only the nine passport fields", () => {
       given_names: "IRFAN",
       passport_number: "P7251478",
       nationality: "Indian",
-      issuing_country: "India",
+      place_of_issue: "Chennai",
       date_of_birth: "1988-06-28",
       date_of_issue: "2017-01-16",
       date_of_expiry: "2027-01-15",
@@ -233,6 +234,35 @@ test("labels unavailable AI fields as not verified while retaining amber styling
   assert.equal(unavailable?.label, "Not verified");
   assert.equal(unavailable?.reason_code, "provider_unavailable");
   assert.match(getPassportFieldReviewClassName(unavailable?.verdict), /bg-amber-50/);
+});
+
+test("does not relabel legacy issuing-country verification as place of issue", () => {
+  const review = getPassportFieldReview(
+    {
+      status: "needs_review",
+      post_submission_verification: {
+        verification_status: "needs_review",
+        confidence: 0.95,
+        incorrect_fields: ["issuing_country"],
+        suspicious_fields: [],
+        explanation: "Review the marked field.",
+        provider_status: "verified",
+        reason_code: null,
+        model: "legacy-model",
+        fields: [{
+          field: "issuing_country",
+          verdict: "incorrect",
+          observed_value: "CHENNAI",
+          confidence: 0.95,
+          reason_code: "different_value",
+        }],
+      },
+    },
+    undefined,
+    "place_of_issue",
+  );
+
+  assert.equal(review, null);
 });
 
 test("never displays confidence when AI could not read a field", () => {

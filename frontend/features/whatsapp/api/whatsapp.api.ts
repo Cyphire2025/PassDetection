@@ -48,6 +48,32 @@ export interface WhatsAppRejectedContactPage {
   offset: number;
 }
 
+export interface WhatsAppReplacedRecipient {
+  recipient_id: string;
+  resolution_id: string;
+  client_group_id: string;
+  client_group_name: string;
+  name: string | null;
+  phone_number: string;
+  normalized_phone_number: string;
+  imported_fields: Record<string, string>;
+  replacement_submission_id: string;
+  replacement_name: string;
+  replacement_phone: string | null;
+  replaced_at: string;
+}
+
+export interface WhatsAppUnidentifiedUpload {
+  submission_id: string;
+  client_group_id: string;
+  client_group_name: string;
+  name: string;
+  phone_number: string | null;
+  email: string | null;
+  details: Record<string, unknown>;
+  updated_at: string;
+}
+
 export type WhatsAppRecipientRosterItem =
   | {
       kind: "recipient";
@@ -58,6 +84,16 @@ export type WhatsAppRecipientRosterItem =
       kind: "rejected";
       display_order: number;
       rejected_contact: WhatsAppRejectedContact;
+    }
+  | {
+      kind: "replaced";
+      display_order: number;
+      replaced_recipient: WhatsAppReplacedRecipient;
+    }
+  | {
+      kind: "unidentified";
+      display_order: number;
+      unidentified_upload: WhatsAppUnidentifiedUpload;
     };
 
 export interface WhatsAppRecipientRosterResponse {
@@ -67,6 +103,8 @@ export interface WhatsAppRecipientRosterResponse {
     sent: number;
     failed: number;
     rejected: number;
+    replaced: number;
+    unidentified: number;
   };
 }
 
@@ -214,6 +252,21 @@ export const whatsappApi = {
       API_ENDPOINTS.whatsapp.recipientRoster(groupId),
     );
     return data;
+  },
+
+  restoreReplacedRecipient: async ({
+    clientGroupId,
+    resolutionId,
+  }: {
+    clientGroupId: string;
+    resolutionId: string;
+  }): Promise<void> => {
+    await apiClient.post(
+      API_ENDPOINTS.uploadLinks.restoreRosterResolution(
+        clientGroupId,
+        resolutionId,
+      ),
+    );
   },
 
   createGroup: async ({

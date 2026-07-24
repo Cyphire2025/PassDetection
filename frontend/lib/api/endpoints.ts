@@ -59,6 +59,14 @@ export const API_ENDPOINTS = {
       `/api/v1/upload-links/${id}/whatsapp-broadcast-options`,
     whatsappLinks: (id: string) => `/api/v1/upload-links/${id}/whatsapp-links`,
     whatsappMatches: (id: string) => `/api/v1/upload-links/${id}/whatsapp-matches`,
+    replacementCandidates: (id: string) =>
+      `/api/v1/upload-links/${id}/replacement-candidates`,
+    resolveUnidentifiedReplacement: (id: string, submissionId: string) =>
+      `/api/v1/upload-links/${id}/unidentified/${submissionId}/replacement`,
+    rejectUnidentifiedUpload: (id: string, submissionId: string) =>
+      `/api/v1/upload-links/${id}/unidentified/${submissionId}/reject`,
+    restoreRosterResolution: (id: string, resolutionId: string) =>
+      `/api/v1/upload-links/${id}/roster-resolutions/${resolutionId}/restore`,
   },
 
   whatsapp: {
@@ -92,6 +100,12 @@ export const API_ENDPOINTS = {
       `/api/v1/passports/groups/${groupId}/submissions-view`,
     groupExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export.xlsx`,
     groupImageExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export-images`,
+    groupExportHistory: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/export-history`,
+    groupExportHistoryDetail: (groupId: string, historyId: string) =>
+      `/api/v1/passports/groups/${groupId}/export-history/${historyId}`,
+    groupExportHistoryComplete: (groupId: string, historyId: string) =>
+      `/api/v1/passports/groups/${groupId}/export-history/${historyId}/complete`,
     groupImport: (groupId: string) => `/api/v1/passports/groups/${groupId}/import.xlsx`,
     passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
     passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,

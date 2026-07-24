@@ -31,10 +31,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { previousPassportIsoDate } from "@/lib/utils/passport-date";
 import {
-  formatPassportCountry,
   formatPassportNationality,
   isRecognizedPassportCountryCode,
 } from "@/lib/utils/passport-country";
+import { getPassportTextField } from "@/lib/utils/passport-fields";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
@@ -62,6 +62,7 @@ import {
   isTransientExtractionPollError,
   nextExtractionPollDelay,
 } from "./extraction-polling";
+import { PassportManualCrop } from "./passport-manual-crop";
 import { SmartCamera } from "./smart-camera";
 import { VisaPhotoUpload } from "./visa-photo-upload";
 import { VisaSelfieCamera } from "./visa-selfie-camera";
@@ -85,6 +86,7 @@ type Step =
   | "SELFIE_CAMERA"
   | "SELFIE_UPLOAD"
   | "CAMERA"
+  | "PASSPORT_CROP"
   | "UPLOADING"
   | "REVIEW"
   | "FAMILY_REVIEW"
@@ -117,6 +119,14 @@ interface PassportDocumentBundle {
   back: File | null;
   frontSource: "camera" | "file" | null;
   backSource: "camera" | "file" | null;
+  frontManuallyCropped: boolean;
+  backManuallyCropped: boolean;
+}
+
+interface PendingPassportCrop {
+  file: File;
+  pageSide: "front" | "back";
+  source: "camera" | "file";
 }
 
 interface ExtractionWaitResult {
@@ -130,7 +140,7 @@ const REVIEW_FIELDS = [
   "given_names",
   "passport_number",
   "nationality",
-  "issuing_country",
+  "place_of_issue",
   "date_of_birth",
   "date_of_issue",
   "date_of_expiry",
@@ -211,6 +221,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [visaSelfie, setVisaSelfie] = useState<File | null>(null);
   const [documentBundle, setDocumentBundle] = useState<PassportDocumentBundle>(() => emptyDocumentBundle());
   const [scannerPageSide, setScannerPageSide] = useState<"front" | "back">("front");
+  const [pendingPassportCrop, setPendingPassportCrop] = useState<PendingPassportCrop | null>(null);
   const mountedRef = useRef(false);
   const operationInFlightRef = useRef(false);
   const requestControllerRef = useRef<AbortController | null>(null);
@@ -502,6 +513,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const selectFamilyMember = (index: number) => {
     setActiveFamilyIndex(index);
     setDocumentBundle(emptyDocumentBundle());
+    setPendingPassportCrop(null);
     setUploadError(null);
   };
 
@@ -596,20 +608,54 @@ export function UploadFlow({ token }: UploadFlowProps) {
       documentBundle.back,
       acquisitionMode,
       documentBundle.frontSource ?? "file",
+      documentBundle.frontManuallyCropped,
       activeVisaSelfie,
     );
   };
 
+  const beginPassportCrop = (
+    file: File,
+    pageSide: "front" | "back",
+    source: "camera" | "file",
+  ) => {
+    setPendingPassportCrop({ file, pageSide, source });
+    setUploadError(null);
+    setStep("PASSPORT_CROP");
+  };
+
   const handleCameraCapture = (file: File) => {
-    const capturedSide = scannerPageSide;
+    beginPassportCrop(file, scannerPageSide, "camera");
+  };
+
+  const handlePassportCropConfirm = (
+    croppedFile: File,
+    manuallyCropped: boolean,
+  ) => {
+    if (!pendingPassportCrop) return;
+    const { pageSide, source } = pendingPassportCrop;
     setDocumentBundle((current) => ({
       ...current,
-      [capturedSide]: file,
-      [`${capturedSide}Source`]: "camera",
+      [pageSide]: croppedFile,
+      [`${pageSide}Source`]: source,
+      [`${pageSide}ManuallyCropped`]: manuallyCropped,
     }));
+    setPendingPassportCrop(null);
     setUploadError(null);
-    if (capturedSide === "front" && !documentBundle.back) {
+    if (source === "camera" && pageSide === "front" && !documentBundle.back) {
       setScannerPageSide("back");
+      setStep("CAMERA");
+      return;
+    }
+    setStep("METHOD_SELECT");
+  };
+
+  const handlePassportCropCancel = () => {
+    const pending = pendingPassportCrop;
+    setPendingPassportCrop(null);
+    setUploadError(null);
+    if (pending?.source === "camera") {
+      setScannerPageSide(pending.pageSide);
+      setStep("CAMERA");
       return;
     }
     setStep("METHOD_SELECT");
@@ -638,6 +684,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     passportBackFile: File,
     acquisitionMode: "camera" | "file",
     frontSource: "camera" | "file",
+    frontManuallyCropped: boolean,
     passportPhotoFile?: File | null,
   ) => {
     if (operationInFlightRef.current) return;
@@ -672,11 +719,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setExtractionNotice(null);
       setCanRetryExtraction(false);
       setIsPreparingFile(true);
-      // Live camera files have already passed their single perspective
-      // correction and exact-final-image validation. Mixed camera/file bundles
-      // still report acquisitionMode "file", so use the front-page source
-      // rather than the aggregate mode to avoid correcting that JPEG twice.
-      const preparedFrontFile = frontSource === "camera"
+      // Live camera files and browser-cropped device files have already passed
+      // exact-final-image validation. Mixed bundles still report
+      // acquisitionMode "file", so keep the chosen manual crop unchanged and
+      // only run legacy perspective correction for an undecodable original.
+      const preparedFrontFile = frontSource === "camera" || frontManuallyCropped
         ? file
         : (await normalizePassportFile(file)).file;
       if (!mountedRef.current || controller.signal.aborted) return;
@@ -1398,6 +1445,19 @@ export function UploadFlow({ token }: UploadFlowProps) {
     );
   }
 
+  if (step === "PASSPORT_CROP" && pendingPassportCrop) {
+    return (
+      <PassportManualCrop
+        key={`${pendingPassportCrop.pageSide}:${pendingPassportCrop.source}:${pendingPassportCrop.file.name}:${pendingPassportCrop.file.lastModified}`}
+        file={pendingPassportCrop.file}
+        pageSide={pendingPassportCrop.pageSide}
+        source={pendingPassportCrop.source}
+        onConfirm={handlePassportCropConfirm}
+        onCancel={handlePassportCropCancel}
+      />
+    );
+  }
+
   if (step === "CAMERA") {
     return (
       <SmartCamera
@@ -1963,6 +2023,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                             allowFilesFromDevice={allowFilesFromDevice}
                             onChange={setDocumentBundle}
                             onScan={openPassportScanner}
+                            onFileSelect={(pageSide, file) => beginPassportCrop(file, pageSide, "file")}
                             onUpload={handleBundleUpload}
                           />
                         </PassportUploadSection>
@@ -2001,6 +2062,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                           allowFilesFromDevice={allowFilesFromDevice}
                           onChange={setDocumentBundle}
                           onScan={openPassportScanner}
+                          onFileSelect={(pageSide, file) => beginPassportCrop(file, pageSide, "file")}
                           onUpload={handleBundleUpload}
                         />
                       </PassportUploadSection>
@@ -2050,6 +2112,8 @@ function emptyDocumentBundle(): PassportDocumentBundle {
     back: null,
     frontSource: null,
     backSource: null,
+    frontManuallyCropped: false,
+    backManuallyCropped: false,
   };
 }
 
@@ -2257,18 +2321,34 @@ function PassportDocumentBundlePanel({
   allowFilesFromDevice,
   onChange,
   onScan,
+  onFileSelect,
   onUpload,
 }: {
   bundle: PassportDocumentBundle;
   allowFilesFromDevice: boolean;
   onChange: (bundle: PassportDocumentBundle) => void;
   onScan: (pageSide: "front" | "back") => void;
+  onFileSelect: (pageSide: "front" | "back", file: File) => void;
   onUpload: () => void;
 }) {
   const updateFile = (pageSide: "front" | "back", file: File | null) => {
+    if (file) {
+      onFileSelect(pageSide, file);
+      return;
+    }
     onChange(pageSide === "front"
-      ? { ...bundle, front: file, frontSource: file ? "file" : null }
-      : { ...bundle, back: file, backSource: file ? "file" : null });
+      ? {
+          ...bundle,
+          front: null,
+          frontSource: null,
+          frontManuallyCropped: false,
+        }
+      : {
+          ...bundle,
+          back: null,
+          backSource: null,
+          backManuallyCropped: false,
+        });
   };
   const readyPageCount = Number(Boolean(bundle.front)) + Number(Boolean(bundle.back));
 
@@ -2901,16 +2981,15 @@ function ProcessingScreen({ title, description, progress }: { title: string; des
 
 function getInitialReviewFields(fields: ExtractedPassportFields | null) {
   return REVIEW_FIELDS.reduce<Record<string, string>>((current, key) => {
-    const value = fields?.[key];
-    current[key] = typeof value === "string" ? value : "";
+    current[key] = getPassportTextField(fields, key);
     return current;
   }, {});
 }
 
 function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {
   return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {
-    const value = fields?.[key];
-    if (typeof value === "string" && value.trim() && !next[key]?.trim()) {
+    const value = getPassportTextField(fields, key);
+    if (value.trim() && !next[key]?.trim()) {
       next[key] = value;
     }
     return next;
@@ -2924,7 +3003,6 @@ function hasMissingRequiredFields(fields: Record<string, string>) {
 function formatReviewFieldValue(key: typeof REVIEW_FIELDS[number], value: string) {
   if (!isRecognizedPassportCountryCode(value)) return value;
   if (key === "nationality") return formatPassportNationality(value);
-  if (key === "issuing_country") return formatPassportCountry(value);
   return value;
 }
 
@@ -3018,6 +3096,8 @@ function todayIsoDate() {
 
 function toLabel(value: string) {
   if (value === "given_names") return "Name";
+  if (value === "place_of_issue") return "Place of Issue";
+  if (value === "issuing_country") return "Issuing Country (legacy)";
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
 

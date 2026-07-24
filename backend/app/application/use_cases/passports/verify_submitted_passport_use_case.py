@@ -10,6 +10,7 @@ from app.application.dtos.passport_dtos import (
     passport_submission_output_from_entity,
 )
 from app.application.interfaces.post_submission_verification import (
+    POST_SUBMISSION_PASSPORT_FIELDS,
     IPostSubmissionPassportVerificationService,
     PostSubmissionVerificationResult,
 )
@@ -19,6 +20,7 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.passport_fields import canonical_passport_fields
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
@@ -53,7 +55,12 @@ class VerifySubmittedPassportUseCase:
         ):
             return None
 
-        submitted_fields = dict(submission.confirmed_fields or {})
+        canonical_fields = canonical_passport_fields(submission.confirmed_fields) or {}
+        submitted_fields = {
+            field: canonical_fields[field]
+            for field in POST_SUBMISSION_PASSPORT_FIELDS
+            if field in canonical_fields
+        }
         try:
             image_content = await self._storage_repo.get_file(submission.image_s3_key)
         except Exception as exc:

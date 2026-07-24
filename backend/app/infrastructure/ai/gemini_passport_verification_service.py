@@ -8,6 +8,7 @@ import json
 import random
 import re
 import time
+import unicodedata
 from collections.abc import Callable
 from datetime import date, datetime
 from typing import Any, Final
@@ -38,7 +39,7 @@ PASSPORT_FIELDS: Final[tuple[str, ...]] = (
     "given_names",
     "passport_number",
     "nationality",
-    "issuing_country",
+    "place_of_issue",
     "date_of_birth",
     "date_of_issue",
     "date_of_expiry",
@@ -50,7 +51,7 @@ _FIELD_CODES: Final[dict[str, str]] = {
     "gn": "given_names",
     "pn": "passport_number",
     "na": "nationality",
-    "ic": "issuing_country",
+    "pi": "place_of_issue",
     "db": "date_of_birth",
     "di": "date_of_issue",
     "de": "date_of_expiry",
@@ -128,7 +129,8 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "confidence, and r is one concise allowed reason code. Never call a generic rectangle a passport. "
     "Only compare visibly printed passport fields against the compact OCR JSON. Return only the schema. "
     "Read exactly these codes: sn surname, gn given names, pn passport number, na nationality "
-    "ISO-3, ic issuing country ISO-3, db birth YYYY-MM-DD, di issue YYYY-MM-DD, "
+    "ISO-3, pi place of issue exactly as visibly printed (free text, not the issuing country), "
+    "db birth YYYY-MM-DD, di issue YYYY-MM-DD, "
     "de expiry YYYY-MM-DD, sx M/F/X. "
     "For every readable field return keep, replace, or fill. A surname can be genuinely absent: "
     "only when the printed surname field is visibly blank and the passport name structure or MRZ "
@@ -770,9 +772,18 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         if field == "passport_number":
             normalized = re.sub(r"\s+", "", value).upper()
             return normalized if re.fullmatch(r"[A-Z0-9]{5,12}", normalized) else ""
-        if field in {"nationality", "issuing_country"}:
+        if field == "nationality":
             normalized = value.upper()
             return normalized if re.fullmatch(r"[A-Z]{3}", normalized) else ""
+        if field == "place_of_issue":
+            normalized = value.upper()
+            if (
+                len(normalized) > _MAX_FIELD_VALUE_CHARS
+                or not any(character.isalnum() for character in normalized)
+                or any(unicodedata.category(character).startswith("C") for character in normalized)
+            ):
+                return ""
+            return normalized
         if field in {"date_of_birth", "date_of_issue", "date_of_expiry"}:
             try:
                 parsed = datetime.strptime(value, "%Y-%m-%d").date()

@@ -104,6 +104,72 @@ export interface BulkDeletePassportSubmissionsResult {
   storage_cleanup_deferred: boolean;
 }
 
+export type PassportGroupExportKind = "passport_images" | "passport_excel";
+export type PassportGroupExportMode = "all" | "incremental";
+
+export interface PassportGroupExportHistoryItem {
+  id: string;
+  export_kind: PassportGroupExportKind;
+  export_mode: PassportGroupExportMode;
+  baseline_export_id: string | null;
+  total_available_count: number;
+  exported_count: number;
+  pending_recipient_count: number;
+  new_submission_count: number;
+  compatible: boolean;
+  actor_email: string | null;
+  created_at: string;
+  completed_at: string;
+}
+
+export interface PassportGroupExportHistory {
+  group_id: string;
+  export_kind: PassportGroupExportKind;
+  current_submission_count: number;
+  items: PassportGroupExportHistoryItem[];
+  page: number;
+  page_size: number;
+  total_count: number;
+  total_pages: number;
+}
+
+export interface PassportGroupExportHistorySubmission {
+  submission_id: string;
+  record_available: boolean;
+  client_name: string | null;
+  client_phone: string | null;
+  client_email: string | null;
+  passport_number: string | null;
+}
+
+export interface PassportGroupExportHistoryDetail {
+  history_id: string;
+  group_id: string;
+  export_kind: PassportGroupExportKind;
+  created_at: string;
+  completed_at: string;
+  exported_count: number;
+  items: PassportGroupExportHistorySubmission[];
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface PassportGroupExportRequest {
+  groupId: string;
+  mode: PassportGroupExportMode;
+  baselineExportId?: string;
+  requestId?: string;
+}
+
+export interface PassportGroupExportCompletion {
+  history_id: string;
+  group_id: string;
+  export_kind: PassportGroupExportKind;
+  status: "completed";
+  completed_at: string;
+}
+
 export type PassportImageType = "visa_photo" | "passport_front" | "passport_back";
 
 export interface PassportImageCropRect {
@@ -455,14 +521,65 @@ export const passportsApi = {
     return { submission: current, outcome: "timed_out" };
   },
 
-  exportGroup: async (groupId: string): Promise<void> => {
-    const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
-      responseType: "blob",
-    });
-    downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
+  getGroupExportHistory: async (
+    groupId: string,
+    kind: PassportGroupExportKind,
+    page = 1,
+  ): Promise<PassportGroupExportHistory> => {
+    const response = await apiClient.get<PassportGroupExportHistory>(
+      API_ENDPOINTS.passports.groupExportHistory(groupId),
+      { params: { kind, page, page_size: 25 } },
+    );
+    return response.data;
   },
 
-  exportGroupImages: async (groupId: string): Promise<void> => {
+  getGroupExportHistoryDetail: async (
+    groupId: string,
+    historyId: string,
+    page: number,
+  ): Promise<PassportGroupExportHistoryDetail> => {
+    const response = await apiClient.get<PassportGroupExportHistoryDetail>(
+      API_ENDPOINTS.passports.groupExportHistoryDetail(groupId, historyId),
+      { params: { page, page_size: 50 } },
+    );
+    return response.data;
+  },
+
+  completeGroupExportHistory: async (
+    groupId: string,
+    historyId: string,
+  ): Promise<PassportGroupExportCompletion> => completePreparedGroupExport(
+    groupId,
+    historyId,
+  ),
+
+  exportGroup: async ({
+    groupId,
+    mode,
+    baselineExportId,
+    requestId,
+  }: PassportGroupExportRequest): Promise<void> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
+      responseType: "blob",
+      params: {
+        mode,
+        baseline_export_id: baselineExportId,
+        request_id: requestId,
+      },
+    });
+    const historyId = requireExportHistoryId(
+      response.headers["x-passport-export-history-id"],
+    );
+    downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
+    await confirmStartedGroupExport(groupId, historyId);
+  },
+
+  exportGroupImages: async ({
+    groupId,
+    mode,
+    baselineExportId,
+    requestId,
+  }: PassportGroupExportRequest): Promise<void> => {
     const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupImageExport(groupId), {
       responseType: "blob",
       // The backend builds a deterministic archive from private object storage
@@ -470,8 +587,17 @@ export const passportsApi = {
       // 30-second JSON request timeout; proxy and storage timeouts remain
       // bounded server-side.
       timeout: 0,
+      params: {
+        mode,
+        baseline_export_id: baselineExportId,
+        request_id: requestId,
+      },
     });
+    const historyId = requireExportHistoryId(
+      response.headers["x-passport-export-history-id"],
+    );
     downloadBlob(response.data, getAttachmentFilename(response.headers["content-disposition"], `passport-images-${groupId}.zip`));
+    await confirmStartedGroupExport(groupId, historyId);
   },
 
   importGroup: async (groupId: string, file: File): Promise<PassportImportResult> => {
@@ -635,6 +761,39 @@ function downloadBlob(blob: Blob, filename: string) {
   anchor.click();
   anchor.remove();
   window.URL.revokeObjectURL(url);
+}
+
+async function completePreparedGroupExport(
+  groupId: string,
+  historyId: string,
+): Promise<PassportGroupExportCompletion> {
+  const response = await apiClient.post<PassportGroupExportCompletion>(
+    API_ENDPOINTS.passports.groupExportHistoryComplete(groupId, historyId),
+  );
+  return response.data;
+}
+
+async function confirmStartedGroupExport(
+  groupId: string,
+  historyId: string,
+): Promise<void> {
+  try {
+    await completePreparedGroupExport(groupId, historyId);
+  } catch {
+    throw new Error(
+      "The file download started, but its history could not be confirmed. "
+      + "It will not appear in download history; download again only if the file is missing.",
+    );
+  }
+}
+
+function requireExportHistoryId(value: unknown): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(
+      "The server did not return a download confirmation ID. The file was not started.",
+    );
+  }
+  return value.trim();
 }
 
 function getAttachmentFilename(contentDisposition: unknown, fallback: string) {
