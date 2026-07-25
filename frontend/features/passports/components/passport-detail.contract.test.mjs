@@ -69,6 +69,23 @@ test("review fields show verification confidence without extraction confidence",
   assert.match(source, /getPassportVerificationConfidence/);
 });
 
+test("a replaced passport never displays its stale AI approval", () => {
+  assert.match(
+    source,
+    /passport\.post_submission_verification\?\.stale_after_staff_edit === true/,
+  );
+  assert.match(source, /const currentVerification = verificationIsStale/);
+  assert.match(
+    source,
+    /Passport details changed\. The previous AI verification is no longer\s+valid\./,
+  );
+  assert.match(
+    source,
+    /\{!verificationIsStale && passport\.post_submission_verified_at && \(/,
+  );
+  assert.match(source, /\{currentVerification\?\.explanation && \(/);
+});
+
 test("client-provided details show the submitted email and phone", () => {
   assert.match(source, /\["Email entered by client", passport\.client_email\]/);
   assert.match(source, /\["Phone entered by client", passport\.client_phone\]/);

@@ -9,10 +9,11 @@ from __future__ import annotations
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from alembic import context
 from app.core.config.settings import get_settings
+from app.infrastructure.database import passport_image_library_model  # noqa: F401
 from app.infrastructure.database.models import Base
 
 settings = get_settings()

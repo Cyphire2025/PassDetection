@@ -190,3 +190,28 @@ test("the upload method shows only the plain studio-photo instruction", () => {
   assert.doesNotMatch(source, /printed or passport-size photograph/);
   assert.doesNotMatch(source, /Live scanning is required\. Gallery and file-picker options are disabled/);
 });
+
+test("single and qualifier choices go directly to passport upload", () => {
+  assert.doesNotMatch(source, /NAME_INPUT/);
+  assert.match(
+    source,
+    /setStep\(mode === "single" \? "METHOD_SELECT" : "FAMILY_SETUP"\)/,
+  );
+  const qualifierStart = source.indexOf("const saveQualifierChoice");
+  const qualifierEnd = source.indexOf("const selectFamilyMember", qualifierStart);
+  assert.match(
+    source.slice(qualifierStart, qualifierEnd),
+    /setStep\("METHOD_SELECT"\)/,
+  );
+});
+
+test("enabled typed fields and custom details are required in both submission modes", () => {
+  assert.match(source, /agencyDealershipNameEnabled && !agencyDealershipName\.trim\(\)/);
+  assert.match(source, /designationEnabled && !designation\.trim\(\)/);
+  assert.match(source, /enabledCustomDetails\.some/);
+  assert.equal(
+    source.match(/custom_detail_answers: enabledCustomDetails\.map/g)?.length,
+    2,
+    "single and family submissions must send custom detail answers",
+  );
+});

@@ -8,8 +8,12 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.value_objects.passport_image_crop import PassportImageType
 from app.domain.value_objects.passport_visa_ai_image import PassportVisaAiImage
 from app.infrastructure.database.models import PassportVisaAiImageModel
+from app.infrastructure.repositories.passport_image_library_repository import (
+    PassportImageLibraryRepository,
+)
 
 
 class PassportVisaAiImageRepository:
@@ -59,6 +63,19 @@ class PassportVisaAiImageRepository:
         )
         self._session.add(row)
         await self._session.flush()
+        await PassportImageLibraryRepository(self._session).create_ai(
+            item_id=row.id,
+            submission_id=submission_id,
+            image_type=PassportImageType.VISA_PHOTO,
+            storage_key=generated_storage_key,
+            original_source_storage_key=original_source_storage_key,
+            content_sha256=content_sha256,
+            prompt=prompt,
+            prompt_sha256=prompt_sha256,
+            model=model,
+            created_by_user_id=created_by_user_id,
+            created_at=row.created_at,
+        )
         return self._to_value(row)
 
     async def get_by_storage_key(

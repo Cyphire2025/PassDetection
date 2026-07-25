@@ -215,7 +215,7 @@ export function PassportExportDialog({
                     <div>
                       <h3 className="font-semibold text-slate-950">Step 2: Choose Excel columns</h3>
                       <p className="mt-1 text-sm text-slate-600">
-                        Select any saved WhatsApp spreadsheet fields or custom answers to append.
+                        Selected WhatsApp spreadsheet fields appear directly after the four trip columns.
                       </p>
                     </div>
                     {(exportFields.data?.fields.length ?? 0) > 0 && (
@@ -227,7 +227,12 @@ export function PassportExportDialog({
                           setSelectedFields(
                             selectedFields.length === allFields.length ? [] : allFields,
                           );
-                          if (selectedFields.length === allFields.length) setGroupByField("");
+                          if (
+                            selectedFields.length === allFields.length
+                            && groupByField !== "international_airport"
+                          ) {
+                            setGroupByField("");
+                          }
                         }}
                       >
                         {selectedFields.length === exportFields.data?.fields.length
@@ -260,10 +265,7 @@ export function PassportExportDialog({
                             {field.label}
                           </span>
                           <span className="text-xs text-slate-500">
-                            {field.source === "whatsapp"
-                              ? "WhatsApp spreadsheet"
-                              : "Custom upload question"}
-                            {field.key === "zone_name" ? " · fixed at column F" : ""}
+                            WhatsApp spreadsheet
                           </span>
                         </span>
                       </label>
@@ -287,8 +289,8 @@ export function PassportExportDialog({
                     className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value="">No grouping</option>
-                    {exportFields.data?.fields
-                      .filter((field) => selectedFields.includes(field.key))
+                    {(exportFields.data?.grouping_fields ?? [])
+                      .filter((field) => field.fixed || selectedFields.includes(field.key))
                       .map((field) => (
                         <option key={field.key} value={field.key}>{field.label}</option>
                       ))}
@@ -571,7 +573,7 @@ export function PassportExportDialog({
                     : {}),
                   ...(!isImages ? {
                     supplementalFields: selectedFields,
-                    ...(groupByField ? { groupByField } : {}),
+                    groupByField: groupByField || "none",
                   } : {}),
                 });
               } catch (downloadError) {

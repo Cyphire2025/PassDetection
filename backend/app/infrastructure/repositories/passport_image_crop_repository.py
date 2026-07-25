@@ -12,7 +12,10 @@ from app.domain.value_objects.passport_image_crop import (
     PassportImageCrop,
     PassportImageType,
 )
-from app.infrastructure.database.models import PassportImageCropModel, PassportVisaAiImageModel
+from app.infrastructure.database.models import PassportImageCropModel
+from app.infrastructure.database.passport_image_library_model import (
+    PassportImageLibraryItemModel,
+)
 
 
 class PassportImageCropRevisionConflict(ValueError):
@@ -228,8 +231,8 @@ class PassportImageCropRepository:
         )
         active_keys = [key for key in result.scalars().all() if key]
         library_result = await self._session.execute(
-            select(PassportVisaAiImageModel.generated_storage_key).where(
-                PassportVisaAiImageModel.submission_id.in_(set(submission_ids)),
+            select(PassportImageLibraryItemModel.storage_key).where(
+                PassportImageLibraryItemModel.submission_id.in_(set(submission_ids)),
             )
         )
         return list(

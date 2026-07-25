@@ -23,6 +23,7 @@ import {
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
 import {
   uploadLinksApi,
+  type CustomUploadDetail,
   type CustomUploadQuestion,
 } from "@/features/passports/api/upload-links.api";
 import {
@@ -83,7 +84,6 @@ type Step =
   | "RECOVERY_ERROR"
   | "QUALIFIER_SELECT"
   | "MODE_SELECT"
-  | "NAME_INPUT"
   | "FAMILY_SETUP"
   | "METHOD_SELECT"
   | "SELFIE_CAMERA"
@@ -108,8 +108,11 @@ interface FamilyMember {
   staffCode: string;
   agentEmployeeType: AgentEmployeeType;
   agentEmployeeCode: string;
+  designation: string;
+  agencyDealershipName: string;
   mealPreference: string;
   customAnswers: Record<string, string>;
+  customDetailAnswers: Record<string, string>;
   submission: PassportSubmission | null;
   reviewFields: Record<string, string>;
   visaSelfie: File | null;
@@ -199,8 +202,11 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const [staffCode, setStaffCode] = useState("");
   const [agentEmployeeType, setAgentEmployeeType] = useState<AgentEmployeeType>("");
   const [agentEmployeeCode, setAgentEmployeeCode] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [agencyDealershipName, setAgencyDealershipName] = useState("");
   const [mealPreference, setMealPreference] = useState("");
   const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
+  const [customDetailAnswers, setCustomDetailAnswers] = useState<Record<string, string>>({});
   const [submission, setSubmission] = useState<PassportSubmission | null>(null);
   const [reviewFields, setReviewFields] = useState<Record<string, string>>({});
   const [singleUploadIdempotencyKey, setSingleUploadIdempotencyKey] = useState(
@@ -240,6 +246,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const baseCityEnabled = group?.base_city_enabled ?? false;
   const staffCodeEnabled = group?.staff_code_enabled ?? false;
   const agentEmployeeCodeEnabled = group?.agent_employee_code_enabled ?? false;
+  const designationEnabled = group?.designation_enabled ?? false;
+  const agencyDealershipNameEnabled =
+    group?.agency_dealership_name_enabled ?? false;
   const mealPreferenceEnabled = group?.meal_preference_enabled ?? false;
   const selfieRequired = group?.require_selfie ?? false;
   const allowFilesFromDevice = group?.allow_files_from_device ?? true;
@@ -249,6 +258,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
     group?.relation_with_qualifier_enabled ?? false;
   const enabledCustomQuestions = (group?.custom_questions ?? []).filter(
     (question) => question.enabled,
+  );
+  const enabledCustomDetails = (group?.custom_details ?? []).filter(
+    (detail) => detail.enabled,
   );
   const activeFamilyMember = familyMembers[activeFamilyIndex] ?? null;
   const activeVisaSelfie = flowMode === "family" ? activeFamilyMember?.visaSelfie ?? null : visaSelfie;
@@ -308,7 +320,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
             createUploadRecoveryRecord(recovery.idempotencyKey, savedSubmission.id),
           );
           setSubmission(savedSubmission);
-          setClientName(savedSubmission.client_name);
+          setClientName(
+            passportHolderName(
+              savedSubmission.confirmed_fields
+              ?? savedSubmission.extracted_fields,
+            )
+            || (
+              savedSubmission.client_name === "Passport holder"
+                ? ""
+                : savedSubmission.client_name
+            ),
+          );
           if (isClientSubmissionComplete(savedSubmission)) {
             setStep("SUCCESS");
             return;
@@ -457,7 +479,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       ));
 
       if (selection.status === "active" || !selection.submission_id) {
-        setStep("NAME_INPUT");
+        setStep("METHOD_SELECT");
         return;
       }
 
@@ -492,7 +514,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     if (!selectionRequest || qualifierPath === null) return;
     const choiceKey = qualifierChoiceKey(qualifierPath, qualifierRelationCode);
     if (qualifierSelectionToken && persistedQualifierChoice === choiceKey) {
-      setStep("NAME_INPUT");
+      setStep("METHOD_SELECT");
       return;
     }
     qualifierSaveInFlightRef.current = true;
@@ -506,7 +528,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setPersistedQualifierChoice(choiceKey);
       writeQualifierSelectionToken(token, selection.selection_token);
       setFlowMode("single");
-      setStep("NAME_INPUT");
+      setStep("METHOD_SELECT");
     } catch (selectionError: unknown) {
       setUploadError(errorMessage(
         selectionError,
@@ -528,12 +550,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const chooseMode = (mode: FlowMode) => {
     setFlowMode(mode);
     setUploadError(null);
-    setStep(mode === "single" ? "NAME_INPUT" : "FAMILY_SETUP");
-  };
-
-  const handleNameSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (clientName.trim().length > 1) setStep("METHOD_SELECT");
+    setStep(mode === "single" ? "METHOD_SELECT" : "FAMILY_SETUP");
   };
 
   const updateFamilyCount = (count: number) => {
@@ -715,7 +732,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
     passportPhotoFile?: File | null,
   ) => {
     if (operationInFlightRef.current) return;
-    const uploadName = flowMode === "family" ? activeFamilyMember?.name : clientName;
+    const uploadName = flowMode === "family"
+      ? activeFamilyMember?.name
+      : (clientName.trim() || "Passport holder");
     if (!uploadName || uploadName.trim().length < 2) {
       setUploadError("Enter the passenger name before uploading.");
       return;
@@ -837,7 +856,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setExtractionNotice(waitResult.notice);
       setCanRetryExtraction(waitResult.retryAllowed);
       setVisaSelfie(null);
-      setReviewFields(getInitialReviewFields(completed.extracted_fields));
+      const fields = getInitialReviewFields(completed.extracted_fields);
+      setReviewFields(fields);
+      setClientName(passportHolderName(fields));
       setStep("REVIEW");
     } catch (error: unknown) {
       if (!mountedRef.current || controller.signal.aborted) return;
@@ -863,7 +884,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
           setStep("FAMILY_REVIEW");
         } else {
           setSubmission(persisted);
-          setReviewFields(getInitialReviewFields(persisted.extracted_fields));
+          const fields = getInitialReviewFields(persisted.extracted_fields);
+          setReviewFields(fields);
+          setClientName(passportHolderName(fields));
           setExtractionNotice(notice);
           setCanRetryExtraction(true);
           setStep("REVIEW");
@@ -1280,12 +1303,24 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setUploadError("Please select Agent or Employee and enter a code using up to 10 numbers.");
       return;
     }
+    if (designationEnabled && !designation.trim()) {
+      setUploadError("Please enter your designation before submitting.");
+      return;
+    }
+    if (agencyDealershipNameEnabled && !agencyDealershipName.trim()) {
+      setUploadError("Please enter your agency or dealership name before submitting.");
+      return;
+    }
     if (mealPreferenceEnabled && !mealPreference) {
       setUploadError("Please select a meal preference before submitting.");
       return;
     }
     if (enabledCustomQuestions.some((question) => !customAnswers[question.id])) {
       setUploadError("Please answer every custom question before submitting.");
+      return;
+    }
+    if (enabledCustomDetails.some((detail) => !customDetailAnswers[detail.id]?.trim())) {
+      setUploadError("Please complete every custom detail before submitting.");
       return;
     }
 
@@ -1309,13 +1344,20 @@ export function UploadFlow({ token }: UploadFlowProps) {
         staff_code: staffCode.trim() || null,
         agent_employee_type: agentEmployeeType || null,
         agent_employee_code: agentEmployeeCode || null,
+        designation: designation.trim() || null,
+        agency_dealership_name: agencyDealershipName.trim() || null,
         meal_preference: mealPreference || null,
         submission_mode: "single",
         custom_answers: enabledCustomQuestions.map((question) => ({
           question_id: question.id,
           value: customAnswers[question.id],
         })),
+        custom_detail_answers: enabledCustomDetails.map((detail) => ({
+          detail_id: detail.id,
+          value: customDetailAnswers[detail.id],
+        })),
       });
+      setClientName(passportHolderName(reviewFields));
       setStep("SUCCESS");
     } catch (error: unknown) {
       setUploadError(submitErrorMessage(error));
@@ -1368,9 +1410,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
         !member.agentEmployeeType
         || !/^\d{1,10}$/.test(member.agentEmployeeCode)
       ))
+      || (designationEnabled && !member.designation.trim())
+      || (
+        agencyDealershipNameEnabled
+        && !member.agencyDealershipName.trim()
+      )
       || (mealPreferenceEnabled && !member.mealPreference)
       || enabledCustomQuestions.some(
         (question) => !member.customAnswers[question.id],
+      )
+      || enabledCustomDetails.some(
+        (detail) => !member.customDetailAnswers[detail.id]?.trim(),
       )
     ));
     if (missingConfiguredField) {
@@ -1400,6 +1450,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
           staff_code: member.staffCode.trim() || null,
           agent_employee_type: member.agentEmployeeType || null,
           agent_employee_code: member.agentEmployeeCode || null,
+          designation: member.designation.trim() || null,
+          agency_dealership_name:
+            member.agencyDealershipName.trim() || null,
           meal_preference: member.mealPreference || null,
           submission_mode: "family",
           family_group_id: familyGroupId,
@@ -1412,6 +1465,10 @@ export function UploadFlow({ token }: UploadFlowProps) {
           custom_answers: enabledCustomQuestions.map((question) => ({
             question_id: question.id,
             value: member.customAnswers[question.id],
+          })),
+          custom_detail_answers: enabledCustomDetails.map((detail) => ({
+            detail_id: detail.id,
+            value: member.customDetailAnswers[detail.id],
           })),
         });
       }
@@ -1677,18 +1734,24 @@ export function UploadFlow({ token }: UploadFlowProps) {
               askNearestDomesticAirport={askNearestDomesticAirport}
               staffCodeEnabled={staffCodeEnabled}
               agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
+              designationEnabled={designationEnabled}
+              agencyDealershipNameEnabled={agencyDealershipNameEnabled}
               mealPreferenceEnabled={mealPreferenceEnabled}
               baseCity={baseCity}
               nearestDomesticAirport={nearestDomesticAirport}
               staffCode={staffCode}
               agentEmployeeType={agentEmployeeType}
               agentEmployeeCode={agentEmployeeCode}
+              designation={designation}
+              agencyDealershipName={agencyDealershipName}
               mealPreference={mealPreference}
               onBaseCity={setBaseCity}
               onNearestDomesticAirport={setNearestDomesticAirport}
               onStaffCode={setStaffCode}
               onAgentEmployeeType={setAgentEmployeeType}
               onAgentEmployeeCode={setAgentEmployeeCode}
+              onDesignation={setDesignation}
+              onAgencyDealershipName={setAgencyDealershipName}
               onMealPreference={setMealPreference}
             />
             <CustomQuestionFields
@@ -1697,6 +1760,14 @@ export function UploadFlow({ token }: UploadFlowProps) {
               onChange={(questionId, value) => setCustomAnswers((current) => ({
                 ...current,
                 [questionId]: value,
+              }))}
+            />
+            <CustomDetailFields
+              details={enabledCustomDetails}
+              answers={customDetailAnswers}
+              onChange={(detailId, value) => setCustomDetailAnswers((current) => ({
+                ...current,
+                [detailId]: value,
               }))}
             />
             <Button
@@ -1835,18 +1906,24 @@ export function UploadFlow({ token }: UploadFlowProps) {
                     askNearestDomesticAirport={askNearestDomesticAirport}
                     staffCodeEnabled={staffCodeEnabled}
                     agentEmployeeCodeEnabled={agentEmployeeCodeEnabled}
+                    designationEnabled={designationEnabled}
+                    agencyDealershipNameEnabled={agencyDealershipNameEnabled}
                     mealPreferenceEnabled={mealPreferenceEnabled}
                     baseCity={member.baseCity}
                     nearestDomesticAirport={member.nearestDomesticAirport}
                     staffCode={member.staffCode}
                     agentEmployeeType={member.agentEmployeeType}
                     agentEmployeeCode={member.agentEmployeeCode}
+                    designation={member.designation}
+                    agencyDealershipName={member.agencyDealershipName}
                     mealPreference={member.mealPreference}
                     onBaseCity={(value) => updateFamilyMember(index, { baseCity: value })}
                     onNearestDomesticAirport={(value) => updateFamilyMember(index, { nearestDomesticAirport: value })}
                     onStaffCode={(value) => updateFamilyMember(index, { staffCode: value })}
                     onAgentEmployeeType={(value) => updateFamilyMember(index, { agentEmployeeType: value })}
                     onAgentEmployeeCode={(value) => updateFamilyMember(index, { agentEmployeeCode: value })}
+                    onDesignation={(value) => updateFamilyMember(index, { designation: value })}
+                    onAgencyDealershipName={(value) => updateFamilyMember(index, { agencyDealershipName: value })}
                     onMealPreference={(value) => updateFamilyMember(index, { mealPreference: value })}
                   />
                   <CustomQuestionFields
@@ -1856,6 +1933,16 @@ export function UploadFlow({ token }: UploadFlowProps) {
                       customAnswers: {
                         ...member.customAnswers,
                         [questionId]: value,
+                      },
+                    })}
+                  />
+                  <CustomDetailFields
+                    details={enabledCustomDetails}
+                    answers={member.customDetailAnswers}
+                    onChange={(detailId, value) => updateFamilyMember(index, {
+                      customDetailAnswers: {
+                        ...member.customDetailAnswers,
+                        [detailId]: value,
                       },
                     })}
                   />
@@ -1897,7 +1984,9 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (step === "SUCCESS") {
-    const name = flowMode === "family" ? `${familyMembers.length} family members` : clientName;
+    const name = flowMode === "family"
+      ? `${familyMembers.length} family members`
+      : (clientName || "your passport details");
     return (
       <CenteredShell>
         <div
@@ -1949,26 +2038,6 @@ export function UploadFlow({ token }: UploadFlowProps) {
               onRelationChange={setQualifierRelationCode}
               onContinue={saveQualifierChoice}
             />
-          )}
-
-          {step === "NAME_INPUT" && (
-            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-              <BackButton
-                onClick={() => setStep(
-                  group.relation_with_qualifier_enabled
-                    ? "QUALIFIER_SELECT"
-                    : "MODE_SELECT",
-                )}
-              />
-              <h3 className="mb-2 text-xl font-bold text-slate-900">Who is uploading?</h3>
-              <p className="mb-6 text-sm text-slate-500">Enter the full name as it appears on the passport.</p>
-              <form onSubmit={handleNameSubmit} className="space-y-6">
-                <NameInput value={clientName} onChange={setClientName} autoFocus />
-                <Button type="submit" size="lg" className="h-12 w-full rounded-xl bg-blue-600 text-base font-semibold shadow-md shadow-blue-600/20 hover:bg-blue-700" disabled={clientName.trim().length < 2}>
-                  Continue <ChevronRight className="ml-1 h-5 w-5" />
-                </Button>
-              </form>
-            </div>
           )}
 
           {step === "FAMILY_SETUP" && (
@@ -2093,13 +2162,17 @@ export function UploadFlow({ token }: UploadFlowProps) {
                 </div>
               ) : (
                 <>
-                  <div className="mb-6 flex items-center justify-between gap-4">
+                  <div className="mb-6">
+                    <BackButton
+                      onClick={() => setStep(
+                        group.relation_with_qualifier_enabled
+                          ? "QUALIFIER_SELECT"
+                          : "MODE_SELECT",
+                      )}
+                    />
                     <div>
                       <h3 className="text-xl font-bold text-slate-900">Upload Method</h3>
                     </div>
-                    <button onClick={() => setStep("NAME_INPUT")} className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
-                      Edit Name
-                    </button>
                   </div>
                   <div className="space-y-4">
                     {selfieRequired && (
@@ -2152,8 +2225,11 @@ function createFamilyMember(index: number): FamilyMember {
     staffCode: "",
     agentEmployeeType: "",
     agentEmployeeCode: "",
+    designation: "",
+    agencyDealershipName: "",
     mealPreference: "",
     customAnswers: {},
+    customDetailAnswers: {},
     submission: null,
     reviewFields: {},
     visaSelfie: null,
@@ -2767,44 +2843,93 @@ function CustomQuestionFields({
   );
 }
 
+function CustomDetailFields({
+  details,
+  answers,
+  onChange,
+}: {
+  details: CustomUploadDetail[];
+  answers: Record<string, string>;
+  onChange: (detailId: string, value: string) => void;
+}) {
+  if (details.length === 0) return null;
+
+  return (
+    <div className="mt-5 grid gap-4 rounded-2xl border border-violet-100 bg-violet-50/40 p-4 sm:grid-cols-2">
+      {details.map((detail) => (
+        <ContactInput
+          key={detail.id}
+          icon={<BadgeCheck className="h-5 w-5" />}
+          label={detail.label}
+          type="text"
+          value={answers[detail.id] ?? ""}
+          onChange={(value) => onChange(detail.id, value)}
+          required
+          maxLength={500}
+        />
+      ))}
+    </div>
+  );
+}
+
 function ConfiguredClientFields({
   baseCityEnabled,
   askNearestDomesticAirport,
   staffCodeEnabled,
   agentEmployeeCodeEnabled,
+  designationEnabled,
+  agencyDealershipNameEnabled,
   mealPreferenceEnabled,
   baseCity,
   nearestDomesticAirport,
   staffCode,
   agentEmployeeType,
   agentEmployeeCode,
+  designation,
+  agencyDealershipName,
   mealPreference,
   onBaseCity,
   onNearestDomesticAirport,
   onStaffCode,
   onAgentEmployeeType,
   onAgentEmployeeCode,
+  onDesignation,
+  onAgencyDealershipName,
   onMealPreference,
 }: {
   baseCityEnabled: boolean;
   askNearestDomesticAirport: boolean;
   staffCodeEnabled: boolean;
   agentEmployeeCodeEnabled: boolean;
+  designationEnabled: boolean;
+  agencyDealershipNameEnabled: boolean;
   mealPreferenceEnabled: boolean;
   baseCity: string;
   nearestDomesticAirport: string;
   staffCode: string;
   agentEmployeeType: AgentEmployeeType;
   agentEmployeeCode: string;
+  designation: string;
+  agencyDealershipName: string;
   mealPreference: string;
   onBaseCity: (value: string) => void;
   onNearestDomesticAirport: (value: string) => void;
   onStaffCode: (value: string) => void;
   onAgentEmployeeType: (value: AgentEmployeeType) => void;
   onAgentEmployeeCode: (value: string) => void;
+  onDesignation: (value: string) => void;
+  onAgencyDealershipName: (value: string) => void;
   onMealPreference: (value: string) => void;
 }) {
-  if (!baseCityEnabled && !askNearestDomesticAirport && !staffCodeEnabled && !agentEmployeeCodeEnabled && !mealPreferenceEnabled) return null;
+  if (
+    !baseCityEnabled
+    && !askNearestDomesticAirport
+    && !staffCodeEnabled
+    && !agentEmployeeCodeEnabled
+    && !designationEnabled
+    && !agencyDealershipNameEnabled
+    && !mealPreferenceEnabled
+  ) return null;
 
   return (
     <div className="mt-5 grid gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
@@ -2866,6 +2991,28 @@ function ConfiguredClientFields({
             pattern="[0-9]{1,10}"
           />
         </div>
+      )}
+      {designationEnabled && (
+        <ContactInput
+          icon={<BadgeCheck className="h-5 w-5" />}
+          label="Designation"
+          type="text"
+          value={designation}
+          onChange={onDesignation}
+          required
+          maxLength={160}
+        />
+      )}
+      {agencyDealershipNameEnabled && (
+        <ContactInput
+          icon={<BadgeCheck className="h-5 w-5" />}
+          label="Agency/Dealership Name"
+          type="text"
+          value={agencyDealershipName}
+          onChange={onAgencyDealershipName}
+          required
+          maxLength={200}
+        />
       )}
       {mealPreferenceEnabled && (
         <label className="block min-w-0 space-y-1.5">
@@ -3080,6 +3227,24 @@ function getInitialReviewFields(fields: ExtractedPassportFields | null) {
     current[key] = getPassportTextField(fields, key);
     return current;
   }, {});
+}
+
+function passportHolderName(
+  fields: ExtractedPassportFields | Record<string, string> | null,
+) {
+  if (!fields) return "";
+  const givenNames = getPassportTextField(
+    fields as ExtractedPassportFields,
+    "given_names",
+  );
+  const surname = getPassportTextField(
+    fields as ExtractedPassportFields,
+    "surname",
+  );
+  return [givenNames, surname]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" ");
 }
 
 function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {

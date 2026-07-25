@@ -14,6 +14,7 @@ from app.infrastructure.export.passport_excel_exporter import (
     _gender_display_value,
     _nationality_display_value,
     _safe_xlsx_value,
+    passport_age_group,
 )
 
 _OPTION_FLAGS = {
@@ -24,6 +25,8 @@ _OPTION_FLAGS = {
     "agent_employee_code_enabled": False,
     "meal_preference_enabled": False,
     "relation_with_qualifier_enabled": False,
+    "designation_enabled": False,
+    "agency_dealership_name_enabled": False,
 }
 
 
@@ -40,8 +43,10 @@ def _submission(
         client_email=None,
         image_s3_key="front.jpg",
     )
+    review_fields = {"given_names": client_name}
+    review_fields.update(fields or {})
     submission.submit_client_review(
-        fields or {},
+        review_fields,
         client_email="traveller@example.com",
         client_phone="9876543210",
         departure_city="Delhi",
@@ -98,20 +103,23 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
         "Status",
         "Nearest International Airport",
         "Nearest Domestic Airport",
+        "Domestic Airport",
         "Base City",
         "Staff Code",
         "Agent/Employee Code",
+        "Agency/Dealership Name",
+        "Designation",
         "Meal Preference",
         "Relation with Qualifier",
     }.isdisjoint(headers)
-    assert values["Surname"] == "VASHISTHA"
-    assert values["Given Names"] == "NIPUN KUMAR"
+    assert values["SURNAME"] == "VASHISTHA"
+    assert values["GIVEN NAME"] == "NIPUN KUMAR"
+    assert "International Airport" in headers
     assert values["Nationality"] == "Indian"
-    assert "Place of Issue" in headers
-    assert values["Place of Issue"] is None
+    assert "Place of Issue" not in headers
 
 
-def test_export_uses_only_canonical_place_of_issue() -> None:
+def test_export_omits_place_of_issue_from_the_requested_template() -> None:
     group_id = uuid.uuid4()
     submission = _submission(
         group_id,
@@ -128,9 +136,9 @@ def test_export_uses_only_canonical_place_of_issue() -> None:
             group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
         )
     )
-    _, values = _row_values(worksheet)
+    headers, _ = _row_values(worksheet)
 
-    assert values["Place of Issue"] == "CHENNAI"
+    assert "Place of Issue" not in headers
 
 
 @pytest.mark.parametrize("source", ("IN", "IND", "India", "indian"))
@@ -187,8 +195,8 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
         for index, header in enumerate(headers)
     }
 
-    assert "Nearest International Airport" not in headers
-    assert "Nearest Domestic Airport" not in headers
+    assert "International Airport" in headers
+    assert "Domestic Airport" not in headers
     assert "Base City" in headers
     assert "Staff Code" in headers
     assert "Agent/Employee Code" in headers
@@ -220,7 +228,7 @@ def test_pending_only_group_can_enable_optional_columns() -> None:
         pending_rows=[
             {
                 "Group": "Pending Group",
-                "Client Name": "Pending Traveller",
+                "GIVEN NAME": "Pending Traveller",
                 "Staff Code": "STF_42",
             }
         ],
@@ -234,7 +242,7 @@ def test_pending_only_group_can_enable_optional_columns() -> None:
         for row in range(5, worksheet.max_row + 1)
         if worksheet.cell(
             row=row,
-            column=headers.index("Client Name") + 1,
+            column=headers.index("GIVEN NAME") + 1,
         ).value
         == "Pending Traveller"
     )
@@ -264,11 +272,13 @@ def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> N
             group_name="Zone Group",
             group_details={group_id: {"name": "Zone Group", **_OPTION_FLAGS}},
             zone_names=zone_names,
+            additional_fields=[{"key": "zone_name", "label": "Zone Name"}],
+            group_by_field="zone_name",
         )
     )
     headers = [cell.value for cell in worksheet[4]]
     zone_column = headers.index("Zone Name") + 1
-    name_column = headers.index("Client Name") + 1
+    name_column = headers.index("GIVEN NAME") + 1
     data_or_gap_rows = [
         (
             worksheet.cell(row=row, column=zone_column).value,
@@ -278,17 +288,17 @@ def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> N
     ]
 
     assert data_or_gap_rows == [
-        ("Delhi", "Alpha"),
-        ("Delhi", "Zed"),
+        ("Delhi", "ALPHA"),
+        ("Delhi", "ZED"),
         (None, None),
         (None, None),
-        ("Mumbai-1", "Alpha"),
+        ("Mumbai-1", "ALPHA"),
         (None, None),
         (None, None),
-        ("Mumbai-2", "Beta"),
+        ("Mumbai-2", "BETA"),
         (None, None),
         (None, None),
-        (None, "No Zone"),
+        (None, "NO ZONE"),
     ]
 
 
@@ -306,33 +316,33 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
     )
     pending_rows = [
         {
-            "Client Name": "Pending No Zone",
-            "Email": "no-zone@example.com",
-            "Phone": "9000000005",
+            "GIVEN NAME": "Pending No Zone",
+            "Email ID": "no-zone@example.com",
+            "Phone Number": "9000000005",
         },
         {
-            "Client Name": "Pending Mumbai Two",
+            "GIVEN NAME": "Pending Mumbai Two",
             "Zone Name": "Mumbai-2",
-            "Email": "mumbai-two@example.com",
-            "Phone": "9000000004",
+            "Email ID": "mumbai-two@example.com",
+            "Phone Number": "9000000004",
         },
         {
-            "Client Name": "Pending Delhi Zed",
+            "GIVEN NAME": "Pending Delhi Zed",
             "Zone Name": "Delhi",
-            "Email": "delhi-zed@example.com",
-            "Phone": "9000000002",
+            "Email ID": "delhi-zed@example.com",
+            "Phone Number": "9000000002",
         },
         {
-            "Client Name": "Pending Mumbai One",
+            "GIVEN NAME": "Pending Mumbai One",
             "Zone Name": "Mumbai-1",
-            "Email": "mumbai-one@example.com",
-            "Phone": "9000000003",
+            "Email ID": "mumbai-one@example.com",
+            "Phone Number": "9000000003",
         },
         {
-            "Client Name": "Pending Delhi Alpha",
+            "GIVEN NAME": "Pending Delhi Alpha",
             "Zone Name": "Delhi",
-            "Email": "delhi-alpha@example.com",
-            "Phone": "9000000001",
+            "Email ID": "delhi-alpha@example.com",
+            "Phone Number": "9000000001",
         },
     ]
 
@@ -345,11 +355,13 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
                 submitted_mumbai.id: "Mumbai",
                 submitted_delhi.id: "Delhi",
             },
+            additional_fields=[{"key": "zone_name", "label": "Zone Name"}],
+            group_by_field="zone_name",
             pending_rows=pending_rows,
         )
     )
     headers = [cell.value for cell in worksheet[4]]
-    name_column = headers.index("Client Name") + 1
+    name_column = headers.index("GIVEN NAME") + 1
     zone_column = headers.index("Zone Name") + 1
     pending_title_row = next(
         row
@@ -364,7 +376,7 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
 
     assert [
         worksheet.cell(row=row, column=name_column).value for row in submitted_rows
-    ] == ["Submitted Delhi", "Submitted Mumbai"]
+    ] == ["SUBMITTED DELHI", "SUBMITTED MUMBAI"]
     assert pending_title_row == submitted_rows[-1] + 6
     assert all(
         all(cell.value is None for cell in worksheet[row])
@@ -524,7 +536,7 @@ def test_export_neutralizes_formula_like_text_after_leading_whitespace() -> None
     )
     headers, values = _row_values(worksheet)
 
-    for header in ("Client Name", "Surname", "Given Names", "Passport Number"):
+    for header in ("SURNAME", "GIVEN NAME", "Passport Number"):
         cell = worksheet.cell(row=5, column=headers.index(header) + 1)
         assert cell.data_type == "s"
         assert str(values[header]).startswith("'")
@@ -561,7 +573,7 @@ def test_export_normalizes_supported_gender_values(
     )
     _, values = _row_values(worksheet)
 
-    assert values["Sex"] == expected
+    assert values["GENDER"] == expected
 
 
 def test_export_gender_normalization_does_not_invent_unknown_values() -> None:
@@ -598,9 +610,9 @@ def test_export_writes_all_visible_dates_as_native_dd_dot_mm_dot_yyyy() -> None:
     expected = {
         "Travel/Departure Date": "17.07.2026",
         "Return Date": "25.07.2026",
-        "Date of Birth": "30.08.1972",
-        "Date of Issue": "10.08.2023",
-        "Date of Expiry": "09.08.2033",
+        "DOB": "30.08.1972",
+        "DOI": "10.08.2023",
+        "DOE": "09.08.2033",
     }
 
     for header, display_value in expected.items():
@@ -610,25 +622,44 @@ def test_export_writes_all_visible_dates_as_native_dd_dot_mm_dot_yyyy() -> None:
         assert cell.value.strftime("%d.%m.%Y") == display_value
 
 
-def test_dynamic_export_keeps_zone_at_column_f_and_appends_other_fields() -> None:
+def test_dynamic_export_places_selected_whatsapp_fields_after_trip_columns() -> None:
     group_id = uuid.uuid4()
     submission = _submission(group_id)
+    question_id = uuid.uuid4()
+    submission.custom_answers = [
+        {
+            "question_id": str(question_id),
+            "label": "Excursion",
+            "value": "City tour",
+        }
+    ]
 
     worksheet = _worksheet(
         PassportExcelExporter().export_group(
             [submission],
             group_name="Test Group",
-            group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
+            group_details={
+                group_id: {
+                    "name": "Test Group",
+                    **_OPTION_FLAGS,
+                    "custom_questions": [
+                        {
+                            "id": str(question_id),
+                            "label": "Excursion",
+                            "options": ["City tour"],
+                            "enabled": True,
+                        }
+                    ],
+                }
+            },
             zone_names={submission.id: "West 1"},
             additional_fields=[
                 {"key": "zone_name", "label": "Zone Name"},
                 {"key": "whatsapp:t_shirt_size", "label": "T Shirt Size"},
-                {"key": "custom:activity", "label": "Excursion"},
             ],
             additional_values={
                 submission.id: {
                     "whatsapp:t_shirt_size": "Large",
-                    "custom:activity": "City tour",
                 }
             },
             group_by_field="zone_name",
@@ -636,8 +667,8 @@ def test_dynamic_export_keeps_zone_at_column_f_and_appends_other_fields() -> Non
     )
     headers, values = _row_values(worksheet)
 
-    assert headers[5] == "Zone Name"
-    assert headers[-2:] == ["T Shirt Size", "Excursion"]
+    assert headers[4:6] == ["Zone Name", "T Shirt Size"]
+    assert headers[-1] == "Excursion"
     assert values["Zone Name"] == "West 1"
     assert values["T Shirt Size"] == "Large"
     assert values["Excursion"] == "City tour"
@@ -666,7 +697,166 @@ def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None
     headers = [cell.value for cell in worksheet[4]]
 
     assert "Zone Name" not in headers
-    assert headers[5] == "Email"
-    assert headers[-1] == "Session"
-    assert worksheet.cell(row=5, column=headers.index("Client Name") + 1).value == "Alpha"
-    assert worksheet.cell(row=8, column=headers.index("Client Name") + 1).value == "Beta"
+    assert headers[4] == "Session"
+    assert headers[-1] == "Nationality"
+    assert worksheet.cell(row=5, column=headers.index("GIVEN NAME") + 1).value == "ALPHA"
+    assert worksheet.cell(row=8, column=headers.index("GIVEN NAME") + 1).value == "BETA"
+
+
+def test_export_uses_the_requested_exact_column_order() -> None:
+    group_id = uuid.uuid4()
+    question_id = uuid.uuid4()
+    detail_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        fields={
+            "agency_dealership_name": "North Agency",
+            "staff_code": "77",
+            "designation": "Manager",
+            "base_city": "Mumbai",
+            "meal_preference": "Veg",
+            "surname": "Shah",
+            "given_names": "Nipun",
+            "sex": "M",
+            "passport_number": "P1234567",
+            "date_of_birth": "1990-08-15",
+            "date_of_issue": "2023-01-02",
+            "date_of_expiry": "2033-01-01",
+            "nationality": "IND",
+        },
+    )
+    submission.qualifier_enabled_snapshot = True
+    submission.qualifier_relation_label = "Self"
+    submission.custom_answers = [
+        {
+            "question_id": str(question_id),
+            "label": "Activity",
+            "value": "Workshop",
+        }
+    ]
+    submission.custom_detail_answers = [
+        {
+            "detail_id": str(detail_id),
+            "label": "Badge name",
+            "value": "Nipun S.",
+        }
+    ]
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Exact Order",
+            group_details={
+                group_id: {
+                    "name": "Exact Order",
+                    "destination": "Vietnam",
+                    "travel_date": "2026-09-10",
+                    "return_date": "2026-09-18",
+                    **_OPTION_FLAGS,
+                    "agency_dealership_name_enabled": True,
+                    "staff_code_enabled": True,
+                    "designation_enabled": True,
+                    "relation_with_qualifier_enabled": True,
+                    "base_city_enabled": True,
+                    "ask_nearest_domestic_airport": True,
+                    "meal_preference_enabled": True,
+                    "custom_questions": [
+                        {
+                            "id": str(question_id),
+                            "label": "Activity",
+                            "enabled": True,
+                        }
+                    ],
+                    "custom_details": [
+                        {
+                            "id": str(detail_id),
+                            "label": "Badge name",
+                            "enabled": True,
+                        }
+                    ],
+                }
+            },
+            zone_names={submission.id: "West 1"},
+            additional_fields=[
+                {"key": "zone_name", "label": "Zone Name"},
+                {"key": "whatsapp:department", "label": "Department"},
+            ],
+            additional_values={
+                submission.id: {"whatsapp:department": "Sales"},
+            },
+        )
+    )
+    headers, values = _row_values(worksheet)
+
+    assert headers == [
+        "Group",
+        "Destination",
+        "Travel/Departure Date",
+        "Return Date",
+        "Zone Name",
+        "Department",
+        "Agency/Dealership Name",
+        "Staff Code",
+        "Designation",
+        "Relation with Qualifier",
+        "Age Group",
+        "Base City",
+        "Domestic Airport",
+        "Phone Number",
+        "Email ID",
+        "Meal Preference",
+        "International Airport",
+        "SURNAME",
+        "GIVEN NAME",
+        "GENDER",
+        "Passport Number",
+        "DOB",
+        "DOI",
+        "DOE",
+        "Nationality",
+        "Activity",
+        "Badge name",
+    ]
+    assert values["Age Group"] == "Adult"
+    assert values["Activity"] == "Workshop"
+    assert values["Badge name"] == "Nipun S."
+    assert "Agent/Employee Code" not in headers
+
+
+@pytest.mark.parametrize(
+    ("birth_date", "expected"),
+    (
+        ("2026-07-26", "Infant"),
+        ("2024-07-27", "Infant"),
+        ("2024-07-26", "Child"),
+        ("2014-07-27", "Child"),
+        ("2014-07-26", "Adult"),
+    ),
+)
+def test_age_group_uses_completed_age_on_departure(
+    birth_date: str,
+    expected: str,
+) -> None:
+    assert passport_age_group(birth_date, "2026-07-26") == expected
+
+
+def test_export_groups_by_fixed_international_airport() -> None:
+    group_id = uuid.uuid4()
+    mumbai = _submission(group_id, client_name="Mumbai Traveller")
+    delhi = _submission(group_id, client_name="Delhi Traveller")
+    mumbai.departure_city = "Mumbai"
+    delhi.departure_city = "Delhi"
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [mumbai, delhi],
+            group_name="Airport Group",
+            group_details={group_id: {"name": "Airport Group", **_OPTION_FLAGS}},
+            group_by_field="international_airport",
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+    airport_column = headers.index("International Airport") + 1
+
+    assert worksheet.cell(row=5, column=airport_column).value == "Delhi"
+    assert worksheet.cell(row=8, column=airport_column).value == "Mumbai"

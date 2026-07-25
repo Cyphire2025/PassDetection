@@ -310,6 +310,47 @@ test("hides legacy aggregate confidence inflated by unreadable evidence", () => 
   assert.equal(getPassportVerificationConfidence(verification), 0);
 });
 
+test("never reuses stale AI verdicts after the passport image changes", () => {
+  const staleVerification = {
+    verification_status: "ai_approved",
+    confidence: 1,
+    incorrect_fields: [],
+    suspicious_fields: [],
+    explanation: "All submitted passport fields matched the image.",
+    provider_status: "verified",
+    reason_code: null,
+    model: "test-model",
+    stale_after_staff_edit: true,
+    fields: [{
+      field: "passport_number",
+      verdict: "correct",
+      observed_value: "OLD123",
+      confidence: 1,
+      reason_code: "matched",
+    }],
+  };
+
+  assert.deepEqual(
+    getPassportFieldReview(
+      {
+        status: "needs_review",
+        post_submission_verification: staleVerification,
+      },
+      undefined,
+      "passport_number",
+    ),
+    {
+      field: "passport_number",
+      verdict: "suspicious",
+      label: "Not verified",
+      observed_value: null,
+      confidence: 0,
+      reason_code: "passport_record_changed",
+    },
+  );
+  assert.equal(getPassportVerificationConfidence(staleVerification), null);
+});
+
 test("enables staff approval only while the passport needs review", () => {
   assert.deepEqual(getPassportReviewActionState("needs_review", false), {
     disabled: false,

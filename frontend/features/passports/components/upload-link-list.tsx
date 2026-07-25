@@ -11,6 +11,7 @@ import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type {
+  CustomUploadDetail,
   CustomUploadQuestion,
   UploadLinkResponse,
 } from "../api/upload-links.api";
@@ -25,6 +26,7 @@ import {
 import { CreateUploadLinkModal } from "./create-upload-link-modal";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { CustomQuestionBuilder } from "./custom-question-builder";
+import { CustomDetailBuilder } from "./custom-detail-builder";
 
 export function UploadLinkList() {
   const role = useAuthStore(selectUserRole);
@@ -45,7 +47,10 @@ export function UploadLinkList() {
   const [editAllowFilesFromDevice, setEditAllowFilesFromDevice] = useState(true);
   const [editAskNearestDomesticAirport, setEditAskNearestDomesticAirport] = useState(false);
   const [editRelationWithQualifier, setEditRelationWithQualifier] = useState(false);
+  const [editDesignation, setEditDesignation] = useState(false);
+  const [editAgencyDealershipName, setEditAgencyDealershipName] = useState(false);
   const [editCustomQuestions, setEditCustomQuestions] = useState<CustomUploadQuestion[]>([]);
+  const [editCustomDetails, setEditCustomDetails] = useState<CustomUploadDetail[]>([]);
   const { data: activeLinks = [], isLoading: isLoadingActive } = useUploadLinks();
   const { data: archivedLinks = [], isLoading: isLoadingArchived } = useUploadLinks("archived");
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
@@ -60,7 +65,10 @@ export function UploadLinkList() {
     setEditAllowFilesFromDevice(link.allow_files_from_device ?? true);
     setEditAskNearestDomesticAirport(link.ask_nearest_domestic_airport ?? false);
     setEditRelationWithQualifier(link.relation_with_qualifier_enabled ?? false);
+    setEditDesignation(link.designation_enabled ?? false);
+    setEditAgencyDealershipName(link.agency_dealership_name_enabled ?? false);
     setEditCustomQuestions(link.custom_questions ?? []);
+    setEditCustomDetails(link.custom_details ?? []);
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -180,13 +188,19 @@ export function UploadLinkList() {
         allowFilesFromDevice={editAllowFilesFromDevice}
         askNearestDomesticAirport={editAskNearestDomesticAirport}
         relationWithQualifier={editRelationWithQualifier}
+        designation={editDesignation}
+        agencyDealershipName={editAgencyDealershipName}
         customQuestions={editCustomQuestions}
+        customDetails={editCustomDetails}
         isLoading={isRenaming}
         onNameChange={setRenameValue}
         onAllowFilesFromDeviceChange={setEditAllowFilesFromDevice}
         onAskNearestDomesticAirportChange={setEditAskNearestDomesticAirport}
         onRelationWithQualifierChange={setEditRelationWithQualifier}
+        onDesignationChange={setEditDesignation}
+        onAgencyDealershipNameChange={setEditAgencyDealershipName}
         onCustomQuestionsChange={setEditCustomQuestions}
+        onCustomDetailsChange={setEditCustomDetails}
         onClose={() => setRenameTarget(null)}
         onConfirm={() => {
           if (!renameTarget) return;
@@ -196,8 +210,13 @@ export function UploadLinkList() {
             || editAskNearestDomesticAirport !== (renameTarget.ask_nearest_domestic_airport ?? false)
             || editRelationWithQualifier
               !== (renameTarget.relation_with_qualifier_enabled ?? false)
+            || editDesignation !== (renameTarget.designation_enabled ?? false)
+            || editAgencyDealershipName
+              !== (renameTarget.agency_dealership_name_enabled ?? false)
             || JSON.stringify(editCustomQuestions)
-              !== JSON.stringify(renameTarget.custom_questions ?? []);
+              !== JSON.stringify(renameTarget.custom_questions ?? [])
+            || JSON.stringify(editCustomDetails)
+              !== JSON.stringify(renameTarget.custom_details ?? []);
           if (!nextName || !hasChanges) {
             setRenameTarget(null);
             return;
@@ -220,7 +239,10 @@ export function UploadLinkList() {
               allow_files_from_device: editAllowFilesFromDevice,
               ask_nearest_domestic_airport: editAskNearestDomesticAirport,
               relation_with_qualifier_enabled: editRelationWithQualifier,
+              designation_enabled: editDesignation,
+              agency_dealership_name_enabled: editAgencyDealershipName,
               custom_questions: editCustomQuestions,
+              custom_details: editCustomDetails,
               notes: renameTarget.notes,
             },
             { onSuccess: () => setRenameTarget(null) },
@@ -256,13 +278,19 @@ function EditGroupDialog({
   allowFilesFromDevice,
   askNearestDomesticAirport,
   relationWithQualifier,
+  designation,
+  agencyDealershipName,
   customQuestions,
+  customDetails,
   isLoading,
   onNameChange,
   onAllowFilesFromDeviceChange,
   onAskNearestDomesticAirportChange,
   onRelationWithQualifierChange,
+  onDesignationChange,
+  onAgencyDealershipNameChange,
   onCustomQuestionsChange,
+  onCustomDetailsChange,
   onConfirm,
   onClose,
 }: {
@@ -271,13 +299,19 @@ function EditGroupDialog({
   allowFilesFromDevice: boolean;
   askNearestDomesticAirport: boolean;
   relationWithQualifier: boolean;
+  designation: boolean;
+  agencyDealershipName: boolean;
   customQuestions: CustomUploadQuestion[];
+  customDetails: CustomUploadDetail[];
   isLoading: boolean;
   onNameChange: (value: string) => void;
   onAllowFilesFromDeviceChange: (checked: boolean) => void;
   onAskNearestDomesticAirportChange: (checked: boolean) => void;
   onRelationWithQualifierChange: (checked: boolean) => void;
+  onDesignationChange: (checked: boolean) => void;
+  onAgencyDealershipNameChange: (checked: boolean) => void;
   onCustomQuestionsChange: (questions: CustomUploadQuestion[]) => void;
+  onCustomDetailsChange: (details: CustomUploadDetail[]) => void;
   onConfirm: () => void;
   onClose: () => void;
 }) {
@@ -289,6 +323,13 @@ function EditGroupDialog({
       && new Set(options.map((option) => option.toLocaleLowerCase())).size
         === options.length;
   });
+  const normalizedDetailNames = customDetails.map(
+    (detail) => detail.label.trim().toLocaleLowerCase(),
+  );
+  const customDetailsValid = (
+    normalizedDetailNames.every(Boolean)
+    && new Set(normalizedDetailNames).size === normalizedDetailNames.length
+  );
 
   return (
     <div
@@ -354,10 +395,34 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={onRelationWithQualifierChange}
           />
+          <GroupOptionToggle
+            label="Designation"
+            description="Require each traveller to type their designation."
+            checked={designation}
+            disabled={isLoading}
+            onChange={onDesignationChange}
+          />
+          <GroupOptionToggle
+            label="Agency/Dealership Name"
+            description="Require each traveller to type their agency or dealership name."
+            checked={agencyDealershipName}
+            disabled={isLoading}
+            onChange={onAgencyDealershipNameChange}
+          />
           <CustomQuestionBuilder
             questions={customQuestions}
             onChange={onCustomQuestionsChange}
             disabled={isLoading}
+          />
+          <CustomDetailBuilder
+            details={customDetails}
+            onChange={onCustomDetailsChange}
+            disabled={isLoading}
+            error={
+              customDetailsValid
+                ? undefined
+                : "Custom detail headings are required and must be unique."
+            }
           />
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -367,7 +432,7 @@ function EditGroupDialog({
           <Button
             type="submit"
             isLoading={isLoading}
-            disabled={!name.trim() || !customQuestionsValid}
+            disabled={!name.trim() || !customQuestionsValid || !customDetailsValid}
           >
             Save changes
           </Button>

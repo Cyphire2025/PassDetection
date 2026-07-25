@@ -52,6 +52,8 @@ export function useSubmitClientPassportReview() {
       staff_code,
       agent_employee_type,
       agent_employee_code,
+      designation,
+      agency_dealership_name,
       meal_preference,
       submission_mode,
       family_group_id,
@@ -62,6 +64,7 @@ export function useSubmitClientPassportReview() {
       family_head_email,
       family_head_phone,
       custom_answers,
+      custom_detail_answers,
     }: {
       submissionId: string;
       uploadSessionId: string;
@@ -75,6 +78,8 @@ export function useSubmitClientPassportReview() {
       staff_code?: string | null;
       agent_employee_type?: "agent" | "employee" | null;
       agent_employee_code?: string | null;
+      designation?: string | null;
+      agency_dealership_name?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";
       family_group_id?: string | null;
@@ -85,6 +90,7 @@ export function useSubmitClientPassportReview() {
       family_head_email?: string | null;
       family_head_phone?: string | null;
       custom_answers?: Array<{ question_id: string; value: string }>;
+      custom_detail_answers?: Array<{ detail_id: string; value: string }>;
     }) =>
       uploadApi.submitClientReview(submissionId, uploadSessionId, {
         group_token,
@@ -97,6 +103,8 @@ export function useSubmitClientPassportReview() {
         staff_code,
         agent_employee_type,
         agent_employee_code,
+        designation,
+        agency_dealership_name,
         meal_preference,
         submission_mode,
         family_group_id,
@@ -107,6 +115,7 @@ export function useSubmitClientPassportReview() {
         family_head_email,
         family_head_phone,
         custom_answers,
+        custom_detail_answers,
       }),
   });
 }

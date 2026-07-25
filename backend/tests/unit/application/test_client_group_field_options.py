@@ -23,7 +23,7 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         return ClientSubmitPassportUseCase(passport_repo, group_repo, storage_repo), passport_repo
 
     @staticmethod
-    def _group(**options: bool) -> ClientGroup:
+    def _group(**options: object) -> ClientGroup:
         return ClientGroup.create(
             name="Configured Group",
             token="public-group-token",
@@ -146,6 +146,60 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(submission.confirmed_fields["meal_preference"], "Non Veg")
         passport_repo.update.assert_awaited_once_with(submission)
 
+    async def test_typed_group_fields_and_custom_details_are_required_and_saved(
+        self,
+    ) -> None:
+        detail_id = uuid.uuid4()
+        group = self._group(
+            designation_enabled=True,
+            agency_dealership_name_enabled=True,
+            custom_details=[
+                {
+                    "id": str(detail_id),
+                    "label": "Badge name",
+                    "enabled": True,
+                }
+            ],
+        )
+        submission = self._submission(group)
+        use_case, passport_repo = self._build_use_case(group, submission)
+
+        await use_case.execute(
+            submission.id,
+            group_token=group.token,
+            confirmed_fields={"passport_number": "P1234567"},
+            client_email="person@example.com",
+            client_phone="9876543210",
+            designation="  Regional   Manager ",
+            agency_dealership_name="  North   Motors ",
+            custom_detail_answers=[
+                {
+                    "detail_id": str(detail_id),
+                    "value": "  Nipun   V. ",
+                }
+            ],
+        )
+
+        self.assertEqual(
+            submission.confirmed_fields["designation"],
+            "Regional Manager",
+        )
+        self.assertEqual(
+            submission.confirmed_fields["agency_dealership_name"],
+            "North Motors",
+        )
+        self.assertEqual(
+            submission.custom_detail_answers,
+            [
+                {
+                    "detail_id": str(detail_id),
+                    "label": "Badge name",
+                    "value": "Nipun V.",
+                }
+            ],
+        )
+        passport_repo.update.assert_awaited_once_with(submission)
+
     async def test_invalid_enabled_meal_preference_is_rejected(self) -> None:
         group = self._group(meal_preference_enabled=True)
         submission = self._submission(group)
@@ -166,6 +220,11 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             ("base_city", {"base_city_enabled": True}),
             ("staff_code", {"staff_code_enabled": True}),
             ("agent_employee_type", {"agent_employee_code_enabled": True}),
+            ("designation", {"designation_enabled": True}),
+            (
+                "agency_dealership_name",
+                {"agency_dealership_name_enabled": True},
+            ),
             ("meal_preference", {"meal_preference_enabled": True}),
             ("departure_city", {"nearest_international_airport_enabled": True}),
             (
@@ -204,6 +263,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
                 "staff_code": "Injected",
                 "agent_employee_type": "agent",
                 "agent_employee_code": "12345",
+                "designation": "Injected",
+                "agency_dealership_name": "Injected",
                 "meal_preference": "Veg",
                 "nearest_domestic_airport": "Injected",
             },
@@ -215,6 +276,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
             staff_code="Injected",
             agent_employee_type="agent",
             agent_employee_code="12345",
+            designation="Injected",
+            agency_dealership_name="Injected",
             meal_preference="Veg",
         )
 
@@ -224,6 +287,8 @@ class ClientGroupFieldOptionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("staff_code", submission.confirmed_fields)
         self.assertNotIn("agent_employee_type", submission.confirmed_fields)
         self.assertNotIn("agent_employee_code", submission.confirmed_fields)
+        self.assertNotIn("designation", submission.confirmed_fields)
+        self.assertNotIn("agency_dealership_name", submission.confirmed_fields)
         self.assertNotIn("meal_preference", submission.confirmed_fields)
 
     async def test_agent_employee_code_requires_numeric_value_up_to_ten_digits(self) -> None:

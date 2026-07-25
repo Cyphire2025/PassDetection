@@ -20,6 +20,12 @@ export interface CustomUploadQuestion {
   enabled: boolean;
 }
 
+export interface CustomUploadDetail {
+  id: string;
+  label: string;
+  enabled: boolean;
+}
+
 export interface UpdateUploadLinkRequest {
   name: string;
   destination?: string | null;
@@ -36,7 +42,10 @@ export interface UpdateUploadLinkRequest {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  designation_enabled: boolean;
+  agency_dealership_name_enabled: boolean;
   custom_questions?: CustomUploadQuestion[];
+  custom_details?: CustomUploadDetail[];
   whatsapp_broadcast_group_ids?: string[];
   notes?: string | null;
 }
@@ -46,6 +55,7 @@ export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
   travel_date: string;
   return_date: string;
   custom_questions: CustomUploadQuestion[];
+  custom_details: CustomUploadDetail[];
 }
 
 export interface LinkedWhatsAppBroadcast {
@@ -209,7 +219,10 @@ export interface UploadLinkResponse {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  designation_enabled: boolean;
+  agency_dealership_name_enabled: boolean;
   custom_questions: CustomUploadQuestion[];
+  custom_details: CustomUploadDetail[];
   qualifier_relation_options: QualifierRelationOption[];
   notes: string | null;
   deleted_at: string | null;

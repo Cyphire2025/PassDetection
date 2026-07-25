@@ -173,6 +173,11 @@ export interface PassportSubmission extends TimestampedEntity {
     label: string;
     value: string;
   }>;
+  custom_detail_answers?: Array<{
+    detail_id: string;
+    label: string;
+    value: string;
+  }>;
   acquisition_mode: "camera" | "file";
   qualifier_enabled_snapshot?: boolean;
   qualifier_is_self?: boolean | null;
@@ -252,6 +257,8 @@ export interface PassportGroupSummary {
   allow_files_from_device: boolean;
   ask_nearest_domestic_airport: boolean;
   relation_with_qualifier_enabled: boolean;
+  designation_enabled: boolean;
+  agency_dealership_name_enabled: boolean;
   notes: string | null;
 }
 

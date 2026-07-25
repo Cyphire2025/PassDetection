@@ -18,6 +18,12 @@ export const customQuestionSchema = z.object({
   enabled: z.boolean(),
 });
 
+export const customDetailSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string().trim().min(1, "Enter a custom detail heading").max(100),
+  enabled: z.boolean(),
+});
+
 export const createUploadLinkSchema = z.object({
   name: z.string().trim().min(1, "Group name is required").max(100),
   destination: z.string().trim().min(1, "Destination is required").max(255),
@@ -33,7 +39,10 @@ export const createUploadLinkSchema = z.object({
   allow_files_from_device: z.boolean(),
   ask_nearest_domestic_airport: z.boolean(),
   relation_with_qualifier_enabled: z.boolean(),
+  designation_enabled: z.boolean(),
+  agency_dealership_name_enabled: z.boolean(),
   custom_questions: z.array(customQuestionSchema).max(20),
+  custom_details: z.array(customDetailSchema).max(20),
   whatsapp_broadcast_group_ids: z.array(z.string().uuid()).max(50),
   notes: z.string().trim().max(2000).optional(),
 }).superRefine((data, context) => {
@@ -45,6 +54,16 @@ export const createUploadLinkSchema = z.object({
       code: "custom",
       path: ["custom_questions"],
       message: "Custom question names must be unique",
+    });
+  }
+  const detailNames = data.custom_details.map(
+    (detail) => detail.label.trim().toLocaleLowerCase(),
+  );
+  if (new Set(detailNames).size !== detailNames.length) {
+    context.addIssue({
+      code: "custom",
+      path: ["custom_details"],
+      message: "Custom detail names must be unique",
     });
   }
   if (data.nearest_international_airport_enabled && data.departure_cities.length === 0) {

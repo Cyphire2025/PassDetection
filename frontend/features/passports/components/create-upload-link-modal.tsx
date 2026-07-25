@@ -18,6 +18,7 @@ import { useCreateUploadLink } from "../hooks/use-upload-links";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 import { CustomQuestionBuilder } from "./custom-question-builder";
+import { CustomDetailBuilder } from "./custom-detail-builder";
 
 interface CreateUploadLinkModalProps {
   isOpen: boolean;
@@ -60,7 +61,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       allow_files_from_device: true,
       ask_nearest_domestic_airport: false,
       relation_with_qualifier_enabled: false,
+      designation_enabled: false,
+      agency_dealership_name_enabled: false,
       custom_questions: [],
+      custom_details: [],
       whatsapp_broadcast_group_ids: [],
       notes: "",
     },
@@ -81,11 +85,20 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
     control,
     name: "relation_with_qualifier_enabled",
   }) ?? false;
+  const designationEnabled = useWatch({
+    control,
+    name: "designation_enabled",
+  }) ?? false;
+  const agencyDealershipNameEnabled = useWatch({
+    control,
+    name: "agency_dealership_name_enabled",
+  }) ?? false;
   const whatsappBroadcastGroupIds = useWatch({
     control,
     name: "whatsapp_broadcast_group_ids",
   }) ?? [];
   const customQuestions = useWatch({ control, name: "custom_questions" }) ?? [];
+  const customDetails = useWatch({ control, name: "custom_details" }) ?? [];
 
   useEffect(() => () => {
     if (copiedTimerRef.current !== null) window.clearTimeout(copiedTimerRef.current);
@@ -406,6 +419,26 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   onChange={(checked) => setValue("agent_employee_code_enabled", checked, { shouldDirty: true })}
                 />
                 <GroupOptionToggle
+                  label="Designation"
+                  description="Require each traveller to type their designation."
+                  checked={designationEnabled}
+                  onChange={(checked) => setValue(
+                    "designation_enabled",
+                    checked,
+                    { shouldDirty: true },
+                  )}
+                />
+                <GroupOptionToggle
+                  label="Agency/Dealership Name"
+                  description="Require each traveller to type their agency or dealership name."
+                  checked={agencyDealershipNameEnabled}
+                  onChange={(checked) => setValue(
+                    "agency_dealership_name_enabled",
+                    checked,
+                    { shouldDirty: true },
+                  )}
+                />
+                <GroupOptionToggle
                   label="Meal Preference"
                   description="Require each client to choose Veg, Non Veg, or Jain."
                   checked={mealPreferenceEnabled}
@@ -419,6 +452,16 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   onChange={(questions) => setValue(
                     "custom_questions",
                     questions,
+                    { shouldDirty: true, shouldValidate: true },
+                  )}
+                />
+                <CustomDetailBuilder
+                  details={customDetails}
+                  disabled={isPending}
+                  error={errors.custom_details?.message}
+                  onChange={(details) => setValue(
+                    "custom_details",
+                    details,
                     { shouldDirty: true, shouldValidate: true },
                   )}
                 />

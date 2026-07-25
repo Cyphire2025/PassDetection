@@ -9,6 +9,8 @@ from app.domain.exceptions.exceptions import ValidationError
 
 MAX_CUSTOM_QUESTIONS = 20
 MAX_CUSTOM_OPTIONS = 50
+MAX_CUSTOM_DETAILS = 20
+MAX_CUSTOM_DETAIL_VALUE_LENGTH = 500
 
 
 def normalize_custom_questions(values: Iterable[dict] | None) -> list[dict]:
@@ -121,6 +123,103 @@ def normalize_custom_answers(
                 "question_id": question_id,
                 "label": question["label"],
                 "value": selected,
+            }
+        )
+    return snapshots
+
+
+def normalize_custom_details(values: Iterable[dict] | None) -> list[dict]:
+    """Return validated free-text detail definitions with stable identifiers."""
+
+    normalized: list[dict] = []
+    seen_ids: set[str] = set()
+    seen_labels: set[str] = set()
+    for raw in values or []:
+        if len(normalized) >= MAX_CUSTOM_DETAILS:
+            raise ValidationError(
+                f"Add at most {MAX_CUSTOM_DETAILS} custom details.",
+                field="custom_details",
+            )
+        try:
+            detail_id = str(uuid.UUID(str(raw.get("id", ""))))
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise ValidationError(
+                "Every custom detail requires a valid id.",
+                field="custom_details",
+            ) from exc
+        label = " ".join(str(raw.get("label", "")).strip().split())
+        if not label or len(label) > 100:
+            raise ValidationError(
+                "Custom detail names must be between 1 and 100 characters.",
+                field="custom_details",
+            )
+        label_key = label.casefold()
+        if detail_id in seen_ids or label_key in seen_labels:
+            raise ValidationError(
+                "Custom detail names must be unique.",
+                field="custom_details",
+            )
+        seen_ids.add(detail_id)
+        seen_labels.add(label_key)
+        normalized.append(
+            {
+                "id": detail_id,
+                "label": label,
+                "enabled": bool(raw.get("enabled", True)),
+            }
+        )
+    return normalized
+
+
+def normalize_custom_detail_answers(
+    details: Iterable[dict] | None,
+    answers: Iterable[dict] | None,
+) -> list[dict]:
+    """Validate required free-text answers and snapshot their current labels."""
+
+    enabled = {
+        str(detail["id"]): detail
+        for detail in normalize_custom_details(details)
+        if detail["enabled"]
+    }
+    submitted: dict[str, str] = {}
+    for raw in answers or []:
+        detail_id = str(raw.get("detail_id", "")).strip()
+        value = " ".join(str(raw.get("value", "")).strip().split())
+        if detail_id in submitted:
+            raise ValidationError(
+                "Submit one answer for each custom detail.",
+                field="custom_detail_answers",
+            )
+        if len(value) > MAX_CUSTOM_DETAIL_VALUE_LENGTH:
+            raise ValidationError(
+                (
+                    "Custom detail answers must be "
+                    f"{MAX_CUSTOM_DETAIL_VALUE_LENGTH} characters or fewer."
+                ),
+                field="custom_detail_answers",
+            )
+        submitted[detail_id] = value
+
+    if set(submitted) - set(enabled):
+        raise ValidationError(
+            "One or more custom detail answers no longer match this upload link.",
+            field="custom_detail_answers",
+        )
+
+    snapshots: list[dict] = []
+    for detail_id, detail in enabled.items():
+        value = submitted.get(detail_id, "")
+        if not value:
+            raise ValidationError(
+                f"Enter {detail['label']}.",
+                field="custom_detail_answers",
+            )
+        snapshots.append(
+            {
+                "detail_id": detail_id,
+                "label": detail["label"],
+                "value": value,
             }
         )
     return snapshots

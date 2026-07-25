@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save, Upload } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
 import { Badge, Button, buttonVariants, Card, CardContent, Input, Skeleton } from "@/components/ui";
@@ -50,8 +50,12 @@ import {
   type PassportFieldReview,
   type StaffApprovalFeedback,
 } from "../utils/passport-review";
-import type { PassportImageType } from "../api/passports.api";
+import { passportsApi, type PassportImageType } from "../api/passports.api";
 import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
+import {
+  PASSPORT_LIBRARY_IMAGE_ACCEPT,
+  validatePassportLibraryImage,
+} from "../utils/passport-image-library";
 import { PassportImageCropEditor } from "./passport-image-crop-editor";
 import {
   buildPassportDetailNavigationHref,
@@ -97,6 +101,11 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     returnFocusTarget: HTMLButtonElement;
   } | null>(null);
   const [imageRevision, setImageRevision] = useState(0);
+  const [changingImageType, setChangingImageType] =
+    useState<PassportImageType | null>(null);
+  const [imageChangeErrors, setImageChangeErrors] = useState<
+    Partial<Record<PassportImageType, string>>
+  >({});
   const reextractInFlightRef = useRef(false);
   const [storedNavigation, setStoredNavigation] =
     useState<StoredPassportNavigationContext | null>(null);
@@ -268,6 +277,45 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     }
   };
 
+  const handleManualImageChange = async (
+    imageType: PassportImageType,
+    file: File,
+  ) => {
+    if (changingImageType) return;
+    const validationError = validatePassportLibraryImage(file);
+    if (validationError) {
+      setImageChangeErrors((current) => ({
+        ...current,
+        [imageType]: validationError,
+      }));
+      return;
+    }
+    setChangingImageType(imageType);
+    setImageChangeErrors((current) => {
+      const next = { ...current };
+      delete next[imageType];
+      return next;
+    });
+    try {
+      const metadata = await passportsApi.getImageCrop(data.id, imageType);
+      await passportsApi.uploadImageLibraryImage(
+        data.id,
+        imageType,
+        file,
+        metadata.revision,
+      );
+      setImageRevision((current) => current + 1);
+      await refetch();
+    } catch (uploadError) {
+      setImageChangeErrors((current) => ({
+        ...current,
+        [imageType]: readManualImageChangeError(uploadError),
+      }));
+    } finally {
+      setChangingImageType(null);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -353,6 +401,11 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
               clientName={data.client_name}
               revision={imageRevision}
               canCrop={canCropPassportImages}
+              canChange={canCropPassportImages && Boolean(data.passport_photo_url)}
+              changeDisabled={changingImageType !== null}
+              isChanging={changingImageType === "visa_photo"}
+              changeError={imageChangeErrors.visa_photo}
+              onChange={(file) => void handleManualImageChange("visa_photo", file)}
               onCrop={(returnFocusTarget) => setCropEditor({ imageType: "visa_photo", label: "Visa Photo", returnFocusTarget })}
             />
             <PassportImagePreview
@@ -362,6 +415,11 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
               clientName={data.client_name}
               revision={imageRevision}
               canCrop={canCropPassportImages}
+              canChange={canCropPassportImages && Boolean(data.image_url)}
+              changeDisabled={changingImageType !== null}
+              isChanging={changingImageType === "passport_front"}
+              changeError={imageChangeErrors.passport_front}
+              onChange={(file) => void handleManualImageChange("passport_front", file)}
               onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_front", label: "Passport front", returnFocusTarget })}
             />
             <PassportImagePreview
@@ -371,6 +429,11 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
               clientName={data.client_name}
               revision={imageRevision}
               canCrop={canCropPassportImages}
+              canChange={canCropPassportImages && Boolean(data.passport_back_url)}
+              changeDisabled={changingImageType !== null}
+              isChanging={changingImageType === "passport_back"}
+              changeError={imageChangeErrors.passport_back}
+              onChange={(file) => void handleManualImageChange("passport_back", file)}
               onCrop={(returnFocusTarget) => setCropEditor({ imageType: "passport_back", label: "Passport back", returnFocusTarget })}
             />
           </CardContent>
@@ -477,6 +540,11 @@ function PassportImagePreview({
   clientName,
   revision,
   canCrop,
+  canChange,
+  changeDisabled,
+  isChanging,
+  changeError,
+  onChange,
   onCrop,
 }: {
   label: string;
@@ -485,24 +553,63 @@ function PassportImagePreview({
   clientName: string;
   revision: number;
   canCrop: boolean;
+  canChange: boolean;
+  changeDisabled: boolean;
+  isChanging: boolean;
+  changeError?: string;
+  onChange: (file: File) => void;
   onCrop: (trigger: HTMLButtonElement) => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const effectiveUrl = url ? appendCacheRevision(url, revision) : null;
   return (
     <section>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
-        {effectiveUrl && (
+        {(effectiveUrl || canChange) && (
           <div className="flex items-center gap-2">
-            <a
-              href={effectiveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Open
-            </a>
-            {canCrop && (
+            {effectiveUrl && (
+              <a
+                href={effectiveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Open
+              </a>
+            )}
+            {canChange && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={PASSPORT_LIBRARY_IMAGE_ACCEPT}
+                  aria-label={`Choose a replacement ${label} image`}
+                  className="sr-only"
+                  disabled={changeDisabled}
+                  onChange={(event) => {
+                    const selected = event.currentTarget.files?.[0];
+                    event.currentTarget.value = "";
+                    if (selected) onChange(selected);
+                  }}
+                />
+                <button
+                  type="button"
+                  disabled={changeDisabled}
+                  aria-busy={isChanging}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isChanging ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Upload className="h-3.5 w-3.5" aria-hidden="true" />
+                  )}
+                  {isChanging ? "Changing…" : "Change"}
+                </button>
+              </>
+            )}
+            {effectiveUrl && canCrop && (
               <button
                 type="button"
                 onClick={(event) => onCrop(event.currentTarget)}
@@ -515,6 +622,11 @@ function PassportImagePreview({
           </div>
         )}
       </div>
+      {changeError && (
+        <p role="alert" className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {changeError}
+        </p>
+      )}
       {effectiveUrl ? (
         <a
           href={effectiveUrl}
@@ -532,6 +644,19 @@ function PassportImagePreview({
       )}
     </section>
   );
+}
+
+function readManualImageChangeError(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    if ("response" in error) {
+      const detail = (error as { response?: { data?: { detail?: unknown } } })
+        .response?.data?.detail;
+      if (typeof detail === "string" && detail.trim()) return detail;
+    }
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return "Could not change this image. Please try again.";
 }
 
 function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }) {
@@ -696,6 +821,12 @@ function ReviewFieldsCard({
 
   const actionState = getPassportReviewActionState(passport.status, isSaving);
   const workflowStatusMessage = getWorkflowStatusMessage(passport.status);
+  const verificationIsStale = (
+    passport.post_submission_verification?.stale_after_staff_edit === true
+  );
+  const currentVerification = verificationIsStale
+    ? null
+    : passport.post_submission_verification;
   const handleRetryAiVerification = async () => {
     if (
       isRetryingAiVerification
@@ -743,27 +874,25 @@ function ReviewFieldsCard({
                   : passport.qualifier_relation_label || "Not selected"}
               />
             )}
-            {passport.post_submission_verification && (
+            {currentVerification && (
               <>
                 <MetaItem
                   label="AI decision"
                   value={
                     PASSPORT_STATUS_LABELS[
-                      passport.post_submission_verification.verification_status
-                    ] || passport.post_submission_verification.verification_status
+                      currentVerification.verification_status
+                    ] || currentVerification.verification_status
                   }
                 />
                 <MetaItem
                   label="Verification confidence"
                   value={formatConfidence(
-                    getPassportVerificationConfidence(
-                      passport.post_submission_verification,
-                    ),
+                    getPassportVerificationConfidence(currentVerification),
                   )}
                 />
               </>
             )}
-            {passport.post_submission_verified_at && (
+            {!verificationIsStale && passport.post_submission_verified_at && (
               <MetaItem
                 label="AI verification completed"
                 value={formatDateTime(passport.post_submission_verified_at)}
@@ -779,6 +908,19 @@ function ReviewFieldsCard({
               />
             )}
           </div>
+          {verificationIsStale && (
+            <div
+              className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+              role="status"
+              aria-live="polite"
+            >
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <p>
+                Passport details changed. The previous AI verification is no longer
+                valid. Review the current fields and approve this passport again.
+              </p>
+            </div>
+          )}
           {workflowStatusMessage && (
             <p className="text-sm leading-6 text-blue-700" role="status" aria-live="polite">
               {workflowStatusMessage}
@@ -797,9 +939,9 @@ function ReviewFieldsCard({
               {approvalFeedback.message}
             </div>
           )}
-          {passport.post_submission_verification?.explanation && (
+          {currentVerification?.explanation && (
             <p className="text-sm leading-6 text-slate-600">
-              {passport.post_submission_verification.explanation}
+              {currentVerification.explanation}
             </p>
           )}
         </div>

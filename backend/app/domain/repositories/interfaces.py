@@ -52,6 +52,8 @@ class PassportSubmissionGroupSummary:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     notes: str | None = None
 
 

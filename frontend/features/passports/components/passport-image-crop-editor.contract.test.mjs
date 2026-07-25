@@ -27,13 +27,19 @@ const permissions = readFileSync(
   "utf8",
 );
 
-test("all three passport images expose Edit and effective open-new-tab actions", () => {
+test("all three passport images expose separate Change, Edit, and effective open-new-tab actions", () => {
   for (const imageType of ["visa_photo", "passport_front", "passport_back"]) {
     assert.match(detail, new RegExp(`imageType="${imageType}"`));
   }
   assert.match(detail, /appendCacheRevision/);
   assert.match(detail, /target="_blank"/);
   assert.match(detail, /PassportImageCropEditor/);
+  assert.match(detail, /PASSPORT_LIBRARY_IMAGE_ACCEPT/);
+  assert.match(detail, /passportsApi\.getImageCrop/);
+  assert.match(detail, /passportsApi\.uploadImageLibraryImage/);
+  assert.match(detail, /metadata\.revision/);
+  assert.match(detail, /aria-busy=\{isChanging\}/);
+  assert.match(detail, /\{isChanging \? "Changing…?" : "Change"\}/);
   assert.match(detail, /<Pencil className="h-[^\"]+ w-[^\"]+" \/> Edit/);
   assert.doesNotMatch(detail, />\s*Crop\s*</);
 });
@@ -42,7 +48,9 @@ test("crop controls follow server editor roles while view-only coordinators keep
   assert.match(permissions, /"agency_coordinator"/);
   assert.match(detail, /canCropPassportImages = canEditPassportImages\(currentUser\?\.role\)/);
   assert.match(detail, /canCrop=\{canCropPassportImages\}/);
-  assert.match(detail, /\{canCrop && \(/);
+  assert.match(detail, /\{effectiveUrl && canCrop && \(/);
+  assert.match(detail, /canChange=\{canCropPassportImages && Boolean\(/);
+  assert.match(detail, /\{canChange && \(/);
   assert.match(detail, /\{cropEditor && canCropPassportImages && \(/);
   assert.match(detail, /href=\{effectiveUrl\}[\s\S]*?target="_blank"/);
 });
@@ -69,7 +77,7 @@ test("editor supports pointer, touch, keyboard, rotation, dimming, reset, and fo
   assert.match(editor, /returnFocusRef\.current\?\.focus\(\)/);
 });
 
-test("sharpness is available for every image while guarded AI editing is Visa-only", () => {
+test("sharpness and the common library are available for every image while guarded AI editing is Visa-only", () => {
   assert.match(editor, /<SharpnessControl/);
   assert.match(editor, /type="range"/);
   assert.match(editor, /min="1"/);
@@ -82,22 +90,30 @@ test("sharpness is available for every image while guarded AI editing is Visa-on
     editor,
     /Regenerate the image of the person in this image to a studio clicked photo for visa application , it should have a plain white background , keep the current details preserved/,
   );
-  assert.match(editor, /Saved AI image library/);
+  assert.match(editor, /activePanel === "library"/);
+  assert.match(editor, />\s*Library\s*</);
+  assert.match(editor, /<ImageLibraryPanel/);
+  assert.match(editor, /Original, manual, and AI-generated images remain available here/);
+  assert.match(editor, /formatPassportImageLibrarySource/);
+  assert.match(editor, /"Currently in use" : "Use this image"/);
+  assert.doesNotMatch(editor, /Saved AI image library/);
   assert.match(editor, /passportsApi\.createVisaAiGenerationJob/);
-  assert.match(editor, /passportsApi\.useVisaAiLibraryImage/);
+  assert.match(editor, /passportsApi\.useImageLibraryImage/);
   assert.match(editor, /Saved automatically after verification/);
   assert.match(editor, /Use this image/);
   assert.match(editor, /bg-\[#C8CE32\]/);
   assert.match(editor, /text-slate-950/);
   assert.doesNotMatch(editor, /bg-emerald-/);
   assert.match(editor, /const effectiveSharpness = 3/);
+  assert.match(endpoints, /images\/\$\{imageType\}\/library/);
+  assert.match(api, /listImageLibrary/);
+  assert.match(api, /uploadImageLibraryImage/);
+  assert.match(api, /useImageLibraryImage/);
   assert.match(endpoints, /visa_photo\/ai-library/);
   assert.match(endpoints, /visa_photo\/ai-jobs/);
-  assert.match(api, /listVisaAiLibrary/);
   assert.match(api, /createVisaAiGenerationJob/);
   assert.match(api, /getActiveVisaAiGenerationJob/);
   assert.match(api, /getVisaAiGenerationJob/);
-  assert.match(api, /useVisaAiLibraryImage/);
 });
 
 test("Visa AI jobs enqueue quickly, resume after reopening, and poll until a persisted result exists", () => {
@@ -112,7 +128,8 @@ test("Visa AI jobs enqueue quickly, resume after reopening, and poll until a per
   assert.match(editor, /job\.status === "queued" \|\| job\.status === "running"/);
   assert.match(editor, /setLibrary\(\(current\) => \[/);
   assert.match(editor, /setFeaturedGenerationId\(result\.id\)/);
-  assert.match(editor, /mergeVisaAiLibraryItems\(items, current\)/);
+  assert.match(editor, /source: "ai_generated"/);
+  assert.match(editor, /mergeImageLibraryItems\(items, current\)/);
 });
 
 test("Visa AI polling shows non-cancellable progress while close cleanup and structured errors remain", () => {

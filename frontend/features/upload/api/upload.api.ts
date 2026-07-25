@@ -155,6 +155,8 @@ export const uploadApi = {
       staff_code?: string | null;
       agent_employee_type?: "agent" | "employee" | null;
       agent_employee_code?: string | null;
+      designation?: string | null;
+      agency_dealership_name?: string | null;
       meal_preference?: string | null;
       submission_mode?: "single" | "family";
       family_group_id?: string | null;
@@ -165,6 +167,7 @@ export const uploadApi = {
       family_head_email?: string | null;
       family_head_phone?: string | null;
       custom_answers?: Array<{ question_id: string; value: string }>;
+      custom_detail_answers?: Array<{ detail_id: string; value: string }>;
     },
   ): Promise<PassportSubmission> => {
     const response = await apiClient.post<PassportSubmission>(

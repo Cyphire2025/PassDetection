@@ -161,6 +161,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     ask_nearest_domestic_airport: deletedGroup.ask_nearest_domestic_airport ?? false,
     relation_with_qualifier_enabled:
       deletedGroup.relation_with_qualifier_enabled ?? false,
+    designation_enabled: deletedGroup.designation_enabled ?? false,
+    agency_dealership_name_enabled:
+      deletedGroup.agency_dealership_name_enabled ?? false,
     notes: deletedGroup.notes,
   } : undefined);
   const exportMutation = useExportPassportGroup();
@@ -202,6 +205,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     allow_files_from_device: true,
     ask_nearest_domestic_airport: false,
     relation_with_qualifier_enabled: false,
+    designation_enabled: false,
+    agency_dealership_name_enabled: false,
     notes: "",
   });
 
@@ -552,6 +557,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                     ask_nearest_domestic_airport: groupDetails.ask_nearest_domestic_airport ?? false,
                     relation_with_qualifier_enabled:
                       groupDetails.relation_with_qualifier_enabled ?? false,
+                    designation_enabled: groupDetails.designation_enabled ?? false,
+                    agency_dealership_name_enabled:
+                      groupDetails.agency_dealership_name_enabled ?? false,
                     notes: groupDetails.notes ?? "",
                   });
                   setIsEditingTrip(true);
@@ -577,6 +585,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 label="Relation with Qualifier"
                 value={(groupDetails.relation_with_qualifier_enabled ?? false) ? "Enabled" : "Disabled"}
               />
+              <InfoPair label="Designation" value={groupDetails.designation_enabled ? "Required" : "Disabled"} />
+              <InfoPair label="Agency/Dealership Name" value={groupDetails.agency_dealership_name_enabled ? "Required" : "Disabled"} />
               <div className="sm:col-span-2">
                 <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
               </div>
@@ -1061,6 +1071,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 ask_nearest_domestic_airport: tripForm.ask_nearest_domestic_airport,
                 relation_with_qualifier_enabled:
                   tripForm.relation_with_qualifier_enabled,
+                designation_enabled: tripForm.designation_enabled,
+                agency_dealership_name_enabled:
+                  tripForm.agency_dealership_name_enabled,
                 notes: tripForm.notes || null,
               },
               { onSuccess: () => setIsEditingTrip(false) },
@@ -2074,6 +2087,8 @@ function TripDetailsDialog({
     allow_files_from_device: boolean;
     ask_nearest_domestic_airport: boolean;
     relation_with_qualifier_enabled: boolean;
+    designation_enabled: boolean;
+    agency_dealership_name_enabled: boolean;
     notes: string;
   };
   isLoading: boolean;
@@ -2092,6 +2107,8 @@ function TripDetailsDialog({
     allow_files_from_device: boolean;
     ask_nearest_domestic_airport: boolean;
     relation_with_qualifier_enabled: boolean;
+    designation_enabled: boolean;
+    agency_dealership_name_enabled: boolean;
     notes: string;
   }) => void;
   onClose: () => void;
@@ -2167,6 +2184,21 @@ function TripDetailsDialog({
             description="Require each client to enter their city of residence."
             checked={form.base_city_enabled}
             onChange={(checked) => onChange({ ...form, base_city_enabled: checked })}
+          />
+          <GroupOptionToggle
+            label="Designation"
+            description="Require each traveller to type their designation."
+            checked={form.designation_enabled}
+            onChange={(checked) => onChange({ ...form, designation_enabled: checked })}
+          />
+          <GroupOptionToggle
+            label="Agency/Dealership Name"
+            description="Require each traveller to type their agency or dealership name."
+            checked={form.agency_dealership_name_enabled}
+            onChange={(checked) => onChange({
+              ...form,
+              agency_dealership_name_enabled: checked,
+            })}
           />
           <GroupOptionToggle
             label="Staff Code"

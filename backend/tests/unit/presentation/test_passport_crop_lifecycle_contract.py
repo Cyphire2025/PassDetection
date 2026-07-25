@@ -13,7 +13,14 @@ def test_both_staff_import_paths_version_sources_and_tombstone_existing_crops() 
         assert "uuid.uuid4().hex" in source
         assert "crop_repo.reset(" in source
         assert "replaced_crop_keys" in source
-        assert "passport_import_replaced_object_cleanup_deferred" in source
+        assert "library_repo.ensure_original(" in source
+        assert "_delete_unreferenced_passport_image_keys_best_effort(" in source
+
+    cleanup_source = inspect.getsource(
+        passports._delete_unreferenced_passport_image_keys_best_effort
+    )
+    assert "referenced_storage_keys" in cleanup_source
+    assert "passport_import_replaced_object_cleanup_deferred" in cleanup_source
 
 
 def test_permanent_deletion_paths_collect_crop_derivatives() -> None:

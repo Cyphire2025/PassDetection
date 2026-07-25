@@ -148,7 +148,7 @@ async def test_selected_groups_export_combines_pending_only_groups(
     content = b"".join(chunks)
     worksheet = load_workbook(io.BytesIO(content), data_only=False).active
     headers = [cell.value for cell in worksheet[4]]
-    name_column = headers.index("Client Name") + 1
+    name_column = headers.index("GIVEN NAME") + 1
     zone_column = headers.index("Zone Name") + 1
     staff_code_column = headers.index("Staff Code") + 1
     pending_title_row = next(
@@ -167,7 +167,7 @@ async def test_selected_groups_export_combines_pending_only_groups(
     assert [
         worksheet.cell(row=row, column=name_column).value
         for row in pending_rows
-    ] == ["Delhi Pending", "Mumbai Pending"]
+    ] == ["DELHI PENDING", "MUMBAI PENDING"]
     assert [
         worksheet.cell(row=row, column=zone_column).value
         for row in pending_rows

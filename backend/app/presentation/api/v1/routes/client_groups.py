@@ -633,8 +633,13 @@ async def create_client_group(
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
+        designation_enabled=request.designation_enabled,
+        agency_dealership_name_enabled=request.agency_dealership_name_enabled,
         custom_questions=[
             question.model_dump(mode="json") for question in request.custom_questions
+        ],
+        custom_details=[
+            detail.model_dump(mode="json") for detail in request.custom_details
         ],
         notes=request.notes,
     )
@@ -1953,12 +1958,22 @@ async def update_client_group(
         allow_files_from_device=request.allow_files_from_device,
         ask_nearest_domestic_airport=request.ask_nearest_domestic_airport,
         relation_with_qualifier_enabled=request.relation_with_qualifier_enabled,
+        designation_enabled=request.designation_enabled,
+        agency_dealership_name_enabled=request.agency_dealership_name_enabled,
         custom_questions=(
             [
                 question.model_dump(mode="json")
                 for question in request.custom_questions
             ]
             if request.custom_questions is not None
+            else None
+        ),
+        custom_details=(
+            [
+                detail.model_dump(mode="json")
+                for detail in request.custom_details
+            ]
+            if request.custom_details is not None
             else None
         ),
         notes=request.notes,

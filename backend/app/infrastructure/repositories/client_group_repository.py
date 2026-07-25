@@ -52,7 +52,10 @@ class ClientGroupRepository(IClientGroupRepository):
             allow_files_from_device=model.allow_files_from_device,
             ask_nearest_domestic_airport=model.ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=model.relation_with_qualifier_enabled,
+            designation_enabled=model.designation_enabled,
+            agency_dealership_name_enabled=model.agency_dealership_name_enabled,
             custom_questions=list(model.custom_questions or []),
+            custom_details=list(model.custom_details or []),
             notes=model.notes,
             deleted_at=model.deleted_at,
             deleted_passport_count=model.deleted_passport_count,
@@ -84,7 +87,10 @@ class ClientGroupRepository(IClientGroupRepository):
             allow_files_from_device=entity.allow_files_from_device,
             ask_nearest_domestic_airport=entity.ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=entity.relation_with_qualifier_enabled,
+            designation_enabled=entity.designation_enabled,
+            agency_dealership_name_enabled=entity.agency_dealership_name_enabled,
             custom_questions=entity.custom_questions,
+            custom_details=entity.custom_details,
             notes=entity.notes,
             deleted_at=entity.deleted_at,
             deleted_passport_count=entity.deleted_passport_count,
@@ -158,7 +164,10 @@ class ClientGroupRepository(IClientGroupRepository):
         model.allow_files_from_device = link.allow_files_from_device
         model.ask_nearest_domestic_airport = link.ask_nearest_domestic_airport
         model.relation_with_qualifier_enabled = link.relation_with_qualifier_enabled
+        model.designation_enabled = link.designation_enabled
+        model.agency_dealership_name_enabled = link.agency_dealership_name_enabled
         model.custom_questions = link.custom_questions
+        model.custom_details = link.custom_details
         model.notes = link.notes
         model.deleted_at = link.deleted_at
         model.deleted_passport_count = link.deleted_passport_count

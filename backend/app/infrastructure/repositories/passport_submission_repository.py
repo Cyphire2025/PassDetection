@@ -79,6 +79,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_revision=model.extraction_revision,
             staff_metadata=model.staff_metadata,
             custom_answers=list(model.custom_answers or []),
+            custom_detail_answers=list(model.custom_detail_answers or []),
             status=PassportProcessingStatus(model.status),
             extracted_fields=model.extracted_fields,
             confirmed_fields=model.confirmed_fields,
@@ -137,6 +138,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             extraction_revision=entity.extraction_revision,
             staff_metadata=entity.staff_metadata,
             custom_answers=entity.custom_answers,
+            custom_detail_answers=entity.custom_detail_answers,
             status=entity.status.value,
             extracted_fields=entity.extracted_fields,
             confirmed_fields=entity.confirmed_fields,
@@ -279,6 +281,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.extraction_revision = submission.extraction_revision
         model.staff_metadata = submission.staff_metadata
         model.custom_answers = submission.custom_answers
+        model.custom_detail_answers = submission.custom_detail_answers
         model.status = submission.status.value
         model.extracted_fields = submission.extracted_fields
         model.confirmed_fields = submission.confirmed_fields
@@ -574,6 +577,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.relation_with_qualifier_enabled.label(
                     "relation_with_qualifier_enabled"
                 ),
+                ClientGroupModel.designation_enabled.label("designation_enabled"),
+                ClientGroupModel.agency_dealership_name_enabled.label(
+                    "agency_dealership_name_enabled"
+                ),
                 func.count(PassportSubmissionModel.id).label("total_passports"),
                 func.sum(
                     case(
@@ -639,6 +646,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.allow_files_from_device,
                 ClientGroupModel.ask_nearest_domestic_airport,
                 ClientGroupModel.relation_with_qualifier_enabled,
+                ClientGroupModel.designation_enabled,
+                ClientGroupModel.agency_dealership_name_enabled,
                 ClientGroupModel.created_at,
             )
             .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
@@ -671,6 +680,10 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
                 relation_with_qualifier_enabled=(
                     row.relation_with_qualifier_enabled
+                ),
+                designation_enabled=row.designation_enabled,
+                agency_dealership_name_enabled=(
+                    row.agency_dealership_name_enabled
                 ),
                 notes=row.notes,
             )

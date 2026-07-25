@@ -20,6 +20,7 @@ from app.presentation.api.v1.routes.passports import (
     _export_whatsapp_match_rows,
     _pending_recipient_export_rows,
     _recipient_export_value,
+    _resolve_export_group_by,
 )
 
 NOW = datetime(2026, 7, 23, 12, tzinfo=UTC)
@@ -145,18 +146,18 @@ def test_pending_mapper_includes_unresolved_recipients_and_excludes_submitted() 
     pending = _pending_recipient_export_rows(group=group, rows=rows)
 
     assert len(pending) == 2
-    assert [item["Client Name"] for item in pending] == [
-        "Pending Passenger",
-        "Review Passenger",
+    assert [item["GIVEN NAME"] for item in pending] == [
+        "PENDING PASSENGER",
+        "REVIEW PASSENGER",
     ]
     assert pending[0]["Zone Name"] == "Mumbai-2"
     assert pending[0]["Staff Code"] == "25290"
-    assert pending[0]["Phone"] == "+919876543210"
+    assert pending[0]["Phone Number"] == "+919876543210"
     assert pending[0]["Destination"] == "Vietnam"
     assert pending[0]["Travel/Departure Date"] == "2026-08-12"
 
 
-def test_export_field_catalog_discovers_whatsapp_and_custom_columns() -> None:
+def test_export_field_catalog_lists_only_selectable_whatsapp_columns() -> None:
     group = _group()
     current_question_id = uuid.uuid4()
     historical_question_id = uuid.uuid4()
@@ -196,12 +197,12 @@ def test_export_field_catalog_discovers_whatsapp_and_custom_columns() -> None:
 
     assert by_key["zone_name"]["selected_by_default"] is True
     assert by_key["whatsapp:department"]["label"] == "Department"
-    assert f"custom:{current_question_id}" in by_key
-    assert f"custom:{historical_question_id}" in by_key
+    assert f"custom:{current_question_id}" not in by_key
+    assert f"custom:{historical_question_id}" not in by_key
     assert "whatsapp:phone" not in by_key
 
 
-def test_dynamic_export_values_preserve_exact_matches_and_pending_columns() -> None:
+def test_dynamic_export_values_preserve_exact_whatsapp_matches() -> None:
     submission_id = uuid.uuid4()
     question_id = uuid.uuid4()
     row = SubmissionMatchRow(
@@ -239,12 +240,6 @@ def test_dynamic_export_values_preserve_exact_matches_and_pending_columns() -> N
             "source": "whatsapp",
             "selected_by_default": False,
         },
-        {
-            "key": f"custom:{question_id}",
-            "label": "T-shirt size",
-            "source": "custom_question",
-            "selected_by_default": False,
-        },
     ]
 
     values = _export_additional_values(
@@ -254,7 +249,7 @@ def test_dynamic_export_values_preserve_exact_matches_and_pending_columns() -> N
     )
 
     assert values[submission_id]["whatsapp:department"] == "Sales"
-    assert values[submission_id][f"custom:{question_id}"] == "M"
+    assert f"custom:{question_id}" not in values[submission_id]
 
     pending_row = _match_row(
         status="not_submitted",
@@ -267,7 +262,18 @@ def test_dynamic_export_values_preserve_exact_matches_and_pending_columns() -> N
     )
     pending = [{}]
     _apply_pending_export_fields(pending, [pending_row], selected)
-    assert pending == [{"Department": "Operations", "T-shirt size": None}]
+    assert pending == [{"Department": "Operations"}]
+
+
+def test_export_grouping_distinguishes_default_from_explicit_none() -> None:
+    selected = ["zone_name", "whatsapp:department"]
+
+    assert _resolve_export_group_by(None, selected) == "zone_name"
+    assert _resolve_export_group_by("none", selected) is None
+    assert (
+        _resolve_export_group_by("international_airport", selected)
+        == "international_airport"
+    )
 
 
 @pytest.mark.asyncio

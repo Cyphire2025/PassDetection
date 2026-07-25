@@ -68,6 +68,18 @@ class CustomQuestionResponse(CustomQuestionRequest):
     pass
 
 
+class CustomDetailRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    id: uuid.UUID
+    label: str = Field(..., min_length=1, max_length=100)
+    enabled: bool = True
+
+
+class CustomDetailResponse(CustomDetailRequest):
+    pass
+
+
 class CreateClientGroupRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -86,7 +98,13 @@ class CreateClientGroupRequest(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     custom_questions: list[CustomQuestionRequest] = Field(
+        default_factory=list,
+        max_length=20,
+    )
+    custom_details: list[CustomDetailRequest] = Field(
         default_factory=list,
         max_length=20,
     )
@@ -140,7 +158,13 @@ class UpdateClientGroupRequest(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     custom_questions: list[CustomQuestionRequest] | None = Field(
+        default=None,
+        max_length=20,
+    )
+    custom_details: list[CustomDetailRequest] | None = Field(
         default=None,
         max_length=20,
     )
@@ -218,7 +242,10 @@ class ClientGroupResponse(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     custom_questions: list[CustomQuestionResponse] = Field(default_factory=list)
+    custom_details: list[CustomDetailResponse] = Field(default_factory=list)
     qualifier_relation_options: list[QualifierRelationOptionResponse] = Field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None

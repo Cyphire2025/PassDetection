@@ -151,10 +151,10 @@ class PassportCaptureFieldTests(unittest.TestCase):
             for index, header in enumerate(headers)
         }
 
-        self.assertEqual(values["Nearest Domestic Airport"], "Delhi")
+        self.assertEqual(values["Domestic Airport"], "Delhi")
         issue_cell = worksheet.cell(
             row=5,
-            column=headers.index("Date of Issue") + 1,
+            column=headers.index("DOI") + 1,
         )
         self.assertTrue(issue_cell.is_date)
         self.assertEqual(issue_cell.number_format, "DD.MM.YYYY")

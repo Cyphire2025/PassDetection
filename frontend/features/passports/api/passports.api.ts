@@ -168,13 +168,20 @@ export interface PassportGroupExportRequest {
 export interface PassportGroupExportFieldOption {
   key: string;
   label: string;
-  source: "whatsapp" | "custom_question";
+  source: "whatsapp";
   selected_by_default: boolean;
+}
+
+export interface PassportGroupExportGroupingOption {
+  key: string;
+  label: string;
+  fixed: boolean;
 }
 
 export interface PassportGroupExportFieldOptions {
   group_id: string;
   fields: PassportGroupExportFieldOption[];
+  grouping_fields: PassportGroupExportGroupingOption[];
   default_selected_fields: string[];
   default_group_by_field: string | null;
 }
@@ -225,6 +232,26 @@ export interface ApplyVisaAiEditRequest extends SavePassportImageCropRequest {
   image: Blob;
   previewToken: string;
   prompt: string;
+}
+
+export type PassportImageLibrarySource =
+  | "original"
+  | "manual"
+  | "ai_generated";
+
+export interface PassportImageLibraryItem {
+  id: string;
+  image_type: PassportImageType;
+  image_url: string;
+  source: PassportImageLibrarySource;
+  created_at: string;
+  is_current: boolean;
+  prompt?: string | null;
+  model?: string | null;
+}
+
+export interface PassportImageLibrary {
+  items: PassportImageLibraryItem[];
 }
 
 export interface VisaAiLibraryImage {
@@ -331,6 +358,52 @@ export const passportsApi = {
       responseType: "blob",
       signal,
     });
+    return data;
+  },
+
+  listImageLibrary: async (
+    id: string,
+    imageType: PassportImageType,
+    signal?: AbortSignal,
+  ): Promise<PassportImageLibraryItem[]> => {
+    const { data } = await apiClient.get<PassportImageLibrary>(
+      API_ENDPOINTS.passports.imageLibrary(id, imageType),
+      { signal },
+    );
+    return data.items;
+  },
+
+  uploadImageLibraryImage: async (
+    id: string,
+    imageType: PassportImageType,
+    image: File,
+    expectedRevision: number,
+  ): Promise<PassportImageLibraryItem> => {
+    const formData = new FormData();
+    formData.append("image", image, image.name);
+    formData.append("expected_revision", String(expectedRevision));
+    const { data } = await apiClient.post<PassportImageLibraryItem>(
+      API_ENDPOINTS.passports.imageLibrary(id, imageType),
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 120_000,
+      },
+    );
+    return data;
+  },
+
+  useImageLibraryImage: async (
+    id: string,
+    imageType: PassportImageType,
+    itemId: string,
+    request: SavePassportImageCropRequest,
+  ): Promise<PassportImageCropState> => {
+    const { data } = await apiClient.post<PassportImageCropState>(
+      API_ENDPOINTS.passports.imageLibraryUse(id, imageType, itemId),
+      request,
+      { timeout: 120_000 },
+    );
     return data;
   },
 

@@ -18,6 +18,7 @@ import {
   Save,
   SlidersHorizontal,
   Sparkles,
+  Upload,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -25,6 +26,7 @@ import {
   passportsApi,
   type PassportImageCropRect,
   type PassportImageCropState,
+  type PassportImageLibraryItem,
   type PassportImageType,
   type VisaAiGenerationJob,
   type VisaAiLibraryImage,
@@ -35,6 +37,11 @@ import {
   rotateCropClockwise,
   type CropDragMode,
 } from "../utils/passport-image-crop-geometry";
+import {
+  formatPassportImageLibrarySource,
+  PASSPORT_LIBRARY_IMAGE_ACCEPT,
+  validatePassportLibraryImage,
+} from "../utils/passport-image-library";
 
 interface PassportImageCropEditorProps {
   submissionId: string;
@@ -72,17 +79,20 @@ export function PassportImageCropEditor({
   const [sharpness, setSharpness] = useState(1);
   const [sourceObjectUrl, setSourceObjectUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [activePanel, setActivePanel] = useState<"adjust" | "ai">("adjust");
+  const [activePanel, setActivePanel] =
+    useState<"adjust" | "library" | "ai">("adjust");
   const [aiPrompt, setAiPrompt] = useState(
     isVisaPhoto ? DEFAULT_VISA_AI_PROMPT : "",
   );
-  const [aiLibrary, setAiLibrary] = useState<VisaAiLibraryImage[]>([]);
+  const [imageLibrary, setImageLibrary] =
+    useState<PassportImageLibraryItem[]>([]);
   const [featuredGenerationId, setFeaturedGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isLoadingLibrary, setIsLoadingLibrary] = useState(isVisaPhoto);
+  const [isLoadingLibrary, setIsLoadingLibrary] = useState(true);
+  const [isUploadingManual, setIsUploadingManual] = useState(false);
   const [usingImageId, setUsingImageId] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -132,24 +142,24 @@ export function PassportImageCropEditor({
   }, []);
 
   useEffect(() => {
-    if (!isVisaPhoto) return;
     const controller = new AbortController();
-    void passportsApi.listVisaAiLibrary(submissionId)
+    void passportsApi.listImageLibrary(submissionId, imageType, controller.signal)
       .then((items) => {
         if (controller.signal.aborted) return;
-        setAiLibrary((current) => mergeVisaAiLibraryItems(items, current));
-        setFeaturedGenerationId((current) => current ?? items[0]?.id ?? null);
+        setImageLibrary((current) => mergeImageLibraryItems(items, current));
+        const latestAiItem = items.find((item) => item.source === "ai_generated");
+        setFeaturedGenerationId((current) => current ?? latestAiItem?.id ?? null);
       })
       .catch((loadError) => {
         if (!controller.signal.aborted) {
-          setError(readEditError(loadError, "Could not load the saved AI image library."));
+          setError(readEditError(loadError, "Could not load the image library."));
         }
       })
       .finally(() => {
         if (!controller.signal.aborted) setIsLoadingLibrary(false);
       });
     return () => controller.abort();
-  }, [isVisaPhoto, submissionId]);
+  }, [imageType, submissionId]);
 
   useEffect(() => {
     if (!isVisaPhoto) return;
@@ -173,7 +183,7 @@ export function PassportImageCropEditor({
         if (!controller.signal.aborted) {
           applyTerminalVisaAiJob(
             terminalJob,
-            setAiLibrary,
+            setImageLibrary,
             setFeaturedGenerationId,
             setError,
           );
@@ -236,8 +246,9 @@ export function PassportImageCropEditor({
   }, [onClose]);
 
   useEffect(() => {
-    busyRef.current = isSaving || isResetting || usingImageId !== null;
-  }, [isResetting, isSaving, usingImageId]);
+    busyRef.current =
+      isSaving || isResetting || isUploadingManual || usingImageId !== null;
+  }, [isResetting, isSaving, isUploadingManual, usingImageId]);
 
   useEffect(() => {
     returnFocusRef.current = returnFocusTarget;
@@ -347,7 +358,7 @@ export function PassportImageCropEditor({
       if (!controller.signal.aborted) {
         applyTerminalVisaAiJob(
           terminalJob,
-          setAiLibrary,
+          setImageLibrary,
           setFeaturedGenerationId,
           setError,
         );
@@ -367,22 +378,52 @@ export function PassportImageCropEditor({
     }
   };
 
-  const activateAiGeneration = async (generationId: string) => {
+  const activateLibraryImage = async (itemId: string) => {
     if (!metadata || busyRef.current) return;
     setError(null);
-    setUsingImageId(generationId);
+    setUsingImageId(itemId);
     try {
-      await passportsApi.useVisaAiLibraryImage(submissionId, generationId, {
+      await passportsApi.useImageLibraryImage(
+        submissionId,
+        imageType,
+        itemId,
+        {
         ...FULL_IMAGE_CROP,
         sharpness: 1,
         expected_revision: metadata.revision,
-      });
+        },
+      );
       onSaved();
       onClose();
     } catch (useError) {
-      setError(readEditError(useError, "Could not use this saved Visa photo."));
+      setError(readEditError(useError, "Could not use this saved image."));
     } finally {
       setUsingImageId(null);
+    }
+  };
+
+  const uploadManualImage = async (file: File) => {
+    if (!metadata || busyRef.current) return;
+    const validationError = validatePassportLibraryImage(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
+    setIsUploadingManual(true);
+    try {
+      await passportsApi.uploadImageLibraryImage(
+        submissionId,
+        imageType,
+        file,
+        metadata.revision,
+      );
+      onSaved();
+      onClose();
+    } catch (uploadError) {
+      setError(readEditError(uploadError, "Could not upload this image."));
+    } finally {
+      setIsUploadingManual(false);
     }
   };
 
@@ -425,10 +466,19 @@ export function PassportImageCropEditor({
     }
   };
 
-  const busy = isSaving || isResetting || isGenerating || usingImageId !== null;
-  const closeBlocked = isSaving || isResetting || usingImageId !== null;
+  const busy =
+    isSaving
+    || isResetting
+    || isGenerating
+    || isUploadingManual
+    || usingImageId !== null;
+  const closeBlocked =
+    isSaving || isResetting || isUploadingManual || usingImageId !== null;
   const canReset = Boolean(
     metadata?.crop || metadata?.ai_edited || (metadata?.sharpness ?? 1) > 1,
+  );
+  const aiLibrary = imageLibrary.filter(
+    (item) => item.source === "ai_generated",
   );
 
   return (
@@ -461,28 +511,44 @@ export function PassportImageCropEditor({
           </button>
         </header>
 
-        {isVisaPhoto && (
-          <div className="flex gap-2 border-b border-slate-200 bg-white px-4 py-2 sm:px-6" role="tablist" aria-label="Visa image editing tools">
+        <div
+          className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-white px-4 py-2 sm:px-6"
+          role="tablist"
+          aria-label={`${label} image editing tools`}
+        >
             <button
               type="button"
               role="tab"
               aria-selected={activePanel === "adjust"}
+              aria-controls="passport-image-adjust-panel"
               onClick={() => setActivePanel("adjust")}
               className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "adjust" ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}
             >
               <SlidersHorizontal className="h-4 w-4" /> Adjust
             </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activePanel === "ai"}
-              onClick={() => setActivePanel("ai")}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "ai" ? "bg-[#C8CE32] text-slate-950" : "text-slate-600 hover:bg-[#C8CE32]/15 hover:text-slate-950"}`}
-            >
-              <Sparkles className="h-4 w-4" /> AI
-            </button>
-          </div>
-        )}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePanel === "library"}
+            aria-controls="passport-image-library-panel"
+            onClick={() => setActivePanel("library")}
+            className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "library" ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}
+          >
+            <Images className="h-4 w-4" /> Library
+          </button>
+          {isVisaPhoto && (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activePanel === "ai"}
+                aria-controls="passport-image-ai-panel"
+                onClick={() => setActivePanel("ai")}
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${activePanel === "ai" ? "bg-[#C8CE32] text-slate-950" : "text-slate-600 hover:bg-[#C8CE32]/15 hover:text-slate-950"}`}
+              >
+                <Sparkles className="h-4 w-4" /> AI
+              </button>
+          )}
+        </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-slate-100 p-3 sm:p-5">
           {error && (
@@ -494,6 +560,17 @@ export function PassportImageCropEditor({
             <div className="flex min-h-80 flex-1 items-center justify-center text-sm text-slate-500" role="status">
               {error ? "Image editor unavailable" : <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading image</>}
             </div>
+          ) : activePanel === "library" ? (
+            <ImageLibraryPanel
+              label={label}
+              library={imageLibrary}
+              busy={busy}
+              isLoading={isLoadingLibrary}
+              isUploading={isUploadingManual}
+              usingImageId={usingImageId}
+              onUpload={(file) => void uploadManualImage(file)}
+              onUse={(itemId) => void activateLibraryImage(itemId)}
+            />
           ) : activePanel === "ai" && isVisaPhoto ? (
             <VisaAiPanel
               currentImageUrl={metadata.cropped_url}
@@ -506,11 +583,14 @@ export function PassportImageCropEditor({
               usingImageId={usingImageId}
               onPromptChange={updatePrompt}
               onGenerate={() => void generateAiPreview()}
-              onFeature={setFeaturedGenerationId}
-              onUseGeneration={(generationId) => void activateAiGeneration(generationId)}
+              onUseGeneration={(generationId) => void activateLibraryImage(generationId)}
             />
           ) : (
-            <div className="flex min-h-0 flex-1 flex-col gap-4">
+            <div
+              id="passport-image-adjust-panel"
+              role="tabpanel"
+              className="flex min-h-0 flex-1 flex-col gap-4"
+            >
               <div className="flex flex-1 items-center justify-center overflow-auto">
                 <div ref={stageRef} className="relative inline-block max-w-full select-none overflow-hidden bg-black shadow-xl">
                   <canvas
@@ -557,9 +637,16 @@ export function PassportImageCropEditor({
         </div>
 
         <footer className="flex flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
-          {activePanel === "ai" && isVisaPhoto ? (
+          {activePanel === "library" ? (
             <>
-              <p className="text-xs text-slate-500">Generated images are saved automatically. Choose one from the library when ready.</p>
+              <p className="text-xs text-slate-500">
+                Original, manual, and AI-generated images remain available here.
+              </p>
+              <Button type="button" variant="outline" disabled={closeBlocked} onClick={onClose}>Close</Button>
+            </>
+          ) : activePanel === "ai" && isVisaPhoto ? (
+            <>
+              <p className="text-xs text-slate-500">Generated images are saved automatically in the common Library tab.</p>
               <Button type="button" variant="outline" disabled={closeBlocked} onClick={onClose}>Close</Button>
             </>
           ) : (
@@ -590,6 +677,161 @@ export function PassportImageCropEditor({
   );
 }
 
+function ImageLibraryPanel({
+  label,
+  library,
+  busy,
+  isLoading,
+  isUploading,
+  usingImageId,
+  onUpload,
+  onUse,
+}: {
+  label: string;
+  library: PassportImageLibraryItem[];
+  busy: boolean;
+  isLoading: boolean;
+  isUploading: boolean;
+  usingImageId: string | null;
+  onUpload: (file: File) => void;
+  onUse: (itemId: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  return (
+    <section
+      id="passport-image-library-panel"
+      role="tabpanel"
+      aria-labelledby="passport-image-library-title"
+      className="flex min-h-[28rem] flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3
+            id="passport-image-library-title"
+            className="flex items-center gap-2 text-base font-semibold text-slate-900"
+          >
+            <Images className="h-5 w-5 text-blue-600" aria-hidden="true" />
+            Image library
+          </h3>
+          <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-500">
+            Choose any saved {label.toLowerCase()}, or upload a new image. The immutable original stays available whenever one was submitted.
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+            {library.length} saved
+          </span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={PASSPORT_LIBRARY_IMAGE_ACCEPT}
+            aria-label={`Upload a new ${label} image`}
+            className="sr-only"
+            disabled={busy}
+            onChange={(event) => {
+              const selected = event.currentTarget.files?.[0];
+              event.currentTarget.value = "";
+              if (selected) onUpload(selected);
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2"
+            disabled={busy}
+            aria-busy={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Upload className="h-4 w-4" aria-hidden="true" />
+            )}
+            {isUploading ? "Uploading…" : "Upload image"}
+          </Button>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div
+          className="flex min-h-64 flex-1 items-center justify-center text-sm text-slate-500"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
+          Loading saved images
+        </div>
+      ) : library.length > 0 ? (
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {library.map((item) => {
+            const sourceLabel = formatPassportImageLibrarySource(item.source);
+            const savedAt = formatLibraryDate(item.created_at);
+            const isUsing = usingImageId === item.id;
+            return (
+              <article
+                key={item.id}
+                className={`flex min-w-0 flex-col overflow-hidden rounded-xl border bg-white ${
+                  item.is_current
+                    ? "border-blue-400 ring-2 ring-blue-100"
+                    : "border-slate-200"
+                }`}
+              >
+                <div className="relative">
+                  {/* Same-origin authorized endpoint; native lazy loading avoids eager library downloads. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    loading="lazy"
+                    src={item.image_url}
+                    alt={`${sourceLabel} ${label}`}
+                    className="h-48 w-full bg-slate-100 object-contain"
+                  />
+                  <span className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-[11px] font-semibold shadow-sm ${librarySourceBadgeClass(item.source)}`}>
+                    {sourceLabel}
+                  </span>
+                  {item.is_current && (
+                    <span className="absolute right-2 top-2 rounded-full bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                      In use
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-3">
+                  {savedAt && (
+                    <p className="text-xs text-slate-500">{savedAt}</p>
+                  )}
+                  {item.source === "ai_generated" && item.prompt?.trim() && (
+                    <p className="line-clamp-2 text-xs leading-5 text-slate-600" title={item.prompt}>
+                      {item.prompt}
+                    </p>
+                  )}
+                  <Button
+                    type="button"
+                    className="mt-auto w-full gap-2"
+                    variant={item.is_current ? "secondary" : "primary"}
+                    disabled={busy || item.is_current}
+                    onClick={() => onUse(item.id)}
+                  >
+                    {isUsing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Check className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    {item.is_current ? "Currently in use" : "Use this image"}
+                  </Button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="mt-5 flex min-h-64 flex-1 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 text-center text-sm text-slate-500">
+          No saved images are available for this slot yet. Upload an image to create the first library item.
+        </div>
+      )}
+    </section>
+  );
+}
+
 function VisaAiPanel({
   currentImageUrl,
   library,
@@ -601,11 +843,10 @@ function VisaAiPanel({
   usingImageId,
   onPromptChange,
   onGenerate,
-  onFeature,
   onUseGeneration,
 }: {
   currentImageUrl: string;
-  library: VisaAiLibraryImage[];
+  library: PassportImageLibraryItem[];
   featuredGenerationId: string | null;
   prompt: string;
   busy: boolean;
@@ -614,12 +855,15 @@ function VisaAiPanel({
   usingImageId: string | null;
   onPromptChange: (value: string) => void;
   onGenerate: () => void;
-  onFeature: (generationId: string) => void;
   onUseGeneration: (generationId: string) => void;
 }) {
   const featured = library.find((item) => item.id === featuredGenerationId) ?? library[0] ?? null;
   return (
-    <div className="flex min-h-[28rem] flex-1 flex-col gap-5">
+    <div
+      id="passport-image-ai-panel"
+      role="tabpanel"
+      className="flex min-h-[28rem] flex-1 flex-col gap-5"
+    >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)_minmax(0,1fr)] lg:items-center">
       <ImageComparisonCard
         title="Current Visa photo"
@@ -692,44 +936,6 @@ function VisaAiPanel({
         </div>
       )}
       </div>
-
-      <section aria-labelledby="visa-ai-library-title" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h3 id="visa-ai-library-title" className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-              <Images className="h-4 w-4 text-[#73770F]" /> Saved AI image library
-            </h3>
-            <p className="mt-1 text-xs text-slate-500">Every verified generation remains available until the submission is deleted.</p>
-          </div>
-          <span className="rounded-full bg-[#C8CE32]/20 px-2.5 py-1 text-xs font-semibold text-[#4B4E08]">
-            {library.length} saved
-          </span>
-        </div>
-        {library.length > 0 ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {library.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                disabled={busy}
-                onClick={() => onFeature(item.id)}
-                className={`overflow-hidden rounded-xl border bg-white text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8CE32] ${featured?.id === item.id ? "border-[#C8CE32] ring-1 ring-[#C8CE32]" : "border-slate-200 hover:border-[#C8CE32]"}`}
-              >
-                {/* Same-origin authorized endpoint; native lazy loading avoids eager library downloads. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img loading="lazy" src={item.image_url} alt="Saved AI Visa photo" className="h-44 w-full bg-slate-100 object-contain" />
-                <span className="block truncate px-3 pt-2 text-xs font-medium text-slate-700">{item.prompt}</span>
-                <span className="flex items-center justify-between px-3 pb-3 pt-1 text-[11px] text-slate-400">
-                  {new Date(item.created_at).toLocaleString()}
-                  {item.is_current && <span className="font-semibold text-[#4B4E08]">In use</span>}
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : !isLoadingLibrary ? (
-          <p className="mt-4 rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">No AI images have been generated yet.</p>
-        ) : null}
-      </section>
     </div>
   );
 }
@@ -927,6 +1133,21 @@ function clampSharpness(value: number) {
   return Math.min(3, Math.max(1, Math.round(value * 20) / 20));
 }
 
+function librarySourceBadgeClass(
+  source: PassportImageLibraryItem["source"],
+): string {
+  if (source === "original") return "bg-slate-900 text-white";
+  if (source === "manual") return "bg-blue-600 text-white";
+  return "bg-[#C8CE32] text-slate-950";
+}
+
+function formatLibraryDate(value: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleString();
+}
+
 async function waitForVisaAiGenerationJob(
   submissionId: string,
   initialJob: VisaAiGenerationJob,
@@ -974,14 +1195,15 @@ function abortableDelay(milliseconds: number, signal: AbortSignal) {
 
 function applyTerminalVisaAiJob(
   job: VisaAiGenerationJob,
-  setLibrary: Dispatch<SetStateAction<VisaAiLibraryImage[]>>,
+  setLibrary: Dispatch<SetStateAction<PassportImageLibraryItem[]>>,
   setFeaturedGenerationId: Dispatch<SetStateAction<string | null>>,
   setError: Dispatch<SetStateAction<string | null>>,
 ) {
   if (job.status === "succeeded" && job.result) {
     const result = job.result;
+    const commonLibraryItem = toCommonAiLibraryItem(result);
     setLibrary((current) => [
-      result,
+      commonLibraryItem,
       ...current.filter((item) => item.id !== result.id),
     ]);
     setFeaturedGenerationId(result.id);
@@ -998,9 +1220,19 @@ function applyTerminalVisaAiJob(
   setError("The Visa photo was generated, but its saved result is unavailable.");
 }
 
-function mergeVisaAiLibraryItems(
-  serverItems: VisaAiLibraryImage[],
-  currentItems: VisaAiLibraryImage[],
+function toCommonAiLibraryItem(
+  item: VisaAiLibraryImage,
+): PassportImageLibraryItem {
+  return {
+    ...item,
+    image_type: "visa_photo",
+    source: "ai_generated",
+  };
+}
+
+function mergeImageLibraryItems(
+  serverItems: PassportImageLibraryItem[],
+  currentItems: PassportImageLibraryItem[],
 ) {
   const serverIds = new Set(serverItems.map((item) => item.id));
   return [

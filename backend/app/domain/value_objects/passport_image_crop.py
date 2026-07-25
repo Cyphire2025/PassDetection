@@ -54,7 +54,7 @@ class PassportImageCrop:
 
 
 def passport_image_storage_key(submission: object, image_type: PassportImageType) -> str | None:
-    """Return the immutable source key for one supported image type."""
+    """Return the authoritative source key for one supported image type."""
 
     value = getattr(submission, PASSPORT_IMAGE_STORAGE_ATTRIBUTES[image_type], None)
     return value if isinstance(value, str) and value else None

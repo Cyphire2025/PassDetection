@@ -35,48 +35,51 @@ class _ExportColumn:
 
 _EXCEL_DATE_NUMBER_FORMAT = "DD.MM.YYYY"
 _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-_COLUMNS = (
+_PREFIX_COLUMNS = (
     _ExportColumn("Group", 24),
     _ExportColumn("Destination", 22),
     _ExportColumn("Travel/Departure Date", 22, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Return Date", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
-    _ExportColumn("Client Name", 24),
-    _ExportColumn("Zone Name", 22),
-    _ExportColumn("Email", 28),
-    _ExportColumn("Phone", 18),
+)
+_TRAVELLER_COLUMNS = (
     _ExportColumn(
-        "Nearest International Airport",
+        "Agency/Dealership Name",
         28,
-        "nearest_international_airport_enabled",
+        "agency_dealership_name_enabled",
     ),
-    _ExportColumn(
-        "Nearest Domestic Airport",
-        26,
-        "ask_nearest_domestic_airport",
-    ),
-    _ExportColumn("Base City", 20, "base_city_enabled"),
     _ExportColumn("Staff Code", 18, "staff_code_enabled"),
     _ExportColumn(
         "Agent/Employee Code",
         24,
         "agent_employee_code_enabled",
     ),
-    _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
+    _ExportColumn("Designation", 22, "designation_enabled"),
     _ExportColumn(
         "Relation with Qualifier",
         24,
         "relation_with_qualifier_enabled",
     ),
-    _ExportColumn("Surname", 20),
-    _ExportColumn("Given Names", 24),
+    _ExportColumn("Age Group", 14),
+    _ExportColumn("Base City", 20, "base_city_enabled"),
+    _ExportColumn(
+        "Domestic Airport",
+        26,
+        "ask_nearest_domestic_airport",
+    ),
+    _ExportColumn("Phone Number", 18),
+    _ExportColumn("Email ID", 28),
+    _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
+    _ExportColumn("International Airport", 28),
+    _ExportColumn("SURNAME", 20),
+    _ExportColumn("GIVEN NAME", 24),
+    _ExportColumn("GENDER", 12),
     _ExportColumn("Passport Number", 20),
+    _ExportColumn("DOB", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("DOI", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
+    _ExportColumn("DOE", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Nationality", 22),
-    _ExportColumn("Place of Issue", 22),
-    _ExportColumn("Date of Birth", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
-    _ExportColumn("Date of Issue", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
-    _ExportColumn("Date of Expiry", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
-    _ExportColumn("Sex", 10),
 )
+_COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
 
 _FORMULA_PREFIXES = ("=", "+", "-", "@")
 _PENDING_ROW_FILL = PatternFill("solid", fgColor="FFF2CC")
@@ -162,6 +165,30 @@ def _nationality_display_value(value: Any) -> str | None:
     return _country_display_name(normalized)
 
 
+def _date_value(value: Any) -> date | None:
+    converted = _excel_date_value(value)
+    if isinstance(converted, datetime):
+        return converted.date()
+    return converted if isinstance(converted, date) else None
+
+
+def passport_age_group(date_of_birth: Any, departure_date: Any) -> str | None:
+    """Classify a traveller by completed age on the group's departure date."""
+
+    birth = _date_value(date_of_birth)
+    departure = _date_value(departure_date)
+    if not birth or not departure or birth > departure:
+        return None
+    age = departure.year - birth.year - (
+        (departure.month, departure.day) < (birth.month, birth.day)
+    )
+    if age < 2:
+        return "Infant"
+    if age < 12:
+        return "Child"
+    return "Adult"
+
+
 class PassportExcelExporter:
     HEADERS = [column.header for column in _COLUMNS]
 
@@ -170,40 +197,70 @@ class PassportExcelExporter:
         submissions: list[PassportSubmission],
         *,
         group_name: str,
-        group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None = None,
+        group_details: dict[uuid.UUID, dict[str, Any]] | None = None,
         zone_names: dict[uuid.UUID, str] | None = None,
         additional_fields: list[dict[str, str]] | None = None,
         additional_values: dict[uuid.UUID, dict[str, str | None]] | None = None,
         group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
     ) -> bytes:
-        include_zone = (
-            True
-            if additional_fields is None
-            else any(field.get("key") == "zone_name" for field in additional_fields)
-        )
-        columns = self._enabled_columns(
-            submissions,
-            group_details,
-            include_zone=include_zone,
-        )
-        dynamic_fields = [
+        imported_fields = [
             field
             for field in (additional_fields or [])
-            if field.get("key") != "zone_name" and field.get("label")
+            if (
+                field.get("key") == "zone_name"
+                or str(field.get("key", "")).startswith("whatsapp:")
+            )
+            and field.get("label")
         ]
-        columns.extend(
-            _ExportColumn(str(field["label"]), 22) for field in dynamic_fields
+        custom_fields = self._custom_fields(
+            submissions,
+            group_details,
+            reserved_labels={
+                *(column.header.casefold() for column in _COLUMNS),
+                *(str(field["label"]).casefold() for field in imported_fields),
+            },
         )
+        custom_question_fields = [
+            field
+            for field in custom_fields
+            if str(field["key"]).startswith("custom:")
+        ]
+        custom_detail_fields = [
+            field
+            for field in custom_fields
+            if str(field["key"]).startswith("custom_detail:")
+        ]
+        columns = [
+            *_PREFIX_COLUMNS,
+            *(
+                _ExportColumn(str(field["label"]), 22)
+                for field in imported_fields
+            ),
+            *self._enabled_traveller_columns(group_details),
+            *(
+                _ExportColumn(str(field["label"]), 22)
+                for field in custom_question_fields
+            ),
+            *(
+                _ExportColumn(str(field["label"]), 22)
+                for field in custom_detail_fields
+            ),
+        ]
+        dynamic_fields = [
+            *imported_fields,
+            *custom_question_fields,
+            *custom_detail_fields,
+        ]
         headers = [column.header for column in columns]
         label_by_key = {
             str(field["key"]): str(field["label"])
-            for field in (additional_fields or [])
+            for field in imported_fields
             if field.get("key") and field.get("label")
         }
         group_by_header = (
-            "Zone Name"
-            if additional_fields is None and group_by_field is None
+            "International Airport"
+            if group_by_field == "international_airport"
             else label_by_key.get(group_by_field or "")
         )
         workbook = Workbook()
@@ -410,9 +467,15 @@ class PassportExcelExporter:
         group_by_header: str | None,
     ) -> tuple[bool, str, str, str, str]:
         group_value = cls._group_value(values, group_by_header)
-        client_name = " ".join(str(values.get("Client Name") or "").strip().split())
-        phone = str(values.get("Phone") or "")
-        email = str(values.get("Email") or "")
+        client_name = " ".join(
+            str(
+                values.get("GIVEN NAME")
+                or values.get("SURNAME")
+                or ""
+            ).strip().split()
+        )
+        phone = str(values.get("Phone Number") or "")
+        email = str(values.get("Email ID") or "")
         return (
             not bool(group_value),
             group_value.casefold(),
@@ -465,12 +528,10 @@ class PassportExcelExporter:
             "Destination": details.get("destination"),
             "Travel/Departure Date": details.get("travel_date"),
             "Return Date": details.get("return_date"),
-            "Client Name": submission.client_name,
-            "Zone Name": cls._zone_name(submission, zone_names) or None,
-            "Email": submission.client_email,
-            "Phone": submission.client_phone,
-            "Nearest International Airport": submission.departure_city,
-            "Nearest Domestic Airport": submission.nearest_domestic_airport,
+            "Agency/Dealership Name": (
+                fields.get("agency_dealership_name")
+                or staff_metadata.get("agency_dealership_name")
+            ),
             "Base City": fields.get("base_city") or staff_metadata.get("base_city"),
             "Staff Code": prefixed_staff_code(
                 fields.get("staff_code") or staff_metadata.get("staff_code")
@@ -481,6 +542,9 @@ class PassportExcelExporter:
                 fields.get("agent_employee_code")
                 or staff_metadata.get("agent_employee_code"),
             ),
+            "Designation": (
+                fields.get("designation") or staff_metadata.get("designation")
+            ),
             "Meal Preference": (
                 fields.get("meal_preference") or staff_metadata.get("meal_preference")
             ),
@@ -489,53 +553,135 @@ class PassportExcelExporter:
                 if submission.qualifier_enabled_snapshot
                 else None
             ),
-            "Surname": _uppercase(fields.get("surname")),
-            "Given Names": _uppercase(fields.get("given_names")),
+            "Age Group": passport_age_group(
+                fields.get("date_of_birth"),
+                details.get("travel_date"),
+            ),
+            "Domestic Airport": submission.nearest_domestic_airport,
+            "Phone Number": submission.client_phone,
+            "Email ID": submission.client_email,
+            "International Airport": submission.departure_city,
+            "SURNAME": _uppercase(fields.get("surname")),
+            "GIVEN NAME": _uppercase(fields.get("given_names")),
+            "GENDER": _gender_display_value(fields.get("sex")),
             "Passport Number": fields.get("passport_number"),
+            "DOB": fields.get("date_of_birth"),
+            "DOI": fields.get("date_of_issue"),
+            "DOE": fields.get("date_of_expiry"),
             "Nationality": _nationality_display_value(fields.get("nationality")),
-            "Place of Issue": fields.get("place_of_issue"),
-            "Date of Birth": fields.get("date_of_birth"),
-            "Date of Issue": fields.get("date_of_issue"),
-            "Date of Expiry": fields.get("date_of_expiry"),
-            "Sex": _gender_display_value(fields.get("sex")),
         }
         row_metadata = (additional_values or {}).get(submission.id, {})
+        custom_answers = {
+            f"custom:{answer.get('question_id')}": answer.get("value")
+            for answer in getattr(submission, "custom_answers", []) or []
+            if answer.get("question_id")
+        }
+        custom_detail_answers = {
+            f"custom_detail:{answer.get('detail_id')}": answer.get("value")
+            for answer in getattr(submission, "custom_detail_answers", []) or []
+            if answer.get("detail_id")
+        }
         for field in dynamic_fields:
-            values[field["label"]] = row_metadata.get(field["key"])
+            key = str(field["key"])
+            if key == "zone_name":
+                value = cls._zone_name(submission, zone_names) or None
+            elif key.startswith("custom_detail:"):
+                value = custom_detail_answers.get(key)
+            elif key.startswith("custom:"):
+                value = custom_answers.get(key)
+            else:
+                value = row_metadata.get(key)
+            values[field["label"]] = value
         return values
 
     @staticmethod
-    def _enabled_columns(
-        _submissions: list[PassportSubmission],
-        group_details: dict[uuid.UUID, dict[str, str | bool | None]] | None,
-        *,
-        include_zone: bool = True,
+    def _enabled_traveller_columns(
+        group_details: dict[uuid.UUID, dict[str, Any]] | None,
     ) -> list[_ExportColumn]:
         if group_details is None:
-            return [
-                column for column in _COLUMNS
-                if include_zone or column.header != "Zone Name"
-            ]
+            return list(_TRAVELLER_COLUMNS)
 
         # Callers provide details only for groups included in the workbook.
         # Consider every included group so a pending-only group can still
         # enable and export its configured optional fields.
         relevant_details = list(group_details.values())
         if not relevant_details:
-            return [
-                column for column in _COLUMNS
-                if include_zone or column.header != "Zone Name"
-            ]
+            return list(_TRAVELLER_COLUMNS)
 
         return [
             column
-            for column in _COLUMNS
-            if (include_zone or column.header != "Zone Name")
-            and (
+            for column in _TRAVELLER_COLUMNS
+            if (
                 column.enabled_flag is None
                 or any(
-                    bool(details.get(column.enabled_flag, True))
+                    bool(details.get(column.enabled_flag, False))
                     for details in relevant_details
                 )
             )
         ]
+
+    @staticmethod
+    def _custom_fields(
+        submissions: list[PassportSubmission],
+        group_details: dict[uuid.UUID, dict[str, Any]] | None,
+        *,
+        reserved_labels: set[str],
+    ) -> list[dict[str, str]]:
+        """Build stable question/detail columns, preserving configuration order."""
+
+        definitions: list[tuple[str, str, str]] = []
+        seen_keys: set[str] = set()
+
+        def add(key: str, label: str, source_label: str) -> None:
+            normalized_label = " ".join(str(label).strip().split())
+            if not key or key in seen_keys or not normalized_label:
+                return
+            seen_keys.add(key)
+            definitions.append((key, normalized_label[:120], source_label))
+
+        for details in (group_details or {}).values():
+            for question in details.get("custom_questions") or []:
+                if question.get("enabled"):
+                    add(
+                        f"custom:{question.get('id')}",
+                        str(question.get("label") or ""),
+                        "Custom Question",
+                    )
+            for detail in details.get("custom_details") or []:
+                if detail.get("enabled"):
+                    add(
+                        f"custom_detail:{detail.get('id')}",
+                        str(detail.get("label") or ""),
+                        "Custom Detail",
+                    )
+
+        for submission in submissions:
+            for answer in getattr(submission, "custom_answers", []) or []:
+                add(
+                    f"custom:{answer.get('question_id')}",
+                    str(answer.get("label") or ""),
+                    "Custom Question",
+                )
+            for answer in getattr(submission, "custom_detail_answers", []) or []:
+                add(
+                    f"custom_detail:{answer.get('detail_id')}",
+                    str(answer.get("label") or ""),
+                    "Custom Detail",
+                )
+
+        fields: list[dict[str, str]] = []
+        used_labels = set(reserved_labels)
+        for key, label, source_label in definitions:
+            candidate = label
+            suffix_index = 1
+            while candidate.casefold() in used_labels:
+                suffix = (
+                    f" ({source_label})"
+                    if suffix_index == 1
+                    else f" ({source_label} {suffix_index})"
+                )
+                candidate = f"{label[: max(1, 120 - len(suffix))]}{suffix}"
+                suffix_index += 1
+            used_labels.add(candidate.casefold())
+            fields.append({"key": key, "label": candidate})
+        return fields

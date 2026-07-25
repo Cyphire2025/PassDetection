@@ -135,7 +135,10 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
-from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
+from app.infrastructure.export.passport_excel_exporter import (
+    PassportExcelExporter,
+    passport_age_group,
+)
 from app.infrastructure.export.passport_image_zip_exporter import (
     MissingPassportImagesError,
     PassportImageExportLimitError,
@@ -181,6 +184,9 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
     PassportImageCropRevisionConflict,
 )
+from app.infrastructure.repositories.passport_image_library_repository import (
+    PassportImageLibraryRepository,
+)
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
@@ -219,6 +225,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportExpiryAlertResponse,
     PassportExportFieldOptionResponse,
     PassportExportFieldOptionsResponse,
+    PassportExportGroupingOptionResponse,
     PassportExportHistoryCompletionResponse,
     PassportExportHistoryDetailResponse,
     PassportExportHistoryItemResponse,
@@ -763,7 +770,7 @@ async def _ensure_submission_qr(
 
 def _group_export_details(
     group,
-) -> dict[str, str | bool | None]:  # type: ignore[no-untyped-def]
+) -> dict[str, Any]:  # type: ignore[no-untyped-def]
     return {
         "name": group.name,
         "destination": group.destination,
@@ -777,13 +784,19 @@ def _group_export_details(
         "agent_employee_code_enabled": group.agent_employee_code_enabled,
         "meal_preference_enabled": group.meal_preference_enabled,
         "relation_with_qualifier_enabled": (group.relation_with_qualifier_enabled),
+        "designation_enabled": group.designation_enabled,
+        "agency_dealership_name_enabled": (
+            group.agency_dealership_name_enabled
+        ),
+        "custom_questions": list(group.custom_questions or []),
+        "custom_details": list(group.custom_details or []),
     }
 
 
 async def _export_group_details(
     session: AsyncSession,
     group_ids: list[uuid.UUID],
-) -> dict[uuid.UUID, dict[str, str | bool | None]]:
+) -> dict[uuid.UUID, dict[str, Any]]:
     if not group_ids:
         return {}
     result = await session.execute(
@@ -1036,27 +1049,43 @@ def _pending_recipient_export_rows(
             or row.normalized_phone
             or "Pending recipient"
         )
+        date_of_birth = _recipient_export_value(
+            row,
+            "date_of_birth",
+            "dob",
+            "birth_date",
+        )
         pending_rows.append(
             {
                 "Group": details.get("name") or group.name,
                 "Destination": details.get("destination"),
                 "Travel/Departure Date": details.get("travel_date"),
                 "Return Date": details.get("return_date"),
-                "Client Name": client_name,
                 "Zone Name": _recipient_export_value(
                     row,
                     "zone_name",
                     "zonename",
                     "zone",
                 ),
-                "Email": _recipient_export_value(
+                "Agency/Dealership Name": _recipient_export_value(
+                    row,
+                    "agency_dealership_name",
+                    "agency_name",
+                    "dealership_name",
+                ),
+                "Designation": _recipient_export_value(row, "designation"),
+                "Age Group": passport_age_group(
+                    date_of_birth,
+                    details.get("travel_date"),
+                ),
+                "Email ID": _recipient_export_value(
                     row,
                     "email",
                     "email_address",
                     "e_mail",
                     "mail",
                 ),
-                "Phone": (
+                "Phone Number": (
                     row.normalized_phone
                     or _recipient_export_value(
                         row,
@@ -1070,13 +1099,13 @@ def _pending_recipient_export_rows(
                         "contact_number",
                     )
                 ),
-                "Nearest International Airport": _recipient_export_value(
+                "International Airport": _recipient_export_value(
                     row,
                     "nearest_international_airport",
                     "international_airport",
                     "departure_city",
                 ),
-                "Nearest Domestic Airport": _recipient_export_value(
+                "Domestic Airport": _recipient_export_value(
                     row,
                     "nearest_domestic_airport",
                     "domestic_airport",
@@ -1107,42 +1136,36 @@ def _pending_recipient_export_rows(
                     "qualifier_relation",
                     "relation",
                 ),
-                "Surname": surname.upper() if surname else None,
-                "Given Names": given_names.upper() if given_names else None,
+                "SURNAME": surname.upper() if surname else None,
+                "GIVEN NAME": (
+                    given_names.upper()
+                    if given_names
+                    else client_name.upper()
+                ),
+                "GENDER": (
+                    value.upper()
+                    if (value := _recipient_export_value(row, "sex", "gender"))
+                    else None
+                ),
                 "Passport Number": _recipient_export_value(
                     row,
                     "passport_number",
                     "passport_no",
                     "passport",
                 ),
-                "Nationality": _recipient_export_value(row, "nationality"),
-                "Place of Issue": _recipient_export_value(
-                    row,
-                    "place_of_issue",
-                    "issue_place",
-                ),
-                "Date of Birth": _recipient_export_value(
-                    row,
-                    "date_of_birth",
-                    "dob",
-                    "birth_date",
-                ),
-                "Date of Issue": _recipient_export_value(
+                "DOB": date_of_birth,
+                "DOI": _recipient_export_value(
                     row,
                     "date_of_issue",
                     "issue_date",
                 ),
-                "Date of Expiry": _recipient_export_value(
+                "DOE": _recipient_export_value(
                     row,
                     "date_of_expiry",
                     "expiry_date",
                     "expiration_date",
                 ),
-                "Sex": (
-                    value.upper()
-                    if (value := _recipient_export_value(row, "sex", "gender"))
-                    else None
-                ),
+                "Nationality": _recipient_export_value(row, "nationality"),
             }
         )
     return pending_rows
@@ -1208,6 +1231,10 @@ _FIXED_IMPORTED_EXPORT_KEYS = {
     "relation_with_qualifier",
     "qualifier_relation",
     "relation",
+    "designation",
+    "agency_dealership_name",
+    "agency_name",
+    "dealership_name",
     "source_file",
     "source_sheet",
     "sheet_name",
@@ -1271,26 +1298,6 @@ def _export_field_catalog(
                 "selected_by_default": key == "zone_name",
             }
         )
-    custom_labels: dict[str, str] = {
-        str(question["id"]): str(question["label"])
-        for question in group.custom_questions
-        if question.get("enabled")
-    }
-    for submission in submissions or []:
-        for answer in submission.custom_answers:
-            question_id = str(answer.get("question_id") or "")
-            label = " ".join(str(answer.get("label") or "").strip().split())
-            if question_id and label:
-                custom_labels.setdefault(question_id, label)
-    for question_id, label in custom_labels.items():
-        fields.append(
-            {
-                "key": f"custom:{question_id}",
-                "label": unique_label(label, "Custom"),
-                "source": "custom_question",
-                "selected_by_default": False,
-            }
-        )
     return sorted(
         fields,
         key=lambda field: (
@@ -1328,16 +1335,6 @@ def _export_additional_values(
                         normalized,
                     )
 
-    selected_custom = {
-        str(field["key"]).removeprefix("custom:"): str(field["key"])
-        for field in selected_fields
-        if str(field["key"]).startswith("custom:")
-    }
-    for submission in submissions:
-        for answer in submission.custom_answers:
-            export_key = selected_custom.get(str(answer.get("question_id", "")))
-            if export_key:
-                values[submission.id][export_key] = str(answer.get("value") or "") or None
     return values
 
 
@@ -1354,13 +1351,30 @@ def _apply_pending_export_fields(
     for exported_row, source_row in zip(pending_rows, source_rows, strict=True):
         for field in selected_fields:
             key = str(field["key"])
-            if key.startswith("whatsapp:"):
+            if key == "zone_name":
+                exported_row[str(field["label"])] = _recipient_export_value(
+                    source_row,
+                    "zone_name",
+                    "zonename",
+                    "zone",
+                )
+            elif key.startswith("whatsapp:"):
                 exported_row[str(field["label"])] = _recipient_export_value(
                     source_row,
                     key.removeprefix("whatsapp:"),
                 )
-            elif key.startswith("custom:"):
-                exported_row[str(field["label"])] = None
+
+
+def _resolve_export_group_by(
+    requested_group_by: str | None,
+    requested_field_keys: list[str],
+) -> str | None:
+    """Keep legacy Zone defaults while honoring an explicit no-grouping choice."""
+
+    if requested_group_by is None:
+        return "zone_name" if "zone_name" in requested_field_keys else None
+    normalized = requested_group_by.strip()
+    return None if normalized in {"", "none"} else normalized
 
 
 async def _dispatch_processing_job(
@@ -2788,6 +2802,21 @@ async def get_passport_group_export_fields(
             PassportExportFieldOptionResponse.model_validate(field)
             for field in catalog
         ],
+        grouping_fields=[
+            PassportExportGroupingOptionResponse(
+                key="international_airport",
+                label="International Airport",
+                fixed=True,
+            ),
+            *[
+                PassportExportGroupingOptionResponse(
+                    key=str(field["key"]),
+                    label=str(field["label"]),
+                    fixed=False,
+                )
+                for field in catalog
+            ],
+        ],
         default_selected_fields=default_selected,
         default_group_by_field=(
             "zone_name" if "zone_name" in default_selected else None
@@ -2886,13 +2915,21 @@ async def export_passports_by_group(
             detail="One or more selected Excel fields are unavailable for this group.",
         )
     selected_fields = [catalog_by_key[key] for key in requested_field_keys]
-    resolved_group_by = group_by_field or (
-        "zone_name" if "zone_name" in requested_field_keys else None
+    resolved_group_by = _resolve_export_group_by(
+        group_by_field,
+        requested_field_keys,
     )
-    if resolved_group_by and resolved_group_by not in requested_field_keys:
+    if (
+        resolved_group_by
+        and resolved_group_by != "international_airport"
+        and resolved_group_by not in requested_field_keys
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The grouping field must also be included in the Excel export.",
+            detail=(
+                "The grouping field must be International Airport or an "
+                "included WhatsApp field."
+            ),
         )
     pending_rows = (
         _pending_recipient_export_rows(
@@ -3435,12 +3472,18 @@ async def save_passport_documents_by_group(
     }
     storage = MinioStorageRepository()
     crop_repo = PassportImageCropRepository(session)
+    library_repo = PassportImageLibraryRepository(session)
     uploaded_keys: list[str] = []
     replaced_keys: list[str] = []
     replaced_crop_keys: list[str] = []
     try:
         for item in matched:
             submission = by_staff_code[item.staff_code]
+            image_type = {
+                "front": PassportImageType.PASSPORT_FRONT,
+                "photo": PassportImageType.VISA_PHOTO,
+                "back": PassportImageType.PASSPORT_BACK,
+            }[item.document_type]
             attr = {
                 "front": "image_s3_key",
                 "photo": "passport_photo_s3_key",
@@ -3456,13 +3499,16 @@ async def save_passport_documents_by_group(
             uploaded_keys.append(key)
             setattr(submission, attr, key)
             if old_key and old_key != key:
+                if not old_key.startswith("excel-imports/"):
+                    await library_repo.ensure_original(
+                        submission_id=submission.id,
+                        image_type=image_type,
+                        storage_key=old_key,
+                        created_at=submission.created_at,
+                    )
                 _, old_crop_key, old_edit_key = await crop_repo.reset(
                     submission_id=submission.id,
-                    image_type={
-                        "front": PassportImageType.PASSPORT_FRONT,
-                        "photo": PassportImageType.VISA_PHOTO,
-                        "back": PassportImageType.PASSPORT_BACK,
-                    }[item.document_type],
+                    image_type=image_type,
                     updated_by_user_id=current_user.id,
                     expected_revision=None,
                 )
@@ -3489,16 +3535,12 @@ async def save_passport_documents_by_group(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Could not save passport documents; no imported files were retained",
         )
-    if replaced_keys or replaced_crop_keys:
-        try:
-            await storage.delete_files([*replaced_keys, *replaced_crop_keys])
-        except StorageError as exc:
-            logger.warning(
-                "passport_import_replaced_object_cleanup_deferred",
-                group_id=str(group_id),
-                object_count=len(replaced_keys) + len(replaced_crop_keys),
-                error_type=type(exc).__name__,
-            )
+    await _delete_unreferenced_passport_image_keys_best_effort(
+        session=session,
+        storage=storage,
+        keys=[*replaced_keys, *replaced_crop_keys],
+        group_id=group_id,
+    )
     # OCR is only useful once the complete staff bundle is present. It enriches
     # blanks through PassportSubmission.mark_review_required without replacing
     # values imported from Excel.
@@ -3562,6 +3604,7 @@ async def _save_loose_passport_documents_by_group(
     importer = PassportDocumentImporter()
     storage = MinioStorageRepository()
     crop_repo = PassportImageCropRepository(session)
+    library_repo = PassportImageLibraryRepository(session)
     uploaded_keys: list[str] = []
     replaced_keys: list[str] = []
     replaced_crop_keys: list[str] = []
@@ -3606,6 +3649,11 @@ async def _save_loose_passport_documents_by_group(
                     continue
                 seen.add(duplicate_key)
 
+                image_type = {
+                    "front": PassportImageType.PASSPORT_FRONT,
+                    "photo": PassportImageType.VISA_PHOTO,
+                    "back": PassportImageType.PASSPORT_BACK,
+                }[item.document_type]
                 attr = {
                     "front": "image_s3_key",
                     "photo": "passport_photo_s3_key",
@@ -3621,13 +3669,16 @@ async def _save_loose_passport_documents_by_group(
                 uploaded_keys.append(key)
                 setattr(submission, attr, key)
                 if old_key and old_key != key:
+                    if not old_key.startswith("excel-imports/"):
+                        await library_repo.ensure_original(
+                            submission_id=submission.id,
+                            image_type=image_type,
+                            storage_key=old_key,
+                            created_at=submission.created_at,
+                        )
                     _, old_crop_key, old_edit_key = await crop_repo.reset(
                         submission_id=submission.id,
-                        image_type={
-                            "front": PassportImageType.PASSPORT_FRONT,
-                            "photo": PassportImageType.VISA_PHOTO,
-                            "back": PassportImageType.PASSPORT_BACK,
-                        }[item.document_type],
+                        image_type=image_type,
                         updated_by_user_id=current_user.id,
                         expected_revision=None,
                     )
@@ -3675,16 +3726,12 @@ async def _save_loose_passport_documents_by_group(
             detail="Could not save passport documents; no imported files were retained",
         )
 
-    if replaced_keys or replaced_crop_keys:
-        try:
-            await storage.delete_files([*replaced_keys, *replaced_crop_keys])
-        except StorageError as exc:
-            logger.warning(
-                "passport_import_replaced_object_cleanup_deferred",
-                group_id=str(group_id),
-                object_count=len(replaced_keys) + len(replaced_crop_keys),
-                error_type=type(exc).__name__,
-            )
+    await _delete_unreferenced_passport_image_keys_best_effort(
+        session=session,
+        storage=storage,
+        keys=[*replaced_keys, *replaced_crop_keys],
+        group_id=group_id,
+    )
 
     await _queue_ocr_for_complete_staff_bundles(
         submissions=list(touched_submissions.values()),
@@ -3862,6 +3909,8 @@ async def export_selected_groups(
             submissions,
             match_rows_by_group,
         ),
+        additional_fields=[{"key": "zone_name", "label": "Zone Name"}],
+        group_by_field="zone_name",
         pending_rows=pending_rows,
     )
     return StreamingResponse(
@@ -3971,13 +4020,39 @@ async def _delete_ephemeral_edit_source_best_effort(
 ) -> None:
     if not key:
         return
-    if await PassportVisaAiImageRepository(session).contains_storage_key(key):
+    if await PassportImageLibraryRepository(session).contains_storage_key(key):
         return
     await _delete_crop_derivative_best_effort(
         storage,
         key,
         submission_id=submission_id,
     )
+
+
+async def _delete_unreferenced_passport_image_keys_best_effort(
+    *,
+    session: AsyncSession,
+    storage: MinioStorageRepository,
+    keys: list[str],
+    group_id: uuid.UUID,
+) -> None:
+    unique_keys = list(dict.fromkeys(key for key in keys if key))
+    if not unique_keys:
+        return
+    try:
+        referenced_keys = await PassportImageLibraryRepository(
+            session
+        ).referenced_storage_keys(unique_keys)
+        deletable_keys = [key for key in unique_keys if key not in referenced_keys]
+        if deletable_keys:
+            await storage.delete_files(deletable_keys)
+    except Exception as exc:
+        logger.warning(
+            "passport_import_replaced_object_cleanup_deferred",
+            group_id=str(group_id),
+            object_count=len(unique_keys),
+            error_type=type(exc).__name__,
+        )
 
 
 @lru_cache(maxsize=1)
@@ -5230,6 +5305,17 @@ async def apply_visa_ai_image_edit(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="The source image changed. Refresh it and generate the edit again.",
             )
+        ai_library_item = await PassportImageLibraryRepository(session).create_ai(
+            submission_id=submission.id,
+            image_type=image_type,
+            storage_key=edit_source_key,
+            original_source_storage_key=source_key,
+            content_sha256=hashlib.sha256(canonical.content).hexdigest(),
+            prompt=normalized_prompt,
+            prompt_sha256=hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest(),
+            model=get_settings().gemini_image_edit_model.strip(),
+            created_by_user_id=current_user.id,
+        )
         (
             crop_row,
             previous_derived_key,
@@ -5264,6 +5350,7 @@ async def apply_visa_ai_image_edit(
                 "crop_revision": crop_row.revision,
                 "sharpness": crop_row.sharpness,
                 "prompt_sha256": hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest(),
+                "library_item_id": str(ai_library_item.id),
             },
         )
         await session.commit()
@@ -5462,6 +5549,8 @@ async def client_submit_passport(
             staff_code=body.staff_code,
             agent_employee_type=body.agent_employee_type,
             agent_employee_code=body.agent_employee_code,
+            designation=body.designation,
+            agency_dealership_name=body.agency_dealership_name,
             meal_preference=body.meal_preference,
             submission_mode=body.submission_mode,
             family_group_id=body.family_group_id,
@@ -5473,6 +5562,10 @@ async def client_submit_passport(
             family_head_phone=body.family_head_phone,
             custom_answers=[
                 answer.model_dump(mode="json") for answer in body.custom_answers
+            ],
+            custom_detail_answers=[
+                answer.model_dump(mode="json")
+                for answer in body.custom_detail_answers
             ],
         )
         verification_job = await PostSubmissionVerificationJobRepository(session).enqueue(

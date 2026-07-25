@@ -61,6 +61,10 @@ class ListPassportGroupSummariesUseCase:
                 relation_with_qualifier_enabled=(
                     summary.relation_with_qualifier_enabled
                 ),
+                designation_enabled=summary.designation_enabled,
+                agency_dealership_name_enabled=(
+                    summary.agency_dealership_name_enabled
+                ),
                 notes=summary.notes,
             )
             for summary in summaries

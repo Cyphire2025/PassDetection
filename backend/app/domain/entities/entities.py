@@ -23,8 +23,11 @@ from app.domain.exceptions.exceptions import (
     StaffApprovalUnavailableError,
     ValidationError,
 )
+from app.domain.value_objects.custom_questions import (
+    normalize_custom_details,
+    normalize_custom_questions,
+)
 from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
-from app.domain.value_objects.custom_questions import normalize_custom_questions
 from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
 
 
@@ -406,7 +409,10 @@ class ClientGroup:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     custom_questions: list[dict] = field(default_factory=list)
+    custom_details: list[dict] = field(default_factory=list)
     notes: str | None = None
     deleted_at: datetime | None = None
     deleted_passport_count: int = 0
@@ -433,7 +439,10 @@ class ClientGroup:
         allow_files_from_device: bool = True,
         ask_nearest_domestic_airport: bool = False,
         relation_with_qualifier_enabled: bool = False,
+        designation_enabled: bool = False,
+        agency_dealership_name_enabled: bool = False,
         custom_questions: list[dict] | None = None,
+        custom_details: list[dict] | None = None,
         notes: str | None = None,
     ) -> ClientGroup:
         normalized_name = " ".join(name.strip().split())
@@ -475,7 +484,10 @@ class ClientGroup:
             allow_files_from_device=allow_files_from_device,
             ask_nearest_domestic_airport=ask_nearest_domestic_airport,
             relation_with_qualifier_enabled=relation_with_qualifier_enabled,
+            designation_enabled=designation_enabled,
+            agency_dealership_name_enabled=agency_dealership_name_enabled,
             custom_questions=normalize_custom_questions(custom_questions),
+            custom_details=normalize_custom_details(custom_details),
             notes=notes.strip() if notes else None,
         )
 
@@ -497,7 +509,10 @@ class ClientGroup:
         allow_files_from_device: bool,
         ask_nearest_domestic_airport: bool,
         relation_with_qualifier_enabled: bool,
+        designation_enabled: bool,
+        agency_dealership_name_enabled: bool,
         custom_questions: list[dict] | None,
+        custom_details: list[dict] | None,
         notes: str | None,
     ) -> None:
         """Apply editable group settings through one domain boundary."""
@@ -536,8 +551,12 @@ class ClientGroup:
         self.allow_files_from_device = allow_files_from_device
         self.ask_nearest_domestic_airport = ask_nearest_domestic_airport
         self.relation_with_qualifier_enabled = relation_with_qualifier_enabled
+        self.designation_enabled = designation_enabled
+        self.agency_dealership_name_enabled = agency_dealership_name_enabled
         if custom_questions is not None:
             self.custom_questions = normalize_custom_questions(custom_questions)
+        if custom_details is not None:
+            self.custom_details = normalize_custom_details(custom_details)
         self.notes = notes.strip() if notes else None
 
     def require_allowed_acquisition_mode(self, acquisition_mode: str) -> str:
@@ -678,6 +697,7 @@ class PassportSubmission:
     mrz_raw: str | None                        # Raw MRZ string
     error_message: str | None
     custom_answers: list[dict] = field(default_factory=list)
+    custom_detail_answers: list[dict] = field(default_factory=list)
     qualifier_enabled_snapshot: bool = False
     qualifier_selection_id: uuid.UUID | None = None
     qualifier_is_self: bool | None = None
@@ -913,6 +933,7 @@ class PassportSubmission:
         family_broadcast_to_member: bool = False,
         nearest_domestic_airport: str | None = None,
         custom_answers: list[dict] | None = None,
+        custom_detail_answers: list[dict] | None = None,
     ) -> None:
         if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
             raise ValidationError(
@@ -939,6 +960,7 @@ class PassportSubmission:
             )
         self.nearest_domestic_airport = normalized_domestic_airport
         self.custom_answers = list(custom_answers or [])
+        self.custom_detail_answers = list(custom_detail_answers or [])
         self.submission_mode = submission_mode
         self.family_group_id = family_group_id
         self.family_member_index = family_member_index
@@ -949,6 +971,12 @@ class PassportSubmission:
         self.family_head_phone = family_head_phone.strip() if family_head_phone else None
         self.family_broadcast_to_member = family_broadcast_to_member
         self.confirmed_fields = confirmed_fields
+        passport_name = " ".join(
+            str(confirmed_fields.get(field_name) or "").strip()
+            for field_name in ("given_names", "surname")
+        ).strip()
+        if passport_name:
+            self.client_name = " ".join(passport_name.split())[:255]
         self.extraction_conflicts = []
         self.post_submission_verification_revision += 1
         self.post_submission_verification = None

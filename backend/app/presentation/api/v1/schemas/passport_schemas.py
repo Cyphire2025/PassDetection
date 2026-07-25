@@ -124,6 +124,8 @@ class ClientSubmitPassportRequest(BaseModel):
     staff_code: str | None = Field(default=None, max_length=80)
     agent_employee_type: str | None = Field(default=None, max_length=20)
     agent_employee_code: str | None = Field(default=None, max_length=10)
+    designation: str | None = Field(default=None, max_length=160)
+    agency_dealership_name: str | None = Field(default=None, max_length=200)
     meal_preference: str | None = Field(default=None, max_length=20)
     group_token: str = Field(..., min_length=10)
     submission_mode: str = Field(default="single", pattern="^(single|family)$")
@@ -138,6 +140,10 @@ class ClientSubmitPassportRequest(BaseModel):
         default_factory=list,
         max_length=20,
     )
+    custom_detail_answers: list["ClientCustomDetailAnswerRequest"] = Field(
+        default_factory=list,
+        max_length=20,
+    )
 
 
 class ClientCustomAnswerRequest(BaseModel):
@@ -145,6 +151,13 @@ class ClientCustomAnswerRequest(BaseModel):
 
     question_id: uuid.UUID
     value: str = Field(..., min_length=1, max_length=120)
+
+
+class ClientCustomDetailAnswerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    detail_id: uuid.UUID
+    value: str = Field(..., min_length=1, max_length=500)
 
 
 class ReconcilePassportUploadRequest(BaseModel):
@@ -257,8 +270,16 @@ class PassportExportFieldOptionResponse(BaseModel):
 
     key: str = Field(..., min_length=1, max_length=180)
     label: str = Field(..., min_length=1, max_length=120)
-    source: Literal["whatsapp", "custom_question"]
+    source: Literal["whatsapp"]
     selected_by_default: bool = False
+
+
+class PassportExportGroupingOptionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    key: str = Field(..., min_length=1, max_length=180)
+    label: str = Field(..., min_length=1, max_length=120)
+    fixed: bool = False
 
 
 class PassportExportFieldOptionsResponse(BaseModel):
@@ -266,6 +287,9 @@ class PassportExportFieldOptionsResponse(BaseModel):
 
     group_id: uuid.UUID
     fields: list[PassportExportFieldOptionResponse] = Field(default_factory=list)
+    grouping_fields: list[PassportExportGroupingOptionResponse] = Field(
+        default_factory=list
+    )
     default_selected_fields: list[str] = Field(default_factory=list)
     default_group_by_field: str | None = None
 
@@ -379,6 +403,7 @@ class PassportSubmissionResponse(BaseModel):
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, str] | None = None
     custom_answers: list[dict[str, str]] = Field(default_factory=list)
+    custom_detail_answers: list[dict[str, str]] = Field(default_factory=list)
     acquisition_mode: Literal["camera", "file"] = "file"
     qualifier_enabled_snapshot: bool = False
     qualifier_is_self: bool | None = None
@@ -480,6 +505,8 @@ class PassportGroupSummaryResponse(BaseModel):
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     notes: str | None = None
 
     model_config = {"from_attributes": True}

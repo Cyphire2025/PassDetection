@@ -74,3 +74,13 @@ test("the export dialog traps focus and restores document scrolling", () => {
   assert.match(dialog, /document\.body\.style\.overflow = "hidden"/);
   assert.match(dialog, /document\.body\.style\.overflow = priorOverflow/);
 });
+
+test("Excel export offers fixed International Airport grouping", () => {
+  assert.match(api, /grouping_fields: PassportGroupExportGroupingOption\[\]/);
+  assert.match(
+    dialog,
+    /field\.fixed \|\| selectedFields\.includes\(field\.key\)/,
+  );
+  assert.match(dialog, /groupByField !== "international_airport"/);
+  assert.match(dialog, /groupByField: groupByField \|\| "none"/);
+});

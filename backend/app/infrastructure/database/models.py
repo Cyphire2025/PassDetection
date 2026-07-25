@@ -193,7 +193,16 @@ class ClientGroupModel(Base):
     relation_with_qualifier_enabled: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+    designation_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    agency_dealership_name_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
     custom_questions: Mapped[list[dict]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    custom_details: Mapped[list[dict]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -759,6 +768,9 @@ class PassportSubmissionModel(Base):
     # etc.) are kept separately from passport OCR fields.
     staff_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     custom_answers: Mapped[list[dict]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    custom_detail_answers: Mapped[list[dict]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )
     passport_photo_s3_key: Mapped[str | None] = mapped_column(String(512), nullable=True)

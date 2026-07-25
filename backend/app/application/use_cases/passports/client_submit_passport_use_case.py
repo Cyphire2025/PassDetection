@@ -23,6 +23,10 @@ from app.domain.repositories.interfaces import (
     IObjectStorageRepository,
     IPassportSubmissionRepository,
 )
+from app.domain.value_objects.custom_questions import (
+    normalize_custom_answers,
+    normalize_custom_detail_answers,
+)
 from app.domain.value_objects.passport_document_classification import (
     is_accepted_passport_information_page,
     passport_document_classification,
@@ -31,7 +35,6 @@ from app.domain.value_objects.passport_fields import (
     normalize_reviewed_passport_fields,
     validate_reviewed_passport_payload,
 )
-from app.domain.value_objects.custom_questions import normalize_custom_answers
 
 logger = get_logger(__name__)
 
@@ -68,6 +71,8 @@ class ClientSubmitPassportUseCase:
         staff_code: str | None = None,
         agent_employee_type: str | None = None,
         agent_employee_code: str | None = None,
+        designation: str | None = None,
+        agency_dealership_name: str | None = None,
         meal_preference: str | None = None,
         submission_mode: str = "single",
         family_group_id: uuid.UUID | None = None,
@@ -78,6 +83,7 @@ class ClientSubmitPassportUseCase:
         family_head_email: str | None = None,
         family_head_phone: str | None = None,
         custom_answers: list[dict] | None = None,
+        custom_detail_answers: list[dict] | None = None,
     ) -> PassportSubmissionOutputDTO:
         group = await self._client_group_repo.get_by_token(group_token)
         if not group:
@@ -184,6 +190,20 @@ class ClientSubmitPassportUseCase:
             agent_employee_code,
             enabled=group.agent_employee_code_enabled,
         )
+        normalized_designation = self._normalize_configured_text(
+            designation,
+            enabled=group.designation_enabled,
+            field="designation",
+            label="designation",
+            max_length=160,
+        )
+        normalized_agency_dealership_name = self._normalize_configured_text(
+            agency_dealership_name,
+            enabled=group.agency_dealership_name_enabled,
+            field="agency_dealership_name",
+            label="agency or dealership name",
+            max_length=200,
+        )
         normalized_meal_preference = self._normalize_meal_preference(
             meal_preference,
             enabled=group.meal_preference_enabled,
@@ -191,6 +211,10 @@ class ClientSubmitPassportUseCase:
         normalized_custom_answers = normalize_custom_answers(
             group.custom_questions,
             custom_answers,
+        )
+        normalized_custom_detail_answers = normalize_custom_detail_answers(
+            group.custom_details,
+            custom_detail_answers,
         )
 
         if normalized_mode == "single" and (normalized_email or normalized_phone) and await self._passport_repo.exists_contact_in_group(
@@ -218,6 +242,8 @@ class ClientSubmitPassportUseCase:
                 "staff_code",
                 "agent_employee_type",
                 "agent_employee_code",
+                "designation",
+                "agency_dealership_name",
                 "meal_preference",
             }
         }
@@ -232,6 +258,12 @@ class ClientSubmitPassportUseCase:
         if normalized_agent_employee_type and normalized_agent_employee_code:
             clean_fields["agent_employee_type"] = normalized_agent_employee_type
             clean_fields["agent_employee_code"] = normalized_agent_employee_code
+        if normalized_designation:
+            clean_fields["designation"] = normalized_designation
+        if normalized_agency_dealership_name:
+            clean_fields["agency_dealership_name"] = (
+                normalized_agency_dealership_name
+            )
         if normalized_meal_preference:
             clean_fields["meal_preference"] = normalized_meal_preference
 
@@ -257,6 +289,7 @@ class ClientSubmitPassportUseCase:
                         normalized_email or normalized_phone
                     ),
                     custom_answers=normalized_custom_answers,
+                    custom_detail_answers=normalized_custom_detail_answers,
                 )
             ):
                 return replace(
@@ -322,6 +355,7 @@ class ClientSubmitPassportUseCase:
                 family_head_phone=normalized_head_phone,
                 family_broadcast_to_member=bool(normalized_email or normalized_phone),
                 custom_answers=normalized_custom_answers,
+                custom_detail_answers=normalized_custom_detail_answers,
             )
             await self._passport_repo.update(submission)
         except Exception:
@@ -361,6 +395,7 @@ class ClientSubmitPassportUseCase:
         family_head_phone: str | None,
         family_broadcast_to_member: bool,
         custom_answers: list[dict],
+        custom_detail_answers: list[dict],
     ) -> bool:
         return (
             dict(submission.confirmed_fields or {}) == clean_fields
@@ -380,6 +415,8 @@ class ClientSubmitPassportUseCase:
             and submission.family_broadcast_to_member
             == family_broadcast_to_member
             and list(submission.custom_answers or []) == custom_answers
+            and list(submission.custom_detail_answers or [])
+            == custom_detail_answers
         )
 
     def _normalize_phone(self, value: str | None) -> str:

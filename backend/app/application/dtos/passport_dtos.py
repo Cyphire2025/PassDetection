@@ -41,6 +41,7 @@ class PassportSubmissionOutputDTO:
     passport_back_s3_key: str | None = None
     staff_metadata: dict[str, Any] | None = None
     custom_answers: list[dict[str, str]] | None = None
+    custom_detail_answers: list[dict[str, str]] | None = None
     acquisition_mode: str = "file"
     upload_idempotency_key: str | None = None
     qualifier_enabled_snapshot: bool = False
@@ -108,6 +109,7 @@ def passport_submission_output_from_entity(
         passport_back_s3_key=submission.passport_back_s3_key,
         staff_metadata=submission.staff_metadata,
         custom_answers=list(submission.custom_answers or []),
+        custom_detail_answers=list(submission.custom_detail_answers or []),
         acquisition_mode=submission.acquisition_mode,
         upload_idempotency_key=submission.upload_idempotency_key,
         qualifier_enabled_snapshot=submission.qualifier_enabled_snapshot,
@@ -166,4 +168,6 @@ class PassportGroupSummaryDTO:
     allow_files_from_device: bool = True
     ask_nearest_domestic_airport: bool = False
     relation_with_qualifier_enabled: bool = False
+    designation_enabled: bool = False
+    agency_dealership_name_enabled: bool = False
     notes: str | None = None

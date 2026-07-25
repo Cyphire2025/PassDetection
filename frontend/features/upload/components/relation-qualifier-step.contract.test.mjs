@@ -61,6 +61,7 @@ test("enabled qualifier flow stays single-passenger and bypasses family mode", (
   assert.ok(enabledSingleMode > disabledCompatibilityBranch);
   assert.ok(qualifierStep > enabledSingleMode);
   assert.match(saveChoice, /setFlowMode\("single"\)/);
-  assert.match(saveChoice, /setStep\("NAME_INPUT"\)/);
+  assert.match(saveChoice, /setStep\("METHOD_SELECT"\)/);
+  assert.doesNotMatch(uploadFlowSource, /NAME_INPUT/);
   assert.doesNotMatch(saveChoice, /setFlowMode\("family"\)/);
 });

@@ -57,7 +57,12 @@ class CreateClientGroupUseCase:
             relation_with_qualifier_enabled=(
                 dto.relation_with_qualifier_enabled
             ),
+            designation_enabled=dto.designation_enabled,
+            agency_dealership_name_enabled=(
+                dto.agency_dealership_name_enabled
+            ),
             custom_questions=dto.custom_questions,
+            custom_details=dto.custom_details,
             notes=dto.notes,
         )
 

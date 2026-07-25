@@ -21,6 +21,9 @@ from app.presentation.api.v1.routes.document_distribution import (
 from app.presentation.api.v1.routes.document_rename import router as document_rename_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.notifications import router as notifications_router
+from app.presentation.api.v1.routes.passport_image_library import (
+    router as passport_image_library_router,
+)
 from app.presentation.api.v1.routes.passports import router as passport_router
 from app.presentation.api.v1.routes.rooming import router as rooming_router
 from app.presentation.api.v1.routes.search import router as search_router
@@ -34,6 +37,11 @@ api_v1_router.include_router(auth_router, prefix="/auth", tags=["Authentication"
 api_v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 api_v1_router.include_router(links_router, prefix="/upload-links", tags=["Upload Links"])
 api_v1_router.include_router(passport_router, prefix="/passports", tags=["Passports"])
+api_v1_router.include_router(
+    passport_image_library_router,
+    prefix="/passports",
+    tags=["Passports"],
+)
 api_v1_router.include_router(search_router, prefix="/search", tags=["Search"])
 api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"])
 api_v1_router.include_router(rooming_router, prefix="/rooming", tags=["Rooming Lists"])

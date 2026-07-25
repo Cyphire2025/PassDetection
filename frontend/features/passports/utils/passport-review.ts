@@ -169,6 +169,16 @@ export function getPassportFieldReview(
 ): PassportFieldReview | null {
   if (passport.status === "needs_review") {
     const verification = passport.post_submission_verification;
+    if (verification?.stale_after_staff_edit) {
+      return {
+        field,
+        verdict: "suspicious",
+        label: "Not verified",
+        observed_value: null,
+        confidence: 0,
+        reason_code: "passport_record_changed",
+      };
+    }
     const providerUnavailable = typeof verification?.provider_status === "string"
       && RETRYABLE_AI_PROVIDER_STATUSES.has(
         verification.provider_status.trim().toLowerCase(),
@@ -276,6 +286,7 @@ export function formatPassportFieldReviewConfidence(
 export function getPassportVerificationConfidence(
   verification: PassportPostSubmissionVerification,
 ) {
+  if (verification.stale_after_staff_edit) return null;
   const containsLegacyInflatedUnreadableConfidence = verification.fields.some(
     (field) =>
       field.confidence > 0
