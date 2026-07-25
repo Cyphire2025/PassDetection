@@ -40,7 +40,7 @@ export function TourOperationsOverview() {
     <div className="space-y-6">
       <PageHeader
         title="Tour Operations"
-        description="Coordinator-led group assignment and passenger allocation."
+        description="Group-wide coordinator access for shared attendance scanning."
         actions={<Badge variant="secondary">Phase 3</Badge>}
       />
 
@@ -52,7 +52,11 @@ export function TourOperationsOverview() {
             <TourMetric label="Groups" value={totals.groups} />
             <TourMetric label="Coordinators" value={coordinators.length} />
             <TourMetric label="Passport Submitted" value={totals.passengers} />
-            <TourMetric label="Unassigned" value={totals.unassigned} tone={totals.unassigned > 0 ? "warning" : "default"} />
+            <TourMetric
+              label="Groups Without Coordinator"
+              value={totals.unassignedGroups}
+              tone={totals.unassignedGroups > 0 ? "warning" : "default"}
+            />
           </>
         )}
       </div>
@@ -97,11 +101,11 @@ export function TourOperationsOverview() {
             </span>
             <div>
               <h2 className="text-base font-semibold text-slate-900">Operational Flow</h2>
-              <p className="text-sm text-slate-500">Create coordinators, assign them to groups, then allocate passengers inside each group.</p>
+              <p className="text-sm text-slate-500">Create coordinators and assign them to groups. Each coordinator can scan the full group roster.</p>
             </div>
           </div>
           <div className="grid gap-0 divide-y divide-slate-100 md:grid-cols-3 md:divide-x md:divide-y-0">
-            {["Create coordinator accounts", "Assign coordinators to groups", "Open group and assign passengers"].map((step, index) => (
+            {["Create coordinator accounts", "Assign coordinators to groups", "Scan the shared group roster"].map((step, index) => (
               <div key={step} className="p-5">
                 <p className="text-xs font-semibold uppercase text-blue-600">Step {index + 1}</p>
                 <p className="mt-2 text-sm font-medium text-slate-900">{step}</p>

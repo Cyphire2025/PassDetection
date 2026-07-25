@@ -105,6 +105,8 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
         "s": {"type": "STRING", "enum": ["match", "changes", "unreadable"]},
         "f": {
             "type": "ARRAY",
+            "minItems": len(PASSPORT_FIELDS),
+            "maxItems": len(PASSPORT_FIELDS),
             "items": {
                 "type": "OBJECT",
                 "properties": {
@@ -132,7 +134,10 @@ _SYSTEM_INSTRUCTION: Final[str] = (
     "ISO-3, pi place of issue exactly as visibly printed (free text, not the issuing country), "
     "db birth YYYY-MM-DD, di issue YYYY-MM-DD, "
     "de expiry YYYY-MM-DD, sx M/F/X. "
-    "For every readable field return keep, replace, or fill. A surname can be genuinely absent: "
+    "Return exactly one f item for every code, including pi, without duplicates. For every "
+    "readable field return keep, replace, or fill. When a field is unreadable or not visible, "
+    "return its code with empty v, action unknown, and confidence c set to zero; never omit it. "
+    "A surname can be genuinely absent: "
     "only when the printed surname field is visibly blank and the passport name structure or MRZ "
     "clearly confirms there is no surname, return sn with empty v, action absent, and confidence c. "
     "Never copy the given names into surname. Do not use absent for an unreadable, obscured, or "
@@ -586,10 +591,16 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             parsed["f"], list
         ):
             raise ValueError("Unexpected Gemini verification status")
-        if len(parsed["f"]) > len(PASSPORT_FIELDS):
-            raise ValueError("Too many Gemini field results")
-        if parsed["s"] == "changes" and not parsed["f"]:
-            raise ValueError("Gemini reported changes without field results")
+        if len(parsed["f"]) != len(PASSPORT_FIELDS):
+            raise ValueError("Gemini must return every passport field exactly once")
+        field_codes = [
+            item.get("k") if isinstance(item, dict) else None
+            for item in parsed["f"]
+        ]
+        if len(set(field_codes)) != len(PASSPORT_FIELDS) or set(field_codes) != set(
+            _FIELD_CODES
+        ):
+            raise ValueError("Gemini returned missing, duplicate, or unexpected fields")
         return parsed
 
     @staticmethod

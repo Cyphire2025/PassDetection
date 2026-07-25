@@ -143,7 +143,9 @@ export function TourGroupAttendancePage({ groupId }: { groupId: string }) {
                           {[passenger.client_phone, passenger.client_email].filter(Boolean).join(" | ") || "No contact"}
                         </p>
                       </div>
-                      <Badge variant="outline">{passenger.coordinator_name}</Badge>
+                      <Badge variant="outline">
+                        {passenger.coordinator_name ?? "Shared group roster"}
+                      </Badge>
                     </div>
                   </div>
                 ))}

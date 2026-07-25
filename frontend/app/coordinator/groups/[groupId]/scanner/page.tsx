@@ -13,5 +13,11 @@ interface CoordinatorGroupScannerPageProps {
 export default async function CoordinatorGroupScannerPage({ params, searchParams }: CoordinatorGroupScannerPageProps) {
   const { groupId } = await params;
   const { sessionId } = await searchParams;
-  return <CoordinatorGroupScanner groupId={groupId} sessionId={sessionId ?? null} />;
+  return (
+    <CoordinatorGroupScanner
+      key={`${groupId}:${sessionId ?? "none"}`}
+      groupId={groupId}
+      sessionId={sessionId ?? null}
+    />
+  );
 }

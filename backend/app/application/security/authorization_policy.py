@@ -150,9 +150,9 @@ class AuthorizationPolicy:
             return False
         if not user.agency_id or session.agency_id != user.agency_id or passenger.agency_id != user.agency_id:
             return False
-        if session.created_by_user_id != user.id or session.group_id != passenger.group_id:
+        if session.group_id != passenger.group_id:
             return False
-        return await self.coordinator_has_passenger(user.id, session.group_id, passenger.id)
+        return await self.coordinator_has_group(user.id, session.group_id)
 
     async def can_export_data(self, user: User, group: Any) -> bool:
         return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF} and await self.can_view_group(user, group)
@@ -246,6 +246,8 @@ class AuthorizationPolicy:
         group_id: uuid.UUID,
         passenger_id: uuid.UUID,
     ) -> bool:
+        # Compatibility-only lookup retained for generic passport visibility.
+        # Attendance routes use the separate group-scoped authorization path.
         result = await self._session.execute(
             select(CoordinatorAssignmentModel.id)
             .where(

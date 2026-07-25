@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import type React from "react";
-import { CalendarClock, Mail, Plus, User, UserPlus, UsersRound, X } from "lucide-react";
+import { CalendarClock, Mail, Plus, UserPlus, UsersRound, X } from "lucide-react";
 import { Badge, Button, Card, CardContent, Input, PasswordInput, Skeleton } from "@/components/ui";
 import { PageHeader } from "@/components/shared/page-header";
 import {
@@ -116,7 +116,6 @@ export function TourCoordinatorsPage() {
                         <td className="px-5 py-4">
                           <div className="flex flex-wrap gap-2">
                             <MetricPill icon={<UsersRound className="h-3.5 w-3.5" aria-hidden="true" />} value={coordinator.assigned_groups_count} label="groups" />
-                            <MetricPill icon={<User className="h-3.5 w-3.5" aria-hidden="true" />} value={coordinator.assigned_passengers_count} label="pax" />
                           </div>
                         </td>
                         <td className="px-5 py-4 text-slate-600">

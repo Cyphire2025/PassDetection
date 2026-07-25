@@ -11,5 +11,5 @@ interface PassportGroupPageProps {
 
 export default async function PassportGroupPage({ params }: PassportGroupPageProps) {
   const { groupId } = await params;
-  return <PassportGroupDetail groupId={groupId} />;
+  return <PassportGroupDetail key={groupId} groupId={groupId} />;
 }

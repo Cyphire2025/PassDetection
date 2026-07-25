@@ -36,6 +36,7 @@ class ExpiryAlert:
 @dataclass(frozen=True)
 class SubmissionViewResult:
     items: tuple[SubmissionViewEntry, ...]
+    ordered_submission_ids: tuple[uuid.UUID, ...]
     group_total: int
     total: int
     page: int
@@ -435,11 +436,17 @@ def build_submission_view(
         ]
 
     blocks = _sort_blocks(blocks, sort_by=sort_by, sort_order=sort_order)
+    ordered_submission_ids = tuple(
+        entry.submission.id
+        for block in blocks
+        for entry in block
+    )
     total = sum(len(block) for block in blocks)
     pages = _paginate_blocks(blocks, page_size)
     page_items = pages[page - 1] if page <= len(pages) else []
     return SubmissionViewResult(
         items=tuple(page_items),
+        ordered_submission_ids=ordered_submission_ids,
         group_total=len(submissions),
         total=total,
         page=page,

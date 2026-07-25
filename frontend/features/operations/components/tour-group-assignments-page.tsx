@@ -8,6 +8,7 @@ import { ROUTES } from "@/constants/routes";
 import { useAssignTourGroupCoordinators, useTourCoordinators, useTourGroups } from "../hooks/use-operations";
 import { CoordinatorMultiSelect, getTourGroupTotals, TourEmptyState, TourMetric } from "./tour-operations-ui";
 import type { TourGroup } from "../api/operations.api";
+import { PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED } from "../config/tour-operations-flags";
 
 export function TourGroupAssignmentsPage() {
   const { data: coordinators = [], isLoading: coordinatorsLoading, error: coordinatorsError } = useTourCoordinators();
@@ -20,7 +21,7 @@ export function TourGroupAssignmentsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Tour Ops"
-        description="Assign coordinators to groups before splitting passengers inside each group."
+        description="Assign coordinators to groups. Every assigned coordinator can scan the full submitted roster."
       />
 
       {(coordinatorsError || groupsError) && (
@@ -54,7 +55,7 @@ export function TourGroupAssignmentsPage() {
               </span>
               <div>
                 <h2 className="text-base font-semibold text-slate-900">Groups</h2>
-                <p className="text-sm text-slate-500">Choose eligible coordinators, then open the group to split people.</p>
+                <p className="text-sm text-slate-500">Choose every coordinator who should scan this group.</p>
               </div>
             </div>
             <Badge variant="secondary">{groups.length}</Badge>
@@ -132,13 +133,16 @@ function GroupAssignmentRow({
       />
 
       <div className="flex flex-wrap gap-2 xl:justify-end">
-        <Link
-          href={ROUTES.dashboard.tourOperationsGroup(group.id) as never}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
-          Open Group
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+        {/* Compatibility-only entry point retained for rollback. */}
+        {PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED && (
+          <Link
+            href={ROUTES.dashboard.tourOperationsGroup(group.id) as never}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            Open Group
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        )}
         <Link
           href={ROUTES.dashboard.tourOperationsGroupAttendance(group.id) as never}
           className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-medium text-blue-700 shadow-sm transition hover:bg-blue-100"

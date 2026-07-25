@@ -86,6 +86,7 @@ export interface PassportExpiryAlert {
 
 export interface PassportGroupSubmissionsView {
   items: PassportSubmission[];
+  ordered_submission_ids: string[];
   group_total: number;
   total: number;
   page: number;

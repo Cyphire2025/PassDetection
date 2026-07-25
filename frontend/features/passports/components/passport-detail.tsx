@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, CheckCircle2, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
-import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, buttonVariants, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/utils/passport-date";
 import { formatPassportNationality } from "@/lib/utils/passport-country";
 import { getPassportTextField } from "@/lib/utils/passport-fields";
+import { cn } from "@/lib/utils/cn";
 import type {
   ExtractedPassportFields,
   PassportExtractionConflict,
@@ -25,6 +27,7 @@ import type {
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   useConfirmPassportSubmission,
+  useGroupSubmissionsView,
   usePassportSubmission,
   useReextractPassportSubmission,
   useRetryPassportAiVerification,
@@ -50,9 +53,19 @@ import {
 import type { PassportImageType } from "../api/passports.api";
 import { canEditPassportImages } from "../utils/passport-image-crop-permissions";
 import { PassportImageCropEditor } from "./passport-image-crop-editor";
+import {
+  buildPassportDetailNavigationHref,
+  buildPassportGroupHref,
+  isPassportNavigationKeyboardTarget,
+  parsePassportDetailNavigation,
+  readPassportNavigationContext,
+  type PassportDetailNavigationState,
+  type StoredPassportNavigationContext,
+} from "../utils/passport-group-navigation";
 
 interface PassportDetailProps {
   id: string;
+  navigationQuery?: string;
 }
 
 interface ReextractFeedback {
@@ -62,7 +75,12 @@ interface ReextractFeedback {
 
 const REVIEW_FIELDS = PASSPORT_REVIEW_FIELDS;
 
-export function PassportDetail({ id }: PassportDetailProps) {
+export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps) {
+  const router = useRouter();
+  const navigationFromUrl = useMemo(
+    () => parsePassportDetailNavigation(new URLSearchParams(navigationQuery)),
+    [navigationQuery],
+  );
   const { data, isLoading, error, refetch } = usePassportSubmission(id);
   const confirmMutation = useConfirmPassportSubmission(id);
   const staffApproveMutation = useStaffApprovePassportSubmission(id);
@@ -80,6 +98,108 @@ export function PassportDetail({ id }: PassportDetailProps) {
   } | null>(null);
   const [imageRevision, setImageRevision] = useState(0);
   const reextractInFlightRef = useRef(false);
+  const [storedNavigation, setStoredNavigation] =
+    useState<StoredPassportNavigationContext | null>(null);
+  const navigationGroupMatches = Boolean(
+    data
+    && navigationFromUrl
+    && data.group_id === navigationFromUrl.groupId,
+  );
+  const {
+    data: fallbackNavigationView,
+  } = useGroupSubmissionsView(
+    navigationFromUrl?.groupId ?? "",
+    {
+      ...(navigationFromUrl?.viewState.search
+        ? { search: navigationFromUrl.viewState.search }
+        : {}),
+      include_deleted: navigationFromUrl?.includeDeleted ?? false,
+      submission_filter:
+        navigationFromUrl?.viewState.submissionFilter ?? "all",
+      sort_by: navigationFromUrl?.viewState.sortBy ?? "name",
+      sort_order: navigationFromUrl?.viewState.sortOrder ?? "asc",
+      page: 1,
+      page_size: 1,
+    },
+    navigationGroupMatches,
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (!navigationFromUrl || !currentUser?.id || !navigationGroupMatches) {
+        setStoredNavigation(null);
+        return;
+      }
+      setStoredNavigation(
+        readPassportNavigationContext({
+          token: navigationFromUrl.token,
+          userId: currentUser.id,
+          groupId: navigationFromUrl.groupId,
+        }),
+      );
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [
+    currentUser?.id,
+    navigationFromUrl,
+    navigationGroupMatches,
+  ]);
+
+  const validStoredNavigation =
+    storedNavigation
+    && storedNavigation.userId === currentUser?.id
+    && storedNavigation.groupId === data?.group_id
+      ? storedNavigation
+      : null;
+  const activeNavigation: PassportDetailNavigationState | null =
+    validStoredNavigation ?? (navigationGroupMatches ? navigationFromUrl : null);
+  const orderedSubmissionIds = validStoredNavigation?.orderedSubmissionIds
+    ?? fallbackNavigationView?.ordered_submission_ids
+    ?? [];
+  const navigationIndex = data
+    ? orderedSubmissionIds.indexOf(data.id)
+    : -1;
+  const previousSubmissionId = navigationIndex > 0
+    ? orderedSubmissionIds[navigationIndex - 1]
+    : null;
+  const nextSubmissionId =
+    navigationIndex >= 0 && navigationIndex < orderedSubmissionIds.length - 1
+      ? orderedSubmissionIds[navigationIndex + 1]
+      : null;
+  const previousHref =
+    previousSubmissionId && activeNavigation
+      ? buildPassportDetailNavigationHref(previousSubmissionId, activeNavigation)
+      : null;
+  const nextHref =
+    nextSubmissionId && activeNavigation
+      ? buildPassportDetailNavigationHref(nextSubmissionId, activeNavigation)
+      : null;
+
+  useEffect(() => {
+    const handleArrowNavigation = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented
+        || event.altKey
+        || event.ctrlKey
+        || event.metaKey
+        || event.shiftKey
+        || cropEditor
+        || isPassportNavigationKeyboardTarget(event.target)
+      ) {
+        return;
+      }
+      const destination = event.key === "ArrowLeft"
+        ? previousHref
+        : event.key === "ArrowRight"
+          ? nextHref
+          : null;
+      if (!destination) return;
+      event.preventDefault();
+      router.push(destination as never);
+    };
+    window.addEventListener("keydown", handleArrowNavigation);
+    return () => window.removeEventListener("keydown", handleArrowNavigation);
+  }, [cropEditor, nextHref, previousHref, router]);
 
   if (isLoading) {
     return (
@@ -155,12 +275,72 @@ export function PassportDetail({ id }: PassportDetailProps) {
           title={data.client_name}
           description="Submission details, extraction output, and current processing state."
         />
-        <Link href={ROUTES.dashboard.passportGroup(data.group_id) as never}>
-          <Button variant="outline" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
+        <div className="flex flex-wrap items-center gap-2">
+          {activeNavigation && navigationIndex >= 0 && (
+            <div
+              className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1"
+              role="group"
+              aria-label="Passport profile navigation"
+            >
+              {previousHref ? (
+                <Link
+                  href={previousHref as never}
+                  aria-label="Previous passport"
+                  className={buttonVariants({ variant: "ghost", size: "icon" })}
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled
+                  aria-label="No previous passport"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              <span className="min-w-20 px-1 text-center text-xs font-medium text-slate-600">
+                {navigationIndex + 1} of {orderedSubmissionIds.length}
+              </span>
+              {nextHref ? (
+                <Link
+                  href={nextHref as never}
+                  aria-label="Next passport"
+                  className={buttonVariants({ variant: "ghost", size: "icon" })}
+                >
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled
+                  aria-label="No next passport"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
+          <Link
+            href={(
+              activeNavigation
+                ? buildPassportGroupHref(
+                  data.group_id,
+                  activeNavigation.viewState,
+                  activeNavigation.includeDeleted,
+                )
+                : ROUTES.dashboard.passportGroup(data.group_id)
+            ) as never}
+            className={cn(buttonVariants({ variant: "outline" }), "gap-2")}
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to Passports
-          </Button>
-        </Link>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">

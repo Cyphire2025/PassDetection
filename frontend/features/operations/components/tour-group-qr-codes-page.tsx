@@ -258,9 +258,7 @@ function PassengerQrCard({
             {[passenger.client_email, passenger.client_phone].filter(Boolean).join(" | ") || "No contact"}
           </p>
           <div className="mt-3">
-            <Badge variant={passenger.coordinator_id ? "secondary" : "warning"}>
-              {passenger.coordinator_name ?? "No coordinator"}
-            </Badge>
+            <Badge variant="secondary">Shared group access</Badge>
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Badge variant={statusVariant(passenger.qr_status)} dot>{formatQrStatus(passenger.qr_status)}</Badge>

@@ -337,8 +337,8 @@ export interface AttendanceMissingPassenger {
   client_email: string | null;
   client_phone: string | null;
   departure_city: string | null;
-  coordinator_id: string;
-  coordinator_name: string;
+  coordinator_id: string | null;
+  coordinator_name: string | null;
 }
 
 export interface AttendanceSessionSummary {

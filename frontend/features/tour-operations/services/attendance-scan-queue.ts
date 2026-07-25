@@ -3,10 +3,13 @@ import { useAuthStore } from "@/stores/auth.store";
 import { writeAttendanceSessionProgress } from "./attendance-session-progress";
 import {
   isPermanentAttendanceScanError,
+  isRecoverableAttendanceScanError,
+  isSuccessfulAttendanceReplayStatus,
   type AttendanceSyncUpdate,
 } from "./attendance-sync-policy";
 
 export interface AttendanceScanInput {
+  groupId: string;
   sessionId: string;
   qrPayload: string;
   clientEventId: string;
@@ -14,7 +17,9 @@ export interface AttendanceScanInput {
   deviceId: string;
 }
 
-export interface PendingAttendanceScan extends AttendanceScanInput {
+export interface PendingAttendanceScan extends Omit<AttendanceScanInput, "groupId"> {
+  // Optional only for records written by the pre-group-scope queue.
+  groupId?: string;
   id: string;
   ownerUserId: string;
   queuedAt: string;
@@ -39,10 +44,16 @@ const DB_VERSION = 3;
 const PENDING_STORE_NAME = "pending-attendance-scans";
 const REJECTED_STORE_NAME = "rejected-attendance-scans";
 const OWNER_INDEX = "owner-user-id";
+let activeSyncPromise: Promise<AttendanceScanSyncResult> | null = null;
 
 export async function enqueueAttendanceScan(scan: AttendanceScanInput) {
   const ownerUserId = requireCurrentUserId();
-  const id = getStableScanQueueId(ownerUserId, scan.sessionId, scan.qrPayload);
+  const id = getStableScanQueueId(
+    ownerUserId,
+    scan.groupId,
+    scan.sessionId,
+    scan.qrPayload,
+  );
   const pendingScan: PendingAttendanceScan = {
     ...scan,
     id,
@@ -50,24 +61,39 @@ export async function enqueueAttendanceScan(scan: AttendanceScanInput) {
     queuedAt: new Date().toISOString(),
   };
   const db = await openDb();
-  const transaction = db.transaction(PENDING_STORE_NAME, "readwrite");
-  const store = transaction.objectStore(PENDING_STORE_NAME);
-  const existing = await requestToPromise<PendingAttendanceScan | undefined>(store.get(id));
-  if (!existing) {
-    await requestToPromise(store.put(pendingScan));
+  try {
+    const transaction = db.transaction(PENDING_STORE_NAME, "readwrite");
+    const completion = transactionToPromise(transaction);
+    const store = transaction.objectStore(PENDING_STORE_NAME);
+    const legacyId = `${ownerUserId}:${scan.sessionId}:${scan.qrPayload}`;
+    const existing = (
+      await requestToPromise<PendingAttendanceScan | undefined>(store.get(id))
+    ) ?? (
+      await requestToPromise<PendingAttendanceScan | undefined>(store.get(legacyId))
+    );
+    if (!existing) {
+      await requestToPromise(store.put(pendingScan));
+    }
+    await completion;
+    return { pending: existing ?? pendingScan, duplicate: Boolean(existing) };
+  } finally {
+    db.close();
   }
-  db.close();
-  return { pending: existing ?? pendingScan, duplicate: Boolean(existing) };
 }
 
-export async function countPendingAttendanceScans() {
+export async function countPendingAttendanceScans(groupId?: string) {
   const ownerUserId = getCurrentUserId();
   if (!ownerUserId) return 0;
   const db = await openDb();
   const store = db.transaction(PENDING_STORE_NAME, "readonly").objectStore(PENDING_STORE_NAME);
-  const count = await requestToPromise<number>(store.index(OWNER_INDEX).count(ownerUserId));
+  const scans = await requestToPromise<PendingAttendanceScan[]>(
+    store.index(OWNER_INDEX).getAll(ownerUserId),
+  );
   db.close();
-  return count;
+  if (!groupId) return scans.length;
+  // Pre-group-scope v2/v3 records are included until replayed so an upgrade
+  // never hides or destroys an already-saved offline scan.
+  return scans.filter((scan) => !scan.groupId || scan.groupId === groupId).length;
 }
 
 export async function listPendingAttendanceScans() {
@@ -86,45 +112,78 @@ export async function removePendingAttendanceScan(id: string) {
   const ownerUserId = getCurrentUserId();
   if (!ownerUserId) return;
   const db = await openDb();
-  const transaction = db.transaction(PENDING_STORE_NAME, "readwrite");
-  const store = transaction.objectStore(PENDING_STORE_NAME);
-  const existing = await requestToPromise<PendingAttendanceScan | undefined>(store.get(id));
-  if (existing?.ownerUserId === ownerUserId) {
-    await requestToPromise(store.delete(id));
+  try {
+    const transaction = db.transaction(PENDING_STORE_NAME, "readwrite");
+    const completion = transactionToPromise(transaction);
+    const store = transaction.objectStore(PENDING_STORE_NAME);
+    const existing = await requestToPromise<PendingAttendanceScan | undefined>(store.get(id));
+    if (existing?.ownerUserId === ownerUserId) {
+      await requestToPromise(store.delete(id));
+    }
+    await completion;
+  } finally {
+    db.close();
   }
-  db.close();
 }
 
-export async function countRejectedAttendanceScans(sessionId: string | null) {
+export async function countRejectedAttendanceScans(
+  groupId: string | null,
+  sessionId: string | null,
+) {
   const ownerUserId = getCurrentUserId();
-  if (!ownerUserId || !sessionId) return 0;
+  if (!ownerUserId || !groupId || !sessionId) return 0;
   const db = await openDb();
   const store = db.transaction(REJECTED_STORE_NAME, "readonly").objectStore(REJECTED_STORE_NAME);
   const scans = await requestToPromise<RejectedAttendanceScan[]>(
     store.index(OWNER_INDEX).getAll(ownerUserId),
   );
   db.close();
-  return scans.filter((scan) => scan.sessionId === sessionId).length;
+  return scans.filter(
+    (scan) => (!scan.groupId || scan.groupId === groupId)
+      && scan.sessionId === sessionId,
+  ).length;
 }
 
-export async function acknowledgeRejectedAttendanceScans(sessionId: string | null) {
+export async function acknowledgeRejectedAttendanceScans(
+  groupId: string | null,
+  sessionId: string | null,
+) {
   const ownerUserId = getCurrentUserId();
-  if (!ownerUserId || !sessionId) return 0;
+  if (!ownerUserId || !groupId || !sessionId) return 0;
   const db = await openDb();
-  const transaction = db.transaction(REJECTED_STORE_NAME, "readwrite");
-  const store = transaction.objectStore(REJECTED_STORE_NAME);
-  const scans = await requestToPromise<RejectedAttendanceScan[]>(
-    store.index(OWNER_INDEX).getAll(ownerUserId),
-  );
-  const matchingScans = scans.filter((scan) => scan.sessionId === sessionId);
-  await Promise.all(matchingScans.map((scan) => requestToPromise(store.delete(scan.id))));
-  db.close();
-  return matchingScans.length;
+  try {
+    const transaction = db.transaction(REJECTED_STORE_NAME, "readwrite");
+    const completion = transactionToPromise(transaction);
+    const store = transaction.objectStore(REJECTED_STORE_NAME);
+    const scans = await requestToPromise<RejectedAttendanceScan[]>(
+      store.index(OWNER_INDEX).getAll(ownerUserId),
+    );
+    const matchingScans = scans.filter(
+      (scan) => (!scan.groupId || scan.groupId === groupId)
+        && scan.sessionId === sessionId,
+    );
+    await Promise.all(matchingScans.map((scan) => requestToPromise(store.delete(scan.id))));
+    await completion;
+    return matchingScans.length;
+  } finally {
+    db.close();
+  }
 }
 
-export async function syncPendingAttendanceScans() {
-  if (!navigator.onLine) return { synced: 0, failed: 0, discarded: 0, updates: [] };
+export function syncPendingAttendanceScans() {
+  if (activeSyncPromise) return activeSyncPromise;
+  if (!navigator.onLine) {
+    return Promise.resolve({ synced: 0, failed: 0, discarded: 0, updates: [] });
+  }
 
+  const request = performPendingAttendanceScanSync().finally(() => {
+    if (activeSyncPromise === request) activeSyncPromise = null;
+  });
+  activeSyncPromise = request;
+  return request;
+}
+
+async function performPendingAttendanceScanSync(): Promise<AttendanceScanSyncResult> {
   const ownerUserId = getCurrentUserId();
   if (!ownerUserId) return { synced: 0, failed: 0, discarded: 0, updates: [] };
   const scans = await listPendingAttendanceScans();
@@ -144,10 +203,12 @@ export async function syncPendingAttendanceScans() {
         deviceId: scan.deviceId,
         syncSource: "offline",
       });
-      writeAttendanceSessionProgress(scan.sessionId, {
-        scanned_count: response.scanned_count,
-        assigned_count: response.assigned_count,
-      });
+      if (scan.groupId) {
+        writeAttendanceSessionProgress(scan.groupId, scan.sessionId, {
+          scanned_count: response.scanned_count,
+          assigned_count: response.assigned_count,
+        });
+      }
       updates.push({
         sessionId: scan.sessionId,
         status: response.status,
@@ -155,6 +216,14 @@ export async function syncPendingAttendanceScans() {
         scannedCount: response.scanned_count,
         assignedCount: response.assigned_count,
       });
+      if (!isSuccessfulAttendanceReplayStatus(response.status)) {
+        await quarantineRejectedAttendanceScan(
+          scan,
+          `ATTENDANCE_${response.status.toUpperCase().replace(/[^A-Z0-9_]/g, "_")}`,
+        );
+        discarded += 1;
+        continue;
+      }
       await removePendingAttendanceScan(scan.id);
       synced += 1;
     } catch (error) {
@@ -163,6 +232,10 @@ export async function syncPendingAttendanceScans() {
         discarded += 1;
       } else {
         failed += 1;
+        // A recoverable connectivity/server failure will usually affect every
+        // following row too. Preserve the queue and stop this drain so a
+        // reconnect cannot fan out hundreds of doomed requests to the VPS.
+        break;
       }
     }
   }
@@ -174,17 +247,22 @@ async function quarantineRejectedAttendanceScan(scan: PendingAttendanceScan, err
   const ownerUserId = getCurrentUserId();
   if (!ownerUserId || scan.ownerUserId !== ownerUserId) return;
   const db = await openDb();
-  const transaction = db.transaction([PENDING_STORE_NAME, REJECTED_STORE_NAME], "readwrite");
-  const pendingStore = transaction.objectStore(PENDING_STORE_NAME);
-  const rejectedStore = transaction.objectStore(REJECTED_STORE_NAME);
-  const rejectedScan: RejectedAttendanceScan = {
-    ...scan,
-    rejectedAt: new Date().toISOString(),
-    errorCode,
-  };
-  await requestToPromise(rejectedStore.put(rejectedScan));
-  await requestToPromise(pendingStore.delete(scan.id));
-  db.close();
+  try {
+    const transaction = db.transaction([PENDING_STORE_NAME, REJECTED_STORE_NAME], "readwrite");
+    const completion = transactionToPromise(transaction);
+    const pendingStore = transaction.objectStore(PENDING_STORE_NAME);
+    const rejectedStore = transaction.objectStore(REJECTED_STORE_NAME);
+    const rejectedScan: RejectedAttendanceScan = {
+      ...scan,
+      rejectedAt: new Date().toISOString(),
+      errorCode,
+    };
+    await requestToPromise(rejectedStore.put(rejectedScan));
+    await requestToPromise(pendingStore.delete(scan.id));
+    await completion;
+  } finally {
+    db.close();
+  }
 }
 
 export async function tryRecordAttendanceScan(scan: AttendanceScanInput): Promise<
@@ -215,8 +293,13 @@ export async function tryRecordAttendanceScan(scan: AttendanceScanInput): Promis
   }
 }
 
-function getStableScanQueueId(ownerUserId: string, sessionId: string, qrPayload: string) {
-  return `${ownerUserId}:${sessionId}:${qrPayload}`;
+function getStableScanQueueId(
+  ownerUserId: string,
+  groupId: string,
+  sessionId: string,
+  qrPayload: string,
+) {
+  return `${ownerUserId}:${groupId}:${sessionId}:${qrPayload}`;
 }
 
 function openDb() {
@@ -224,8 +307,9 @@ function openDb() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = (event) => {
       const db = request.result;
-      // Version 1 records were not user-scoped. Remove that legacy store
-      // rather than risk syncing one coordinator's queue under another login.
+      // Version 1 records were not user-scoped. Versions 2 and 3 are preserved
+      // and replayed; they remain server-authorized even though they predate
+      // the explicit groupId field added to new queue records.
       if (db.objectStoreNames.contains(PENDING_STORE_NAME) && event.oldVersion < 2) {
         db.deleteObjectStore(PENDING_STORE_NAME);
       }
@@ -250,11 +334,24 @@ function requestToPromise<T>(request: IDBRequest<T>) {
   });
 }
 
+function transactionToPromise(transaction: IDBTransaction) {
+  return new Promise<void>((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(
+      transaction.error ?? new Error("Offline scan transaction failed."),
+    );
+    transaction.onabort = () => reject(
+      transaction.error ?? new Error("Offline scan transaction was aborted."),
+    );
+  });
+}
+
 function isLikelyNetworkFailure(error: unknown) {
   if (!navigator.onLine) return true;
   const code = getErrorCode(error);
   const message = getErrorMessage(error);
-  return code === "NETWORK_ERROR"
+  return isRecoverableAttendanceScanError(code)
+    || code === "NETWORK_ERROR"
     || code === "REQUEST_TIMEOUT"
     || /network|fetch|timeout|offline|connection/i.test(message);
 }

@@ -27,6 +27,15 @@ export function getAuthoritativeAttendanceCount(update: AttendanceSyncUpdate) {
   return Math.max(0, Math.trunc(update.scannedCount));
 }
 
+export function reconcileLiveAttendanceCount(
+  optimisticCount: number | null,
+  serverCount: number,
+) {
+  const normalizedServerCount = Math.max(0, Math.trunc(serverCount));
+  if (optimisticCount === null) return null;
+  return Math.max(optimisticCount, normalizedServerCount);
+}
+
 export function getAttendanceCompletionBlocker({
   isOnline,
   pending,
@@ -48,6 +57,14 @@ export function getAttendanceCompletionBlocker({
 export function isPermanentAttendanceScanError(code: string) {
   if (/^HTTP_(?:400|404|409|410|422)$/.test(code)) return true;
   return /(?:BAD_REQUEST|NOT_FOUND|CONFLICT|GONE|VALIDATION)/.test(code);
+}
+
+export function isRecoverableAttendanceScanError(code: string) {
+  return /^HTTP_(?:408|425|429|5\d{2})$/.test(code);
+}
+
+export function isSuccessfulAttendanceReplayStatus(status: string) {
+  return status === "counted" || status === "duplicate";
 }
 
 export function selectVisibleAttendanceSessions<T>(

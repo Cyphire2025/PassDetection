@@ -11,9 +11,10 @@ from collections import defaultdict
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import and_, func, select, update
+from sqlalchemy import cast, func, literal, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.security.password import hash_password
@@ -24,6 +25,9 @@ from app.domain.entities.entities import (
     UserRole,
 )
 from app.domain.exceptions.exceptions import AuthorizationError
+from app.domain.value_objects.attendance_activity import (
+    normalize_attendance_activity_name,
+)
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
@@ -701,6 +705,8 @@ async def assign_group_passengers(
     current_user: User = Depends(require_role(COORDINATOR_MANAGEMENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[AssignedPassengerResponse]:
+    # Compatibility-only endpoint retained for rollback. The dashboard no
+    # longer calls it, and attendance authorization ignores these assignments.
     agency_id = _require_agency(current_user)
     await _get_manageable_group(session, agency_id, group_id, current_user)
     passenger_ids = list(dict.fromkeys(body.passenger_ids))
@@ -797,7 +803,7 @@ async def list_my_coordinator_groups(
     "/coordinator/groups/{group_id}/passengers",
     response_model=list[AssignedPassengerResponse],
     status_code=status.HTTP_200_OK,
-    summary="List passengers assigned to the current coordinator for a group",
+    summary="List every submitted passenger in a coordinator-assigned group",
 )
 async def list_my_group_passengers(
     group_id: uuid.UUID,
@@ -808,15 +814,10 @@ async def list_my_group_passengers(
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
     result = await session.execute(
         select(PassportSubmissionModel)
-        .join(
-            CoordinatorAssignmentModel,
-            CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id,
-        )
         .where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group_id,
-            CoordinatorAssignmentModel.coordinator_user_id == current_user.id,
-            CoordinatorAssignmentModel.active.is_(True),
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
         )
         .order_by(PassportSubmissionModel.client_name.asc())
     )
@@ -838,8 +839,8 @@ async def list_my_group_passengers(
             family_size=_family_size(passenger, family_sizes),
             family_head_name=passenger.family_head_name,
             status=passenger.status,
-            coordinator_id=current_user.id,
-            coordinator_name=current_user.full_name,
+            coordinator_id=None,
+            coordinator_name=None,
         )
         for passenger in passengers
     ]
@@ -849,7 +850,7 @@ async def list_my_group_passengers(
     "/coordinator/groups/{group_id}/passengers/{passenger_id}",
     response_model=AssignedPassengerDetailResponse,
     status_code=status.HTTP_200_OK,
-    summary="Get one assigned passenger detail for the current coordinator",
+    summary="Get one submitted passenger from a coordinator-assigned group",
 )
 async def get_my_group_passenger_detail(
     group_id: uuid.UUID,
@@ -861,24 +862,16 @@ async def get_my_group_passenger_detail(
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
     result = await session.execute(
         select(PassportSubmissionModel)
-        .join(
-            CoordinatorAssignmentModel,
-            CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id,
-        )
         .where(
             PassportSubmissionModel.id == passenger_id,
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group_id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group_id,
-            CoordinatorAssignmentModel.coordinator_user_id == current_user.id,
-            CoordinatorAssignmentModel.active.is_(True),
         )
     )
     passenger = result.scalar_one_or_none()
     if not passenger:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not assigned to this coordinator")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group")
     family_sizes = {passenger.family_group_id: 1} if passenger.family_group_id else {}
     return AssignedPassengerDetailResponse(
         id=passenger.id,
@@ -895,8 +888,8 @@ async def get_my_group_passenger_detail(
         family_size=_family_size(passenger, family_sizes),
         family_head_name=passenger.family_head_name,
         status=passenger.status,
-        coordinator_id=current_user.id,
-        coordinator_name=current_user.full_name,
+        coordinator_id=None,
+        coordinator_name=None,
         qr_payload=None,
         created_at=passenger.created_at,
         updated_at=passenger.updated_at,
@@ -921,20 +914,63 @@ async def create_my_attendance_session(
 ) -> AttendanceSessionResponse:
     agency_id = _require_agency(current_user)
     await _ensure_group_assigned_to_coordinator(session, agency_id, group_id, current_user.id)
+    display_name = " ".join(body.name.split())
+    normalized_name = normalize_attendance_activity_name(display_name)
     now = datetime.now(tz=UTC)
-    attendance_session = AttendanceSessionModel(
-        agency_id=agency_id,
-        group_id=group_id,
-        name=body.name.strip(),
-        status="active",
-        created_by_user_id=current_user.id,
-        created_at=now,
-        updated_at=now,
-        started_at=now,
-    )
-    session.add(attendance_session)
-    await session.flush()
-    return await _attendance_session_response(session, attendance_session, current_user.id)
+    attendance_session: AttendanceSessionModel | None = None
+    for _attempt in range(2):
+        candidate_id = uuid.uuid4()
+        insert_result = await session.execute(
+            pg_insert(AttendanceSessionModel)
+            .values(
+                id=candidate_id,
+                agency_id=agency_id,
+                group_id=group_id,
+                name=display_name,
+                normalized_name=normalized_name,
+                canonical_session_id=candidate_id,
+                status="active",
+                created_by_user_id=current_user.id,
+                created_at=now,
+                updated_at=now,
+                started_at=now,
+            )
+            .on_conflict_do_nothing()
+            .returning(AttendanceSessionModel.id)
+        )
+        inserted_id = insert_result.scalar_one_or_none()
+        lookup_result = await session.execute(
+            select(AttendanceSessionModel).where(
+                AttendanceSessionModel.id == inserted_id
+                if inserted_id is not None
+                else (
+                    (AttendanceSessionModel.agency_id == agency_id)
+                    & (AttendanceSessionModel.group_id == group_id)
+                    & (AttendanceSessionModel.normalized_name == normalized_name)
+                    & AttendanceSessionModel.status.in_(("draft", "active"))
+                    & (
+                        AttendanceSessionModel.id
+                        == AttendanceSessionModel.canonical_session_id
+                    )
+                )
+            )
+        )
+        attendance_session = lookup_result.scalar_one_or_none()
+        if attendance_session is not None:
+            if attendance_session.status == "draft":
+                attendance_session.status = "active"
+                attendance_session.started_at = (
+                    attendance_session.started_at or now
+                )
+                attendance_session.updated_at = now
+                await session.flush()
+            break
+    if attendance_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The shared attendance activity changed while it was being created. Try again.",
+        )
+    return await _attendance_session_response(session, attendance_session)
 
 
 @router.get(
@@ -955,14 +991,16 @@ async def list_my_attendance_sessions(
         .where(
             AttendanceSessionModel.agency_id == agency_id,
             AttendanceSessionModel.group_id == group_id,
-            AttendanceSessionModel.created_by_user_id == current_user.id,
+            AttendanceSessionModel.id
+            == AttendanceSessionModel.canonical_session_id,
         )
         .order_by(AttendanceSessionModel.created_at.desc())
     )
-    return [
-        await _attendance_session_response(session, attendance_session, current_user.id)
-        for attendance_session in result.scalars().all()
-    ]
+    return await _attendance_session_responses(
+        session,
+        list(result.scalars().all()),
+        group_id,
+    )
 
 
 @router.get(
@@ -978,7 +1016,7 @@ async def get_my_attendance_session_details(
 ) -> AttendanceSessionDetailsResponse:
     agency_id = _require_agency(current_user)
     attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
-    return await _attendance_session_details_response(session, attendance_session, current_user.id)
+    return await _attendance_session_details_response(session, attendance_session)
 
 
 @router.post(
@@ -1003,14 +1041,11 @@ async def record_my_attendance_scan(
         session=session,
         agency_id=agency_id,
         group_id=attendance_session.group_id,
-        coordinator_id=current_user.id,
         qr_payload=body.qr_payload,
     )
-    if passenger and not await AuthorizationPolicy(session).can_scan_passenger(
-        current_user, attendance_session, passenger
-    ):
-        passenger = None
-        rejection_reason = "authorization_policy"
+    # _get_coordinator_attendance_session already verifies the active group
+    # assignment, and _resolve_scannable_passenger constrains the QR to that
+    # same tenant/group. Avoid a redundant authorization query on every scan.
     if not passenger:
         if qr_token is not None:
             await _record_qr_audit(
@@ -1020,7 +1055,8 @@ async def record_my_attendance_scan(
                 action="qr.scanned",
                 passenger_id=qr_token.passenger_id,
                 metadata={
-                    "attendance_session_id": str(session_id),
+                    "attendance_session_id": str(attendance_session.id),
+                    "requested_attendance_session_id": str(session_id),
                     "group_id": str(attendance_session.group_id),
                     "result": "rejected",
                     "reason": rejection_reason or "not_authorized",
@@ -1029,30 +1065,24 @@ async def record_my_attendance_scan(
         response = await _attendance_scan_response(
             session=session,
             attendance_session=attendance_session,
-            coordinator_id=current_user.id,
             passenger_id=None,
             passenger_name=None,
             scan_status="invalid",
-            message="QR code is not assigned to this coordinator and group.",
+            message="QR code is not valid for this group.",
         )
         return response
 
-    insert_result = await session.execute(
-        pg_insert(AttendanceRecordModel)
-        .values(
-            agency_id=agency_id,
-            session_id=session_id,
-            passenger_id=passenger.id,
-            coordinator_user_id=current_user.id,
-            scanned_at=body.scanned_at or datetime.now(tz=UTC),
-            sync_source=body.sync_source,
-            client_event_id=body.client_event_id,
-            device_id=body.device_id,
-        )
-        .on_conflict_do_nothing()
-        .returning(AttendanceRecordModel.id)
+    inserted_id = await _insert_canonical_attendance_record(
+        session=session,
+        agency_id=agency_id,
+        attendance_session=attendance_session,
+        passenger_id=passenger.id,
+        coordinator_user_id=current_user.id,
+        scanned_at=body.scanned_at or datetime.now(tz=UTC),
+        sync_source=body.sync_source,
+        client_event_id=body.client_event_id,
+        device_id=body.device_id,
     )
-    inserted_id = insert_result.scalar_one_or_none()
     if inserted_id is None:
         await _record_qr_audit(
             session,
@@ -1061,7 +1091,8 @@ async def record_my_attendance_scan(
             action="qr.scanned",
             passenger_id=passenger.id,
             metadata={
-                "attendance_session_id": str(session_id),
+                "attendance_session_id": str(attendance_session.id),
+                "requested_attendance_session_id": str(session_id),
                 "group_id": str(attendance_session.group_id),
                 "result": "duplicate",
             },
@@ -1069,11 +1100,10 @@ async def record_my_attendance_scan(
         return await _attendance_scan_response(
             session=session,
             attendance_session=attendance_session,
-            coordinator_id=current_user.id,
             passenger_id=passenger.id,
             passenger_name=passenger.client_name,
             scan_status="duplicate",
-            message="This passenger is already counted for this activity.",
+            message="This scan or passenger is already counted for this activity.",
         )
 
     await _record_qr_audit(
@@ -1083,7 +1113,8 @@ async def record_my_attendance_scan(
         action="qr.scanned",
         passenger_id=passenger.id,
         metadata={
-            "attendance_session_id": str(session_id),
+            "attendance_session_id": str(attendance_session.id),
+            "requested_attendance_session_id": str(session_id),
             "group_id": str(attendance_session.group_id),
             "attendance_record_id": str(inserted_id),
             "result": "counted",
@@ -1092,11 +1123,13 @@ async def record_my_attendance_scan(
     return await _attendance_scan_response(
         session=session,
         attendance_session=attendance_session,
-        coordinator_id=current_user.id,
         passenger_id=passenger.id,
         passenger_name=passenger.client_name,
         scan_status="counted",
-        message=f"{passenger.client_name} counted.",
+        message=_counted_attendance_message(
+            attendance_session.status,
+            passenger.client_name,
+        ),
     )
 
 
@@ -1113,12 +1146,19 @@ async def complete_my_attendance_session(
 ) -> AttendanceSessionResponse:
     agency_id = _require_agency(current_user)
     attendance_session = await _get_coordinator_attendance_session(session, agency_id, session_id, current_user.id)
-    now = datetime.now(tz=UTC)
-    attendance_session.status = "completed"
-    attendance_session.completed_at = now
-    attendance_session.updated_at = now
-    await session.flush()
-    return await _attendance_session_response(session, attendance_session, current_user.id)
+    if attendance_session.status != "completed":
+        now = datetime.now(tz=UTC)
+        attendance_session.status = "completed"
+        attendance_session.completed_at = now
+        attendance_session.updated_at = now
+        await session.flush()
+    return await _attendance_session_response(session, attendance_session)
+
+
+def _counted_attendance_message(session_status: str, passenger_name: str) -> str:
+    if session_status == "completed":
+        return f"{passenger_name} counted as a late scan after completion."
+    return f"{passenger_name} counted."
 
 
 @router.get(
@@ -1186,11 +1226,33 @@ async def _get_coordinator_attendance_session(
     session_id: uuid.UUID,
     coordinator_id: uuid.UUID,
 ) -> AttendanceSessionModel:
+    requested_session = aliased(
+        AttendanceSessionModel,
+        name="requested_attendance_session",
+    )
+    canonical_session = aliased(
+        AttendanceSessionModel,
+        name="canonical_attendance_session",
+    )
     result = await session.execute(
-        select(AttendanceSessionModel).where(
-            AttendanceSessionModel.id == session_id,
-            AttendanceSessionModel.agency_id == agency_id,
-            AttendanceSessionModel.created_by_user_id == coordinator_id,
+        select(canonical_session)
+        .join(
+            requested_session,
+            requested_session.canonical_session_id == canonical_session.id,
+        )
+        .join(
+            CoordinatorGroupAssignmentModel,
+            CoordinatorGroupAssignmentModel.group_id
+            == canonical_session.group_id,
+        )
+        .where(
+            requested_session.id == session_id,
+            requested_session.agency_id == agency_id,
+            canonical_session.agency_id == agency_id,
+            CoordinatorGroupAssignmentModel.agency_id == agency_id,
+            CoordinatorGroupAssignmentModel.coordinator_user_id
+            == coordinator_id,
+            CoordinatorGroupAssignmentModel.active.is_(True),
         )
     )
     attendance_session = result.scalar_one_or_none()
@@ -1202,9 +1264,12 @@ async def _get_coordinator_attendance_session(
 async def _attendance_session_response(
     session: AsyncSession,
     attendance_session: AttendanceSessionModel,
-    coordinator_id: uuid.UUID,
 ) -> AttendanceSessionResponse:
-    counts = await _attendance_counts(session, attendance_session.id, attendance_session.group_id, coordinator_id)
+    counts = await _attendance_counts(
+        session,
+        attendance_session.id,
+        attendance_session.group_id,
+    )
     return AttendanceSessionResponse(
         id=attendance_session.id,
         group_id=attendance_session.group_id,
@@ -1218,16 +1283,71 @@ async def _attendance_session_response(
     )
 
 
+async def _attendance_session_responses(
+    session: AsyncSession,
+    attendance_sessions: list[AttendanceSessionModel],
+    group_id: uuid.UUID,
+) -> list[AttendanceSessionResponse]:
+    if not attendance_sessions:
+        return []
+    assigned_result = await session.execute(
+        select(func.count(PassportSubmissionModel.id)).where(
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+        )
+    )
+    assigned_count = int(assigned_result.scalar_one() or 0)
+    session_ids = [attendance_session.id for attendance_session in attendance_sessions]
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="attendance_session_family",
+    )
+    scanned_result = await session.execute(
+        select(
+            family_session.canonical_session_id,
+            func.count(func.distinct(AttendanceRecordModel.passenger_id)),
+        )
+        .select_from(family_session)
+        .join(
+            AttendanceRecordModel,
+            AttendanceRecordModel.session_id == family_session.id,
+        )
+        .where(family_session.canonical_session_id.in_(session_ids))
+        .group_by(family_session.canonical_session_id)
+    )
+    scanned_counts = {
+        session_id: int(scanned_count)
+        for session_id, scanned_count in scanned_result.all()
+    }
+    return [
+        AttendanceSessionResponse(
+            id=attendance_session.id,
+            group_id=attendance_session.group_id,
+            name=attendance_session.name,
+            status=attendance_session.status,
+            created_at=attendance_session.created_at,
+            started_at=attendance_session.started_at,
+            completed_at=attendance_session.completed_at,
+            scanned_count=scanned_counts.get(attendance_session.id, 0),
+            assigned_count=assigned_count,
+        )
+        for attendance_session in attendance_sessions
+    ]
+
+
 async def _attendance_scan_response(
     session: AsyncSession,
     attendance_session: AttendanceSessionModel,
-    coordinator_id: uuid.UUID,
     passenger_id: uuid.UUID | None,
     passenger_name: str | None,
     scan_status: str,
     message: str,
 ) -> AttendanceScanResponse:
-    counts = await _attendance_counts(session, attendance_session.id, attendance_session.group_id, coordinator_id)
+    counts = await _attendance_counts(
+        session,
+        attendance_session.id,
+        attendance_session.group_id,
+    )
     return AttendanceScanResponse(
         session_id=attendance_session.id,
         passenger_id=passenger_id,
@@ -1242,27 +1362,37 @@ async def _attendance_scan_response(
 async def _attendance_session_details_response(
     session: AsyncSession,
     attendance_session: AttendanceSessionModel,
-    coordinator_id: uuid.UUID,
 ) -> AttendanceSessionDetailsResponse:
-    counts = await _attendance_counts(session, attendance_session.id, attendance_session.group_id, coordinator_id)
-    passengers_result = await session.execute(
-        select(PassportSubmissionModel, AttendanceRecordModel.scanned_at)
-        .join(
-            CoordinatorAssignmentModel,
-            and_(
-                CoordinatorAssignmentModel.passenger_id == PassportSubmissionModel.id,
-                CoordinatorAssignmentModel.group_id == attendance_session.group_id,
-                CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
-                CoordinatorAssignmentModel.active.is_(True),
-            ),
+    counts = await _attendance_counts(
+        session,
+        attendance_session.id,
+        attendance_session.group_id,
+    )
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="attendance_session_family",
+    )
+    family_scans = (
+        select(
+            AttendanceRecordModel.passenger_id.label("passenger_id"),
+            func.min(AttendanceRecordModel.scanned_at).label("scanned_at"),
         )
+        .select_from(AttendanceRecordModel)
+        .join(
+            family_session,
+            family_session.id == AttendanceRecordModel.session_id,
+        )
+        .where(
+            family_session.canonical_session_id == attendance_session.id,
+        )
+        .group_by(AttendanceRecordModel.passenger_id)
+        .subquery()
+    )
+    passengers_result = await session.execute(
+        select(PassportSubmissionModel, family_scans.c.scanned_at)
         .outerjoin(
-            AttendanceRecordModel,
-            and_(
-                AttendanceRecordModel.session_id == attendance_session.id,
-                AttendanceRecordModel.passenger_id == PassportSubmissionModel.id,
-                AttendanceRecordModel.coordinator_user_id == coordinator_id,
-            ),
+            family_scans,
+            family_scans.c.passenger_id == PassportSubmissionModel.id,
         )
         .where(
             PassportSubmissionModel.agency_id == attendance_session.agency_id,
@@ -1305,32 +1435,118 @@ async def _attendance_counts(
     session: AsyncSession,
     session_id: uuid.UUID,
     group_id: uuid.UUID,
-    coordinator_id: uuid.UUID,
 ) -> dict[str, int]:
-    assigned_result = await session.execute(
-        select(func.count(CoordinatorAssignmentModel.passenger_id)).where(
-            CoordinatorAssignmentModel.group_id == group_id,
-            CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
-            CoordinatorAssignmentModel.active.is_(True),
+    assigned_count = (
+        select(func.count(PassportSubmissionModel.id))
+        .where(
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
         )
+        .scalar_subquery()
     )
-    scanned_result = await session.execute(
-        select(func.count(AttendanceRecordModel.id)).where(
-            AttendanceRecordModel.session_id == session_id,
-            AttendanceRecordModel.coordinator_user_id == coordinator_id,
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="attendance_session_family",
+    )
+    scanned_count = (
+        select(func.count(func.distinct(AttendanceRecordModel.passenger_id)))
+        .select_from(AttendanceRecordModel)
+        .join(
+            family_session,
+            family_session.id == AttendanceRecordModel.session_id,
         )
+        .where(
+            family_session.canonical_session_id == session_id,
+        )
+        .scalar_subquery()
     )
+    counts_result = await session.execute(select(assigned_count, scanned_count))
+    assigned, scanned = counts_result.one()
     return {
-        "assigned": int(assigned_result.scalar_one() or 0),
-        "scanned": int(scanned_result.scalar_one() or 0),
+        "assigned": int(assigned or 0),
+        "scanned": int(scanned or 0),
     }
+
+
+async def _insert_canonical_attendance_record(
+    *,
+    session: AsyncSession,
+    agency_id: uuid.UUID,
+    attendance_session: AttendanceSessionModel,
+    passenger_id: uuid.UUID,
+    coordinator_user_id: uuid.UUID,
+    scanned_at: datetime,
+    sync_source: str,
+    client_event_id: str,
+    device_id: str | None,
+) -> uuid.UUID | None:
+    """Insert once across a canonical activity and all of its legacy aliases."""
+
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="attendance_session_family",
+    )
+    existing_family_record = (
+        select(literal(1))
+        .select_from(AttendanceRecordModel)
+        .join(
+            family_session,
+            family_session.id == AttendanceRecordModel.session_id,
+        )
+        .where(
+            family_session.canonical_session_id == attendance_session.id,
+            or_(
+                AttendanceRecordModel.passenger_id == passenger_id,
+                AttendanceRecordModel.client_event_id == client_event_id,
+            ),
+        )
+        .exists()
+    )
+    record_id = uuid.uuid4()
+    record_columns = AttendanceRecordModel.__table__.c
+    candidate = select(
+        literal(record_id, type_=record_columns.id.type),
+        literal(agency_id, type_=record_columns.agency_id.type),
+        literal(attendance_session.id, type_=record_columns.session_id.type),
+        literal(passenger_id, type_=record_columns.passenger_id.type),
+        literal(coordinator_user_id, type_=record_columns.coordinator_user_id.type),
+        literal(scanned_at, type_=record_columns.scanned_at.type),
+        cast(
+            literal(sync_source, type_=record_columns.sync_source.type),
+            record_columns.sync_source.type,
+        ),
+        literal(client_event_id, type_=record_columns.client_event_id.type),
+        cast(
+            literal(device_id, type_=record_columns.device_id.type),
+            record_columns.device_id.type,
+        ),
+    ).where(~existing_family_record)
+    insert_result = await session.execute(
+        pg_insert(AttendanceRecordModel)
+        .from_select(
+            [
+                "id",
+                "agency_id",
+                "session_id",
+                "passenger_id",
+                "coordinator_user_id",
+                "scanned_at",
+                "sync_source",
+                "client_event_id",
+                "device_id",
+            ],
+            candidate,
+        )
+        .on_conflict_do_nothing()
+        .returning(AttendanceRecordModel.id)
+    )
+    return insert_result.scalar_one_or_none()
 
 
 async def _resolve_scannable_passenger(
     session: AsyncSession,
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
-    coordinator_id: uuid.UUID,
     qr_payload: str,
 ) -> tuple[PassportSubmissionModel | None, PassengerQRTokenModel | None, str | None]:
     now = datetime.now(tz=UTC)
@@ -1356,18 +1572,6 @@ async def _resolve_scannable_passenger(
         return None, token, "inactive"
     if passenger.group_id != group_id:
         return None, token, "wrong_group"
-
-    assignment_result = await session.execute(
-        select(CoordinatorAssignmentModel.id).where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group_id,
-            CoordinatorAssignmentModel.passenger_id == passenger.id,
-            CoordinatorAssignmentModel.coordinator_user_id == coordinator_id,
-            CoordinatorAssignmentModel.active.is_(True),
-        )
-    )
-    if not assignment_result.scalar_one_or_none():
-        return None, token, "wrong_coordinator"
     return passenger, token, None
 
 
@@ -1381,6 +1585,8 @@ async def _group_attendance_overview(
         .where(
             AttendanceSessionModel.agency_id == agency_id,
             AttendanceSessionModel.group_id == group.id,
+            AttendanceSessionModel.id
+            == AttendanceSessionModel.canonical_session_id,
         )
         .order_by(AttendanceSessionModel.created_at.desc())
     )
@@ -1389,68 +1595,87 @@ async def _group_attendance_overview(
         return GroupAttendanceOverviewResponse(group_id=group.id, group_name=group.name, sessions=[])
 
     session_ids = [attendance_session.id for attendance_session in attendance_sessions]
-    assigned_result = await session.execute(
+    coordinators_result = await session.execute(
         select(
-            CoordinatorAssignmentModel.coordinator_user_id,
+            CoordinatorGroupAssignmentModel.coordinator_user_id,
             UserModel.full_name,
-            func.count(CoordinatorAssignmentModel.passenger_id).label("assigned_count"),
         )
-        .join(UserModel, UserModel.id == CoordinatorAssignmentModel.coordinator_user_id)
+        .join(UserModel, UserModel.id == CoordinatorGroupAssignmentModel.coordinator_user_id)
         .where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group.id,
-            CoordinatorAssignmentModel.active.is_(True),
+            CoordinatorGroupAssignmentModel.agency_id == agency_id,
+            CoordinatorGroupAssignmentModel.group_id == group.id,
+            CoordinatorGroupAssignmentModel.active.is_(True),
         )
-        .group_by(CoordinatorAssignmentModel.coordinator_user_id, UserModel.full_name)
+        .order_by(UserModel.full_name.asc())
     )
-    assigned_by_coordinator = {
-        row.coordinator_user_id: (row.full_name, int(row.assigned_count))
-        for row in assigned_result.all()
+    group_coordinators = {
+        row.coordinator_user_id: row.full_name
+        for row in coordinators_result.all()
     }
 
+    passenger_count_result = await session.execute(
+        select(func.count(PassportSubmissionModel.id)).where(
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.group_id == group.id,
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+        )
+    )
+    passenger_count = int(passenger_count_result.scalar_one() or 0)
+
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="attendance_session_family",
+    )
     scanned_result = await session.execute(
         select(
-            AttendanceRecordModel.session_id,
+            family_session.canonical_session_id.label("canonical_session_id"),
+            AttendanceRecordModel.passenger_id,
             AttendanceRecordModel.coordinator_user_id,
-            func.count(AttendanceRecordModel.passenger_id).label("scanned_count"),
+            AttendanceRecordModel.scanned_at,
+            AttendanceRecordModel.id.label("attendance_record_id"),
         )
-        .where(AttendanceRecordModel.session_id.in_(session_ids))
-        .group_by(AttendanceRecordModel.session_id, AttendanceRecordModel.coordinator_user_id)
+        .select_from(AttendanceRecordModel)
+        .join(
+            family_session,
+            family_session.id == AttendanceRecordModel.session_id,
+        )
+        .where(family_session.canonical_session_id.in_(session_ids))
+        .order_by(
+            family_session.canonical_session_id,
+            AttendanceRecordModel.passenger_id,
+            AttendanceRecordModel.scanned_at,
+            AttendanceRecordModel.id,
+        )
     )
-    scanned_counts = {
-        (row.session_id, row.coordinator_user_id): int(row.scanned_count)
-        for row in scanned_result.all()
-    }
+    scanned_counts: dict[tuple[uuid.UUID, uuid.UUID], int] = defaultdict(int)
+    scanned_passenger_ids: dict[uuid.UUID, set[uuid.UUID]] = defaultdict(set)
+    seen_logical_passengers: set[tuple[uuid.UUID, uuid.UUID]] = set()
+    for row in scanned_result.all():
+        logical_passenger = (row.canonical_session_id, row.passenger_id)
+        if logical_passenger in seen_logical_passengers:
+            continue
+        seen_logical_passengers.add(logical_passenger)
+        scanned_passenger_ids[row.canonical_session_id].add(row.passenger_id)
+        scanned_counts[
+            (row.canonical_session_id, row.coordinator_user_id)
+        ] += 1
 
-    assigned_passengers_result = await session.execute(
+    group_passengers_result = await session.execute(
         select(
-            CoordinatorAssignmentModel.passenger_id,
-            CoordinatorAssignmentModel.coordinator_user_id,
-            UserModel.full_name.label("coordinator_name"),
+            PassportSubmissionModel.id.label("passenger_id"),
             PassportSubmissionModel.client_name,
             PassportSubmissionModel.client_email,
             PassportSubmissionModel.client_phone,
             PassportSubmissionModel.departure_city,
         )
-        .join(UserModel, UserModel.id == CoordinatorAssignmentModel.coordinator_user_id)
-        .join(PassportSubmissionModel, PassportSubmissionModel.id == CoordinatorAssignmentModel.passenger_id)
         .where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group.id,
-            CoordinatorAssignmentModel.active.is_(True),
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.group_id == group.id,
             PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
         )
-        .order_by(UserModel.full_name.asc(), PassportSubmissionModel.client_name.asc())
+        .order_by(PassportSubmissionModel.client_name.asc())
     )
-    assigned_passengers = list(assigned_passengers_result.all())
-
-    scanned_passengers_result = await session.execute(
-        select(AttendanceRecordModel.session_id, AttendanceRecordModel.passenger_id)
-        .where(AttendanceRecordModel.session_id.in_(session_ids))
-    )
-    scanned_passenger_ids = defaultdict(set)
-    for row in scanned_passengers_result.all():
-        scanned_passenger_ids[row.session_id].add(row.passenger_id)
+    group_passengers = list(group_passengers_result.all())
 
     summaries: list[AttendanceSessionSummary] = []
     for attendance_session in attendance_sessions:
@@ -1458,10 +1683,10 @@ async def _group_attendance_overview(
             AttendanceCoordinatorSummary(
                 coordinator_id=coordinator_id,
                 coordinator_name=name,
-                assigned_count=assigned_count,
+                assigned_count=passenger_count,
                 scanned_count=scanned_counts.get((attendance_session.id, coordinator_id), 0),
             )
-            for coordinator_id, (name, assigned_count) in assigned_by_coordinator.items()
+            for coordinator_id, name in group_coordinators.items()
         ]
         missing_passengers = [
             AttendanceMissingPassenger(
@@ -1470,10 +1695,10 @@ async def _group_attendance_overview(
                 client_email=row.client_email,
                 client_phone=row.client_phone,
                 departure_city=row.departure_city,
-                coordinator_id=row.coordinator_user_id,
-                coordinator_name=row.coordinator_name,
+                coordinator_id=None,
+                coordinator_name=None,
             )
-            for row in assigned_passengers
+            for row in group_passengers
             if row.passenger_id not in scanned_passenger_ids[attendance_session.id]
         ]
         summaries.append(
@@ -1484,8 +1709,8 @@ async def _group_attendance_overview(
                 created_at=attendance_session.created_at,
                 started_at=attendance_session.started_at,
                 completed_at=attendance_session.completed_at,
-                assigned_count=sum(item.assigned_count for item in coordinators),
-                scanned_count=sum(item.scanned_count for item in coordinators),
+                assigned_count=passenger_count,
+                scanned_count=len(scanned_passenger_ids[attendance_session.id]),
                 coordinators=coordinators,
                 missing_passengers=missing_passengers,
             )
@@ -1513,14 +1738,19 @@ async def _coordinator_responses(session: AsyncSession, coordinators: list[UserM
 
     passenger_counts_result = await session.execute(
         select(
-            CoordinatorAssignmentModel.coordinator_user_id,
-            func.count(CoordinatorAssignmentModel.passenger_id).label("passenger_count"),
+            CoordinatorGroupAssignmentModel.coordinator_user_id,
+            func.count(PassportSubmissionModel.id).label("passenger_count"),
+        )
+        .join(
+            PassportSubmissionModel,
+            PassportSubmissionModel.group_id == CoordinatorGroupAssignmentModel.group_id,
         )
         .where(
-            CoordinatorAssignmentModel.coordinator_user_id.in_(coordinator_ids),
-            CoordinatorAssignmentModel.active.is_(True),
+            CoordinatorGroupAssignmentModel.coordinator_user_id.in_(coordinator_ids),
+            CoordinatorGroupAssignmentModel.active.is_(True),
+            PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
         )
-        .group_by(CoordinatorAssignmentModel.coordinator_user_id)
+        .group_by(CoordinatorGroupAssignmentModel.coordinator_user_id)
     )
     passenger_counts = {row.coordinator_user_id: int(row.passenger_count) for row in passenger_counts_result.all()}
     return [
@@ -1570,26 +1800,9 @@ async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]
         .order_by(UserModel.full_name.asc())
     )
 
-    assigned_counts_result = await session.execute(
-        select(
-            CoordinatorAssignmentModel.group_id,
-            CoordinatorAssignmentModel.coordinator_user_id,
-            func.count(CoordinatorAssignmentModel.passenger_id).label("passenger_count"),
-        )
-        .where(
-            CoordinatorAssignmentModel.group_id.in_(group_ids),
-            CoordinatorAssignmentModel.active.is_(True),
-        )
-        .group_by(CoordinatorAssignmentModel.group_id, CoordinatorAssignmentModel.coordinator_user_id)
-    )
-    coordinator_passenger_counts = {
-        (row.group_id, row.coordinator_user_id): int(row.passenger_count)
-        for row in assigned_counts_result.all()
-    }
     assignments: dict[uuid.UUID, list[GroupCoordinatorAssignmentResponse]] = defaultdict(list)
-    assigned_counts: dict[uuid.UUID, int] = defaultdict(int)
     for row in group_coordinators_result.all():
-        count = coordinator_passenger_counts.get((row.group_id, row.id), 0)
+        count = passenger_counts.get(row.group_id, 0)
         assignments[row.group_id].append(
             GroupCoordinatorAssignmentResponse(
                 coordinator_id=row.id,
@@ -1598,9 +1811,6 @@ async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]
                 assigned_passengers_count=count,
             )
         )
-
-    for (group_id, _coordinator_id), count in coordinator_passenger_counts.items():
-        assigned_counts[group_id] += count
 
     return [
         TourOperationsGroupResponse(
@@ -1617,8 +1827,16 @@ async def _group_responses(session: AsyncSession, groups: list[ClientGroupModel]
             meal_preference_enabled=group.meal_preference_enabled,
             require_selfie=group.require_selfie,
             passenger_count=passenger_counts.get(group.id, 0),
-            assigned_passengers_count=assigned_counts.get(group.id, 0),
-            unassigned_passengers_count=max(0, passenger_counts.get(group.id, 0) - assigned_counts.get(group.id, 0)),
+            assigned_passengers_count=(
+                passenger_counts.get(group.id, 0)
+                if assignments[group.id]
+                else 0
+            ),
+            unassigned_passengers_count=(
+                0
+                if assignments[group.id]
+                else passenger_counts.get(group.id, 0)
+            ),
             coordinators=assignments[group.id],
         )
         for group in groups

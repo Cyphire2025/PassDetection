@@ -132,6 +132,39 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
         self.assertEqual(result.to_dict()["suspicious_fields"], [])
         self.assertIsNone(result.reason_code)
 
+    async def test_different_visible_place_of_issue_requires_staff_review(self) -> None:
+        fields = _provider_fields(
+            override={
+                "place_of_issue": {
+                    "verdict": "incorrect",
+                    "observed_value": "BENGALURU",
+                    "confidence": 0.99,
+                    "reason_code": "different_value",
+                }
+            }
+        )
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _response(fields)
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPostSubmissionVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                submitted_fields=_submitted_fields(),
+            )
+
+        place_result = next(
+            field for field in result.fields if field.field == "place_of_issue"
+        )
+        self.assertEqual(result.decision.value, "needs_review")
+        self.assertEqual(result.to_dict()["incorrect_fields"], ["place_of_issue"])
+        self.assertEqual(place_result.observed_value, "BENGALURU")
+        self.assertEqual(place_result.reason_code, "different_value")
+
     async def test_legacy_issuing_country_is_not_sent_as_place_of_issue(self) -> None:
         submitted = _submitted_fields()
         submitted.pop("place_of_issue")
@@ -359,6 +392,9 @@ class GeminiPostSubmissionVerificationServiceTests(unittest.IsolatedAsyncioTestC
                     "reason_code",
                 },
             )
+            fields_schema = schema["properties"]["fields"]
+            self.assertEqual(fields_schema["minItems"], len(_provider_fields()))
+            self.assertEqual(fields_schema["maxItems"], len(_provider_fields()))
             system_text = payload["systemInstruction"]["parts"][0]["text"]
             self.assertIn("First classify the image", system_text)
             self.assertIn("Never infer hidden values", system_text)

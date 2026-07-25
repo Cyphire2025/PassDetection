@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
@@ -16,7 +16,7 @@ import {
   formatPassportNationality,
 } from "@/lib/utils/passport-country";
 import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
-import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
 import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
@@ -48,6 +48,15 @@ import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
 import { PassportImageCropEditor } from "./passport-image-crop-editor";
 import { PassportExportDialog } from "./passport-export-dialog";
+import {
+  buildPassportDetailNavigationHref,
+  buildPassportGroupHref,
+  createPassportNavigationToken,
+  parsePassportGroupViewState,
+  storePassportNavigationContext,
+  type PassportDetailNavigationState,
+  type PassportGroupViewState,
+} from "../utils/passport-group-navigation";
 
 interface PassportGroupDetailProps {
   groupId: string;
@@ -56,19 +65,49 @@ interface PassportGroupDetailProps {
 export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const searchParams = useSearchParams();
   const includeDeleted = searchParams.get("old_data") === "1";
-  const role = useAuthStore(selectUserRole);
+  const currentUser = useAuthStore(selectUser);
+  const currentUserId = currentUser?.id ?? null;
+  const role = currentUser?.role ?? null;
   const canPermanentlyDelete = role === "super_admin" || role === "agency_admin";
   const canEditImages = canEditPassportImages(role);
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState(
+    () => parsePassportGroupViewState(searchParams).search,
+  );
+  const [debouncedSearch, setDebouncedSearch] = useState(
+    () => parsePassportGroupViewState(searchParams).search,
+  );
   const [selectedPassports, setSelectedPassports] = useState<string[]>([]);
-  const [submissionFilter, setSubmissionFilter] = useState<PassportGroupSubmissionFilter>("all");
-  const [sortBy, setSortBy] = useState<PassportGroupSubmissionSort>("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [page, setPage] = useState(1);
+  const [submissionFilter, setSubmissionFilter] =
+    useState<PassportGroupSubmissionFilter>(
+      () => parsePassportGroupViewState(searchParams).submissionFilter,
+    );
+  const [sortBy, setSortBy] =
+    useState<PassportGroupSubmissionSort>(
+      () => parsePassportGroupViewState(searchParams).sortBy,
+    );
+  const [sortOrder, setSortOrder] =
+    useState<"asc" | "desc">(
+      () => parsePassportGroupViewState(searchParams).sortOrder,
+    );
+  const [page, setPage] = useState(
+    () => parsePassportGroupViewState(searchParams).page,
+  );
   const pageSize = 50;
-  const [viewMode, setViewMode] = useState<"table" | "docs">("table");
+  const [viewMode, setViewMode] =
+    useState<"table" | "docs">(
+      () => parsePassportGroupViewState(searchParams).viewMode,
+    );
+  const [navigationContextKey, setNavigationContextKey] = useState<{
+    token: string;
+    userId: string;
+    groupId: string;
+  } | null>(null);
+  const navigationToken =
+    navigationContextKey?.userId === currentUserId
+    && navigationContextKey.groupId === groupId
+      ? navigationContextKey.token
+      : null;
   const [imageRevision, setImageRevision] = useState(0);
   const [imageEditor, setImageEditor] = useState<{
     submissionId: string;
@@ -174,6 +213,39 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   }, [search]);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const token = createPassportNavigationToken();
+      setNavigationContextKey(
+        token && currentUserId ? { token, userId: currentUserId, groupId } : null,
+      );
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [groupId, currentUserId]);
+
+  useEffect(() => {
+    const viewState: PassportGroupViewState = {
+      search: debouncedSearch,
+      submissionFilter,
+      sortBy,
+      sortOrder,
+      page,
+      viewMode,
+    };
+    const href = buildPassportGroupHref(groupId, viewState, includeDeleted);
+    const currentHref = `${window.location.pathname}${window.location.search}`;
+    if (href !== currentHref) window.history.replaceState(null, "", href);
+  }, [
+    groupId,
+    includeDeleted,
+    page,
+    debouncedSearch,
+    sortBy,
+    sortOrder,
+    submissionFilter,
+    viewMode,
+  ]);
+
+  useEffect(() => {
     if (!submissionsView || page <= submissionsView.total_pages) return;
     const timer = window.setTimeout(() => {
       setPage(Math.max(1, submissionsView.total_pages));
@@ -206,6 +278,58 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   }, [submissionsView?.expiry_alerts]);
 
   const filteredPassports = data ?? [];
+
+  const detailNavigation: PassportDetailNavigationState = useMemo(() => ({
+    token: navigationToken,
+    groupId,
+    includeDeleted,
+    viewState: {
+      search: debouncedSearch,
+      submissionFilter,
+      sortBy,
+      sortOrder,
+      page,
+      viewMode,
+    },
+  }), [
+    debouncedSearch,
+    groupId,
+    includeDeleted,
+    navigationToken,
+    page,
+    sortBy,
+    sortOrder,
+    submissionFilter,
+    viewMode,
+  ]);
+
+  const persistNavigationContext = useCallback(() => {
+    if (!navigationToken || !currentUserId || !submissionsView) return;
+    storePassportNavigationContext({
+      token: navigationToken,
+      userId: currentUserId,
+      groupId,
+      includeDeleted,
+      viewState: detailNavigation.viewState,
+      orderedSubmissionIds:
+        submissionsView.ordered_submission_ids
+        ?? submissionsView.items.map((submission) => submission.id),
+    });
+  }, [
+    currentUserId,
+    detailNavigation.viewState,
+    groupId,
+    includeDeleted,
+    navigationToken,
+    submissionsView,
+  ]);
+
+  useEffect(() => {
+    persistNavigationContext();
+  }, [persistNavigationContext]);
+
+  const passportDetailHref = (submissionId: string) =>
+    buildPassportDetailNavigationHref(submissionId, detailNavigation);
 
   const togglePassport = (passportId: string) => {
     setSelectedPassports((current) =>
@@ -572,7 +696,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 {expiryAlerts.map((passport) => (
                   <Link
                     key={passport.submission_id}
-                    href={ROUTES.dashboard.passportDetail(passport.submission_id) as never}
+                    href={passportDetailHref(passport.submission_id) as never}
+                    onClick={persistNavigationContext}
                     className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -771,6 +896,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                   passport={passport}
                   selected={selectedPassports.includes(passport.id)}
                   onToggle={() => togglePassport(passport.id)}
+                  detailHref={passportDetailHref(passport.id)}
+                  onOpen={persistNavigationContext}
                 />
               </Fragment>
             ))}
@@ -847,7 +974,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
                             <ReextractPassportControl passport={passport} compact />
-                            <Link href={ROUTES.dashboard.passportDetail(passport.id) as never} onClick={(event) => event.stopPropagation()}>
+                            <Link
+                              href={passportDetailHref(passport.id) as never}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                persistNavigationContext();
+                              }}
+                            >
                               <Button variant="outline" size="sm" className="gap-2">
                                 <Eye className="h-4 w-4" />
                                 Open
@@ -1080,10 +1213,14 @@ function PassportMobileCard({
   passport,
   selected,
   onToggle,
+  detailHref,
+  onOpen,
 }: {
   passport: PassportSubmission;
   selected: boolean;
   onToggle: () => void;
+  detailHref: string;
+  onOpen: () => void;
 }) {
   const cardClassName = selected
     ? "rounded-2xl border-blue-300 bg-blue-50/40"
@@ -1128,7 +1265,14 @@ function PassportMobileCard({
 
         <div className={`grid gap-2 ${needsReextraction(passport) || passport.extraction_status === "processing" ? "sm:grid-cols-2" : ""}`}>
           <ReextractPassportControl passport={passport} />
-          <Link href={ROUTES.dashboard.passportDetail(passport.id) as never} className="block" onClick={(event) => event.stopPropagation()}>
+          <Link
+            href={detailHref as never}
+            className="block"
+            onClick={(event) => {
+              event.stopPropagation();
+              onOpen();
+            }}
+          >
             <Button variant="outline" className="w-full gap-2">
               <Eye className="h-4 w-4" />
               Open Submission

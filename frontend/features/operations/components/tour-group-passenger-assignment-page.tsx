@@ -18,8 +18,16 @@ import {
   TourEmptyState,
   TourMetric,
 } from "./tour-operations-ui";
+import { PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED } from "../config/tour-operations-flags";
 
 export function TourGroupPassengerAssignmentPage({ groupId }: { groupId: string }) {
+  if (!PASSENGER_ASSIGNMENT_COMPATIBILITY_UI_ENABLED) return null;
+  return <LegacyTourGroupPassengerAssignmentPage groupId={groupId} />;
+}
+
+// Compatibility-only implementation retained for rollback. Active group-wide
+// scanning never renders passenger-by-passenger allocation controls.
+function LegacyTourGroupPassengerAssignmentPage({ groupId }: { groupId: string }) {
   const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useTourGroups();
   const { data: passengers = [], isLoading: passengersLoading, error: passengersError } = useTourGroupPassengers(groupId);
   const assignPassengers = useAssignTourGroupPassengers();

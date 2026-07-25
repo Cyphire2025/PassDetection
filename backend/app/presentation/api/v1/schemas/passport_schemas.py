@@ -446,6 +446,7 @@ class PassportSubmissionsViewResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     items: list[PassportSubmissionViewItemResponse] = Field(default_factory=list)
+    ordered_submission_ids: list[uuid.UUID] = Field(default_factory=list)
     group_total: int = Field(ge=0)
     total: int = Field(ge=0)
     page: int = Field(ge=1)

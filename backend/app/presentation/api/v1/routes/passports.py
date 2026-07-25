@@ -217,13 +217,13 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportDocumentImportPreviewResponse,
     PassportDocumentImportSaveResponse,
     PassportExpiryAlertResponse,
+    PassportExportFieldOptionResponse,
+    PassportExportFieldOptionsResponse,
     PassportExportHistoryCompletionResponse,
     PassportExportHistoryDetailResponse,
     PassportExportHistoryItemResponse,
     PassportExportHistoryListResponse,
     PassportExportHistorySubmissionResponse,
-    PassportExportFieldOptionsResponse,
-    PassportExportFieldOptionResponse,
     PassportGroupSummaryResponse,
     PassportImageCropCoordinates,
     PassportImageCropResetRequest,
@@ -2116,6 +2116,7 @@ async def list_passports_by_group_view(
     if not current_user.agency_id:
         return PassportSubmissionsViewResponse(
             items=[],
+            ordered_submission_ids=[],
             group_total=0,
             total=0,
             page=page,
@@ -2184,6 +2185,7 @@ async def list_passports_by_group_view(
         )
     return PassportSubmissionsViewResponse(
         items=items,
+        ordered_submission_ids=list(view.ordered_submission_ids),
         group_total=view.group_total,
         total=view.total,
         page=view.page,

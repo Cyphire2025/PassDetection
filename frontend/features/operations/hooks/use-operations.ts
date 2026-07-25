@@ -364,6 +364,9 @@ export function useMyAttendanceSessions(groupId: string | null, enabled = true) 
     queryFn: () => operationsApi.myAttendanceSessions(groupId as string),
     enabled: enabled && Boolean(groupId),
     retry: false,
+    refetchInterval: 1_500,
+    refetchIntervalInBackground: false,
+    staleTime: 500,
   });
 }
 
@@ -397,7 +400,11 @@ export function useGroupAttendanceOverview(groupId: string) {
   return useQuery({
     queryKey: ["operations", "tour-operations", "groups", groupId, "attendance"],
     queryFn: () => operationsApi.groupAttendanceOverview(groupId),
+    // This response includes the missing-passenger roster for each activity.
+    // Keep its existing low-frequency office refresh; coordinator devices use
+    // the lightweight 1.5-second shared-session summary above.
     refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
     retry: false,
   });
 }

@@ -240,6 +240,59 @@ def test_block_pagination_never_splits_cluster_beyond_first_hundred() -> None:
     assert {duplicate_a.id, duplicate_b.id}.issubset(second_ids)
     assert first_ids.isdisjoint(second_ids)
     assert first_ids | second_ids == {submission.id for submission in submissions}
+    assert first_page.ordered_submission_ids == second_page.ordered_submission_ids
+    assert set(first_page.ordered_submission_ids) == {
+        submission.id for submission in submissions
+    }
+
+
+def test_ordered_submission_ids_cover_complete_filtered_sort_across_pages() -> None:
+    submissions = [
+        _submission(
+            name=f"Passenger {index:03d}",
+            status="needs_review" if index % 2 else "ai_approved",
+            confirmed=_passport_fields(f"P{index:03d}", "Chennai"),
+            updated_at=datetime(2026, 7, 20, index % 24, tzinfo=UTC),
+        )
+        for index in range(125)
+    ]
+
+    first_page = build_submission_view(
+        submissions,
+        submission_filter="needs_review",
+        sort_by="updated_at",
+        sort_order="desc",
+        search="Passenger",
+        page=1,
+        page_size=25,
+    )
+    last_page = build_submission_view(
+        submissions,
+        submission_filter="needs_review",
+        sort_by="updated_at",
+        sort_order="desc",
+        search="Passenger",
+        page=3,
+        page_size=25,
+    )
+
+    expected = [
+        item.submission.id
+        for item in build_submission_view(
+            submissions,
+            submission_filter="needs_review",
+            sort_by="updated_at",
+            sort_order="desc",
+            search="Passenger",
+            page=1,
+            page_size=200,
+        ).items
+    ]
+    assert first_page.total == 62
+    assert first_page.ordered_submission_ids == tuple(expected)
+    assert last_page.ordered_submission_ids == tuple(expected)
+    assert len(first_page.items) == 25
+    assert len(last_page.items) == 12
 
 
 def test_confidence_sort_uses_display_value_and_keeps_null_last_both_ways() -> None:

@@ -150,6 +150,8 @@ _RESPONSE_SCHEMA: Final[dict[str, Any]] = {
         },
         "fields": {
             "type": "ARRAY",
+            "minItems": len(POST_SUBMISSION_PASSPORT_FIELDS),
+            "maxItems": len(POST_SUBMISSION_PASSPORT_FIELDS),
             "items": {
                 "type": "OBJECT",
                 "properties": {

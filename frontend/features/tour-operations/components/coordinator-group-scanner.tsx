@@ -48,6 +48,7 @@ import {
   getAttendanceCompletionBlocker,
   getAuthoritativeAttendanceCount,
   getLatestSessionSyncUpdate,
+  reconcileLiveAttendanceCount,
   selectVisibleAttendanceSessions,
 } from "../services/attendance-sync-policy";
 
@@ -87,9 +88,9 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       sessionsQuery.isSuccess,
       sessions,
       cachedSessions,
-      mergeAttendanceSessionProgress,
+      (cached) => mergeAttendanceSessionProgress(groupId, cached),
     ),
-    [cachedSessions, sessions, sessionsQuery.isSuccess],
+    [cachedSessions, groupId, sessions, sessionsQuery.isSuccess],
   );
   const {
     acknowledgeRejectedScans,
@@ -101,7 +102,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     recordScan,
     syncError,
     syncNow,
-  } = useAttendanceScanSync(sessionId);
+  } = useAttendanceScanSync(groupId, sessionId);
   const completeMutation = useCompleteMyAttendanceSession();
   const processedScanIdRef = useRef<string | null>(null);
   const autoStartedRef = useRef(false);
@@ -114,12 +115,18 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   const [isAcknowledgingRejected, setIsAcknowledgingRejected] = useState(false);
   const session = visibleSessions.find((item) => item.id === sessionId) ?? null;
   const isSessionCompleted = session?.status === "completed";
+  const liveScannedCount = (
+    reconcileLiveAttendanceCount(
+      optimisticScannedCount,
+      session?.scanned_count ?? 0,
+    ) ?? session?.scanned_count ?? 0
+  );
   const counts = useMemo(
     () => ({
-      scanned: optimisticScannedCount ?? session?.scanned_count ?? 0,
+      scanned: liveScannedCount,
       assigned: session?.assigned_count ?? 0,
     }),
-    [optimisticScannedCount, session?.assigned_count, session?.scanned_count],
+    [liveScannedCount, session?.assigned_count],
   );
 
   useEffect(() => {
@@ -131,14 +138,13 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
 
   useEffect(() => {
     if (!sessionsQuery.isSuccess) return;
-    reconcileAttendanceSessionProgress(sessions);
+    reconcileAttendanceSessionProgress(groupId, sessions);
     writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
   }, [groupId, sessions, sessionsQuery.isSuccess]);
 
   useEffect(() => {
-    if (optimisticScannedCount !== null) return;
-    scannedCountRef.current = session?.scanned_count ?? 0;
-  }, [optimisticScannedCount, session?.scanned_count]);
+    scannedCountRef.current = counts.scanned;
+  }, [counts.scanned]);
 
   const updateSessionProgress = useCallback((
     scannedCount: number,
@@ -147,7 +153,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
     authoritative = false,
   ) => {
     if (!sessionId) return;
-    writeAttendanceSessionProgress(sessionId, {
+    writeAttendanceSessionProgress(groupId, sessionId, {
       scanned_count: scannedCount,
       assigned_count: assignedCount,
       status,
@@ -198,10 +204,11 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   }, [applySyncUpdates, isCompleting, lastSyncResult]);
 
   useEffect(() => {
-    if (isCompleting || isSessionCompleted) return;
+    if (isCompleting) return;
     if (!latestScan || !sessionId || processedScanIdRef.current === latestScan.id) return;
     processedScanIdRef.current = latestScan.id;
     const scan = {
+        groupId,
         sessionId,
         qrPayload: latestScan.text,
         clientEventId: latestScan.id,
@@ -234,8 +241,8 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
         }
       });
   }, [
+    groupId,
     isCompleting,
-    isSessionCompleted,
     latestScan,
     recordScan,
     session?.assigned_count,
@@ -252,7 +259,6 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       || !isCoordinator
       || !sessionId
       || !session
-      || isSessionCompleted
       || isCompleting
       || autoStartedRef.current
     ) return;
@@ -261,11 +267,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
       void startScanner();
     }, 150);
     return () => window.clearTimeout(timer);
-  }, [hasHydrated, isCompleting, isCoordinator, isSessionCompleted, session, sessionId, startScanner]);
-
-  useEffect(() => {
-    if (isSessionCompleted) stopScanner();
-  }, [isSessionCompleted, stopScanner]);
+  }, [hasHydrated, isCompleting, isCoordinator, session, sessionId, startScanner]);
 
   const completeSession = async () => {
     if (!sessionId || !session || isSessionCompleted || isCompleting) return;
@@ -318,7 +320,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
   };
 
   const switchCamera = () => {
-    if (devices.length < 2 || isSessionCompleted) return;
+    if (devices.length < 2) return;
     const currentIndex = devices.findIndex((device) => device.deviceId === selectedDeviceId);
     const nextDevice = devices[(currentIndex + 1 + devices.length) % devices.length];
     stopScanner();
@@ -392,7 +394,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
             className="relative min-h-0 flex-[1_1_auto] overflow-hidden bg-black"
           >
             <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
-            {!isSessionCompleted && session && (
+            {session && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-4 py-3">
                 <div className="relative size-[min(82vw,20rem,42dvh)] rounded-3xl border-4 border-white/85 shadow-[0_0_0_999px_rgba(2,6,23,0.42)]">
                   <ScanLine className="absolute left-1/2 top-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2 text-white/85" aria-hidden="true" />
@@ -400,17 +402,13 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
               </div>
             )}
 
-            {(isSessionCompleted || (!session && !sessionsQuery.isLoading)) && (
+            {!session && !sessionsQuery.isLoading && (
               <div className="absolute inset-0 grid place-items-center bg-slate-950/90 p-5 text-center">
                 <div>
-                  <CheckCircle2 className={`mx-auto h-12 w-12 ${isSessionCompleted ? "text-emerald-400" : "text-slate-500"}`} aria-hidden="true" />
-                  <p className="mt-3 text-lg font-bold">
-                    {isSessionCompleted ? "Activity completed" : "Activity unavailable"}
-                  </p>
+                  <CheckCircle2 className="mx-auto h-12 w-12 text-slate-500" aria-hidden="true" />
+                  <p className="mt-3 text-lg font-bold">Activity unavailable</p>
                   <p className="mt-1 text-sm text-slate-300">
-                    {isSessionCompleted
-                      ? "Completed activities are read-only and cannot accept more scans."
-                      : "Return to the group and open an active activity."}
+                    Return to the group and open an activity.
                   </p>
                 </div>
               </div>
@@ -445,7 +443,7 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
             {errorMessage && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
                 <p>{errorMessage}</p>
-                {!isSessionCompleted && session && (
+                {session && (
                   <button
                     type="button"
                     className="mt-2 min-h-11 rounded-lg border border-red-200 bg-white px-3 font-semibold text-red-700"
@@ -507,7 +505,14 @@ export function CoordinatorGroupScanner({ groupId, sessionId }: { groupId: strin
               </div>
             )}
 
-            {!isSessionCompleted && session && (supportsTorch || devices.length > 1) && (
+            {isSessionCompleted && session && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs text-blue-800">
+                Completed - late scans remain open. Every assigned coordinator
+                can keep scanning and the shared total will continue updating.
+              </div>
+            )}
+
+            {session && (supportsTorch || devices.length > 1) && (
               <div className="grid grid-cols-2 gap-2">
                 {supportsTorch && (
                   <Button

@@ -84,9 +84,9 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
       sessionsQuery.isSuccess,
       sessions,
       cachedSessions,
-      mergeAttendanceSessionProgress,
+      (cached) => mergeAttendanceSessionProgress(groupId, cached),
     ),
-    [cachedSessions, sessions, sessionsQuery.isSuccess],
+    [cachedSessions, groupId, sessions, sessionsQuery.isSuccess],
   );
   const [detailsSessionId, setDetailsSessionId] = useState<string | null>(null);
   const detailsQuery = useMyAttendanceSessionDetails(
@@ -101,7 +101,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
 
   useEffect(() => {
     if (!sessionsQuery.isSuccess) return;
-    reconcileAttendanceSessionProgress(sessions);
+    reconcileAttendanceSessionProgress(groupId, sessions);
     writeOfflineSnapshot(offlineSnapshotKeys.mySessions(groupId), sessions);
   }, [groupId, sessions, sessionsQuery.isSuccess]);
 
@@ -208,7 +208,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 p-4">
             <h2 className="text-base font-semibold text-slate-950">Current Activity</h2>
-            <p className="mt-1 text-sm text-slate-500">Name this count before scanning.</p>
+            <p className="mt-1 text-sm text-slate-500">Start or join a shared group count.</p>
           </div>
           <ActivityStarter groupId={groupId} isOnline={isOnline} />
         </section>
@@ -227,10 +227,6 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
                   <button
                     type="button"
                     onClick={() => {
-                      if (session.status === "completed") {
-                        setDetailsSessionId((current) => (current === session.id ? null : session.id));
-                        return;
-                      }
                       router.push(`/coordinator/groups/${groupId}/scanner?sessionId=${session.id}` as never);
                     }}
                     className="flex min-h-11 w-full items-center justify-between gap-3 text-left hover:text-blue-700"
@@ -275,7 +271,7 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 p-4">
             <h2 className="text-base font-semibold text-slate-950">Passengers</h2>
-            <p className="mt-1 text-sm text-slate-500">Passengers assigned to you for this group.</p>
+            <p className="mt-1 text-sm text-slate-500">All submitted passengers in this group.</p>
           </div>
           <PassengerRoster
             key={groupId}
@@ -367,7 +363,7 @@ const PassengerRoster = memo(function PassengerRoster({
     return (
       <div className="p-3">
         <p className="rounded-lg border border-dashed border-slate-300 px-3 py-6 text-center text-sm text-slate-500">
-          No passengers assigned to you yet.
+          No submitted passengers are available yet.
         </p>
       </div>
     );

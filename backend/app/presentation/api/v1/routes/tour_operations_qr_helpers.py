@@ -15,10 +15,8 @@ from app.domain.entities.entities import (
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
-    CoordinatorAssignmentModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
-    UserModel,
 )
 from app.infrastructure.qr.approved_passenger_qr_issuer import (
     build_passenger_qr_token,
@@ -49,26 +47,8 @@ async def group_passenger_qr_codes(
     agency_id: uuid.UUID,
     group: ClientGroupModel,
 ) -> GroupPassengerQrCodesResponse:
-    assignment_subquery = (
-        select(
-            CoordinatorAssignmentModel.passenger_id.label("passenger_id"),
-            CoordinatorAssignmentModel.coordinator_user_id.label("coordinator_id"),
-        )
-        .where(
-            CoordinatorAssignmentModel.agency_id == agency_id,
-            CoordinatorAssignmentModel.group_id == group.id,
-            CoordinatorAssignmentModel.active.is_(True),
-        )
-        .subquery()
-    )
     result = await session.execute(
-        select(
-            PassportSubmissionModel,
-            UserModel.id.label("coordinator_id"),
-            UserModel.full_name.label("coordinator_name"),
-        )
-        .outerjoin(assignment_subquery, assignment_subquery.c.passenger_id == PassportSubmissionModel.id)
-        .outerjoin(UserModel, UserModel.id == assignment_subquery.c.coordinator_id)
+        select(PassportSubmissionModel)
         .where(
             PassportSubmissionModel.agency_id == agency_id,
             PassportSubmissionModel.group_id == group.id,
@@ -79,7 +59,7 @@ async def group_passenger_qr_codes(
 
     passenger_rows = list(result.all())
     token_by_passenger: dict[uuid.UUID, PassengerQRTokenModel] = {}
-    passenger_ids = [passenger.id for passenger, _, _ in passenger_rows]
+    passenger_ids = [passenger.id for (passenger,) in passenger_rows]
     if passenger_ids:
         token_result = await session.execute(
             select(PassengerQRTokenModel)
@@ -93,7 +73,7 @@ async def group_passenger_qr_codes(
         for token in token_result.scalars().all():
             token_by_passenger.setdefault(token.passenger_id, token)
 
-    for passenger, _, _ in passenger_rows:
+    for (passenger,) in passenger_rows:
         if passenger.id in token_by_passenger:
             continue
         token, _payload = await issue_passenger_qr(
@@ -107,7 +87,7 @@ async def group_passenger_qr_codes(
         token_by_passenger[passenger.id] = token
 
     passengers: list[GroupPassengerQrCodeResponse] = []
-    for passenger, coordinator_id, coordinator_name in passenger_rows:
+    for (passenger,) in passenger_rows:
         token = token_by_passenger.get(passenger.id)
         status_value = qr_status(token)
         passengers.append(
@@ -117,8 +97,8 @@ async def group_passenger_qr_codes(
                 client_email=passenger.client_email,
                 client_phone=passenger.client_phone,
                 departure_city=passenger.departure_city,
-                coordinator_id=coordinator_id,
-                coordinator_name=coordinator_name,
+                coordinator_id=None,
+                coordinator_name=None,
                 qr_status=status_value,
                 qr_token_version=token.token_version if token else None,
                 qr_created_at=token.created_at if token else None,

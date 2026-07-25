@@ -38,14 +38,14 @@ export function getTourGroupTotals(groups: TourGroup[]) {
     (totals, group) => ({
       groups: totals.groups + 1,
       passengers: totals.passengers + group.passenger_count,
-      assigned: totals.assigned + group.assigned_passengers_count,
-      unassigned: totals.unassigned + group.unassigned_passengers_count,
       unassignedGroups: totals.unassignedGroups + (group.coordinators.length === 0 ? 1 : 0),
     }),
-    { groups: 0, passengers: 0, assigned: 0, unassigned: 0, unassignedGroups: 0 },
+    { groups: 0, passengers: 0, unassignedGroups: 0 },
   );
 }
 
+// Compatibility-only passenger allocation helpers. They remain available for
+// rollback but are unreachable while the shared group-roster flag is disabled.
 export function filterTourPassengers(passengers: TourPassenger[], query: string, departureCity = "all") {
   const normalized = query.trim().toLowerCase();
   const cityFiltered = departureCity === "all"

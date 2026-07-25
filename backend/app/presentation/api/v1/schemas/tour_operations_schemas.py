@@ -166,6 +166,14 @@ class SetPassengerQrExpirationRequest(BaseModel):
 class CreateAttendanceSessionRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=160)
 
+    @field_validator("name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        normalized = " ".join(value.split())
+        if len(normalized) < 2:
+            raise ValueError("Activity name must contain at least 2 characters.")
+        return normalized
+
 
 class AttendanceSessionResponse(BaseModel):
     id: uuid.UUID
@@ -235,8 +243,8 @@ class AttendanceMissingPassenger(BaseModel):
     client_email: str | None = None
     client_phone: str | None = None
     departure_city: str | None = None
-    coordinator_id: uuid.UUID
-    coordinator_name: str
+    coordinator_id: uuid.UUID | None = None
+    coordinator_name: str | None = None
 
 
 class AttendanceSessionSummary(BaseModel):

@@ -20,6 +20,8 @@ from app.infrastructure.observability.metrics import MetricsRegistry
 
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key")
 
+_ALL_FIELD_CODES = ("sn", "gn", "pn", "na", "pi", "db", "di", "de", "sx")
+
 
 def _settings(**overrides) -> Settings:  # type: ignore[no-untyped-def]
     values = {
@@ -32,14 +34,41 @@ def _settings(**overrides) -> Settings:  # type: ignore[no-untyped-def]
     return Settings(**values)
 
 
-def _gemini_response(payload: dict) -> httpx.Response:
+def _complete_provider_fields(
+    fields: list[dict[str, object]],
+) -> list[dict[str, object]]:
+    """Build the exact structured-output field set used by Gemini."""
+
+    completed = [dict(field) for field in fields]
+    present = {
+        str(field.get("k"))
+        for field in completed
+        if isinstance(field.get("k"), str)
+    }
+    completed.extend(
+        {"k": code, "v": "", "a": "unknown", "c": 0.0}
+        for code in _ALL_FIELD_CODES
+        if code not in present
+    )
+    return completed
+
+
+def _gemini_response(
+    payload: dict,
+    *,
+    complete_fields: bool = True,
+) -> httpx.Response:
+    normalized_payload = dict(payload)
+    raw_fields = normalized_payload.get("f")
+    if complete_fields and isinstance(raw_fields, list):
+        normalized_payload["f"] = _complete_provider_fields(raw_fields)
     classified_payload = {
         "d": "passport_data_page",
         "p": "data_page",
         "q": "acceptable",
         "dc": 0.99,
         "r": "passport_confirmed",
-        **payload,
+        **normalized_payload,
     }
     return httpx.Response(
         200,
@@ -78,9 +107,13 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(config["responseMimeType"], "application/json")
         self.assertEqual(config["thinkingConfig"], {"thinkingLevel": "minimal"})
         self.assertLessEqual(config["maxOutputTokens"], 512)
+        field_schema = config["responseSchema"]["properties"]["f"]
+        self.assertEqual(field_schema["minItems"], len(_ALL_FIELD_CODES))
+        self.assertEqual(field_schema["maxItems"], len(_ALL_FIELD_CODES))
         parts = body["contents"][0]["parts"]
         compact_input = json.loads(parts[0]["text"])
         self.assertEqual(compact_input["f"]["sn"], "KHANNA")
+        self.assertIn("pi", compact_input["f"])
         self.assertEqual(parts[1]["inlineData"]["data"], "aW1hZ2UtYnl0ZXM=")
 
     async def test_transient_primary_failure_uses_fallback_and_exact_payload(
@@ -255,6 +288,8 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn("unreadable, obscured, or ambiguous", system_text)
             self.assertIn("pi place of issue exactly as visibly printed", system_text)
             self.assertIn("not the issuing country", system_text)
+            self.assertIn("exactly one f item for every code, including pi", system_text)
+            self.assertIn("never omit it", system_text)
             return _gemini_response(provider)
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
@@ -464,6 +499,32 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(result.metadata["field_confidences"]), 9)
         self.assertEqual(result.merged_fields["date_of_issue"], "2025-03-18")
         self.assertEqual(result.merged_fields["field_validation"]["status"], "valid")
+
+    async def test_omitted_place_of_issue_result_fails_closed(self) -> None:
+        fields = [
+            field
+            for field in _complete_provider_fields([])
+            if field["k"] != "pi"
+        ]
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            return _gemini_response(
+                {"s": "match", "f": fields},
+                complete_fields=False,
+            )
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={"surname": "KHANNA"},
+            )
+
+        self.assertEqual(result.metadata["status"], "invalid_response")
+        self.assertNotIn("place_of_issue", result.merged_fields)
 
     async def test_invalid_or_unknown_response_falls_back_to_ocr(self) -> None:
         async def handler(_request: httpx.Request) -> httpx.Response:

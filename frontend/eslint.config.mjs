@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated third-party MediaPipe runtime/model loader assets.
     "public/mediapipe/**",
+    // Pinned third-party ZXing distribution used by the cold-offline scanner.
+    "public/offline/vendor/**",
   ]),
 ]);
 

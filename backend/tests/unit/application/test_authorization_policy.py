@@ -208,7 +208,11 @@ async def test_coordinator_can_view_assigned_group_and_passenger_only() -> None:
     other_passport = _passport(agency_id, group.id)
 
     policy.coordinator_has_group = AsyncMock(return_value=True)
-    policy.coordinator_has_passenger = AsyncMock(side_effect=lambda _coordinator_id, _group_id, passenger_id: passenger_id == passport.id)
+    policy.coordinator_has_passenger = AsyncMock(
+        side_effect=lambda _coordinator_id, _group_id, passenger_id: (
+            passenger_id == passport.id
+        )
+    )
 
     assert await policy.can_view_group(coordinator, group) is True
     assert await policy.can_view_passport(coordinator, passport) is True
@@ -218,7 +222,7 @@ async def test_coordinator_can_view_assigned_group_and_passenger_only() -> None:
 
 
 @pytest.mark.asyncio
-async def test_coordinator_scan_requires_own_session_group_and_assignment() -> None:
+async def test_coordinator_scan_uses_group_assignment_not_session_or_passenger_ownership() -> None:
     policy = AuthorizationPolicy(AsyncMock())
     agency_id = uuid.uuid4()
     coordinator = _user(UserRole.AGENCY_COORDINATOR, agency_id)
@@ -227,11 +231,35 @@ async def test_coordinator_scan_requires_own_session_group_and_assignment() -> N
     own_session = SimpleNamespace(agency_id=agency_id, group_id=group_id, created_by_user_id=coordinator.id)
     other_session = SimpleNamespace(agency_id=agency_id, group_id=group_id, created_by_user_id=uuid.uuid4())
 
-    policy.coordinator_has_passenger = AsyncMock(return_value=True)
+    policy.coordinator_has_group = AsyncMock(
+        side_effect=lambda coordinator_id, assigned_group_id: (
+            coordinator_id == coordinator.id and assigned_group_id == group_id
+        )
+    )
 
     assert await policy.can_scan_passenger(coordinator, own_session, passenger) is True
-    assert await policy.can_scan_passenger(coordinator, other_session, passenger) is False
+    assert await policy.can_scan_passenger(coordinator, other_session, passenger) is True
     assert await policy.can_scan_passenger(coordinator, own_session, _passport(uuid.uuid4(), group_id)) is False
+
+
+def test_coordinator_passport_query_scope_remains_passenger_specific() -> None:
+    agency_id = uuid.uuid4()
+    coordinator = _user(UserRole.AGENCY_COORDINATOR, agency_id)
+
+    statement = AuthorizationPolicy.apply_passport_visibility_scope(
+        select(PassportSubmissionModel),
+        coordinator,
+    )
+    sql = str(
+        statement.compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+
+    assert "passport_submissions.id IN" in sql
+    assert "coordinator_assignments.passenger_id" in sql
+    assert "coordinator_group_assignments.group_id" not in sql
 
 
 @pytest.mark.asyncio

@@ -1906,6 +1906,15 @@ class AttendanceSessionModel(Base):
     __table_args__ = (
         Index("ix_attendance_sessions_group_status", "group_id", "status"),
         Index("ix_attendance_sessions_agency_created", "agency_id", "created_at"),
+        Index(
+            "uq_attendance_sessions_active_group_name",
+            "group_id",
+            "normalized_name",
+            unique=True,
+            postgresql_where=text(
+                "status IN ('draft', 'active') AND id = canonical_session_id"
+            ),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -1922,6 +1931,13 @@ class AttendanceSessionModel(Base):
         index=True,
     )
     name: Mapped[str] = mapped_column(String(160), nullable=False)
+    normalized_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    canonical_session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attendance_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     status: Mapped[str] = mapped_column(
         Enum(
             "draft",

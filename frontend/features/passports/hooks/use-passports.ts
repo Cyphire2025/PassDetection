@@ -154,6 +154,7 @@ export function useExportSelectedPassports() {
 export function useGroupSubmissionsView(
   groupId: string,
   params: PassportGroupSubmissionsViewParams,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: QUERY_KEYS.passports.groupDetail(groupId, {
@@ -161,7 +162,7 @@ export function useGroupSubmissionsView(
       ...params,
     }),
     queryFn: () => passportsApi.getGroupSubmissionsView(groupId, params),
-    enabled: Boolean(groupId),
+    enabled: enabled && Boolean(groupId),
     refetchInterval: (query) => (
       query.state.data?.items.some((passport) => (
         isPassportWorkflowPending(passport.status, passport.extraction_status)

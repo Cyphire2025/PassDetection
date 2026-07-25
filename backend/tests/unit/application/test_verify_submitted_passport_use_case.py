@@ -43,6 +43,32 @@ def _submitted_passport() -> PassportSubmission:
 
 
 class VerifySubmittedPassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
+    async def test_canonical_place_of_issue_is_sent_for_verification(self) -> None:
+        submission = _submitted_passport()
+        passport_repo = SimpleNamespace(
+            get_by_id=AsyncMock(return_value=submission),
+            apply_post_submission_verification=AsyncMock(return_value=submission),
+        )
+        storage_repo = SimpleNamespace(get_file=AsyncMock(return_value=b"passport-image"))
+        verification = PostSubmissionVerificationResult.fallback(
+            provider_status="disabled",
+            reason_code="verification_disabled",
+        )
+        verification_service = SimpleNamespace(verify=AsyncMock(return_value=verification))
+
+        await VerifySubmittedPassportUseCase(
+            passport_repo=passport_repo,
+            storage_repo=storage_repo,
+            verification_service=verification_service,
+        ).execute(
+            submission_id=submission.id,
+            expected_revision=submission.post_submission_verification_revision,
+        )
+
+        submitted_fields = verification_service.verify.await_args.kwargs["submitted_fields"]
+        self.assertEqual(submitted_fields["place_of_issue"], "CHENNAI")
+        self.assertNotIn("issuing_country", submitted_fields)
+
     async def test_legacy_issuing_country_is_not_sent_for_place_verification(
         self,
     ) -> None:

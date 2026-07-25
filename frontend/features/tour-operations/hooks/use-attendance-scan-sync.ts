@@ -14,7 +14,10 @@ import { useNetworkStatus } from "./use-network-status";
 
 type ScanInput = AttendanceScanInput;
 
-export function useAttendanceScanSync(sessionId: string | null) {
+export function useAttendanceScanSync(
+  groupId: string,
+  sessionId: string | null,
+) {
   const [pendingCount, setPendingCount] = useState(0);
   const [rejectedCount, setRejectedCount] = useState(0);
   const isOnline = useNetworkStatus();
@@ -28,8 +31,8 @@ export function useAttendanceScanSync(sessionId: string | null) {
   const refreshQueueCounts = useCallback(async () => {
     try {
       const [pending, rejected] = await Promise.all([
-        countPendingAttendanceScans(),
-        countRejectedAttendanceScans(sessionId),
+        countPendingAttendanceScans(groupId),
+        countRejectedAttendanceScans(groupId, sessionId),
       ]);
       pendingCountRef.current = pending;
       rejectedCountRef.current = rejected;
@@ -43,7 +46,7 @@ export function useAttendanceScanSync(sessionId: string | null) {
         rejected: rejectedCountRef.current,
       };
     }
-  }, [sessionId]);
+  }, [groupId, sessionId]);
 
   const syncNow = useCallback(() => {
     if (syncPromiseRef.current) return syncPromiseRef.current;
@@ -92,14 +95,19 @@ export function useAttendanceScanSync(sessionId: string | null) {
   );
 
   const acknowledgeRejectedScans = useCallback(async () => {
-    const acknowledged = await acknowledgeRejectedAttendanceScans(sessionId);
+    const acknowledged = await acknowledgeRejectedAttendanceScans(
+      groupId,
+      sessionId,
+    );
     await refreshQueueCounts();
     return acknowledged;
-  }, [refreshQueueCounts, sessionId]);
+  }, [groupId, refreshQueueCounts, sessionId]);
 
   useEffect(() => {
     const initialRefresh = window.setTimeout(() => {
-      void refreshQueueCounts();
+      void refreshQueueCounts().then(({ pending }) => {
+        if (navigator.onLine && pending > 0) void syncNow();
+      });
     }, 0);
 
     const handleOnline = () => {
