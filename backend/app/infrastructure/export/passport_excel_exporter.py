@@ -69,7 +69,11 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn("Phone Number", 18),
     _ExportColumn("Email ID", 28),
     _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
-    _ExportColumn("International Airport", 28),
+    _ExportColumn(
+        "International Airport",
+        28,
+        "nearest_international_airport_enabled",
+    ),
     _ExportColumn("SURNAME", 20),
     _ExportColumn("GIVEN NAME", 24),
     _ExportColumn("GENDER", 12),

@@ -768,16 +768,28 @@ async def _ensure_submission_qr(
     )
 
 
+def _international_airport_is_enabled(
+    group: ClientGroup | ClientGroupModel,
+) -> bool:
+    """Honor the current option and legacy groups that already stored choices."""
+
+    return group.nearest_international_airport_enabled or bool(
+        group.departure_cities
+    )
+
+
 def _group_export_details(
-    group,
-) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+    group: ClientGroup | ClientGroupModel,
+) -> dict[str, Any]:
     return {
         "name": group.name,
         "destination": group.destination,
         "travel_date": group.travel_date.isoformat() if group.travel_date else None,
         "return_date": group.return_date.isoformat() if group.return_date else None,
         "package_name": group.package_name,
-        "nearest_international_airport_enabled": (group.nearest_international_airport_enabled),
+        "nearest_international_airport_enabled": (
+            _international_airport_is_enabled(group)
+        ),
         "ask_nearest_domestic_airport": group.ask_nearest_domestic_airport,
         "base_city_enabled": group.base_city_enabled,
         "staff_code_enabled": group.staff_code_enabled,
@@ -2803,10 +2815,16 @@ async def get_passport_group_export_fields(
             for field in catalog
         ],
         grouping_fields=[
-            PassportExportGroupingOptionResponse(
-                key="international_airport",
-                label="International Airport",
-                fixed=True,
+            *(
+                [
+                    PassportExportGroupingOptionResponse(
+                        key="international_airport",
+                        label="International Airport",
+                        fixed=True,
+                    )
+                ]
+                if _international_airport_is_enabled(group)
+                else []
             ),
             *[
                 PassportExportGroupingOptionResponse(
@@ -2919,6 +2937,17 @@ async def export_passports_by_group(
         group_by_field,
         requested_field_keys,
     )
+    if (
+        resolved_group_by == "international_airport"
+        and not _international_airport_is_enabled(group)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "International Airport grouping is available only when the "
+                "group asks travellers for that field."
+            ),
+        )
     if (
         resolved_group_by
         and resolved_group_by != "international_airport"

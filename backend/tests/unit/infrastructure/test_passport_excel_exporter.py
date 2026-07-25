@@ -114,7 +114,7 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
     }.isdisjoint(headers)
     assert values["SURNAME"] == "VASHISTHA"
     assert values["GIVEN NAME"] == "NIPUN KUMAR"
-    assert "International Airport" in headers
+    assert "International Airport" not in headers
     assert values["Nationality"] == "Indian"
     assert "Place of Issue" not in headers
 
@@ -179,6 +179,7 @@ def test_export_includes_only_group_options_enabled_in_the_workbook() -> None:
                 "staff_code_enabled": True,
                 "agent_employee_code_enabled": True,
                 "meal_preference_enabled": True,
+                "nearest_international_airport_enabled": True,
             },
         },
     )
@@ -760,6 +761,7 @@ def test_export_uses_the_requested_exact_column_order() -> None:
                     "base_city_enabled": True,
                     "ask_nearest_domestic_airport": True,
                     "meal_preference_enabled": True,
+                    "nearest_international_airport_enabled": True,
                     "custom_questions": [
                         {
                             "id": str(question_id),
@@ -851,7 +853,13 @@ def test_export_groups_by_fixed_international_airport() -> None:
         PassportExcelExporter().export_group(
             [mumbai, delhi],
             group_name="Airport Group",
-            group_details={group_id: {"name": "Airport Group", **_OPTION_FLAGS}},
+            group_details={
+                group_id: {
+                    "name": "Airport Group",
+                    **_OPTION_FLAGS,
+                    "nearest_international_airport_enabled": True,
+                }
+            },
             group_by_field="international_airport",
         )
     )
