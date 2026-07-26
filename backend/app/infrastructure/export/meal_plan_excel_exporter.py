@@ -9,7 +9,6 @@ from datetime import date, timedelta
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
-from openpyxl.worksheet.table import Table, TableStyleInfo
 
 MEAL_ORDER = {"lunch": 0, "dinner": 1}
 
@@ -191,17 +190,6 @@ class MealPlanExcelExporter:
                 )
 
         last_row = header_row + (trip_days * 2)
-        if last_row > header_row:
-            table = Table(
-                displayName="MealPlanSchedule",
-                ref=f"A{header_row}:{worksheet.cell(header_row, column_count).column_letter}{last_row}",
-            )
-            table.tableStyleInfo = TableStyleInfo(
-                name="TableStyleMedium2",
-                showRowStripes=True,
-                showColumnStripes=False,
-            )
-            worksheet.add_table(table)
 
         widths = [13, 15, 13, *([26] * len(categories))]
         for column, width in enumerate(widths, start=1):
@@ -251,17 +239,6 @@ class MealPlanExcelExporter:
             )
 
         last_row = 1 + len(entries)
-        if entries:
-            table = Table(
-                displayName="MealPlanDishList",
-                ref=f"A1:F{last_row}",
-            )
-            table.tableStyleInfo = TableStyleInfo(
-                name="TableStyleMedium4",
-                showRowStripes=True,
-                showColumnStripes=False,
-            )
-            worksheet.add_table(table)
         for column, width in enumerate([13, 15, 13, 22, 30, 40], start=1):
             worksheet.column_dimensions[
                 worksheet.cell(row=1, column=column).column_letter
@@ -271,5 +248,7 @@ class MealPlanExcelExporter:
                 cell.alignment = Alignment(vertical="top", wrap_text=True)
         for cell in worksheet["B"][1:]:
             cell.number_format = "dd mmm yyyy"
+        if entries:
+            worksheet.auto_filter.ref = f"A1:F{last_row}"
         worksheet.freeze_panes = "A2"
         worksheet.sheet_view.showGridLines = False

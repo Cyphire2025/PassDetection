@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import uuid
 from datetime import date, datetime
+from zipfile import ZipFile
 
 from openpyxl import load_workbook
 
@@ -40,6 +41,9 @@ def test_meal_plan_export_has_category_matrix_and_filterable_dish_list() -> None
         entries=entries,
     )
 
+    with ZipFile(io.BytesIO(content)) as archive:
+        assert not any(name.startswith("xl/tables/") for name in archive.namelist())
+
     workbook = load_workbook(io.BytesIO(content))
     assert workbook.sheetnames == ["Meal Plan", "Dish List"]
     schedule = workbook["Meal Plan"]
@@ -58,8 +62,10 @@ def test_meal_plan_export_has_category_matrix_and_filterable_dish_list() -> None
         "Chicken 1 lunch",
         "Paneer 1 lunch",
     ]
+    assert schedule.auto_filter.ref == "A5:E9"
     details = workbook["Dish List"]
     assert details.max_row == 9
+    assert details.auto_filter.ref == "A1:F9"
     assert [details.cell(1, column).value for column in range(1, 7)] == [
         "Day",
         "Date",
