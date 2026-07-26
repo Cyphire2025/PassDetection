@@ -4,8 +4,8 @@ import {
   AlertTriangle,
   BedDouble,
   Crown,
+  Download,
   ListOrdered,
-  ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
@@ -29,7 +29,9 @@ interface RoomingAutoAllocationProps {
   optionsLoading: boolean;
   optionsError: boolean;
   isAllocating: boolean;
+  isExporting: boolean;
   onAutoAllocate: (priorityFields: string[]) => Promise<void>;
+  onExport: () => Promise<void>;
 }
 
 export function RoomingAutoAllocation({
@@ -38,7 +40,9 @@ export function RoomingAutoAllocation({
   optionsLoading,
   optionsError,
   isAllocating,
+  isExporting,
   onAutoAllocate,
+  onExport,
 }: RoomingAutoAllocationProps) {
   const [prioritySlots, setPrioritySlots] = useState<Array<string | null>>(
     createPrioritySlots(activeHotel.allocation_priority_fields),
@@ -112,20 +116,6 @@ export function RoomingAutoAllocation({
     });
     setActionStatus(null);
   };
-  const addPriority = (key: string) => {
-    if (chosenPrioritySet.has(key)) return;
-    setPrioritySlots((current) => {
-      const next = options
-        ? sanitizePrioritySlots(current, allowedByKey)
-        : [...current];
-      const emptyIndex = next.findIndex((currentKey) => currentKey === null);
-      if (emptyIndex < 0) return next;
-      next[emptyIndex] = key;
-      return next;
-    });
-    setActionStatus(null);
-  };
-
   const runAllocation = async () => {
     if (!canAllocate) return;
     setActionError(null);
@@ -161,40 +151,15 @@ export function RoomingAutoAllocation({
                   2. Set auto-allocation priorities
                 </h2>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  Priority 1 is matched first, then Priority 2, up to six.
-                  Leave any slot empty when that distinction does not matter.
+                  Priority 1 creates the main passenger sections. Priorities
+                  2-6 refine room pairs inside each section. Leave any slot
+                  empty when that distinction does not matter.
                 </p>
               </div>
             </div>
             <span className="w-fit rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-800">
               {chosenPriorities.length}/{MAX_PRIORITY_SLOTS} priorities
             </span>
-          </div>
-
-          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck
-                className="mt-0.5 h-5 w-5 shrink-0 text-amber-700"
-                aria-hidden="true"
-              />
-              <div>
-                <h3 className="font-semibold text-amber-950">
-                  Universal gender rule - cannot be changed
-                </h3>
-                <p className="mt-1 text-sm leading-6 text-amber-900">
-                  Male passengers are paired only with Male passengers. Female
-                  passengers are paired only with Female passengers. Missing,
-                  blank, or unsupported Gender values never mix and block auto
-                  allocation until corrected. Gender is intentionally not
-                  available as a priority.
-                </p>
-                {options?.gender_rule && (
-                  <p className="mt-2 text-xs font-medium text-amber-800">
-                    Server rule: {options.gender_rule}
-                  </p>
-                )}
-              </div>
-            </div>
           </div>
 
           {optionsError ? (
@@ -287,71 +252,6 @@ export function RoomingAutoAllocation({
             </div>
           )}
 
-          {!optionsLoading && !optionsError && allowedFields.length > 0 && (
-            <section
-              aria-labelledby="available-rooming-priority-fields"
-              className="rounded-xl border border-slate-200 bg-slate-50 p-4"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3
-                    id="available-rooming-priority-fields"
-                    className="font-semibold text-slate-900"
-                  >
-                    Available grouping fields
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-600">
-                    All eligible WhatsApp and extra group fields are listed
-                    here. Select a chip to add it to the next empty priority.
-                  </p>
-                </div>
-                <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
-                  {allowedFields.length} available
-                </span>
-              </div>
-              <div className="mt-3 flex max-h-44 flex-wrap gap-2 overflow-y-auto pr-1">
-                {allowedFields.map((field) => {
-                  const isChosen = chosenPrioritySet.has(field.key);
-                  const isFull = chosenPriorities.length >= MAX_PRIORITY_SLOTS;
-                  return (
-                    <button
-                      key={field.key}
-                      type="button"
-                      aria-pressed={isChosen}
-                      disabled={isAllocating || isChosen || isFull}
-                      onClick={() => addPriority(field.key)}
-                      className={`rounded-lg border px-3 py-2 text-left transition ${
-                        isChosen
-                          ? "border-blue-300 bg-blue-50 text-blue-800"
-                          : "border-slate-200 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50"
-                      } disabled:cursor-not-allowed disabled:opacity-60`}
-                    >
-                      <span className="block text-xs font-semibold">
-                        {field.label}
-                      </span>
-                      <span className="mt-0.5 block text-[10px] text-slate-500">
-                        {prioritySourceLabel(field.source)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {!optionsLoading && !optionsError && allowedFields.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600">
-              No optional saved fields are available for this group. You can
-              still auto-allocate using the mandatory gender rule and VIP rule.
-            </div>
-          )}
-
-          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
-            The chosen priority columns are also exported, in this exact order,
-            between the Staff or Agent/Employee Code column (when enabled) and
-            the Age Group column.
-          </div>
-
           {invalidGenderPassengers.length > 0 && (
             <div
               role="alert"
@@ -434,12 +334,24 @@ export function RoomingAutoAllocation({
         </CardContent>
       </Card>
 
-      <GeneratedRoomPlan hotel={activeHotel} />
+      <GeneratedRoomPlan
+        hotel={activeHotel}
+        isExporting={isExporting}
+        onExport={onExport}
+      />
     </div>
   );
 }
 
-function GeneratedRoomPlan({ hotel }: { hotel: RoomingHotel }) {
+function GeneratedRoomPlan({
+  hotel,
+  isExporting,
+  onExport,
+}: {
+  hotel: RoomingHotel;
+  isExporting: boolean;
+  onExport: () => Promise<void>;
+}) {
   const rooms = useMemo(
     () => [...hotel.rooms].sort(
       (left, right) => (
@@ -466,13 +378,24 @@ function GeneratedRoomPlan({ hotel }: { hotel: RoomingHotel }) {
               alone in a twin room with one spare bed.
             </p>
           </div>
-          {hotel.allocation_is_current && hotel.allocation_revision > 0 ? (
-            <Badge variant="success">
-              Current allocation revision {hotel.allocation_revision}
-            </Badge>
-          ) : hotel.selected_passenger_count > 0 ? (
-            <Badge variant="warning">Needs auto-allocation</Badge>
-          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => void onExport()}
+            isLoading={isExporting}
+            disabled={
+              rooms.length === 0
+              || !hotel.allocation_is_current
+            }
+            title={
+              rooms.length === 0 || !hotel.allocation_is_current
+                ? "Run auto allocation again before exporting"
+                : "Export this hotel's rooming list"
+            }
+          >
+            <Download className="h-4 w-4" aria-hidden="true" />
+            Export Excel
+          </Button>
         </div>
 
         {rooms.length > 0 && !hotel.allocation_is_current && (

@@ -52,13 +52,15 @@ def build_room_plan(
     *,
     priority_count: int,
 ) -> list[PlannedRoom]:
-    """Build an O(N log N + P*N), P<=6, stable hierarchical pairing plan.
+    """Build an O(N log N + P*N), P<=6, stable hierarchical room plan.
 
-    VIP passengers are always emitted as single rooms. Other passengers are
-    partitioned by exact normalized gender, paired first on the complete
-    priority tuple, then on successively shorter prefixes, and finally paired
-    in stable roster order. A final odd passenger remains alone in a twin room;
-    this never mixes genders and accurately exposes the spare bed.
+    Priority 1 is a hard outer section: occupants from different Priority 1
+    values never share a room. Inside each section, VIP passengers are emitted
+    first as singles, followed by female rooms and then male rooms. Priorities
+    2-6 refine pairing using the complete remaining tuple, successively shorter
+    prefixes, and finally stable roster order. A final odd passenger remains
+    alone in a twin room, which preserves the same-gender rule and exposes the
+    spare bed.
     """
 
     if priority_count < 0 or priority_count > 6:
@@ -69,67 +71,135 @@ def build_room_plan(
         if len(candidate.priority_values) != priority_count:
             raise ValueError("Every candidate must provide every selected priority value")
 
-    ordered = sorted(candidates, key=lambda item: (*item.stable_order, str(item.passenger_id)))
-    rooms = [
-        PlannedRoom(
-            room_type="single",
-            allocation_tag="vip",
-            passenger_ids=(candidate.passenger_id,),
-        )
-        for candidate in ordered
-        if candidate.is_vip
-    ]
-
-    non_vip_by_gender: dict[str, list[RoomingAllocationCandidate]] = defaultdict(list)
+    ordered = sorted(
+        candidates,
+        key=lambda item: (*item.stable_order, str(item.passenger_id)),
+    )
+    sectioned: dict[str, list[RoomingAllocationCandidate]] = defaultdict(list)
+    section_order: list[str] = []
     for candidate in ordered:
-        if not candidate.is_vip:
-            non_vip_by_gender[candidate.gender].append(candidate)
+        section_key = candidate.priority_values[0] if priority_count else ""
+        if section_key not in sectioned:
+            section_order.append(section_key)
+        sectioned[section_key].append(candidate)
 
-    for gender in ("female", "male"):
-        remaining = non_vip_by_gender.get(gender, [])
-        paired: list[tuple[RoomingAllocationCandidate, RoomingAllocationCandidate]] = []
-        for prefix_length in range(priority_count, 0, -1):
-            grouped: dict[tuple[str, ...], list[RoomingAllocationCandidate]] = defaultdict(list)
-            group_order: list[tuple[str, ...]] = []
-            for candidate in remaining:
-                key = candidate.priority_values[:prefix_length]
-                if key not in grouped:
-                    group_order.append(key)
-                grouped[key].append(candidate)
-            leftover_ids: set[uuid.UUID] = set()
-            for key in group_order:
-                members = grouped[key]
-                for index in range(0, len(members) - 1, 2):
-                    paired.append((members[index], members[index + 1]))
-                if len(members) % 2:
-                    leftover_ids.add(members[-1].passenger_id)
-            remaining = [
-                candidate
-                for candidate in remaining
-                if candidate.passenger_id in leftover_ids
-            ]
-
-        for index in range(0, len(remaining) - 1, 2):
-            paired.append((remaining[index], remaining[index + 1]))
-        unpaired = remaining[-1:] if len(remaining) % 2 else []
-
+    rooms: list[PlannedRoom] = []
+    for section_key in section_order:
+        section = sectioned[section_key]
         rooms.extend(
             PlannedRoom(
-                room_type="twin",
-                allocation_tag=gender,
-                passenger_ids=(first.passenger_id, second.passenger_id),
-            )
-            for first, second in paired
-        )
-        rooms.extend(
-            PlannedRoom(
-                room_type="twin",
-                allocation_tag=gender,
+                room_type="single",
+                allocation_tag="vip",
                 passenger_ids=(candidate.passenger_id,),
             )
-            for candidate in unpaired
+            for candidate in section
+            if candidate.is_vip
         )
+
+        non_vip_by_gender: dict[
+            str,
+            list[RoomingAllocationCandidate],
+        ] = defaultdict(list)
+        for candidate in section:
+            if not candidate.is_vip:
+                non_vip_by_gender[candidate.gender].append(candidate)
+
+        for gender in ("female", "male"):
+            rooms.extend(
+                _pair_section_gender(
+                    non_vip_by_gender.get(gender, []),
+                    gender=gender,
+                    priority_count=priority_count,
+                )
+            )
     return rooms
+
+
+def _pair_section_gender(
+    candidates: list[RoomingAllocationCandidate],
+    *,
+    gender: str,
+    priority_count: int,
+) -> list[PlannedRoom]:
+    """Pair one Priority 1 and gender bucket without crossing its boundary."""
+
+    paired, unpaired = _pair_priority_hierarchy(
+        candidates,
+        priority_position=1,
+        priority_count=priority_count,
+    )
+
+    rooms = [
+        PlannedRoom(
+            room_type="twin",
+            allocation_tag=gender,
+            passenger_ids=(first.passenger_id, second.passenger_id),
+        )
+        for first, second in paired
+    ]
+    rooms.extend(
+        PlannedRoom(
+            room_type="twin",
+            allocation_tag=gender,
+            passenger_ids=(candidate.passenger_id,),
+        )
+        for candidate in unpaired
+    )
+    return rooms
+
+
+def _pair_priority_hierarchy(
+    candidates: list[RoomingAllocationCandidate],
+    *,
+    priority_position: int,
+    priority_count: int,
+) -> tuple[
+    list[tuple[RoomingAllocationCandidate, RoomingAllocationCandidate]],
+    list[RoomingAllocationCandidate],
+]:
+    """Pair deepest matches first while keeping every parent group contiguous."""
+
+    if priority_position >= priority_count:
+        return _pair_adjacent(candidates)
+
+    grouped: dict[str, list[RoomingAllocationCandidate]] = defaultdict(list)
+    group_order: list[str] = []
+    for candidate in candidates:
+        key = candidate.priority_values[priority_position]
+        if key not in grouped:
+            group_order.append(key)
+        grouped[key].append(candidate)
+
+    paired: list[
+        tuple[RoomingAllocationCandidate, RoomingAllocationCandidate]
+    ] = []
+    carry: list[RoomingAllocationCandidate] = []
+    for key in group_order:
+        child_pairs, child_carry = _pair_priority_hierarchy(
+            grouped[key],
+            priority_position=priority_position + 1,
+            priority_count=priority_count,
+        )
+        paired.extend(child_pairs)
+        carry.extend(child_carry)
+
+    carry_pairs, remaining = _pair_adjacent(carry)
+    paired.extend(carry_pairs)
+    return paired, remaining
+
+
+def _pair_adjacent(
+    candidates: list[RoomingAllocationCandidate],
+) -> tuple[
+    list[tuple[RoomingAllocationCandidate, RoomingAllocationCandidate]],
+    list[RoomingAllocationCandidate],
+]:
+    paired = [
+        (candidates[index], candidates[index + 1])
+        for index in range(0, len(candidates) - 1, 2)
+    ]
+    unpaired = candidates[-1:] if len(candidates) % 2 else []
+    return paired, unpaired
 
 
 def room_plan_fingerprint(

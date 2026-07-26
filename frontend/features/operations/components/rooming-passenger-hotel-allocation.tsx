@@ -1,6 +1,14 @@
 "use client";
 
-import { Crown, Hotel, Search, UserCheck, UsersRound } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Crown,
+  Hotel,
+  Search,
+  UserCheck,
+  UsersRound,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type {
@@ -43,6 +51,7 @@ export function RoomingPassengerHotelAllocation({
   const [firstCount, setFirstCount] = useState("50");
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const passengerIds = useMemo(
     () => new Set(workspace.passengers.map((passenger) => passenger.passenger_id)),
@@ -182,7 +191,11 @@ export function RoomingPassengerHotelAllocation({
   return (
     <Card>
       <CardContent className="p-0">
-        <div className="border-b border-slate-200 px-4 py-5 sm:px-6">
+        <div
+          className={`px-4 py-5 sm:px-6 ${
+            isExpanded ? "border-b border-slate-200" : ""
+          }`}
+        >
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -200,211 +213,244 @@ export function RoomingPassengerHotelAllocation({
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
-                {visiblePassengers.length} visible
-              </span>
-              <span className="rounded-full bg-blue-100 px-3 py-1.5 text-blue-800">
-                {validSelectedPassengerIds.length} selected
-              </span>
-              <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-emerald-800">
-                {activeHotel.selected_passenger_count} at this hotel
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4 border-b border-slate-200 bg-slate-50/70 p-4 sm:p-5">
-          <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_220px]">
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
-              placeholder="Search passenger, phone, email, family, or hotel"
-              aria-label="Search rooming passengers"
-              disabled={pending}
-            />
-            <label className="sr-only" htmlFor="rooming-roster-filter">
-              Filter rooming passengers
-            </label>
-            <select
-              id="rooming-roster-filter"
-              value={filter}
-              onChange={(event) => setFilter(event.target.value as RosterFilter)}
-              disabled={pending}
-              className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
-            >
-              {FILTER_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-wrap items-end gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={selectVisible}
-              disabled={pending || visiblePassengers.length === 0}
-            >
-              Select visible
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              onClick={() => setSelectedPassengerIds(
-                workspace.passengers.map((passenger) => passenger.passenger_id),
-              )}
-              disabled={pending || workspace.passengers.length === 0}
-            >
-              Select all group
-            </Button>
-            <div className="flex items-end gap-2">
-              <Input
-                id="rooming-select-first-count"
-                label="First passengers"
-                type="number"
-                min="1"
-                max={Math.max(1, visiblePassengers.length)}
-                inputMode="numeric"
-                value={firstCount}
-                onChange={(event) => setFirstCount(event.target.value)}
-                className="w-24"
-                disabled={pending}
-              />
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">
+                  {visiblePassengers.length} visible
+                </span>
+                <span className="rounded-full bg-blue-100 px-3 py-1.5 text-blue-800">
+                  {validSelectedPassengerIds.length} selected
+                </span>
+                <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-emerald-800">
+                  {activeHotel.selected_passenger_count} at this hotel
+                </span>
+              </div>
               <Button
                 type="button"
                 size="sm"
                 variant="secondary"
-                onClick={selectFirst}
-                disabled={pending || !validFirstCount || visiblePassengers.length === 0}
+                onClick={() => setIsExpanded((current) => !current)}
+                aria-expanded={isExpanded}
+                aria-controls="rooming-passenger-list"
               >
-                Select first
-              </Button>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => setSelectedPassengerIds([])}
-                disabled={pending || validSelectedPassengerIds.length === 0}
-            >
-              Clear selection
-            </Button>
-          </div>
-
-          <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-3 xl:grid-cols-[minmax(220px,1fr)_auto_auto] xl:items-end">
-            <label className="block text-sm font-medium text-slate-700">
-              Assign selected passengers to
-              <select
-                value={effectiveTargetHotelId}
-                onChange={(event) => setTargetHotelId(event.target.value)}
-                disabled={pending}
-                className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
-              >
-                {workspace.hotels.map((hotel) => (
-                  <option key={hotel.id} value={hotel.id}>
-                    {hotel.hotel_name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button
-              type="button"
-              onClick={() => void assignSelected()}
-              isLoading={isAssigning}
-              disabled={validSelectedPassengerIds.length === 0 || isUpdatingVip}
-            >
-              <Hotel className="h-4 w-4" aria-hidden="true" />
-              Assign selected
-            </Button>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void setVip(true)}
-                isLoading={isUpdatingVip}
-                disabled={isAssigning || selectedAtActiveHotel.length === 0}
-                title={`Applies to selected passengers staying at ${activeHotel.hotel_name}`}
-              >
-                <Crown className="h-4 w-4 text-amber-600" aria-hidden="true" />
-                Mark VIP ({selectedAtActiveHotel.length})
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void setVip(false)}
-                isLoading={isUpdatingVip}
-                disabled={isAssigning || selectedAtActiveHotel.length === 0}
-                title={`Applies to selected passengers staying at ${activeHotel.hotel_name}`}
-              >
-                Remove VIP
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                )}
+                {isExpanded ? "Hide passenger list" : "Show passenger list"}
               </Button>
             </div>
           </div>
-
-          <p className="text-xs leading-5 text-slate-500">
-            VIP actions apply only to selected passengers already staying at{" "}
-            <strong className="font-semibold text-slate-700">
-              {activeHotel.hotel_name}
-            </strong>
-            . VIP passengers always receive a single room during auto allocation.
-          </p>
-
-          {actionError && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {actionError}
-            </div>
-          )}
-          {actionStatus && (
-            <div
-              role="status"
-              className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
-            >
-              {actionStatus}
-            </div>
-          )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th scope="col" className="w-12 px-4 py-3">
-                  <span className="sr-only">Select passenger</span>
-                </th>
-                <th scope="col" className="px-3 py-3">Passenger</th>
-                <th scope="col" className="px-3 py-3">Gender</th>
-                <th scope="col" className="px-3 py-3">Current hotel</th>
-                <th scope="col" className="px-4 py-3">Room rule</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {visiblePassengers.map((passenger) => (
-                <PassengerRow
-                  key={passenger.passenger_id}
-                  passenger={passenger}
-                  activeHotelId={activeHotel.id}
-                  checked={selected.has(passenger.passenger_id)}
+        {isExpanded && (
+          <div id="rooming-passenger-list">
+            <div className="space-y-4 border-b border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+              <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_220px]">
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+                  placeholder="Search passenger, phone, email, family, or hotel"
+                  aria-label="Search rooming passengers"
                   disabled={pending}
-                  onToggle={() => togglePassenger(passenger.passenger_id)}
                 />
-              ))}
-            </tbody>
-          </table>
-          {visiblePassengers.length === 0 && (
-            <div className="px-5 py-12 text-center text-sm text-slate-500">
-              No passengers match the current search and filter.
+                <label className="sr-only" htmlFor="rooming-roster-filter">
+                  Filter rooming passengers
+                </label>
+                <select
+                  id="rooming-roster-filter"
+                  value={filter}
+                  onChange={(event) => setFilter(event.target.value as RosterFilter)}
+                  disabled={pending}
+                  className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
+                >
+                  {FILTER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-end gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={selectVisible}
+                  disabled={pending || visiblePassengers.length === 0}
+                >
+                  Select visible
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setSelectedPassengerIds(
+                    workspace.passengers.map(
+                      (passenger) => passenger.passenger_id,
+                    ),
+                  )}
+                  disabled={pending || workspace.passengers.length === 0}
+                >
+                  Select all group
+                </Button>
+                <div className="flex items-end gap-2">
+                  <Input
+                    id="rooming-select-first-count"
+                    label="First passengers"
+                    type="number"
+                    min="1"
+                    max={Math.max(1, visiblePassengers.length)}
+                    inputMode="numeric"
+                    value={firstCount}
+                    onChange={(event) => setFirstCount(event.target.value)}
+                    className="w-24"
+                    disabled={pending}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={selectFirst}
+                    disabled={
+                      pending
+                      || !validFirstCount
+                      || visiblePassengers.length === 0
+                    }
+                  >
+                    Select first
+                  </Button>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSelectedPassengerIds([])}
+                  disabled={pending || validSelectedPassengerIds.length === 0}
+                >
+                  Clear selection
+                </Button>
+              </div>
+
+              <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-3 xl:grid-cols-[minmax(220px,1fr)_auto_auto] xl:items-end">
+                <label className="block text-sm font-medium text-slate-700">
+                  Assign selected passengers to
+                  <select
+                    value={effectiveTargetHotelId}
+                    onChange={(event) => setTargetHotelId(event.target.value)}
+                    disabled={pending}
+                    className="mt-1.5 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:opacity-60"
+                  >
+                    {workspace.hotels.map((hotel) => (
+                      <option key={hotel.id} value={hotel.id}>
+                        {hotel.hotel_name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Button
+                  type="button"
+                  onClick={() => void assignSelected()}
+                  isLoading={isAssigning}
+                  disabled={
+                    validSelectedPassengerIds.length === 0 || isUpdatingVip
+                  }
+                >
+                  <Hotel className="h-4 w-4" aria-hidden="true" />
+                  Assign selected
+                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void setVip(true)}
+                    isLoading={isUpdatingVip}
+                    disabled={isAssigning || selectedAtActiveHotel.length === 0}
+                    title={`Applies to selected passengers staying at ${activeHotel.hotel_name}`}
+                  >
+                    <Crown
+                      className="h-4 w-4 text-amber-600"
+                      aria-hidden="true"
+                    />
+                    Mark VIP ({selectedAtActiveHotel.length})
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void setVip(false)}
+                    isLoading={isUpdatingVip}
+                    disabled={isAssigning || selectedAtActiveHotel.length === 0}
+                    title={`Applies to selected passengers staying at ${activeHotel.hotel_name}`}
+                  >
+                    Remove VIP
+                  </Button>
+                </div>
+              </div>
+
+              <p className="text-xs leading-5 text-slate-500">
+                VIP actions apply only to selected passengers already staying at{" "}
+                <strong className="font-semibold text-slate-700">
+                  {activeHotel.hotel_name}
+                </strong>
+                . VIP passengers always receive a single room during auto
+                allocation.
+              </p>
+
+              {actionError && (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {actionError}
+                </div>
+              )}
+              {actionStatus && (
+                <div
+                  role="status"
+                  className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+                >
+                  {actionStatus}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th scope="col" className="w-12 px-4 py-3">
+                      <span className="sr-only">Select passenger</span>
+                    </th>
+                    <th scope="col" className="px-3 py-3">Passenger</th>
+                    <th scope="col" className="px-3 py-3">Gender</th>
+                    <th scope="col" className="px-3 py-3">Current hotel</th>
+                    <th scope="col" className="px-4 py-3">Room rule</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {visiblePassengers.map((passenger) => (
+                    <PassengerRow
+                      key={passenger.passenger_id}
+                      passenger={passenger}
+                      activeHotelId={activeHotel.id}
+                      checked={selected.has(passenger.passenger_id)}
+                      disabled={pending}
+                      onToggle={() => togglePassenger(passenger.passenger_id)}
+                    />
+                  ))}
+                </tbody>
+              </table>
+              {visiblePassengers.length === 0 && (
+                <div className="px-5 py-12 text-center text-sm text-slate-500">
+                  No passengers match the current search and filter.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

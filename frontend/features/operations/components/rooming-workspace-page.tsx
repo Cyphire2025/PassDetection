@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   BedDouble,
   Crown,
-  Download,
   Edit3,
   Hotel,
   Plus,
@@ -111,27 +110,6 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
               <Plus className="h-4 w-4" aria-hidden="true" />
               Add hotel
             </Button>
-            {activeHotel && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void exportHotel()}
-                isLoading={isExporting}
-                disabled={
-                  activeHotel.rooms.length === 0
-                  || !activeHotel.allocation_is_current
-                }
-                title={
-                  activeHotel.rooms.length === 0
-                    || !activeHotel.allocation_is_current
-                    ? "Run auto allocation again before exporting"
-                    : "Export this hotel's rooming list"
-                }
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                Export Excel
-              </Button>
-            )}
           </div>
         )}
       />
@@ -280,12 +258,14 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                     optionsLoading={priorityFields.isLoading}
                     optionsError={Boolean(priorityFields.error)}
                     isAllocating={actions.autoAllocate.isPending}
+                    isExporting={isExporting}
                     onAutoAllocate={async (fields) => {
                       await actions.autoAllocate.mutateAsync({
                         hotelId: activeHotel.id,
                         priorityFields: fields,
                       });
                     }}
+                    onExport={exportHotel}
                   />
                 </div>
               )}

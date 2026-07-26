@@ -160,3 +160,110 @@ def test_rooming_export_omits_code_columns_when_group_did_not_ask() -> None:
 
     assert "Staff Code" not in headers
     assert "Agent/Employee Code" not in headers
+
+
+def test_rooming_export_separates_primary_sections_and_bands_complete_rooms() -> None:
+    passenger_ids = [uuid.UUID(int=index) for index in range(1, 8)]
+    group = SimpleNamespace(
+        name="Priority Sections",
+        staff_code_enabled=False,
+        agent_employee_code_enabled=False,
+        travel_date=date(2026, 8, 1),
+    )
+    hotel = SimpleNamespace(
+        hotel_name="Hotel",
+        city=None,
+        check_in_date=None,
+        check_out_date=None,
+    )
+    passengers = {
+        passenger_id: SimpleNamespace(
+            id=passenger_id,
+            confirmed_fields={
+                "given_names": f"Guest {index}",
+                "sex": "F" if index < 6 else "M",
+            },
+            extracted_fields={},
+            staff_metadata={},
+        )
+        for index, passenger_id in enumerate(passenger_ids, start=1)
+    }
+    rooms = [
+        (
+            SimpleNamespace(room_number="1", room_type="single"),
+            [SimpleNamespace(passenger_id=passenger_ids[0])],
+        ),
+        (
+            SimpleNamespace(room_number="2", room_type="twin"),
+            [
+                SimpleNamespace(passenger_id=passenger_ids[1]),
+                SimpleNamespace(passenger_id=passenger_ids[2]),
+            ],
+        ),
+        (
+            SimpleNamespace(room_number="3", room_type="twin"),
+            [
+                SimpleNamespace(passenger_id=passenger_ids[3]),
+                SimpleNamespace(passenger_id=passenger_ids[4]),
+            ],
+        ),
+        (
+            SimpleNamespace(room_number="4", room_type="twin"),
+            [
+                SimpleNamespace(passenger_id=passenger_ids[5]),
+                SimpleNamespace(passenger_id=passenger_ids[6]),
+            ],
+        ),
+    ]
+    priority_values = {
+        passenger_id: {
+            "whatsapp:zone": "Gujarat" if index <= 5 else "Odisha",
+            "whatsapp:branch": "A",
+        }
+        for index, passenger_id in enumerate(passenger_ids, start=1)
+    }
+
+    content = RoomingExcelExporter().export_hotel(
+        group=group,
+        hotel=hotel,
+        rooms=rooms,
+        passenger_by_id=passengers,
+        vip_passenger_ids={passenger_ids[0]},
+        priority_fields=[
+            {"key": "whatsapp:zone", "label": "Zone", "source": "whatsapp"},
+            {
+                "key": "whatsapp:branch",
+                "label": "Branch",
+                "source": "whatsapp",
+            },
+        ],
+        priority_values=priority_values,
+    )
+    worksheet = load_workbook(io.BytesIO(content)).active
+
+    assert worksheet["A7"].value == "1"
+    assert worksheet["A8"].value == "2"
+    assert worksheet["A9"].value == "2"
+    assert worksheet["A10"].value == "3"
+    assert worksheet["A11"].value == "3"
+    assert all(worksheet.cell(row=12, column=column).value is None for column in range(1, 15))
+    assert all(worksheet.cell(row=13, column=column).value is None for column in range(1, 15))
+    assert all(
+        worksheet.cell(row=12, column=column).fill.fill_type is None
+        for column in range(1, 15)
+    )
+    assert all(
+        worksheet.cell(row=13, column=column).fill.fill_type is None
+        for column in range(1, 15)
+    )
+    assert worksheet["A14"].value == "4"
+
+    assert worksheet["A7"].fill.fgColor.rgb == "00FDE68A"
+    first_twin_fill = worksheet["A8"].fill.fgColor.rgb
+    second_twin_fill = worksheet["A10"].fill.fgColor.rgb
+    assert first_twin_fill == "00DDEBF7"
+    assert worksheet["A9"].fill.fgColor.rgb == first_twin_fill
+    assert second_twin_fill == "00BDD7EE"
+    assert worksheet["A11"].fill.fgColor.rgb == second_twin_fill
+    assert worksheet["A14"].fill.fgColor.rgb == "00DDEBF7"
+    assert worksheet.tables["HotelRoomingList"].tableStyleInfo.showRowStripes is False

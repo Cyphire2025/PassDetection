@@ -76,7 +76,7 @@ def test_odd_non_vip_uses_one_bed_in_a_twin_without_cross_gender_pairing() -> No
     ]
 
 
-def test_hierarchical_pairing_preserves_stable_carry_order() -> None:
+def test_priority_one_is_a_hard_outer_section_in_first_seen_order() -> None:
     plan = build_room_plan(
         [
             _candidate(1, priorities=("a",), order=1),
@@ -89,24 +89,77 @@ def test_hierarchical_pairing_preserves_stable_carry_order() -> None:
 
     assert [room.passenger_ids for room in plan] == [
         (_id(1), _id(3)),
-        (_id(2), _id(4)),
+        (_id(4),),
+        (_id(2),),
     ]
 
 
-def test_full_priority_match_precedes_shorter_prefix_match() -> None:
+def test_lower_priorities_refine_pairing_within_priority_one_section() -> None:
     plan = build_room_plan(
         [
-            _candidate(1, priorities=("north", "sales")),
-            _candidate(2, priorities=("north", "support")),
-            _candidate(3, priorities=("north", "sales")),
-            _candidate(4, priorities=("north", "finance")),
+            _candidate(1, priorities=("north", "sales", "manager")),
+            _candidate(2, priorities=("north", "support", "manager")),
+            _candidate(3, priorities=("north", "sales", "manager")),
+            _candidate(4, priorities=("north", "support", "executive")),
+            _candidate(5, priorities=("north", "finance", "manager")),
+            _candidate(6, priorities=("north", "finance", "executive")),
         ],
-        priority_count=2,
+        priority_count=3,
     )
 
     assert [room.passenger_ids for room in plan] == [
         (_id(1), _id(3)),
         (_id(2), _id(4)),
+        (_id(5), _id(6)),
+    ]
+
+
+def test_lower_priority_parent_groups_remain_contiguous_in_room_order() -> None:
+    plan = build_room_plan(
+        [
+            _candidate(1, priorities=("north", "a", "manager")),
+            _candidate(2, priorities=("north", "b", "manager")),
+            _candidate(3, priorities=("north", "a", "manager")),
+            _candidate(4, priorities=("north", "b", "executive")),
+            _candidate(5, priorities=("north", "a", "executive")),
+            _candidate(6, priorities=("north", "a", "executive")),
+            _candidate(7, priorities=("north", "b", "manager")),
+            _candidate(8, priorities=("north", "b", "executive")),
+        ],
+        priority_count=3,
+    )
+
+    assert [room.passenger_ids for room in plan] == [
+        (_id(1), _id(3)),
+        (_id(5), _id(6)),
+        (_id(2), _id(7)),
+        (_id(4), _id(8)),
+    ]
+
+
+def test_each_priority_one_section_orders_vip_then_female_then_male() -> None:
+    plan = build_room_plan(
+        [
+            _candidate(1, gender="male", priorities=("gujarat",)),
+            _candidate(2, gender="female", priorities=("gujarat",)),
+            _candidate(3, gender="male", vip=True, priorities=("gujarat",)),
+            _candidate(4, gender="female", priorities=("gujarat",)),
+            _candidate(5, gender="male", priorities=("gujarat",)),
+            _candidate(6, gender="female", priorities=("odisha",)),
+            _candidate(7, gender="female", vip=True, priorities=("odisha",)),
+        ],
+        priority_count=1,
+    )
+
+    assert [
+        (room.allocation_tag, room.passenger_ids)
+        for room in plan
+    ] == [
+        ("vip", (_id(3),)),
+        ("female", (_id(2), _id(4))),
+        ("male", (_id(1), _id(5))),
+        ("vip", (_id(7),)),
+        ("female", (_id(6),)),
     ]
 
 

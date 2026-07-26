@@ -23,6 +23,8 @@ _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DATE_FORMAT = "DD.MM.YYYY"
 _HEADER_FILL = PatternFill("solid", fgColor="1D4ED8")
 _VIP_FILL = PatternFill("solid", fgColor="FDE68A")
+_ROOM_FILL_LIGHT = PatternFill("solid", fgColor="DDEBF7")
+_ROOM_FILL_DARK = PatternFill("solid", fgColor="BDD7EE")
 _FIXED_GUEST_HEADERS = (
     "Age Group",
     "GIVEN NAME",
@@ -71,6 +73,10 @@ def _gender(value: Any) -> str | None:
 
 def _upper(value: Any) -> str | None:
     return str(value).upper() if value not in (None, "") else None
+
+
+def _section_key(value: Any) -> str:
+    return " ".join(str(value or "").strip().split()).casefold()
 
 
 class RoomingExcelExporter:
@@ -155,11 +161,44 @@ class RoomingExcelExporter:
             cell.fill = _HEADER_FILL
             cell.alignment = Alignment(horizontal="center", vertical="center")
 
-        row_count = 0
+        has_data_rows = False
         date_columns = {
             headers.index(header) + 1 for header in ("DOB", "DOI", "DOE")
         }
+        primary_priority_key = (
+            priority_fields[0]["key"] if priority_fields else None
+        )
+        previous_section: object = object()
+        non_vip_room_index = 0
         for room, assignments in rooms:
+            if primary_priority_key and assignments:
+                first_passenger_id = assignments[0].passenger_id
+                current_section = _section_key(
+                    priority_values.get(first_passenger_id, {}).get(
+                        primary_priority_key
+                    )
+                )
+                if previous_section != current_section:
+                    if isinstance(previous_section, str):
+                        worksheet.append([])
+                        worksheet.append([])
+                    previous_section = current_section
+                    non_vip_room_index = 0
+
+            room_is_vip = bool(assignments) and all(
+                assignment.passenger_id in vip_passenger_ids
+                for assignment in assignments
+            )
+            room_fill = (
+                _VIP_FILL
+                if room_is_vip
+                else (
+                    _ROOM_FILL_LIGHT
+                    if non_vip_room_index % 2 == 0
+                    else _ROOM_FILL_DARK
+                )
+            )
+            room_row_indices: list[int] = []
             if not assignments:
                 worksheet.append(
                     [
@@ -169,79 +208,91 @@ class RoomingExcelExporter:
                         *([None] * (len(headers) - 3)),
                     ]
                 )
-                row_count += 1
-                continue
-            for assignment in assignments:
-                passenger = passenger_by_id[assignment.passenger_id]
-                passport_fields = (
-                    passenger.confirmed_fields or passenger.extracted_fields or {}
-                )
-                staff_metadata = passenger.staff_metadata or {}
-                values: list[Any] = [
-                    room.room_number,
-                    room.room_type.title(),
-                    "YES" if passenger.id in vip_passenger_ids else None,
-                ]
-                if group.staff_code_enabled:
-                    values.append(
-                        prefixed_staff_code(
-                            passport_fields.get("staff_code")
-                            or staff_metadata.get("staff_code")
-                        )
+                room_row_indices.append(worksheet.max_row)
+                has_data_rows = True
+            else:
+                for assignment in assignments:
+                    passenger = passenger_by_id[assignment.passenger_id]
+                    passport_fields = (
+                        passenger.confirmed_fields
+                        or passenger.extracted_fields
+                        or {}
                     )
-                if group.agent_employee_code_enabled:
-                    values.append(
-                        prefixed_agent_employee_code(
-                            passport_fields.get("agent_employee_type")
-                            or staff_metadata.get("agent_employee_type"),
-                            passport_fields.get("agent_employee_code")
-                            or staff_metadata.get("agent_employee_code"),
-                        )
-                    )
-                values.extend(
-                    priority_values.get(passenger.id, {}).get(field["key"])
-                    for field in priority_fields
-                )
-                values.extend(
-                    [
-                        passport_age_group(
-                            passport_fields.get("date_of_birth"),
-                            group.travel_date,
-                        ),
-                        _upper(passport_fields.get("given_names")),
-                        _upper(passport_fields.get("surname")),
-                        _gender(passport_fields.get("sex")),
-                        passport_fields.get("passport_number"),
-                        _excel_date(passport_fields.get("date_of_birth")),
-                        _excel_date(passport_fields.get("date_of_issue")),
-                        _excel_date(passport_fields.get("date_of_expiry")),
-                        passport_fields.get("place_of_issue"),
+                    staff_metadata = passenger.staff_metadata or {}
+                    values: list[Any] = [
+                        room.room_number,
+                        room.room_type.title(),
+                        "YES" if passenger.id in vip_passenger_ids else None,
                     ]
-                )
-                worksheet.append([safe_rooming_xlsx_value(value) for value in values])
-                row_count += 1
-                row_index = worksheet.max_row
-                for column_index in date_columns:
-                    cell = worksheet.cell(row=row_index, column=column_index)
-                    if isinstance(cell.value, (date, datetime)):
-                        cell.number_format = _DATE_FORMAT
-                if passenger.id in vip_passenger_ids:
-                    for cell in worksheet[row_index]:
-                        cell.fill = _VIP_FILL
+                    if group.staff_code_enabled:
+                        values.append(
+                            prefixed_staff_code(
+                                passport_fields.get("staff_code")
+                                or staff_metadata.get("staff_code")
+                            )
+                        )
+                    if group.agent_employee_code_enabled:
+                        values.append(
+                            prefixed_agent_employee_code(
+                                passport_fields.get("agent_employee_type")
+                                or staff_metadata.get("agent_employee_type"),
+                                passport_fields.get("agent_employee_code")
+                                or staff_metadata.get("agent_employee_code"),
+                            )
+                        )
+                    values.extend(
+                        priority_values.get(passenger.id, {}).get(field["key"])
+                        for field in priority_fields
+                    )
+                    values.extend(
+                        [
+                            passport_age_group(
+                                passport_fields.get("date_of_birth"),
+                                group.travel_date,
+                            ),
+                            _upper(passport_fields.get("given_names")),
+                            _upper(passport_fields.get("surname")),
+                            _gender(passport_fields.get("sex")),
+                            passport_fields.get("passport_number"),
+                            _excel_date(passport_fields.get("date_of_birth")),
+                            _excel_date(passport_fields.get("date_of_issue")),
+                            _excel_date(passport_fields.get("date_of_expiry")),
+                            passport_fields.get("place_of_issue"),
+                        ]
+                    )
+                    worksheet.append(
+                        [safe_rooming_xlsx_value(value) for value in values]
+                    )
+                    has_data_rows = True
+                    row_index = worksheet.max_row
+                    room_row_indices.append(row_index)
+                    for column_index in date_columns:
+                        cell = worksheet.cell(
+                            row=row_index,
+                            column=column_index,
+                        )
+                        if isinstance(cell.value, (date, datetime)):
+                            cell.number_format = _DATE_FORMAT
+            for row_index in room_row_indices:
+                for cell in worksheet[row_index]:
+                    cell.fill = room_fill
+                    if room_is_vip:
                         cell.font = Font(bold=True)
+            if not room_is_vip:
+                non_vip_room_index += 1
 
-        if row_count:
+        if has_data_rows:
             end_column = worksheet.cell(
                 row=header_row,
                 column=len(headers),
             ).column_letter
             table = Table(
                 displayName="HotelRoomingList",
-                ref=f"A{header_row}:{end_column}{header_row + row_count}",
+                ref=f"A{header_row}:{end_column}{worksheet.max_row}",
             )
             table.tableStyleInfo = TableStyleInfo(
                 name="TableStyleMedium2",
-                showRowStripes=True,
+                showRowStripes=False,
                 showColumnStripes=False,
             )
             worksheet.add_table(table)
@@ -275,7 +326,7 @@ class RoomingExcelExporter:
 
         for row in worksheet.iter_rows(
             min_row=header_row,
-            max_row=header_row + row_count,
+            max_row=worksheet.max_row,
         ):
             for cell in row:
                 cell.alignment = Alignment(vertical="top", wrap_text=True)

@@ -64,6 +64,13 @@ test("manual room generation and drag allocation are removed from product UI", (
 });
 
 test("passengers can be selected in bulk and moved safely between hotels", () => {
+  assert.match(
+    passengerAllocation,
+    /const \[isExpanded, setIsExpanded\] = useState\(false\)/,
+  );
+  assert.match(passengerAllocation, /aria-expanded=\{isExpanded\}/);
+  assert.match(passengerAllocation, /isExpanded && \(/);
+  assert.match(passengerAllocation, /Show passenger list/);
   assert.match(passengerAllocation, /Select visible/);
   assert.match(passengerAllocation, /Select all group/);
   assert.match(passengerAllocation, /First passengers/);
@@ -87,18 +94,23 @@ test("VIP actions are hotel-scoped and visibly enforce single rooms", () => {
   assert.match(api, /updateRoomingVip:[\s\S]*?is_vip: boolean/);
 });
 
-test("auto allocation exposes six ordered priorities and the full eligible catalog", () => {
+test("auto allocation exposes only the six ordered priority selectors", () => {
   assert.match(autoAllocation, /const MAX_PRIORITY_SLOTS = 6/);
   assert.match(
     workspace,
     /key=\{`\$\{activeHotel\.id\}:\$\{activeHotel\.allocation_revision\}:\$\{activeHotel\.allocation_is_current\}`\}/,
   );
   assert.match(autoAllocation, /Priority \{index \+ 1\}/);
-  assert.match(autoAllocation, /Available grouping fields/);
-  assert.match(autoAllocation, /addPriority\(field\.key\)/);
   assert.match(autoAllocation, /chosenPrioritySet\.has\(field\.key\)/);
   assert.match(autoAllocation, /sanitizePrioritySlots\(prioritySlots, allowedByKey\)/);
   assert.match(autoAllocation, /allowedByKey\.has\(key as string\)/);
+  assert.doesNotMatch(autoAllocation, /Available grouping fields/);
+  assert.doesNotMatch(autoAllocation, /addPriority\(field\.key\)/);
+  assert.doesNotMatch(autoAllocation, /Universal gender rule - cannot be changed/);
+  assert.doesNotMatch(
+    autoAllocation,
+    /between the Staff or Agent\/Employee Code column/,
+  );
   assert.match(priorityPolicy, /FIXED_EXPORT_FIELD_COMPACT_KEYS/);
   assert.match(priorityPolicy, /token === "gender" \|\| token === "sex"/);
   assert.match(priorityPolicy, /compact\.startsWith\("gender"\)/);
@@ -107,9 +119,18 @@ test("auto allocation exposes six ordered priorities and the full eligible catal
   assert.match(priorityPolicy, /"age_group"/);
   assert.match(priorityPolicy, /"passport_number"/);
   assert.match(priorityPolicy, /"place_of_issue"/);
-  assert.match(autoAllocation, /between the Staff or Agent\/Employee Code column/);
   assert.match(endpoints, /priorityFields:[\s\S]*?priority-fields/);
   assert.match(endpoints, /autoAllocate:[\s\S]*?auto-allocate/);
+});
+
+test("Excel export is in the generated-plan header and not the page header", () => {
+  assert.doesNotMatch(workspace, /Export Excel/);
+  assert.match(workspace, /isExporting=\{isExporting\}/);
+  assert.match(workspace, /onExport=\{exportHotel\}/);
+  assert.match(autoAllocation, /3\. Auto-generated room plan/);
+  assert.match(autoAllocation, /Export Excel/);
+  assert.match(autoAllocation, /onClick=\{\(\) => void onExport\(\)\}/);
+  assert.doesNotMatch(autoAllocation, /Current allocation revision/);
 });
 
 test("compact fixed and Gender aliases can never become priorities", () => {
@@ -155,12 +176,10 @@ test("compact fixed and Gender aliases can never become priorities", () => {
 });
 
 test("gender and stale-plan safety rules block unsafe downstream actions", () => {
-  assert.match(autoAllocation, /Universal gender rule - cannot be changed/);
-  assert.match(autoAllocation, /Male passengers are paired only with Male passengers/);
   assert.match(autoAllocation, /invalidGenderPassengers\.length === 0/);
   assert.match(autoAllocation, /odd same-gender remainder stays/);
   assert.match(api, /allocation_is_current: boolean/);
-  assert.match(workspace, /!activeHotel\.allocation_is_current/);
+  assert.match(autoAllocation, /!hotel\.allocation_is_current/);
   assert.match(workspace, /Run auto allocation again before opening hotel check-in/);
   assert.match(autoAllocation, /run auto allocation again before export or check-in/);
 });
