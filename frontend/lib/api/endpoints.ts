@@ -226,18 +226,17 @@ export const API_ENDPOINTS = {
 
   rooming: {
     group: (groupId: string) => `/api/v1/rooming/groups/${groupId}`,
+    priorityFields: (groupId: string) => `/api/v1/rooming/groups/${groupId}/priority-fields`,
     hotels: (groupId: string) => `/api/v1/rooming/groups/${groupId}/hotels`,
     hotel: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}`,
-    generateRooms: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/rooms/generate`,
+    passengerSelection: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/passenger-selection`,
+    vip: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/vip`,
+    autoAllocate: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/auto-allocate`,
     hotelExport: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/export.xlsx`,
     checkins: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins`,
     checkinScan: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins/scan`,
     checkinExport: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/check-ins/export.xlsx`,
     checkin: (checkinId: string) => `/api/v1/rooming/check-ins/${checkinId}`,
-    room: (roomId: string) => `/api/v1/rooming/rooms/${roomId}`,
-    roomOrder: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/rooms/order`,
-    allocation: (hotelId: string, passengerId: string) =>
-      `/api/v1/rooming/hotels/${hotelId}/passengers/${passengerId}/allocation`,
   },
 
   menu: {

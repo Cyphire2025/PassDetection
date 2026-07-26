@@ -42,7 +42,10 @@ def test_meal_plan_export_has_category_matrix_and_filterable_dish_list() -> None
     )
 
     with ZipFile(io.BytesIO(content)) as archive:
-        assert not any(name.startswith("xl/tables/") for name in archive.namelist())
+        table_parts = sorted(name for name in archive.namelist() if name.startswith("xl/tables/"))
+        assert table_parts == []
+        assert b"<autoFilter" not in archive.read("xl/worksheets/sheet1.xml")
+        assert b"<autoFilter" not in archive.read("xl/worksheets/sheet2.xml")
 
     workbook = load_workbook(io.BytesIO(content))
     assert workbook.sheetnames == ["Meal Plan", "Dish List"]
@@ -62,10 +65,31 @@ def test_meal_plan_export_has_category_matrix_and_filterable_dish_list() -> None
         "Chicken 1 lunch",
         "Paneer 1 lunch",
     ]
-    assert schedule.auto_filter.ref == "A5:E9"
+    assert schedule.auto_filter.ref is None
+    assert not schedule.tables
+    assert "A6:A7" in schedule.merged_cells
+    assert schedule["A6"].value == "Day 1"
+    assert schedule["A7"].value is None
+    assert all(schedule.cell(8, column).value is None for column in range(1, 6))
+    assert schedule.row_dimensions[8].height == 8
+    assert "A9:A10" in schedule.merged_cells
+    assert schedule["A9"].value == "Day 2"
+    assert schedule.sheet_view.showGridLines is True
+    assert schedule["A6"].border.left.style == "thin"
+    assert schedule["A6"].fill.fgColor.rgb == "00EFF6FF"
     details = workbook["Dish List"]
-    assert details.max_row == 9
-    assert details.auto_filter.ref == "A1:F9"
+    assert details.max_row == 10
+    assert details.auto_filter.ref is None
+    assert not details.tables
+    assert "A2:A5" in details.merged_cells
+    assert details["A2"].value == "Day 1"
+    assert details["A3"].value is None
+    assert all(details.cell(6, column).value is None for column in range(1, 7))
+    assert details.row_dimensions[6].height == 8
+    assert "A7:A10" in details.merged_cells
+    assert details["A7"].value == "Day 2"
+    assert details.sheet_view.showGridLines is True
+    assert details["A2"].border.left.style == "thin"
     assert [details.cell(1, column).value for column in range(1, 7)] == [
         "Day",
         "Date",

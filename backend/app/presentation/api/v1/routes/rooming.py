@@ -15,6 +15,14 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.rooming.auto_allocator import (
+    PlannedRoom,
+    RoomingAllocationCandidate,
+    build_room_plan,
+    normalize_priority_value,
+    normalize_rooming_gender,
+    room_plan_fingerprint,
+)
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
     User,
@@ -28,15 +36,21 @@ from app.infrastructure.database.models import (
     RoomingAssignmentModel,
     RoomingCheckinModel,
     RoomingHotelModel,
+    RoomingHotelPassengerModel,
     RoomingPassengerPreferenceModel,
     RoomingRoomModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.export.rooming_excel_exporter import RoomingExcelExporter
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.rooming.priority_fields import (
+    MAX_ROOMING_PRIORITY_FIELDS,
+    ROOMING_GENDER_RULE,
+    build_rooming_priority_context,
+)
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_hash
 from app.presentation.api.v1.schemas.rooming_schemas import (
-    ROOM_TYPES,
+    AutoAllocateRoomsRequest,
     CreateRoomBatchRequest,
     CreateRoomingHotelRequest,
     HotelCheckinDashboardResponse,
@@ -45,9 +59,13 @@ from app.presentation.api.v1.schemas.rooming_schemas import (
     HotelCheckinScanResponse,
     RoomingHotelResponse,
     RoomingPassengerResponse,
+    RoomingPriorityFieldOptionsResponse,
+    RoomingPriorityFieldResponse,
     RoomingRoomResponse,
     RoomingWorkspaceResponse,
     UpdateHotelCheckinRequest,
+    UpdateHotelPassengerSelectionRequest,
+    UpdateHotelVipRequest,
     UpdatePassengerAllocationRequest,
     UpdateRoomingHotelRequest,
     UpdateRoomOrderRequest,
@@ -73,6 +91,34 @@ async def get_rooming_workspace(
 ) -> RoomingWorkspaceResponse:
     group = await _get_rooming_group(session, group_id, current_user)
     return await _workspace_response(session, group)
+
+
+@router.get(
+    "/groups/{group_id}/priority-fields",
+    response_model=RoomingPriorityFieldOptionsResponse,
+    summary="List selectable fields for deterministic automatic room allocation",
+)
+async def get_rooming_priority_fields(
+    group_id: uuid.UUID,
+    current_user: User = Depends(require_role(ROOMING_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> RoomingPriorityFieldOptionsResponse:
+    group = await _get_rooming_group(session, group_id, current_user)
+    passengers = await _eligible_group_passengers(session, group)
+    context = await build_rooming_priority_context(
+        session,
+        group=group,
+        passengers=passengers,
+    )
+    return RoomingPriorityFieldOptionsResponse(
+        group_id=group.id,
+        fields=[
+            RoomingPriorityFieldResponse.model_validate(field)
+            for field in context.fields
+        ],
+        max_priority_fields=MAX_ROOMING_PRIORITY_FIELDS,
+        gender_rule=ROOMING_GENDER_RULE,
+    )
 
 
 @router.post(
@@ -111,10 +157,370 @@ async def create_rooming_hotel(
     )
 
 
+@router.put(
+    "/hotels/{hotel_id}/passenger-selection",
+    response_model=RoomingWorkspaceResponse,
+    summary="Select, move, or remove hotel passengers in one transaction",
+)
+async def update_hotel_passenger_selection(
+    hotel_id: uuid.UUID,
+    body: UpdateHotelPassengerSelectionRequest,
+    request: Request,
+    current_user: User = Depends(require_role(ROOMING_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> RoomingWorkspaceResponse:
+    hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    hotel, group = await _lock_rooming_scope(session, hotel, group)
+    requested_ids = set(body.passenger_ids)
+    if requested_ids:
+        eligible = await _eligible_group_passengers(
+            session,
+            group,
+            passenger_ids=requested_ids,
+            lock_for_allocation=True,
+        )
+        if {passenger.id for passenger in eligible} != requested_ids:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Every selected passenger must be an eligible member of this group.",
+            )
+
+    memberships = list(
+        (
+            await session.execute(
+                select(RoomingHotelPassengerModel)
+                .where(RoomingHotelPassengerModel.group_id == group.id)
+                .with_for_update()
+            )
+        )
+        .scalars()
+        .all()
+    )
+    membership_by_passenger = {
+        membership.passenger_id: membership for membership in memberships
+    }
+    current_ids = {
+        membership.passenger_id
+        for membership in memberships
+        if membership.hotel_id == hotel.id
+    }
+    if body.mode == "replace":
+        target_ids = requested_ids
+    elif body.mode == "add":
+        target_ids = current_ids | requested_ids
+    else:
+        target_ids = current_ids - requested_ids
+
+    added_ids = target_ids - current_ids
+    removed_ids = current_ids - target_ids
+    moved_ids = {
+        passenger_id
+        for passenger_id in added_ids
+        if (
+            passenger_id in membership_by_passenger
+            and membership_by_passenger[passenger_id].hotel_id != hotel.id
+        )
+    }
+    changed_ids = added_ids | removed_ids
+    affected_hotel_ids = {hotel.id} if changed_ids else set()
+    affected_hotel_ids.update(
+        membership_by_passenger[passenger_id].hotel_id
+        for passenger_id in moved_ids
+    )
+    if affected_hotel_ids:
+        await _clear_room_plans(
+            session,
+            hotel_ids=affected_hotel_ids,
+            block_if_checkins=True,
+        )
+
+    for passenger_id in removed_ids:
+        membership = membership_by_passenger[passenger_id]
+        await session.delete(membership)
+    for passenger_id in added_ids:
+        membership = membership_by_passenger.get(passenger_id)
+        if membership is None:
+            session.add(
+                RoomingHotelPassengerModel(
+                    agency_id=group.agency_id,
+                    group_id=group.id,
+                    hotel_id=hotel.id,
+                    passenger_id=passenger_id,
+                )
+            )
+        else:
+            membership.agency_id = group.agency_id
+            membership.group_id = group.id
+            membership.hotel_id = hotel.id
+    await session.flush()
+    if changed_ids:
+        await _audit(
+            session,
+            current_user,
+            request,
+            "rooming.hotel_passengers_selected",
+            hotel,
+            {
+                "mode": body.mode,
+                "added_count": len(added_ids),
+                "removed_count": len(removed_ids),
+                "moved_count": len(moved_ids),
+                "selected_count": len(target_ids),
+                "passenger_ids": [str(value) for value in body.passenger_ids],
+            },
+        )
+    return await _workspace_response(session, group)
+
+
+@router.put(
+    "/hotels/{hotel_id}/vip",
+    response_model=RoomingWorkspaceResponse,
+    summary="Mark selected hotel passengers as VIP or non-VIP",
+)
+async def update_hotel_vip_status(
+    hotel_id: uuid.UUID,
+    body: UpdateHotelVipRequest,
+    request: Request,
+    current_user: User = Depends(require_role(ROOMING_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> RoomingWorkspaceResponse:
+    hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    hotel, group = await _lock_rooming_scope(session, hotel, group)
+    requested_ids = set(body.passenger_ids)
+    memberships = list(
+        (
+            await session.execute(
+                select(RoomingHotelPassengerModel)
+                .where(
+                    RoomingHotelPassengerModel.hotel_id == hotel.id,
+                    RoomingHotelPassengerModel.passenger_id.in_(requested_ids),
+                )
+                .with_for_update()
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if {membership.passenger_id for membership in memberships} != requested_ids:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="VIP status can be changed only for passengers selected for this hotel.",
+        )
+    changed = [
+        membership
+        for membership in memberships
+        if membership.is_vip is not body.is_vip
+    ]
+    if changed:
+        await _clear_room_plans(
+            session,
+            hotel_ids={hotel.id},
+            block_if_checkins=True,
+        )
+        for membership in changed:
+            membership.is_vip = body.is_vip
+        await session.flush()
+        await _audit(
+            session,
+            current_user,
+            request,
+            "rooming.hotel_vip_updated",
+            hotel,
+            {
+                "is_vip": body.is_vip,
+                "changed_count": len(changed),
+                "passenger_ids": [str(value) for value in body.passenger_ids],
+            },
+        )
+    return await _workspace_response(session, group)
+
+
+@router.post(
+    "/hotels/{hotel_id}/auto-allocate",
+    response_model=RoomingWorkspaceResponse,
+    summary="Automatically create gender-safe single and twin rooms",
+)
+async def auto_allocate_hotel_rooms(
+    hotel_id: uuid.UUID,
+    body: AutoAllocateRoomsRequest,
+    request: Request,
+    current_user: User = Depends(require_role(ROOMING_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> RoomingWorkspaceResponse:
+    hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    hotel, group = await _lock_rooming_scope(session, hotel, group)
+    memberships = list(
+        (
+            await session.execute(
+                select(RoomingHotelPassengerModel)
+                .where(RoomingHotelPassengerModel.hotel_id == hotel.id)
+                .with_for_update()
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not memberships:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Select at least one passenger for this hotel before auto allocation.",
+        )
+
+    all_passengers = await _eligible_group_passengers(
+        session,
+        group,
+        lock_for_allocation=True,
+    )
+    passenger_by_id = {passenger.id: passenger for passenger in all_passengers}
+    missing_passenger_ids = [
+        str(membership.passenger_id)
+        for membership in memberships
+        if membership.passenger_id not in passenger_by_id
+    ]
+    if missing_passenger_ids:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"{len(missing_passenger_ids)} selected passenger(s) are no longer "
+                "eligible. Refresh the hotel selection before allocating rooms."
+            ),
+        )
+
+    context = await build_rooming_priority_context(
+        session,
+        group=group,
+        passengers=all_passengers,
+        lock_inputs=True,
+    )
+    catalog_by_key = {field["key"]: field for field in context.fields}
+    unknown_fields = [
+        key for key in body.priority_fields if key not in catalog_by_key
+    ]
+    if unknown_fields:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                "One or more priority fields are unavailable for this group "
+                f"({', '.join(unknown_fields)}). Refresh the priority options and try again."
+            ),
+        )
+    selected_fields = [catalog_by_key[key] for key in body.priority_fields]
+
+    invalid_gender_ids: list[str] = []
+    candidates: list[RoomingAllocationCandidate] = []
+    for membership in memberships:
+        passenger = passenger_by_id[membership.passenger_id]
+        passport_fields = passenger.confirmed_fields or passenger.extracted_fields or {}
+        gender = normalize_rooming_gender(passport_fields.get("sex"))
+        if not gender:
+            invalid_gender_ids.append(str(passenger.id))
+            continue
+        passenger_values = context.values_by_passenger.get(passenger.id, {})
+        candidates.append(
+            RoomingAllocationCandidate(
+                passenger_id=passenger.id,
+                gender=gender,
+                is_vip=membership.is_vip,
+                priority_values=tuple(
+                    normalize_priority_value(passenger_values.get(field["key"]))
+                    for field in selected_fields
+                ),
+                stable_order=(
+                    passenger.created_at,
+                    passenger.family_member_index or 0,
+                    passenger.client_name.casefold(),
+                ),
+            )
+        )
+    if invalid_gender_ids:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                f"Auto allocation requires Gender to be Male or Female for all "
+                f"selected passengers. Correct {len(invalid_gender_ids)} passenger(s) "
+                f"first. {ROOMING_GENDER_RULE}"
+            ),
+        )
+
+    plan = build_room_plan(candidates, priority_count=len(selected_fields))
+    fingerprint = room_plan_fingerprint(
+        plan,
+        selected_fields,
+        candidates=candidates,
+    )
+    if (
+        hotel.allocation_fingerprint == fingerprint
+        and await _stored_room_plan_matches(session, hotel.id, plan)
+    ):
+        hotel.allocation_priority_fields = selected_fields
+        hotel.allocation_updated_at = datetime.now(tz=UTC)
+        await session.flush()
+        return await _workspace_response(session, group)
+
+    await _clear_room_plans(
+        session,
+        hotel_ids={hotel.id},
+        block_if_checkins=True,
+    )
+    rooms: list[RoomingRoomModel] = []
+    for index, planned_room in enumerate(plan, start=1):
+        room = RoomingRoomModel(
+            hotel_id=hotel.id,
+            room_number=str(index),
+            room_type=planned_room.room_type,
+            capacity=1 if planned_room.room_type == "single" else 2,
+            allocation_tag=planned_room.allocation_tag,
+            is_saved=True,
+            sort_order=index - 1,
+        )
+        session.add(room)
+        rooms.append(room)
+    await session.flush()
+    for room, planned_room in zip(rooms, plan, strict=True):
+        session.add_all(
+            [
+                RoomingAssignmentModel(
+                    hotel_id=hotel.id,
+                    room_id=room.id,
+                    passenger_id=passenger_id,
+                    position=position,
+                )
+                for position, passenger_id in enumerate(
+                    planned_room.passenger_ids,
+                    start=1,
+                )
+            ]
+        )
+    hotel.allocation_priority_fields = selected_fields
+    hotel.allocation_revision += 1
+    hotel.allocation_fingerprint = fingerprint
+    hotel.allocation_updated_at = datetime.now(tz=UTC)
+    await session.flush()
+    await _audit(
+        session,
+        current_user,
+        request,
+        "rooming.rooms_auto_allocated",
+        hotel,
+        {
+            "allocation_revision": hotel.allocation_revision,
+            "priority_fields": [field["key"] for field in selected_fields],
+            "selected_passenger_count": len(memberships),
+            "room_count": len(plan),
+            "vip_room_count": sum(room.allocation_tag == "vip" for room in plan),
+            "unpaired_non_vip_count": sum(
+                room.room_type == "twin" and len(room.passenger_ids) == 1
+                for room in plan
+            ),
+        },
+    )
+    return await _workspace_response(session, group)
+
+
 @router.patch(
     "/hotels/{hotel_id}",
     response_model=RoomingHotelResponse,
-    summary="Update a hotel stay and safely adjust its total rooms",
+    summary="Update hotel stay details",
 )
 async def update_rooming_hotel(
     hotel_id: uuid.UUID,
@@ -123,49 +529,24 @@ async def update_rooming_hotel(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> RoomingHotelResponse:
-    hotel, _ = await _get_rooming_hotel(session, hotel_id, current_user)
+    hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    if body.room_count is not None:
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail=(
+                "Manual room counts have been retired. Select hotel passengers "
+                "and run auto room allocation."
+            ),
+        )
     hotel.hotel_name = body.hotel_name.strip()
     hotel.city = body.city.strip() if body.city else None
     hotel.check_in_date = body.check_in_date
     hotel.check_out_date = body.check_out_date
 
-    rooms_result = await session.execute(select(RoomingRoomModel).where(RoomingRoomModel.hotel_id == hotel.id))
-    rooms = sorted(rooms_result.scalars().all(), key=lambda room: (room.sort_order, _room_number_sort_key(room.room_number)))
-    if body.room_count is not None:
-        difference = body.room_count - len(rooms)
-        if difference < 0:
-            rooms_to_delete = rooms[difference:]
-            occupied_room_ids = set((await session.execute(select(RoomingAssignmentModel.room_id).where(RoomingAssignmentModel.room_id.in_([room.id for room in rooms_to_delete])))).scalars().all())
-            if occupied_room_ids:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Move occupants before reducing the total rooms")
-            for room in rooms_to_delete:
-                await session.delete(room)
-            rooms = rooms[:difference]
-        elif difference > 0:
-            start_number = await _next_room_number(session, hotel.id)
-            template = rooms[-1] if rooms else None
-            new_rooms = [
-                RoomingRoomModel(
-                    hotel_id=hotel.id,
-                    room_number=str(start_number + offset),
-                    room_type=template.room_type if template else "twin",
-                    capacity=template.capacity if template else ROOM_TYPES["twin"],
-                    allocation_tag=template.allocation_tag if template else "mixed",
-                    sort_order=len(rooms) + offset,
-                )
-                for offset in range(difference)
-            ]
-            session.add_all(new_rooms)
-            rooms.extend(new_rooms)
-
     await session.flush()
     await _audit(session, current_user, request, "rooming.hotel_updated", hotel, {"room_count": body.room_count})
-    return RoomingHotelResponse(
-        id=hotel.id, hotel_name=hotel.hotel_name, city=hotel.city,
-        check_in_date=hotel.check_in_date, check_out_date=hotel.check_out_date,
-        rooms=[_room_response(room, []) for room in rooms],
-        capacity_total=sum(room.capacity for room in rooms),
-    )
+    workspace = await _workspace_response(session, group)
+    return next(item for item in workspace.hotels if item.id == hotel.id)
 
 
 @router.post(
@@ -173,6 +554,7 @@ async def update_rooming_hotel(
     response_model=list[RoomingRoomResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Generate sequential single, twin, or triple rooms",
+    include_in_schema=False,
 )
 async def generate_rooms(
     hotel_id: uuid.UUID,
@@ -181,47 +563,21 @@ async def generate_rooms(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[RoomingRoomResponse]:
-    hotel, _ = await _get_rooming_hotel(session, hotel_id, current_user)
-    start_number = body.starting_number or await _next_room_number(session, hotel.id)
-    room_numbers = [str(start_number + offset) for offset in range(body.count)]
-    existing = await session.execute(
-        select(RoomingRoomModel.room_number).where(
-            RoomingRoomModel.hotel_id == hotel.id,
-            RoomingRoomModel.room_number.in_(room_numbers),
-        )
+    del hotel_id, body, request, current_user, session
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail=(
+            "Manual room generation has been retired. Select hotel passengers "
+            "and run auto room allocation."
+        ),
     )
-    if existing.scalar_one_or_none() is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="One or more room numbers already exist")
-
-    existing_room_count = await _room_count(session, hotel.id)
-    rooms = [
-        RoomingRoomModel(
-            hotel_id=hotel.id,
-            room_number=room_number,
-            room_type=body.room_type,
-            capacity=ROOM_TYPES[body.room_type],
-            allocation_tag=body.allocation_tag,
-            sort_order=existing_room_count + offset,
-        )
-        for offset, room_number in enumerate(room_numbers)
-    ]
-    session.add_all(rooms)
-    await session.flush()
-    await _audit(
-        session,
-        current_user,
-        request,
-        "rooming.rooms_generated",
-        hotel,
-        {"room_type": body.room_type, "count": body.count, "starting_number": start_number},
-    )
-    return [_room_response(room, []) for room in rooms]
 
 
 @router.patch(
     "/rooms/{room_id}",
     response_model=RoomingRoomResponse,
     summary="Update a room's number, type, tag, or notes",
+    include_in_schema=False,
 )
 async def update_room(
     room_id: uuid.UUID,
@@ -230,37 +586,21 @@ async def update_room(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> RoomingRoomResponse:
-    room, hotel, _ = await _get_room(session, room_id, current_user)
-    occupancy = await _room_occupancy(session, room.id)
-    capacity = ROOM_TYPES[body.room_type]
-    if occupancy > capacity:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room type cannot hold its current occupants")
-
-    duplicate = await session.execute(
-        select(RoomingRoomModel.id).where(
-            RoomingRoomModel.hotel_id == hotel.id,
-            RoomingRoomModel.room_number == body.room_number.strip(),
-            RoomingRoomModel.id != room.id,
-        )
+    del room_id, body, request, current_user, session
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail=(
+            "Manual room editing has been retired. Change hotel passenger "
+            "selection or priorities and run auto room allocation again."
+        ),
     )
-    if duplicate.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room number already exists for this hotel")
-
-    room.room_number = body.room_number.strip()
-    room.room_type = body.room_type
-    room.capacity = capacity
-    room.allocation_tag = body.allocation_tag
-    room.roommate_notes = body.roommate_notes.strip() if body.roommate_notes else None
-    room.is_saved = body.is_saved
-    await session.flush()
-    await _audit(session, current_user, request, "rooming.room_updated", hotel, {"room_id": str(room.id)})
-    return _room_response(room, [])
 
 
 @router.put(
     "/hotels/{hotel_id}/rooms/order",
     response_model=list[RoomingRoomResponse],
     summary="Persist the display order of a hotel's rooms",
+    include_in_schema=False,
 )
 async def update_room_order(
     hotel_id: uuid.UUID,
@@ -269,17 +609,14 @@ async def update_room_order(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[RoomingRoomResponse]:
-    hotel, _ = await _get_rooming_hotel(session, hotel_id, current_user)
-    rooms_result = await session.execute(select(RoomingRoomModel).where(RoomingRoomModel.hotel_id == hotel.id))
-    rooms = list(rooms_result.scalars().all())
-    room_by_id = {room.id: room for room in rooms}
-    if len(body.room_ids) != len(rooms) or set(body.room_ids) != set(room_by_id):
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Room order must include every hotel room once")
-    for sort_order, room_id in enumerate(body.room_ids):
-        room_by_id[room_id].sort_order = sort_order
-    await session.flush()
-    await _audit(session, current_user, request, "rooming.rooms_reordered", hotel, {"room_ids": [str(room_id) for room_id in body.room_ids]})
-    return [_room_response(room_by_id[room_id], []) for room_id in body.room_ids]
+    del hotel_id, body, request, current_user, session
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail=(
+            "Manual room ordering has been retired. Auto room allocation "
+            "provides deterministic room order."
+        ),
+    )
 
 
 @router.delete(
@@ -287,6 +624,7 @@ async def update_room_order(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     summary="Delete a room and any assignments stored for it",
+    include_in_schema=False,
 )
 async def delete_room(
     room_id: uuid.UUID,
@@ -294,17 +632,21 @@ async def delete_room(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> Response:
-    room, hotel, _ = await _get_room(session, room_id, current_user)
-    await session.execute(delete(RoomingAssignmentModel).where(RoomingAssignmentModel.room_id == room.id))
-    await _audit(session, current_user, request, "rooming.room_deleted", hotel, {"room_id": str(room.id), "room_number": room.room_number})
-    await session.delete(room)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    del room_id, request, current_user, session
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail=(
+            "Manual room deletion has been retired. Change the hotel passenger "
+            "selection and run auto room allocation again."
+        ),
+    )
 
 
 @router.put(
     "/hotels/{hotel_id}/passengers/{passenger_id}/allocation",
     response_model=RoomingWorkspaceResponse,
     summary="Allocate, move, or unallocate a passenger and save hotel-specific preferences",
+    include_in_schema=False,
 )
 async def update_passenger_allocation(
     hotel_id: uuid.UUID,
@@ -314,92 +656,14 @@ async def update_passenger_allocation(
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> RoomingWorkspaceResponse:
-    hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
-    passenger_result = await session.execute(
-        select(PassportSubmissionModel).where(
-            PassportSubmissionModel.id == passenger_id,
-            PassportSubmissionModel.group_id == group.id,
-            PassportSubmissionModel.agency_id == group.agency_id,
-            PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
-        )
+    del hotel_id, passenger_id, body, request, current_user, session
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail=(
+            "Manual passenger-to-room allocation has been retired. Select "
+            "hotel passengers and run auto room allocation."
+        ),
     )
-    passenger = passenger_result.scalar_one_or_none()
-    if not passenger:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group")
-
-    preference_result = await session.execute(
-        select(RoomingPassengerPreferenceModel)
-        .where(RoomingPassengerPreferenceModel.hotel_id == hotel.id, RoomingPassengerPreferenceModel.passenger_id == passenger.id)
-        .with_for_update()
-    )
-    preference = preference_result.scalar_one_or_none()
-    if preference is None:
-        preference = RoomingPassengerPreferenceModel(hotel_id=hotel.id, passenger_id=passenger.id)
-        session.add(preference)
-    preference.allocation_tag = body.allocation_tag
-    preference.special_requests = body.special_requests
-    preference.roommate_notes = body.roommate_notes.strip() if body.roommate_notes else None
-
-    assignment_result = await session.execute(
-        select(RoomingAssignmentModel)
-        .where(RoomingAssignmentModel.hotel_id == hotel.id, RoomingAssignmentModel.passenger_id == passenger.id)
-        .with_for_update()
-    )
-    assignment = assignment_result.scalar_one_or_none()
-
-    if body.room_id is None:
-        if assignment:
-            await session.delete(assignment)
-    else:
-        other_assignments_result = await session.execute(
-            select(RoomingAssignmentModel)
-            .join(RoomingHotelModel, RoomingAssignmentModel.hotel_id == RoomingHotelModel.id)
-            .where(RoomingHotelModel.group_id == group.id, RoomingAssignmentModel.passenger_id == passenger.id, RoomingAssignmentModel.hotel_id != hotel.id)
-            .with_for_update()
-        )
-        for other_assignment in other_assignments_result.scalars().all():
-            await session.delete(other_assignment)
-        room_result = await session.execute(
-            select(RoomingRoomModel).where(RoomingRoomModel.id == body.room_id, RoomingRoomModel.hotel_id == hotel.id).with_for_update()
-        )
-        room = room_result.scalar_one_or_none()
-        if not room:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room was not found for this hotel")
-        effective_passenger_tag = body.allocation_tag
-        if effective_passenger_tag == "unspecified":
-            effective_passenger_tag = _default_rooming_tag(passenger, _family_size(passenger, None))
-        if not _passenger_matches_room_allocation(
-            effective_passenger_tag,
-            body.special_requests,
-            room.allocation_tag,
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Passenger does not match this room's {room.allocation_tag} allocation",
-            )
-        if assignment is None or assignment.room_id != room.id:
-            occupancy = await _room_occupancy(session, room.id)
-            if occupancy >= room.capacity:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room is already at capacity")
-            if assignment is None:
-                assignment = RoomingAssignmentModel(hotel_id=hotel.id, room_id=room.id, passenger_id=passenger.id, position=occupancy + 1)
-                session.add(assignment)
-            else:
-                assignment.room_id = room.id
-                assignment.position = occupancy + 1
-            if occupancy + 1 >= room.capacity:
-                room.is_saved = True
-
-    await session.flush()
-    await _audit(
-        session,
-        current_user,
-        request,
-        "rooming.passenger_allocated",
-        hotel,
-        {"passenger_id": str(passenger.id), "room_id": str(body.room_id) if body.room_id else None},
-    )
-    return await _workspace_response(session, group)
 
 
 @router.get(
@@ -408,10 +672,12 @@ async def update_passenger_allocation(
 )
 async def export_hotel_rooming_list(
     hotel_id: uuid.UUID,
+    request: Request,
     current_user: User = Depends(require_role(ROOMING_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    await _require_current_allocation(session, hotel)
     rooms_result = await session.execute(
         select(RoomingRoomModel).where(RoomingRoomModel.hotel_id == hotel.id)
     )
@@ -426,14 +692,130 @@ async def export_hotel_rooming_list(
         passenger_ids.add(assignment.passenger_id)
     passenger_result = await session.execute(select(PassportSubmissionModel).where(PassportSubmissionModel.id.in_(passenger_ids))) if passenger_ids else None
     passengers = list(passenger_result.scalars().all()) if passenger_result else []
-    preference_result = await session.execute(select(RoomingPassengerPreferenceModel).where(RoomingPassengerPreferenceModel.hotel_id == hotel.id))
-    preferences = {preference.passenger_id: preference for preference in preference_result.scalars().all()}
+    all_passengers = await _eligible_group_passengers(
+        session,
+        group,
+        lock_for_allocation=True,
+    )
+    priority_context = await build_rooming_priority_context(
+        session,
+        group=group,
+        passengers=all_passengers,
+        required_fields=list(hotel.allocation_priority_fields or []),
+        lock_inputs=True,
+    )
+    memberships = list(
+        (
+            await session.execute(
+                select(RoomingHotelPassengerModel).where(
+                    RoomingHotelPassengerModel.hotel_id == hotel.id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    priority_fields = list(hotel.allocation_priority_fields or [])
+    if hotel.allocation_fingerprint != "0" * 64:
+        export_passenger_by_id = {
+            passenger.id: passenger for passenger in all_passengers
+        }
+        candidates: list[RoomingAllocationCandidate] = []
+        for membership in memberships:
+            passenger = export_passenger_by_id.get(membership.passenger_id)
+            if passenger is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "The selected passenger data changed. Run auto room "
+                        "allocation again before exporting."
+                    ),
+                )
+            passport_fields = (
+                passenger.confirmed_fields or passenger.extracted_fields or {}
+            )
+            gender = normalize_rooming_gender(passport_fields.get("sex"))
+            if gender is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "A selected passenger no longer has Gender set to Male "
+                        "or Female. Correct it and run auto room allocation again."
+                    ),
+                )
+            passenger_values = priority_context.values_by_passenger.get(
+                passenger.id,
+                {},
+            )
+            candidates.append(
+                RoomingAllocationCandidate(
+                    passenger_id=passenger.id,
+                    gender=gender,
+                    is_vip=membership.is_vip,
+                    priority_values=tuple(
+                        normalize_priority_value(
+                            passenger_values.get(field["key"])
+                        )
+                        for field in priority_fields
+                    ),
+                    stable_order=(
+                        passenger.created_at,
+                        passenger.family_member_index or 0,
+                        passenger.client_name.casefold(),
+                    ),
+                )
+            )
+        expected_plan = build_room_plan(
+            candidates,
+            priority_count=len(priority_fields),
+        )
+        expected_fingerprint = room_plan_fingerprint(
+            expected_plan,
+            priority_fields,
+            candidates=candidates,
+        )
+        if (
+            expected_fingerprint != hotel.allocation_fingerprint
+            or not await _stored_room_plan_matches(
+                session,
+                hotel.id,
+                expected_plan,
+            )
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "Passenger grouping inputs changed after room allocation. "
+                    "Run auto room allocation again before exporting."
+                ),
+            )
     content = RoomingExcelExporter().export_hotel(
-        group_name=group.name,
+        group=group,
         hotel=hotel,
         rooms=[(room, assignments_by_room.get(room.id, [])) for room in rooms],
         passenger_by_id={passenger.id: passenger for passenger in passengers},
-        preferences=preferences,
+        vip_passenger_ids={
+            membership.passenger_id
+            for membership in memberships
+            if membership.is_vip
+        },
+        priority_fields=priority_fields,
+        priority_values=priority_context.values_by_passenger,
+    )
+    await _audit(
+        session,
+        current_user,
+        request,
+        "rooming.rooming_list_exported",
+        hotel,
+        {
+            "allocation_revision": hotel.allocation_revision,
+            "passenger_count": len(passengers),
+            "priority_fields": [
+                field.get("key")
+                for field in (hotel.allocation_priority_fields or [])
+            ],
+        },
     )
     filename = _export_filename(hotel.hotel_name)
     return StreamingResponse(
@@ -450,6 +832,7 @@ async def get_hotel_checkins(
     session: AsyncSession = Depends(get_db_session),
 ) -> HotelCheckinDashboardResponse:
     hotel, group = await _get_checkin_hotel(session, hotel_id, current_user)
+    await _require_current_allocation(session, hotel)
     return await _checkin_dashboard(session, hotel, group)
 
 
@@ -462,6 +845,7 @@ async def scan_hotel_checkin(
     session: AsyncSession = Depends(get_db_session),
 ) -> HotelCheckinScanResponse:
     hotel, group = await _get_checkin_hotel(session, hotel_id, current_user)
+    await _require_current_allocation(session, hotel)
     resolved = await session.execute(
         select(PassportSubmissionModel, PassengerQRTokenModel)
         .join(PassengerQRTokenModel, PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id)
@@ -532,6 +916,7 @@ async def update_hotel_checkin(
     if not checkin:
         raise HTTPException(status_code=404, detail="Check-in was not found")
     hotel, _ = await _get_checkin_hotel(session, checkin.hotel_id, current_user)
+    await _require_current_allocation(session, hotel)
     now = datetime.now(tz=UTC)
     if body.key_issued is not None:
         checkin.key_issued = body.key_issued
@@ -563,10 +948,288 @@ async def export_hotel_checkins(
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
     hotel, group = await _get_rooming_hotel(session, hotel_id, current_user)
+    await _require_current_allocation(session, hotel)
     dashboard = await _checkin_dashboard(session, hotel, group)
     content = RoomingExcelExporter().export_checkins(group_name=group.name, hotel_name=hotel.hotel_name, passengers=dashboard.passengers)
     await _audit(session, current_user, request, "rooming.checkin_exported", hotel, {})
     return StreamingResponse(io.BytesIO(content), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": f'attachment; filename="hotel_checkins_{_export_filename(hotel.hotel_name).removeprefix("rooming_list_")}"'})
+
+
+async def _require_current_allocation(
+    session: AsyncSession,
+    hotel: RoomingHotelModel,
+) -> None:
+    locked_hotel = (
+        await session.execute(
+            select(RoomingHotelModel)
+            .where(RoomingHotelModel.id == hotel.id)
+            .with_for_update(read=True)
+            .execution_options(populate_existing=True)
+        )
+    ).scalar_one_or_none()
+    if locked_hotel is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Hotel was not found",
+        )
+    selected_rows = list(
+        (
+            await session.execute(
+                select(
+                    RoomingHotelPassengerModel.passenger_id,
+                    PassportSubmissionModel.updated_at,
+                    PassportSubmissionModel.group_id,
+                    PassportSubmissionModel.agency_id,
+                    PassportSubmissionModel.status,
+                )
+                .join(
+                    PassportSubmissionModel,
+                    PassportSubmissionModel.id
+                    == RoomingHotelPassengerModel.passenger_id,
+                )
+                .where(RoomingHotelPassengerModel.hotel_id == hotel.id)
+                .with_for_update(read=True)
+            )
+        ).all()
+    )
+    selected_ids = [row.passenger_id for row in selected_rows]
+    if not selected_ids:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Select passengers for this hotel and run auto room allocation "
+                "before exporting or starting check-in."
+            ),
+        )
+    if (
+        not locked_hotel.allocation_fingerprint
+        or locked_hotel.allocation_updated_at is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This hotel's passenger selection changed. Run auto room "
+                "allocation before exporting or starting check-in."
+            ),
+        )
+    invalid_selected_count = sum(
+        row.group_id != locked_hotel.group_id
+        or row.agency_id != locked_hotel.agency_id
+        or row.status not in ROOMING_PASSENGER_STATUSES
+        for row in selected_rows
+    )
+    if invalid_selected_count:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"{invalid_selected_count} selected passenger record(s) are no "
+                "longer eligible. Refresh the selection and run auto allocation again."
+            ),
+        )
+    changed_passenger_count = sum(
+        _datetime_is_after(row.updated_at, locked_hotel.allocation_updated_at)
+        for row in selected_rows
+    )
+    if changed_passenger_count:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"{changed_passenger_count} selected passenger record(s) changed "
+                "after room allocation. Run auto room allocation again."
+            ),
+        )
+    assigned_ids = list(
+        (
+            await session.execute(
+                select(RoomingAssignmentModel.passenger_id).where(
+                    RoomingAssignmentModel.hotel_id == hotel.id
+                )
+            )
+        ).scalars()
+    )
+    if len(assigned_ids) != len(selected_ids) or set(assigned_ids) != set(selected_ids):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This hotel's stored rooms no longer match its passenger selection. "
+                "Run auto room allocation again."
+            ),
+        )
+
+
+async def _eligible_group_passengers(
+    session: AsyncSession,
+    group: ClientGroupModel,
+    *,
+    passenger_ids: set[uuid.UUID] | None = None,
+    lock_for_allocation: bool = False,
+) -> list[PassportSubmissionModel]:
+    statement = (
+        select(PassportSubmissionModel)
+        .where(
+            PassportSubmissionModel.group_id == group.id,
+            PassportSubmissionModel.agency_id == group.agency_id,
+            PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
+        )
+        .order_by(
+            PassportSubmissionModel.created_at.asc(),
+            PassportSubmissionModel.id.asc(),
+        )
+    )
+    if passenger_ids is not None:
+        if not passenger_ids:
+            return []
+        statement = statement.where(PassportSubmissionModel.id.in_(passenger_ids))
+    if lock_for_allocation:
+        statement = statement.with_for_update(read=True).execution_options(
+            populate_existing=True
+        )
+    return list((await session.execute(statement)).scalars().all())
+
+
+async def _lock_rooming_scope(
+    session: AsyncSession,
+    hotel: RoomingHotelModel,
+    group: ClientGroupModel,
+) -> tuple[RoomingHotelModel, ClientGroupModel]:
+    """Serialize every membership mutation for a group before locking its hotel."""
+
+    locked_group = (
+        await session.execute(
+            select(ClientGroupModel)
+            .where(
+                ClientGroupModel.id == group.id,
+                ClientGroupModel.status != "deleted",
+            )
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+    ).scalar_one_or_none()
+    locked_hotel = (
+        await session.execute(
+            select(RoomingHotelModel)
+            .where(RoomingHotelModel.id == hotel.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+    ).scalar_one_or_none()
+    if (
+        locked_group is None
+        or locked_hotel is None
+        or locked_hotel.group_id != locked_group.id
+        or locked_hotel.agency_id != locked_group.agency_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The hotel or group changed while this operation was starting.",
+        )
+    return locked_hotel, locked_group
+
+
+async def _clear_room_plans(
+    session: AsyncSession,
+    *,
+    hotel_ids: set[uuid.UUID],
+    block_if_checkins: bool,
+) -> None:
+    """Invalidate generated rooms without ever erasing check-in history."""
+
+    if not hotel_ids:
+        return
+    hotels = list(
+        (
+            await session.execute(
+                select(RoomingHotelModel)
+                .where(RoomingHotelModel.id.in_(hotel_ids))
+                .order_by(RoomingHotelModel.id.asc())
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if {item.id for item in hotels} != hotel_ids:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="One or more affected hotels changed while the operation was starting.",
+        )
+    if block_if_checkins:
+        checkin_count = int(
+            (
+                await session.execute(
+                    select(func.count())
+                    .select_from(RoomingCheckinModel)
+                    .where(RoomingCheckinModel.hotel_id.in_(hotel_ids))
+                )
+            ).scalar_one()
+        )
+        if checkin_count:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "Room allocation cannot be changed after hotel check-in "
+                    "activity has started."
+                ),
+            )
+    await session.execute(
+        delete(RoomingAssignmentModel).where(
+            RoomingAssignmentModel.hotel_id.in_(hotel_ids)
+        )
+    )
+    await session.execute(
+        delete(RoomingRoomModel).where(RoomingRoomModel.hotel_id.in_(hotel_ids))
+    )
+    for item in hotels:
+        item.allocation_fingerprint = None
+        item.allocation_updated_at = None
+    await session.flush()
+
+
+async def _stored_room_plan_matches(
+    session: AsyncSession,
+    hotel_id: uuid.UUID,
+    expected: list[PlannedRoom],
+) -> bool:
+    rooms = sorted(
+        (
+            (
+                await session.execute(
+                    select(RoomingRoomModel).where(
+                        RoomingRoomModel.hotel_id == hotel_id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        ),
+        key=lambda room: (room.sort_order, _room_number_sort_key(room.room_number)),
+    )
+    if len(rooms) != len(expected):
+        return False
+    assignments = list(
+        (
+            await session.execute(
+                select(RoomingAssignmentModel)
+                .where(RoomingAssignmentModel.hotel_id == hotel_id)
+                .order_by(
+                    RoomingAssignmentModel.room_id.asc(),
+                    RoomingAssignmentModel.position.asc(),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    occupants_by_room: dict[uuid.UUID, list[uuid.UUID]] = defaultdict(list)
+    for assignment in assignments:
+        occupants_by_room[assignment.room_id].append(assignment.passenger_id)
+    return all(
+        room.room_type == planned.room_type
+        and room.allocation_tag == planned.allocation_tag
+        and tuple(occupants_by_room[room.id]) == planned.passenger_ids
+        for room, planned in zip(rooms, expected, strict=True)
+    )
 
 
 async def _get_rooming_group(session: AsyncSession, group_id: uuid.UUID, current_user: User) -> ClientGroupModel:
@@ -636,49 +1299,25 @@ async def _checkin_item(
     return HotelCheckinPassengerResponse(checkin_id=checkin.id if checkin else uuid.UUID(int=0), passenger_id=passenger.id, passenger_name=passenger.client_name, submission_mode=passenger.submission_mode, family_group_id=passenger.family_group_id, family_group_label=_family_group_label(passenger, family_size), family_relation=passenger.family_relation, family_size=family_size, family_head_name=passenger.family_head_name, room_id=room.id, room_number=room.room_number, room_type=room.room_type, roommates=[other.client_name for _, other in occupants if other.id != passenger.id], checked_in=bool(checkin and checkin.checked_in), checked_in_at=checkin.checked_in_at if checkin else None, key_issued=bool(checkin and checkin.key_issued), key_issued_at=checkin.key_issued_at if checkin else None, welcome_letter_issued=bool(checkin and checkin.welcome_letter_issued), welcome_letter_issued_at=checkin.welcome_letter_issued_at if checkin else None, remarks=checkin.remarks if checkin else None, is_vip=is_vip, has_special_request=bool(preference and preference.special_requests), room_has_missing_occupants=0 < len(occupants) < room.capacity)
 
 
-async def _get_room(session: AsyncSession, room_id: uuid.UUID, current_user: User) -> tuple[RoomingRoomModel, RoomingHotelModel, ClientGroupModel]:
-    result = await session.execute(select(RoomingRoomModel).where(RoomingRoomModel.id == room_id))
-    room = result.scalar_one_or_none()
-    if not room:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room was not found")
-    hotel, group = await _get_rooming_hotel(session, room.hotel_id, current_user)
-    return room, hotel, group
-
-
-async def _next_room_number(session: AsyncSession, hotel_id: uuid.UUID) -> int:
-    result = await session.execute(select(RoomingRoomModel.room_number).where(RoomingRoomModel.hotel_id == hotel_id))
-    numbers = [int(value) for value in result.scalars().all() if value.isdigit()]
-    return max(numbers, default=0) + 1
-
-
-async def _room_occupancy(session: AsyncSession, room_id: uuid.UUID) -> int:
-    result = await session.execute(select(func.count()).select_from(RoomingAssignmentModel).where(RoomingAssignmentModel.room_id == room_id))
-    return int(result.scalar_one())
-
-
-async def _room_count(session: AsyncSession, hotel_id: uuid.UUID) -> int:
-    result = await session.execute(select(func.count()).select_from(RoomingRoomModel).where(RoomingRoomModel.hotel_id == hotel_id))
-    return int(result.scalar_one())
-
-
 async def _workspace_response(session: AsyncSession, group: ClientGroupModel) -> RoomingWorkspaceResponse:
-    passengers_result = await session.execute(
-        select(PassportSubmissionModel)
-        .where(
-            PassportSubmissionModel.group_id == group.id,
-            PassportSubmissionModel.agency_id == group.agency_id,
-            PassportSubmissionModel.status.in_(ROOMING_PASSENGER_STATUSES),
-        )
-        .order_by(PassportSubmissionModel.client_name.asc())
-    )
-    passengers = list(passengers_result.scalars().all())
+    passengers = await _eligible_group_passengers(session, group)
+    passengers.sort(key=lambda passenger: (passenger.client_name.casefold(), str(passenger.id)))
     family_sizes = _family_sizes(passengers)
     hotels_result = await session.execute(
         select(RoomingHotelModel).where(RoomingHotelModel.group_id == group.id).order_by(RoomingHotelModel.created_at.asc())
     )
     hotels = list(hotels_result.scalars().all())
     if not hotels:
-        return RoomingWorkspaceResponse(group_id=group.id, group_name=group.name, destination=group.destination, total_passengers=len(passengers), passengers=[_passenger_response(passenger, None, family_sizes) for passenger in passengers])
+        return RoomingWorkspaceResponse(
+            group_id=group.id,
+            group_name=group.name,
+            destination=group.destination,
+            total_passengers=len(passengers),
+            passengers=[
+                _passenger_response(passenger, None, family_sizes)
+                for passenger in passengers
+            ],
+        )
 
     hotel_ids = [hotel.id for hotel in hotels]
     rooms_result = await session.execute(select(RoomingRoomModel).where(RoomingRoomModel.hotel_id.in_(hotel_ids)))
@@ -686,22 +1325,92 @@ async def _workspace_response(session: AsyncSession, group: ClientGroupModel) ->
     assignments_result = await session.execute(select(RoomingAssignmentModel).where(RoomingAssignmentModel.hotel_id.in_(hotel_ids)).order_by(RoomingAssignmentModel.position.asc()))
     preferences_result = await session.execute(select(RoomingPassengerPreferenceModel).where(RoomingPassengerPreferenceModel.hotel_id.in_(hotel_ids)))
     preference_by_pair = {(pref.hotel_id, pref.passenger_id): pref for pref in preferences_result.scalars().all()}
+    membership_result = await session.execute(
+        select(RoomingHotelPassengerModel).where(
+            RoomingHotelPassengerModel.group_id == group.id
+        )
+    )
+    memberships = list(membership_result.scalars().all())
+    membership_by_passenger = {
+        membership.passenger_id: membership for membership in memberships
+    }
+    memberships_by_hotel: dict[uuid.UUID, list[RoomingHotelPassengerModel]] = defaultdict(list)
+    for membership in memberships:
+        memberships_by_hotel[membership.hotel_id].append(membership)
+    hotel_name_by_id = {hotel.id: hotel.hotel_name for hotel in hotels}
     passenger_by_id = {passenger.id: passenger for passenger in passengers}
     occupants_by_room: dict[uuid.UUID, list[RoomingPassengerResponse]] = defaultdict(list)
     allocated_by_hotel: dict[uuid.UUID, set[uuid.UUID]] = defaultdict(set)
+    assignment_count_by_hotel: dict[uuid.UUID, int] = defaultdict(int)
     allocated_passenger_ids: set[uuid.UUID] = set()
     for assignment in assignments_result.scalars().all():
+        assignment_count_by_hotel[assignment.hotel_id] += 1
         passenger = passenger_by_id.get(assignment.passenger_id)
         if passenger:
-            occupants_by_room[assignment.room_id].append(_passenger_response(passenger, preference_by_pair.get((assignment.hotel_id, passenger.id)), family_sizes))
+            membership = membership_by_passenger.get(passenger.id)
+            occupants_by_room[assignment.room_id].append(
+                _passenger_response(
+                    passenger,
+                    preference_by_pair.get((assignment.hotel_id, passenger.id)),
+                    family_sizes,
+                    membership=membership,
+                    selected_hotel_name=(
+                        hotel_name_by_id.get(membership.hotel_id)
+                        if membership
+                        else None
+                    ),
+                )
+            )
             allocated_by_hotel[assignment.hotel_id].add(passenger.id)
             allocated_passenger_ids.add(passenger.id)
     rooms_by_hotel: dict[uuid.UUID, list[RoomingRoomModel]] = defaultdict(list)
     for room in rooms:
         rooms_by_hotel[room.hotel_id].append(room)
+    default_hotel_id = hotels[0].id
+    unallocated_responses: list[RoomingPassengerResponse] = []
+    for passenger in passengers:
+        if passenger.id in allocated_passenger_ids:
+            continue
+        membership = membership_by_passenger.get(passenger.id)
+        preference_hotel_id = membership.hotel_id if membership else default_hotel_id
+        unallocated_responses.append(
+            _passenger_response(
+                passenger,
+                preference_by_pair.get((preference_hotel_id, passenger.id)),
+                family_sizes,
+                membership=membership,
+                selected_hotel_name=(
+                    hotel_name_by_id.get(membership.hotel_id)
+                    if membership
+                    else None
+                ),
+            )
+        )
     hotel_responses = []
     for hotel in hotels:
         hotel_rooms = rooms_by_hotel[hotel.id]
+        hotel_memberships = sorted(
+            memberships_by_hotel[hotel.id],
+            key=lambda membership: (
+                passenger_by_id[membership.passenger_id].client_name.casefold()
+                if membership.passenger_id in passenger_by_id
+                else "",
+                str(membership.passenger_id),
+            ),
+        )
+        selected_ids = {
+            membership.passenger_id
+            for membership in hotel_memberships
+            if membership.passenger_id in passenger_by_id
+        }
+        allocation_is_current = _allocation_state_is_current(
+            hotel=hotel,
+            membership_count=len(hotel_memberships),
+            selected_ids=selected_ids,
+            assigned_ids=allocated_by_hotel[hotel.id],
+            assignment_count=assignment_count_by_hotel[hotel.id],
+            passenger_by_id=passenger_by_id,
+        )
         hotel_responses.append(
             RoomingHotelResponse(
                 id=hotel.id,
@@ -710,27 +1419,64 @@ async def _workspace_response(session: AsyncSession, group: ClientGroupModel) ->
                 check_in_date=hotel.check_in_date,
                 check_out_date=hotel.check_out_date,
                 rooms=[_room_response(room, occupants_by_room[room.id]) for room in hotel_rooms],
-                unallocated_passengers=[
-                    _passenger_response(passenger, preference_by_pair.get((hotel.id, passenger.id)), family_sizes)
-                    for passenger in passengers
-                    if passenger.id not in allocated_passenger_ids
-                ],
+                unallocated_passengers=list(unallocated_responses),
                 allocated_passenger_count=len(allocated_by_hotel[hotel.id]),
                 capacity_total=sum(room.capacity for room in hotel_rooms),
+                selected_passengers=[
+                    _passenger_response(
+                        passenger_by_id[membership.passenger_id],
+                        preference_by_pair.get(
+                            (hotel.id, membership.passenger_id)
+                        ),
+                        family_sizes,
+                        membership=membership,
+                        selected_hotel_name=hotel.hotel_name,
+                    )
+                    for membership in hotel_memberships
+                    if membership.passenger_id in passenger_by_id
+                ],
+                selected_passenger_count=sum(
+                    membership.passenger_id in passenger_by_id
+                    for membership in hotel_memberships
+                ),
+                allocation_priority_fields=list(
+                    hotel.allocation_priority_fields or []
+                ),
+                allocation_revision=hotel.allocation_revision,
+                allocation_is_current=allocation_is_current,
             )
         )
-    default_hotel_id = hotels[0].id
     return RoomingWorkspaceResponse(
         group_id=group.id,
         group_name=group.name,
         destination=group.destination,
         total_passengers=len(passengers),
         hotels=hotel_responses,
-        passengers=[_passenger_response(passenger, preference_by_pair.get((default_hotel_id, passenger.id)), family_sizes) for passenger in passengers],
+        passengers=[
+            _passenger_response(
+                passenger,
+                preference_by_pair.get((default_hotel_id, passenger.id)),
+                family_sizes,
+                membership=membership_by_passenger.get(passenger.id),
+                selected_hotel_name=(
+                    hotel_name_by_id.get(membership_by_passenger[passenger.id].hotel_id)
+                    if passenger.id in membership_by_passenger
+                    else None
+                ),
+            )
+            for passenger in passengers
+        ],
     )
 
 
-def _passenger_response(passenger: PassportSubmissionModel, preference: RoomingPassengerPreferenceModel | None, family_sizes: dict[uuid.UUID, int] | None = None) -> RoomingPassengerResponse:
+def _passenger_response(
+    passenger: PassportSubmissionModel,
+    preference: RoomingPassengerPreferenceModel | None,
+    family_sizes: dict[uuid.UUID, int] | None = None,
+    *,
+    membership: RoomingHotelPassengerModel | None = None,
+    selected_hotel_name: str | None = None,
+) -> RoomingPassengerResponse:
     fields = passenger.confirmed_fields or passenger.extracted_fields or {}
     family_size = _family_size(passenger, family_sizes)
     default_tag = _default_rooming_tag(passenger, family_size)
@@ -751,6 +1497,9 @@ def _passenger_response(passenger: PassportSubmissionModel, preference: RoomingP
         allocation_tag=preference.allocation_tag if preference else default_tag,
         special_requests=preference.special_requests if preference else [],
         roommate_notes=preference.roommate_notes if preference else None,
+        selected_hotel_id=membership.hotel_id if membership else None,
+        selected_hotel_name=selected_hotel_name,
+        is_vip=bool(membership and membership.is_vip),
     )
 
 
@@ -777,18 +1526,6 @@ def _default_rooming_tag(passenger: PassportSubmissionModel, family_size: int) -
     if sex in {"f", "female"}:
         return "female"
     return "unspecified"
-
-
-def _passenger_matches_room_allocation(
-    passenger_tag: str,
-    special_requests: list[str],
-    room_tag: str,
-) -> bool:
-    if room_tag == "mixed":
-        return True
-    if room_tag == "vip":
-        return "vip" in special_requests
-    return passenger_tag == room_tag
 
 
 def _family_group_label(passenger: PassportSubmissionModel, family_size: int) -> str | None:
@@ -829,6 +1566,46 @@ async def _audit(session: AsyncSession, current_user: User, request: Request, ac
 def _export_filename(hotel_name: str) -> str:
     normalized = "".join(character if character.isalnum() else "_" for character in hotel_name).strip("_")
     return f"rooming_list_{normalized or 'hotel'}.xlsx"
+
+
+def _datetime_is_after(value: datetime, baseline: datetime) -> bool:
+    """Compare database timestamps consistently across SQLite/PostgreSQL tests."""
+
+    normalized_value = value if value.tzinfo else value.replace(tzinfo=UTC)
+    normalized_baseline = (
+        baseline if baseline.tzinfo else baseline.replace(tzinfo=UTC)
+    )
+    return normalized_value > normalized_baseline
+
+
+def _allocation_state_is_current(
+    *,
+    hotel: RoomingHotelModel,
+    membership_count: int,
+    selected_ids: set[uuid.UUID],
+    assigned_ids: set[uuid.UUID],
+    assignment_count: int,
+    passenger_by_id: dict[uuid.UUID, PassportSubmissionModel],
+) -> bool:
+    """Apply the same persisted-plan invariants exposed by the guarded routes."""
+
+    if (
+        not selected_ids
+        or membership_count != len(selected_ids)
+        or not hotel.allocation_fingerprint
+        or hotel.allocation_updated_at is None
+        or assignment_count != len(selected_ids)
+        or assigned_ids != selected_ids
+    ):
+        return False
+    return all(
+        passenger_id in passenger_by_id
+        and not _datetime_is_after(
+            passenger_by_id[passenger_id].updated_at,
+            hotel.allocation_updated_at,
+        )
+        for passenger_id in selected_ids
+    )
 
 
 def _room_number_sort_key(room_number: str) -> tuple[int, str]:

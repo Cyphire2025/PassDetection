@@ -14,7 +14,7 @@ export function RoomingGroupsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Rooming Lists"
-        description="Allocate confirmed passengers into hotel rooms and export hotel-ready rooming lists."
+        description="Choose hotels, assign each passenger, auto-allocate safe room plans, and export hotel-ready lists."
       />
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">Rooming groups could not be loaded.</div>}

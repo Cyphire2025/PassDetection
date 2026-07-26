@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -65,6 +66,63 @@ class UpdatePassengerAllocationRequest(BaseModel):
         return normalized
 
 
+class UpdateHotelPassengerSelectionRequest(BaseModel):
+    passenger_ids: list[uuid.UUID] = Field(default_factory=list, max_length=5000)
+    mode: Literal["replace", "add", "remove"] = "add"
+
+    @field_validator("passenger_ids")
+    @classmethod
+    def validate_unique_passengers(cls, value: list[uuid.UUID]) -> list[uuid.UUID]:
+        if len(set(value)) != len(value):
+            raise ValueError("Each passenger can be selected only once")
+        return value
+
+    @model_validator(mode="after")
+    def validate_nonempty_mutation(self) -> UpdateHotelPassengerSelectionRequest:
+        if self.mode != "replace" and not self.passenger_ids:
+            raise ValueError("Add and remove operations require at least one passenger")
+        return self
+
+
+class UpdateHotelVipRequest(BaseModel):
+    passenger_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=5000)
+    is_vip: bool
+
+    @field_validator("passenger_ids")
+    @classmethod
+    def validate_unique_passengers(cls, value: list[uuid.UUID]) -> list[uuid.UUID]:
+        if len(set(value)) != len(value):
+            raise ValueError("Each passenger can be selected only once")
+        return value
+
+
+class AutoAllocateRoomsRequest(BaseModel):
+    priority_fields: list[str] = Field(default_factory=list, max_length=6)
+
+    @field_validator("priority_fields")
+    @classmethod
+    def validate_priority_fields(cls, value: list[str]) -> list[str]:
+        normalized = [item.strip() for item in value]
+        if any(not item or len(item) > 180 for item in normalized):
+            raise ValueError("Priority field keys must contain 1 to 180 characters")
+        if len(set(normalized)) != len(normalized):
+            raise ValueError("Each priority field can be selected only once")
+        return normalized
+
+
+class RoomingPriorityFieldResponse(BaseModel):
+    key: str
+    label: str
+    source: str
+
+
+class RoomingPriorityFieldOptionsResponse(BaseModel):
+    group_id: uuid.UUID
+    fields: list[RoomingPriorityFieldResponse] = Field(default_factory=list)
+    max_priority_fields: int = 6
+    gender_rule: str
+
+
 class RoomingPassengerResponse(BaseModel):
     passenger_id: uuid.UUID
     client_name: str
@@ -82,6 +140,9 @@ class RoomingPassengerResponse(BaseModel):
     allocation_tag: str
     special_requests: list[str] = Field(default_factory=list)
     roommate_notes: str | None = None
+    selected_hotel_id: uuid.UUID | None = None
+    selected_hotel_name: str | None = None
+    is_vip: bool = False
 
 
 class RoomingRoomResponse(BaseModel):
@@ -106,6 +167,13 @@ class RoomingHotelResponse(BaseModel):
     unallocated_passengers: list[RoomingPassengerResponse] = Field(default_factory=list)
     allocated_passenger_count: int = 0
     capacity_total: int = 0
+    selected_passengers: list[RoomingPassengerResponse] = Field(default_factory=list)
+    selected_passenger_count: int = 0
+    allocation_priority_fields: list[RoomingPriorityFieldResponse] = Field(
+        default_factory=list
+    )
+    allocation_revision: int = 0
+    allocation_is_current: bool = False
 
 
 class RoomingWorkspaceResponse(BaseModel):

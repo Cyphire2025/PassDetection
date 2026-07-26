@@ -1,0 +1,1 @@
+"""Rooming-list infrastructure helpers."""

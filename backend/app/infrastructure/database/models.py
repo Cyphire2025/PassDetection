@@ -1708,8 +1708,78 @@ class RoomingHotelModel(Base):
     city: Mapped[str | None] = mapped_column(String(120), nullable=True)
     check_in_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     check_out_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    allocation_priority_fields: Mapped[list[dict[str, str]]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
+    allocation_revision: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    allocation_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    allocation_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+
+
+class RoomingHotelPassengerModel(Base):
+    """Exclusive passenger membership in one hotel within a client group."""
+
+    __tablename__ = "rooming_hotel_passengers"
+    __table_args__ = (
+        UniqueConstraint(
+            "group_id",
+            "passenger_id",
+            name="uq_rooming_hotel_passengers_group_passenger",
+        ),
+        UniqueConstraint(
+            "hotel_id",
+            "passenger_id",
+            name="uq_rooming_hotel_passengers_hotel_passenger",
+        ),
+        Index(
+            "ix_rooming_hotel_passengers_group_hotel",
+            "group_id",
+            "hotel_id",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_groups.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    hotel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooming_hotels.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    passenger_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    is_vip: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False

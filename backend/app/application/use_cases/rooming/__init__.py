@@ -1,0 +1,1 @@
+"""Rooming-list application services."""

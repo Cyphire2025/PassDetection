@@ -211,9 +211,28 @@ export function useRoomingWorkspace(groupId: string) {
   });
 }
 
+export function useRoomingPriorityFields(groupId: string) {
+  return useQuery({
+    queryKey: [...roomingWorkspaceKey(groupId), "priority-fields"],
+    queryFn: () => operationsApi.roomingPriorityFields(groupId),
+    enabled: Boolean(groupId),
+    staleTime: 30_000,
+    retry: false,
+  });
+}
+
 export function useRoomingActions(groupId: string) {
   const queryClient = useQueryClient();
   const refresh = () => queryClient.invalidateQueries({ queryKey: roomingWorkspaceKey(groupId) });
+  const applyWorkspace = (workspace: Awaited<ReturnType<typeof operationsApi.roomingWorkspace>>) => {
+    queryClient.setQueryData(roomingWorkspaceKey(groupId), workspace);
+  };
+  const applyWorkspaceAndRefreshCheckins = (
+    workspace: Awaited<ReturnType<typeof operationsApi.roomingWorkspace>>,
+  ) => {
+    applyWorkspace(workspace);
+    queryClient.invalidateQueries({ queryKey: ["rooming", "checkins"] });
+  };
 
   return {
     createHotel: useMutation({
@@ -228,50 +247,39 @@ export function useRoomingActions(groupId: string) {
         city?: string;
         check_in_date?: string;
         check_out_date?: string;
-        room_count?: number;
       }) => operationsApi.updateRoomingHotel(hotelId, body),
       onSuccess: refresh,
     }),
-    generateRooms: useMutation({
-      mutationFn: ({ hotelId, ...body }: {
+    selectHotelPassengers: useMutation({
+      mutationFn: ({ hotelId, passengerIds, mode = "add" }: {
         hotelId: string;
-        room_type: "single" | "twin" | "triple";
-        count: number;
-        starting_number?: number;
-        allocation_tag: "mixed" | "male" | "female" | "family" | "couple" | "vip";
-      }) => operationsApi.generateRoomingRooms(hotelId, body),
-      onSuccess: refresh,
+        passengerIds: string[];
+        mode?: "replace" | "add" | "remove";
+      }) => operationsApi.updateRoomingPassengerSelection(hotelId, {
+        passenger_ids: passengerIds,
+        mode,
+      }),
+      onSuccess: applyWorkspaceAndRefreshCheckins,
     }),
-    allocatePassenger: useMutation({
-      mutationFn: ({ hotelId, passengerId, ...body }: {
+    setPassengerVip: useMutation({
+      mutationFn: ({ hotelId, passengerIds, isVip }: {
         hotelId: string;
-        passengerId: string;
-        room_id: string | null;
-        allocation_tag: "unspecified" | "male" | "female" | "family" | "couple";
-        special_requests: Array<"smoking" | "wheelchair" | "vip" | "late_arrival">;
-        roommate_notes?: string | null;
-      }) => operationsApi.updateRoomingAllocation(hotelId, passengerId, body),
-      onSuccess: refresh,
+        passengerIds: string[];
+        isVip: boolean;
+      }) => operationsApi.updateRoomingVip(hotelId, {
+        passenger_ids: passengerIds,
+        is_vip: isVip,
+      }),
+      onSuccess: applyWorkspaceAndRefreshCheckins,
     }),
-    deleteRoom: useMutation({
-      mutationFn: operationsApi.deleteRoomingRoom,
-      onSuccess: refresh,
-    }),
-    updateRoom: useMutation({
-      mutationFn: ({ roomId, ...body }: {
-        roomId: string;
-        room_number: string;
-        room_type: "single" | "twin" | "triple";
-        allocation_tag: "mixed" | "male" | "female" | "family" | "couple" | "vip";
-        roommate_notes?: string | null;
-        is_saved: boolean;
-      }) => operationsApi.updateRoomingRoom(roomId, body),
-      onSuccess: refresh,
-    }),
-    orderRooms: useMutation({
-      mutationFn: ({ hotelId, roomIds }: { hotelId: string; roomIds: string[] }) =>
-        operationsApi.updateRoomingRoomOrder(hotelId, roomIds),
-      onSuccess: refresh,
+    autoAllocate: useMutation({
+      mutationFn: ({ hotelId, priorityFields }: {
+        hotelId: string;
+        priorityFields: string[];
+      }) => operationsApi.autoAllocateRoomingHotel(hotelId, {
+        priority_fields: priorityFields,
+      }),
+      onSuccess: applyWorkspaceAndRefreshCheckins,
     }),
   };
 }

@@ -196,6 +196,19 @@ export type RoomType = "single" | "twin" | "triple";
 export type RoomingTag = "unspecified" | "mixed" | "male" | "female" | "family" | "couple" | "vip";
 export type RoomingSpecialRequest = "smoking" | "wheelchair" | "vip" | "late_arrival";
 
+export interface RoomingPriorityField {
+  key: string;
+  label: string;
+  source: string;
+}
+
+export interface RoomingPriorityFieldOptions {
+  group_id: string;
+  fields: RoomingPriorityField[];
+  max_priority_fields: number;
+  gender_rule: string;
+}
+
 export interface RoomingPassenger {
   passenger_id: string;
   client_name: string;
@@ -213,6 +226,9 @@ export interface RoomingPassenger {
   allocation_tag: RoomingTag;
   special_requests: RoomingSpecialRequest[];
   roommate_notes: string | null;
+  selected_hotel_id: string | null;
+  selected_hotel_name: string | null;
+  is_vip: boolean;
 }
 
 export interface RoomingRoom {
@@ -235,6 +251,11 @@ export interface RoomingHotel {
   check_out_date: string | null;
   rooms: RoomingRoom[];
   unallocated_passengers: RoomingPassenger[];
+  selected_passengers: RoomingPassenger[];
+  selected_passenger_count: number;
+  allocation_priority_fields: RoomingPriorityField[];
+  allocation_revision: number;
+  allocation_is_current: boolean;
   allocated_passenger_count: number;
   capacity_total: number;
 }
@@ -513,6 +534,13 @@ export const operationsApi = {
     return data;
   },
 
+  roomingPriorityFields: async (groupId: string): Promise<RoomingPriorityFieldOptions> => {
+    const { data } = await apiClient.get<RoomingPriorityFieldOptions>(
+      API_ENDPOINTS.rooming.priorityFields(groupId),
+    );
+    return data;
+  },
+
   createRoomingHotel: async (groupId: string, body: {
     hotel_name: string;
     city?: string;
@@ -528,49 +556,47 @@ export const operationsApi = {
     city?: string;
     check_in_date?: string;
     check_out_date?: string;
-    room_count?: number;
   }): Promise<RoomingHotel> => {
     const { data } = await apiClient.patch<RoomingHotel>(API_ENDPOINTS.rooming.hotel(hotelId), body);
     return data;
   },
 
-  generateRoomingRooms: async (hotelId: string, body: {
-    room_type: RoomType;
-    count: number;
-    starting_number?: number;
-    allocation_tag: Exclude<RoomingTag, "unspecified">;
-  }): Promise<RoomingRoom[]> => {
-    const { data } = await apiClient.post<RoomingRoom[]>(API_ENDPOINTS.rooming.generateRooms(hotelId), body);
+  updateRoomingPassengerSelection: async (
+    hotelId: string,
+    body: {
+      passenger_ids: string[];
+      mode: "replace" | "add" | "remove";
+    },
+  ): Promise<RoomingWorkspace> => {
+    const { data } = await apiClient.put<RoomingWorkspace>(
+      API_ENDPOINTS.rooming.passengerSelection(hotelId),
+      body,
+    );
     return data;
   },
 
-  updateRoomingAllocation: async (hotelId: string, passengerId: string, body: {
-    room_id: string | null;
-    allocation_tag: Exclude<RoomingTag, "mixed" | "vip">;
-    special_requests: RoomingSpecialRequest[];
-    roommate_notes?: string | null;
-  }): Promise<RoomingWorkspace> => {
-    const { data } = await apiClient.put<RoomingWorkspace>(API_ENDPOINTS.rooming.allocation(hotelId, passengerId), body);
+  updateRoomingVip: async (
+    hotelId: string,
+    body: {
+      passenger_ids: string[];
+      is_vip: boolean;
+    },
+  ): Promise<RoomingWorkspace> => {
+    const { data } = await apiClient.put<RoomingWorkspace>(
+      API_ENDPOINTS.rooming.vip(hotelId),
+      body,
+    );
     return data;
   },
 
-  deleteRoomingRoom: async (roomId: string): Promise<void> => {
-    await apiClient.delete(API_ENDPOINTS.rooming.room(roomId));
-  },
-
-  updateRoomingRoom: async (roomId: string, body: {
-    room_number: string;
-    room_type: RoomType;
-    allocation_tag: Exclude<RoomingTag, "unspecified">;
-    roommate_notes?: string | null;
-    is_saved: boolean;
-  }): Promise<RoomingRoom> => {
-    const { data } = await apiClient.patch<RoomingRoom>(API_ENDPOINTS.rooming.room(roomId), body);
-    return data;
-  },
-
-  updateRoomingRoomOrder: async (hotelId: string, roomIds: string[]): Promise<RoomingRoom[]> => {
-    const { data } = await apiClient.put<RoomingRoom[]>(API_ENDPOINTS.rooming.roomOrder(hotelId), { room_ids: roomIds });
+  autoAllocateRoomingHotel: async (
+    hotelId: string,
+    body: { priority_fields: string[] },
+  ): Promise<RoomingWorkspace> => {
+    const { data } = await apiClient.post<RoomingWorkspace>(
+      API_ENDPOINTS.rooming.autoAllocate(hotelId),
+      body,
+    );
     return data;
   },
 
