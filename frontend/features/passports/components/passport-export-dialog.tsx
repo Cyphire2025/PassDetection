@@ -22,6 +22,7 @@ import {
   usePassportGroupExportFields,
   usePassportGroupExportHistoryDetail,
 } from "../hooks/use-passports";
+import { PassportExcelFieldChooser } from "./passport-excel-field-chooser";
 
 interface PassportExportDialogProps {
   groupId: string;
@@ -208,96 +209,16 @@ export function PassportExportDialog({
               <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 Saved Excel fields could not be loaded. Go back and try again.
               </div>
-            ) : (
-              <div className="space-y-5">
-                <div>
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-950">Step 2: Choose Excel columns</h3>
-                      <p className="mt-1 text-sm text-slate-600">
-                        Selected WhatsApp spreadsheet fields appear directly after the four trip columns.
-                      </p>
-                    </div>
-                    {(exportFields.data?.fields.length ?? 0) > 0 && (
-                      <button
-                        type="button"
-                        className="shrink-0 text-sm font-semibold text-blue-700 hover:underline"
-                        onClick={() => {
-                          const allFields = exportFields.data?.fields.map((field) => field.key) ?? [];
-                          setSelectedFields(
-                            selectedFields.length === allFields.length ? [] : allFields,
-                          );
-                          if (
-                            selectedFields.length === allFields.length
-                            && groupByField !== "international_airport"
-                          ) {
-                            setGroupByField("");
-                          }
-                        }}
-                      >
-                        {selectedFields.length === exportFields.data?.fields.length
-                          ? "Clear all"
-                          : "Select all"}
-                      </button>
-                    )}
-                  </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {exportFields.data?.fields.map((field) => (
-                      <label
-                        key={field.key}
-                        className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/40"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFields.includes(field.key)}
-                          onChange={(event) => {
-                            if (event.target.checked) {
-                              setSelectedFields((current) => [...current, field.key]);
-                            } else {
-                              setSelectedFields((current) => current.filter((key) => key !== field.key));
-                              if (groupByField === field.key) setGroupByField("");
-                            }
-                          }}
-                          className="mt-1 h-4 w-4 accent-blue-600"
-                        />
-                        <span className="min-w-0">
-                          <span className="block truncate text-sm font-semibold text-slate-900">
-                            {field.label}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            WhatsApp spreadsheet
-                          </span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                  {!exportFields.data?.fields.length && (
-                    <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
-                      No additional saved fields are available. The standard passport template will still be exported.
-                    </div>
-                  )}
-                </div>
-
-                <label className="block space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <span className="block font-semibold text-slate-900">Sort by</span>
-                  <span className="block text-sm text-slate-600">
-                    Groups equal values together and adds blank rows between groups.
-                  </span>
-                  <select
-                    value={groupByField}
-                    onChange={(event) => setGroupByField(event.target.value)}
-                    className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  >
-                    <option value="">No grouping</option>
-                    {(exportFields.data?.grouping_fields ?? [])
-                      .filter((field) => field.fixed || selectedFields.includes(field.key))
-                      .map((field) => (
-                        <option key={field.key} value={field.key}>{field.label}</option>
-                      ))}
-                  </select>
-                </label>
-              </div>
-            )
+            ) : exportFields.data ? (
+              <PassportExcelFieldChooser
+                options={exportFields.data}
+                selectedFields={selectedFields}
+                onSelectedFieldsChange={setSelectedFields}
+                groupByField={groupByField}
+                onGroupByFieldChange={setGroupByField}
+                heading="Step 2: Choose Excel columns"
+              />
+            ) : null
           ) : history.isLoading ? (
             <div className="flex min-h-44 items-center justify-center gap-2 text-sm text-slate-600">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

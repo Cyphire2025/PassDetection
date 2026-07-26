@@ -1,4 +1,4 @@
-"""Persistence for durable, verified Visa-photo AI generations."""
+"""Persistence for durable Visa-photo AI generations."""
 
 from __future__ import annotations
 

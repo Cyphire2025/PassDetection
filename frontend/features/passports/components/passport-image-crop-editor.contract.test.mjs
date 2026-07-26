@@ -99,7 +99,10 @@ test("sharpness and the common library are available for every image while guard
   assert.doesNotMatch(editor, /Saved AI image library/);
   assert.match(editor, /passportsApi\.createVisaAiGenerationJob/);
   assert.match(editor, /passportsApi\.useImageLibraryImage/);
-  assert.match(editor, /Saved automatically after verification/);
+  assert.match(editor, /Saved automatically after generation/);
+  assert.match(editor, /Your generated image will appear here/);
+  assert.doesNotMatch(editor, /verified image|after verification/);
+  assert.doesNotMatch(api, /generated Visa image could not be verified/);
   assert.match(editor, /Use this image/);
   assert.match(editor, /bg-\[#C8CE32\]/);
   assert.match(editor, /text-slate-950/);

@@ -7,6 +7,7 @@ import type {
   PassportDocumentImportRequest,
   PassportGroupExportKind,
   PassportGroupExportRequest,
+  PassportSelectedGroupsExportRequest,
 } from "../api/passports.api";
 import type { PassportGroupSubmissionsViewParams } from "../api/passports.api";
 import { getStaffApprovalErrorFeedback } from "../utils/passport-review";
@@ -189,7 +190,20 @@ export function useBulkDeletePassportSubmissions(groupId: string) {
 
 export function useExportSelectedGroups() {
   return useMutation({
-    mutationFn: (groupIds: string[]) => passportsApi.exportSelectedGroups(groupIds),
+    mutationFn: (request: PassportSelectedGroupsExportRequest) =>
+      passportsApi.exportSelectedGroups(request),
+  });
+}
+
+export function useSelectedGroupsExportFields(
+  groupIds: string[],
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ["passport-selected-groups-export-fields", groupIds],
+    queryFn: () => passportsApi.getSelectedGroupsExportFields(groupIds),
+    enabled: enabled && groupIds.length > 0,
+    staleTime: 30_000,
   });
 }
 

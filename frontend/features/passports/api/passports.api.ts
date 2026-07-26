@@ -178,12 +178,25 @@ export interface PassportGroupExportGroupingOption {
   fixed: boolean;
 }
 
-export interface PassportGroupExportFieldOptions {
-  group_id: string;
+export interface PassportExcelFieldOptions {
   fields: PassportGroupExportFieldOption[];
   grouping_fields: PassportGroupExportGroupingOption[];
   default_selected_fields: string[];
   default_group_by_field: string | null;
+}
+
+export interface PassportGroupExportFieldOptions extends PassportExcelFieldOptions {
+  group_id: string;
+}
+
+export interface PassportSelectedGroupsExportFieldOptions extends PassportExcelFieldOptions {
+  group_ids: string[];
+}
+
+export interface PassportSelectedGroupsExportRequest {
+  groupIds: string[];
+  supplementalFields: string[];
+  groupByField: string;
 }
 
 export interface PassportGroupExportCompletion {
@@ -419,7 +432,7 @@ export const passportsApi = {
     );
     const token = response.headers["x-visa-ai-edit-token"];
     if (typeof token !== "string" || !token) {
-      throw new Error("The generated Visa image could not be verified.");
+      throw new Error("The generated Visa image did not include a save token.");
     }
     return { blob: response.data, token };
   },
@@ -803,10 +816,28 @@ export const passportsApi = {
     return data;
   },
 
-  exportSelectedGroups: async (groupIds: string[]): Promise<void> => {
+  getSelectedGroupsExportFields: async (
+    groupIds: string[],
+  ): Promise<PassportSelectedGroupsExportFieldOptions> => {
+    const response = await apiClient.post<PassportSelectedGroupsExportFieldOptions>(
+      API_ENDPOINTS.passports.groupsExportFields,
+      { group_ids: groupIds },
+    );
+    return response.data;
+  },
+
+  exportSelectedGroups: async ({
+    groupIds,
+    supplementalFields,
+    groupByField,
+  }: PassportSelectedGroupsExportRequest): Promise<void> => {
     const response = await apiClient.post<Blob>(
       API_ENDPOINTS.passports.groupsExport,
-      { group_ids: groupIds },
+      {
+        group_ids: groupIds,
+        supplemental_fields: supplementalFields,
+        group_by_field: groupByField,
+      },
       { responseType: "blob" },
     );
     downloadBlob(response.data, "selected-groups-passports.xlsx");

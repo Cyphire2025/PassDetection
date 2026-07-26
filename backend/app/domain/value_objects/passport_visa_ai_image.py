@@ -1,4 +1,4 @@
-"""Durable, identity-verified Visa-photo AI generation metadata."""
+"""Durable Visa-photo AI generation metadata."""
 
 from __future__ import annotations
 

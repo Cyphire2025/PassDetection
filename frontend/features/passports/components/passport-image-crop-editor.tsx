@@ -367,7 +367,7 @@ export function PassportImageCropEditor({
       if (!controller.signal.aborted) {
         setError(readEditError(
           generationError,
-          "Could not generate a safe Visa photo preview.",
+          "Could not generate the Visa photo.",
         ));
       }
     } finally {
@@ -892,7 +892,7 @@ function VisaAiPanel({
         />
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
           <span>{prompt.length}/1000</span>
-          <span>Saved automatically after verification</span>
+          <span>Saved automatically after generation</span>
         </div>
         {isGenerating ? (
           <div className="mt-4" role="status" aria-live="polite">
@@ -932,7 +932,7 @@ function VisaAiPanel({
         </div>
       ) : (
         <div className="flex min-h-80 items-center justify-center rounded-2xl border border-dashed border-[#C8CE32] bg-white px-6 text-center text-sm text-slate-500">
-          Your verified image will appear here and be saved to the library.
+          Your generated image will appear here and be saved to the library.
         </div>
       )}
       </div>
@@ -1213,7 +1213,7 @@ function applyTerminalVisaAiJob(
   if (job.status === "failed") {
     setError(
       job.error_message?.trim()
-      || "Could not generate a safe Visa photo. Please try again.",
+      || "Could not generate the Visa photo. Please try again.",
     );
     return;
   }

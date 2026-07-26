@@ -82,6 +82,7 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn("DOI", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("DOE", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("Nationality", 22),
+    _ExportColumn("Place of Issue", 22),
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
 
@@ -573,6 +574,7 @@ class PassportExcelExporter:
             "DOI": fields.get("date_of_issue"),
             "DOE": fields.get("date_of_expiry"),
             "Nationality": _nationality_display_value(fields.get("nationality")),
+            "Place of Issue": fields.get("place_of_issue"),
         }
         row_metadata = (additional_values or {}).get(submission.id, {})
         custom_answers = {

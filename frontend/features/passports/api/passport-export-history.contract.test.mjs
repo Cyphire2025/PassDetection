@@ -14,6 +14,18 @@ const dialog = readFileSync(
   new URL("../components/passport-export-dialog.tsx", import.meta.url),
   "utf8",
 );
+const fieldChooser = readFileSync(
+  new URL("../components/passport-excel-field-chooser.tsx", import.meta.url),
+  "utf8",
+);
+const selectedGroupsDialog = readFileSync(
+  new URL("../components/passport-selected-groups-export-dialog.tsx", import.meta.url),
+  "utf8",
+);
+const passportList = readFileSync(
+  new URL("../components/passport-list.tsx", import.meta.url),
+  "utf8",
+);
 
 function methodSource(startMarker, endMarker) {
   const start = api.indexOf(startMarker);
@@ -78,9 +90,26 @@ test("the export dialog traps focus and restores document scrolling", () => {
 test("Excel export renders server-provided fixed grouping choices", () => {
   assert.match(api, /grouping_fields: PassportGroupExportGroupingOption\[\]/);
   assert.match(
-    dialog,
+    fieldChooser,
     /field\.fixed \|\| selectedFields\.includes\(field\.key\)/,
   );
-  assert.match(dialog, /groupByField !== "international_airport"/);
+  assert.match(fieldChooser, /fixedGroupingKeys\.has\(groupByField\)/);
   assert.match(dialog, /groupByField: groupByField \|\| "none"/);
+});
+
+test("selected groups export opens the combined chooser and sends only all-data options", () => {
+  assert.match(
+    endpoints,
+    /groupsExportFields: "\/api\/v1\/passports\/groups\/export-fields"/,
+  );
+  assert.match(api, /getSelectedGroupsExportFields:[\s\S]*?group_ids: groupIds/);
+  assert.match(
+    api,
+    /exportSelectedGroups:[\s\S]*?supplemental_fields: supplementalFields[\s\S]*?group_by_field: groupByField/,
+  );
+  assert.match(passportList, /<PassportSelectedGroupsExportDialog/);
+  assert.doesNotMatch(passportList, /exportSelected\.mutate\(selectedGroups\)/);
+  assert.match(selectedGroupsDialog, /useSelectedGroupsExportFields\(groupIds\)/);
+  assert.match(selectedGroupsDialog, /<PassportExcelFieldChooser/);
+  assert.doesNotMatch(selectedGroupsDialog, /incremental|baselineExportId|Download all/);
 });

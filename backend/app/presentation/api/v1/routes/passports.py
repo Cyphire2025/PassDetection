@@ -236,6 +236,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropResetRequest,
     PassportImageCropResponse,
     PassportImageCropUpdateRequest,
+    PassportSelectedGroupsExportFieldOptionsResponse,
     PassportSubmissionResponse,
     PassportSubmissionsViewResponse,
     PassportSubmissionViewItemResponse,
@@ -1178,6 +1179,11 @@ def _pending_recipient_export_rows(
                     "expiration_date",
                 ),
                 "Nationality": _recipient_export_value(row, "nationality"),
+                "Place of Issue": _recipient_export_value(
+                    row,
+                    "place_of_issue",
+                    "issue_place",
+                ),
             }
         )
     return pending_rows
@@ -1317,6 +1323,104 @@ def _export_field_catalog(
             str(field["label"]).casefold(),
             str(field["key"]),
         ),
+    )
+
+
+def _merge_export_field_catalogs(
+    catalogs: list[list[dict[str, str | bool]]],
+) -> list[dict[str, str | bool]]:
+    """Place fields shared by every group before group-specific fields."""
+
+    if not catalogs:
+        return []
+
+    keyed_catalogs = [
+        {str(field["key"]): field for field in catalog}
+        for catalog in catalogs
+    ]
+    common_keys = set(keyed_catalogs[0])
+    for keyed_catalog in keyed_catalogs[1:]:
+        common_keys.intersection_update(keyed_catalog)
+
+    selected_by_default = {
+        key: any(
+            bool(keyed_catalog.get(key, {}).get("selected_by_default", False))
+            for keyed_catalog in keyed_catalogs
+        )
+        for key in {
+            key
+            for keyed_catalog in keyed_catalogs
+            for key in keyed_catalog
+        }
+    }
+    merged: list[dict[str, str | bool]] = []
+    seen: set[str] = set()
+    used_labels = {
+        str(header).casefold() for header in PassportExcelExporter.HEADERS
+    }
+
+    def append_field(field: dict[str, str | bool]) -> None:
+        key = str(field["key"])
+        if key in seen:
+            return
+        label = " ".join(str(field["label"]).strip().split())[:120]
+        candidate = label
+        suffix_index = 1
+        while candidate.casefold() in used_labels:
+            suffix = (
+                " (WhatsApp)"
+                if suffix_index == 1
+                else f" (WhatsApp {suffix_index})"
+            )
+            candidate = f"{label[: max(1, 120 - len(suffix))]}{suffix}"
+            suffix_index += 1
+        seen.add(key)
+        used_labels.add(candidate.casefold())
+        merged.append(
+            {
+                **field,
+                "label": candidate,
+                "selected_by_default": selected_by_default.get(key, False),
+            }
+        )
+
+    # Zone has an explicit workbook position immediately after Return Date,
+    # even when it exists in only one of the selected broadcasts.
+    for keyed_catalog in keyed_catalogs:
+        zone_field = keyed_catalog.get("zone_name")
+        if zone_field is not None:
+            append_field(zone_field)
+            break
+    for field in catalogs[0]:
+        if str(field["key"]) in common_keys and str(field["key"]) != "zone_name":
+            append_field(field)
+    for catalog in catalogs:
+        for field in catalog:
+            if (
+                str(field["key"]) not in common_keys
+                and str(field["key"]) != "zone_name"
+            ):
+                append_field(field)
+    return merged
+
+
+def _combined_export_field_catalog(
+    groups: list[ClientGroup],
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
+    submissions: list[PassportSubmission],
+) -> list[dict[str, str | bool]]:
+    submissions_by_group: dict[uuid.UUID, list[PassportSubmission]] = {}
+    for submission in submissions:
+        submissions_by_group.setdefault(submission.group_id, []).append(submission)
+    return _merge_export_field_catalogs(
+        [
+            _export_field_catalog(
+                group,
+                rows_by_group.get(group.id, []),
+                submissions_by_group.get(group.id, []),
+            )
+            for group in groups
+        ]
     )
 
 
@@ -3869,6 +3973,122 @@ async def export_selected_passports(
 
 
 @router.post(
+    "/groups/export-fields",
+    response_model=PassportSelectedGroupsExportFieldOptionsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List combined Excel fields for selected passport groups",
+)
+async def get_selected_groups_export_fields(
+    body: ExportSelectedGroupsRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> PassportSelectedGroupsExportFieldOptionsResponse:
+    groups, submissions = await _selected_groups_export_context(
+        group_ids=body.group_ids,
+        current_user=current_user,
+        session=session,
+    )
+    match_rows_by_group = await _export_whatsapp_match_rows(
+        session,
+        submissions,
+        groups=groups,
+    )
+    catalog = _combined_export_field_catalog(
+        groups,
+        match_rows_by_group,
+        submissions,
+    )
+    default_selected = [
+        str(field["key"]) for field in catalog if field["selected_by_default"]
+    ]
+    return PassportSelectedGroupsExportFieldOptionsResponse(
+        group_ids=[group.id for group in groups],
+        fields=[
+            PassportExportFieldOptionResponse.model_validate(field)
+            for field in catalog
+        ],
+        grouping_fields=[
+            *(
+                [
+                    PassportExportGroupingOptionResponse(
+                        key="international_airport",
+                        label="International Airport",
+                        fixed=True,
+                    )
+                ]
+                if any(_international_airport_is_enabled(group) for group in groups)
+                else []
+            ),
+            *[
+                PassportExportGroupingOptionResponse(
+                    key=str(field["key"]),
+                    label=str(field["label"]),
+                    fixed=False,
+                )
+                for field in catalog
+            ],
+        ],
+        default_selected_fields=default_selected,
+        default_group_by_field=(
+            "zone_name" if "zone_name" in default_selected else None
+        ),
+    )
+
+
+async def _selected_groups_export_context(
+    *,
+    group_ids: list[uuid.UUID],
+    current_user: User,
+    session: AsyncSession,
+) -> tuple[list[ClientGroup], list[PassportSubmission]]:
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    ordered_group_ids = list(dict.fromkeys(group_ids))
+    group_stmt = select(ClientGroupModel).where(
+        ClientGroupModel.id.in_(ordered_group_ids)
+    )
+    group_stmt = AuthorizationPolicy.apply_group_visibility_scope(
+        group_stmt,
+        current_user,
+    )
+    group_result = await session.execute(group_stmt)
+    groups_by_id = {
+        group.id: group
+        for model in group_result.scalars().all()
+        for group in [ClientGroupRepository._to_entity(model)]
+    }
+    if len(groups_by_id) != len(ordered_group_ids):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="One or more selected passport groups were not found.",
+        )
+    groups = [groups_by_id[group_id] for group_id in ordered_group_ids]
+
+    stmt = (
+        select(PassportSubmissionModel)
+        .join(
+            ClientGroupModel,
+            PassportSubmissionModel.group_id == ClientGroupModel.id,
+        )
+        .where(
+            PassportSubmissionModel.group_id.in_(ordered_group_ids),
+            PassportSubmissionModel.status.in_(_submitted_statuses()),
+        )
+    )
+    stmt = _apply_manager_visibility(stmt, current_user)
+    result = await session.execute(stmt)
+    submissions = [
+        PassportSubmissionRepository._to_entity(model)
+        for model in result.scalars().all()
+    ]
+    return groups, submissions
+
+
+@router.post(
     "/groups/export.xlsx",
     status_code=status.HTTP_200_OK,
     summary="Export selected passport groups to Excel",
@@ -3878,52 +4098,83 @@ async def export_selected_groups(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
-    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
-        )
-
-    group_stmt = select(ClientGroupModel).where(ClientGroupModel.id.in_(set(body.group_ids)))
-    group_stmt = AuthorizationPolicy.apply_group_visibility_scope(
-        group_stmt,
-        current_user,
+    groups, submissions = await _selected_groups_export_context(
+        group_ids=body.group_ids,
+        current_user=current_user,
+        session=session,
     )
-    group_result = await session.execute(group_stmt)
-    groups = [ClientGroupRepository._to_entity(model) for model in group_result.scalars().all()]
-    if not groups:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No exportable passport groups found",
-        )
-
-    visible_group_ids = [group.id for group in groups]
-    stmt = (
-        select(PassportSubmissionModel)
-        .join(ClientGroupModel, PassportSubmissionModel.group_id == ClientGroupModel.id)
-        .where(
-            PassportSubmissionModel.group_id.in_(visible_group_ids),
-            PassportSubmissionModel.status.in_(_submitted_statuses()),
-        )
-    )
-    stmt = _apply_manager_visibility(stmt, current_user)
-    result = await session.execute(stmt)
-    submissions = [
-        PassportSubmissionRepository._to_entity(model) for model in result.scalars().all()
-    ]
 
     match_rows_by_group = await _export_whatsapp_match_rows(
         session,
         submissions,
         groups=groups,
     )
-    pending_rows = [
-        pending_row
-        for group in groups
-        for pending_row in _pending_recipient_export_rows(
+    catalog = _combined_export_field_catalog(
+        groups,
+        match_rows_by_group,
+        submissions,
+    )
+    catalog_by_key = {str(field["key"]): field for field in catalog}
+    submitted_field_keys = list(dict.fromkeys(body.supplemental_fields))
+    unknown_fields = [
+        key for key in submitted_field_keys if key not in catalog_by_key
+    ]
+    if unknown_fields:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "One or more selected Excel fields are unavailable for the "
+                "selected groups."
+            ),
+        )
+    submitted_field_key_set = set(submitted_field_keys)
+    selected_fields = [
+        field
+        for field in catalog
+        if str(field["key"]) in submitted_field_key_set
+    ]
+    requested_field_keys = [str(field["key"]) for field in selected_fields]
+    resolved_group_by = _resolve_export_group_by(
+        body.group_by_field,
+        requested_field_keys,
+    )
+    airport_enabled = any(
+        _international_airport_is_enabled(group) for group in groups
+    )
+    if resolved_group_by == "international_airport" and not airport_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "International Airport grouping is available only when at "
+                "least one selected group asks travellers for that field."
+            ),
+        )
+    if (
+        resolved_group_by
+        and resolved_group_by != "international_airport"
+        and resolved_group_by not in requested_field_keys
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "The grouping field must be International Airport or an "
+                "included WhatsApp field."
+            ),
+        )
+
+    pending_rows: list[dict[str, Any]] = []
+    for group in groups:
+        group_pending_rows = _pending_recipient_export_rows(
             group=group,
             rows=match_rows_by_group.get(group.id, []),
         )
-    ]
+        if group_pending_rows:
+            _apply_pending_export_fields(
+                group_pending_rows,
+                match_rows_by_group.get(group.id, []),
+                selected_fields,
+            )
+            pending_rows.extend(group_pending_rows)
     if not submissions and not pending_rows:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -3938,8 +4189,16 @@ async def export_selected_groups(
             submissions,
             match_rows_by_group,
         ),
-        additional_fields=[{"key": "zone_name", "label": "Zone Name"}],
-        group_by_field="zone_name",
+        additional_fields=[
+            {"key": str(field["key"]), "label": str(field["label"])}
+            for field in selected_fields
+        ],
+        additional_values=_export_additional_values(
+            submissions,
+            match_rows_by_group,
+            selected_fields,
+        ),
+        group_by_field=resolved_group_by,
         pending_rows=pending_rows,
     )
     return StreamingResponse(
@@ -4706,7 +4965,7 @@ async def _recover_and_dispatch_visa_ai_job(
     "/{submission_id}/images/visa_photo/ai-jobs",
     response_model=PassportVisaAiImageJobResponse,
     status_code=status.HTTP_202_ACCEPTED,
-    summary="Queue a durable verified Visa AI image generation",
+    summary="Queue a durable Visa AI image generation",
 )
 async def create_visa_ai_image_job(
     submission_id: uuid.UUID,
@@ -4856,7 +5115,7 @@ async def get_visa_ai_image_job(
     "/{submission_id}/images/visa_photo/ai-library",
     response_model=PassportVisaAiImageListResponse,
     status_code=status.HTTP_200_OK,
-    summary="List saved, verified Visa AI image generations",
+    summary="List saved Visa AI image generations",
 )
 async def list_visa_ai_image_library(
     submission_id: uuid.UUID,
@@ -4936,7 +5195,7 @@ async def get_visa_ai_library_image(
     "/{submission_id}/images/visa_photo/ai-library",
     response_model=PassportVisaAiImageResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Generate and automatically save a verified Visa AI image",
+    summary="Generate and automatically save a Visa AI image",
 )
 async def create_visa_ai_library_image(
     submission_id: uuid.UUID,
@@ -5212,7 +5471,7 @@ async def use_visa_ai_library_image(
     "/{submission_id}/images/visa_photo/ai-apply",
     response_model=PassportImageCropResponse,
     status_code=status.HTTP_200_OK,
-    summary="Save a verified Visa AI edit with crop and sharpness metadata",
+    summary="Save a Visa AI edit with crop and sharpness metadata",
 )
 async def apply_visa_ai_image_edit(
     submission_id: uuid.UUID,

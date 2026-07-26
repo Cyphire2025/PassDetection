@@ -10,6 +10,7 @@ import { ROUTES } from "@/constants/routes";
 import { formatDateTime } from "@/lib/utils/format";
 import type { PassportGroupSummary } from "@/types/passport.types";
 import { useExportSelectedGroups, usePassportGroups } from "../hooks/use-passports";
+import { PassportSelectedGroupsExportDialog } from "./passport-selected-groups-export-dialog";
 
 export function PassportList() {
   const { data, isLoading, error } = usePassportGroups();
@@ -18,6 +19,7 @@ export function PassportList() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [reviewFilter, setReviewFilter] = useState("all");
   const [destinationFilter, setDestinationFilter] = useState("");
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   const filteredGroups = useMemo(() => {
     return (data ?? []).filter((group) => {
@@ -76,7 +78,10 @@ export function PassportList() {
           variant="secondary"
           disabled={selectedGroups.length === 0}
           isLoading={exportSelected.isPending}
-          onClick={() => exportSelected.mutate(selectedGroups)}
+          onClick={() => {
+            exportSelected.reset();
+            setIsExportDialogOpen(true);
+          }}
         >
           <Download className="h-4 w-4" />
           Export Selected ({selectedGroups.length})
@@ -196,6 +201,28 @@ export function PassportList() {
             </CardContent>
           </Card>
         </>
+      )}
+
+      {isExportDialogOpen && selectedGroups.length > 0 && (
+        <PassportSelectedGroupsExportDialog
+          groupIds={selectedGroups}
+          isDownloading={exportSelected.isPending}
+          hasDownloadError={exportSelected.isError}
+          onClose={() => {
+            if (!exportSelected.isPending) {
+              setIsExportDialogOpen(false);
+              exportSelected.reset();
+            }
+          }}
+          onDownload={async ({ supplementalFields, groupByField }) => {
+            await exportSelected.mutateAsync({
+              groupIds: selectedGroups,
+              supplementalFields,
+              groupByField,
+            });
+            setIsExportDialogOpen(false);
+          }}
+        />
       )}
     </div>
   );

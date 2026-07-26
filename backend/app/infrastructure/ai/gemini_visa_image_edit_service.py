@@ -6,8 +6,6 @@ import asyncio
 import base64
 import hashlib
 import io
-import json
-import math
 import re
 import time
 from dataclasses import dataclass
@@ -18,7 +16,6 @@ from PIL import Image
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
-from app.infrastructure.ai.gemini_model_capabilities import thinking_level_for_model
 from app.infrastructure.ai_priority.retry import retry_after_delay_seconds
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
@@ -46,27 +43,6 @@ color, lighting, noise reduction, sharpness, crop/framing, and attire styling.
 Do not replace the subject, invent a different face, or add another person.
 Keep the original dimensions and aspect ratio. Return one edited image.
 """.strip()
-_VERIFY_INSTRUCTION = """
-Compare the original Visa portrait and edited candidate. Approve only when they
-show the same natural person. Judge identity from stable facial geometry and
-biometric traits. Background, lighting, color, sharpness, crop, pose,
-expression, hair styling, attire, and other presentation changes must not by
-themselves cause an identity rejection. The confidence value must represent
-only confidence that both images show the same person. Set same_identity false
-when the face belongs to a different person, has been replaced, or cannot be
-matched confidently. presentation_only and artifact_free are advisory quality
-signals and do not determine identity. Return JSON only.
-""".strip()
-_VERIFY_SCHEMA = {
-    "type": "OBJECT",
-    "properties": {
-        "same_identity": {"type": "BOOLEAN"},
-        "presentation_only": {"type": "BOOLEAN"},
-        "artifact_free": {"type": "BOOLEAN"},
-        "confidence": {"type": "NUMBER"},
-    },
-    "required": ["same_identity", "presentation_only", "artifact_free", "confidence"],
-}
 
 
 class GeminiVisaImageEditError(RuntimeError):
@@ -154,12 +130,6 @@ class GeminiVisaImageEditService:
                         raise GeminiVisaImageEditProviderRejected(
                             "Gemini returned an unreadable edited image."
                         ) from exc
-                    await self._verify_identity(
-                        api_key=api_key,
-                        original=canonical,
-                        candidate=candidate,
-                        deadline=deadline,
-                    )
         except TimeoutError as exc:
             raise GeminiVisaImageEditProviderUnavailable(
                 "Visa AI image processing timed out. Please try again."
@@ -208,7 +178,6 @@ class GeminiVisaImageEditService:
             model=model,
             api_key=api_key,
             payload=payload,
-            stage="generation",
             deadline=deadline,
         )
         for part in self._response_parts(response):
@@ -232,108 +201,13 @@ class GeminiVisaImageEditService:
             "Gemini did not return an edited image. Try a clearer prompt."
         )
 
-    async def _verify_identity(
-        self,
-        *,
-        api_key: str,
-        original: bytes,
-        candidate: bytes,
-        deadline: float,
-    ) -> None:
-        payload = {
-            "systemInstruction": {"parts": [{"text": _VERIFY_INSTRUCTION}]},
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {"text": "Original image"},
-                        {
-                            "inlineData": {
-                                "mimeType": "image/jpeg",
-                                "data": base64.b64encode(original).decode("ascii"),
-                            }
-                        },
-                        {"text": "Edited candidate"},
-                        {
-                            "inlineData": {
-                                "mimeType": "image/jpeg",
-                                "data": base64.b64encode(candidate).decode("ascii"),
-                            }
-                        },
-                    ],
-                }
-            ],
-            "generationConfig": {
-                "responseMimeType": "application/json",
-                "responseSchema": _VERIFY_SCHEMA,
-                "maxOutputTokens": 256,
-                "thinkingConfig": {
-                    "thinkingLevel": thinking_level_for_model(self._settings.gemini_model)
-                },
-            },
-        }
-        response = await self._post(
-            model=self._settings.gemini_model,
-            fallback_model=self._settings.gemini_fallback_model,
-            api_key=api_key,
-            payload=payload,
-            stage="verification",
-            deadline=deadline,
-        )
-        text = next(
-            (
-                part.get("text")
-                for part in self._response_parts(response)
-                if isinstance(part.get("text"), str)
-            ),
-            None,
-        )
-        try:
-            verdict = json.loads(text or "")
-        except (TypeError, ValueError, json.JSONDecodeError) as exc:
-            raise GeminiVisaImageEditProviderRejected(
-                "Gemini identity verification returned an unreadable response."
-            ) from exc
-        if not isinstance(verdict, dict):
-            raise GeminiVisaImageEditProviderRejected(
-                "Gemini identity verification returned an unreadable response."
-            )
-        raw_confidence = verdict.get("confidence")
-        if (
-            isinstance(raw_confidence, bool)
-            or not isinstance(raw_confidence, (int, float))
-            or not math.isfinite(float(raw_confidence))
-            or not 0.0 <= float(raw_confidence) <= 1.0
-        ):
-            raise GeminiVisaImageEditProviderRejected(
-                "Gemini identity verification returned an invalid confidence score."
-            )
-        approved = (
-            verdict.get("same_identity") is True
-            and float(raw_confidence) >= 0.90
-        )
-        if not approved:
-            logger.warning(
-                "visa_ai_image_edit_identity_rejected",
-                same_identity=verdict.get("same_identity") is True,
-                presentation_only=verdict.get("presentation_only") is True,
-                artifact_free=verdict.get("artifact_free") is True,
-                identity_confidence=float(raw_confidence),
-            )
-            raise GeminiVisaImageEditRejected(
-                "The generated image could not be verified as the same person. "
-                "Try generating it again."
-            )
-
     async def _post(
         self,
         *,
         model: str,
         api_key: str,
         payload: dict[str, Any],
-        stage: str,
         deadline: float,
-        fallback_model: str | None = None,
     ) -> dict[str, Any]:
         if not _MODEL_PATTERN.fullmatch(model):
             raise GeminiVisaImageEditNotConfigured("The configured Gemini model name is invalid.")
@@ -347,15 +221,7 @@ class GeminiVisaImageEditService:
                 ),
             ),
         )
-        normalized_fallback = (fallback_model or "").strip()
-        retry_model = (
-            normalized_fallback
-            if normalized_fallback
-            and normalized_fallback != model
-            and _MODEL_PATTERN.fullmatch(normalized_fallback)
-            else model
-        )
-        models = [model, retry_model][:attempt_limit]
+        models = [model] * attempt_limit
         last_error: Exception | None = None
 
         for attempt_index, attempt_model in enumerate(models):
@@ -374,16 +240,6 @@ class GeminiVisaImageEditService:
                 f"{self._settings.gemini_api_base_url.rstrip('/')}"
                 f"/models/{attempt_model}:generateContent"
             )
-            request_payload = payload
-            if stage == "verification":
-                generation_config = dict(payload.get("generationConfig", {}))
-                generation_config["thinkingConfig"] = {
-                    "thinkingLevel": thinking_level_for_model(attempt_model)
-                }
-                request_payload = {
-                    **payload,
-                    "generationConfig": generation_config,
-                }
             response: httpx.Response | None = None
             retry_after: str | None = None
             try:
@@ -394,7 +250,7 @@ class GeminiVisaImageEditService:
                             "x-goog-api-key": api_key,
                             "Content-Type": "application/json",
                         },
-                        json=request_payload,
+                        json=payload,
                         timeout=timeout,
                     )
                 else:
@@ -405,13 +261,13 @@ class GeminiVisaImageEditService:
                                 "x-goog-api-key": api_key,
                                 "Content-Type": "application/json",
                             },
-                            json=request_payload,
+                            json=payload,
                         )
             except (httpx.TimeoutException, httpx.TransportError) as exc:
                 last_error = exc
                 logger.warning(
                     "visa_ai_image_edit_provider_unavailable",
-                    stage=stage,
+                    stage="generation",
                     attempt=attempt_index + 1,
                     model=attempt_model,
                     error_type=type(exc).__name__,
@@ -433,7 +289,7 @@ class GeminiVisaImageEditService:
                 if response.status_code != 429 and response.status_code < 500:
                     logger.warning(
                         "visa_ai_image_edit_provider_rejected",
-                        stage=stage,
+                        stage="generation",
                         status_code=response.status_code,
                         model=attempt_model,
                     )
@@ -450,7 +306,7 @@ class GeminiVisaImageEditService:
                 )
                 logger.warning(
                     "visa_ai_image_edit_provider_unavailable",
-                    stage=stage,
+                    stage="generation",
                     attempt=attempt_index + 1,
                     status_code=response.status_code,
                     model=attempt_model,
@@ -468,13 +324,9 @@ class GeminiVisaImageEditService:
                 break
             await asyncio.sleep(delay_seconds)
 
-        message = (
-            "The Visa photo was generated, but identity verification is temporarily unavailable. "
-            "Please try again."
-            if stage == "verification"
-            else "Gemini image generation is temporarily unavailable. Please try again."
-        )
-        raise GeminiVisaImageEditProviderUnavailable(message) from last_error
+        raise GeminiVisaImageEditProviderUnavailable(
+            "Gemini image generation is temporarily unavailable. Please try again."
+        ) from last_error
 
     def _operation_timeout_seconds(self) -> float:
         # Keep lightweight test/alternate settings objects compatible while

@@ -116,10 +116,10 @@ def test_export_omits_internal_and_disabled_columns_and_formats_identity() -> No
     assert values["GIVEN NAME"] == "NIPUN KUMAR"
     assert "International Airport" not in headers
     assert values["Nationality"] == "Indian"
-    assert "Place of Issue" not in headers
+    assert "Place of Issue" in headers
 
 
-def test_export_omits_place_of_issue_from_the_requested_template() -> None:
+def test_export_includes_canonical_place_of_issue() -> None:
     group_id = uuid.uuid4()
     submission = _submission(
         group_id,
@@ -136,9 +136,10 @@ def test_export_omits_place_of_issue_from_the_requested_template() -> None:
             group_details={group_id: {"name": "Test Group", **_OPTION_FLAGS}},
         )
     )
-    headers, _ = _row_values(worksheet)
+    headers, values = _row_values(worksheet)
 
-    assert "Place of Issue" not in headers
+    assert "Place of Issue" in headers
+    assert values["Place of Issue"] == "CHENNAI"
 
 
 @pytest.mark.parametrize("source", ("IN", "IND", "India", "indian"))
@@ -699,7 +700,7 @@ def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None
 
     assert "Zone Name" not in headers
     assert headers[4] == "Session"
-    assert headers[-1] == "Nationality"
+    assert headers[-1] == "Place of Issue"
     assert worksheet.cell(row=5, column=headers.index("GIVEN NAME") + 1).value == "ALPHA"
     assert worksheet.cell(row=8, column=headers.index("GIVEN NAME") + 1).value == "BETA"
 
@@ -724,6 +725,7 @@ def test_export_uses_the_requested_exact_column_order() -> None:
             "date_of_issue": "2023-01-02",
             "date_of_expiry": "2033-01-01",
             "nationality": "IND",
+            "place_of_issue": "Mumbai",
         },
     )
     submission.qualifier_enabled_snapshot = True
@@ -816,6 +818,7 @@ def test_export_uses_the_requested_exact_column_order() -> None:
         "DOI",
         "DOE",
         "Nationality",
+        "Place of Issue",
         "Activity",
         "Badge name",
     ]

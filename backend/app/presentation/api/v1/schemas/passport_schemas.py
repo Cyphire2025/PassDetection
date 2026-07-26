@@ -196,7 +196,11 @@ class BulkDeletePassportSubmissionsResponse(BaseModel):
 
 
 class ExportSelectedGroupsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
+    supplemental_fields: list[str] = Field(default_factory=list, max_length=256)
+    group_by_field: str | None = Field(default=None, max_length=180)
 
 
 class PassportExportHistoryItemResponse(BaseModel):
@@ -286,6 +290,18 @@ class PassportExportFieldOptionsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     group_id: uuid.UUID
+    fields: list[PassportExportFieldOptionResponse] = Field(default_factory=list)
+    grouping_fields: list[PassportExportGroupingOptionResponse] = Field(
+        default_factory=list
+    )
+    default_selected_fields: list[str] = Field(default_factory=list)
+    default_group_by_field: str | None = None
+
+
+class PassportSelectedGroupsExportFieldOptionsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    group_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
     fields: list[PassportExportFieldOptionResponse] = Field(default_factory=list)
     grouping_fields: list[PassportExportGroupingOptionResponse] = Field(
         default_factory=list

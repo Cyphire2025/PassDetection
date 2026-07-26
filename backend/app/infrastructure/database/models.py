@@ -1208,7 +1208,7 @@ class PassportImageCropModel(Base):
 
 
 class PassportVisaAiImageModel(Base):
-    """Durable, verified AI variants for one submission's Visa photograph."""
+    """Durable AI variants for one submission's Visa photograph."""
 
     __tablename__ = "passport_visa_ai_images"
     __table_args__ = (
