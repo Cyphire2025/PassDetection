@@ -41,6 +41,7 @@ export const ROUTES = {
     tourOperationsScannerProof: "/tour-operations/scanner-proof",
     rooming: "/rooming",
     roomingGroup: (groupId: string) => `/rooming/${groupId}`,
+    menu: "/menu",
     admin: "/admin",
     staff: "/staff",
     analytics: "/analytics",

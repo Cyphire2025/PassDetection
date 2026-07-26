@@ -240,6 +240,21 @@ export const API_ENDPOINTS = {
       `/api/v1/rooming/hotels/${hotelId}/passengers/${passengerId}/allocation`,
   },
 
+  menu: {
+    workspace: "/api/v1/menu",
+    categories: "/api/v1/menu/categories",
+    category: (categoryId: string) => `/api/v1/menu/categories/${categoryId}`,
+    categoryDishes: (categoryId: string) =>
+      `/api/v1/menu/categories/${categoryId}/dishes`,
+    dish: (dishId: string) => `/api/v1/menu/dishes/${dishId}`,
+    generatePlan: "/api/v1/menu/plans/generate",
+    plan: (planId: string) => `/api/v1/menu/plans/${planId}`,
+    regeneratePlan: (planId: string) =>
+      `/api/v1/menu/plans/${planId}/regenerate`,
+    planEntry: (planId: string, entryId: string) =>
+      `/api/v1/menu/plans/${planId}/entries/${entryId}`,
+  },
+
   admin: {
     overview: "/api/v1/admin/overview",
     managers: "/api/v1/admin/managers",

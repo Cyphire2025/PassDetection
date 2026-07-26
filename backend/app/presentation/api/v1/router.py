@@ -20,6 +20,7 @@ from app.presentation.api.v1.routes.document_distribution import (
 )
 from app.presentation.api.v1.routes.document_rename import router as document_rename_router
 from app.presentation.api.v1.routes.health import router as health_router
+from app.presentation.api.v1.routes.menu import router as menu_router
 from app.presentation.api.v1.routes.notifications import router as notifications_router
 from app.presentation.api.v1.routes.passport_image_library import (
     router as passport_image_library_router,
@@ -45,6 +46,7 @@ api_v1_router.include_router(
 api_v1_router.include_router(search_router, prefix="/search", tags=["Search"])
 api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"])
 api_v1_router.include_router(rooming_router, prefix="/rooming", tags=["Rooming Lists"])
+api_v1_router.include_router(menu_router, prefix="/menu", tags=["Menu & Meal Planner"])
 api_v1_router.include_router(document_distribution_router, prefix="/document-distribution", tags=["Document Distribution"])
 api_v1_router.include_router(document_rename_router, prefix="/document-rename", tags=["Document Rename"])
 api_v1_router.include_router(admin_router, prefix="/admin", tags=["Admin"])

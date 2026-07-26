@@ -24,6 +24,7 @@ import {
   BedDouble,
   SendToBack,
   MessageCircle,
+  UtensilsCrossed,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useUIStore, selectSidebarCollapsed } from "@/stores/ui.store";
@@ -50,6 +51,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Documents",    href: ROUTES.dashboard.documents,   icon: SendToBack, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
   { label: "Coordinators", href: ROUTES.dashboard.tourOperationsCoordinators, icon: UserCheck, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "Rooming Lists", href: ROUTES.dashboard.rooming, icon: BedDouble, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
+  { label: "Menu",          href: ROUTES.dashboard.menu, icon: UtensilsCrossed, roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"] },
   {
     label: "Tour Ops",
     href: ROUTES.dashboard.tourOperationsGroupAssignments,

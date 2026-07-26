@@ -84,4 +84,7 @@ export const QUERY_KEYS = {
   dashboard: {
     stats: ["dashboard", "stats"] as const,
   },
+  menu: {
+    workspace: ["menu", "workspace"] as const,
+  },
 } as const;
