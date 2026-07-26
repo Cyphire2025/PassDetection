@@ -664,6 +664,11 @@ function ClientProvidedFieldsCard({ passport }: { passport: PassportSubmission }
   const values: Array<[string, string | null | undefined]> = [
     ["Email entered by client", passport.client_email],
     ["Phone entered by client", passport.client_phone],
+    [
+      "Agency/Dealership Name",
+      getStringField(fields, "agency_dealership_name")
+        || getStringField(passport.staff_metadata ?? {}, "agency_dealership_name"),
+    ],
     ["Nearest International Airport", passport.departure_city],
     ["Nearest Domestic Airport", passport.nearest_domestic_airport],
     ["Base City", getStringField(fields, "base_city")],

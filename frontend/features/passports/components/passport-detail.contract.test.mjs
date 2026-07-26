@@ -86,9 +86,13 @@ test("a replaced passport never displays its stale AI approval", () => {
   assert.match(source, /\{currentVerification\?\.explanation && \(/);
 });
 
-test("client-provided details show the submitted email and phone", () => {
+test("client-provided details show the submitted email, phone, and agency name", () => {
   assert.match(source, /\["Email entered by client", passport\.client_email\]/);
   assert.match(source, /\["Phone entered by client", passport\.client_phone\]/);
+  assert.match(
+    source,
+    /"Agency\/Dealership Name",[\s\S]*?getStringField\(fields, "agency_dealership_name"\)[\s\S]*?getStringField\(passport\.staff_metadata \?\? \{\}, "agency_dealership_name"\)/,
+  );
 });
 
 test("individual review fields prefill imported confirmed passport dates", () => {
