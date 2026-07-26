@@ -253,6 +253,8 @@ export const API_ENDPOINTS = {
       `/api/v1/menu/plans/${planId}/regenerate`,
     planEntry: (planId: string, entryId: string) =>
       `/api/v1/menu/plans/${planId}/entries/${entryId}`,
+    planExport: (planId: string) =>
+      `/api/v1/menu/plans/${planId}/export.xlsx`,
   },
 
   admin: {

@@ -8,6 +8,7 @@ import {
   Check,
   Clock3,
   Copy,
+  FileSpreadsheet,
   Moon,
   Pencil,
   RefreshCw,
@@ -35,6 +36,7 @@ import type {
 } from "../api/menu.api";
 import {
   useDeleteMealPlan,
+  useExportMealPlan,
   useGenerateMealPlan,
   useRegenerateMealPlan,
   useUpdateMealPlan,
@@ -47,12 +49,10 @@ type Feedback = { kind: "success" | "error"; message: string } | null;
 export function MealPlanner({
   categories,
   plans,
-  activeDishCount,
   onOpenLibrary,
 }: {
   categories: MenuCategory[];
   plans: MealPlan[];
-  activeDishCount: number;
   onOpenLibrary: () => void;
 }) {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(
@@ -60,9 +60,7 @@ export function MealPlanner({
   );
   const [generatorOpen, setGeneratorOpen] = useState(false);
   const [planName, setPlanName] = useState("Trip Meal Plan");
-  const [tripDays, setTripDays] = useState(
-    Math.max(1, Math.min(5, Math.floor(activeDishCount / 2))),
-  );
+  const [tripDays, setTripDays] = useState(suggestedTripDays(categories));
   const [startDate, setStartDate] = useState("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
     categories
@@ -82,29 +80,49 @@ export function MealPlanner({
   const updatePlan = useUpdateMealPlan();
   const updateEntry = useUpdateMealPlanEntry();
   const deleteMealPlan = useDeleteMealPlan();
+  const exportMealPlan = useExportMealPlan();
 
   const selectedPlan =
     plans.find((plan) => plan.id === selectedPlanId) ?? plans[0] ?? null;
-  const selectedActiveDishCount = useMemo(
+  const selectedCategories = useMemo(
     () =>
-      categories
-        .filter((category) => selectedCategoryIds.includes(category.id))
-        .reduce((total, category) => total + category.active_dish_count, 0),
+      categories.filter((category) =>
+        selectedCategoryIds.includes(category.id),
+      ),
     [categories, selectedCategoryIds],
   );
-  const requiredDishCount = tripDays * 2;
-  const missingDishCount = Math.max(0, requiredDishCount - selectedActiveDishCount);
+  const requiredDishesPerCategory = tripDays * 2;
+  const requiredDishCount =
+    requiredDishesPerCategory * selectedCategories.length;
+  const selectedActiveDishCount = selectedCategories.reduce(
+    (total, category) => total + category.active_dish_count,
+    0,
+  );
+  const categoryShortages = selectedCategories
+    .filter(
+      (category) => category.active_dish_count < requiredDishesPerCategory,
+    )
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      missing: requiredDishesPerCategory - category.active_dish_count,
+    }));
+  const missingDishCount = categoryShortages.reduce(
+    (total, shortage) => total + shortage.missing,
+    0,
+  );
+  const hasPlannableCategory = categories.some(
+    (category) => category.active_dish_count >= 2,
+  );
 
   const openGenerator = () => {
-    const availableCategories = categories
+    const availableCategoryRecords = categories
       .filter((category) => category.active_dish_count > 0)
-      .map((category) => category.id);
-    const suggestedDays = Math.max(
-      1,
-      Math.min(5, Math.floor(activeDishCount / 2)),
+    const availableCategories = availableCategoryRecords.map(
+      (category) => category.id,
     );
     setSelectedCategoryIds(availableCategories);
-    setTripDays(suggestedDays);
+    setTripDays(suggestedTripDays(availableCategoryRecords));
     setPlanName("Trip Meal Plan");
     setStartDate("");
     setFeedback(null);
@@ -113,7 +131,13 @@ export function MealPlanner({
 
   const submitGeneration = async (event: FormEvent) => {
     event.preventDefault();
-    if (!planName.trim() || missingDishCount > 0) return;
+    if (
+      !planName.trim() ||
+      selectedCategoryIds.length === 0 ||
+      categoryShortages.length > 0
+    ) {
+      return;
+    }
     setFeedback(null);
     try {
       const plan = await generatePlan.mutateAsync({
@@ -234,6 +258,25 @@ export function MealPlanner({
     }
   };
 
+  const exportPlan = async (plan: MealPlan) => {
+    setFeedback(null);
+    try {
+      await exportMealPlan.mutateAsync({
+        planId: plan.id,
+        planName: plan.name,
+      });
+      setFeedback({
+        kind: "success",
+        message: `${plan.name} exported to Excel.`,
+      });
+    } catch (error) {
+      setFeedback({
+        kind: "error",
+        message: menuErrorMessage(error, "The Excel file could not be exported."),
+      });
+    }
+  };
+
   const toggleCategory = (categoryId: string) => {
     setSelectedCategoryIds((current) =>
       current.includes(categoryId)
@@ -253,14 +296,15 @@ export function MealPlanner({
             Create a trip meal plan
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Every day gets one lunch and one dinner, with no dish repeated.
+            Every lunch and dinner gets one unique dish from every category you
+            select.
           </p>
         </div>
         <Button
           type="button"
           leftIcon={<Sparkles className="h-4 w-4" />}
           onClick={openGenerator}
-          disabled={activeDishCount < 2}
+          disabled={!hasPlannableCategory}
         >
           Generate Meal Plan
         </Button>
@@ -285,13 +329,13 @@ export function MealPlanner({
         </div>
       )}
 
-      {activeDishCount < 2 && (
+      {!hasPlannableCategory && (
         <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-2">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
             <p>
-              Add at least two active dishes before creating a one-day lunch and
-              dinner plan.
+              Add at least two active dishes to one category before creating a
+              one-day lunch and dinner plan.
             </p>
           </div>
           <Button type="button" size="sm" variant="secondary" onClick={onOpenLibrary}>
@@ -305,12 +349,12 @@ export function MealPlanner({
           icon={<BookOpen className="h-5 w-5" />}
           title="No meal plans yet"
           description={
-            activeDishCount >= 2
-              ? "Choose the number of trip days and let the smart planner create lunch and dinner."
+            hasPlannableCategory
+              ? "Choose your categories and every meal will include one dish from each."
               : "Build your dish library first, then come back here to create a plan."
           }
           action={
-            activeDishCount >= 2
+            hasPlannableCategory
               ? { label: "Generate first plan", onClick: openGenerator }
               : { label: "Add dishes", onClick: onOpenLibrary }
           }
@@ -358,7 +402,8 @@ export function MealPlanner({
                           <CalendarDays className="h-3 w-3" />
                           {plan.trip_days} days
                         </span>
-                        <span>{plan.unique_dish_count} meals</span>
+                        <span>{plan.trip_days * 2} meals</span>
+                        <span>{plan.unique_dish_count} dishes</span>
                       </div>
                     </button>
                   );
@@ -376,9 +421,11 @@ export function MealPlanner({
               onSavePlanDetails={savePlanDetails}
               onRegenerate={() => void regenerate(selectedPlan)}
               onCopy={() => void copyPlan(selectedPlan)}
+              onExport={() => void exportPlan(selectedPlan)}
               onDelete={() => setDeletePlan(selectedPlan)}
               onReplaceMeal={replaceMeal}
               isRegenerating={regeneratePlan.isPending}
+              isExporting={exportMealPlan.isPending}
               isUpdatingEntry={updateEntry.isPending}
               isUpdatingPlan={updatePlan.isPending}
             />
@@ -394,8 +441,10 @@ export function MealPlanner({
         startDate={startDate}
         selectedCategoryIds={selectedCategoryIds}
         selectedActiveDishCount={selectedActiveDishCount}
+        requiredDishesPerCategory={requiredDishesPerCategory}
         requiredDishCount={requiredDishCount}
         missingDishCount={missingDishCount}
+        categoryShortages={categoryShortages}
         isGenerating={generatePlan.isPending}
         onPlanNameChange={setPlanName}
         onTripDaysChange={setTripDays}
@@ -427,9 +476,11 @@ function PlanDetails({
   onSavePlanDetails,
   onRegenerate,
   onCopy,
+  onExport,
   onDelete,
   onReplaceMeal,
   isRegenerating,
+  isExporting,
   isUpdatingEntry,
   isUpdatingPlan,
 }: {
@@ -442,14 +493,19 @@ function PlanDetails({
   onSavePlanDetails: (event: FormEvent) => void;
   onRegenerate: () => void;
   onCopy: () => void;
+  onExport: () => void;
   onDelete: () => void;
   onReplaceMeal: (entry: MealPlanEntry, dishId: string) => void;
   isRegenerating: boolean;
+  isExporting: boolean;
   isUpdatingEntry: boolean;
   isUpdatingPlan: boolean;
 }) {
   const usedDishIds = new Set(
-    plan.days.flatMap((day) => [day.lunch.dish_id, day.dinner.dish_id]).filter(Boolean),
+    plan.days
+      .flatMap((day) => [...day.lunch, ...day.dinner])
+      .map((entry) => entry.dish_id)
+      .filter((dishId): dishId is string => dishId !== null),
   );
   const isEditing = editingPlan?.id === plan.id;
 
@@ -519,7 +575,7 @@ function PlanDetails({
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <UtensilsCrossed className="h-3.5 w-3.5" />
-                    {plan.unique_dish_count} unique meals
+                    {plan.unique_dish_count} unique dishes
                   </span>
                   {plan.start_date && (
                     <span className="inline-flex items-center gap-1.5">
@@ -553,6 +609,16 @@ function PlanDetails({
                   onClick={onCopy}
                 >
                   Copy
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  leftIcon={<FileSpreadsheet className="h-3.5 w-3.5" />}
+                  onClick={onExport}
+                  isLoading={isExporting}
+                >
+                  Excel
                 </Button>
                 <Button
                   type="button"
@@ -597,27 +663,27 @@ function PlanDetails({
                   )}
                 </div>
                 <span className="text-[10px] font-medium text-slate-400">
-                  2 meals
+                  2 meals · {day.lunch.length + day.dinner.length} dishes
                 </span>
               </div>
               <div className="divide-y divide-slate-100">
                 <MealSlot
-                  entry={day.lunch}
+                  entries={day.lunch}
                   icon={<Sun className="h-4 w-4" />}
                   iconClass="bg-amber-50 text-amber-600 ring-amber-100"
                   categories={categories}
                   usedDishIds={usedDishIds}
                   disabled={isUpdatingEntry}
-                  onChange={(dishId) => onReplaceMeal(day.lunch, dishId)}
+                  onChange={onReplaceMeal}
                 />
                 <MealSlot
-                  entry={day.dinner}
+                  entries={day.dinner}
                   icon={<Moon className="h-4 w-4" />}
                   iconClass="bg-indigo-50 text-indigo-600 ring-indigo-100"
                   categories={categories}
                   usedDishIds={usedDishIds}
                   disabled={isUpdatingEntry}
-                  onChange={(dishId) => onReplaceMeal(day.dinner, dishId)}
+                  onChange={onReplaceMeal}
                 />
               </div>
             </article>
@@ -629,7 +695,7 @@ function PlanDetails({
 }
 
 function MealSlot({
-  entry,
+  entries,
   icon,
   iconClass,
   categories,
@@ -637,27 +703,18 @@ function MealSlot({
   disabled,
   onChange,
 }: {
-  entry: MealPlanEntry;
+  entries: MealPlanEntry[];
   icon: React.ReactNode;
   iconClass: string;
   categories: MenuCategory[];
-  usedDishIds: Set<string | null>;
+  usedDishIds: Set<string>;
   disabled: boolean;
-  onChange: (dishId: string) => void;
+  onChange: (entry: MealPlanEntry, dishId: string) => void;
 }) {
-  const availableCategories = categories
-    .map((category) => ({
-      ...category,
-      dishes: category.dishes.filter(
-        (dish) =>
-          (dish.is_active || dish.id === entry.dish_id) &&
-          (!usedDishIds.has(dish.id) || dish.id === entry.dish_id),
-      ),
-    }))
-    .filter((category) => category.dishes.length > 0);
+  const mealType = entries[0]?.meal_type ?? "meal";
 
   return (
-    <div className="flex items-start gap-3 px-4 py-3">
+    <div className="flex items-start gap-3 px-4 py-3.5">
       <span
         className={cn(
           "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-1",
@@ -668,40 +725,58 @@ function MealSlot({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            {entry.meal_type}
-          </p>
-          <span className="truncate text-[10px] font-medium text-blue-600">
-            {entry.category_name}
-          </span>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+          {mealType}
+        </p>
+        <div className="mt-1.5 space-y-2">
+          {entries.map((entry) => {
+            const category = categories.find(
+              (item) => item.id === entry.category_id,
+            );
+            const availableDishes =
+              category?.dishes.filter(
+                (dish) =>
+                  (dish.is_active || dish.id === entry.dish_id) &&
+                  (!usedDishIds.has(dish.id) || dish.id === entry.dish_id),
+              ) ?? [];
+            return (
+              <div
+                key={entry.id}
+                className="rounded-lg border border-slate-100 bg-slate-50/70 px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="min-w-20 truncate text-[10px] font-semibold uppercase tracking-wide text-blue-600">
+                    {entry.category_name}
+                  </span>
+                  <select
+                    value={entry.dish_id ?? ""}
+                    onChange={(event) => onChange(entry, event.target.value)}
+                    disabled={disabled || availableDishes.length === 0}
+                    aria-label={`Change day ${entry.day_number} ${entry.meal_type} ${entry.category_name}`}
+                    className="min-w-0 flex-1 cursor-pointer rounded-md border border-transparent bg-white px-2 py-1.5 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {entry.dish_id === null && (
+                      <option value="" disabled>
+                        {entry.dish_name} (removed from library)
+                      </option>
+                    )}
+                    {availableDishes.map((dish) => (
+                      <option key={dish.id} value={dish.id}>
+                        {dish.name}
+                        {!dish.is_active ? " (paused)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {entry.notes && (
+                  <p className="mt-1 truncate text-[11px] text-slate-400">
+                    {entry.notes}
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
-        <select
-          value={entry.dish_id ?? ""}
-          onChange={(event) => onChange(event.target.value)}
-          disabled={disabled}
-          aria-label={`Change day ${entry.day_number} ${entry.meal_type}`}
-          className="mt-1 w-full cursor-pointer rounded-md border border-transparent bg-transparent py-1 pr-7 text-sm font-semibold text-slate-800 outline-none transition hover:border-slate-200 hover:bg-slate-50 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:cursor-wait disabled:opacity-60"
-        >
-          {entry.dish_id === null && (
-            <option value="" disabled>
-              {entry.dish_name} (removed from library)
-            </option>
-          )}
-          {availableCategories.map((category) => (
-            <optgroup key={category.id} label={category.name}>
-              {category.dishes.map((dish) => (
-                <option key={dish.id} value={dish.id}>
-                  {dish.name}
-                  {!dish.is_active ? " (paused)" : ""}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        {entry.notes && (
-          <p className="mt-0.5 truncate text-[11px] text-slate-400">{entry.notes}</p>
-        )}
       </div>
     </div>
   );
@@ -715,8 +790,10 @@ function GeneratePlanDialog({
   startDate,
   selectedCategoryIds,
   selectedActiveDishCount,
+  requiredDishesPerCategory,
   requiredDishCount,
   missingDishCount,
+  categoryShortages,
   isGenerating,
   onPlanNameChange,
   onTripDaysChange,
@@ -732,8 +809,10 @@ function GeneratePlanDialog({
   startDate: string;
   selectedCategoryIds: string[];
   selectedActiveDishCount: number;
+  requiredDishesPerCategory: number;
   requiredDishCount: number;
   missingDishCount: number;
+  categoryShortages: { id: string; name: string; missing: number }[];
   isGenerating: boolean;
   onPlanNameChange: (value: string) => void;
   onTripDaysChange: (value: number) => void;
@@ -763,7 +842,8 @@ function GeneratePlanDialog({
                 Generate meal plan
               </h2>
               <p className="mt-1 text-sm leading-5 text-slate-500">
-                Two unique dishes per day: one lunch and one dinner.
+                Every selected category adds one unique dish to each lunch and
+                dinner.
               </p>
             </div>
           </div>
@@ -801,7 +881,7 @@ function GeneratePlanDialog({
                   Math.min(60, Math.max(1, Number(event.target.value) || 1)),
                 )
               }
-              hint={`${requiredDishCount} unique dishes needed`}
+              hint={`${requiredDishesPerCategory} active dishes needed in each selected category`}
               required
             />
             <Input
@@ -850,7 +930,7 @@ function GeneratePlanDialog({
                       </span>
                     </span>
                     <span className="text-xs text-slate-400">
-                      {category.active_dish_count}
+                      {category.active_dish_count}/{requiredDishesPerCategory}
                     </span>
                   </label>
                 );
@@ -892,10 +972,10 @@ function GeneratePlanDialog({
                 >
                   {selectedCategoryIds.length === 0
                     ? "Select at least one category"
-                    : missingDishCount > 0
-                      ? `Add ${missingDishCount} more active dish${
-                          missingDishCount === 1 ? "" : "es"
-                        }`
+                    : categoryShortages.length > 0
+                      ? `${categoryShortages.length} selected categor${
+                          categoryShortages.length === 1 ? "y needs" : "ies need"
+                        } more dishes`
                       : "Ready to create a no-repeat plan"}
                 </p>
                 <p
@@ -906,8 +986,18 @@ function GeneratePlanDialog({
                       : "text-amber-700",
                   )}
                 >
-                  {selectedActiveDishCount} available · {requiredDishCount} needed
-                  for {tripDays} day{tripDays === 1 ? "" : "s"}.
+                  {categoryShortages.length > 0
+                    ? categoryShortages
+                        .map(
+                          (shortage) =>
+                            `${shortage.name}: add ${shortage.missing}`,
+                        )
+                        .join(" · ")
+                    : `${selectedCategoryIds.length} categories × ${requiredDishesPerCategory} meal slots = ${requiredDishCount} unique dishes.`}
+                </p>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {selectedActiveDishCount} active dishes across the selected
+                  categories.
                 </p>
               </div>
             </div>
@@ -951,17 +1041,31 @@ function formatDate(value: string, includeWeekday: boolean): string {
   }).format(date);
 }
 
+function suggestedTripDays(categories: MenuCategory[]): number {
+  const activeCounts = categories
+    .filter((category) => category.active_dish_count > 0)
+    .map((category) => category.active_dish_count);
+  if (activeCounts.length === 0) return 1;
+  return Math.max(1, Math.min(5, Math.floor(Math.min(...activeCounts) / 2)));
+}
+
 function mealPlanAsText(plan: MealPlan): string {
   const lines = [
     plan.name,
-    `${plan.trip_days}-day meal plan · No repeated dishes`,
+    `${plan.trip_days}-day meal plan · Every selected category in every meal · No repeated dishes`,
     "",
   ];
   for (const day of plan.days) {
     lines.push(
       `Day ${day.day_number}${day.date ? ` · ${formatDate(day.date, true)}` : ""}`,
-      `Lunch: ${day.lunch.dish_name} (${day.lunch.category_name})`,
-      `Dinner: ${day.dinner.dish_name} (${day.dinner.category_name})`,
+      "Lunch:",
+      ...day.lunch.map(
+        (entry) => `  ${entry.category_name}: ${entry.dish_name}`,
+      ),
+      "Dinner:",
+      ...day.dinner.map(
+        (entry) => `  ${entry.category_name}: ${entry.dish_name}`,
+      ),
       "",
     );
   }

@@ -68,9 +68,9 @@ export function MenuPage() {
                   </span>
                 </div>
                 <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                  Add categories such as Chicken, Paneer, Fish, or Chinese. The
-                  planner spreads categories across the trip and never repeats
-                  the same dish.
+                  Select categories such as Chicken, Paneer, Fish, or Dal. Every
+                  lunch and dinner gets one unique dish from each selected
+                  category.
                 </p>
               </div>
             </div>
@@ -115,7 +115,7 @@ export function MenuPage() {
         />
         <MetricCard
           icon={<CalendarDays className="h-4 w-4" />}
-          label="No-repeat capacity"
+          label="All-category capacity"
           value={`${data.max_trip_days_without_repeats} day${
             data.max_trip_days_without_repeats === 1 ? "" : "s"
           }`}
@@ -172,7 +172,6 @@ export function MenuPage() {
         <MealPlanner
           categories={data.categories}
           plans={data.plans}
-          activeDishCount={data.active_dishes}
           onOpenLibrary={() => setView("library")}
         />
       )}

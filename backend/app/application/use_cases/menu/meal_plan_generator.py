@@ -1,10 +1,9 @@
-"""Constraint-based generation of balanced, non-repeating trip meal plans."""
+"""Constraint-based generation of category-complete, non-repeating meal plans."""
 
 from __future__ import annotations
 
 import random
 import uuid
-from collections import defaultdict
 from dataclasses import dataclass
 
 MEAL_TYPES = ("lunch", "dinner")
@@ -20,108 +19,116 @@ class PlannerDish:
 
 
 @dataclass(frozen=True, slots=True)
+class PlannerCategory:
+    id: uuid.UUID
+    name: str
+    dishes: tuple[PlannerDish, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class MealSlotAssignment:
     day_number: int
     meal_type: str
     dish: PlannerDish
 
 
-class InsufficientUniqueDishesError(ValueError):
-    """Raised when a strict no-repeat plan cannot be produced."""
+@dataclass(frozen=True, slots=True)
+class CategoryDishShortage:
+    category_id: uuid.UUID
+    category_name: str
+    required: int
+    available: int
 
-    def __init__(self, *, required: int, available: int) -> None:
-        self.required = required
-        self.available = available
-        self.missing = max(0, required - available)
+    @property
+    def missing(self) -> int:
+        return max(0, self.required - self.available)
+
+
+class InsufficientCategoryDishesError(ValueError):
+    """Raised when any selected category cannot cover every meal slot."""
+
+    def __init__(
+        self,
+        *,
+        required_per_category: int,
+        shortages: tuple[CategoryDishShortage, ...],
+    ) -> None:
+        self.required_per_category = required_per_category
+        self.shortages = shortages
+        detail = ", ".join(
+            f"{shortage.category_name}: {shortage.available}/{shortage.required}"
+            for shortage in shortages
+        )
         super().__init__(
-            f"{required} unique dishes are required, but only {available} are available."
+            "Every selected category needs "
+            f"{required_per_category} unique dishes; insufficient inventory: {detail}."
         )
 
 
 def generate_balanced_meal_assignments(
-    dishes: list[PlannerDish],
+    categories: list[PlannerCategory],
     *,
     trip_days: int,
     seed: int,
 ) -> list[MealSlotAssignment]:
-    """Assign lunch and dinner while never repeating a dish.
-
-    Category usage is kept as even as available inventory allows. Dinner also
-    avoids lunch's category on the same day whenever another category still has
-    a dish available.
-    """
+    """Put one unique dish from every selected category in every meal."""
 
     if trip_days < 1:
         raise ValueError("trip_days must be at least 1")
+    if not categories:
+        raise ValueError("at least one category must be selected")
 
-    required = trip_days * len(MEAL_TYPES)
-    unique_dishes = {dish.id: dish for dish in dishes}
-    if len(unique_dishes) < required:
-        raise InsufficientUniqueDishesError(
-            required=required,
-            available=len(unique_dishes),
+    required_per_category = trip_days * len(MEAL_TYPES)
+    unique_categories = {category.id: category for category in categories}
+    if len(unique_categories) != len(categories):
+        raise ValueError("selected categories must be unique")
+
+    unique_dishes_by_category: dict[uuid.UUID, list[PlannerDish]] = {}
+    shortages: list[CategoryDishShortage] = []
+    for category in categories:
+        unique_dishes = {
+            dish.id: dish for dish in category.dishes if dish.category_id == category.id
+        }
+        category_dishes = sorted(
+            unique_dishes.values(),
+            key=lambda item: (
+                item.sort_order,
+                item.name.casefold(),
+                str(item.id),
+            ),
+        )
+        unique_dishes_by_category[category.id] = category_dishes
+        if len(category_dishes) < required_per_category:
+            shortages.append(
+                CategoryDishShortage(
+                    category_id=category.id,
+                    category_name=category.name,
+                    required=required_per_category,
+                    available=len(category_dishes),
+                )
+            )
+
+    if shortages:
+        raise InsufficientCategoryDishesError(
+            required_per_category=required_per_category,
+            shortages=tuple(shortages),
         )
 
     rng = random.Random(seed)
-    dishes_by_category: dict[uuid.UUID, list[PlannerDish]] = defaultdict(list)
-    for dish in sorted(
-        unique_dishes.values(),
-        key=lambda item: (
-            item.category_name.casefold(),
-            item.sort_order,
-            item.name.casefold(),
-            str(item.id),
-        ),
-    ):
-        dishes_by_category[dish.category_id].append(dish)
-
-    for category_dishes in dishes_by_category.values():
+    for category_dishes in unique_dishes_by_category.values():
         rng.shuffle(category_dishes)
 
-    category_usage = {category_id: 0 for category_id in dishes_by_category}
     assignments: list[MealSlotAssignment] = []
-    previous_category_id: uuid.UUID | None = None
-
     for day_number in range(1, trip_days + 1):
-        categories_used_today: set[uuid.UUID] = set()
-
         for meal_type in MEAL_TYPES:
-            eligible = [
-                category_id
-                for category_id, category_dishes in dishes_by_category.items()
-                if category_dishes
-            ]
-
-            different_today = [
-                category_id for category_id in eligible if category_id not in categories_used_today
-            ]
-            if different_today:
-                eligible = different_today
-
-            different_from_previous = [
-                category_id for category_id in eligible if category_id != previous_category_id
-            ]
-            if different_from_previous:
-                eligible = different_from_previous
-
-            lowest_usage = min(category_usage[category_id] for category_id in eligible)
-            balanced = [
-                category_id
-                for category_id in eligible
-                if category_usage[category_id] == lowest_usage
-            ]
-            category_id = rng.choice(sorted(balanced, key=str))
-            dish = dishes_by_category[category_id].pop()
-
-            assignments.append(
-                MealSlotAssignment(
-                    day_number=day_number,
-                    meal_type=meal_type,
-                    dish=dish,
+            for category in categories:
+                dish = unique_dishes_by_category[category.id].pop()
+                assignments.append(
+                    MealSlotAssignment(
+                        day_number=day_number,
+                        meal_type=meal_type,
+                        dish=dish,
+                    )
                 )
-            )
-            category_usage[category_id] += 1
-            categories_used_today.add(category_id)
-            previous_category_id = category_id
 
     return assignments

@@ -146,8 +146,8 @@ class MealPlanEntryResponse(BaseModel):
 class MealPlanDayResponse(BaseModel):
     day_number: int
     date: CalendarDate | None = None
-    lunch: MealPlanEntryResponse
-    dinner: MealPlanEntryResponse
+    lunch: list[MealPlanEntryResponse] = Field(default_factory=list)
+    dinner: list[MealPlanEntryResponse] = Field(default_factory=list)
 
 
 class MealPlanResponse(BaseModel):

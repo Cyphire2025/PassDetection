@@ -119,3 +119,9 @@ export function useDeleteMealPlan() {
     onSuccess: refresh,
   });
 }
+
+export function useExportMealPlan() {
+  return useMutation({
+    mutationFn: menuApi.exportPlan,
+  });
+}

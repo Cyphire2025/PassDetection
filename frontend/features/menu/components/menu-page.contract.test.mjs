@@ -10,6 +10,10 @@ const plannerSource = readFileSync(
   new URL("./meal-planner.tsx", import.meta.url),
   "utf8",
 );
+const librarySource = readFileSync(
+  new URL("./menu-library.tsx", import.meta.url),
+  "utf8",
+);
 const sidebarSource = readFileSync(
   new URL("../../../components/layout/sidebar.tsx", import.meta.url),
   "utf8",
@@ -26,16 +30,27 @@ test("Menu is a first-class office sidebar destination", () => {
   assert.match(pageSource, /Meal Planner/);
 });
 
-test("planner exposes strict no-repeat generation and editable meals", () => {
+test("every planned meal contains every selected category without repeats", () => {
   assert.match(plannerSource, /Generate Meal Plan/);
   assert.match(plannerSource, /No repeats/);
   assert.match(plannerSource, /usedDishIds/);
+  assert.match(plannerSource, /requiredDishesPerCategory/);
+  assert.match(plannerSource, /Every selected category/);
   assert.match(plannerSource, /onReplaceMeal/);
   assert.match(plannerSource, /Regenerate/);
+});
+
+test("dish library uses a category navigation rail and one active workspace", () => {
+  assert.match(librarySource, /aria-label="Dish categories"/);
+  assert.match(librarySource, /selectedCategoryId/);
+  assert.match(librarySource, /selectedCategory\.dishes\.map/);
+  assert.doesNotMatch(librarySource, /md:grid-cols-2/);
 });
 
 test("menu UI uses the shared versioned API registry", () => {
   assert.match(endpointsSource, /workspace: "\/api\/v1\/menu"/);
   assert.match(endpointsSource, /generatePlan: "\/api\/v1\/menu\/plans\/generate"/);
   assert.match(endpointsSource, /planEntry:/);
+  assert.match(endpointsSource, /planExport:/);
+  assert.match(plannerSource, /Excel/);
 });

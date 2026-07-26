@@ -37,8 +37,8 @@ export interface MealPlanEntry {
 export interface MealPlanDay {
   day_number: number;
   date: string | null;
-  lunch: MealPlanEntry;
-  dinner: MealPlanEntry;
+  lunch: MealPlanEntry[];
+  dinner: MealPlanEntry[];
 }
 
 export interface MealPlan {
@@ -203,4 +203,40 @@ export const menuApi = {
   deletePlan: async (planId: string): Promise<void> => {
     await apiClient.delete(API_ENDPOINTS.menu.plan(planId));
   },
+
+  exportPlan: async ({
+    planId,
+    planName,
+  }: {
+    planId: string;
+    planName: string;
+  }): Promise<void> => {
+    const response = await apiClient.get<Blob>(
+      API_ENDPOINTS.menu.planExport(planId),
+      { responseType: "blob" },
+    );
+    downloadBlob(response.data, `${safeFilename(planName)}.xlsx`);
+  },
 };
+
+function safeFilename(value: string): string {
+  return (
+    value
+      .trim()
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase()
+      .slice(0, 80) || "meal-plan"
+  );
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
@@ -12,8 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.application.use_cases.menu.meal_plan_generator import (
-    InsufficientUniqueDishesError,
+    InsufficientCategoryDishesError,
     MealSlotAssignment,
+    PlannerCategory,
     PlannerDish,
     generate_balanced_meal_assignments,
 )
@@ -25,6 +27,10 @@ from app.infrastructure.database.menu_models import (
     MenuDishModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.export.meal_plan_excel_exporter import (
+    MealPlanExcelExporter,
+    MealPlanExportEntry,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.schemas.menu_schemas import (
     CreateMenuCategoryRequest,
@@ -83,12 +89,19 @@ async def get_menu_workspace(
 
     total_dishes = sum(len(category.dishes) for category in categories)
     active_dishes = sum(1 for category in categories for dish in category.dishes if dish.is_active)
+    active_category_counts = [
+        sum(1 for dish in category.dishes if dish.is_active)
+        for category in categories
+        if any(dish.is_active for dish in category.dishes)
+    ]
     return MenuWorkspaceResponse(
         categories=[_category_response(category) for category in categories],
         plans=[_plan_response(plan, list(plan.entries)) for plan in plans],
         total_dishes=total_dishes,
         active_dishes=active_dishes,
-        max_trip_days_without_repeats=active_dishes // 2,
+        max_trip_days_without_repeats=(
+            min(active_category_counts) // 2 if active_category_counts else 0
+        ),
     )
 
 
@@ -360,18 +373,18 @@ async def generate_meal_plan(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> MealPlanResponse:
     agency_id = _agency_scope(current_user)
-    planner_dishes = await _planner_dishes(
+    planner_categories = await _planner_categories(
         session,
         agency_id=agency_id,
         category_ids=body.category_ids,
     )
     seed = secrets.randbelow(2**63 - 1)
     assignments = _generate_or_422(
-        planner_dishes,
+        planner_categories,
         trip_days=body.trip_days,
         seed=seed,
     )
-    selected_category_ids = [str(category_id) for category_id in (body.category_ids or [])]
+    selected_category_ids = [str(category.id) for category in planner_categories]
     plan = MealPlanModel(
         agency_id=agency_id,
         name=body.name,
@@ -421,14 +434,14 @@ async def regenerate_meal_plan(
     if category_ids is None and plan.selected_category_ids:
         category_ids = [uuid.UUID(str(category_id)) for category_id in plan.selected_category_ids]
 
-    planner_dishes = await _planner_dishes(
+    planner_categories = await _planner_categories(
         session,
         agency_id=agency_id,
         category_ids=category_ids,
     )
     seed = secrets.randbelow(2**63 - 1)
     assignments = _generate_or_422(
-        planner_dishes,
+        planner_categories,
         trip_days=plan.trip_days,
         seed=seed,
     )
@@ -436,7 +449,7 @@ async def regenerate_meal_plan(
     entries = _meal_plan_entries(plan.id, assignments)
     session.add_all(entries)
     plan.generation_seed = seed
-    plan.selected_category_ids = [str(category_id) for category_id in (category_ids or [])]
+    plan.selected_category_ids = [str(category.id) for category in planner_categories]
     plan.updated_at = _utcnow()
     await session.flush()
     await _audit(
@@ -511,6 +524,19 @@ async def update_meal_plan_entry(
             status_code=status.HTTP_409_CONFLICT,
             detail="Inactive dishes cannot be added to a meal plan",
         )
+    if entry.category_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The original category was removed, so this saved dish cannot be changed",
+        )
+    if dish.category_id != entry.category_id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Choose another {entry.category_name} dish so every meal keeps "
+                "one dish from each selected category"
+            ),
+        )
 
     duplicate = next(
         (item for item in plan.entries if item.id != entry.id and item.dish_id == dish.id),
@@ -549,6 +575,43 @@ async def update_meal_plan_entry(
         },
     )
     return _plan_response(plan, list(plan.entries))
+
+
+@router.get(
+    "/plans/{plan_id}/export.xlsx",
+    summary="Export a saved meal plan to Excel",
+)
+async def export_meal_plan(
+    plan_id: uuid.UUID,
+    current_user: User = Depends(require_role(MENU_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> Response:
+    agency_id = _agency_scope(current_user)
+    plan = await _get_plan(session, plan_id, agency_id, include_entries=True)
+    content = MealPlanExcelExporter().export(
+        plan_name=plan.name,
+        trip_days=plan.trip_days,
+        start_date=plan.start_date,
+        selected_category_ids=[
+            uuid.UUID(str(category_id)) for category_id in plan.selected_category_ids
+        ],
+        entries=[
+            MealPlanExportEntry(
+                day_number=entry.day_number,
+                meal_type=entry.meal_type,
+                category_id=entry.category_id,
+                category_name=entry.category_name,
+                dish_name=entry.dish_name,
+                notes=entry.notes,
+            )
+            for entry in plan.entries
+        ],
+    )
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": (f'attachment; filename="{_excel_filename(plan.name)}"')},
+    )
 
 
 @router.delete(
@@ -715,79 +778,100 @@ async def _ensure_dish_name_available(
         )
 
 
-async def _planner_dishes(
+async def _planner_categories(
     session: AsyncSession,
     *,
     agency_id: uuid.UUID | None,
     category_ids: list[uuid.UUID] | None,
-) -> list[PlannerDish]:
+) -> list[PlannerCategory]:
     if category_ids is not None and not category_ids:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Select at least one category",
         )
 
+    statement = (
+        select(MenuCategoryModel)
+        .where(_category_scope(MenuCategoryModel, agency_id))
+        .options(selectinload(MenuCategoryModel.dishes))
+        .order_by(MenuCategoryModel.sort_order, func.lower(MenuCategoryModel.name))
+    )
     if category_ids is not None:
-        category_result = await session.execute(
-            select(MenuCategoryModel.id).where(
-                _category_scope(MenuCategoryModel, agency_id),
-                MenuCategoryModel.id.in_(category_ids),
-            )
-        )
-        available_ids = set(category_result.scalars().all())
-        if available_ids != set(category_ids):
+        statement = statement.where(MenuCategoryModel.id.in_(category_ids))
+
+    category_result = await session.execute(statement)
+    categories = list(category_result.scalars().unique().all())
+    if category_ids is not None:
+        categories_by_id = {category.id: category for category in categories}
+        if set(categories_by_id) != set(category_ids):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="One or more selected categories are unavailable",
             )
+        categories = [categories_by_id[category_id] for category_id in category_ids]
 
-    statement = (
-        select(MenuDishModel, MenuCategoryModel)
-        .join(MenuCategoryModel, MenuCategoryModel.id == MenuDishModel.category_id)
-        .where(
-            _category_scope(MenuCategoryModel, agency_id),
-            MenuDishModel.is_active.is_(True),
+    planner_categories: list[PlannerCategory] = []
+    for category in categories:
+        active_dishes = sorted(
+            (dish for dish in category.dishes if dish.is_active),
+            key=lambda dish: (
+                dish.sort_order,
+                dish.name.casefold(),
+                str(dish.id),
+            ),
         )
-        .order_by(
-            MenuCategoryModel.sort_order,
-            MenuDishModel.sort_order,
-            func.lower(MenuDishModel.name),
+        if category_ids is None and not active_dishes:
+            continue
+        planner_categories.append(
+            PlannerCategory(
+                id=category.id,
+                name=category.name,
+                dishes=tuple(
+                    PlannerDish(
+                        id=dish.id,
+                        category_id=category.id,
+                        name=dish.name,
+                        category_name=category.name,
+                        sort_order=dish.sort_order,
+                    )
+                    for dish in active_dishes
+                ),
+            )
         )
-    )
-    if category_ids is not None:
-        statement = statement.where(MenuCategoryModel.id.in_(category_ids))
-    result = await session.execute(statement)
-    return [
-        PlannerDish(
-            id=dish.id,
-            category_id=category.id,
-            name=dish.name,
-            category_name=category.name,
-            sort_order=dish.sort_order,
+
+    if not planner_categories:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Select at least one category with active dishes",
         )
-        for dish, category in result.all()
-    ]
+    return planner_categories
 
 
 def _generate_or_422(
-    planner_dishes: list[PlannerDish],
+    planner_categories: list[PlannerCategory],
     *,
     trip_days: int,
     seed: int,
 ) -> list[MealSlotAssignment]:
     try:
         return generate_balanced_meal_assignments(
-            planner_dishes,
+            planner_categories,
             trip_days=trip_days,
             seed=seed,
         )
-    except InsufficientUniqueDishesError as exc:
-        noun = "dish" if exc.missing == 1 else "dishes"
+    except InsufficientCategoryDishesError as exc:
+        shortages = "; ".join(
+            (
+                f"{shortage.category_name}: add {shortage.missing} "
+                f"dish{'es' if shortage.missing != 1 else ''}"
+            )
+            for shortage in exc.shortages
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=(
-                f"Add {exc.missing} more active {noun} to make a {trip_days}-day "
-                "lunch and dinner plan without repeats."
+                f"Each selected category needs {exc.required_per_category} active "
+                f"dishes for a {trip_days}-day lunch and dinner plan. {shortages}."
             ),
         ) from exc
 
@@ -861,25 +945,37 @@ def _plan_response(
     plan: MealPlanModel,
     entries: list[MealPlanEntryModel],
 ) -> MealPlanResponse:
-    by_day: dict[int, dict[str, MealPlanEntryModel]] = {}
+    category_order = {
+        str(category_id): index for index, category_id in enumerate(plan.selected_category_ids)
+    }
+    by_day: dict[int, dict[str, list[MealPlanEntryModel]]] = {}
     for entry in entries:
-        by_day.setdefault(entry.day_number, {})[entry.meal_type] = entry
+        by_day.setdefault(entry.day_number, {}).setdefault(entry.meal_type, []).append(entry)
 
     days: list[MealPlanDayResponse] = []
     for day_number in range(1, plan.trip_days + 1):
         day_entries = by_day.get(day_number, {})
-        lunch = day_entries.get("lunch")
-        dinner = day_entries.get("dinner")
-        if lunch is None or dinner is None:
+        lunch = day_entries.get("lunch", [])
+        dinner = day_entries.get("dinner", [])
+        if not lunch or not dinner:
             raise RuntimeError(f"Meal plan {plan.id} is missing day {day_number} entries")
+
+        def entry_sort_key(entry: MealPlanEntryModel) -> tuple[int, str, str]:
+            category_id = str(entry.category_id) if entry.category_id else ""
+            return (
+                category_order.get(category_id, len(category_order)),
+                entry.category_name.casefold(),
+                str(entry.id),
+            )
+
         days.append(
             MealPlanDayResponse(
                 day_number=day_number,
                 date=(
                     plan.start_date + timedelta(days=day_number - 1) if plan.start_date else None
                 ),
-                lunch=_entry_response(lunch),
-                dinner=_entry_response(dinner),
+                lunch=[_entry_response(entry) for entry in sorted(lunch, key=entry_sort_key)],
+                dinner=[_entry_response(entry) for entry in sorted(dinner, key=entry_sort_key)],
             )
         )
 
@@ -900,6 +996,11 @@ def _plan_response(
 
 def _normalized_name(value: str) -> str:
     return " ".join(value.strip().split()).casefold()
+
+
+def _excel_filename(plan_name: str) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9]+", "-", plan_name).strip("-").lower()
+    return f"{(normalized[:80] or 'meal-plan')}.xlsx"
 
 
 def _utcnow() -> datetime:

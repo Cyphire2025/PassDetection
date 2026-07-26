@@ -3,7 +3,9 @@
 import { FormEvent, useState } from "react";
 import {
   Check,
+  ChevronRight,
   CirclePause,
+  FolderOpen,
   Pencil,
   Plus,
   Power,
@@ -48,6 +50,9 @@ const CATEGORY_TONES = [
 ];
 
 export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    categories[0]?.id ?? null,
+  );
   const [newCategoryName, setNewCategoryName] = useState("");
   const [openDishForm, setOpenDishForm] = useState<string | null>(null);
   const [newDishName, setNewDishName] = useState("");
@@ -72,13 +77,30 @@ export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
   const updateDish = useUpdateMenuDish();
   const deleteDish = useDeleteMenuDish();
 
+  const selectedCategory =
+    categories.find((category) => category.id === selectedCategoryId) ??
+    categories[0] ??
+    null;
+  const selectedCategoryIndex = Math.max(
+    0,
+    categories.findIndex((category) => category.id === selectedCategory?.id),
+  );
+
+  const selectCategory = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setOpenDishForm(null);
+    setEditingCategory(null);
+    setEditingDish(null);
+  };
+
   const submitCategory = async (event: FormEvent) => {
     event.preventDefault();
     if (!newCategoryName.trim()) return;
     setFeedback(null);
     try {
-      await createCategory.mutateAsync(newCategoryName.trim());
+      const category = await createCategory.mutateAsync(newCategoryName.trim());
       setNewCategoryName("");
+      setSelectedCategoryId(category.id);
       setFeedback({ kind: "success", message: "Category added." });
     } catch (error) {
       setFeedback({
@@ -119,6 +141,7 @@ export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
       });
       setNewDishName("");
       setNewDishNotes("");
+      setOpenDishForm(null);
       setFeedback({ kind: "success", message: "Dish added to the library." });
     } catch (error) {
       setFeedback({
@@ -178,6 +201,12 @@ export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
     try {
       if (deleteTarget.kind === "category") {
         await deleteCategory.mutateAsync(deleteTarget.id);
+        if (selectedCategory?.id === deleteTarget.id) {
+          const nextCategory = categories.find(
+            (category) => category.id !== deleteTarget.id,
+          );
+          setSelectedCategoryId(nextCategory?.id ?? null);
+        }
         setFeedback({ kind: "success", message: "Category deleted." });
       } else {
         await deleteDish.mutateAsync(deleteTarget.id);
@@ -201,39 +230,19 @@ export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
 
   return (
     <section className="space-y-5" aria-labelledby="dish-library-title">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Step 1
-          </p>
-          <h2 id="dish-library-title" className="mt-1 text-base font-semibold text-slate-900">
-            Build your dish library
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Categories keep similar dishes together and help the planner create variety.
-          </p>
-        </div>
-        <form
-          onSubmit={submitCategory}
-          className="flex w-full gap-2 sm:w-auto"
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+          Step 1
+        </p>
+        <h2
+          id="dish-library-title"
+          className="mt-1 text-base font-semibold text-slate-900"
         >
-          <Input
-            value={newCategoryName}
-            onChange={(event) => setNewCategoryName(event.target.value)}
-            placeholder="e.g. Chicken"
-            aria-label="New category name"
-            maxLength={100}
-            className="sm:w-52"
-          />
-          <Button
-            type="submit"
-            leftIcon={<Plus className="h-4 w-4" />}
-            disabled={!newCategoryName.trim()}
-            isLoading={createCategory.isPending}
-          >
-            Category
-          </Button>
-        </form>
+          Build your dish library
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Pick a category on the left, then manage only its dishes on the right.
+        </p>
       </div>
 
       {feedback && (
@@ -255,320 +264,434 @@ export function MenuLibrary({ categories }: { categories: MenuCategory[] }) {
         </div>
       )}
 
-      {categories.length === 0 ? (
-        <EmptyState
-          icon={<UtensilsCrossed className="h-5 w-5" />}
-          title="Start with your first category"
-          description="For example: Chicken, Paneer, Fish, Vegetarian, Chinese, or Desserts."
-          className="bg-white"
-        />
-      ) : (
-        <div className="grid items-start gap-4 md:grid-cols-2">
-          {categories.map((category, index) => (
-            <Card key={category.id} className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span
-                      className={cn(
-                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold uppercase ring-1",
-                        CATEGORY_TONES[index % CATEGORY_TONES.length],
-                      )}
-                    >
-                      {category.name.charAt(0)}
-                    </span>
-                    {editingCategory?.id === category.id ? (
-                      <form
-                        onSubmit={submitCategoryEdit}
-                        className="flex min-w-0 items-center gap-2"
-                      >
-                        <Input
-                          value={editingCategory.name}
-                          onChange={(event) =>
-                            setEditingCategory({
-                              ...editingCategory,
-                              name: event.target.value,
-                            })
-                          }
-                          aria-label="Edit category name"
-                          autoFocus
-                          className="h-8"
-                        />
-                        <Button
-                          type="submit"
-                          size="icon"
-                          className="h-8 w-8"
-                          aria-label="Save category"
-                          isLoading={updateCategory.isPending}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                          aria-label="Cancel category edit"
-                          onClick={() => setEditingCategory(null)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </form>
-                    ) : (
-                      <div className="min-w-0">
-                        <h3 className="truncate font-semibold text-slate-900">
-                          {category.name}
-                        </h3>
-                        <p className="text-xs text-slate-500">
-                          {category.active_dish_count} active of {category.dish_count}
-                        </p>
-                      </div>
-                    )}
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="grid min-h-[520px] md:grid-cols-[230px_minmax(0,1fr)]">
+            <aside className="border-b border-slate-200 bg-slate-50/70 md:border-b-0 md:border-r">
+              <div className="border-b border-slate-200 px-4 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Categories
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-slate-400">
+                      {categories.length} total
+                    </p>
                   </div>
-                  {editingCategory?.id !== category.id && (
-                    <div className="flex shrink-0 items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEditingCategory({
-                            id: category.id,
-                            name: category.name,
-                          })
-                        }
-                        className="rounded-md p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                        aria-label={`Rename ${category.name}`}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setDeleteTarget({
-                            kind: "category",
-                            id: category.id,
-                            name: category.name,
-                            dishCount: category.dish_count,
-                          })
-                        }
-                        className="rounded-md p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                        aria-label={`Delete ${category.name}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
+                  <FolderOpen className="h-4 w-4 text-slate-400" />
                 </div>
+              </div>
 
-                <div className="p-4">
-                  {category.dishes.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center">
-                      <p className="text-sm font-medium text-slate-600">No dishes yet</p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        Add the dishes your team can serve.
-                      </p>
-                    </div>
-                  ) : (
-                    <ul className="space-y-1.5" role="list">
-                      {category.dishes.map((dish) => (
-                        <li key={dish.id}>
-                          {editingDish?.id === dish.id ? (
-                            <form
-                              onSubmit={submitDishEdit}
-                              className="space-y-2 rounded-lg border border-blue-200 bg-blue-50/50 p-3"
-                            >
-                              <Input
-                                value={editingDish.name}
-                                onChange={(event) =>
-                                  setEditingDish({
-                                    ...editingDish,
-                                    name: event.target.value,
-                                  })
-                                }
-                                label="Dish name"
-                                autoFocus
-                                maxLength={120}
-                              />
-                              <Input
-                                value={editingDish.notes}
-                                onChange={(event) =>
-                                  setEditingDish({
-                                    ...editingDish,
-                                    notes: event.target.value,
-                                  })
-                                }
-                                label="Notes (optional)"
-                                placeholder="e.g. mild gravy"
-                                maxLength={500}
-                              />
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setEditingDish(null)}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  type="submit"
-                                  size="sm"
-                                  isLoading={updateDish.isPending}
-                                  disabled={!editingDish.name.trim()}
-                                >
-                                  Save dish
-                                </Button>
-                              </div>
-                            </form>
-                          ) : (
-                            <div
-                              className={cn(
-                                "group flex items-center gap-3 rounded-lg border px-3 py-2.5 transition",
-                                dish.is_active
-                                  ? "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
-                                  : "border-slate-100 bg-slate-50 opacity-70",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "h-2 w-2 shrink-0 rounded-full",
-                                  dish.is_active ? "bg-emerald-500" : "bg-slate-300",
-                                )}
-                                aria-hidden="true"
-                              />
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <p className="truncate text-sm font-medium text-slate-700">
-                                    {dish.name}
-                                  </p>
-                                  {!dish.is_active && (
-                                    <Badge variant="outline" className="px-1.5 py-0 text-[9px]">
-                                      Paused
-                                    </Badge>
-                                  )}
-                                </div>
-                                {dish.notes && (
-                                  <p className="truncate text-[11px] text-slate-400">
-                                    {dish.notes}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex shrink-0 items-center">
-                                <button
-                                  type="button"
-                                  onClick={() => void toggleDish(dish)}
-                                  className="rounded-md p-1.5 text-slate-400 transition hover:bg-white hover:text-blue-600"
-                                  aria-label={
-                                    dish.is_active
-                                      ? `Pause ${dish.name}`
-                                      : `Activate ${dish.name}`
-                                  }
-                                  title={
-                                    dish.is_active
-                                      ? "Pause from planning"
-                                      : "Use in planning"
-                                  }
-                                >
-                                  {dish.is_active ? (
-                                    <CirclePause className="h-3.5 w-3.5" />
-                                  ) : (
-                                    <Power className="h-3.5 w-3.5" />
-                                  )}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setEditingDish({
-                                      id: dish.id,
-                                      name: dish.name,
-                                      notes: dish.notes ?? "",
-                                      isActive: dish.is_active,
-                                    })
-                                  }
-                                  className="rounded-md p-1.5 text-slate-400 transition hover:bg-white hover:text-slate-700"
-                                  aria-label={`Edit ${dish.name}`}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setDeleteTarget({
-                                      kind: "dish",
-                                      id: dish.id,
-                                      name: dish.name,
-                                    })
-                                  }
-                                  className="rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                                  aria-label={`Delete ${dish.name}`}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            </div>
+              {categories.length > 0 ? (
+                <nav
+                  className="max-h-72 space-y-1 overflow-y-auto p-2 md:max-h-[390px]"
+                  aria-label="Dish categories"
+                >
+                  {categories.map((category, index) => {
+                    const active = selectedCategory?.id === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => selectCategory(category.id)}
+                        className={cn(
+                          "flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2.5 text-left transition",
+                          active
+                            ? "border-blue-200 bg-white shadow-sm"
+                            : "border-transparent hover:border-slate-200 hover:bg-white/80",
+                        )}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold uppercase ring-1",
+                            CATEGORY_TONES[index % CATEGORY_TONES.length],
                           )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                        >
+                          {category.name.charAt(0)}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span
+                            className={cn(
+                              "block truncate text-sm font-medium",
+                              active ? "text-blue-900" : "text-slate-700",
+                            )}
+                          >
+                            {category.name}
+                          </span>
+                          <span className="block text-[10px] text-slate-400">
+                            {category.active_dish_count} active ·{" "}
+                            {category.dish_count} total
+                          </span>
+                        </span>
+                        <ChevronRight
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0",
+                            active ? "text-blue-500" : "text-slate-300",
+                          )}
+                        />
+                      </button>
+                    );
+                  })}
+                </nav>
+              ) : (
+                <div className="px-4 py-6 text-center text-xs text-slate-400">
+                  Add your first category below.
+                </div>
+              )}
 
-                  {openDishForm === category.id ? (
-                    <form
-                      onSubmit={(event) => void submitDish(event, category.id)}
-                      className="mt-3 space-y-2 rounded-lg border border-blue-200 bg-blue-50/50 p-3"
-                    >
-                      <Input
-                        value={newDishName}
-                        onChange={(event) => setNewDishName(event.target.value)}
-                        label="Dish name"
-                        placeholder={`Add a ${category.name} dish`}
-                        autoFocus
-                        maxLength={120}
-                      />
-                      <Input
-                        value={newDishNotes}
-                        onChange={(event) => setNewDishNotes(event.target.value)}
-                        label="Notes (optional)"
-                        placeholder="e.g. dry, mild, Jain"
-                        maxLength={500}
-                      />
-                      <div className="flex justify-end gap-2">
+              <form
+                onSubmit={submitCategory}
+                className="space-y-2 border-t border-slate-200 p-3"
+              >
+                <Input
+                  value={newCategoryName}
+                  onChange={(event) => setNewCategoryName(event.target.value)}
+                  placeholder="e.g. Chicken"
+                  aria-label="New category name"
+                  maxLength={100}
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="w-full"
+                  leftIcon={<Plus className="h-3.5 w-3.5" />}
+                  disabled={!newCategoryName.trim()}
+                  isLoading={createCategory.isPending}
+                >
+                  Add category
+                </Button>
+              </form>
+            </aside>
+
+            <div className="min-w-0 bg-white">
+              {selectedCategory ? (
+                <>
+                  <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold uppercase ring-1",
+                          CATEGORY_TONES[
+                            selectedCategoryIndex % CATEGORY_TONES.length
+                          ],
+                        )}
+                      >
+                        {selectedCategory.name.charAt(0)}
+                      </span>
+                      {editingCategory?.id === selectedCategory.id ? (
+                        <form
+                          onSubmit={submitCategoryEdit}
+                          className="flex min-w-0 items-center gap-2"
+                        >
+                          <Input
+                            value={editingCategory.name}
+                            onChange={(event) =>
+                              setEditingCategory({
+                                ...editingCategory,
+                                name: event.target.value,
+                              })
+                            }
+                            aria-label="Edit category name"
+                            autoFocus
+                            className="h-8"
+                          />
+                          <Button
+                            type="submit"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label="Save category"
+                            isLoading={updateCategory.isPending}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            aria-label="Cancel category edit"
+                            onClick={() => setEditingCategory(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </form>
+                      ) : (
+                        <div className="min-w-0">
+                          <h3 className="truncate text-lg font-semibold text-slate-900">
+                            {selectedCategory.name}
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            {selectedCategory.active_dish_count} active of{" "}
+                            {selectedCategory.dish_count} dishes
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {editingCategory?.id !== selectedCategory.id && (
+                      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
                         <Button
                           type="button"
-                          variant="ghost"
                           size="sm"
-                          onClick={() => setOpenDishForm(null)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          type="submit"
-                          size="sm"
+                          variant="secondary"
                           leftIcon={<Plus className="h-3.5 w-3.5" />}
-                          isLoading={createDish.isPending}
-                          disabled={!newDishName.trim()}
+                          onClick={() => openAddDish(selectedCategory.id)}
                         >
                           Add dish
                         </Button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingCategory({
+                              id: selectedCategory.id,
+                              name: selectedCategory.name,
+                            })
+                          }
+                          className="rounded-md p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                          aria-label={`Rename ${selectedCategory.name}`}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDeleteTarget({
+                              kind: "category",
+                              id: selectedCategory.id,
+                              name: selectedCategory.name,
+                              dishCount: selectedCategory.dish_count,
+                            })
+                          }
+                          className="rounded-md p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                          aria-label={`Delete ${selectedCategory.name}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                    </form>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="mt-3 w-full border border-dashed border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                      leftIcon={<Plus className="h-3.5 w-3.5" />}
-                      onClick={() => openAddDish(category.id)}
-                    >
-                      Add dish
-                    </Button>
-                  )}
+                    )}
+                  </div>
+
+                  <div className="p-4 sm:p-5">
+                    {openDishForm === selectedCategory.id && (
+                      <form
+                        onSubmit={(event) =>
+                          void submitDish(event, selectedCategory.id)
+                        }
+                        className="mb-4 grid gap-3 rounded-xl border border-blue-200 bg-blue-50/50 p-4 lg:grid-cols-2"
+                      >
+                        <Input
+                          value={newDishName}
+                          onChange={(event) => setNewDishName(event.target.value)}
+                          label="Dish name"
+                          placeholder={`Add a ${selectedCategory.name} dish`}
+                          autoFocus
+                          maxLength={120}
+                        />
+                        <Input
+                          value={newDishNotes}
+                          onChange={(event) => setNewDishNotes(event.target.value)}
+                          label="Notes (optional)"
+                          placeholder="e.g. dry, mild, Jain"
+                          maxLength={500}
+                        />
+                        <div className="flex justify-end gap-2 lg:col-span-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setOpenDishForm(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            size="sm"
+                            leftIcon={<Plus className="h-3.5 w-3.5" />}
+                            isLoading={createDish.isPending}
+                            disabled={!newDishName.trim()}
+                          >
+                            Add dish
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+
+                    {selectedCategory.dishes.length === 0 ? (
+                      <EmptyState
+                        icon={<UtensilsCrossed className="h-5 w-5" />}
+                        title={`No ${selectedCategory.name} dishes yet`}
+                        description="Add the dishes your team can serve in this category."
+                        action={{
+                          label: "Add first dish",
+                          onClick: () => openAddDish(selectedCategory.id),
+                        }}
+                        className="border-dashed bg-slate-50"
+                      />
+                    ) : (
+                      <ul className="space-y-2" role="list">
+                        {selectedCategory.dishes.map((dish) => (
+                          <li key={dish.id}>
+                            {editingDish?.id === dish.id ? (
+                              <form
+                                onSubmit={submitDishEdit}
+                                className="grid gap-3 rounded-xl border border-blue-200 bg-blue-50/50 p-4 lg:grid-cols-2"
+                              >
+                                <Input
+                                  value={editingDish.name}
+                                  onChange={(event) =>
+                                    setEditingDish({
+                                      ...editingDish,
+                                      name: event.target.value,
+                                    })
+                                  }
+                                  label="Dish name"
+                                  autoFocus
+                                  maxLength={120}
+                                />
+                                <Input
+                                  value={editingDish.notes}
+                                  onChange={(event) =>
+                                    setEditingDish({
+                                      ...editingDish,
+                                      notes: event.target.value,
+                                    })
+                                  }
+                                  label="Notes (optional)"
+                                  placeholder="e.g. mild gravy"
+                                  maxLength={500}
+                                />
+                                <div className="flex justify-end gap-2 lg:col-span-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditingDish(null)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="submit"
+                                    size="sm"
+                                    isLoading={updateDish.isPending}
+                                    disabled={!editingDish.name.trim()}
+                                  >
+                                    Save dish
+                                  </Button>
+                                </div>
+                              </form>
+                            ) : (
+                              <div
+                                className={cn(
+                                  "group flex items-center gap-3 rounded-xl border px-3 py-3 transition sm:px-4",
+                                  dish.is_active
+                                    ? "border-slate-200 bg-white hover:border-blue-200 hover:shadow-sm"
+                                    : "border-slate-100 bg-slate-50 opacity-70",
+                                )}
+                              >
+                                <span
+                                  className={cn(
+                                    "h-2.5 w-2.5 shrink-0 rounded-full",
+                                    dish.is_active
+                                      ? "bg-emerald-500"
+                                      : "bg-slate-300",
+                                  )}
+                                  aria-hidden="true"
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <p className="truncate text-sm font-medium text-slate-700">
+                                      {dish.name}
+                                    </p>
+                                    {!dish.is_active && (
+                                      <Badge
+                                        variant="outline"
+                                        className="px-1.5 py-0 text-[9px]"
+                                      >
+                                        Paused
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {dish.notes && (
+                                    <p className="mt-0.5 truncate text-[11px] text-slate-400">
+                                      {dish.notes}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex shrink-0 items-center">
+                                  <button
+                                    type="button"
+                                    onClick={() => void toggleDish(dish)}
+                                    className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-50 hover:text-blue-600"
+                                    aria-label={
+                                      dish.is_active
+                                        ? `Pause ${dish.name}`
+                                        : `Activate ${dish.name}`
+                                    }
+                                    title={
+                                      dish.is_active
+                                        ? "Pause from planning"
+                                        : "Use in planning"
+                                    }
+                                  >
+                                    {dish.is_active ? (
+                                      <CirclePause className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <Power className="h-3.5 w-3.5" />
+                                    )}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setEditingDish({
+                                        id: dish.id,
+                                        name: dish.name,
+                                        notes: dish.notes ?? "",
+                                        isActive: dish.is_active,
+                                      })
+                                    }
+                                    className="rounded-md p-1.5 text-slate-400 transition hover:bg-slate-50 hover:text-slate-700"
+                                    aria-label={`Edit ${dish.name}`}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setDeleteTarget({
+                                        kind: "dish",
+                                        id: dish.id,
+                                        name: dish.name,
+                                      })
+                                    }
+                                    className="rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                                    aria-label={`Delete ${dish.name}`}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex min-h-[520px] items-center justify-center p-6">
+                  <EmptyState
+                    icon={<UtensilsCrossed className="h-5 w-5" />}
+                    title="Start with your first category"
+                    description="For example: Chicken, Paneer, Fish, Dal, Chinese, or Desserts."
+                    className="w-full max-w-md border-0 shadow-none"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <ConfirmDialog
         isOpen={deleteTarget !== null}

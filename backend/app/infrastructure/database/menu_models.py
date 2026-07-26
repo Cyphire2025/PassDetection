@@ -221,12 +221,16 @@ class MealPlanModel(Base):
         back_populates="plan",
         cascade="all, delete-orphan",
         passive_deletes=True,
-        order_by=lambda: (MealPlanEntryModel.day_number, MealPlanEntryModel.meal_type),
+        order_by=lambda: (
+            MealPlanEntryModel.day_number,
+            MealPlanEntryModel.meal_type,
+            MealPlanEntryModel.category_name,
+        ),
     )
 
 
 class MealPlanEntryModel(Base):
-    """One lunch or dinner selection, including snapshots for historical readability."""
+    """One category dish in a lunch or dinner, with readable snapshots."""
 
     __tablename__ = "meal_plan_entries"
     __table_args__ = (
@@ -234,7 +238,8 @@ class MealPlanEntryModel(Base):
             "plan_id",
             "day_number",
             "meal_type",
-            name="uq_meal_plan_entries_plan_day_meal",
+            "category_id",
+            name="uq_meal_plan_entries_plan_day_meal_category",
         ),
         CheckConstraint("day_number >= 1", name="ck_meal_plan_entries_day_number"),
         CheckConstraint(
