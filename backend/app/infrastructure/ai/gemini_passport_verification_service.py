@@ -207,6 +207,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 headers=headers,
                 payload=payload,
                 budget=budget,
+                original=original,
             )
         else:
             async with httpx.AsyncClient() as client:
@@ -220,6 +221,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                     headers=headers,
                     payload=payload,
                     budget=budget,
+                    original=original,
                 )
 
         if response is None:
@@ -329,6 +331,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         headers: dict[str, str],
         payload: dict[str, Any],
         budget: TimeBudget,
+        original: dict[str, Any],
     ) -> tuple[httpx.Response | None, str | None, int, str]:
         model_route = self._model_route()
         attempts = 0
@@ -355,6 +358,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
             )
             endpoint = self._endpoint_for_model(model)
             transient = False
+            semantic_failure = False
             retry_after_ms: int | None = None
             logger.info(
                 "gemini_passport_verification_request_started",
@@ -449,6 +453,20 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                     retry_after_ms=retry_after_ms,
                 )
                 last_status, transient = self._response_failure(response.status_code)
+                if last_status is None:
+                    last_status = self._successful_response_failure(
+                        response,
+                        original=original,
+                    )
+                    if last_status is not None:
+                        transient = True
+                        semantic_failure = True
+                        logger.warning(
+                            "gemini_passport_verification_semantic_failure",
+                            model=model,
+                            attempt=attempt,
+                            provider_status=last_status,
+                        )
                 provider_event = (
                     "upstream_429"
                     if response.status_code == 429
@@ -465,11 +483,18 @@ class GeminiPassportVerificationService(IPassportVerificationService):
 
             if not transient or attempt >= len(model_route) or not budget.has_time(0.01):
                 return None, last_status, attempts, last_model
-            retry_delay = retry_after_delay_seconds(
-                response.headers.get("Retry-After") if response is not None else None,
-                remaining_seconds=budget.remaining(),
-                attempt_number=attempt,
-                jitter_unit=self._retry_jitter(),
+            next_model = model_route[attempt]
+            # A different model is the recovery path, so switch immediately.
+            # Backoff is useful only when retrying the same provider model.
+            retry_delay = (
+                0.0
+                if semantic_failure or next_model != model
+                else retry_after_delay_seconds(
+                    response.headers.get("Retry-After") if response is not None else None,
+                    remaining_seconds=budget.remaining(),
+                    attempt_number=attempt,
+                    jitter_unit=self._retry_jitter(),
+                )
             )
             if retry_delay is None:
                 return None, last_status, attempts, last_model
@@ -477,7 +502,7 @@ class GeminiPassportVerificationService(IPassportVerificationService):
                 "gemini_passport_verification_retrying",
                 reason=last_status,
                 completed_attempt=attempt,
-                next_model=model_route[attempt],
+                next_model=next_model,
                 remaining_ms=round(budget.remaining() * 1000, 2),
                 retry_after_ms=retry_after_ms,
                 retry_delay_ms=round(retry_delay * 1_000, 2),
@@ -513,8 +538,35 @@ class GeminiPassportVerificationService(IPassportVerificationService):
         if status_code in {401, 403}:
             return "permission_denied", False
         if status_code >= 400:
-            return "provider_rejected_request", False
+            return "provider_rejected_request", True
         return None, False
+
+    def _successful_response_failure(
+        self,
+        response: httpx.Response,
+        *,
+        original: dict[str, Any],
+    ) -> str | None:
+        """Reject syntactically successful responses that contain no usable data."""
+
+        try:
+            if len(response.content) > _MAX_PROVIDER_RESPONSE_BYTES:
+                raise ValueError("Gemini response exceeded the bounded response size")
+            provider_result = self._extract_provider_json(response.json())
+            if self._classification_status(provider_result) is not None:
+                # A confident document/quality rejection is a meaningful result,
+                # not an extraction-provider failure.
+                return None
+            merged, *_ = self._merge(original, provider_result)
+        except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+            return "invalid_response"
+
+        if not any(
+            self._string_value(merged.get(field))
+            for field in PASSPORT_FIELDS
+        ):
+            return "empty_extraction"
+        return None
 
     def _request_payload(
         self,

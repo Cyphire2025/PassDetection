@@ -82,15 +82,40 @@ def test_renderer_rejects_crop_below_pixel_floor() -> None:
         )
 
 
-def test_renderer_rejects_unknown_rotation() -> None:
-    with pytest.raises(PassportImageCropError, match="rotation"):
+def test_renderer_accepts_per_degree_rotation() -> None:
+    rendered = render_passport_image_crop(
+        _jpeg(),
+        x=0.0,
+        y=0.0,
+        width=1.0,
+        height=1.0,
+        rotation_degrees=37,
+    )
+
+    assert rendered.source_width > 400
+    assert rendered.source_height > 300
+    assert (rendered.output_width, rendered.output_height) == (
+        rendered.source_width,
+        rendered.source_height,
+    )
+    assert inspect_passport_image(_jpeg(), rotation_degrees=37) == (
+        rendered.source_width,
+        rendered.source_height,
+    )
+
+
+@pytest.mark.parametrize("rotation_degrees", (-1, 360, 45.5, True))
+def test_renderer_rejects_rotation_outside_whole_degree_range(
+    rotation_degrees: int | float | bool,
+) -> None:
+    with pytest.raises(PassportImageCropError, match="whole number"):
         render_passport_image_crop(
             _jpeg(),
             x=0.0,
             y=0.0,
             width=1.0,
             height=1.0,
-            rotation_degrees=45,
+            rotation_degrees=rotation_degrees,
         )
 
 

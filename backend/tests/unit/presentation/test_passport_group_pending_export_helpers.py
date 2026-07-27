@@ -17,6 +17,7 @@ from app.presentation.api.v1.routes.passports import (
     _apply_pending_export_fields,
     _export_additional_values,
     _export_field_catalog,
+    _export_whatsapp_contacts,
     _export_whatsapp_match_rows,
     _pending_recipient_export_rows,
     _recipient_export_value,
@@ -113,7 +114,7 @@ def test_pending_mapper_includes_unresolved_recipients_and_excludes_submitted() 
             fields={
                 "Zone Name": "Mumbai-2",
                 "Staff Code": "25290",
-                "Email": "pending@example.test",
+                "Email ID": "pending@example.test",
             },
         ),
     )
@@ -152,7 +153,10 @@ def test_pending_mapper_includes_unresolved_recipients_and_excludes_submitted() 
     ]
     assert pending[0]["Zone Name"] == "Mumbai-2"
     assert pending[0]["Staff Code"] == "25290"
-    assert pending[0]["Phone Number"] == "+919876543210"
+    assert pending[0]["WhatsApp Email"] == "pending@example.test"
+    assert pending[0]["WhatsApp Phone"] == "+919876543210"
+    assert "Upload Email" not in pending[0]
+    assert "Upload Phone" not in pending[0]
     assert pending[0]["Destination"] == "Vietnam"
     assert pending[0]["Travel/Departure Date"] == "2026-08-12"
 
@@ -178,6 +182,7 @@ def test_export_field_catalog_lists_only_selectable_whatsapp_columns() -> None:
                     "Zone Name": "Delhi",
                     "Department": "Sales",
                     "Phone": "9876543210",
+                    "Email ID": "sales@example.test",
                 },
             ),
         ),
@@ -200,6 +205,7 @@ def test_export_field_catalog_lists_only_selectable_whatsapp_columns() -> None:
     assert f"custom:{current_question_id}" not in by_key
     assert f"custom:{historical_question_id}" not in by_key
     assert "whatsapp:phone" not in by_key
+    assert "whatsapp:email_id" not in by_key
 
 
 def test_dynamic_export_values_preserve_exact_whatsapp_matches() -> None:
@@ -263,6 +269,84 @@ def test_dynamic_export_values_preserve_exact_whatsapp_matches() -> None:
     pending = [{}]
     _apply_pending_export_fields(pending, [pending_row], selected)
     assert pending == [{"Department": "Operations"}]
+
+
+def test_whatsapp_contacts_are_resolved_separately_from_upload_contacts() -> None:
+    submission_id = uuid.uuid4()
+    recipient_id = uuid.uuid4()
+    row = SubmissionMatchRow(
+        status="submitted",
+        match_basis="phone",
+        normalized_phone="+919876543210",
+        recipient_ids=(recipient_id,),
+        submission_ids=(submission_id,),
+        broadcast_ids=(uuid.uuid4(),),
+        broadcast_names=("Vietnam recipients",),
+        recipient_names=("Submitted Passenger",),
+        submission_names=("Submitted Passenger",),
+        updated_at=NOW,
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=recipient_id,
+                fields={"Email ID": "whatsapp@example.test"},
+            ),
+        ),
+    )
+
+    contacts = _export_whatsapp_contacts(
+        [SimpleNamespace(id=submission_id)],
+        {uuid.uuid4(): [row]},
+    )
+
+    assert contacts == {
+        submission_id: {
+            "email": "whatsapp@example.test",
+            "phone": "+919876543210",
+        }
+    }
+
+
+def test_whatsapp_contacts_leave_ambiguous_values_blank() -> None:
+    submission_id = uuid.uuid4()
+
+    def _row(*, email: str, phone: str) -> SubmissionMatchRow:
+        recipient_id = uuid.uuid4()
+        return SubmissionMatchRow(
+            status="submitted",
+            match_basis="phone",
+            normalized_phone=phone,
+            recipient_ids=(recipient_id,),
+            submission_ids=(submission_id,),
+            broadcast_ids=(uuid.uuid4(),),
+            broadcast_names=("Vietnam recipients",),
+            recipient_names=("Submitted Passenger",),
+            submission_names=("Submitted Passenger",),
+            updated_at=NOW,
+            recipient_fields=(
+                RecipientFieldSet(
+                    recipient_id=recipient_id,
+                    fields={"Email ID": email},
+                ),
+            ),
+        )
+
+    contacts = _export_whatsapp_contacts(
+        [SimpleNamespace(id=submission_id)],
+        {
+            uuid.uuid4(): [
+                _row(
+                    email="first@example.test",
+                    phone="+919876543210",
+                ),
+                _row(
+                    email="second@example.test",
+                    phone="+919999999999",
+                ),
+            ]
+        },
+    )
+
+    assert contacts == {submission_id: {"email": None, "phone": None}}
 
 
 def test_export_grouping_distinguishes_default_from_explicit_none() -> None:

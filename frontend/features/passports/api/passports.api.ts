@@ -199,6 +199,11 @@ export interface PassportSelectedGroupsExportRequest {
   groupByField: string;
 }
 
+export interface PassportSelectedImagesExportRequest {
+  groupId: string;
+  submissionIds: string[];
+}
+
 export interface PassportGroupExportCompletion {
   history_id: string;
   group_id: string;
@@ -214,7 +219,7 @@ export interface PassportImageCropRect {
   y: number;
   width: number;
   height: number;
-  rotation_degrees: 0 | 90 | 180 | 270;
+  rotation_degrees: number;
 }
 
 export interface PassportImageCropState {
@@ -803,6 +808,27 @@ export const passportsApi = {
       { responseType: "blob" },
     );
     downloadBlob(response.data, "selected-passports.xlsx");
+  },
+
+  exportSelectedGroupImages: async ({
+    groupId,
+    submissionIds,
+  }: PassportSelectedImagesExportRequest): Promise<void> => {
+    const response = await apiClient.post<Blob>(
+      API_ENDPOINTS.passports.groupSelectedImageExport(groupId),
+      { submission_ids: submissionIds },
+      {
+        responseType: "blob",
+        timeout: 0,
+      },
+    );
+    downloadBlob(
+      response.data,
+      getAttachmentFilename(
+        response.headers["content-disposition"],
+        `selected-passport-images-${groupId}.zip`,
+      ),
+    );
   },
 
   bulkDelete: async (

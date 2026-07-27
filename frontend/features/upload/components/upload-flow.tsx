@@ -866,7 +866,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
       setProcessingProgress(null);
       setProcessingStage("Uploading securely");
       if (persisted) {
-        const notice = "Your passport pages were saved, but automatic reading could not be confirmed. Enter the details manually or retry reading the stored image.";
+        const notice = "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
         if (familyIndex !== null) {
           const fields = getInitialReviewFields(persisted.extracted_fields);
           setFamilyMembers((current) => current.map((member, index) => (
@@ -3400,7 +3400,7 @@ function isExtractionTerminal(submission: PassportSubmission) {
 
 function extractionNoticeFor(submission: PassportSubmission) {
   if (submission.extraction_status === "extraction_failed" || submission.status === "failed") {
-    return "Your passport pages were saved, but some details could not be read automatically. Enter the missing fields manually or retry reading the stored image.";
+    return "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
   }
   if (submission.extraction_status === "extraction_partial") {
     return "Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.";

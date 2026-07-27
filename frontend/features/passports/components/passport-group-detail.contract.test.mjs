@@ -160,12 +160,61 @@ test("group rows show imported birth, issue, and expiry dates", () => {
 test("selection actions stay hidden until a passport is selected", () => {
   assert.match(
     source,
-    /\{selectedPassports\.length > 0 && \([\s\S]*?Export Selected[\s\S]*?Delete Selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
+    /\{selectedPassports\.length > 0 && \([\s\S]*?Export Excel[\s\S]*?Download Passports[\s\S]*?Delete Selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
   );
   assert.doesNotMatch(
     source,
     /disabled=\{selectedPassports\.length === 0\}/,
   );
+});
+
+test("selected passport downloads use the scoped ZIP endpoint without duplicate requests", () => {
+  assert.match(
+    endpoints,
+    /groupSelectedImageExport:[\s\S]*?export-images\/selected/,
+  );
+  assert.match(
+    api,
+    /exportSelectedGroupImages:[\s\S]*?groupSelectedImageExport\(groupId\)[\s\S]*?submission_ids: submissionIds[\s\S]*?responseType: "blob"[\s\S]*?timeout: 0[\s\S]*?content-disposition/,
+  );
+  assert.match(
+    hooks,
+    /useExportSelectedPassportImages[\s\S]*?exportSelectedGroupImages\(request\)/,
+  );
+  assert.match(
+    source,
+    /selectedImageDownloadStartedRef\.current[\s\S]*?exportSelectedImages\.isPending/,
+  );
+  assert.match(
+    source,
+    /disabled=\{exportSelectedImages\.isPending\}[\s\S]*?isLoading=\{exportSelectedImages\.isPending\}/,
+  );
+  assert.match(
+    source,
+    /mutationErrorMessage\([\s\S]*?downloadError,[\s\S]*?"Selected passport download failed"/,
+  );
+  assert.match(source, /\{importMessage && \([\s\S]*?role="status"[\s\S]*?aria-live="polite"/);
+  const selectedDownloadHandler = source.match(
+    /const handleSelectedPassportDownload = \(\) => \{([\s\S]*?)\n  \};\n\n  return \(/,
+  )?.[1];
+  assert.ok(selectedDownloadHandler);
+  assert.doesNotMatch(
+    selectedDownloadHandler,
+    /setSelectedPassports\(\[\]\)/,
+  );
+});
+
+test("trip details are collapsed by default behind an accessible disclosure", () => {
+  assert.match(
+    source,
+    /const \[isTripDetailsExpanded, setIsTripDetailsExpanded\] = useState\(false\)/,
+  );
+  assert.match(source, /aria-expanded=\{isTripDetailsExpanded\}/);
+  assert.match(source, /aria-controls=\{tripDetailsRegionId\}/);
+  assert.match(source, /setIsTripDetailsExpanded\(\(current\) => !current\)/);
+  assert.match(source, /\{isTripDetailsExpanded && \([\s\S]*?id=\{tripDetailsRegionId\}/);
+  assert.match(source, /Show details/);
+  assert.match(source, /Edit[\s\S]*?\{isTripDetailsExpanded && \(/);
 });
 
 test("submission toolbar remains a compact non-wrapping row with horizontal overflow", () => {

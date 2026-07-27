@@ -2,9 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  fineRotationOffset,
+  MAX_FINE_ROTATION,
   MIN_CROP_SIZE,
+  MIN_FINE_ROTATION,
   normalizeCrop,
+  normalizeRotationDegrees,
   resizeCrop,
+  rotatedImageBounds,
   rotateCropClockwise,
 } from "./passport-image-crop-geometry.ts";
 
@@ -61,4 +66,27 @@ test("normalization repairs malformed or out-of-bounds server geometry", () => {
   assert.equal(normalized.y, 0);
   assert.equal(normalized.width, MIN_CROP_SIZE);
   assert.equal(normalized.height, 1);
+});
+
+test("rotation normalization supports every whole degree", () => {
+  assert.equal(normalizeRotationDegrees(37), 37);
+  assert.equal(normalizeRotationDegrees(360), 0);
+  assert.equal(normalizeRotationDegrees(-1), 359);
+  assert.equal(normalizeCrop({ ...crop, rotation_degrees: 37.4 }).rotation_degrees, 37);
+});
+
+test("fine rotation offsets stay centered around the nearest quarter turn", () => {
+  assert.equal(fineRotationOffset(0), 0);
+  assert.equal(fineRotationOffset(37), 37);
+  assert.equal(fineRotationOffset(89), -1);
+  assert.equal(fineRotationOffset(315), MAX_FINE_ROTATION);
+  assert.equal(fineRotationOffset(316), MIN_FINE_ROTATION + 1);
+});
+
+test("arbitrary rotation calculates a bounded preview canvas", () => {
+  assert.deepEqual(rotatedImageBounds(400, 300, 0), { width: 400, height: 300 });
+  assert.deepEqual(rotatedImageBounds(400, 300, 90), { width: 300, height: 400 });
+  const diagonal = rotatedImageBounds(400, 300, 37);
+  assert.ok(diagonal.width > 400);
+  assert.ok(diagonal.height > 300);
 });

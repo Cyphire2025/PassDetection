@@ -319,32 +319,32 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
     pending_rows = [
         {
             "GIVEN NAME": "Pending No Zone",
-            "Email ID": "no-zone@example.com",
-            "Phone Number": "9000000005",
+            "WhatsApp Email": "no-zone@example.com",
+            "WhatsApp Phone": "9000000005",
         },
         {
             "GIVEN NAME": "Pending Mumbai Two",
             "Zone Name": "Mumbai-2",
-            "Email ID": "mumbai-two@example.com",
-            "Phone Number": "9000000004",
+            "WhatsApp Email": "mumbai-two@example.com",
+            "WhatsApp Phone": "9000000004",
         },
         {
             "GIVEN NAME": "Pending Delhi Zed",
             "Zone Name": "Delhi",
-            "Email ID": "delhi-zed@example.com",
-            "Phone Number": "9000000002",
+            "WhatsApp Email": "delhi-zed@example.com",
+            "WhatsApp Phone": "9000000002",
         },
         {
             "GIVEN NAME": "Pending Mumbai One",
             "Zone Name": "Mumbai-1",
-            "Email ID": "mumbai-one@example.com",
-            "Phone Number": "9000000003",
+            "WhatsApp Email": "mumbai-one@example.com",
+            "WhatsApp Phone": "9000000003",
         },
         {
             "GIVEN NAME": "Pending Delhi Alpha",
             "Zone Name": "Delhi",
-            "Email ID": "delhi-alpha@example.com",
-            "Phone Number": "9000000001",
+            "WhatsApp Email": "delhi-alpha@example.com",
+            "WhatsApp Phone": "9000000001",
         },
     ]
 
@@ -700,7 +700,7 @@ def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None
 
     assert "Zone Name" not in headers
     assert headers[4] == "Session"
-    assert headers[-1] == "Place of Issue"
+    assert headers[-1] == "Upload Phone"
     assert worksheet.cell(row=5, column=headers.index("GIVEN NAME") + 1).value == "ALPHA"
     assert worksheet.cell(row=8, column=headers.index("GIVEN NAME") + 1).value == "BETA"
 
@@ -788,6 +788,12 @@ def test_export_uses_the_requested_exact_column_order() -> None:
             additional_values={
                 submission.id: {"whatsapp:department": "Sales"},
             },
+            whatsapp_contacts={
+                submission.id: {
+                    "email": "broadcast@example.com",
+                    "phone": "+919000000001",
+                }
+            },
         )
     )
     headers, values = _row_values(worksheet)
@@ -806,8 +812,8 @@ def test_export_uses_the_requested_exact_column_order() -> None:
         "Age Group",
         "Base City",
         "Domestic Airport",
-        "Phone Number",
-        "Email ID",
+        "WhatsApp Email",
+        "WhatsApp Phone",
         "Meal Preference",
         "International Airport",
         "SURNAME",
@@ -817,12 +823,18 @@ def test_export_uses_the_requested_exact_column_order() -> None:
         "DOB",
         "DOI",
         "DOE",
-        "Nationality",
         "Place of Issue",
+        "Nationality",
+        "Upload Email",
+        "Upload Phone",
         "Activity",
         "Badge name",
     ]
     assert values["Age Group"] == "Adult"
+    assert values["WhatsApp Email"] == "broadcast@example.com"
+    assert values["WhatsApp Phone"] == "'+919000000001"
+    assert values["Upload Email"] == "traveller@example.com"
+    assert values["Upload Phone"] == "9876543210"
     assert values["Activity"] == "Workshop"
     assert values["Badge name"] == "Nipun S."
     assert "Agent/Employee Code" not in headers

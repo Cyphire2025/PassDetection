@@ -11,11 +11,14 @@ Uses pydantic-settings for:
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from typing import Literal
 
 from pydantic import Field, SecretStr, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_GEMINI_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
 class DatabaseSettings(BaseSettings):
@@ -151,6 +154,20 @@ class Settings(BaseSettings):
 
         return value
 
+    @field_validator(
+        "gemini_image_edit_model",
+        "gemini_image_edit_fallback_model",
+        mode="before",
+    )
+    @classmethod
+    def validate_gemini_image_model(cls, value: object) -> str:
+        if not isinstance(value, str):
+            raise ValueError("Gemini image model names must be strings")
+        normalized = value.strip()
+        if normalized and not _GEMINI_MODEL_PATTERN.fullmatch(normalized):
+            raise ValueError("Gemini image model names contain invalid characters")
+        return normalized
+
     # Anonymous/non-dashboard API fallback. Authenticated dashboard traffic is
     # keyed by the verified JWT subject below so staff behind one office NAT do
     # not consume a shared bucket.
@@ -237,7 +254,13 @@ class Settings(BaseSettings):
     gemini_verification_enabled: bool = True
     gemini_model: str = "gemini-3.5-flash"
     gemini_fallback_model: str = "gemini-3.1-flash-lite"
-    gemini_image_edit_model: str = ""
+    gemini_image_edit_model: str = "gemini-3.1-flash-image"
+    gemini_image_edit_fallback_model: str = "gemini-3-pro-image"
+    gemini_image_edit_attempt_timeout_seconds: float = Field(
+        default=120.0,
+        ge=15.0,
+        le=300.0,
+    )
     gemini_image_edit_timeout_seconds: float = Field(
         default=300.0,
         ge=60.0,

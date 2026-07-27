@@ -158,10 +158,21 @@ test("Visa AI polling shows non-cancellable progress while close cleanup and str
 });
 
 test("returning from AI remounts and redraws the Adjust canvas", () => {
-  assert.match(
-    editor,
-    /\[activePanel, cropRect\.rotation_degrees, imageSize\.width, sharpness, workingObjectUrl\]/,
-  );
+  assert.match(editor, /activePanel,[\s\S]*?cropRect\.rotation_degrees,[\s\S]*?workingObjectUrl/);
+});
+
+test("fine rotation supports each degree with a frame-budgeted cached preview", () => {
+  assert.match(editor, /Fine rotation/);
+  assert.match(editor, /min=\{MIN_FINE_ROTATION\}/);
+  assert.match(editor, /max=\{MAX_FINE_ROTATION\}/);
+  assert.match(editor, /step="1"/);
+  assert.match(editor, /rotationBaseRef\.current \+ nextFineRotation/);
+  assert.match(editor, /workingImageRef = useRef<HTMLImageElement \| null>\(null\)/);
+  assert.match(editor, /window\.requestAnimationFrame/);
+  assert.match(editor, /window\.cancelAnimationFrame/);
+  assert.match(editor, /isFineRotating \? 1 : sharpness/);
+  assert.match(editor, /const maxPreviewDimension = isInteractive \? 800 : 1200/);
+  assert.match(api, /rotation_degrees: number;/);
 });
 
 test("crop API supports metadata, optimistic save, and reset", () => {

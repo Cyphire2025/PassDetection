@@ -34,6 +34,7 @@ class _VerifiedPassthroughVerifier:
         del content_type, timeout_seconds
         metadata = {"status": "verified", "available": True}
         merged = dict(extracted_fields)
+        merged.setdefault("passport_number", "P1234567")
         merged["ai_verification"] = metadata
         return PassportVerificationResult(merged_fields=merged, metadata=metadata)
 
@@ -376,6 +377,42 @@ class PassportProcessingReliabilityTests(unittest.IsolatedAsyncioTestCase):
         self.job_repo.mark_dead_letter.assert_awaited_once_with(
             self.job_id,
             PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE,
+        )
+        self.job_repo.mark_succeeded.assert_not_awaited()
+
+    async def test_empty_verified_result_is_persisted_as_extraction_failure(
+        self,
+    ) -> None:
+        self.storage_repo.get_file.return_value = b"canonical-front-image"
+        verification_service = AsyncMock()
+        classification = {
+            "status": "verified",
+            "available": True,
+            "model": "gemini-fallback",
+            "attempts": 2,
+        }
+        verification_service.verify.return_value = PassportVerificationResult(
+            merged_fields={"ai_verification": classification},
+            metadata=classification,
+        )
+        self.passport_repo.apply_extraction_failure.return_value = self.submission
+
+        await self._use_case(verification_service=verification_service).execute(
+            submission_id=self.submission_id,
+            job_id=self.job_id,
+        )
+
+        self.extraction_service.extract.assert_not_awaited()
+        self.passport_repo.apply_extraction_result.assert_not_awaited()
+        self.passport_repo.apply_extraction_failure.assert_awaited_once_with(
+            submission_id=self.submission_id,
+            expected_revision=self.revision,
+            public_message=PUBLIC_EXTRACTION_FAILURE,
+            diagnostics={"ai_verification": classification},
+        )
+        self.job_repo.mark_dead_letter.assert_awaited_once_with(
+            self.job_id,
+            PUBLIC_EXTRACTION_FAILURE,
         )
         self.job_repo.mark_succeeded.assert_not_awaited()
 

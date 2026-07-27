@@ -103,6 +103,8 @@ export const API_ENDPOINTS = {
     groupExportFields: (groupId: string) =>
       `/api/v1/passports/groups/${groupId}/export-fields`,
     groupImageExport: (groupId: string) => `/api/v1/passports/groups/${groupId}/export-images`,
+    groupSelectedImageExport: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/export-images/selected`,
     groupExportHistory: (groupId: string) =>
       `/api/v1/passports/groups/${groupId}/export-history`,
     groupExportHistoryDetail: (groupId: string, historyId: string) =>

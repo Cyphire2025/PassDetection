@@ -129,16 +129,27 @@ function drawRotatedPassportImage(
   rotation: CropRotation,
   rotatedSize: PassportImageSize,
 ) {
+  const normalizedRotation = ((Math.round(rotation) % 360) + 360) % 360;
   context.save();
-  if (rotation === 90) {
+  if (normalizedRotation === 90) {
     context.translate(rotatedSize.width, 0);
     context.rotate(Math.PI / 2);
-  } else if (rotation === 180) {
+  } else if (normalizedRotation === 180) {
     context.translate(rotatedSize.width, rotatedSize.height);
     context.rotate(Math.PI);
-  } else if (rotation === 270) {
+  } else if (normalizedRotation === 270) {
     context.translate(0, rotatedSize.height);
     context.rotate(-Math.PI / 2);
+  } else if (normalizedRotation !== 0) {
+    context.translate(rotatedSize.width / 2, rotatedSize.height / 2);
+    context.rotate((normalizedRotation * Math.PI) / 180);
+    context.drawImage(
+      image,
+      -image.naturalWidth / 2,
+      -image.naturalHeight / 2,
+    );
+    context.restore();
+    return;
   }
   context.drawImage(image, 0, 0);
   context.restore();

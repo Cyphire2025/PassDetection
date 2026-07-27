@@ -16,7 +16,6 @@ from PIL import Image
 
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
-from app.infrastructure.ai_priority.retry import retry_after_delay_seconds
 from app.infrastructure.imaging.passport_image_cropper import (
     PassportImageCropError,
     render_passport_image_crop,
@@ -65,6 +64,10 @@ class GeminiVisaImageEditProviderRejected(GeminiVisaImageEditError):
     pass
 
 
+class _GeminiVisaImageEditFallbackableProviderRejected(GeminiVisaImageEditProviderRejected):
+    """Provider response failure that another configured model may recover from."""
+
+
 @dataclass(frozen=True, slots=True)
 class GeminiVisaImageEditResult:
     content: bytes
@@ -87,19 +90,16 @@ class GeminiVisaImageEditService:
 
     async def edit(self, image_content: bytes, *, prompt: str) -> GeminiVisaImageEditResult:
         normalized_prompt = self.validate_prompt(prompt)
-        model = self._settings.gemini_image_edit_model.strip()
+        models = self._configured_models()
         api_key = (
             self._settings.google_api_key.get_secret_value()
             if self._settings.google_api_key
             else ""
         )
-        if not model or not api_key:
+        if not models or not api_key:
             raise GeminiVisaImageEditNotConfigured(
-                "Visa AI editing is not configured. Add GEMINI_IMAGE_EDIT_MODEL and a Google API key."
-            )
-        if not _MODEL_PATTERN.fullmatch(model):
-            raise GeminiVisaImageEditNotConfigured(
-                "The configured Visa image model name is invalid."
+                "Visa AI editing is not configured. Add GEMINI_IMAGE_EDIT_MODEL "
+                "and a Google API key."
             )
 
         try:
@@ -113,38 +113,87 @@ class GeminiVisaImageEditService:
         try:
             async with asyncio.timeout(operation_timeout_seconds):
                 async with self._semaphore:
-                    generated = await self._generate(
-                        model=model,
-                        api_key=api_key,
-                        image_content=canonical,
-                        prompt=normalized_prompt,
-                        deadline=deadline,
-                    )
-                    try:
-                        candidate = await asyncio.to_thread(
-                            self._canonical_image,
-                            generated,
-                            self._image_size(canonical),
+                    for attempt_index, model in enumerate(models, start=1):
+                        started_at = time.monotonic()
+                        attempts_left = len(models) - attempt_index + 1
+                        attempt_timeout_seconds = self._model_attempt_timeout_seconds(
+                            deadline=deadline,
+                            attempts_left=attempts_left,
                         )
-                    except PassportImageCropError as exc:
-                        raise GeminiVisaImageEditProviderRejected(
-                            "Gemini returned an unreadable edited image."
-                        ) from exc
+                        try:
+                            async with asyncio.timeout(attempt_timeout_seconds):
+                                generated = await self._generate(
+                                    model=model,
+                                    api_key=api_key,
+                                    image_content=canonical,
+                                    prompt=normalized_prompt,
+                                    timeout_seconds=attempt_timeout_seconds,
+                                )
+                                try:
+                                    candidate = await asyncio.to_thread(
+                                        self._canonical_image,
+                                        generated,
+                                        self._image_size(canonical),
+                                    )
+                                except PassportImageCropError as exc:
+                                    raise (
+                                        _GeminiVisaImageEditFallbackableProviderRejected(
+                                            "Gemini returned an unreadable edited image."
+                                        )
+                                    ) from exc
+                        except TimeoutError as exc:
+                            attempt_error: GeminiVisaImageEditError = (
+                                GeminiVisaImageEditProviderUnavailable(
+                                    "Visa AI image processing timed out. Please try again."
+                                )
+                            )
+                            attempt_error.__cause__ = exc
+                        except GeminiVisaImageEditError as exc:
+                            attempt_error = exc
+                        else:
+                            self._log_attempt(
+                                model=model,
+                                attempt=attempt_index,
+                                attempt_count=len(models),
+                                outcome="success",
+                                started_at=started_at,
+                                fallback=False,
+                            )
+                            logger.info(
+                                "visa_ai_image_edit_generated",
+                                model=model,
+                                attempt=attempt_index,
+                                attempt_count=len(models),
+                            )
+                            return GeminiVisaImageEditResult(
+                                content=candidate,
+                                content_type="image/jpeg",
+                                prompt_sha256=prompt_hash,
+                                model=model,
+                            )
+
+                        fallback = attempt_index < len(models) and self._is_fallback_eligible(
+                            attempt_error
+                        )
+                        self._log_attempt(
+                            model=model,
+                            attempt=attempt_index,
+                            attempt_count=len(models),
+                            outcome=self._attempt_outcome(attempt_error),
+                            started_at=started_at,
+                            fallback=fallback,
+                            error=attempt_error,
+                        )
+                        if fallback:
+                            continue
+                        raise attempt_error
         except TimeoutError as exc:
             raise GeminiVisaImageEditProviderUnavailable(
                 "Visa AI image processing timed out. Please try again."
             ) from exc
-        logger.info(
-            "visa_ai_image_edit_generated",
-            model=model,
-            prompt_sha256=prompt_hash,
-            output_bytes=len(candidate),
-        )
-        return GeminiVisaImageEditResult(
-            content=candidate,
-            content_type="image/jpeg",
-            prompt_sha256=prompt_hash,
-            model=model,
+
+        raise GeminiVisaImageEditProviderUnavailable(
+            "Gemini image generation is temporarily unavailable. Please try again."
         )
 
     async def _generate(
@@ -154,7 +203,7 @@ class GeminiVisaImageEditService:
         api_key: str,
         image_content: bytes,
         prompt: str,
-        deadline: float,
+        timeout_seconds: float,
     ) -> bytes:
         payload = {
             "systemInstruction": {"parts": [{"text": _SYSTEM_INSTRUCTION}]},
@@ -178,7 +227,7 @@ class GeminiVisaImageEditService:
             model=model,
             api_key=api_key,
             payload=payload,
-            deadline=deadline,
+            timeout_seconds=timeout_seconds,
         )
         for part in self._response_parts(response):
             inline = part.get("inlineData") or part.get("inline_data")
@@ -207,126 +256,77 @@ class GeminiVisaImageEditService:
         model: str,
         api_key: str,
         payload: dict[str, Any],
-        deadline: float,
+        timeout_seconds: float,
     ) -> dict[str, Any]:
         if not _MODEL_PATTERN.fullmatch(model):
             raise GeminiVisaImageEditNotConfigured("The configured Gemini model name is invalid.")
-        attempt_limit = min(
-            2,
-            max(
-                1,
-                min(
-                    self._settings.gemini_retry_max_attempts,
-                    self._settings.gemini_max_retries + 1,
-                ),
-            ),
+        timeout = httpx.Timeout(
+            timeout_seconds,
+            connect=min(5.0, timeout_seconds),
+            write=min(15.0, timeout_seconds),
+            pool=min(5.0, timeout_seconds),
         )
-        models = [model] * attempt_limit
-        last_error: Exception | None = None
-
-        for attempt_index, attempt_model in enumerate(models):
-            remaining_seconds = deadline - time.monotonic()
-            if remaining_seconds <= 0.05:
-                break
-            attempts_left = len(models) - attempt_index
-            attempt_timeout_seconds = max(0.1, remaining_seconds / attempts_left)
-            timeout = httpx.Timeout(
-                attempt_timeout_seconds,
-                connect=min(5.0, attempt_timeout_seconds),
-                write=min(15.0, attempt_timeout_seconds),
-                pool=min(5.0, attempt_timeout_seconds),
-            )
-            endpoint = (
-                f"{self._settings.gemini_api_base_url.rstrip('/')}"
-                f"/models/{attempt_model}:generateContent"
-            )
-            response: httpx.Response | None = None
-            retry_after: str | None = None
-            try:
-                if self._http_client is not None:
-                    response = await self._http_client.post(
+        endpoint = (
+            f"{self._settings.gemini_api_base_url.rstrip('/')}/models/{model}:generateContent"
+        )
+        try:
+            if self._http_client is not None:
+                response = await self._http_client.post(
+                    endpoint,
+                    headers={
+                        "x-goog-api-key": api_key,
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=timeout,
+                )
+            else:
+                async with httpx.AsyncClient(timeout=timeout) as client:
+                    response = await client.post(
                         endpoint,
                         headers={
                             "x-goog-api-key": api_key,
                             "Content-Type": "application/json",
                         },
                         json=payload,
-                        timeout=timeout,
                     )
-                else:
-                    async with httpx.AsyncClient(timeout=timeout) as client:
-                        response = await client.post(
-                            endpoint,
-                            headers={
-                                "x-goog-api-key": api_key,
-                                "Content-Type": "application/json",
-                            },
-                            json=payload,
-                        )
-            except (httpx.TimeoutException, httpx.TransportError) as exc:
-                last_error = exc
-                logger.warning(
-                    "visa_ai_image_edit_provider_unavailable",
-                    stage="generation",
-                    attempt=attempt_index + 1,
-                    model=attempt_model,
-                    error_type=type(exc).__name__,
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            raise GeminiVisaImageEditProviderUnavailable(
+                "Gemini image generation is temporarily unavailable. Please try again."
+            ) from exc
+
+        if response.status_code < 400:
+            try:
+                payload_json = response.json()
+            except ValueError as exc:
+                raise _GeminiVisaImageEditFallbackableProviderRejected(
+                    "Gemini returned an unreadable response. Please try again later."
+                ) from exc
+            if not isinstance(payload_json, dict):
+                raise _GeminiVisaImageEditFallbackableProviderRejected(
+                    "Gemini returned an unreadable response. Please try again later."
                 )
-            else:
-                if response.status_code < 400:
-                    try:
-                        payload_json = response.json()
-                    except ValueError as exc:
-                        raise GeminiVisaImageEditProviderRejected(
-                            "Gemini returned an unreadable response. Please try again later."
-                        ) from exc
-                    if not isinstance(payload_json, dict):
-                        raise GeminiVisaImageEditProviderRejected(
-                            "Gemini returned an unreadable response. Please try again later."
-                        )
-                    return payload_json
+            return payload_json
 
-                if response.status_code != 429 and response.status_code < 500:
-                    logger.warning(
-                        "visa_ai_image_edit_provider_rejected",
-                        stage="generation",
-                        status_code=response.status_code,
-                        model=attempt_model,
-                    )
-                    raise GeminiVisaImageEditProviderRejected(
-                        "Gemini rejected the Visa photo processing request. "
-                        "Check the configured model and try again."
-                    )
+        status_code = response.status_code
+        provider_error = httpx.HTTPStatusError(
+            "Gemini provider request failed",
+            request=response.request,
+            response=response,
+        )
+        if status_code in {404, 408, 409, 425, 429} or status_code >= 500:
+            raise GeminiVisaImageEditProviderUnavailable(
+                "Gemini image generation is temporarily unavailable. Please try again."
+            ) from provider_error
+        if status_code == 400:
+            raise _GeminiVisaImageEditFallbackableProviderRejected(
+                "Gemini rejected this image-generation request for the selected model."
+            ) from provider_error
 
-                retry_after = response.headers.get("Retry-After")
-                last_error = httpx.HTTPStatusError(
-                    "Gemini provider temporarily unavailable",
-                    request=response.request,
-                    response=response,
-                )
-                logger.warning(
-                    "visa_ai_image_edit_provider_unavailable",
-                    stage="generation",
-                    attempt=attempt_index + 1,
-                    status_code=response.status_code,
-                    model=attempt_model,
-                )
-
-            if attempt_index + 1 >= len(models):
-                break
-            remaining_seconds = deadline - time.monotonic()
-            delay_seconds = retry_after_delay_seconds(
-                retry_after,
-                remaining_seconds=remaining_seconds,
-                attempt_number=attempt_index + 1,
-            )
-            if delay_seconds is None:
-                break
-            await asyncio.sleep(delay_seconds)
-
-        raise GeminiVisaImageEditProviderUnavailable(
-            "Gemini image generation is temporarily unavailable. Please try again."
-        ) from last_error
+        raise GeminiVisaImageEditProviderRejected(
+            "Gemini rejected the Visa photo processing request. "
+            "Check the configured model and try again."
+        ) from provider_error
 
     def _operation_timeout_seconds(self) -> float:
         # Keep lightweight test/alternate settings objects compatible while
@@ -334,6 +334,118 @@ class GeminiVisaImageEditService:
         return float(
             getattr(self._settings, "gemini_image_edit_timeout_seconds", 300)
         )
+
+    def _configured_models(self) -> list[str]:
+        raw_models = (
+            getattr(self._settings, "gemini_image_edit_model", ""),
+            getattr(self._settings, "gemini_image_edit_fallback_model", ""),
+        )
+        models: list[str] = []
+        for raw_model in raw_models:
+            if not isinstance(raw_model, str):
+                raise GeminiVisaImageEditNotConfigured(
+                    "The configured Visa image model name is invalid."
+                )
+            model = raw_model.strip()
+            if not model:
+                continue
+            if not _MODEL_PATTERN.fullmatch(model):
+                raise GeminiVisaImageEditNotConfigured(
+                    "The configured Visa image model name is invalid."
+                )
+            if model not in models:
+                models.append(model)
+        return models
+
+    def _model_attempt_timeout_seconds(
+        self,
+        *,
+        deadline: float,
+        attempts_left: int,
+    ) -> float:
+        remaining_seconds = max(0.05, deadline - time.monotonic())
+        fair_share_seconds = remaining_seconds / max(1, attempts_left)
+        configured_seconds = float(
+            getattr(
+                self._settings,
+                "gemini_image_edit_attempt_timeout_seconds",
+                fair_share_seconds,
+            )
+        )
+        return max(
+            0.05,
+            min(configured_seconds, fair_share_seconds, remaining_seconds),
+        )
+
+    @staticmethod
+    def _is_fallback_eligible(error: GeminiVisaImageEditError) -> bool:
+        if isinstance(
+            error,
+            (
+                GeminiVisaImageEditNotConfigured,
+                GeminiVisaImageEditRejected,
+            ),
+        ):
+            return False
+        if isinstance(error, GeminiVisaImageEditProviderRejected):
+            return isinstance(
+                error,
+                _GeminiVisaImageEditFallbackableProviderRejected,
+            )
+        return True
+
+    @staticmethod
+    def _attempt_outcome(error: GeminiVisaImageEditError) -> str:
+        cause: BaseException | None = error
+        while cause is not None:
+            if isinstance(cause, (TimeoutError, httpx.TimeoutException)):
+                return "timeout"
+            cause = cause.__cause__
+        if isinstance(error, GeminiVisaImageEditProviderUnavailable):
+            return "provider_unavailable"
+        if isinstance(error, _GeminiVisaImageEditFallbackableProviderRejected):
+            return "provider_response_unusable"
+        if isinstance(error, GeminiVisaImageEditProviderRejected):
+            return "provider_rejected"
+        return "no_usable_image"
+
+    @staticmethod
+    def _provider_status_code(error: GeminiVisaImageEditError) -> int | None:
+        cause: BaseException | None = error
+        while cause is not None:
+            if isinstance(cause, httpx.HTTPStatusError):
+                return int(cause.response.status_code)
+            cause = cause.__cause__
+        return None
+
+    @classmethod
+    def _log_attempt(
+        cls,
+        *,
+        model: str,
+        attempt: int,
+        attempt_count: int,
+        outcome: str,
+        started_at: float,
+        fallback: bool,
+        error: GeminiVisaImageEditError | None = None,
+    ) -> None:
+        fields: dict[str, Any] = {
+            "model": model,
+            "attempt": attempt,
+            "attempt_count": attempt_count,
+            "outcome": outcome,
+            "fallback": fallback,
+            "duration_ms": max(0, round((time.monotonic() - started_at) * 1000)),
+        }
+        if error is not None:
+            fields["error_type"] = type(error).__name__
+            status_code = cls._provider_status_code(error)
+            if status_code is not None:
+                fields["status_code"] = status_code
+            logger.warning("visa_ai_image_edit_attempt_completed", **fields)
+            return
+        logger.info("visa_ai_image_edit_attempt_completed", **fields)
 
     @staticmethod
     def _response_parts(payload: dict[str, Any]) -> list[dict[str, Any]]:

@@ -1,4 +1,4 @@
-export type CropRotation = 0 | 90 | 180 | 270;
+export type CropRotation = number;
 export type CropDragMode = "move" | "nw" | "ne" | "sw" | "se";
 
 export interface NormalizedCropGeometry {
@@ -10,6 +10,8 @@ export interface NormalizedCropGeometry {
 }
 
 export const MIN_CROP_SIZE = 0.08;
+export const MIN_FINE_ROTATION = -45;
+export const MAX_FINE_ROTATION = 45;
 
 export function resizeCrop(
   source: NormalizedCropGeometry,
@@ -51,7 +53,7 @@ export function rotateCropClockwise(
     y: source.x,
     width: source.height,
     height: source.width,
-    rotation_degrees: ((source.rotation_degrees + 90) % 360) as CropRotation,
+    rotation_degrees: normalizeRotationDegrees(source.rotation_degrees + 90),
   });
 }
 
@@ -66,6 +68,34 @@ export function normalizeCrop(
     y: quantize(clamp(source.y, 0, 1 - height)),
     width,
     height,
+    rotation_degrees: normalizeRotationDegrees(source.rotation_degrees),
+  };
+}
+
+export function normalizeRotationDegrees(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return ((Math.round(value) % 360) + 360) % 360;
+}
+
+export function fineRotationOffset(rotationDegrees: number): number {
+  const normalized = normalizeRotationDegrees(rotationDegrees);
+  const nearestQuarterTurn = Math.floor((normalized + 44) / 90) * 90;
+  return normalized - nearestQuarterTurn;
+}
+
+export function rotatedImageBounds(
+  width: number,
+  height: number,
+  rotationDegrees: number,
+) {
+  const radians = (normalizeRotationDegrees(rotationDegrees) * Math.PI) / 180;
+  const rawCosine = Math.abs(Math.cos(radians));
+  const rawSine = Math.abs(Math.sin(radians));
+  const cosine = rawCosine < 1e-10 ? 0 : rawCosine;
+  const sine = rawSine < 1e-10 ? 0 : rawSine;
+  return {
+    width: Math.max(1, Math.ceil((width * cosine) + (height * sine))),
+    height: Math.max(1, Math.ceil((width * sine) + (height * cosine))),
   };
 }
 

@@ -21,7 +21,7 @@ class PassportImageCropCoordinates(BaseModel):
     y: float = Field(..., ge=0.0, le=1.0, allow_inf_nan=False)
     width: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
     height: float = Field(..., ge=0.08, le=1.0, allow_inf_nan=False)
-    rotation_degrees: Literal[0, 90, 180, 270] = 0
+    rotation_degrees: int = Field(default=0, ge=0, le=359)
     sharpness: float = Field(default=1.0, ge=1.0, le=3.0, allow_inf_nan=False)
 
     @model_validator(mode="after")

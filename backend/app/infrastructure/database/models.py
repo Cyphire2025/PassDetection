@@ -1140,7 +1140,8 @@ class PassportImageCropModel(Base):
             name="ck_passport_image_crops_type",
         ),
         CheckConstraint(
-            "rotation_degrees IN (0, 90, 180, 270)", name="ck_passport_image_crops_rotation"
+            "rotation_degrees >= 0 AND rotation_degrees <= 359",
+            name="ck_passport_image_crops_rotation",
         ),
         CheckConstraint(
             "crop_x >= 0 AND crop_y >= 0 AND crop_width >= 0.08 AND crop_height >= 0.08 "

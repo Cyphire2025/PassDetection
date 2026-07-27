@@ -7,6 +7,7 @@ import type {
   PassportDocumentImportRequest,
   PassportGroupExportKind,
   PassportGroupExportRequest,
+  PassportSelectedImagesExportRequest,
   PassportSelectedGroupsExportRequest,
 } from "../api/passports.api";
 import type { PassportGroupSubmissionsViewParams } from "../api/passports.api";
@@ -149,6 +150,13 @@ export function useSavePassportDocuments(groupId: string) {
 export function useExportSelectedPassports() {
   return useMutation({
     mutationFn: (submissionIds: string[]) => passportsApi.exportSelectedPassports(submissionIds),
+  });
+}
+
+export function useExportSelectedPassportImages() {
+  return useMutation({
+    mutationFn: (request: PassportSelectedImagesExportRequest) =>
+      passportsApi.exportSelectedGroupImages(request),
   });
 }
 

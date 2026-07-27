@@ -1013,6 +1013,74 @@ def _recipient_export_value(
     return None
 
 
+_WHATSAPP_EMAIL_IMPORTED_KEYS = (
+    "email",
+    "email_id",
+    "email_address",
+    "e_mail",
+    "mail",
+)
+_WHATSAPP_PHONE_IMPORTED_KEYS = (
+    "phone_number",
+    "phone",
+    "mobile",
+    "mobile_number",
+    "whatsapp",
+    "whatsapp_number",
+    "contact",
+    "contact_number",
+)
+
+
+def _export_whatsapp_contacts(
+    submissions: list[PassportSubmission],
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
+) -> dict[uuid.UUID, dict[str, str | None]]:
+    """Resolve matched broadcast contacts without mixing them with upload data."""
+
+    candidates: dict[uuid.UUID, dict[str, dict[str, str]]] = {
+        submission.id: {"email": {}, "phone": {}} for submission in submissions
+    }
+
+    def add_candidate(
+        submission_id: uuid.UUID,
+        field: Literal["email", "phone"],
+        value: str | None,
+    ) -> None:
+        normalized = " ".join(str(value or "").strip().split())
+        if (
+            not normalized
+            or normalized.casefold() in {"null", "none", "n/a", "na"}
+            or submission_id not in candidates
+        ):
+            return
+        candidates[submission_id][field].setdefault(normalized.casefold(), normalized)
+
+    for rows in rows_by_group.values():
+        for row in rows:
+            if row.status not in {"submitted", "multiple_submissions"}:
+                continue
+            email = _recipient_export_value(
+                row,
+                *_WHATSAPP_EMAIL_IMPORTED_KEYS,
+            )
+            phone = row.normalized_phone or _recipient_export_value(
+                row,
+                *_WHATSAPP_PHONE_IMPORTED_KEYS,
+            )
+            for submission_id in row.submission_ids:
+                add_candidate(submission_id, "email", email)
+                add_candidate(submission_id, "phone", phone)
+
+    contacts: dict[uuid.UUID, dict[str, str | None]] = {}
+    for submission_id, fields in candidates.items():
+        contacts[submission_id] = {
+            field: next(iter(values.values())) if len(values) == 1 else None
+            for field, values in fields.items()
+        }
+    return contacts
+
+
 def _pending_recipient_export_rows(
     *,
     group: ClientGroup,
@@ -1091,25 +1159,15 @@ def _pending_recipient_export_rows(
                     date_of_birth,
                     details.get("travel_date"),
                 ),
-                "Email ID": _recipient_export_value(
+                "WhatsApp Email": _recipient_export_value(
                     row,
-                    "email",
-                    "email_address",
-                    "e_mail",
-                    "mail",
+                    *_WHATSAPP_EMAIL_IMPORTED_KEYS,
                 ),
-                "Phone Number": (
+                "WhatsApp Phone": (
                     row.normalized_phone
                     or _recipient_export_value(
                         row,
-                        "phone_number",
-                        "phone",
-                        "mobile",
-                        "mobile_number",
-                        "whatsapp",
-                        "whatsapp_number",
-                        "contact",
-                        "contact_number",
+                        *_WHATSAPP_PHONE_IMPORTED_KEYS,
                     )
                 ),
                 "International Airport": _recipient_export_value(
@@ -1203,18 +1261,8 @@ _FIXED_IMPORTED_EXPORT_KEYS = {
     "surname",
     "last_name",
     "family_name",
-    "email",
-    "email_address",
-    "e_mail",
-    "mail",
-    "phone_number",
-    "phone",
-    "mobile",
-    "mobile_number",
-    "whatsapp",
-    "whatsapp_number",
-    "contact",
-    "contact_number",
+    *_WHATSAPP_EMAIL_IMPORTED_KEYS,
+    *_WHATSAPP_PHONE_IMPORTED_KEYS,
     "passport_number",
     "passport_no",
     "passport",
@@ -3083,6 +3131,10 @@ async def export_passports_by_group(
         match_rows_by_group,
         selected_fields,
     )
+    whatsapp_contacts = _export_whatsapp_contacts(
+        submissions,
+        match_rows_by_group,
+    )
     content = PassportExcelExporter().export_group(
         submissions,
         group_name=group.name,
@@ -3096,6 +3148,7 @@ async def export_passports_by_group(
             for field in selected_fields
         ],
         additional_values=additional_values,
+        whatsapp_contacts=whatsapp_contacts,
         group_by_field=resolved_group_by,
         pending_rows=pending_rows,
     )
@@ -3269,6 +3322,116 @@ async def export_passport_images_by_group(
             "Content-Disposition": f'attachment; filename="{filename}"',
             "Content-Length": str(archive_size),
             "X-Passport-Export-History-ID": str(history.id),
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+@router.post(
+    "/groups/{group_id}/export-images/selected",
+    status_code=status.HTTP_200_OK,
+    summary="Export selected current passport images from a client group as ZIP",
+)
+async def export_selected_passport_images_by_group(
+    group_id: uuid.UUID,
+    body: ExportSelectedPassportsRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    current_submissions = await _current_group_export_submissions(
+        session,
+        group_id=group_id,
+        agency_id=current_user.agency_id,
+        current_user=current_user,
+    )
+    current_by_id = {submission.id: submission for submission in current_submissions}
+    requested_ids = list(dict.fromkeys(body.submission_ids))
+    if any(submission_id not in current_by_id for submission_id in requested_ids):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "One or more selected passport submissions were not found "
+                "in this group."
+            ),
+        )
+    selected_submissions = [
+        current_by_id[submission_id] for submission_id in requested_ids
+    ]
+
+    crop_metadata = await PassportImageCropRepository(session).list_for_submissions(
+        requested_ids
+    )
+    zone_names = await _export_zone_names(session, current_submissions)
+    try:
+        spool, image_count, uncompressed_bytes = (
+            await PassportImageZipExporter().export_group(
+                selected_submissions,
+                group_name=group.name,
+                staff_code_enabled=group.staff_code_enabled,
+                agent_employee_code_enabled=group.agent_employee_code_enabled,
+                storage=MinioStorageRepository(),
+                crop_metadata=crop_metadata,
+                zone_names=zone_names,
+                namespace_submissions=current_submissions,
+            )
+        )
+    except MissingPassportImagesError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+    except PassportImageExportLimitError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=str(exc),
+        ) from exc
+    except StorageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="One or more selected images could not be read from secure storage.",
+        ) from exc
+
+    spool.seek(0, io.SEEK_END)
+    archive_size = spool.tell()
+    spool.seek(0)
+    logger.info(
+        "passport_selected_images_export_prepared",
+        group_id=str(group_id),
+        agency_id=str(current_user.agency_id),
+        actor_user_id=str(current_user.id),
+        submission_count=len(selected_submissions),
+        image_count=image_count,
+        uncompressed_bytes=uncompressed_bytes,
+        archive_bytes=archive_size,
+    )
+    return StreamingResponse(
+        _stream_binary_file(spool),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{safe_download_filename(group.name)}"'
+            ),
+            "Content-Length": str(archive_size),
             "X-Content-Type-Options": "nosniff",
         },
     )
@@ -3957,13 +4120,21 @@ async def export_selected_passports(
             status_code=status.HTTP_404_NOT_FOUND, detail="No exportable passport submissions found"
         )
 
+    match_rows_by_group = await _export_whatsapp_match_rows(session, submissions)
     content = PassportExcelExporter().export_group(
         submissions,
         group_name="Selected Passports",
         group_details=await _export_group_details(
             session, [submission.group_id for submission in submissions]
         ),
-        zone_names=await _export_zone_names(session, submissions),
+        zone_names=_export_zone_names_from_match_rows(
+            submissions,
+            match_rows_by_group,
+        ),
+        whatsapp_contacts=_export_whatsapp_contacts(
+            submissions,
+            match_rows_by_group,
+        ),
     )
     return StreamingResponse(
         io.BytesIO(content),
@@ -4197,6 +4368,10 @@ async def export_selected_groups(
             submissions,
             match_rows_by_group,
             selected_fields,
+        ),
+        whatsapp_contacts=_export_whatsapp_contacts(
+            submissions,
+            match_rows_by_group,
         ),
         group_by_field=resolved_group_by,
         pending_rows=pending_rows,
@@ -4818,6 +4993,7 @@ async def preview_visa_ai_image_edit(
         source_storage_key=source_key,
         prompt=normalized_prompt,
         image_content=result.content,
+        model=result.model,
     )
     await AuditLogRepository(session).record(
         action="passport_visa_ai_edit_previewed",
@@ -4830,6 +5006,7 @@ async def preview_visa_ai_image_edit(
             "image_type": image_type.value,
             "crop_revision": revision,
             "prompt_sha256": result.prompt_sha256,
+            "model": result.model,
         },
     )
     await session.commit()
@@ -5482,7 +5659,7 @@ async def apply_visa_ai_image_edit(
     y: float = Form(...),
     width: float = Form(...),
     height: float = Form(...),
-    rotation_degrees: int = Form(...),
+    rotation_degrees: int = Form(..., ge=0, le=359),
     sharpness: float = Form(...),
     expected_revision: int = Form(..., ge=0),
     _csrf: None = Depends(require_cookie_csrf),
@@ -5506,7 +5683,7 @@ async def apply_visa_ai_image_edit(
             detail="The generated Visa image is empty or too large.",
         )
     try:
-        verify_passport_ai_edit_token(
+        preview_claims = verify_passport_ai_edit_token(
             preview_token,
             secret=get_settings().app_secret_key,
             submission_id=submission.id,
@@ -5601,7 +5778,7 @@ async def apply_visa_ai_image_edit(
             content_sha256=hashlib.sha256(canonical.content).hexdigest(),
             prompt=normalized_prompt,
             prompt_sha256=hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest(),
-            model=get_settings().gemini_image_edit_model.strip(),
+            model=preview_claims.model,
             created_by_user_id=current_user.id,
         )
         (
@@ -5638,6 +5815,7 @@ async def apply_visa_ai_image_edit(
                 "crop_revision": crop_row.revision,
                 "sharpness": crop_row.sharpness,
                 "prompt_sha256": hashlib.sha256(normalized_prompt.encode("utf-8")).hexdigest(),
+                "model": preview_claims.model,
                 "library_item_id": str(ai_library_item.id),
             },
         )

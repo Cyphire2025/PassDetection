@@ -34,13 +34,10 @@ from app.infrastructure.processing.job_state import ProcessingJobStatus
 logger = get_logger(__name__)
 
 PUBLIC_EXTRACTION_FAILURE = (
-    "Some passport fields could not be read automatically. "
-    "Please enter the missing details manually."
+    "Automatic passport detail extraction failed after trying the available AI models. "
+    "Your passport images are saved. Retry automatic reading or enter the details manually."
 )
-PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE = (
-    "We could not verify that this is a passport photo and details page right now. "
-    "Your upload was saved; please try again in a moment."
-)
+PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE = PUBLIC_EXTRACTION_FAILURE
 MAX_FIRST_PASS_SECONDS = 45.0
 MAX_GEMINI_SECONDS = 30.0
 RESULT_SAVE_RESERVE_SECONDS = 2.0
@@ -298,6 +295,31 @@ class ProcessPassportSubmissionJobUseCase:
                         status=classification_status or "missing",
                     )
                     return
+                if not self._has_usable_extracted_fields(extracted_fields):
+                    applied = await self._passport_repo.apply_extraction_failure(
+                        submission_id=submission.id,
+                        expected_revision=job.extraction_revision,
+                        public_message=PUBLIC_EXTRACTION_FAILURE,
+                        diagnostics={"ai_verification": classification},
+                    )
+                    if not applied:
+                        await self._job_repo.mark_cancelled(
+                            job_id,
+                            "Superseded by newer passport changes",
+                        )
+                        return
+                    await self._job_repo.mark_dead_letter(
+                        job_id,
+                        PUBLIC_EXTRACTION_FAILURE,
+                    )
+                    logger.warning(
+                        "passport_extraction_empty",
+                        job_id=str(job_id),
+                        submission_id=str(submission.id),
+                        model=classification.get("model"),
+                        attempts=classification.get("attempts"),
+                    )
+                    return
                 record_operational_event(
                     OperationalEvent.DOCUMENT_CLASSIFICATION,
                     "accepted",
@@ -443,6 +465,14 @@ class ProcessPassportSubmissionJobUseCase:
     @staticmethod
     def _guess_content_type(key: str) -> str:
         return mimetypes.guess_type(key)[0] or "image/jpeg"
+
+    @staticmethod
+    def _has_usable_extracted_fields(extracted_fields: dict[str, Any]) -> bool:
+        return any(
+            isinstance(extracted_fields.get(field), str)
+            and bool(str(extracted_fields[field]).strip())
+            for field in GEMINI_EXTRACTION_FIELDS
+        )
 
     @staticmethod
     def _safe_document_classification(

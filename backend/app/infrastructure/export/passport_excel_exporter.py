@@ -66,8 +66,8 @@ _TRAVELLER_COLUMNS = (
         26,
         "ask_nearest_domestic_airport",
     ),
-    _ExportColumn("Phone Number", 18),
-    _ExportColumn("Email ID", 28),
+    _ExportColumn("WhatsApp Email", 28),
+    _ExportColumn("WhatsApp Phone", 18),
     _ExportColumn("Meal Preference", 18, "meal_preference_enabled"),
     _ExportColumn(
         "International Airport",
@@ -81,8 +81,10 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn("DOB", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("DOI", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
     _ExportColumn("DOE", 16, number_format=_EXCEL_DATE_NUMBER_FORMAT),
-    _ExportColumn("Nationality", 22),
     _ExportColumn("Place of Issue", 22),
+    _ExportColumn("Nationality", 22),
+    _ExportColumn("Upload Email", 28),
+    _ExportColumn("Upload Phone", 18),
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
 
@@ -206,6 +208,11 @@ class PassportExcelExporter:
         zone_names: dict[uuid.UUID, str] | None = None,
         additional_fields: list[dict[str, str]] | None = None,
         additional_values: dict[uuid.UUID, dict[str, str | None]] | None = None,
+        whatsapp_contacts: dict[
+            uuid.UUID,
+            dict[str, str | None],
+        ]
+        | None = None,
         group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
     ) -> bytes:
@@ -300,6 +307,7 @@ class PassportExcelExporter:
                         zone_names=zone_names,
                         dynamic_fields=dynamic_fields,
                         additional_values=additional_values,
+                        whatsapp_contacts=whatsapp_contacts,
                     ),
                 )
             )
@@ -479,8 +487,8 @@ class PassportExcelExporter:
                 or ""
             ).strip().split()
         )
-        phone = str(values.get("Phone Number") or "")
-        email = str(values.get("Email ID") or "")
+        phone = str(values.get("WhatsApp Phone") or "")
+        email = str(values.get("WhatsApp Email") or "")
         return (
             not bool(group_value),
             group_value.casefold(),
@@ -525,9 +533,15 @@ class PassportExcelExporter:
         zone_names: dict[uuid.UUID, str] | None,
         dynamic_fields: list[dict[str, str]],
         additional_values: dict[uuid.UUID, dict[str, str | None]] | None,
+        whatsapp_contacts: dict[
+            uuid.UUID,
+            dict[str, str | None],
+        ]
+        | None,
     ) -> dict[str, Any]:
         fields = submission.confirmed_fields or submission.extracted_fields or {}
         staff_metadata = submission.staff_metadata or {}
+        whatsapp_contact = (whatsapp_contacts or {}).get(submission.id, {})
         values: dict[str, Any] = {
             "Group": details.get("name") or group_name,
             "Destination": details.get("destination"),
@@ -563,8 +577,8 @@ class PassportExcelExporter:
                 details.get("travel_date"),
             ),
             "Domestic Airport": submission.nearest_domestic_airport,
-            "Phone Number": submission.client_phone,
-            "Email ID": submission.client_email,
+            "WhatsApp Email": whatsapp_contact.get("email"),
+            "WhatsApp Phone": whatsapp_contact.get("phone"),
             "International Airport": submission.departure_city,
             "SURNAME": _uppercase(fields.get("surname")),
             "GIVEN NAME": _uppercase(fields.get("given_names")),
@@ -573,8 +587,10 @@ class PassportExcelExporter:
             "DOB": fields.get("date_of_birth"),
             "DOI": fields.get("date_of_issue"),
             "DOE": fields.get("date_of_expiry"),
-            "Nationality": _nationality_display_value(fields.get("nationality")),
             "Place of Issue": fields.get("place_of_issue"),
+            "Nationality": _nationality_display_value(fields.get("nationality")),
+            "Upload Email": submission.client_email,
+            "Upload Phone": submission.client_phone,
         }
         row_metadata = (additional_values or {}).get(submission.id, {})
         custom_answers = {

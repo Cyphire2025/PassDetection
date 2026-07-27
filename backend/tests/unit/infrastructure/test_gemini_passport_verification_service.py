@@ -76,6 +76,24 @@ def _gemini_response(
     )
 
 
+def _extracted_passport_response(
+    passport_number: str = "W7114767",
+) -> httpx.Response:
+    return _gemini_response(
+        {
+            "s": "changes",
+            "f": [
+                {
+                    "k": "pn",
+                    "v": passport_number,
+                    "a": "fill",
+                    "c": 0.99,
+                }
+            ],
+        }
+    )
+
+
 class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
     async def test_sends_compact_json_image_and_secret_header(self) -> None:
         captured: dict[str, object] = {}
@@ -129,7 +147,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 self.payload_ids.append(id(kwargs["json"]))
                 if len(self.payload_ids) == 1:
                     return httpx.Response(503, json={"error": "temporary"})
-                return _gemini_response({"s": "match", "f": []})
+                return _extracted_passport_response()
 
         client = _Client()
         result = await GeminiPassportVerificationService(
@@ -141,9 +159,10 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             extracted_fields={},
         )
 
-        self.assertEqual(result.metadata["status"], "verified")
+        self.assertEqual(result.metadata["status"], "enhanced")
         self.assertEqual(result.metadata["attempts"], 2)
         self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
+        self.assertEqual(result.merged_fields["passport_number"], "W7114767")
         self.assertTrue(client.endpoints[0].endswith("/models/gemini-3.5-flash:generateContent"))
         self.assertTrue(
             client.endpoints[1].endswith("/models/gemini-3.1-flash-lite:generateContent")
@@ -160,7 +179,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             requests.append((model, body["generationConfig"]["thinkingConfig"]["thinkingLevel"]))
             if len(requests) == 1:
                 return httpx.Response(503)
-            return _gemini_response({"s": "match", "f": []})
+            return _extracted_passport_response()
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
@@ -182,7 +201,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 ("gemini-3.1-flash-lite", "minimal"),
             ],
         )
-        self.assertEqual(result.metadata["status"], "verified")
+        self.assertEqual(result.metadata["status"], "enhanced")
 
     async def test_network_failure_uses_fallback_model(self) -> None:
         endpoints: list[str] = []
@@ -191,7 +210,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             endpoints.append(str(request.url))
             if len(endpoints) == 1:
                 raise httpx.ConnectError("temporary network failure", request=request)
-            return _gemini_response({"s": "match", "f": []})
+            return _extracted_passport_response()
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
             result = await GeminiPassportVerificationService(
@@ -202,8 +221,64 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(endpoints), 2)
         self.assertIn("/models/gemini-3.5-flash:", endpoints[0])
         self.assertIn("/models/gemini-3.1-flash-lite:", endpoints[1])
-        self.assertEqual(result.metadata["status"], "verified")
+        self.assertEqual(result.metadata["status"], "enhanced")
         self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
+        self.assertEqual(result.merged_fields["passport_number"], "W7114767")
+
+    async def test_empty_primary_response_immediately_uses_populated_fallback(
+        self,
+    ) -> None:
+        endpoints: list[str] = []
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            endpoints.append(str(request.url))
+            if len(endpoints) == 1:
+                return _gemini_response({"s": "match", "f": []})
+            return _extracted_passport_response("Z8117359")
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={},
+            )
+
+        self.assertEqual(len(endpoints), 2)
+        self.assertIn("/models/gemini-3.5-flash:", endpoints[0])
+        self.assertIn("/models/gemini-3.1-flash-lite:", endpoints[1])
+        self.assertEqual(result.metadata["status"], "enhanced")
+        self.assertEqual(result.metadata["attempts"], 2)
+        self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
+        self.assertEqual(result.merged_fields["passport_number"], "Z8117359")
+
+    async def test_all_models_returning_empty_fields_is_explicit_failure(
+        self,
+    ) -> None:
+        calls = 0
+
+        async def handler(_request: httpx.Request) -> httpx.Response:
+            nonlocal calls
+            calls += 1
+            return _gemini_response({"s": "match", "f": []})
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"image",
+                content_type="image/jpeg",
+                extracted_fields={},
+            )
+
+        self.assertEqual(calls, 2)
+        self.assertEqual(result.metadata["status"], "empty_extraction")
+        self.assertFalse(result.metadata["available"])
+        self.assertEqual(result.metadata["attempts"], 2)
+        self.assertNotIn("passport_number", result.merged_fields)
 
     async def test_fills_missing_and_replaces_only_high_confidence_valid_values(self) -> None:
         provider = {
@@ -748,7 +823,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["model"], "gemini-3.5-flash")
         self.assertEqual(result.merged_fields["surname"], "KHANNA")
 
-    async def test_rejected_request_does_not_attempt_fallback(self) -> None:
+    async def test_rejected_primary_request_attempts_fallback(self) -> None:
         endpoints: list[str] = []
 
         async def handler(request: httpx.Request) -> httpx.Response:
@@ -765,10 +840,11 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
                 extracted_fields={"surname": "KHANNA"},
             )
 
-        self.assertEqual(len(endpoints), 1)
+        self.assertEqual(len(endpoints), 2)
         self.assertIn("/models/gemini-3.5-flash:", endpoints[0])
+        self.assertIn("/models/gemini-3.1-flash-lite:", endpoints[1])
         self.assertEqual(result.metadata["status"], "provider_rejected_request")
-        self.assertEqual(result.metadata["model"], "gemini-3.5-flash")
+        self.assertEqual(result.metadata["model"], "gemini-3.1-flash-lite")
 
     async def test_timeout_falls_back_to_ocr(self) -> None:
         async def handler(request: httpx.Request) -> httpx.Response:

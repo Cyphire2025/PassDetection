@@ -14,7 +14,9 @@ from app.domain.value_objects.passport_image_crop import PassportImageCrop
 
 MIN_NORMALIZED_CROP_SIZE = 0.08
 MIN_RENDERED_CROP_PIXELS = 32
-SUPPORTED_ROTATIONS = frozenset({0, 90, 180, 270})
+MIN_ROTATION_DEGREES = 0
+MAX_ROTATION_DEGREES = 359
+QUARTER_TURN_ROTATIONS = frozenset({0, 90, 180, 270})
 MIN_SHARPNESS = 1.0
 MAX_SHARPNESS = 3.0
 LEGACY_SHARPNESS_ALGORITHM_VERSION = 1
@@ -48,13 +50,18 @@ def inspect_passport_image(content: bytes, *, rotation_degrees: int = 0) -> tupl
     """Return canonical dimensions after the requested clockwise rotation."""
 
     image = _open_canonical_image(content)
+    rotated: Image.Image | None = None
     try:
-        if rotation_degrees not in SUPPORTED_ROTATIONS:
-            raise PassportImageCropError("Choose a supported image rotation.")
+        _validate_rotation_degrees(rotation_degrees)
         if rotation_degrees in {90, 270}:
             return image.height, image.width
-        return image.width, image.height
+        if rotation_degrees in {0, 180}:
+            return image.width, image.height
+        rotated = image.rotate(-rotation_degrees, expand=True)
+        return rotated.size
     finally:
+        if rotated is not None:
+            rotated.close()
         image.close()
 
 
@@ -85,9 +92,17 @@ def render_passport_image_crop(
     cropped: Image.Image | None = None
     rgb: Image.Image | None = None
     try:
-        rotated = (
-            image.copy() if rotation_degrees == 0 else image.rotate(-rotation_degrees, expand=True)
-        )
+        if rotation_degrees == 0:
+            rotated = image.copy()
+        elif rotation_degrees in QUARTER_TURN_ROTATIONS:
+            rotated = image.rotate(-rotation_degrees, expand=True)
+        else:
+            rotated = image.rotate(
+                -rotation_degrees,
+                resample=Image.Resampling.BICUBIC,
+                expand=True,
+                fillcolor="white",
+            )
         source_width, source_height = rotated.size
         left = max(0, min(source_width - 1, math.floor(x * source_width)))
         top = max(0, min(source_height - 1, math.floor(y * source_height)))
@@ -239,8 +254,7 @@ def _validate_normalized_crop(
     values = (x, y, width, height, sharpness)
     if not all(math.isfinite(value) for value in values):
         raise PassportImageCropError("Crop coordinates must be finite numbers.")
-    if rotation_degrees not in SUPPORTED_ROTATIONS:
-        raise PassportImageCropError("Choose a supported image rotation.")
+    _validate_rotation_degrees(rotation_degrees)
     if sharpness < MIN_SHARPNESS or sharpness > MAX_SHARPNESS:
         raise PassportImageCropError("Sharpness must be between 100% and 300%.")
     if sharpness_algorithm_version not in {
@@ -256,6 +270,18 @@ def _validate_normalized_crop(
         )
     if x + width > 1.000001 or y + height > 1.000001:
         raise PassportImageCropError("Crop coordinates must stay inside the image.")
+
+
+def _validate_rotation_degrees(rotation_degrees: int) -> None:
+    if (
+        isinstance(rotation_degrees, bool)
+        or not isinstance(rotation_degrees, int)
+        or rotation_degrees < MIN_ROTATION_DEGREES
+        or rotation_degrees > MAX_ROTATION_DEGREES
+    ):
+        raise PassportImageCropError(
+            "Rotation must be a whole number between 0 and 359 degrees."
+        )
 
 
 def _effective_sharpness(

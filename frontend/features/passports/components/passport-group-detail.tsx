@@ -22,6 +22,7 @@ import { useUpdateUploadLink, useUploadLinks } from "../hooks/use-upload-links";
 import {
   useExportPassportGroup,
   useExportPassportGroupImages,
+  useExportSelectedPassportImages,
   useExportSelectedPassports,
   useBulkDeletePassportSubmissions,
   useGroupSubmissionsView,
@@ -115,6 +116,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     label: string;
     returnFocusTarget: HTMLButtonElement;
   } | null>(null);
+  const [isTripDetailsExpanded, setIsTripDetailsExpanded] = useState(false);
+  const tripDetailsRegionId = useId();
   const [isExpiryAlertsExpanded, setIsExpiryAlertsExpanded] = useState(true);
   const expiryAlertsRegionId = useId();
   const {
@@ -172,11 +175,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const passportPreviewMutation = usePreviewPassportDocuments(groupId);
   const passportSaveMutation = useSavePassportDocuments(groupId);
   const exportSelected = useExportSelectedPassports();
+  const exportSelectedImages = useExportSelectedPassportImages();
   const bulkDelete = useBulkDeletePassportSubmissions(groupId);
   const updateGroup = useUpdateUploadLink();
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const selectedImageDownloadStartedRef = useRef(false);
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
   const [exportDialogKind, setExportDialogKind] =
     useState<PassportGroupExportKind | null>(null);
@@ -379,6 +384,38 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     });
   };
 
+  const handleSelectedPassportDownload = () => {
+    if (
+      selectedPassports.length === 0
+      || selectedImageDownloadStartedRef.current
+      || exportSelectedImages.isPending
+    ) {
+      return;
+    }
+
+    selectedImageDownloadStartedRef.current = true;
+    setImportMessage(null);
+    exportSelectedImages.mutate(
+      {
+        groupId,
+        submissionIds: [...selectedPassports],
+      },
+      {
+        onError: (downloadError) => {
+          setImportMessage(
+            mutationErrorMessage(
+              downloadError,
+              "Selected passport download failed",
+            ),
+          );
+        },
+        onSettled: () => {
+          selectedImageDownloadStartedRef.current = false;
+        },
+      },
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -525,7 +562,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
 
       {groupDetails && (
         <Card>
-          <CardContent className="space-y-4 p-5">
+          <CardContent className="p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -536,61 +573,84 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                   <p className="text-sm text-slate-500">Used for search, filters, and exports.</p>
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  setTripForm({
-                    name: groupDetails.group_name,
-                    destination: groupDetails.destination ?? "",
-                    travel_date: groupDetails.travel_date ?? "",
-                    return_date: groupDetails.return_date ?? "",
-                    departure_cities: groupDetails.departure_cities ?? [],
-                    base_city_enabled: groupDetails.base_city_enabled,
-                    nearest_international_airport_enabled: groupDetails.nearest_international_airport_enabled,
-                    staff_code_enabled: groupDetails.staff_code_enabled,
-                    agent_employee_code_enabled: groupDetails.agent_employee_code_enabled,
-                    meal_preference_enabled: groupDetails.meal_preference_enabled,
-                    require_selfie: groupDetails.require_selfie,
-                    allow_files_from_device: groupDetails.allow_files_from_device ?? true,
-                    ask_nearest_domestic_airport: groupDetails.ask_nearest_domestic_airport ?? false,
-                    relation_with_qualifier_enabled:
-                      groupDetails.relation_with_qualifier_enabled ?? false,
-                    designation_enabled: groupDetails.designation_enabled ?? false,
-                    agency_dealership_name_enabled:
-                      groupDetails.agency_dealership_name_enabled ?? false,
-                    notes: groupDetails.notes ?? "",
-                  });
-                  setIsEditingTrip(true);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-                Edit
-              </Button>
-            </div>
-            <div className="grid gap-3 text-sm sm:grid-cols-3">
-              <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
-              <InfoPair label="Travel/Departure Date" value={groupDetails.travel_date || "Not set"} />
-              <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
-              <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
-              <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="Agent/Employee Code" value={groupDetails.agent_employee_code_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="Visa Photo Upload" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
-              <InfoPair label="Files From Device" value={(groupDetails.allow_files_from_device ?? true) ? "Allowed" : "Live scanner only"} />
-              <InfoPair label="Nearest Domestic Airport" value={(groupDetails.ask_nearest_domestic_airport ?? false) ? "Required" : "Disabled"} />
-              <InfoPair
-                label="Relation with Qualifier"
-                value={(groupDetails.relation_with_qualifier_enabled ?? false) ? "Enabled" : "Disabled"}
-              />
-              <InfoPair label="Designation" value={groupDetails.designation_enabled ? "Required" : "Disabled"} />
-              <InfoPair label="Agency/Dealership Name" value={groupDetails.agency_dealership_name_enabled ? "Required" : "Disabled"} />
-              <div className="sm:col-span-2">
-                <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-expanded={isTripDetailsExpanded}
+                  aria-controls={tripDetailsRegionId}
+                  onClick={() => setIsTripDetailsExpanded((current) => !current)}
+                >
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isTripDetailsExpanded ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                  {isTripDetailsExpanded ? "Hide details" : "Show details"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setTripForm({
+                      name: groupDetails.group_name,
+                      destination: groupDetails.destination ?? "",
+                      travel_date: groupDetails.travel_date ?? "",
+                      return_date: groupDetails.return_date ?? "",
+                      departure_cities: groupDetails.departure_cities ?? [],
+                      base_city_enabled: groupDetails.base_city_enabled,
+                      nearest_international_airport_enabled: groupDetails.nearest_international_airport_enabled,
+                      staff_code_enabled: groupDetails.staff_code_enabled,
+                      agent_employee_code_enabled: groupDetails.agent_employee_code_enabled,
+                      meal_preference_enabled: groupDetails.meal_preference_enabled,
+                      require_selfie: groupDetails.require_selfie,
+                      allow_files_from_device: groupDetails.allow_files_from_device ?? true,
+                      ask_nearest_domestic_airport: groupDetails.ask_nearest_domestic_airport ?? false,
+                      relation_with_qualifier_enabled:
+                        groupDetails.relation_with_qualifier_enabled ?? false,
+                      designation_enabled: groupDetails.designation_enabled ?? false,
+                      agency_dealership_name_enabled:
+                        groupDetails.agency_dealership_name_enabled ?? false,
+                      notes: groupDetails.notes ?? "",
+                    });
+                    setIsEditingTrip(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
               </div>
             </div>
+            {isTripDetailsExpanded && (
+              <div
+                id={tripDetailsRegionId}
+                role="region"
+                aria-label="Destination and trip details"
+                className="mt-4 grid gap-3 text-sm sm:grid-cols-3"
+              >
+                <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
+                <InfoPair label="Travel/Departure Date" value={groupDetails.travel_date || "Not set"} />
+                <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
+                <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
+                <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
+                <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
+                <InfoPair label="Agent/Employee Code" value={groupDetails.agent_employee_code_enabled ? "Required" : "Disabled"} />
+                <InfoPair label="Meal Preference" value={groupDetails.meal_preference_enabled ? "Required" : "Disabled"} />
+                <InfoPair label="Visa Photo Upload" value={groupDetails.require_selfie ? "Required" : "Disabled"} />
+                <InfoPair label="Files From Device" value={(groupDetails.allow_files_from_device ?? true) ? "Allowed" : "Live scanner only"} />
+                <InfoPair label="Nearest Domestic Airport" value={(groupDetails.ask_nearest_domestic_airport ?? false) ? "Required" : "Disabled"} />
+                <InfoPair
+                  label="Relation with Qualifier"
+                  value={(groupDetails.relation_with_qualifier_enabled ?? false) ? "Enabled" : "Disabled"}
+                />
+                <InfoPair label="Designation" value={groupDetails.designation_enabled ? "Required" : "Disabled"} />
+                <InfoPair label="Agency/Dealership Name" value={groupDetails.agency_dealership_name_enabled ? "Required" : "Disabled"} />
+                <div className="sm:col-span-2">
+                  <InfoPair label="Notes" value={groupDetails.notes || "No notes"} />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -605,7 +665,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       )}
 
       {importMessage && (
-        <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800"
+        >
           {importMessage}
         </div>
       )}
@@ -806,7 +870,19 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               onClick={() => exportSelected.mutate(selectedPassports)}
             >
               <Download className="h-4 w-4" />
-              Export Selected ({selectedPassports.length})
+              Export Excel ({selectedPassports.length})
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="shrink-0 whitespace-nowrap"
+              disabled={exportSelectedImages.isPending}
+              isLoading={exportSelectedImages.isPending}
+              onClick={handleSelectedPassportDownload}
+            >
+              <Download className="h-4 w-4" />
+              Download Passports ({selectedPassports.length})
             </Button>
             {canPermanentlyDelete && !includeDeleted && (
               <Button

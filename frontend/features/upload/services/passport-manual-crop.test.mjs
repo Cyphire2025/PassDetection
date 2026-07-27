@@ -8,7 +8,7 @@ import {
   rotatedPassportImageSize,
 } from "./passport-manual-crop-math.ts";
 
-test("rotation swaps passport image axes only for quarter turns", () => {
+test("rotation calculates the full image bounds for quarter and fine turns", () => {
   assert.deepEqual(rotatedPassportImageSize(4000, 3000, 0), {
     width: 4000,
     height: 3000,
@@ -20,6 +20,10 @@ test("rotation swaps passport image axes only for quarter turns", () => {
   assert.deepEqual(rotatedPassportImageSize(4000, 3000, 270), {
     width: 3000,
     height: 4000,
+  });
+  assert.deepEqual(rotatedPassportImageSize(4000, 3000, 45), {
+    width: 4950,
+    height: 4950,
   });
 });
 

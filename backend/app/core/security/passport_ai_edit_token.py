@@ -6,9 +6,12 @@ import base64
 import hashlib
 import hmac
 import json
+import re
 import time
 import uuid
 from dataclasses import dataclass
+
+_MODEL_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}$")
 
 
 class PassportAiEditTokenError(ValueError):
@@ -24,6 +27,7 @@ class PassportAiEditTokenClaims:
     source_key_sha256: str
     prompt_sha256: str
     image_sha256: str
+    model: str
     expires_at: int
 
 
@@ -37,8 +41,12 @@ def issue_passport_ai_edit_token(
     source_storage_key: str,
     prompt: str,
     image_content: bytes,
+    model: str,
     ttl_seconds: int = 600,
 ) -> str:
+    normalized_model = model.strip()
+    if not _MODEL_IDENTIFIER_PATTERN.fullmatch(normalized_model):
+        raise ValueError("The AI model identifier is invalid.")
     payload = {
         "sid": str(submission_id),
         "uid": str(user_id),
@@ -47,6 +55,7 @@ def issue_passport_ai_edit_token(
         "src": hashlib.sha256(source_storage_key.encode("utf-8")).hexdigest(),
         "prm": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
         "img": hashlib.sha256(image_content).hexdigest(),
+        "mdl": normalized_model,
         "exp": int(time.time()) + ttl_seconds,
     }
     encoded = _b64encode(
@@ -93,6 +102,7 @@ def verify_passport_ai_edit_token(
             source_key_sha256=str(payload["src"]),
             prompt_sha256=str(payload["prm"]),
             image_sha256=str(payload["img"]),
+            model=str(payload["mdl"]).strip(),
             expires_at=int(payload["exp"]),
         )
     except PassportAiEditTokenError:
@@ -109,6 +119,7 @@ def verify_passport_ai_edit_token(
         or claims.user_id != user_id
         or claims.image_type != image_type
         or claims.expected_revision != expected_revision
+        or not _MODEL_IDENTIFIER_PATTERN.fullmatch(claims.model)
         or not hmac.compare_digest(claims.source_key_sha256, expected_source_hash)
         or not hmac.compare_digest(claims.prompt_sha256, expected_prompt_hash)
         or not hmac.compare_digest(claims.image_sha256, expected_image_hash)

@@ -125,6 +125,22 @@ test("loading, failure, processing, and completion states are announced", () => 
   );
 });
 
+test("exhausted AI extraction is explicit while saved passport images remain recoverable", () => {
+  const failureNotice =
+    "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
+
+  assert.equal(
+    source.match(new RegExp(failureNotice.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"))
+      ?.length,
+    2,
+    "persisted and terminal failure paths must show the same explicit recovery message",
+  );
+  assert.doesNotMatch(
+    source,
+    /automatic reading could not be confirmed|some details could not be read automatically/i,
+  );
+});
+
 test("surname may be blank while every other canonical field remains required", () => {
   assert.match(
     source,

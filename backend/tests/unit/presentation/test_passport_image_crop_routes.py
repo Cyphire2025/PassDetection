@@ -7,12 +7,15 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from PIL import Image
 from pydantic import ValidationError
 
 from app.domain.exceptions.exceptions import AuthorizationError
-from app.domain.value_objects.passport_image_crop import PassportImageType
+from app.domain.value_objects.passport_image_crop import (
+    PassportImageCrop,
+    PassportImageType,
+)
 from app.domain.value_objects.passport_visa_ai_image import PassportVisaAiImage
 from app.infrastructure.ai.gemini_visa_image_edit_service import (
     GeminiVisaImageEditError,
@@ -31,10 +34,12 @@ from app.infrastructure.repositories.passport_image_crop_repository import (
 from app.presentation.api.v1.routes.passports import (
     _authorized_staff_passport_image,
     _staff_image_urls,
-    _visa_ai_input_storage_key,
     _visa_ai_edit_http_exception,
+    _visa_ai_input_storage_key,
+    apply_visa_ai_image_edit,
     create_visa_ai_library_image,
     get_passport_image_thumbnail,
+    preview_visa_ai_image_edit,
     update_passport_image_crop,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
@@ -247,6 +252,29 @@ def test_crop_schema_rejects_non_finite_values() -> None:
         )
 
 
+def test_crop_schema_accepts_each_degree_and_rejects_out_of_range_rotation() -> None:
+    request = PassportImageCropUpdateRequest(
+        x=0,
+        y=0,
+        width=1,
+        height=1,
+        rotation_degrees=37,
+        expected_revision=0,
+    )
+    assert request.rotation_degrees == 37
+
+    for invalid_rotation in (-1, 360):
+        with pytest.raises(ValidationError):
+            PassportImageCropUpdateRequest(
+                x=0,
+                y=0,
+                width=1,
+                height=1,
+                rotation_degrees=invalid_rotation,
+                expected_revision=0,
+            )
+
+
 @pytest.mark.parametrize(
     ("error", "expected_status", "expected_retry_after"),
     [
@@ -367,6 +395,203 @@ async def test_generated_visa_ai_image_is_uploaded_and_committed_to_library() ->
     assert response.id == generated_id
     assert response.model == "gemini-3-pro-image"
     assert str(generated_id) in response.image_url
+
+
+@pytest.mark.asyncio
+async def test_legacy_preview_signs_the_model_that_generated_the_image() -> None:
+    submission = _submission()
+    current_user = SimpleNamespace(id=uuid.uuid4(), email="staff@example.com")
+    crop_repository = MagicMock()
+    crop_repository.get = AsyncMock(return_value=None)
+    storage = MagicMock()
+    storage.get_file = AsyncMock(return_value=b"source-image")
+    ai_service = MagicMock()
+    ai_service.edit = AsyncMock(
+        return_value=GeminiVisaImageEditResult(
+            content=b"generated-image",
+            content_type="image/jpeg",
+            prompt_sha256="a" * 64,
+            model="gemini-3-pro-image",
+        )
+    )
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+    session = MagicMock()
+    session.commit = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            return_value=crop_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.GeminiVisaImageEditService",
+            return_value=ai_service,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.issue_passport_ai_edit_token",
+            return_value="signed-preview-token",
+        ) as issue_token,
+        patch(
+            "app.presentation.api.v1.routes.passports.AuditLogRepository",
+            return_value=audit_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.get_settings",
+            return_value=SimpleNamespace(app_secret_key="test-secret"),
+        ),
+    ):
+        response = await preview_visa_ai_image_edit(
+            submission_id=submission.id,
+            body=PassportVisaAiPreviewRequest(
+                prompt="Make the background plain white"
+            ),
+            _csrf=None,
+            current_user=current_user,  # type: ignore[arg-type]
+            session=session,
+        )
+
+    assert response.headers["x-visa-ai-edit-token"] == "signed-preview-token"
+    assert issue_token.call_args.kwargs["model"] == "gemini-3-pro-image"
+    assert audit_repository.record.await_args.kwargs["metadata"]["model"] == (
+        "gemini-3-pro-image"
+    )
+
+
+@pytest.mark.asyncio
+async def test_legacy_apply_persists_only_the_model_from_the_signed_token() -> None:
+    submission = _submission()
+    current_user = SimpleNamespace(id=uuid.uuid4(), email="staff@example.com")
+    storage = MagicMock()
+    storage.upload_file = AsyncMock(return_value="saved")
+    storage.delete_files = AsyncMock(return_value=1)
+    submission_repository = MagicMock()
+    submission_repository.get_by_id_for_update = AsyncMock(return_value=submission)
+    library_repository = MagicMock()
+    library_repository.create_ai = AsyncMock(
+        return_value=SimpleNamespace(id=uuid.uuid4())
+    )
+    crop_repository = MagicMock()
+    crop_repository.upsert = AsyncMock(
+        return_value=(
+            PassportImageCrop(
+                submission_id=submission.id,
+                image_type=PassportImageType.VISA_PHOTO,
+                source_storage_key=submission.passport_photo_s3_key,
+                edit_source_storage_key="passport-edits/generated.jpg",
+                derived_storage_key="passport-crops/generated.jpg",
+                active=True,
+                x=0,
+                y=0,
+                width=1,
+                height=1,
+                rotation_degrees=0,
+                sharpness=1,
+                sharpness_algorithm_version=2,
+                source_width=400,
+                source_height=600,
+                revision=1,
+            ),
+            None,
+            None,
+        )
+    )
+    canonical = SimpleNamespace(
+        content=b"canonical-image",
+        content_type="image/jpeg",
+        extension=".jpg",
+        source_width=400,
+        source_height=600,
+    )
+    rendered = SimpleNamespace(
+        content=b"rendered-image",
+        content_type="image/jpeg",
+        extension=".jpg",
+        source_width=400,
+        source_height=600,
+    )
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+    session = MagicMock()
+    session.commit = AsyncMock()
+    session.rollback = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.passports._authorized_staff_passport_image",
+            new=AsyncMock(return_value=(submission, submission.passport_photo_s3_key)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.verify_passport_ai_edit_token",
+            return_value=SimpleNamespace(model="gemini-3-pro-image"),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.render_passport_image_crop",
+            side_effect=[canonical, rendered],
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.PassportSubmissionRepository",
+            return_value=submission_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.PassportImageLibraryRepository",
+            return_value=library_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.PassportImageCropRepository",
+            return_value=crop_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.AuditLogRepository",
+            return_value=audit_repository,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.get_settings",
+            return_value=SimpleNamespace(
+                api_v1_prefix="/api/v1",
+                app_secret_key="test-secret",
+                upload_max_file_size_bytes=5 * 1024 * 1024,
+            ),
+        ),
+    ):
+        await apply_visa_ai_image_edit(
+            submission_id=submission.id,
+            image=UploadFile(
+                filename="preview.jpg",
+                file=io.BytesIO(b"generated-image"),
+            ),
+            preview_token="signed-preview-token",
+            prompt="Make the background plain white",
+            x=0,
+            y=0,
+            width=1,
+            height=1,
+            rotation_degrees=0,
+            sharpness=1,
+            expected_revision=0,
+            _csrf=None,
+            current_user=current_user,  # type: ignore[arg-type]
+            session=session,
+        )
+
+    assert library_repository.create_ai.await_args.kwargs["model"] == (
+        "gemini-3-pro-image"
+    )
+    assert audit_repository.record.await_args.kwargs["metadata"]["model"] == (
+        "gemini-3-pro-image"
+    )
 
 
 @pytest.mark.asyncio

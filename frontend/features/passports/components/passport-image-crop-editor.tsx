@@ -32,8 +32,13 @@ import {
   type VisaAiLibraryImage,
 } from "../api/passports.api";
 import {
+  fineRotationOffset,
+  MAX_FINE_ROTATION,
+  MIN_FINE_ROTATION,
   normalizeCrop,
+  normalizeRotationDegrees,
   resizeCrop,
+  rotatedImageBounds,
   rotateCropClockwise,
   type CropDragMode,
 } from "../utils/passport-image-crop-geometry";
@@ -76,6 +81,8 @@ export function PassportImageCropEditor({
   const isVisaPhoto = imageType === "visa_photo";
   const [metadata, setMetadata] = useState<PassportImageCropState | null>(null);
   const [cropRect, setCropRect] = useState<PassportImageCropRect>(FULL_IMAGE_CROP);
+  const [fineRotation, setFineRotation] = useState(0);
+  const [isFineRotating, setIsFineRotating] = useState(false);
   const [sharpness, setSharpness] = useState(1);
   const [sourceObjectUrl, setSourceObjectUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
@@ -96,6 +103,8 @@ export function PassportImageCropEditor({
   const [usingImageId, setUsingImageId] = useState<string | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const workingImageRef = useRef<HTMLImageElement | null>(null);
+  const rotationBaseRef = useRef(0);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const aiRequestRef = useRef<AbortController | null>(null);
@@ -121,8 +130,14 @@ export function PassportImageCropEditor({
         );
         if (controller.signal.aborted) return;
         objectUrl = URL.createObjectURL(blob);
+        const normalizedCrop = normalizeCrop(state.crop ?? FULL_IMAGE_CROP);
+        const initialFineRotation = fineRotationOffset(normalizedCrop.rotation_degrees);
+        rotationBaseRef.current = normalizeRotationDegrees(
+          normalizedCrop.rotation_degrees - initialFineRotation,
+        );
         setMetadata(state);
-        setCropRect(normalizeCrop(state.crop ?? FULL_IMAGE_CROP));
+        setCropRect(normalizedCrop);
+        setFineRotation(initialFineRotation);
         setSharpness(clampSharpness(state.sharpness));
         setSourceObjectUrl(objectUrl);
       })
@@ -210,13 +225,20 @@ export function PassportImageCropEditor({
   useEffect(() => {
     if (!workingObjectUrl) return;
     const image = new window.Image();
-    image.onload = () => setImageSize({
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-    });
+    workingImageRef.current = null;
+    const canvas = canvasRef.current;
+    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    image.onload = () => {
+      workingImageRef.current = image;
+      setImageSize({
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      });
+    };
     image.onerror = () => setError("The image could not be displayed.");
     image.src = workingObjectUrl;
     return () => {
+      if (workingImageRef.current === image) workingImageRef.current = null;
       image.onload = null;
       image.onerror = null;
     };
@@ -224,22 +246,26 @@ export function PassportImageCropEditor({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !workingObjectUrl || imageSize.width === 0) return;
-    const image = new window.Image();
-    const timer = window.setTimeout(() => {
-      image.onload = () => drawEditedImage(
+    const image = workingImageRef.current;
+    if (!canvas || !image || !workingObjectUrl || imageSize.width === 0) return;
+    const animationFrame = window.requestAnimationFrame(() => {
+      drawEditedImage(
         canvas,
         image,
         cropRect.rotation_degrees,
-        sharpness,
+        isFineRotating ? 1 : sharpness,
+        isFineRotating,
       );
-      image.src = workingObjectUrl;
-    }, 60);
-    return () => {
-      window.clearTimeout(timer);
-      image.onload = null;
-    };
-  }, [activePanel, cropRect.rotation_degrees, imageSize.width, sharpness, workingObjectUrl]);
+    });
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [
+    activePanel,
+    cropRect.rotation_degrees,
+    imageSize.width,
+    isFineRotating,
+    sharpness,
+    workingObjectUrl,
+  ]);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -328,6 +354,25 @@ export function PassportImageCropEditor({
     if (!delta) return;
     event.preventDefault();
     setCropRect((current) => resizeCrop(current, mode, delta.x, delta.y));
+  };
+
+  const updateFineRotation = (value: number) => {
+    const nextFineRotation = Math.min(
+      MAX_FINE_ROTATION,
+      Math.max(MIN_FINE_ROTATION, Math.round(value)),
+    );
+    setFineRotation(nextFineRotation);
+    setCropRect((current) => normalizeCrop({
+      ...current,
+      rotation_degrees: normalizeRotationDegrees(
+        rotationBaseRef.current + nextFineRotation,
+      ),
+    }));
+  };
+
+  const rotateClockwise = () => {
+    rotationBaseRef.current = normalizeRotationDegrees(rotationBaseRef.current + 90);
+    setCropRect((current) => rotateCropClockwise(current));
   };
 
   const updatePrompt = (value: string) => {
@@ -627,11 +672,19 @@ export function PassportImageCropEditor({
                   </div>
                 </div>
               </div>
-              <SharpnessControl
-                value={sharpness}
-                disabled={busy}
-                onChange={setSharpness}
-              />
+              <div className="mx-auto grid w-full max-w-2xl gap-3">
+                <FineRotationControl
+                  value={fineRotation}
+                  disabled={busy}
+                  onChange={updateFineRotation}
+                  onInteractionChange={setIsFineRotating}
+                />
+                <SharpnessControl
+                  value={sharpness}
+                  disabled={busy}
+                  onChange={setSharpness}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -652,7 +705,7 @@ export function PassportImageCropEditor({
           ) : (
             <>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={() => setCropRect((current) => rotateCropClockwise(current))}>
+            <Button type="button" variant="outline" className="gap-2" disabled={busy || !metadata} onClick={rotateClockwise}>
               <RotateCw className="h-4 w-4" /> Rotate 90 degrees
             </Button>
             <Button type="button" variant="secondary" disabled={busy || !metadata || !canReset} onClick={() => void reset()}>
@@ -978,6 +1031,75 @@ function ImageComparisonCard({
   );
 }
 
+function FineRotationControl({
+  value,
+  disabled,
+  onChange,
+  onInteractionChange,
+}: {
+  value: number;
+  disabled: boolean;
+  onChange: (value: number) => void;
+  onInteractionChange: (isInteracting: boolean) => void;
+}) {
+  const formattedValue = `${value > 0 ? "+" : ""}${value}°`;
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <label
+            htmlFor="passport-image-fine-rotation"
+            className="flex items-center gap-2 text-sm font-semibold text-slate-800"
+          >
+            <RotateCw className="h-4 w-4 text-blue-600" /> Fine rotation
+          </label>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Drag to straighten the image one degree at a time.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <output
+            htmlFor="passport-image-fine-rotation"
+            className="min-w-12 text-right text-sm font-semibold tabular-nums text-blue-700"
+            aria-live="polite"
+          >
+            {formattedValue}
+          </output>
+          <button
+            type="button"
+            disabled={disabled || value === 0}
+            onClick={() => onChange(0)}
+            className="rounded-md px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+      <input
+        id="passport-image-fine-rotation"
+        type="range"
+        min={MIN_FINE_ROTATION}
+        max={MAX_FINE_ROTATION}
+        step="1"
+        value={value}
+        disabled={disabled}
+        onPointerDown={() => onInteractionChange(true)}
+        onPointerUp={() => onInteractionChange(false)}
+        onPointerCancel={() => onInteractionChange(false)}
+        onLostPointerCapture={() => onInteractionChange(false)}
+        onBlur={() => onInteractionChange(false)}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="mt-3 w-full touch-none accent-blue-600"
+      />
+      <div className="mt-1 flex justify-between text-[11px] tabular-nums text-slate-400">
+        <span>{MIN_FINE_ROTATION}°</span>
+        <span>0°</span>
+        <span>+{MAX_FINE_ROTATION}°</span>
+      </div>
+    </div>
+  );
+}
+
 function SharpnessControl({
   value,
   disabled,
@@ -1034,18 +1156,26 @@ function drawEditedImage(
   image: HTMLImageElement,
   rotation: PassportImageCropRect["rotation_degrees"],
   sharpness: number,
+  isInteractive: boolean,
 ) {
-  const swapsAxes = rotation === 90 || rotation === 270;
   const sourceWidth = image.naturalWidth;
   const sourceHeight = image.naturalHeight;
-  const rotatedWidth = swapsAxes ? sourceHeight : sourceWidth;
-  const rotatedHeight = swapsAxes ? sourceWidth : sourceHeight;
-  const scale = Math.min(1, 1200 / Math.max(rotatedWidth, rotatedHeight));
+  const rotatedBounds = rotatedImageBounds(sourceWidth, sourceHeight, rotation);
+  const maxPreviewDimension = isInteractive ? 800 : 1200;
+  const scale = Math.min(
+    1,
+    maxPreviewDimension / Math.max(rotatedBounds.width, rotatedBounds.height),
+  );
+  const rotatedWidth = rotatedBounds.width;
+  const rotatedHeight = rotatedBounds.height;
   canvas.width = Math.max(1, Math.round(rotatedWidth * scale));
   canvas.height = Math.max(1, Math.round(rotatedHeight * scale));
   const context = canvas.getContext("2d", { willReadFrequently: sharpness > 1.001 });
   if (!context) return;
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = isInteractive ? "medium" : "high";
   context.save();
   context.translate(canvas.width / 2, canvas.height / 2);
   context.rotate((rotation * Math.PI) / 180);

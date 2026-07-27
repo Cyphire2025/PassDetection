@@ -1,4 +1,4 @@
-export type PassportCropRotation = 0 | 90 | 180 | 270;
+export type PassportCropRotation = number;
 
 export interface PassportCropGeometry {
   x: number;
@@ -25,10 +25,19 @@ export function rotatedPassportImageSize(
   height: number,
   rotation: PassportCropRotation,
 ): PassportImageSize {
-  const swapsAxes = rotation === 90 || rotation === 270;
+  const normalizedRotation = normalizeRotationDegrees(rotation);
+  if (normalizedRotation === 90 || normalizedRotation === 270) {
+    return { width: height, height: width };
+  }
+  if (normalizedRotation === 0 || normalizedRotation === 180) {
+    return { width, height };
+  }
+  const radians = (normalizedRotation * Math.PI) / 180;
+  const cosine = Math.abs(Math.cos(radians));
+  const sine = Math.abs(Math.sin(radians));
   return {
-    width: swapsAxes ? height : width,
-    height: swapsAxes ? width : height,
+    width: Math.max(1, Math.ceil((width * cosine) + (height * sine))),
+    height: Math.max(1, Math.ceil((width * sine) + (height * cosine))),
   };
 }
 
@@ -83,4 +92,9 @@ export function passportCropOutputSize(
 export function croppedPassportFileName(fileName: string): string {
   const baseName = fileName.replace(/\.[^./\\]+$/, "").trim() || "passport";
   return `${baseName}-cropped.jpg`;
+}
+
+function normalizeRotationDegrees(rotation: number): number {
+  if (!Number.isFinite(rotation)) return 0;
+  return ((Math.round(rotation) % 360) + 360) % 360;
 }
