@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 import uuid
 from datetime import UTC, datetime
 
@@ -43,7 +44,10 @@ async def list_managed_accounts(
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagedAccountResponse]:
-    filters = [UserModel.role.in_(LISTED_ACCOUNT_ROLES)]
+    filters = [
+        UserModel.role.in_(LISTED_ACCOUNT_ROLES),
+        UserModel.deleted_at.is_(None),
+    ]
     if current_user.role == UserRole.AGENCY_ADMIN:
         filters.extend(
             [
@@ -72,7 +76,10 @@ async def list_staff_accounts(
     current_user: User = Depends(require_role(STAFF_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[ManagedAccountResponse]:
-    filters = [UserModel.role == UserRole.AGENCY_STAFF.value]
+    filters = [
+        UserModel.role == UserRole.AGENCY_STAFF.value,
+        UserModel.deleted_at.is_(None),
+    ]
     if current_user.role != UserRole.SUPER_ADMIN:
         filters.append(UserModel.agency_id == current_user.agency_id)
     result = await session.execute(
@@ -243,9 +250,13 @@ async def delete_managed_account(
         metadata={"preserved_history": preserves_history},
     )
     if preserves_history:
+        now = datetime.now(tz=UTC)
         account.is_active = False
-        account.updated_at = datetime.now(tz=UTC)
-        result = "access_removed"
+        account.email = f"deleted-{account.id}@deleted.invalid"
+        account.hashed_password = hash_password(secrets.token_urlsafe(48))
+        account.deleted_at = now
+        account.updated_at = now
+        result = "deleted"
     else:
         await session.delete(account)
         result = "deleted"
@@ -265,7 +276,11 @@ async def _get_manageable_account(
     result = await session.execute(
         select(UserModel, AgencyModel.name.label("agency_name"))
         .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
-        .where(UserModel.id == account_id, UserModel.role.in_(MANAGED_ROLES))
+        .where(
+            UserModel.id == account_id,
+            UserModel.role.in_(MANAGED_ROLES),
+            UserModel.deleted_at.is_(None),
+        )
         .with_for_update(of=UserModel)
     )
     row = result.first()

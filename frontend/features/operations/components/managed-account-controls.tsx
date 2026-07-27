@@ -149,7 +149,7 @@ export function ManagedAccountControls({
                     setShowActions(false);
                     if (onDelete) {
                       onDelete();
-                    } else if (window.confirm(`Remove ${accountName}'s account? Related operational history will be preserved where required.`)) {
+                    } else if (window.confirm(`Permanently remove ${accountName}'s login account? The coordinator will be removed from this list. Required operational history will remain.`)) {
                       setActionError(null);
                       void actions.deleteAccount.mutateAsync(accountId).catch((deleteError: unknown) => {
                         setActionError(getAccountActionError(deleteError));

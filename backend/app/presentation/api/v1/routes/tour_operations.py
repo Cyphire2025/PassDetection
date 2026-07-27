@@ -317,6 +317,7 @@ async def list_coordinators(
     agency_id = _agency_scope(current_user)
     filters = [
         UserModel.role == UserRole.AGENCY_COORDINATOR.value,
+        UserModel.deleted_at.is_(None),
     ]
     if agency_id is not None:
         filters.append(UserModel.agency_id == agency_id)

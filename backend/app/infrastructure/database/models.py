@@ -96,6 +96,7 @@ class UserModel(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     agency: Mapped[AgencyModel | None] = relationship("AgencyModel", back_populates="users")
     refresh_tokens: Mapped[list[RefreshTokenModel]] = relationship(
