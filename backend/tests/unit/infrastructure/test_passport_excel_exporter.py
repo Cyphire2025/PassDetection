@@ -34,6 +34,7 @@ def _submission(
     group_id: uuid.UUID,
     *,
     client_name: str = "Traveller",
+    client_phone: str = "9876543210",
     fields: dict[str, str] | None = None,
 ) -> PassportSubmission:
     submission = PassportSubmission.create(
@@ -48,7 +49,7 @@ def _submission(
     submission.submit_client_review(
         review_fields,
         client_email="traveller@example.com",
-        client_phone="9876543210",
+        client_phone=client_phone,
         departure_city="Delhi",
         nearest_domestic_airport="Indira Gandhi International Airport",
     )
@@ -705,6 +706,106 @@ def test_dynamic_export_can_omit_zone_and_group_by_another_saved_field() -> None
     assert worksheet.cell(row=8, column=headers.index("GIVEN NAME") + 1).value == "BETA"
 
 
+@pytest.mark.parametrize(
+    ("whatsapp_phone", "expected"),
+    (
+        ("+919876543210", "9876543210"),
+        ("'+919876543210", "9876543210"),
+        ("+91 9876543210", "9876543210"),
+        ("+91-9876543210", "9876543210"),
+        ("'+91 9876543210", "9876543210"),
+        ("'+91-9876543210", "9876543210"),
+        ("+12025550123", "'+12025550123"),
+        ("919876543210", "919876543210"),
+    ),
+)
+def test_export_removes_only_explicit_india_code_from_whatsapp_phone(
+    whatsapp_phone: str,
+    expected: str,
+) -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        client_phone="+919111111111",
+    )
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Phone Normalization",
+            group_details={
+                group_id: {
+                    "name": "Phone Normalization",
+                    **_OPTION_FLAGS,
+                }
+            },
+            whatsapp_contacts={
+                submission.id: {
+                    "email": "broadcast@example.com",
+                    "phone": whatsapp_phone,
+                }
+            },
+        )
+    )
+    _, values = _row_values(worksheet)
+
+    assert values["WhatsApp Phone"] == expected
+    assert values["Upload Phone"] == "'+919111111111"
+
+
+@pytest.mark.parametrize(
+    "pending_phone",
+    (
+        "+919222222222",
+        "'+919222222222",
+        "+91 9222222222",
+        "'+91-9222222222",
+    ),
+)
+def test_pending_whatsapp_phone_uses_the_same_india_code_normalization(
+    pending_phone: str,
+) -> None:
+    group_id = uuid.uuid4()
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [_submission(group_id)],
+            group_name="Pending Phone Normalization",
+            group_details={
+                group_id: {
+                    "name": "Pending Phone Normalization",
+                    **_OPTION_FLAGS,
+                }
+            },
+            pending_rows=[
+                {
+                    "GIVEN NAME": "Pending Traveller",
+                    "WhatsApp Phone": pending_phone,
+                    "Upload Phone": "+919333333333",
+                }
+            ],
+        )
+    )
+    headers = [cell.value for cell in worksheet[4]]
+    pending_row = next(
+        row
+        for row in range(5, worksheet.max_row + 1)
+        if worksheet.cell(
+            row=row,
+            column=headers.index("GIVEN NAME") + 1,
+        ).value
+        == "Pending Traveller"
+    )
+
+    assert worksheet.cell(
+        row=pending_row,
+        column=headers.index("WhatsApp Phone") + 1,
+    ).value == "9222222222"
+    assert worksheet.cell(
+        row=pending_row,
+        column=headers.index("Upload Phone") + 1,
+    ).value == "'+919333333333"
+
+
 def test_export_uses_the_requested_exact_column_order() -> None:
     group_id = uuid.uuid4()
     question_id = uuid.uuid4()
@@ -832,7 +933,7 @@ def test_export_uses_the_requested_exact_column_order() -> None:
     ]
     assert values["Age Group"] == "Adult"
     assert values["WhatsApp Email"] == "broadcast@example.com"
-    assert values["WhatsApp Phone"] == "'+919000000001"
+    assert values["WhatsApp Phone"] == "9000000001"
     assert values["Upload Email"] == "traveller@example.com"
     assert values["Upload Phone"] == "9876543210"
     assert values["Activity"] == "Workshop"

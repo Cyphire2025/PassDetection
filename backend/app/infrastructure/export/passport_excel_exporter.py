@@ -106,6 +106,18 @@ def _safe_xlsx_value(value: Any) -> Any:
     return value
 
 
+def _whatsapp_phone_value(value: Any) -> Any:
+    """Remove only an explicit leading India code from WhatsApp export values."""
+
+    if not isinstance(value, str):
+        return value
+    if value.startswith("'+91"):
+        return value[4:].lstrip(" -")
+    if value.startswith("+91"):
+        return value[3:].lstrip(" -")
+    return value
+
+
 def _uppercase(value: Any) -> str | None:
     if value in (None, ""):
         return None
@@ -128,6 +140,14 @@ def _excel_date_value(value: Any) -> Any:
         return date.fromisoformat(normalized)
     except ValueError:
         return value
+
+
+def _export_cell_value(column: _ExportColumn, value: Any) -> Any:
+    if column.number_format:
+        value = _excel_date_value(value)
+    if column.header == "WhatsApp Phone":
+        value = _whatsapp_phone_value(value)
+    return _safe_xlsx_value(value)
 
 
 def _gender_display_value(value: Any) -> str | None:
@@ -335,9 +355,7 @@ class PassportExcelExporter:
             row_values = []
             for column in columns:
                 value = values[column.header]
-                if column.number_format:
-                    value = _excel_date_value(value)
-                row_values.append(_safe_xlsx_value(value))
+                row_values.append(_export_cell_value(column, value))
             worksheet.append(row_values)
             row_index = worksheet.max_row
             for column_index, column in enumerate(columns, start=1):
@@ -431,9 +449,7 @@ class PassportExcelExporter:
             row_values: list[Any] = []
             for column in columns:
                 value = values.get(column.header)
-                if column.number_format:
-                    value = _excel_date_value(value)
-                row_values.append(_safe_xlsx_value(value))
+                row_values.append(_export_cell_value(column, value))
             worksheet.append(row_values)
             row_index = worksheet.max_row
             for column_index, column in enumerate(columns, start=1):

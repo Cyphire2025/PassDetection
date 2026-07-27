@@ -175,6 +175,56 @@ test("fine rotation supports each degree with a frame-budgeted cached preview", 
   assert.match(api, /rotation_degrees: number;/);
 });
 
+test("Adjust keeps a full-size preview inside a vertically scrollable modal body", () => {
+  assert.match(
+    editor,
+    /className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-slate-100 p-3 sm:p-5"/,
+  );
+  assert.match(editor, /<header className="flex shrink-0/);
+  assert.match(editor, /<footer className="flex shrink-0/);
+  assert.match(
+    editor,
+    /id="passport-image-adjust-panel"[\s\S]*?className="flex flex-col gap-4"/,
+  );
+  assert.match(
+    editor,
+    /className="flex w-full items-start justify-center overflow-x-auto pb-1"/,
+  );
+  assert.match(editor, /className="block max-w-full"/);
+  assert.doesNotMatch(editor, /className="block max-h-\[[^\]]+\] max-w-full"/);
+  assert.doesNotMatch(
+    editor,
+    /id="passport-image-adjust-panel"[\s\S]*?className="flex min-h-0 flex-1 flex-col gap-4"/,
+  );
+});
+
+test("Adjust controls form two responsive columns below the preview", () => {
+  assert.match(
+    editor,
+    /className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2"[\s\S]*?<FineRotationControl[\s\S]*?<SharpnessControl/,
+  );
+  assert.match(
+    editor,
+    /function FineRotationControl[\s\S]*?className="h-full rounded-xl/,
+  );
+  assert.match(
+    editor,
+    /function SharpnessControl[\s\S]*?className="h-full w-full rounded-xl/,
+  );
+});
+
+test("crop resize handles are black with high-contrast borders and shadows", () => {
+  const handleClass = editor.match(
+    /aria-label={`Resize crop from \$\{cornerLabel\(corner\)\} corner`}[\s\S]*?className={`([^`]+)`}/,
+  )?.[1];
+  assert.ok(handleClass);
+  assert.match(handleClass, /border-2 border-white/);
+  assert.match(handleClass, /bg-black/);
+  assert.match(handleClass, /shadow-\[/);
+  assert.match(handleClass, /focus-visible:ring-2/);
+  assert.doesNotMatch(handleClass, /bg-white/);
+});
+
 test("crop API supports metadata, optimistic save, and reset", () => {
   assert.match(endpoints, /images\/\$\{imageType\}\/crop/);
   assert.match(api, /source_width: number \| null;/);

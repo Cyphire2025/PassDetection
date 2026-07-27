@@ -534,7 +534,7 @@ export function PassportImageCropEditor({
       aria-labelledby="passport-edit-title"
     >
       <div ref={dialogRef} className="flex max-h-[96vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <header className="flex items-start justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
           <div>
             <h2 id="passport-edit-title" className="flex items-center gap-2 font-semibold text-slate-950">
               <Pencil className="h-4 w-4 text-blue-600" aria-hidden="true" />
@@ -557,7 +557,7 @@ export function PassportImageCropEditor({
         </header>
 
         <div
-          className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-white px-4 py-2 sm:px-6"
+          className="flex shrink-0 gap-2 overflow-x-auto border-b border-slate-200 bg-white px-4 py-2 sm:px-6"
           role="tablist"
           aria-label={`${label} image editing tools`}
         >
@@ -595,7 +595,7 @@ export function PassportImageCropEditor({
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-slate-100 p-3 sm:p-5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain bg-slate-100 p-3 sm:p-5">
           {error && (
             <div role="alert" className="mb-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
@@ -634,14 +634,14 @@ export function PassportImageCropEditor({
             <div
               id="passport-image-adjust-panel"
               role="tabpanel"
-              className="flex min-h-0 flex-1 flex-col gap-4"
+              className="flex flex-col gap-4"
             >
-              <div className="flex flex-1 items-center justify-center overflow-auto">
+              <div className="flex w-full items-start justify-center overflow-x-auto pb-1">
                 <div ref={stageRef} className="relative inline-block max-w-full select-none overflow-hidden bg-black shadow-xl">
                   <canvas
                     ref={canvasRef}
                     aria-label={`Editable ${label}`}
-                    className="block max-h-[54vh] max-w-full"
+                    className="block max-w-full"
                   />
                   <CropShade crop={cropRect} />
                   <div
@@ -661,7 +661,7 @@ export function PassportImageCropEditor({
                         key={corner}
                         type="button"
                         aria-label={`Resize crop from ${cornerLabel(corner)} corner`}
-                        className={`absolute h-7 w-7 touch-none rounded-full border-2 border-slate-800 bg-white shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${cornerClassName(corner)}`}
+                        className={`absolute h-7 w-7 touch-none rounded-full border-2 border-white bg-black shadow-[0_0_0_2px_rgba(15,23,42,0.9),0_2px_8px_rgba(15,23,42,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${cornerClassName(corner)}`}
                         onPointerDown={(event) => beginPointerDrag(event, corner)}
                         onPointerMove={movePointerDrag}
                         onPointerUp={endPointerDrag}
@@ -672,7 +672,7 @@ export function PassportImageCropEditor({
                   </div>
                 </div>
               </div>
-              <div className="mx-auto grid w-full max-w-2xl gap-3">
+              <div className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2">
                 <FineRotationControl
                   value={fineRotation}
                   disabled={busy}
@@ -689,7 +689,7 @@ export function PassportImageCropEditor({
           )}
         </div>
 
-        <footer className="flex flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
+        <footer className="flex shrink-0 flex-col gap-3 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4">
           {activePanel === "library" ? (
             <>
               <p className="text-xs text-slate-500">
@@ -1044,7 +1044,7 @@ function FineRotationControl({
 }) {
   const formattedValue = `${value > 0 ? "+" : ""}${value}°`;
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+    <div className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <div>
           <label
@@ -1110,7 +1110,7 @@ function SharpnessControl({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-2xl rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+    <div className="h-full w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <label htmlFor="passport-image-sharpness" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
           <SlidersHorizontal className="h-4 w-4 text-blue-600" /> Sharpness
