@@ -1,10 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const APP_NAME = "Global Connect Travels Email Automation";
+const APP_URL = "https://tech.gctravels.com/email-automation";
+const APP_DESCRIPTION =
+  "Global Connect Travels Email Automation helps authorized travel staff securely review travel-related Gmail messages and attachments and organize them with traveller records.";
+
 export const metadata: Metadata = {
-  title: "Global Connect Travels Email Automation",
-  description:
-    "Public information about the Global Connect Travels Email Automation application.",
+  applicationName: APP_NAME,
+  title: { absolute: APP_NAME },
+  description: APP_DESCRIPTION,
+  alternates: { canonical: APP_URL },
+  manifest: "/email-automation.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  openGraph: {
+    type: "website",
+    url: APP_URL,
+    siteName: APP_NAME,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
   robots: { index: true, follow: true },
 };
 
@@ -21,6 +40,10 @@ export default function EmailAutomationPage() {
         <p className="mt-4 text-lg leading-8 text-slate-700">
           A secure internal travel-operations tool that helps authorized staff
           process travel documents received through connected Gmail inboxes.
+        </p>
+        <p className="mt-3 text-slate-700">
+          This public application-information page is available without signing
+          in.
         </p>
       </div>
 
@@ -77,12 +100,15 @@ export default function EmailAutomationPage() {
           Review our{" "}
           <Link
             className="text-blue-700 underline"
-            href={"/privacy-policy" as never}
+            href="https://tech.gctravels.com/privacy-policy"
           >
             Privacy Policy
           </Link>{" "}
           and{" "}
-          <Link className="text-blue-700 underline" href={"/terms" as never}>
+          <Link
+            className="text-blue-700 underline"
+            href="https://tech.gctravels.com/terms"
+          >
             Terms of Service
           </Link>
           .

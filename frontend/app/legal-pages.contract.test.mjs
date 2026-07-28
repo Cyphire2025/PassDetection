@@ -21,12 +21,22 @@ test("legal pages remain public and link to each other", () => {
 });
 
 test("OAuth homepage uses the exact app name and explains its Gmail purpose", () => {
-  assert.match(home, /Global Connect Travels Email Automation/);
+  assert.match(
+    home,
+    /const APP_NAME = "Global Connect Travels Email Automation"/,
+  );
+  assert.match(home, /title: \{ absolute: APP_NAME \}/);
+  assert.match(home, /applicationName: APP_NAME/);
+  assert.match(home, /canonical: APP_URL/);
+  assert.match(home, /manifest: "\/email-automation\.webmanifest"/);
   assert.match(home, /identifies travel-related messages/);
   assert.match(home, /read-only Gmail access/);
   assert.match(home, /does not send, edit, or delete/);
-  assert.match(home, /"\/privacy-policy"/);
-  assert.match(home, /"\/terms"/);
+  assert.match(home, /https:\/\/tech\.gctravels\.com\/privacy-policy/);
+  assert.match(home, /https:\/\/tech\.gctravels\.com\/terms/);
+  assert.match(home, /available without signing/);
+  assert.doesNotMatch(layout, /href="\/"/);
+  assert.match(layout, /href=\{"\/email-automation" as never\}/);
 });
 
 test("privacy policy discloses Gmail access and data controls", () => {

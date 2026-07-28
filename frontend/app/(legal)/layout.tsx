@@ -7,7 +7,10 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-white text-slate-900">
       <header className="border-b border-slate-200">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
-          <Link href="/" aria-label="Global Connect Travels home">
+          <Link
+            href={"/email-automation" as never}
+            aria-label="Global Connect Travels Email Automation home"
+          >
             <Image
               src="/globalconnect-logo.png"
               alt="Global Connect Travels"
