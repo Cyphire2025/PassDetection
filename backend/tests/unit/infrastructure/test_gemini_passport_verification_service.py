@@ -123,16 +123,31 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         assert isinstance(body, dict)
         config = body["generationConfig"]
         self.assertEqual(config["responseMimeType"], "application/json")
-        self.assertEqual(config["thinkingConfig"], {"thinkingLevel": "minimal"})
+        self.assertEqual(config["thinkingConfig"], {"thinkingLevel": "medium"})
         self.assertLessEqual(config["maxOutputTokens"], 512)
         field_schema = config["responseSchema"]["properties"]["f"]
         self.assertEqual(field_schema["minItems"], len(_ALL_FIELD_CODES))
         self.assertEqual(field_schema["maxItems"], len(_ALL_FIELD_CODES))
+        self.assertIn("read independently from the image", field_schema["description"])
+        self.assertIn(
+            "Use fill when the existing value is empty",
+            field_schema["items"]["properties"]["a"]["description"],
+        )
         parts = body["contents"][0]["parts"]
-        compact_input = json.loads(parts[0]["text"])
-        self.assertEqual(compact_input["f"]["sn"], "KHANNA")
-        self.assertIn("pi", compact_input["f"])
-        self.assertEqual(parts[1]["inlineData"]["data"], "aW1hZ2UtYnl0ZXM=")
+        self.assertEqual(parts[0]["inlineData"]["data"], "aW1hZ2UtYnl0ZXM=")
+        compact_input = json.loads(parts[1]["text"])
+        self.assertEqual(
+            compact_input["task"],
+            "extract_all_visible_passport_fields_from_image",
+        )
+        self.assertEqual(compact_input["existing_fields"]["sn"], "KHANNA")
+        self.assertIn("pi", compact_input["existing_fields"])
+        system_instruction = body["systemInstruction"]["parts"][0]["text"]
+        self.assertIn("image is the authoritative extraction source", system_instruction)
+        self.assertIn(
+            "even when every existing-field JSON value is empty",
+            system_instruction,
+        )
 
     async def test_transient_primary_failure_uses_fallback_and_exact_payload(
         self,
@@ -170,7 +185,7 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(client.payload_ids), 2)
         self.assertEqual(len(set(client.payload_ids)), 1)
 
-    async def test_gemini_36_uses_medium_then_older_fallback_uses_minimal(self) -> None:
+    async def test_passport_extraction_uses_medium_thinking_for_both_models(self) -> None:
         requests: list[tuple[str, str]] = []
 
         async def handler(request: httpx.Request) -> httpx.Response:
@@ -198,10 +213,44 @@ class GeminiPassportVerificationServiceTests(unittest.IsolatedAsyncioTestCase):
             requests,
             [
                 ("gemini-3.6-flash", "medium"),
-                ("gemini-3.1-flash-lite", "minimal"),
+                ("gemini-3.1-flash-lite", "medium"),
             ],
         )
         self.assertEqual(result.metadata["status"], "enhanced")
+
+    async def test_empty_existing_fields_still_issue_direct_image_extraction_task(
+        self,
+    ) -> None:
+        captured: dict[str, object] = {}
+
+        async def handler(request: httpx.Request) -> httpx.Response:
+            captured["body"] = json.loads(request.content)
+            return _extracted_passport_response()
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            result = await GeminiPassportVerificationService(
+                settings=_settings(),
+                http_client=client,
+            ).verify(
+                b"passport-image",
+                content_type="image/jpeg",
+                extracted_fields={},
+            )
+
+        body = captured["body"]
+        assert isinstance(body, dict)
+        compact_input = json.loads(body["contents"][0]["parts"][1]["text"])
+        self.assertEqual(
+            compact_input["task"],
+            "extract_all_visible_passport_fields_from_image",
+        )
+        self.assertTrue(
+            all(
+                value == ""
+                for value in compact_input["existing_fields"].values()
+            )
+        )
+        self.assertEqual(result.merged_fields["passport_number"], "W7114767")
 
     async def test_network_failure_uses_fallback_model(self) -> None:
         endpoints: list[str] = []
