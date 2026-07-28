@@ -87,6 +87,12 @@ _TRAVELLER_COLUMNS = (
     _ExportColumn("Upload Phone", 18),
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
+_NAME_HISTORY_COLUMNS = (
+    _ExportColumn("Old Surname", 20),
+    _ExportColumn("Old Given Name", 24),
+    _ExportColumn("New Surname", 20),
+    _ExportColumn("New Given Name", 24),
+)
 
 _FORMULA_PREFIXES = ("=", "+", "-", "@")
 _PENDING_ROW_FILL = PatternFill("solid", fgColor="FFF2CC")
@@ -217,7 +223,14 @@ def passport_age_group(date_of_birth: Any, departure_date: Any) -> str | None:
 
 
 class PassportExcelExporter:
-    HEADERS = [column.header for column in _COLUMNS]
+    HEADERS = list(
+        dict.fromkeys(
+            [
+                *(column.header for column in _COLUMNS),
+                *(column.header for column in _NAME_HISTORY_COLUMNS),
+            ]
+        )
+    )
 
     def export_group(
         self,
@@ -229,6 +242,11 @@ class PassportExcelExporter:
         additional_fields: list[dict[str, str]] | None = None,
         additional_values: dict[uuid.UUID, dict[str, str | None]] | None = None,
         whatsapp_contacts: dict[
+            uuid.UUID,
+            dict[str, str | None],
+        ]
+        | None = None,
+        previous_names: dict[
             uuid.UUID,
             dict[str, str | None],
         ]
@@ -245,11 +263,16 @@ class PassportExcelExporter:
             )
             and field.get("label")
         ]
+        traveller_columns = self._enabled_traveller_columns(
+            group_details,
+            include_name_history=previous_names is not None,
+        )
         custom_fields = self._custom_fields(
             submissions,
             group_details,
             reserved_labels={
-                *(column.header.casefold() for column in _COLUMNS),
+                *(column.header.casefold() for column in _PREFIX_COLUMNS),
+                *(column.header.casefold() for column in traveller_columns),
                 *(str(field["label"]).casefold() for field in imported_fields),
             },
         )
@@ -269,7 +292,7 @@ class PassportExcelExporter:
                 _ExportColumn(str(field["label"]), 22)
                 for field in imported_fields
             ),
-            *self._enabled_traveller_columns(group_details),
+            *traveller_columns,
             *(
                 _ExportColumn(str(field["label"]), 22)
                 for field in custom_question_fields
@@ -328,6 +351,7 @@ class PassportExcelExporter:
                         dynamic_fields=dynamic_fields,
                         additional_values=additional_values,
                         whatsapp_contacts=whatsapp_contacts,
+                        previous_names=previous_names,
                     ),
                 )
             )
@@ -498,8 +522,12 @@ class PassportExcelExporter:
         group_value = cls._group_value(values, group_by_header)
         client_name = " ".join(
             str(
-                values.get("GIVEN NAME")
+                values.get("New Given Name")
+                or values.get("GIVEN NAME")
+                or values.get("Old Given Name")
+                or values.get("New Surname")
                 or values.get("SURNAME")
+                or values.get("Old Surname")
                 or ""
             ).strip().split()
         )
@@ -518,9 +546,10 @@ class PassportExcelExporter:
         submission: PassportSubmission,
         zone_names: dict[uuid.UUID, str] | None,
     ) -> str:
-        matched_zone = (zone_names or {}).get(submission.id)
-        fallback_zone = (submission.staff_metadata or {}).get("zone_name")
-        value = matched_zone if matched_zone not in (None, "") else fallback_zone
+        if zone_names is not None and submission.id in zone_names:
+            value = zone_names[submission.id]
+        else:
+            value = (submission.staff_metadata or {}).get("zone_name")
         return " ".join(str(value or "").strip().split())
 
     @classmethod
@@ -554,10 +583,16 @@ class PassportExcelExporter:
             dict[str, str | None],
         ]
         | None,
+        previous_names: dict[
+            uuid.UUID,
+            dict[str, str | None],
+        ]
+        | None,
     ) -> dict[str, Any]:
         fields = submission.confirmed_fields or submission.extracted_fields or {}
         staff_metadata = submission.staff_metadata or {}
         whatsapp_contact = (whatsapp_contacts or {}).get(submission.id, {})
+        previous_name = (previous_names or {}).get(submission.id, {})
         values: dict[str, Any] = {
             "Group": details.get("name") or group_name,
             "Destination": details.get("destination"),
@@ -598,6 +633,10 @@ class PassportExcelExporter:
             "International Airport": submission.departure_city,
             "SURNAME": _uppercase(fields.get("surname")),
             "GIVEN NAME": _uppercase(fields.get("given_names")),
+            "Old Surname": _uppercase(previous_name.get("surname")),
+            "Old Given Name": _uppercase(previous_name.get("given_names")),
+            "New Surname": _uppercase(fields.get("surname")),
+            "New Given Name": _uppercase(fields.get("given_names")),
             "GENDER": _gender_display_value(fields.get("sex")),
             "Passport Number": fields.get("passport_number"),
             "DOB": fields.get("date_of_birth"),
@@ -635,28 +674,41 @@ class PassportExcelExporter:
     @staticmethod
     def _enabled_traveller_columns(
         group_details: dict[uuid.UUID, dict[str, Any]] | None,
+        *,
+        include_name_history: bool = False,
     ) -> list[_ExportColumn]:
         if group_details is None:
-            return list(_TRAVELLER_COLUMNS)
+            enabled_columns = list(_TRAVELLER_COLUMNS)
+        else:
+            # Callers provide details only for groups included in the workbook.
+            # Consider every included group so a pending-only group can still
+            # enable and export its configured optional fields.
+            relevant_details = list(group_details.values())
+            if not relevant_details:
+                enabled_columns = list(_TRAVELLER_COLUMNS)
+            else:
+                enabled_columns = [
+                    column
+                    for column in _TRAVELLER_COLUMNS
+                    if (
+                        column.enabled_flag is None
+                        or any(
+                            bool(details.get(column.enabled_flag, False))
+                            for details in relevant_details
+                        )
+                    )
+                ]
 
-        # Callers provide details only for groups included in the workbook.
-        # Consider every included group so a pending-only group can still
-        # enable and export its configured optional fields.
-        relevant_details = list(group_details.values())
-        if not relevant_details:
-            return list(_TRAVELLER_COLUMNS)
+        if not include_name_history:
+            return enabled_columns
 
-        return [
-            column
-            for column in _TRAVELLER_COLUMNS
-            if (
-                column.enabled_flag is None
-                or any(
-                    bool(details.get(column.enabled_flag, False))
-                    for details in relevant_details
-                )
-            )
-        ]
+        with_name_history: list[_ExportColumn] = []
+        for column in enabled_columns:
+            if column.header == "SURNAME":
+                with_name_history.extend(_NAME_HISTORY_COLUMNS)
+            elif column.header != "GIVEN NAME":
+                with_name_history.append(column)
+        return with_name_history
 
     @staticmethod
     def _custom_fields(

@@ -1185,6 +1185,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             baselineExportId,
             supplementalFields,
             groupByField,
+            agencyMatchField,
           }) => {
             const mutation = exportDialogKind === "passport_images"
               ? exportImagesMutation
@@ -1196,6 +1197,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 baselineExportId,
                 supplementalFields,
                 groupByField,
+                agencyMatchField,
                 requestId: createExportRequestId(),
               },
               {

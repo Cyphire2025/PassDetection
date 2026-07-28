@@ -97,6 +97,33 @@ test("Excel export renders server-provided fixed grouping choices", () => {
   assert.match(dialog, /groupByField: groupByField \|\| "none"/);
 });
 
+test("single-group Excel export supports agency matching and numbered column order", () => {
+  assert.match(
+    api,
+    /agency_match_fields: PassportGroupExportFieldOption\[\]/,
+  );
+  assert.match(
+    api,
+    /exportGroup:[\s\S]*?agency_match_field: agencyMatchField/,
+  );
+  assert.match(
+    fieldChooser,
+    /Match by Agency\/Dealership Name/,
+  );
+  assert.match(
+    fieldChooser,
+    /selectedFields\.indexOf\(field\.key\) \+ 1/,
+  );
+  assert.match(
+    fieldChooser,
+    /90% or higher/,
+  );
+  assert.match(
+    dialog,
+    /agencyMatchField: agencyMatchField \|\| undefined/,
+  );
+});
+
 test("selected groups export opens the combined chooser and sends only all-data options", () => {
   assert.match(
     endpoints,

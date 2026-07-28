@@ -88,8 +88,11 @@ export function useUpdateUploadLink() {
 
   return useMutation({
     mutationFn: ({ id, ...data }: UpdateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-fields", variables.id],
+      });
     },
   });
 }
@@ -123,6 +126,9 @@ export function useUpdateGroupWhatsAppLinks(id: string) {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
       queryClient.invalidateQueries({
         queryKey: ["upload-links", id, "whatsapp-matches"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["passport-export-fields", id],
       });
     },
   });

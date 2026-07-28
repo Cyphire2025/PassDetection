@@ -34,6 +34,7 @@ interface PassportExportDialogProps {
     baselineExportId?: string;
     supplementalFields?: string[];
     groupByField?: string;
+    agencyMatchField?: string;
   }) => void;
 }
 
@@ -60,6 +61,7 @@ export function PassportExportDialog({
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [groupByField, setGroupByField] = useState("");
+  const [agencyMatchField, setAgencyMatchField] = useState("");
   const fieldsInitializedRef = useRef(false);
   const history = usePassportGroupExportHistory(groupId, kind, historyPage);
   const historyDetail = usePassportGroupExportHistoryDetail(
@@ -216,6 +218,11 @@ export function PassportExportDialog({
                 onSelectedFieldsChange={setSelectedFields}
                 groupByField={groupByField}
                 onGroupByFieldChange={setGroupByField}
+                agencyMatch={exportFields.data.agency_match_enabled ? {
+                  fields: exportFields.data.agency_match_fields,
+                  selectedField: agencyMatchField,
+                  onSelectedFieldChange: setAgencyMatchField,
+                } : undefined}
                 heading="Step 2: Choose Excel columns"
               />
             ) : null
@@ -495,6 +502,7 @@ export function PassportExportDialog({
                   ...(!isImages ? {
                     supplementalFields: selectedFields,
                     groupByField: groupByField || "none",
+                    agencyMatchField: agencyMatchField || undefined,
                   } : {}),
                 });
               } catch (downloadError) {

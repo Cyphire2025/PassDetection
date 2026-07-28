@@ -163,6 +163,7 @@ export interface PassportGroupExportRequest {
   requestId?: string;
   supplementalFields?: string[];
   groupByField?: string;
+  agencyMatchField?: string;
 }
 
 export interface PassportGroupExportFieldOption {
@@ -187,6 +188,8 @@ export interface PassportExcelFieldOptions {
 
 export interface PassportGroupExportFieldOptions extends PassportExcelFieldOptions {
   group_id: string;
+  agency_match_enabled: boolean;
+  agency_match_fields: PassportGroupExportFieldOption[];
 }
 
 export interface PassportSelectedGroupsExportFieldOptions extends PassportExcelFieldOptions {
@@ -668,6 +671,7 @@ export const passportsApi = {
     requestId,
     supplementalFields,
     groupByField,
+    agencyMatchField,
   }: PassportGroupExportRequest): Promise<void> => {
     const response = await apiClient.get<Blob>(API_ENDPOINTS.passports.groupExport(groupId), {
       responseType: "blob",
@@ -679,6 +683,7 @@ export const passportsApi = {
           ? undefined
           : supplementalFields.join(","),
         group_by_field: groupByField,
+        agency_match_field: agencyMatchField,
       },
     });
     const historyId = requireExportHistoryId(

@@ -143,6 +143,48 @@ def test_export_includes_canonical_place_of_issue() -> None:
     assert values["Place of Issue"] == "CHENNAI"
 
 
+def test_agency_matched_export_places_old_names_before_new_passport_names() -> None:
+    group_id = uuid.uuid4()
+    submission = _submission(
+        group_id,
+        fields={
+            "surname": "Khan",
+            "given_names": "Abdul Hameed",
+        },
+    )
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Agency Match",
+            group_details={
+                group_id: {
+                    "name": "Agency Match",
+                    **_OPTION_FLAGS,
+                    "agency_dealership_name_enabled": True,
+                }
+            },
+            previous_names={
+                submission.id: {
+                    "surname": "Samsuddin",
+                    "given_names": "Mubassreen",
+                }
+            },
+        )
+    )
+    headers, values = _row_values(worksheet)
+
+    assert "SURNAME" not in headers
+    assert "GIVEN NAME" not in headers
+    assert headers.index("Old Surname") < headers.index("Old Given Name")
+    assert headers.index("Old Given Name") < headers.index("New Surname")
+    assert headers.index("New Surname") < headers.index("New Given Name")
+    assert values["Old Surname"] == "SAMSUDDIN"
+    assert values["Old Given Name"] == "MUBASSREEN"
+    assert values["New Surname"] == "KHAN"
+    assert values["New Given Name"] == "ABDUL HAMEED"
+
+
 @pytest.mark.parametrize("source", ("IN", "IND", "India", "indian"))
 def test_export_formats_indian_nationality_without_changing_country_labels(
     source: str,

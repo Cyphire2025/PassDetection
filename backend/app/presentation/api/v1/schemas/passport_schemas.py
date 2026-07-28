@@ -291,6 +291,10 @@ class PassportExportFieldOptionsResponse(BaseModel):
 
     group_id: uuid.UUID
     fields: list[PassportExportFieldOptionResponse] = Field(default_factory=list)
+    agency_match_enabled: bool = False
+    agency_match_fields: list[PassportExportFieldOptionResponse] = Field(
+        default_factory=list
+    )
     grouping_fields: list[PassportExportGroupingOptionResponse] = Field(
         default_factory=list
     )
