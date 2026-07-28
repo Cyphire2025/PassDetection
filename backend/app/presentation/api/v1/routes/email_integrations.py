@@ -9,7 +9,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
@@ -77,6 +77,7 @@ router = APIRouter()
 logger = get_logger(__name__)
 
 EMAIL_INTEGRATION_ROLES = [
+    UserRole.SUPER_ADMIN,
     UserRole.AGENCY_ADMIN,
     UserRole.AGENCY_MANAGER,
 ]
@@ -102,13 +103,36 @@ def _secret_is_set(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def _agency_id(user: User) -> uuid.UUID:
+def _agency_scope(user: User) -> uuid.UUID | None:
+    if user.role == UserRole.SUPER_ADMIN:
+        return None
     if user.agency_id is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Choose an agency account before managing email integrations.",
+            detail="Your account is not assigned to the organization.",
         )
     return user.agency_id
+
+
+def _scope_filter(column, agency_id: uuid.UUID | None):  # type: ignore[no-untyped-def]
+    return true() if agency_id is None else column == agency_id
+
+
+async def _default_organization_agency_id(session: AsyncSession, user: User) -> uuid.UUID:
+    if user.agency_id is not None:
+        return user.agency_id
+    agency_id = await session.scalar(
+        select(AgencyModel.id)
+        .where(AgencyModel.is_active.is_(True))
+        .order_by(AgencyModel.created_at.asc(), AgencyModel.id.asc())
+        .limit(1)
+    )
+    if agency_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Create the organization before connecting Gmail.",
+        )
+    return agency_id
 
 
 def _require_feature(settings: Settings) -> None:
@@ -162,13 +186,13 @@ async def _owned_connection(
     session: AsyncSession,
     *,
     connection_id: uuid.UUID,
-    agency_id: uuid.UUID,
+    agency_id: uuid.UUID | None,
     for_update: bool = False,
     with_tokens: bool = False,
 ) -> EmailConnectionModel:
     stmt = select(EmailConnectionModel).where(
         EmailConnectionModel.id == connection_id,
-        EmailConnectionModel.agency_id == agency_id,
+        _scope_filter(EmailConnectionModel.agency_id, agency_id),
     )
     if with_tokens:
         stmt = stmt.options(
@@ -237,12 +261,12 @@ async def list_email_connections(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[EmailConnectionResponse]:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     settings = get_settings()
     result = await session.execute(
         select(EmailConnectionModel, AgencyModel.name)
         .join(AgencyModel, AgencyModel.id == EmailConnectionModel.agency_id)
-        .where(EmailConnectionModel.agency_id == agency_id)
+        .where(_scope_filter(EmailConnectionModel.agency_id, agency_id))
         .order_by(EmailConnectionModel.created_at.desc())
     )
     return [
@@ -279,18 +303,21 @@ async def authorize_gmail(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Gmail OAuth is not configured.",
         )
-    agency_id = _agency_id(current_user)
+    agency_scope = _agency_scope(current_user)
     if payload.connection_id is not None:
         connection = await _owned_connection(
             session,
             connection_id=payload.connection_id,
-            agency_id=agency_id,
+            agency_id=agency_scope,
         )
+        agency_id = connection.agency_id
         if connection.provider != "gmail":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This connection cannot be authorized with Gmail.",
             )
+    else:
+        agency_id = await _default_organization_agency_id(session, current_user)
 
     state_value = generate_oauth_state()
     pkce = generate_pkce_pair()
@@ -385,18 +412,23 @@ async def gmail_oauth_callback(
         return RedirectResponse(_oauth_return_url(settings, "failed"), status_code=303)
     actor_is_still_authorized = await session.scalar(
         select(UserModel.id)
-        .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
         .where(
             UserModel.id == user_id,
-            UserModel.agency_id == agency_id,
             UserModel.is_active.is_(True),
-            UserModel.role.in_(
-                {
-                    UserRole.AGENCY_ADMIN.value,
-                    UserRole.AGENCY_MANAGER.value,
-                }
+            or_(
+                UserModel.role == UserRole.SUPER_ADMIN.value,
+                (
+                    (UserModel.agency_id == agency_id)
+                    & UserModel.role.in_(
+                        {
+                            UserRole.AGENCY_ADMIN.value,
+                            UserRole.AGENCY_MANAGER.value,
+                        }
+                    )
+                    & AgencyModel.is_active.is_(True)
+                ),
             ),
-            AgencyModel.is_active.is_(True),
         )
     )
     if actor_is_still_authorized is None:
@@ -560,7 +592,7 @@ async def sync_connection(
     connection = await _owned_connection(
         session,
         connection_id=connection_id,
-        agency_id=_agency_id(current_user),
+        agency_id=_agency_scope(current_user),
         for_update=True,
     )
     if connection.status not in {"active", "failing"}:
@@ -593,13 +625,14 @@ async def pause_connection(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailConnectionActionResponse:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     connection = await _owned_connection(
         session,
         connection_id=connection_id,
         agency_id=agency_id,
         for_update=True,
     )
+    agency_id = connection.agency_id
     if connection.status == "disconnected":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -649,7 +682,7 @@ async def resume_connection(
     connection = await _owned_connection(
         session,
         connection_id=connection_id,
-        agency_id=_agency_id(current_user),
+        agency_id=_agency_scope(current_user),
         for_update=True,
     )
     if connection.status != "paused":
@@ -685,7 +718,7 @@ async def disconnect_email_connection(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> Response:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     connection = await _owned_connection(
         session,
         connection_id=connection_id,
@@ -693,6 +726,7 @@ async def disconnect_email_connection(
         for_update=True,
         with_tokens=True,
     )
+    agency_id = connection.agency_id
     if (
         connection.status == "disconnected"
         and not connection.access_token_ciphertext
@@ -818,7 +852,7 @@ async def email_integration_summary(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailIntegrationSummaryResponse:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     today = datetime.now(tz=UTC).replace(hour=0, minute=0, second=0, microsecond=0)
 
     async def count(stmt) -> int:  # type: ignore[no-untyped-def]
@@ -827,26 +861,26 @@ async def email_integration_summary(
     return EmailIntegrationSummaryResponse(
         connected_accounts=await count(
             select(func.count(EmailConnectionModel.id)).where(
-                EmailConnectionModel.agency_id == agency_id,
+                _scope_filter(EmailConnectionModel.agency_id, agency_id),
                 EmailConnectionModel.status.in_(_ACTIVE_CONNECTION_STATUSES),
             )
         ),
         relevant_emails_today=await count(
             select(func.count(EmailMessageModel.id)).where(
-                EmailMessageModel.agency_id == agency_id,
+                _scope_filter(EmailMessageModel.agency_id, agency_id),
                 EmailMessageModel.relevance_status == "relevant",
                 EmailMessageModel.received_at >= today,
             )
         ),
         documents_retrieved_today=await count(
             select(func.count(EmailArtifactModel.id)).where(
-                EmailArtifactModel.agency_id == agency_id,
+                _scope_filter(EmailArtifactModel.agency_id, agency_id),
                 EmailArtifactModel.retrieved_at >= today,
             )
         ),
         automatically_matched_today=await count(
             select(func.count(EmailArtifactDocumentModel.id)).where(
-                EmailArtifactDocumentModel.agency_id == agency_id,
+                _scope_filter(EmailArtifactDocumentModel.agency_id, agency_id),
                 EmailArtifactDocumentModel.created_at >= today,
                 EmailArtifactDocumentModel.match_evidence["human_confirmed"]
                 .as_boolean()
@@ -855,20 +889,20 @@ async def email_integration_summary(
         ),
         revisions_detected_today=await count(
             select(func.count(EmailReviewItemModel.id)).where(
-                EmailReviewItemModel.agency_id == agency_id,
+                _scope_filter(EmailReviewItemModel.agency_id, agency_id),
                 EmailReviewItemModel.review_type == "possible_revision",
                 EmailReviewItemModel.created_at >= today,
             )
         ),
         pending_review=await count(
             select(func.count(EmailReviewItemModel.id)).where(
-                EmailReviewItemModel.agency_id == agency_id,
+                _scope_filter(EmailReviewItemModel.agency_id, agency_id),
                 EmailReviewItemModel.status.in_(_ACTIVE_REVIEW_STATUSES),
             )
         ),
         retrieval_failures_today=await count(
             select(func.count(EmailArtifactModel.id)).where(
-                EmailArtifactModel.agency_id == agency_id,
+                _scope_filter(EmailArtifactModel.agency_id, agency_id),
                 EmailArtifactModel.retrieval_status == "failed",
                 EmailArtifactModel.last_error_at >= today,
             )
@@ -882,7 +916,7 @@ async def list_email_reviews(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[EmailReviewItemResponse]:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     now = datetime.now(tz=UTC)
     if review_status not in {
         "open",
@@ -917,7 +951,7 @@ async def list_email_reviews(
             PassportSubmissionModel,
             PassportSubmissionModel.id == EmailReviewItemModel.candidate_passenger_id,
         )
-        .where(EmailReviewItemModel.agency_id == agency_id)
+        .where(_scope_filter(EmailReviewItemModel.agency_id, agency_id))
     )
     if review_status == "open":
         stmt = stmt.where(
@@ -986,11 +1020,11 @@ async def email_review_options(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailReviewOptionsResponse:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     groups_result = await session.execute(
         select(ClientGroupModel)
         .where(
-            ClientGroupModel.agency_id == agency_id,
+            _scope_filter(ClientGroupModel.agency_id, agency_id),
             ClientGroupModel.status.notin_({"archived", "deleted"}),
         )
         .order_by(ClientGroupModel.created_at.desc())
@@ -999,9 +1033,9 @@ async def email_review_options(
     passengers: list[PassportSubmissionModel] = []
     if group_id is not None:
         selected_group = await session.scalar(
-            select(ClientGroupModel.id).where(
+            select(ClientGroupModel).where(
                 ClientGroupModel.id == group_id,
-                ClientGroupModel.agency_id == agency_id,
+                _scope_filter(ClientGroupModel.agency_id, agency_id),
                 ClientGroupModel.status.notin_({"archived", "deleted"}),
             )
         )
@@ -1013,7 +1047,7 @@ async def email_review_options(
         passengers_result = await session.execute(
             select(PassportSubmissionModel)
             .where(
-                PassportSubmissionModel.agency_id == agency_id,
+                PassportSubmissionModel.agency_id == selected_group.agency_id,
                 PassportSubmissionModel.group_id == group_id,
             )
             .order_by(PassportSubmissionModel.client_name.asc())
@@ -1053,7 +1087,7 @@ async def resolve_email_review(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailReviewActionResponse:
-    agency_id = _agency_id(current_user)
+    agency_scope = _agency_scope(current_user)
     settings = get_settings()
     if payload.action in {"approve", "assign", "retry"}:
         _require_feature(settings)
@@ -1068,6 +1102,7 @@ async def resolve_email_review(
                 EmailReviewItemModel.message_id,
                 EmailReviewItemModel.artifact_id,
                 EmailMessageModel.connection_id,
+                EmailReviewItemModel.agency_id,
             )
             .join(
                 EmailMessageModel,
@@ -1075,8 +1110,8 @@ async def resolve_email_review(
             )
             .where(
                 EmailReviewItemModel.id == review_id,
-                EmailReviewItemModel.agency_id == agency_id,
-                EmailMessageModel.agency_id == agency_id,
+                _scope_filter(EmailReviewItemModel.agency_id, agency_scope),
+                _scope_filter(EmailMessageModel.agency_id, agency_scope),
             )
         )
     ).one_or_none()
@@ -1085,7 +1120,7 @@ async def resolve_email_review(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Email review item was not found.",
         )
-    message_id, artifact_id, connection_id = review_identity
+    message_id, artifact_id, connection_id, agency_id = review_identity
 
     # Match the worker's lock order: connection -> message -> artifact ->
     # review. This serializes sync and every staff decision for one mailbox
@@ -1377,7 +1412,7 @@ async def email_activity(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[EmailActivityItemResponse]:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     result = await session.execute(
         select(
             EmailMessageModel,
@@ -1389,7 +1424,7 @@ async def email_activity(
             EmailConnectionModel.id == EmailMessageModel.connection_id,
         )
         .outerjoin(ClientGroupModel, ClientGroupModel.id == EmailMessageModel.group_id)
-        .where(EmailMessageModel.agency_id == agency_id)
+        .where(_scope_filter(EmailMessageModel.agency_id, agency_id))
         .order_by(EmailMessageModel.received_at.desc())
         .limit(200)
     )
@@ -1449,7 +1484,7 @@ async def email_message_detail(
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailMessageDetailResponse:
-    agency_id = _agency_id(current_user)
+    agency_id = _agency_scope(current_user)
     row = (
         await session.execute(
             select(
@@ -1467,7 +1502,7 @@ async def email_message_detail(
             )
             .where(
                 EmailMessageModel.id == message_id,
-                EmailMessageModel.agency_id == agency_id,
+                _scope_filter(EmailMessageModel.agency_id, agency_id),
             )
         )
     ).one_or_none()

@@ -298,9 +298,6 @@ export function EmailConnectionsPage() {
                       <CardTitle className="truncate">
                         {connection.email_address}
                       </CardTitle>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {connection.agency_name}
-                      </p>
                     </div>
                     <EmailStatusBadge status={connection.status} />
                   </CardHeader>
@@ -318,9 +315,6 @@ export function EmailConnectionsPage() {
                       </Definition>
                       <Definition term="Last sync attempt">
                         {formatDateTime(connection.last_sync_attempt_at)}
-                      </Definition>
-                      <Definition term="Organization">
-                        {connection.agency_name}
                       </Definition>
                     </dl>
 

@@ -37,9 +37,9 @@ test("email integration routes use both optimistic and direct role gates", () =>
     /EMAIL_INTEGRATION_ROLES[\s\S]*?= \[([\s\S]*?)\];/,
   );
   assert.ok(roleList);
+  assert.match(roleList[1], /"super_admin"/);
   assert.match(roleList[1], /"agency_admin"/);
   assert.match(roleList[1], /"agency_manager"/);
-  assert.doesNotMatch(roleList[1], /"super_admin"/);
   assert.doesNotMatch(roleList[1], /"agency_staff"/);
   assert.doesNotMatch(roleList[1], /"agency_coordinator"/);
   assert.match(shell, /canAccessEmailIntegrations\(role\)/);
@@ -53,7 +53,7 @@ test("sidebar and section navigation expose accessible normal links", () => {
     .find((line) => line.includes('label: "Email Integrations"'));
   assert.ok(emailNav);
   assert.match(emailNav, /icon: Mail/);
-  assert.match(emailNav, /"agency_admin", "agency_manager"/);
+  assert.match(emailNav, /"super_admin", "agency_admin", "agency_manager"/);
   assert.match(shell, /<Link/);
   assert.match(shell, /aria-current=\{isActive \? "page" : undefined\}/);
   assert.doesNotMatch(shell, /role="tab"/);
@@ -62,6 +62,7 @@ test("sidebar and section navigation expose accessible normal links", () => {
 test("OAuth handoff never stores credentials in browser-managed storage", () => {
   assert.match(connections, /window\.location\.assign\(authorizationUrl\)/);
   assert.match(connections, /isSafeOAuthAuthorizationUrl\(authorizationUrl\)/);
+  assert.doesNotMatch(connections, /connection\.agency_name/);
   for (const source of [connections, review, message, types]) {
     assert.doesNotMatch(source, /localStorage|sessionStorage/);
     assert.doesNotMatch(source, /access_token|refresh_token|client_secret/);

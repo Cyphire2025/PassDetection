@@ -5,12 +5,15 @@ from types import SimpleNamespace
 
 from pydantic import SecretStr
 
+from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.email_models import (
     EmailArtifactModel,
     EmailConnectionModel,
     EmailReviewItemModel,
 )
 from app.presentation.api.v1.routes.email_integrations import (
+    EMAIL_INTEGRATION_ROLES,
+    _agency_scope,
     _allowed_connection_actions,
     _allowed_review_actions,
     _oauth_return_url,
@@ -60,6 +63,31 @@ def test_provider_configuration_requires_nonempty_secrets() -> None:
 
     assert _provider_configured(configured) is True  # type: ignore[arg-type]
     assert _provider_configured(missing_secret) is False  # type: ignore[arg-type]
+
+
+def test_super_admin_has_platform_wide_email_access() -> None:
+    user = User.create(
+        email="super-admin@example.com",
+        hashed_password="not-used",
+        full_name="Super Admin",
+        role=UserRole.SUPER_ADMIN,
+    )
+
+    assert UserRole.SUPER_ADMIN in EMAIL_INTEGRATION_ROLES
+    assert _agency_scope(user) is None
+
+
+def test_manager_email_access_remains_scoped_to_own_organization() -> None:
+    agency_id = uuid.uuid4()
+    user = User.create(
+        email="manager@example.com",
+        hashed_password="not-used",
+        full_name="Manager",
+        role=UserRole.AGENCY_MANAGER,
+        agency_id=agency_id,
+    )
+
+    assert _agency_scope(user) == agency_id
 
 
 def test_connection_actions_follow_lifecycle() -> None:
