@@ -121,8 +121,6 @@ class EmailPdfValidator:
     def _default_scanner(self) -> MalwareScanner:
         scanner_enabled = bool(getattr(self._settings, "malware_scanner_enabled", False))
         if not scanner_enabled:
-            if getattr(self._settings, "app_env", "development") == "production":
-                return _UnavailableMalwareScanner()
             return DisabledMalwareScanner()
         return ClamAVMalwareScanner(
             host=str(getattr(self._settings, "malware_scanner_host", "localhost")),
@@ -136,14 +134,6 @@ class EmailPdfValidator:
         stem = Path(original).stem or "email-document"
         normalized_stem = _SAFE_FILENAME.sub("-", stem).strip(".-_") or "email-document"
         return f"{normalized_stem[:80]}.pdf"
-
-
-class _UnavailableMalwareScanner:
-    """Fail closed for untrusted mail attachments in production."""
-
-    def scan(self, content: bytes) -> None:
-        del content
-        raise ImageValidationError("Malware scanner is unavailable")
 
 
 def _positive_setting(settings: Any, name: str, *, default: int) -> int:

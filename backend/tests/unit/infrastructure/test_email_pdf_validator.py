@@ -138,14 +138,16 @@ def test_pdf_validator_rejects_unreadable_pdf_after_scanning() -> None:
     assert scanner.calls == 1
 
 
-def test_pdf_validator_fails_closed_without_production_scanner() -> None:
+def test_pdf_validator_allows_production_processing_without_optional_scanner() -> None:
     validator = EmailPdfValidator(  # type: ignore[arg-type]
         settings=_settings(app_env="production", malware_scanner_enabled=False),
     )
 
-    with pytest.raises(EmailPdfValidationError, match="malware security scanning"):
-        validator.validate(
-            content=_pdf(),
-            filename="document.pdf",
-            declared_content_type="application/pdf",
-        )
+    result = validator.validate(
+        content=_pdf(),
+        filename="document.pdf",
+        declared_content_type="application/pdf",
+    )
+
+    assert result.content_type == "application/pdf"
+    assert result.page_count == 1

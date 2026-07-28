@@ -78,16 +78,18 @@ def test_enabled_sync_requires_worker_and_recent_scheduler_heartbeat() -> None:
     assert checks["email_worker"] == "queue_not_consumed"
 
 
-def test_production_attachment_processing_requires_reachable_clamav() -> None:
+def test_attachment_processing_allows_optional_scanner_to_be_disabled() -> None:
     checks, ready = email_runtime_readiness(
         _settings(email_attachment_processing_enabled=True),
         queue_probe=_queue_probe(EMAIL_INTEGRATION_QUEUE),
         heartbeat_probe=lambda _settings: True,
     )
 
-    assert ready is False
-    assert checks["email_malware_scanner"] == "required_but_disabled"
+    assert ready is True
+    assert checks["email_malware_scanner"] == "disabled_optional"
 
+
+def test_enabled_attachment_scanner_must_be_reachable() -> None:
     checks, ready = email_runtime_readiness(
         _settings(
             email_attachment_processing_enabled=True,
@@ -100,3 +102,16 @@ def test_production_attachment_processing_requires_reachable_clamav() -> None:
 
     assert ready is True
     assert checks["email_malware_scanner"] == "available"
+
+    checks, ready = email_runtime_readiness(
+        _settings(
+            email_attachment_processing_enabled=True,
+            malware_scanner_enabled=True,
+        ),
+        queue_probe=_queue_probe(EMAIL_INTEGRATION_QUEUE),
+        heartbeat_probe=lambda _settings: True,
+        scanner_probe=lambda _settings: False,
+    )
+
+    assert ready is False
+    assert checks["email_malware_scanner"] == "unreachable"

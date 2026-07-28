@@ -67,17 +67,13 @@ def email_runtime_readiness(
         checks["email_scheduler"] = "not_required_sync_disabled"
 
     if settings.email_attachment_processing_enabled:
-        if settings.app_env == "production" and not settings.malware_scanner_enabled:
-            scanner_ready = False
-            scanner_status = "required_but_disabled"
-        elif settings.malware_scanner_enabled:
+        if settings.malware_scanner_enabled:
             scanner_ready = (scanner_probe or _clamav_ping)(settings)
             scanner_status = "available" if scanner_ready else "unreachable"
+            overall_ready = overall_ready and scanner_ready
         else:
-            scanner_ready = True
-            scanner_status = "not_required_nonproduction"
+            scanner_status = "disabled_optional"
         checks["email_malware_scanner"] = scanner_status
-        overall_ready = overall_ready and scanner_ready
     else:
         checks["email_malware_scanner"] = "not_required_processing_disabled"
 

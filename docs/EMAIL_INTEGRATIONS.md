@@ -64,10 +64,12 @@ EMAIL_CONTENT_RETENTION_DAYS=30
 EMAIL_STORAGE_ORPHAN_GRACE_HOURS=24
 ```
 
-Production attachment processing requires an external ClamAV daemon. This
-Compose stack does not bundle ClamAV. `MALWARE_SCANNER_HOST` must resolve and
-port `3310` must be reachable from both the `backend` and `email-worker`
-containers before attachment processing is enabled:
+ClamAV is optional defense-in-depth for email PDFs. When it is disabled, email
+PDFs still undergo strict byte-size, extension, MIME, PDF-signature,
+encryption, readable-structure, and page-count validation before duplicate
+detection, classification, matching, and review. To use ClamAV,
+`MALWARE_SCANNER_HOST` must resolve and port `3310` must be reachable from both
+the `backend` and `email-worker` containers:
 
 ```dotenv
 MALWARE_SCANNER_ENABLED=true
@@ -76,8 +78,8 @@ MALWARE_SCANNER_PORT=3310
 MALWARE_SCANNER_TIMEOUT_SECONDS=2.0
 ```
 
-The email PDF boundary fails closed in production when malware scanning is not
-available.
+If malware scanning is explicitly enabled, the email PDF boundary fails closed
+when that scanner is unavailable or rejects a file.
 
 ### Encryption-key rotation
 
@@ -100,8 +102,8 @@ Never reuse a version number for different key material.
 ## Safe rollout
 
 1. Deploy the code and apply `alembic upgrade head`.
-2. Configure OAuth, encryption, and the external malware scanner while all
-   email capability flags remain disabled.
+2. Configure OAuth and encryption while all email capability flags remain
+   disabled. Optionally configure the external malware scanner.
 3. Start exactly one `email-beat` service and one or more `email-worker`
    services.
 4. Enable connections without monitoring:
