@@ -88,7 +88,6 @@ _TRAVELLER_COLUMNS = (
 )
 _COLUMNS = _PREFIX_COLUMNS + _TRAVELLER_COLUMNS
 _NAME_HISTORY_COLUMNS = (
-    _ExportColumn("Old Surname", 20),
     _ExportColumn("Old Given Name", 24),
     _ExportColumn("New Surname", 20),
     _ExportColumn("New Given Name", 24),
@@ -527,7 +526,6 @@ class PassportExcelExporter:
                 or values.get("Old Given Name")
                 or values.get("New Surname")
                 or values.get("SURNAME")
-                or values.get("Old Surname")
                 or ""
             ).strip().split()
         )
@@ -633,7 +631,6 @@ class PassportExcelExporter:
             "International Airport": submission.departure_city,
             "SURNAME": _uppercase(fields.get("surname")),
             "GIVEN NAME": _uppercase(fields.get("given_names")),
-            "Old Surname": _uppercase(previous_name.get("surname")),
             "Old Given Name": _uppercase(previous_name.get("given_names")),
             "New Surname": _uppercase(fields.get("surname")),
             "New Given Name": _uppercase(fields.get("given_names")),

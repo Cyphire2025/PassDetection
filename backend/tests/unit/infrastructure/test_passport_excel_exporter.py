@@ -143,7 +143,7 @@ def test_export_includes_canonical_place_of_issue() -> None:
     assert values["Place of Issue"] == "CHENNAI"
 
 
-def test_agency_matched_export_places_old_names_before_new_passport_names() -> None:
+def test_agency_matched_export_places_old_given_name_before_new_names() -> None:
     group_id = uuid.uuid4()
     submission = _submission(
         group_id,
@@ -170,16 +170,25 @@ def test_agency_matched_export_places_old_names_before_new_passport_names() -> N
                     "given_names": "Mubassreen",
                 }
             },
+            additional_fields=[
+                {"key": "whatsapp:agency", "label": "Old agency"},
+            ],
+            additional_values={
+                submission.id: {
+                    "whatsapp:agency": "North Star Motors",
+                }
+            },
         )
     )
     headers, values = _row_values(worksheet)
 
     assert "SURNAME" not in headers
     assert "GIVEN NAME" not in headers
-    assert headers.index("Old Surname") < headers.index("Old Given Name")
+    assert "Old Surname" not in headers
+    assert headers.index("Old agency") < headers.index("Old Given Name")
     assert headers.index("Old Given Name") < headers.index("New Surname")
     assert headers.index("New Surname") < headers.index("New Given Name")
-    assert values["Old Surname"] == "SAMSUDDIN"
+    assert values["Old agency"] == "North Star Motors"
     assert values["Old Given Name"] == "MUBASSREEN"
     assert values["New Surname"] == "KHAN"
     assert values["New Given Name"] == "ABDUL HAMEED"
