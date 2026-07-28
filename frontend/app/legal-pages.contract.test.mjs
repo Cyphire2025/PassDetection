@@ -8,14 +8,25 @@ function read(relativePath) {
 
 const proxy = read("../proxy.ts");
 const layout = read("./(legal)/layout.tsx");
+const home = read("./(legal)/email-automation/page.tsx");
 const privacy = read("./(legal)/privacy-policy/page.tsx");
 const terms = read("./(legal)/terms/page.tsx");
 
 test("legal pages remain public and link to each other", () => {
+  assert.doesNotMatch(proxy, /"\/email-automation"/);
   assert.doesNotMatch(proxy, /"\/privacy-policy"/);
   assert.doesNotMatch(proxy, /"\/terms"/);
   assert.match(layout, /"\/privacy-policy"/);
   assert.match(layout, /"\/terms"/);
+});
+
+test("OAuth homepage uses the exact app name and explains its Gmail purpose", () => {
+  assert.match(home, /Global Connect Travels Email Automation/);
+  assert.match(home, /identifies travel-related messages/);
+  assert.match(home, /read-only Gmail access/);
+  assert.match(home, /does not send, edit, or delete/);
+  assert.match(home, /"\/privacy-policy"/);
+  assert.match(home, /"\/terms"/);
 });
 
 test("privacy policy discloses Gmail access and data controls", () => {
