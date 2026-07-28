@@ -14,11 +14,14 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 )
 from app.domain.entities.entities import ClientGroup, GroupStatus
 from app.presentation.api.v1.routes.passports import (
+    _agency_match_export_field,
+    _AgencyExportMatches,
     _apply_agency_export_matches,
     _apply_pending_export_fields,
     _export_additional_values,
     _export_agency_match_field_catalog,
     _export_agency_matches,
+    _export_effective_whatsapp_matches,
     _export_field_catalog,
     _export_whatsapp_contacts,
     _export_whatsapp_match_rows,
@@ -51,6 +54,7 @@ def _match_row(
     recipient_fields: tuple[RecipientFieldSet, ...],
     phone: str = "+919876543210",
     recipient_names: tuple[str, ...] = ("Pending Passenger",),
+    submission_ids: tuple[uuid.UUID, ...] = (),
 ) -> SubmissionMatchRow:
     recipient_ids = tuple(item.recipient_id for item in recipient_fields)
     return SubmissionMatchRow(
@@ -58,7 +62,7 @@ def _match_row(
         match_basis=None,
         normalized_phone=phone,
         recipient_ids=recipient_ids,
-        submission_ids=(),
+        submission_ids=submission_ids,
         broadcast_ids=(uuid.uuid4(),),
         broadcast_names=("Vietnam recipients",),
         recipient_names=recipient_names,
@@ -242,6 +246,15 @@ def test_agency_match_catalog_is_gated_and_includes_fixed_whatsapp_fields() -> N
         "whatsapp:surname",
     }.issubset(keys)
     assert "whatsapp:source_row" not in keys
+    agency_field = next(
+        field for field in catalog if field["key"] == "whatsapp:agency_name"
+    )
+    assert _agency_match_export_field(agency_field) == {
+        "key": "whatsapp:agency_name",
+        "label": "Old Agency Name",
+        "source": "whatsapp",
+        "selected_by_default": True,
+    }
 
 
 def test_agency_match_uses_unique_normalized_ninety_percent_match() -> None:
@@ -307,19 +320,23 @@ def test_agency_match_uses_unique_normalized_ninety_percent_match() -> None:
                 "selected_by_default": True,
             },
         ],
+        "whatsapp:agency_name",
         additional_values=additional_values,
         whatsapp_contacts=whatsapp_contacts,
         zone_names=zone_names,
     )
 
     assert additional_values[submission.id]["whatsapp:department"] == "Sales"
+    assert (
+        additional_values[submission.id]["whatsapp:agency_name"]
+        == "North Star Motors Pvt Ltd"
+    )
     assert whatsapp_contacts[submission.id] == {
         "email": "old@example.test",
         "phone": "+919876543210",
     }
     assert zone_names[submission.id] == "Delhi"
     assert previous_names[submission.id] == {
-        "surname": "Samsuddin",
         "given_names": "Mubassreen",
     }
     assert _pending_recipient_export_rows(
@@ -328,6 +345,69 @@ def test_agency_match_uses_unique_normalized_ninety_percent_match() -> None:
         excluded_recipient_ids=matches.matched_recipient_ids,
         include_name_history=True,
     ) == []
+
+
+def test_agency_export_falls_back_to_the_existing_submission_match() -> None:
+    group = _group()
+    group.agency_dealership_name_enabled = True
+    submission_id = uuid.uuid4()
+    recipient_id = uuid.uuid4()
+    row = _match_row(
+        status="submitted",
+        submission_ids=(submission_id,),
+        recipient_names=("Abdul Khader",),
+        recipient_fields=(
+            RecipientFieldSet(
+                recipient_id=recipient_id,
+                fields={
+                    "agency": "Mohammed Zahed Hussain",
+                    "Department": "Sales",
+                    "Email": "old@example.test",
+                },
+            ),
+        ),
+    )
+    agency_matches = _AgencyExportMatches({}, frozenset())
+    effective_matches = _export_effective_whatsapp_matches(
+        agency_matches,
+        {group.id: [row]},
+    )
+    selected_fields = [
+        {
+            "key": "whatsapp:department",
+            "label": "Department",
+            "source": "whatsapp",
+            "selected_by_default": False,
+        },
+    ]
+    additional_values = {submission_id: {}}
+    whatsapp_contacts = {
+        submission_id: {"email": None, "phone": None},
+    }
+    zone_names = {submission_id: ""}
+
+    previous_names = _apply_agency_export_matches(
+        effective_matches,
+        selected_fields,
+        "whatsapp:agency",
+        additional_values=additional_values,
+        whatsapp_contacts=whatsapp_contacts,
+        zone_names=zone_names,
+    )
+
+    assert effective_matches.rows_by_submission == {submission_id: row}
+    assert effective_matches.matched_recipient_ids == frozenset({recipient_id})
+    assert additional_values[submission_id] == {
+        "whatsapp:agency": "Mohammed Zahed Hussain",
+        "whatsapp:department": "Sales",
+    }
+    assert whatsapp_contacts[submission_id] == {
+        "email": "old@example.test",
+        "phone": "+919876543210",
+    }
+    assert previous_names == {
+        submission_id: {"given_names": "Abdul Khader"},
+    }
 
 
 def test_agency_match_leaves_duplicate_best_matches_unassigned() -> None:

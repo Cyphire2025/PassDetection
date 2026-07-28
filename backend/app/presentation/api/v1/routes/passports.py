@@ -1015,6 +1015,47 @@ def _recipient_export_value(
     return None
 
 
+def _recipient_old_given_name(row: SubmissionMatchRow) -> str | None:
+    """Return the best unambiguous WhatsApp name for one matched recipient."""
+
+    given_names = _recipient_export_value(
+        row,
+        "given_names",
+        "given_name",
+        "first_name",
+    )
+    if given_names:
+        return given_names
+
+    recipient_names_by_key = {
+        normalized.casefold(): normalized
+        for name in row.recipient_names
+        if (normalized := " ".join(str(name or "").strip().split()))
+    }
+    if len(recipient_names_by_key) == 1:
+        return next(iter(recipient_names_by_key.values()))
+
+    imported_name = _recipient_export_value(
+        row,
+        "name",
+        "full_name",
+        "client_name",
+        "passenger_name",
+        "recipient_name",
+        "staff_name",
+        "employee_name",
+    )
+    if imported_name:
+        return imported_name
+
+    return _recipient_export_value(
+        row,
+        "surname",
+        "last_name",
+        "family_name",
+    )
+
+
 _WHATSAPP_EMAIL_IMPORTED_KEYS = (
     "email",
     "email_id",
@@ -1258,11 +1299,10 @@ def _pending_recipient_export_rows(
         if include_name_history:
             pending_rows[-1].update(
                 {
-                    "Old Surname": surname.upper() if surname else None,
                     "Old Given Name": (
-                        given_names.upper()
-                        if given_names
-                        else client_name.upper()
+                        old_given_name.upper()
+                        if (old_given_name := _recipient_old_given_name(row))
+                        else None
                     ),
                     "New Surname": None,
                     "New Given Name": None,
@@ -1439,6 +1479,21 @@ def _export_agency_match_field_catalog(
     ]
 
 
+def _agency_match_export_field(
+    match_field: dict[str, str | bool],
+) -> dict[str, str | bool]:
+    """Expose the selected match value automatically without duplicating its picker."""
+
+    label = " ".join(str(match_field["label"]).strip().split()) or "Match Value"
+    old_label = label if label.casefold().startswith("old ") else f"Old {label}"
+    return {
+        "key": str(match_field["key"]),
+        "label": old_label[:120],
+        "source": "whatsapp",
+        "selected_by_default": True,
+    }
+
+
 @dataclass(frozen=True)
 class _AgencyExportMatches:
     rows_by_submission: dict[uuid.UUID, SubmissionMatchRow]
@@ -1579,21 +1634,64 @@ def _export_agency_matches(
     )
 
 
+def _export_effective_whatsapp_matches(
+    agency_matches: _AgencyExportMatches,
+    rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
+) -> _AgencyExportMatches:
+    """Prefer agency matches, then use each submission's existing WhatsApp match."""
+
+    fallback_rows: dict[uuid.UUID, SubmissionMatchRow] = {}
+    ambiguous_submission_ids: set[uuid.UUID] = set()
+    for rows in rows_by_group.values():
+        for row in rows:
+            if row.status not in {"submitted", "multiple_submissions"}:
+                continue
+            for submission_id in row.submission_ids:
+                if submission_id in ambiguous_submission_ids:
+                    continue
+                existing = fallback_rows.get(submission_id)
+                if existing is None:
+                    fallback_rows[submission_id] = row
+                elif existing is not row:
+                    fallback_rows.pop(submission_id, None)
+                    ambiguous_submission_ids.add(submission_id)
+
+    rows_by_submission = {
+        **fallback_rows,
+        **agency_matches.rows_by_submission,
+    }
+    matched_recipient_ids = set(agency_matches.matched_recipient_ids)
+    for row in rows_by_submission.values():
+        matched_recipient_ids.update(row.recipient_ids)
+    return _AgencyExportMatches(
+        rows_by_submission=rows_by_submission,
+        matched_recipient_ids=frozenset(matched_recipient_ids),
+    )
+
+
 def _apply_agency_export_matches(
     matches: _AgencyExportMatches,
     selected_fields: list[dict[str, str | bool]],
+    agency_match_field: str,
     *,
     additional_values: dict[uuid.UUID, dict[str, str | None]],
     whatsapp_contacts: dict[uuid.UUID, dict[str, str | None]],
     zone_names: dict[uuid.UUID, str],
 ) -> dict[uuid.UUID, dict[str, str | None]]:
-    """Override WhatsApp-derived export data with the selected agency row."""
+    """Fill WhatsApp-derived export data from each submission's effective row."""
 
     previous_names: dict[uuid.UUID, dict[str, str | None]] = {}
+    normalized_match_field = agency_match_field.removeprefix("whatsapp:")
     for submission_id, row in matches.rows_by_submission.items():
         row_values = additional_values.setdefault(submission_id, {})
+        row_values[agency_match_field] = _recipient_export_value(
+            row,
+            normalized_match_field,
+        )
         for field in selected_fields:
             key = str(field["key"])
+            if key == agency_match_field:
+                continue
             if key.startswith("whatsapp:"):
                 row_values[key] = _recipient_export_value(
                     row,
@@ -1624,18 +1722,7 @@ def _apply_agency_export_matches(
             ),
         }
         previous_names[submission_id] = {
-            "surname": _recipient_export_value(
-                row,
-                "surname",
-                "last_name",
-                "family_name",
-            ),
-            "given_names": _recipient_export_value(
-                row,
-                "given_names",
-                "given_name",
-                "first_name",
-            ),
+            "given_names": _recipient_old_given_name(row),
         }
     return previous_names
 
@@ -3369,12 +3456,12 @@ async def export_passports_by_group(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="One or more selected Excel fields are unavailable for this group.",
         )
-    selected_fields = [catalog_by_key[key] for key in requested_field_keys]
     resolved_agency_match_field = (
         agency_match_field.strip()
         if agency_match_field and agency_match_field.strip()
         else None
     )
+    agency_match_option: dict[str, str | bool] | None = None
     if resolved_agency_match_field:
         if not group.agency_dealership_name_enabled:
             raise HTTPException(
@@ -3388,11 +3475,14 @@ async def export_passports_by_group(
             group,
             match_rows_by_group.get(group.id, []),
         )
-        agency_match_keys = {
-            str(field["key"])
+        agency_match_options = {
+            str(field["key"]): field
             for field in agency_match_catalog
         }
-        if resolved_agency_match_field not in agency_match_keys:
+        agency_match_option = agency_match_options.get(
+            resolved_agency_match_field
+        )
+        if agency_match_option is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
@@ -3400,10 +3490,25 @@ async def export_passports_by_group(
                     "this group's linked WhatsApp spreadsheets."
                 ),
             )
+        # The matching field is automatic and must never be duplicated in the
+        # user-selected supplemental field list.
+        requested_field_keys = [
+            key
+            for key in requested_field_keys
+            if key != resolved_agency_match_field
+        ]
+    selected_fields = [catalog_by_key[key] for key in requested_field_keys]
+    export_fields = (
+        [_agency_match_export_field(agency_match_option), *selected_fields]
+        if agency_match_option is not None
+        else selected_fields
+    )
     resolved_group_by = _resolve_export_group_by(
         group_by_field,
         requested_field_keys,
     )
+    if resolved_group_by == resolved_agency_match_field:
+        resolved_group_by = None
     if (
         resolved_group_by == "international_airport"
         and not _international_airport_is_enabled(group)
@@ -3436,11 +3541,19 @@ async def export_passports_by_group(
         if resolved_agency_match_field
         else _AgencyExportMatches({}, frozenset())
     )
+    effective_matches = (
+        _export_effective_whatsapp_matches(
+            agency_matches,
+            match_rows_by_group,
+        )
+        if resolved_agency_match_field
+        else agency_matches
+    )
     pending_rows = (
         _pending_recipient_export_rows(
             group=group,
             rows=match_rows_by_group.get(group.id, []),
-            excluded_recipient_ids=agency_matches.matched_recipient_ids,
+            excluded_recipient_ids=effective_matches.matched_recipient_ids,
             include_name_history=bool(resolved_agency_match_field),
         )
         if export_mode == "all"
@@ -3450,12 +3563,12 @@ async def export_passports_by_group(
         _apply_pending_export_fields(
             pending_rows,
             match_rows_by_group.get(group.id, []),
-            selected_fields,
-            excluded_recipient_ids=agency_matches.matched_recipient_ids,
+            export_fields,
+            excluded_recipient_ids=effective_matches.matched_recipient_ids,
         )
     if resolved_agency_match_field:
-        # Once an agency column is selected, every WhatsApp-derived value must
-        # come from that agency match. Do not mix in a phone/name-based row.
+        # Each submission receives one coherent WhatsApp row: prefer the
+        # selected agency match, then fall back to its existing identity match.
         additional_values = {submission.id: {} for submission in submissions}
         whatsapp_contacts = {
             submission.id: {"email": None, "phone": None}
@@ -3478,8 +3591,9 @@ async def export_passports_by_group(
         )
     previous_names = (
         _apply_agency_export_matches(
-            agency_matches,
+            effective_matches,
             selected_fields,
+            resolved_agency_match_field,
             additional_values=additional_values,
             whatsapp_contacts=whatsapp_contacts,
             zone_names=zone_names,
@@ -3494,7 +3608,7 @@ async def export_passports_by_group(
         zone_names=zone_names,
         additional_fields=[
             {"key": str(field["key"]), "label": str(field["label"])}
-            for field in selected_fields
+            for field in export_fields
         ],
         additional_values=additional_values,
         whatsapp_contacts=whatsapp_contacts,

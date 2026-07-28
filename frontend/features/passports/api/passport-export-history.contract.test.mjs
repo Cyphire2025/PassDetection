@@ -119,6 +119,16 @@ test("single-group Excel export supports agency matching and numbered column ord
     /90% or higher/,
   );
   assert.match(
+    fieldChooser,
+    /options\.fields\.filter\([\s\S]*?field\.key !== agencyMatch\?\.selectedField/,
+  );
+  assert.match(
+    fieldChooser,
+    /selectedFields\.filter\(\(key\) => key !== nextField\)/,
+  );
+  assert.match(fieldChooser, /Old Given Name and Old/);
+  assert.doesNotMatch(fieldChooser, /Old Surname/);
+  assert.match(
     dialog,
     /agencyMatchField: agencyMatchField \|\| undefined/,
   );
