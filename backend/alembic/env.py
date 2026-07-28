@@ -13,8 +13,11 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.core.config.settings import get_settings
-from app.infrastructure.database import menu_models  # noqa: F401
-from app.infrastructure.database import passport_image_library_model  # noqa: F401
+from app.infrastructure.database import (
+    email_models,  # noqa: F401
+    menu_models,  # noqa: F401
+    passport_image_library_model,  # noqa: F401
+)
 from app.infrastructure.database.models import Base
 
 settings = get_settings()

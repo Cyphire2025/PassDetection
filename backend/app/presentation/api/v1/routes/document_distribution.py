@@ -38,6 +38,10 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.distribution_ingestion import (
+    TravelDocumentFile,
+    TravelDocumentIngestionService,
+)
 from app.infrastructure.documents.document_matcher import DOCUMENT_TYPES, DocumentMatcher
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
@@ -628,106 +632,38 @@ async def upload_documents(
     if not passengers:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This group has no passengers to match documents against")
 
-    matcher = DocumentMatcher()
-    file_payloads: list[tuple[UploadFile, bytes]] = []
-    rejected: list[RejectedDocumentResponse] = []
-    classified = []
-    for file in files:
-        content = await file.read()
-        filename = file.filename or "document.pdf"
-        classification = matcher.classify(filename=filename, content=content, expected_type=document_type)
-        if not classification.accepted:
-            rejected.append(
-                RejectedDocumentResponse(filename=filename, detected_type=classification.detected_type, reason=classification.reason)
-            )
-            continue
-        file_payloads.append((file, content))
-        classified.append(classification)
-
-    now = datetime.now(tz=UTC)
-    batch = DocumentDistributionBatchModel(
-        id=uuid.uuid4(),
+    file_payloads = [
+        TravelDocumentFile(
+            filename=file.filename or "document.pdf",
+            content=await file.read(),
+            content_type=file.content_type or "application/pdf",
+        )
+        for file in files
+    ]
+    ingestion = await TravelDocumentIngestionService(session).ingest(
         agency_id=group.agency_id,
         group_id=group.id,
         document_type=document_type,
-        status="draft",
-        uploaded_count=0,
-        rejected_count=len(rejected),
-        matched_count=0,
+        passengers=passengers,
+        files=file_payloads,
         created_by_user_id=current_user.id,
-        created_at=now,
-        updated_at=now,
-    )
-    session.add(batch)
-    await session.flush()
-
-    document_matches = [matcher.match_all(document, passengers) for document in classified]
-    flat_matches = [match for matches in document_matches for match in matches]
-    deduped_flat_matches = matcher.mark_duplicates(flat_matches)
-    deduped_document_matches: list[list] = []
-    cursor = 0
-    for matches in document_matches:
-        deduped_document_matches.append(deduped_flat_matches[cursor: cursor + len(matches)])
-        cursor += len(matches)
-
-    storage = MinioStorageRepository()
-    documents: list[DistributedDocumentModel] = []
-    for (file, content), document, matches in zip(file_payloads, classified, deduped_document_matches):
-        storage_document_id = uuid.uuid4()
-        key = f"document-distribution/{group.id}/{batch.id}/{storage_document_id}-{_safe_filename(file.filename or 'document.pdf')}"
-        await storage.upload_file(content, key, file.content_type or "application/pdf")
-        for match in matches:
-            model = DistributedDocumentModel(
-                id=uuid.uuid4(),
-                batch_id=batch.id,
-                agency_id=group.agency_id,
-                group_id=group.id,
-                passenger_id=match.passenger_id,
-                document_type=document_type,
-                original_filename=file.filename or "document.pdf",
-                storage_key=key,
-                content_type=file.content_type or "application/pdf",
-                detected_type=document.detected_type,
-                match_status=match.status,
-                match_confidence=match.confidence,
-                match_reason=(
-                    f"Shared PDF matched {len(matches)} passenger{'' if len(matches) == 1 else 's'}"
-                    if len(matches) > 1 and match.status == "matched"
-                    else match.reason
-                ),
-                extracted_name=document.extracted_name,
-                extracted_passport_number=document.extracted_passport_number,
-                extracted_reference=document.extracted_reference,
-                created_at=now,
-                updated_at=now,
-            )
-            documents.append(model)
-            session.add(model)
-
-    batch.uploaded_count = len(documents)
-    batch.matched_count = sum(1 for document in documents if document.match_status == "matched")
-    await AuditLogRepository(session).record(
-        action="document_distribution_uploaded",
-        entity_type="client_group",
-        entity_id=str(group_id),
-        agency_id=group.agency_id,
-        user_id=current_user.id,
         actor_email=current_user.email,
-        metadata={
-            "document_type": document_type,
-            "uploaded_count": batch.uploaded_count,
-            "rejected_count": batch.rejected_count,
-            "matched_count": batch.matched_count,
-        },
     )
     await session.commit()
     return await _batch_response(
         group_id=group_id,
         document_type=document_type,
         passengers=passengers,
-        batch=batch,
-        documents=documents,
-        rejected_documents=rejected,
+        batch=ingestion.batch,
+        documents=ingestion.documents,
+        rejected_documents=[
+            RejectedDocumentResponse(
+                filename=item.filename,
+                detected_type=item.detected_type,
+                reason=item.reason,
+            )
+            for item in ingestion.rejected
+        ],
     )
 
 

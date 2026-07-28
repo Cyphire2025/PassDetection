@@ -14,6 +14,12 @@ from app.infrastructure.visa_ai_image_jobs import (
     VISA_AI_IMAGE_TASK,
 )
 
+EMAIL_INTEGRATION_QUEUE = "email_integrations"
+EMAIL_SYNC_TASK = "email.sync_connection"
+EMAIL_DISPATCH_TASK = "email.dispatch_due_connections"
+EMAIL_RETENTION_TASK = "email.apply_retention"
+EMAIL_SCHEDULER_HEARTBEAT_TASK = "email.scheduler_heartbeat"
+
 settings = get_settings()
 
 celery_app = Celery(
@@ -25,6 +31,7 @@ celery_app = Celery(
         "app.infrastructure.verification.tasks",
         "app.infrastructure.visa_ai_image_jobs.tasks",
         "app.infrastructure.whatsapp.tasks",
+        "app.infrastructure.email.tasks",
     ],
 )
 
@@ -36,11 +43,16 @@ celery_app.conf.update(
         Queue(EXTRACTION_QUEUE, durable=True),
         Queue(VERIFICATION_QUEUE, durable=True),
         Queue(VISA_AI_IMAGE_QUEUE, durable=True),
+        Queue(EMAIL_INTEGRATION_QUEUE, durable=True),
     ),
     task_routes={
         "passport.process_submission": {"queue": EXTRACTION_QUEUE},
         "passport.verify_submitted": {"queue": VERIFICATION_QUEUE},
         VISA_AI_IMAGE_TASK: {"queue": VISA_AI_IMAGE_QUEUE},
+        EMAIL_SYNC_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        EMAIL_DISPATCH_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        EMAIL_RETENTION_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        EMAIL_SCHEDULER_HEARTBEAT_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -50,6 +62,23 @@ celery_app.conf.update(
     accept_content=["json"],
     timezone="UTC",
     enable_utc=True,
+    beat_schedule={
+        "dispatch-due-email-connections": {
+            "task": EMAIL_DISPATCH_TASK,
+            "schedule": 60.0,
+            "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+        "apply-email-content-retention": {
+            "task": EMAIL_RETENTION_TASK,
+            "schedule": 86_400.0,
+            "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+        "record-email-scheduler-heartbeat": {
+            "task": EMAIL_SCHEDULER_HEARTBEAT_TASK,
+            "schedule": 60.0,
+            "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+    },
 )
 
 

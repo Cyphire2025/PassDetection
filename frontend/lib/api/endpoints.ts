@@ -91,6 +91,28 @@ export const API_ENDPOINTS = {
     batch: (batchId: string) => `/api/v1/whatsapp/batches/${batchId}`,
   },
 
+  emailIntegrations: {
+    status: "/api/v1/email-integrations/status",
+    connections: "/api/v1/email-integrations/connections",
+    gmailAuthorize: "/api/v1/email-integrations/oauth/gmail/authorize",
+    connectionSync: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}/sync`,
+    connectionPause: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}/pause`,
+    connectionResume: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}/resume`,
+    connection: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}`,
+    summary: "/api/v1/email-integrations/summary",
+    reviews: "/api/v1/email-integrations/reviews",
+    reviewOptions: "/api/v1/email-integrations/review-options",
+    resolveReview: (reviewId: string) =>
+      `/api/v1/email-integrations/reviews/${reviewId}/resolve`,
+    activity: "/api/v1/email-integrations/activity",
+    message: (messageId: string) =>
+      `/api/v1/email-integrations/messages/${messageId}`,
+  },
+
   passports: {
     root: "/api/v1/passports",
     groups: "/api/v1/passports/groups",

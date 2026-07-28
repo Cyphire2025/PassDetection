@@ -19,6 +19,9 @@ from app.presentation.api.v1.routes.document_distribution import (
     router as document_distribution_router,
 )
 from app.presentation.api.v1.routes.document_rename import router as document_rename_router
+from app.presentation.api.v1.routes.email_integrations import (
+    router as email_integrations_router,
+)
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.menu import router as menu_router
 from app.presentation.api.v1.routes.notifications import router as notifications_router
@@ -48,6 +51,11 @@ api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", 
 api_v1_router.include_router(rooming_router, prefix="/rooming", tags=["Rooming Lists"])
 api_v1_router.include_router(menu_router, prefix="/menu", tags=["Menu & Meal Planner"])
 api_v1_router.include_router(document_distribution_router, prefix="/document-distribution", tags=["Document Distribution"])
+api_v1_router.include_router(
+    email_integrations_router,
+    prefix="/email-integrations",
+    tags=["Email Integrations"],
+)
 api_v1_router.include_router(document_rename_router, prefix="/document-rename", tags=["Document Rename"])
 api_v1_router.include_router(admin_router, prefix="/admin", tags=["Admin"])
 api_v1_router.include_router(admin_accounts_router, prefix="/admin/accounts", tags=["Account Administration"])

@@ -104,33 +104,20 @@ def gemini_worker_readiness(
     )
     extraction_ready = EXTRACTION_QUEUE in snapshot.available_queues
     verification_ready = (
-        not settings.gemini_verification_enabled
-        or VERIFICATION_QUEUE in snapshot.available_queues
+        not settings.gemini_verification_enabled or VERIFICATION_QUEUE in snapshot.available_queues
     )
 
     return (
         {
-            "celery_worker_control": (
-                "reachable" if snapshot.control_reachable else "unreachable"
-            ),
-            "gemini_extraction_worker": (
-                "available" if extraction_ready else "queue_not_consumed"
-            ),
+            "celery_worker_control": ("reachable" if snapshot.control_reachable else "unreachable"),
+            "gemini_extraction_worker": ("available" if extraction_ready else "queue_not_consumed"),
             "gemini_verification_worker": (
                 "not_required_verification_disabled"
                 if not settings.gemini_verification_enabled
-                else (
-                    "available"
-                    if verification_ready
-                    else "queue_not_consumed"
-                )
+                else ("available" if verification_ready else "queue_not_consumed")
             ),
         },
-        (
-            snapshot.control_reachable
-            and extraction_ready
-            and verification_ready
-        ),
+        (snapshot.control_reachable and extraction_ready and verification_ready),
     )
 
 
@@ -142,10 +129,25 @@ def celery_queue_available(
     """Return whether Celery control can see an exact queue consumer."""
 
     snapshot = _query_active_queues(timeout_seconds)
-    return (
-        snapshot.control_reachable
-        and queue_name in snapshot.available_queues
+    return snapshot.control_reachable and queue_name in snapshot.available_queues
+
+
+def celery_queue_readiness(
+    queue_name: str,
+    settings: Settings,
+    *,
+    probe: CachedCeleryQueueProbe | None = None,
+) -> tuple[str, bool]:
+    """Return a cached, safe status for one required Celery queue."""
+
+    snapshot = (probe or _queue_probe).snapshot(
+        timeout_seconds=settings.processing_worker_ping_timeout_seconds,
+        cache_seconds=settings.processing_worker_readiness_cache_seconds,
     )
+    ready = snapshot.control_reachable and queue_name in snapshot.available_queues
+    if not snapshot.control_reachable:
+        return "worker_control_unreachable", False
+    return ("available", True) if ready else ("queue_not_consumed", False)
 
 
 def _query_active_queues(timeout_seconds: float) -> CeleryQueueSnapshot:

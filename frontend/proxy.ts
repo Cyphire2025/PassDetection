@@ -4,7 +4,7 @@
  * Runs on the Edge before any page renders.
  * Redirects unauthenticated users away from protected routes.
  *
- * Protected routes: anything under /dashboard, /passports, /upload-links, /settings
+ * Protected routes: dashboard and office feature routes, including email integrations
  * Public routes:    /login, /upload/[token]
  */
 
@@ -15,6 +15,7 @@ const PROTECTED_PREFIXES = [
   "/dashboard",
   "/passports",
   "/upload-links",
+  "/email-integrations",
   "/settings",
 ];
 

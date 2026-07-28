@@ -1,0 +1,146 @@
+from __future__ import annotations
+
+import uuid
+from types import SimpleNamespace
+
+from pydantic import SecretStr
+
+from app.infrastructure.database.email_models import (
+    EmailArtifactModel,
+    EmailConnectionModel,
+    EmailReviewItemModel,
+)
+from app.presentation.api.v1.routes.email_integrations import (
+    _allowed_connection_actions,
+    _allowed_review_actions,
+    _oauth_return_url,
+    _provider_configured,
+)
+from app.presentation.api.v1.schemas.email_integration_schemas import (
+    ResolveEmailReviewRequest,
+)
+
+
+def test_oauth_return_contract_strips_provider_secrets() -> None:
+    settings = SimpleNamespace(
+        email_oauth_frontend_return_url=(
+            "https://dashboard.example/email-integrations?state=leak&code=leak&error=leak&keep=yes"
+        )
+    )
+
+    result = _oauth_return_url(settings, "connected")  # type: ignore[arg-type]
+
+    assert result == ("https://dashboard.example/email-integrations?keep=yes&email_oauth=connected")
+
+
+def test_oauth_return_contract_rejects_unknown_status() -> None:
+    settings = SimpleNamespace(
+        email_oauth_frontend_return_url=("https://dashboard.example/email-integrations")
+    )
+
+    result = _oauth_return_url(settings, "provider_text")  # type: ignore[arg-type]
+
+    assert result.endswith("?email_oauth=failed")
+    assert "provider_text" not in result
+
+
+def test_provider_configuration_requires_nonempty_secrets() -> None:
+    configured = SimpleNamespace(
+        gmail_oauth_client_id="client",
+        gmail_oauth_client_secret=SecretStr("secret"),
+        gmail_oauth_redirect_uri="https://api.example/callback",
+        email_token_encryption_key=SecretStr("key"),
+    )
+    missing_secret = SimpleNamespace(
+        gmail_oauth_client_id="client",
+        gmail_oauth_client_secret=SecretStr(""),
+        gmail_oauth_redirect_uri="https://api.example/callback",
+        email_token_encryption_key=SecretStr("key"),
+    )
+
+    assert _provider_configured(configured) is True  # type: ignore[arg-type]
+    assert _provider_configured(missing_secret) is False  # type: ignore[arg-type]
+
+
+def test_connection_actions_follow_lifecycle() -> None:
+    settings = SimpleNamespace(
+        email_integrations_enabled=True,
+        email_sync_enabled=True,
+        gmail_oauth_client_id="client",
+        gmail_oauth_client_secret=SecretStr("secret"),
+        gmail_oauth_redirect_uri="https://api.example/callback",
+        email_token_encryption_key=SecretStr("key"),
+    )
+    connection = EmailConnectionModel(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        provider="gmail",
+        provider_account_id="account",
+        email_address="ops@example.com",
+        status="active",
+    )
+
+    assert _allowed_connection_actions(connection, settings) == [
+        "sync",
+        "pause",
+        "reconnect",
+        "disconnect",
+    ]
+    connection.status = "paused"
+    assert _allowed_connection_actions(connection, settings) == [
+        "resume",
+        "reconnect",
+        "disconnect",
+    ]
+    settings.email_sync_enabled = False
+    assert _allowed_connection_actions(connection, settings) == [
+        "reconnect",
+        "disconnect",
+    ]
+    connection.status = "disconnecting"
+    assert _allowed_connection_actions(connection, settings) == ["disconnect"]
+
+
+def test_review_actions_require_a_staged_assignable_document() -> None:
+    review = EmailReviewItemModel(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        message_id=uuid.uuid4(),
+        review_type="relevance",
+        status="open",
+        proposed_action="classify_document",
+        revision=1,
+    )
+    artifact = EmailArtifactModel(
+        id=uuid.uuid4(),
+        agency_id=review.agency_id,
+        message_id=review.message_id,
+        provider_artifact_id="attachment",
+        kind="attachment",
+        storage_key="email-integrations/staged.pdf",
+        detected_type="unknown",
+    )
+
+    assert _allowed_review_actions(review, artifact) == [
+        "assign",
+        "defer",
+        "mark_unrelated",
+        "reject",
+    ]
+    assert _allowed_review_actions(review, None) == [
+        "defer",
+        "mark_unrelated",
+        "reject",
+    ]
+
+
+def test_human_review_can_supply_a_supported_document_type() -> None:
+    request = ResolveEmailReviewRequest(
+        action="assign",
+        group_id=uuid.uuid4(),
+        passenger_id=uuid.uuid4(),
+        document_type="flight_ticket",
+        expected_revision=1,
+    )
+
+    assert request.document_type == "flight_ticket"

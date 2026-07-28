@@ -16,7 +16,6 @@ import contextlib
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
 
 try:
     import sentry_sdk
@@ -35,16 +34,26 @@ from app.presentation.middleware.error_handler import register_exception_handler
 from app.presentation.middleware.metrics import MetricsMiddleware
 from app.presentation.middleware.rate_limit import RateLimitMiddleware
 from app.presentation.middleware.request_id import RequestIDMiddleware
+from app.presentation.middleware.safe_gzip import SafeGZipMiddleware
 from app.presentation.middleware.security_headers import SecurityHeadersMiddleware
 
 logger = get_logger(__name__)
 
 OPENAPI_TAGS = [
-    {"name": "Authentication", "description": "JWT login, refresh, logout, and current-user endpoints."},
+    {
+        "name": "Authentication",
+        "description": "JWT login, refresh, logout, and current-user endpoints.",
+    },
     {"name": "Dashboard", "description": "Agency dashboard metrics and recent passport activity."},
     {"name": "Upload Links", "description": "Secure client group upload links."},
-    {"name": "Passports", "description": "Passport upload, extraction, review, export, and confirmation workflows."},
-    {"name": "Tour Operations", "description": "Coordinator-led tour attendance planning and operations workflows."},
+    {
+        "name": "Passports",
+        "description": "Passport upload, extraction, review, export, and confirmation workflows.",
+    },
+    {
+        "name": "Tour Operations",
+        "description": "Coordinator-led tour attendance planning and operations workflows.",
+    },
     {"name": "Admin", "description": "Role-gated administrative overview endpoints."},
     {"name": "Analytics", "description": "Processing quality and operational analytics."},
     {"name": "Audit Logs", "description": "Security and operational audit trail."},
@@ -53,12 +62,19 @@ OPENAPI_TAGS = [
 ]
 
 
-def create_application(settings: Settings | None = None) -> FastAPI:
+def create_application(
+    settings: Settings | None = None,
+    *,
+    initialize_rate_limit_redis: bool = True,
+) -> FastAPI:
     """
     Application factory.
 
     Args:
         settings: Optional Settings override (useful for testing).
+        initialize_rate_limit_redis: Initialize the process-wide Redis client
+            used by rate limiting. Tests may disable this to avoid leaking an
+            external client across short-lived application instances.
 
     Returns:
         Configured FastAPI application instance.
@@ -107,9 +123,13 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             "X-Passport-Export-History-ID",
         ],
     )
-    app.add_middleware(GZipMiddleware, minimum_size=1000)
+    app.add_middleware(SafeGZipMiddleware, minimum_size=1000)
     app.add_middleware(SecurityHeadersMiddleware)
-    app.add_middleware(RateLimitMiddleware, settings=settings)
+    app.add_middleware(
+        RateLimitMiddleware,
+        settings=settings,
+        initialize_redis=initialize_rate_limit_redis,
+    )
     app.add_middleware(MetricsMiddleware)
     app.add_middleware(RequestIDMiddleware)
 

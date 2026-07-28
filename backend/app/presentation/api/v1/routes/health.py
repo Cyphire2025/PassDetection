@@ -30,6 +30,7 @@ from app.infrastructure.ai_priority.worker_readiness import (
     gemini_worker_readiness,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.email.readiness import email_runtime_readiness
 from app.infrastructure.observability.metrics import metrics
 from app.presentation.dependencies.auth import require_role
 
@@ -105,6 +106,13 @@ async def readiness(
     )
     checks.update(worker_checks)
     overall_healthy = overall_healthy and workers_ready
+
+    email_checks, email_ready = await asyncio.to_thread(
+        email_runtime_readiness,
+        settings,
+    )
+    checks.update(email_checks)
+    overall_healthy = overall_healthy and email_ready
 
     http_status = status.HTTP_200_OK if overall_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
 

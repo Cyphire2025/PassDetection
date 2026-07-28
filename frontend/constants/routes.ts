@@ -28,6 +28,11 @@ export const ROUTES = {
     passportDetail: (id: string) => `/passports/${id}`,
     uploadLinks: "/upload-links",
     whatsapp: "/whatsapp",
+    emailIntegrations: "/email-integrations",
+    emailIntegrationsReview: "/email-integrations/review",
+    emailIntegrationsActivity: "/email-integrations/activity",
+    emailIntegrationMessage: (messageId: string) =>
+      `/email-integrations/activity/${messageId}`,
     documents: "/documents",
     documentRename: "/documents/rename",
     documentDistribution: "/documents/distribution",

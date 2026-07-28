@@ -23,6 +23,8 @@ FRONTEND_DOCKERIGNORE = ROOT / "frontend" / ".dockerignore"
 BACKEND_SERVICES = (
     "backend",
     "worker",
+    "email-worker",
+    "email-beat",
     "extraction-worker",
     "verification-worker",
     "visa-ai-worker",
@@ -69,6 +71,10 @@ WORKER_QUEUE_CONTRACTS = {
     "visa-ai-worker": (
         "visa-ai@",
         "visa-ai-image-edit",
+    ),
+    "email-worker": (
+        "email@",
+        "email_integrations",
     ),
 }
 
@@ -267,6 +273,17 @@ def main() -> int:
                     f"queue contract ({expected_part})."
                 ),
             )
+
+    email_beat = production_services["email-beat"]
+    _require(
+        " beat " in f" {_command_text(email_beat)} ",
+        "email-beat must run the Celery Beat scheduler.",
+    )
+    _require(
+        "app.infrastructure.email.beat_healthcheck"
+        in _healthcheck_text(email_beat),
+        "email-beat must verify its durable scheduler heartbeat.",
+    )
 
     dockerfile = BACKEND_DOCKERFILE.read_text(encoding="utf-8")
     _require(

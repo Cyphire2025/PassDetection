@@ -14,6 +14,7 @@ import json
 import re
 from functools import lru_cache
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import Field, SecretStr, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -36,18 +37,14 @@ class DatabaseSettings(BaseSettings):
     @property
     def async_url(self) -> str:
         """Async DSN used by SQLAlchemy + asyncpg at runtime."""
-        return (
-            f"postgresql+asyncpg://{self.user}:{self.password}"
-            f"@{self.host}:{self.port}/{self.db}"
-        )
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
 
     @computed_field  # type: ignore[misc]
     @property
     def sync_url(self) -> str:
         """Sync DSN used by Alembic migrations."""
         return (
-            f"postgresql+psycopg2://{self.user}:{self.password}"
-            f"@{self.host}:{self.port}/{self.db}"
+            f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
         )
 
 
@@ -147,7 +144,9 @@ class Settings(BaseSettings):
             if normalized.startswith("["):
                 parsed = json.loads(normalized)
                 if not isinstance(parsed, list):
-                    raise ValueError("ALLOWED_ORIGINS must be a JSON array or comma-separated string")
+                    raise ValueError(
+                        "ALLOWED_ORIGINS must be a JSON array or comma-separated string"
+                    )
                 return [str(origin).strip() for origin in parsed if str(origin).strip()]
 
             return [origin.strip() for origin in normalized.split(",") if origin.strip()]
@@ -166,6 +165,48 @@ class Settings(BaseSettings):
         normalized = value.strip()
         if normalized and not _GEMINI_MODEL_PATTERN.fullmatch(normalized):
             raise ValueError("Gemini image model names contain invalid characters")
+        return normalized
+
+    @field_validator("email_oauth_frontend_return_url")
+    @classmethod
+    def validate_email_oauth_frontend_return_url(cls, value: str) -> str:
+        normalized = value.strip()
+        parsed = urlsplit(normalized)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "EMAIL_OAUTH_FRONTEND_RETURN_URL must be an absolute HTTP(S) URL "
+                "without embedded credentials or a fragment"
+            )
+        return normalized
+
+    @field_validator("gmail_oauth_redirect_uri", mode="before")
+    @classmethod
+    def validate_gmail_oauth_redirect_uri(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("GMAIL_OAUTH_REDIRECT_URI must be a string")
+        normalized = value.strip()
+        if not normalized:
+            return None
+        parsed = urlsplit(normalized)
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.fragment
+        ):
+            raise ValueError(
+                "GMAIL_OAUTH_REDIRECT_URI must be an absolute HTTP(S) URL "
+                "without credentials or a fragment"
+            )
         return normalized
 
     # Anonymous/non-dashboard API fallback. Authenticated dashboard traffic is
@@ -298,6 +339,40 @@ class Settings(BaseSettings):
     )
     gemini_retry_max_attempts: int = Field(default=3, ge=1, le=10)
     gemini_priority_capacity_calibrated: bool = False
+
+    # Email integrations ship dormant. Each higher-risk capability has a
+    # separate switch so a connection cannot unexpectedly activate background
+    # mailbox access, attachment processing, link retrieval, or auto-actions.
+    email_integrations_enabled: bool = False
+    email_sync_enabled: bool = False
+    email_attachment_processing_enabled: bool = False
+    email_link_retrieval_enabled: bool = False
+    email_auto_actions_enabled: bool = False
+    email_token_encryption_key: SecretStr | None = Field(default=None, repr=False)
+    email_token_encryption_key_version: int = Field(default=1, ge=1, le=1_000_000)
+    email_token_decryption_keys: dict[int, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+    email_oauth_frontend_return_url: str = "http://localhost:3000/email-integrations"
+    gmail_oauth_client_id: str | None = None
+    gmail_oauth_client_secret: SecretStr | None = Field(default=None, repr=False)
+    gmail_oauth_redirect_uri: str | None = None
+    email_oauth_state_ttl_seconds: int = Field(default=600, ge=120, le=1_800)
+    email_sync_interval_seconds: int = Field(default=300, ge=60, le=86_400)
+    email_sync_lease_seconds: int = Field(default=300, ge=30, le=3_600)
+    email_sync_full_lookback_days: int = Field(default=7, ge=1, le=90)
+    email_sync_max_messages: int = Field(default=500, ge=1, le=5_000)
+    email_attachment_max_bytes: int = Field(
+        default=25 * 1024 * 1024,
+        ge=1024 * 1024,
+        le=100 * 1024 * 1024,
+    )
+    email_pdf_max_pages: int = Field(default=100, ge=1, le=500)
+    email_max_artifacts_per_message: int = Field(default=100, ge=1, le=500)
+    email_content_retention_days: int = Field(default=30, ge=1, le=3_650)
+    email_storage_orphan_grace_hours: int = Field(default=24, ge=1, le=168)
+
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_api_version: str = "v25.0"
@@ -308,27 +383,27 @@ class Settings(BaseSettings):
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
 
-    @computed_field  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[misc]
     @property
     def database(self) -> DatabaseSettings:
         return DatabaseSettings()
 
-    @computed_field  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[misc]
     @property
     def redis(self) -> RedisSettings:
         return RedisSettings()
 
-    @computed_field  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[misc]
     @property
     def jwt(self) -> JWTSettings:
         return JWTSettings()
 
-    @computed_field  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[misc]
     @property
     def s3(self) -> S3Settings:
         return S3Settings()
 
-    @computed_field  # type: ignore[misc]
+    @computed_field(repr=False)  # type: ignore[misc]
     @property
     def mrz(self) -> MRZSettings:
         return MRZSettings()

@@ -1,0 +1,453 @@
+"use client";
+
+import {
+  Mail,
+  Pause,
+  Play,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Skeleton,
+} from "@/components/ui";
+import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
+import type { EmailConnection } from "../types";
+import {
+  useAuthorizeGmail,
+  useDisconnectEmailConnection,
+  useEmailConnections,
+  useEmailIntegrationStatus,
+  useEmailIntegrationSummary,
+  usePauseEmailConnection,
+  useResumeEmailConnection,
+  useSyncEmailConnection,
+} from "../hooks/use-email-integrations";
+import {
+  cleanEmailOAuthCallbackUrl,
+  isSafeOAuthAuthorizationUrl,
+  readEmailOAuthCallback,
+} from "../utils/email-integrations";
+import {
+  Definition,
+  EmailCardSkeletons,
+  EmailDialog,
+  EmailNotice,
+  EmailQueryError,
+  EmailStatusBadge,
+} from "./email-integrations-ui";
+
+const SUMMARY_METRICS = [
+  ["connected_accounts", "Connected accounts"],
+  ["relevant_emails_today", "Relevant emails today"],
+  ["documents_retrieved_today", "Documents retrieved today"],
+  ["automatically_matched_today", "Automatically matched today"],
+  ["revisions_detected_today", "Revisions detected today"],
+  ["pending_review", "Pending review"],
+  ["retrieval_failures_today", "Retrieval failures today"],
+] as const;
+
+type Notice = {
+  tone: "success" | "error" | "warning" | "info";
+  message: string;
+};
+
+export function EmailConnectionsPage() {
+  const status = useEmailIntegrationStatus();
+  const connections = useEmailConnections();
+  const summary = useEmailIntegrationSummary();
+  const authorize = useAuthorizeGmail();
+  const sync = useSyncEmailConnection();
+  const pause = usePauseEmailConnection();
+  const resume = useResumeEmailConnection();
+  const disconnect = useDisconnectEmailConnection();
+  const [notice, setNotice] = useState<Notice | null>(null);
+  const [disconnectTarget, setDisconnectTarget] =
+    useState<EmailConnection | null>(null);
+  const [activeConnectionId, setActiveConnectionId] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const callbackNotice = readEmailOAuthCallback(window.location.search);
+    const noticeFrame = callbackNotice
+      ? window.requestAnimationFrame(() => setNotice(callbackNotice))
+      : null;
+
+    const cleanedUrl = cleanEmailOAuthCallbackUrl(new URL(window.location.href));
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (cleanedUrl !== currentUrl) {
+      window.history.replaceState(window.history.state, "", cleanedUrl);
+    }
+    return () => {
+      if (noticeFrame !== null) window.cancelAnimationFrame(noticeFrame);
+    };
+  }, []);
+
+  const gmailProvider = useMemo(
+    () => status.data?.providers.find((provider) => provider.provider === "gmail"),
+    [status.data],
+  );
+  const canConnectGmail =
+    status.data?.enabled === true && gmailProvider?.configured === true;
+  const anyConnectionMutation =
+    sync.isPending
+    || pause.isPending
+    || resume.isPending
+    || disconnect.isPending
+    || authorize.isPending;
+
+  function startAuthorization(connectionId?: string) {
+    setNotice(null);
+    setActiveConnectionId(connectionId ?? "new");
+    authorize.mutate(connectionId, {
+      onSuccess: ({ authorization_url: authorizationUrl }) => {
+        if (!isSafeOAuthAuthorizationUrl(authorizationUrl)) {
+          setNotice({
+            tone: "error",
+            message:
+              "The email provider returned an invalid authorization address. Please contact support.",
+          });
+          setActiveConnectionId(null);
+          return;
+        }
+        window.location.assign(authorizationUrl);
+      },
+      onError: () => {
+        setNotice({
+          tone: "error",
+          message: "Gmail authorization could not be started. Please try again.",
+        });
+        setActiveConnectionId(null);
+      },
+    });
+  }
+
+  function runConnectionAction(
+    action: "sync" | "pause" | "resume",
+    connectionId: string,
+  ) {
+    setNotice(null);
+    setActiveConnectionId(connectionId);
+    const mutation =
+      action === "sync" ? sync : action === "pause" ? pause : resume;
+    mutation.mutate(connectionId, {
+      onSuccess: () => {
+        setNotice({
+          tone: "success",
+          message:
+            action === "sync"
+              ? "Manual synchronization was queued."
+              : action === "pause"
+                ? "Inbox monitoring was paused."
+                : "Inbox monitoring was resumed.",
+        });
+        setActiveConnectionId(null);
+      },
+      onError: () => {
+        setNotice({
+          tone: "error",
+          message: `The connection could not be ${action === "sync" ? "synchronized" : `${action}d`}. Please try again.`,
+        });
+        setActiveConnectionId(null);
+      },
+    });
+  }
+
+  function confirmDisconnect() {
+    if (!disconnectTarget) return;
+    const connectionId = disconnectTarget.id;
+    setActiveConnectionId(connectionId);
+    disconnect.mutate(connectionId, {
+      onSuccess: () => {
+        setDisconnectTarget(null);
+        setActiveConnectionId(null);
+        setNotice({
+          tone: "success",
+          message: "The email account was disconnected and access was revoked.",
+        });
+      },
+      onError: () => {
+        setActiveConnectionId(null);
+        setNotice({
+          tone: "error",
+          message:
+            "Provider revocation could not be confirmed. The connection remains blocked; retry Disconnect.",
+        });
+      },
+    });
+  }
+
+  return (
+    <main className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+            Email Integrations
+          </h1>
+          <p className="mt-1 max-w-3xl text-sm text-slate-600">
+            Connect business inboxes for secure, server-side travel document
+            monitoring and processing.
+          </p>
+        </div>
+        <Button
+          type="button"
+          leftIcon={<Mail className="h-4 w-4" aria-hidden="true" />}
+          isLoading={authorize.isPending && activeConnectionId === "new"}
+          disabled={!canConnectGmail || anyConnectionMutation}
+          onClick={() => startAuthorization()}
+        >
+          Connect Gmail
+        </Button>
+      </div>
+
+      {notice && <EmailNotice tone={notice.tone}>{notice.message}</EmailNotice>}
+
+      {status.isError && (
+        <EmailQueryError
+          title="Email provider availability could not be checked."
+          onRetry={() => void status.refetch()}
+        />
+      )}
+      {status.data && !status.data.enabled && (
+        <EmailNotice tone="warning">
+          Email integrations are not enabled for this environment.
+        </EmailNotice>
+      )}
+      {status.data?.enabled && gmailProvider && !gmailProvider.configured && (
+        <EmailNotice tone="warning">
+          Gmail authorization has not been configured by an administrator.
+        </EmailNotice>
+      )}
+      {status.data?.enabled && !status.data.sync_enabled && (
+        <EmailNotice tone="warning">
+          Inbox monitoring is temporarily disabled. Existing connections will
+          not synchronize until it is enabled again.
+        </EmailNotice>
+      )}
+
+      <section aria-labelledby="email-summary-heading">
+        <h2
+          id="email-summary-heading"
+          className="mb-3 text-base font-semibold text-slate-900"
+        >
+          Today&apos;s email operations
+        </h2>
+        {summary.isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 7 }, (_, index) => (
+              <Skeleton key={index} className="h-24 rounded-xl" />
+            ))}
+          </div>
+        ) : summary.isError ? (
+          <EmailQueryError
+            title="Email processing totals could not be loaded."
+            onRetry={() => void summary.refetch()}
+          />
+        ) : summary.data ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {SUMMARY_METRICS.map(([key, label]) => (
+              <Card key={key}>
+                <CardContent className="p-4">
+                  <p className="text-2xl font-bold text-slate-950">
+                    {summary.data[key].toLocaleString()}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">{label}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      <section aria-labelledby="connected-inboxes-heading" className="space-y-3">
+        <div>
+          <h2
+            id="connected-inboxes-heading"
+            className="text-base font-semibold text-slate-900"
+          >
+            Connected inboxes
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Monitoring continues on the server even when staff are signed out.
+          </p>
+        </div>
+
+        {connections.isLoading ? (
+          <EmailCardSkeletons count={2} />
+        ) : connections.isError ? (
+          <EmailQueryError
+            title="Connected email accounts could not be loaded."
+            onRetry={() => void connections.refetch()}
+          />
+        ) : connections.data?.length ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {connections.data.map((connection) => {
+              const actions = new Set(connection.allowed_actions);
+              const isBusy =
+                anyConnectionMutation && activeConnectionId === connection.id;
+              return (
+                <Card key={connection.id}>
+                  <CardHeader className="flex-row items-start justify-between gap-3 p-5 pb-3">
+                    <div className="min-w-0">
+                      <CardTitle className="truncate">
+                        {connection.email_address}
+                      </CardTitle>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {connection.agency_name}
+                      </p>
+                    </div>
+                    <EmailStatusBadge status={connection.status} />
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-5 pt-0">
+                    <dl className="grid gap-4 sm:grid-cols-2">
+                      <Definition term="Provider">
+                        {connection.provider === "gmail"
+                          ? "Gmail"
+                          : connection.provider}
+                      </Definition>
+                      <Definition term="Last successful sync">
+                        <span title={formatDateTime(connection.last_successful_sync_at)}>
+                          {formatRelativeTime(connection.last_successful_sync_at)}
+                        </span>
+                      </Definition>
+                      <Definition term="Last sync attempt">
+                        {formatDateTime(connection.last_sync_attempt_at)}
+                      </Definition>
+                      <Definition term="Organization">
+                        {connection.agency_name}
+                      </Definition>
+                    </dl>
+
+                    {connection.last_error_message && (
+                      <EmailNotice tone="error">
+                        {connection.last_error_message.slice(0, 300)}
+                      </EmailNotice>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+                      {actions.has("sync") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          leftIcon={
+                            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+                          }
+                          isLoading={isBusy && sync.isPending}
+                          disabled={anyConnectionMutation}
+                          onClick={() => runConnectionAction("sync", connection.id)}
+                        >
+                          Sync now
+                        </Button>
+                      )}
+                      {actions.has("pause") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          leftIcon={<Pause className="h-3.5 w-3.5" aria-hidden="true" />}
+                          isLoading={isBusy && pause.isPending}
+                          disabled={anyConnectionMutation}
+                          onClick={() => runConnectionAction("pause", connection.id)}
+                        >
+                          Pause
+                        </Button>
+                      )}
+                      {actions.has("resume") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          leftIcon={<Play className="h-3.5 w-3.5" aria-hidden="true" />}
+                          isLoading={isBusy && resume.isPending}
+                          disabled={anyConnectionMutation}
+                          onClick={() => runConnectionAction("resume", connection.id)}
+                        >
+                          Resume
+                        </Button>
+                      )}
+                      {actions.has("reconnect") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          isLoading={isBusy && authorize.isPending}
+                          disabled={anyConnectionMutation || !canConnectGmail}
+                          onClick={() => startAuthorization(connection.id)}
+                        >
+                          Reconnect
+                        </Button>
+                      )}
+                      {actions.has("disconnect") && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-700 hover:bg-red-50 hover:text-red-800"
+                          leftIcon={<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                          disabled={anyConnectionMutation}
+                          onClick={() => setDisconnectTarget(connection)}
+                        >
+                          Disconnect
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center px-6 py-12 text-center">
+              <span className="rounded-full bg-blue-50 p-3 text-blue-700">
+                <Mail className="h-6 w-6" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 font-semibold text-slate-900">
+                No email accounts connected
+              </h3>
+              <p className="mt-1 max-w-lg text-sm text-slate-600">
+                Connect a supported business Gmail account to begin background
+                monitoring.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </section>
+
+      {disconnectTarget && (
+        <EmailDialog
+          title="Disconnect email account?"
+          description={`This revokes access to ${disconnectTarget.email_address} and stops future monitoring. Previously processed activity is retained for audit history.`}
+          isBusy={disconnect.isPending}
+          onClose={() => setDisconnectTarget(null)}
+        >
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={disconnect.isPending}
+              onClick={() => setDisconnectTarget(null)}
+            >
+              Keep connected
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              isLoading={disconnect.isPending}
+              onClick={confirmDisconnect}
+            >
+              Disconnect and revoke
+            </Button>
+          </div>
+        </EmailDialog>
+      )}
+    </main>
+  );
+}

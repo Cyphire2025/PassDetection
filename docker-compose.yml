@@ -183,6 +183,93 @@ services:
       retries: 3
       start_period: 30s
 
+  email-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: ${S3_PUBLIC_ENDPOINT_URL}
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=email@%h
+      --loglevel=INFO
+      --concurrency=${EMAIL_WORKER_CONCURRENCY:-2}
+      -Q email_integrations"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "email@$$(hostname)"
+          --queue email_integrations
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  email-beat:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: passdetection-email-beat
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      beat
+      --loglevel=INFO
+      --schedule=/tmp/passdetection-email-beat"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -m
+        - app.infrastructure.email.beat_healthcheck
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
   extraction-worker:
     image: passdetection-backend
     build:

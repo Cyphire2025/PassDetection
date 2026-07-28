@@ -5,6 +5,7 @@ MinIO / S3 Storage Repository
 
 import asyncio
 import hashlib
+from datetime import datetime
 from functools import lru_cache
 from typing import Any
 
@@ -60,6 +61,7 @@ class MinioStorageRepository(IObjectStorageRepository):
     def __init__(self) -> None:
         self.settings = get_settings().s3
         self._client, self._presign_client = _shared_s3_clients()
+
     async def ensure_bucket_exists(self) -> None:
         """Provision the bucket during startup, never in a request constructor."""
 
@@ -81,17 +83,13 @@ class MinioStorageRepository(IObjectStorageRepository):
                     "s3_bucket_check_failed",
                     error_type=type(e).__name__,
                 )
-                raise StorageError(
-                    "Passport image storage is not available."
-                ) from e
+                raise StorageError("Passport image storage is not available.") from e
         except Exception as e:
             logger.error(
                 "s3_bucket_check_failed",
                 error_type=type(e).__name__,
             )
-            raise StorageError(
-                "Passport image storage is not available."
-            ) from e
+            raise StorageError("Passport image storage is not available.") from e
 
     async def upload_file(self, file_content: bytes, file_name: str, content_type: str) -> str:
         """Uploads file synchronously in a thread pool to avoid blocking the event loop."""
@@ -167,7 +165,7 @@ class MinioStorageRepository(IObjectStorageRepository):
         failed_count = 0
         try:
             for index in range(0, len(unique_keys), 1000):
-                chunk = unique_keys[index:index + 1000]
+                chunk = unique_keys[index : index + 1000]
                 response = await asyncio.to_thread(
                     self._client.delete_objects,
                     Bucket=self.settings.bucket_name,
@@ -199,6 +197,58 @@ class MinioStorageRepository(IObjectStorageRepository):
             )
             raise StorageError(
                 "Stored passport files could not be removed. Please try again."
+            ) from e
+
+    async def list_files(
+        self,
+        *,
+        prefix: str,
+        limit: int = 5_000,
+        start_after: str | None = None,
+    ) -> list[tuple[str, datetime | None]]:
+        """List a bounded internal namespace for storage reconciliation."""
+
+        normalized_prefix = prefix.strip()
+        if not normalized_prefix or limit < 1:
+            raise ValueError("A non-empty prefix and positive limit are required")
+
+        def _list() -> list[tuple[str, datetime | None]]:
+            objects: list[tuple[str, datetime | None]] = []
+            continuation_token: str | None = None
+            while len(objects) < limit:
+                request: dict[str, Any] = {
+                    "Bucket": self.settings.bucket_name,
+                    "Prefix": normalized_prefix,
+                    "MaxKeys": min(1_000, limit - len(objects)),
+                }
+                if continuation_token:
+                    request["ContinuationToken"] = continuation_token
+                elif start_after:
+                    request["StartAfter"] = start_after
+                response = self._client.list_objects_v2(**request)
+                for item in response.get("Contents") or []:
+                    key = item.get("Key")
+                    if isinstance(key, str) and key.startswith(normalized_prefix):
+                        modified = item.get("LastModified")
+                        objects.append((key, modified if isinstance(modified, datetime) else None))
+                if not response.get("IsTruncated") or len(objects) >= limit:
+                    break
+                token = response.get("NextContinuationToken")
+                if not isinstance(token, str) or not token:
+                    break
+                continuation_token = token
+            return objects
+
+        try:
+            return await asyncio.to_thread(_list)
+        except Exception as e:
+            logger.error(
+                "s3_list_failed",
+                error_type=type(e).__name__,
+                prefix_hash=self._key_hash(normalized_prefix),
+            )
+            raise StorageError(
+                "Stored passport files could not be reconciled. Please try again."
             ) from e
 
     @staticmethod
