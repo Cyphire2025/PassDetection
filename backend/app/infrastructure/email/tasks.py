@@ -158,6 +158,24 @@ async def _claim_due_dispatches() -> list[uuid.UUID]:
     settings = get_settings()
     now = datetime.now(tz=UTC)
     async with AsyncSessionFactory() as session:
+        # When an operator lowers the polling interval, do not leave healthy
+        # idle connections waiting on their previously longer schedule.
+        await session.execute(
+            update(EmailConnectionModel)
+            .where(
+                EmailConnectionModel.status == "active",
+                EmailConnectionModel.sync_state == "idle",
+                EmailConnectionModel.next_sync_at.is_not(None),
+                EmailConnectionModel.next_sync_at
+                > now + timedelta(seconds=settings.email_sync_interval_seconds),
+                or_(
+                    EmailConnectionModel.sync_lease_expires_at.is_(None),
+                    EmailConnectionModel.sync_lease_expires_at <= now,
+                ),
+            )
+            .values(next_sync_at=now)
+            .execution_options(synchronize_session=False)
+        )
         result = await session.execute(
             select(EmailConnectionModel)
             .where(

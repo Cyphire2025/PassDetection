@@ -11,6 +11,8 @@ mailbox access by itself.
 ## Current provider boundary
 
 - Gmail OAuth, initial bounded inbox scan, and incremental Gmail history sync
+- Near-real-time bounded history polling every 15 seconds by default, with
+  five-second due-work dispatch and duplicate-safe connection leases
 - PDF visa and flight-ticket retrieval through the existing document
   distribution pipeline
 - Deterministic exact passport-number evidence can support passenger matching;
@@ -134,9 +136,15 @@ Never reuse a version number for different key material.
 
    ```dotenv
    EMAIL_SYNC_ENABLED=true
+   EMAIL_SYNC_INTERVAL_SECONDS=15
    EMAIL_ATTACHMENT_PROCESSING_ENABLED=true
    EMAIL_AUTO_ACTIONS_ENABLED=false
    ```
+
+   The Gmail provider uses incremental history polling rather than Google
+   Pub/Sub push notifications. With the default interval and dispatcher
+   cadence, a healthy connection normally discovers new mail within about
+   15–20 seconds while retaining the existing lease and idempotency controls.
 
 7. Review activity, failures, duplicate detection, and review decisions before
    enabling exact-match automatic actions:

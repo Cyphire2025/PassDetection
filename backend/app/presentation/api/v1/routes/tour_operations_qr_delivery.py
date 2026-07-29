@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -57,6 +57,8 @@ QR_DELIVERY_ROLES = [
 ]
 ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
+QR_QUEUED_STALE_AFTER = timedelta(minutes=2)
+QR_PROCESSING_STALE_AFTER = timedelta(minutes=10)
 
 
 def _agency_id(current_user: User) -> uuid.UUID:
@@ -99,6 +101,60 @@ async def _manageable_group(
             detail=exc.message,
         ) from exc
     return group
+
+
+async def _recover_stale_qr_deliveries(
+    session: AsyncSession,
+    *,
+    group: ClientGroupModel,
+    now: datetime | None = None,
+) -> int:
+    """Recover only states whose provider-safety outcome is deterministic."""
+
+    recovered_at = now or datetime.now(tz=UTC)
+    queued_result = await session.execute(
+        update(PassengerQrWhatsAppDeliveryModel)
+        .where(
+            PassengerQrWhatsAppDeliveryModel.agency_id == group.agency_id,
+            PassengerQrWhatsAppDeliveryModel.group_id == group.id,
+            PassengerQrWhatsAppDeliveryModel.status == "queued",
+            PassengerQrWhatsAppDeliveryModel.status_updated_at
+            <= recovered_at - QR_QUEUED_STALE_AFTER,
+        )
+        .values(
+            status="failed",
+            status_updated_at=recovered_at,
+            updated_at=recovered_at,
+            error_message=(
+                "WHATSAPP_QUEUE_INTERRUPTED: No worker claimed this queued QR "
+                "delivery; retrying it is safe"
+            ),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    uncertain_result = await session.execute(
+        update(PassengerQrWhatsAppDeliveryModel)
+        .where(
+            PassengerQrWhatsAppDeliveryModel.agency_id == group.agency_id,
+            PassengerQrWhatsAppDeliveryModel.group_id == group.id,
+            PassengerQrWhatsAppDeliveryModel.status == "processing",
+            PassengerQrWhatsAppDeliveryModel.status_updated_at
+            <= recovered_at - QR_PROCESSING_STALE_AFTER,
+        )
+        .values(
+            status="delivery_unknown",
+            status_updated_at=recovered_at,
+            updated_at=recovered_at,
+            error_message=(
+                "WHATSAPP_DELIVERY_UNKNOWN: Provider processing was interrupted; "
+                "automatic resend is suppressed"
+            ),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    return int(getattr(queued_result, "rowcount", 0) or 0) + int(
+        getattr(uncertain_result, "rowcount", 0) or 0
+    )
 
 
 def _passport_number(submission: PassportSubmissionModel) -> str | None:
@@ -391,7 +447,14 @@ async def preview_qr_whatsapp_broadcast(
         current_user=current_user,
         group_id=group_id,
     )
-    return await _build_preview(session, group=group)
+    recovered_count = await _recover_stale_qr_deliveries(
+        session,
+        group=group,
+    )
+    preview = await _build_preview(session, group=group)
+    if recovered_count:
+        await session.commit()
+    return preview
 
 
 @router.post(
@@ -418,6 +481,10 @@ async def send_qr_whatsapp_broadcast(
     )
     await session.execute(
         select(ClientGroupModel.id).where(ClientGroupModel.id == group.id).with_for_update()
+    )
+    await _recover_stale_qr_deliveries(
+        session,
+        group=group,
     )
     preview = await _build_preview(session, group=group)
     if not preview.can_send:

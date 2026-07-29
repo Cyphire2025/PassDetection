@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, Mock, call
+from unittest.mock import AsyncMock, MagicMock, Mock, call
 
 import app.infrastructure.email.tasks as email_tasks
 from app.infrastructure.email.tasks import (
@@ -12,6 +12,7 @@ from app.infrastructure.email.tasks import (
     EMAIL_RETENTION_TASK,
     EMAIL_SCHEDULER_HEARTBEAT_TASK,
     EMAIL_SYNC_TASK,
+    _claim_due_dispatches,
     _reconcile_orphaned_email_storage,
     _storage_object_is_older_than,
 )
@@ -34,7 +35,7 @@ def test_email_dispatch_has_a_single_periodic_schedule() -> None:
     schedule = celery_app.conf.beat_schedule["dispatch-due-email-connections"]
 
     assert schedule["task"] == EMAIL_DISPATCH_TASK
-    assert schedule["schedule"] == 60.0
+    assert schedule["schedule"] == 5.0
     assert schedule["options"]["queue"] == EMAIL_INTEGRATION_QUEUE
 
     retention = celery_app.conf.beat_schedule["apply-email-content-retention"]
@@ -129,6 +130,37 @@ def test_scheduler_heartbeat_is_written_with_a_short_ttl(monkeypatch) -> None:  
 
     assert client.setex.call_args.args[1] == 180
     client.close.assert_called_once_with()
+
+
+async def test_shorter_sync_interval_immediately_reschedules_healthy_idle_connections(
+    monkeypatch,
+) -> None:  # type: ignore[no-untyped-def]
+    connection = SimpleNamespace(
+        id=uuid.uuid4(),
+        sync_state="idle",
+        next_sync_at=None,
+    )
+    update_result = SimpleNamespace(rowcount=1)
+    select_result = MagicMock()
+    select_result.scalars.return_value.all.return_value = [connection]
+    session = AsyncMock()
+    session.execute.side_effect = [update_result, select_result]
+    session_factory = MagicMock()
+    session_factory.return_value.__aenter__.return_value = session
+    monkeypatch.setattr(email_tasks, "AsyncSessionFactory", session_factory)
+    monkeypatch.setattr(
+        email_tasks,
+        "get_settings",
+        lambda: SimpleNamespace(email_sync_interval_seconds=15),
+    )
+
+    claimed = await _claim_due_dispatches()
+
+    assert claimed == [connection.id]
+    assert session.execute.await_count == 2
+    assert connection.sync_state == "queued"
+    assert connection.next_sync_at is not None
+    session.commit.assert_awaited_once_with()
 
 
 def test_orphan_reconciliation_waits_for_the_storage_grace_period() -> None:

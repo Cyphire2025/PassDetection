@@ -263,6 +263,7 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
           messageContent={effectiveMessageContent}
           sending={sendQrBroadcast.isPending}
           sendError={sendQrBroadcast.error}
+          sendFeedback={deliveryFeedback}
           onMessageContentChange={setMessageContent}
           onToggleQr={(qrTokenId) => {
             setSelectedQrTokenIds((current) =>
@@ -275,6 +276,7 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
             if (!sendQrBroadcast.isPending) setIsSendPreviewOpen(false);
           }}
           onSend={() => {
+            setDeliveryFeedback(null);
             sendQrBroadcast.mutate(
               {
                 qr_token_ids: effectiveSelectedQrTokenIds,
@@ -283,7 +285,6 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
               {
                 onSuccess: (result) => {
                   setDeliveryFeedback(result.message);
-                  setIsSendPreviewOpen(false);
                 },
               },
             );
@@ -303,6 +304,7 @@ function QrDeliveryPreviewDialog({
   messageContent,
   sending,
   sendError,
+  sendFeedback,
   onMessageContentChange,
   onToggleQr,
   onClose,
@@ -316,6 +318,7 @@ function QrDeliveryPreviewDialog({
   messageContent: string;
   sending: boolean;
   sendError: Error | null;
+  sendFeedback: string | null;
   onMessageContentChange: (value: string) => void;
   onToggleQr: (qrTokenId: string) => void;
   onClose: () => void;
@@ -386,6 +389,12 @@ function QrDeliveryPreviewDialog({
               {preview.configuration_error && (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
                   {preview.configuration_error}
+                </div>
+              )}
+
+              {sendFeedback && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  {sendFeedback} Delivery status refreshes automatically.
                 </div>
               )}
 

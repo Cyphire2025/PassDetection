@@ -359,7 +359,7 @@ class Settings(BaseSettings):
     gmail_oauth_client_secret: SecretStr | None = Field(default=None, repr=False)
     gmail_oauth_redirect_uri: str | None = None
     email_oauth_state_ttl_seconds: int = Field(default=600, ge=120, le=1_800)
-    email_sync_interval_seconds: int = Field(default=300, ge=60, le=86_400)
+    email_sync_interval_seconds: int = Field(default=15, ge=15, le=86_400)
     email_sync_lease_seconds: int = Field(default=300, ge=30, le=3_600)
     email_sync_full_lookback_days: int = Field(default=7, ge=1, le=90)
     email_sync_max_messages: int = Field(default=500, ge=1, le=5_000)

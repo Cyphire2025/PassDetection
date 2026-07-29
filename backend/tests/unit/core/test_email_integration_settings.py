@@ -25,6 +25,7 @@ def test_email_capabilities_are_disabled_by_default() -> None:
     assert settings.email_token_encryption_key is None
     assert settings.email_token_decryption_keys == {}
     assert settings.gmail_oauth_client_secret is None
+    assert settings.email_sync_interval_seconds == 15
 
 
 def test_email_secret_values_remain_redacted() -> None:
@@ -42,7 +43,7 @@ def test_email_secret_values_remain_redacted() -> None:
 @pytest.mark.parametrize(
     ("field_name", "invalid_value"),
     [
-        ("email_sync_interval_seconds", 59),
+        ("email_sync_interval_seconds", 14),
         ("email_sync_lease_seconds", 29),
         ("email_sync_full_lookback_days", 0),
         ("email_sync_max_messages", 0),

@@ -65,7 +65,7 @@ celery_app.conf.update(
     beat_schedule={
         "dispatch-due-email-connections": {
             "task": EMAIL_DISPATCH_TASK,
-            "schedule": 60.0,
+            "schedule": 5.0,
             "options": {"queue": EMAIL_INTEGRATION_QUEUE},
         },
         "apply-email-content-retention": {

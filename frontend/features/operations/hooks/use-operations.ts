@@ -430,6 +430,8 @@ export function useQrDeliveryPreview(groupId: string, enabled: boolean) {
     queryKey: ["operations", "tour-operations", "groups", groupId, "qr-whatsapp-preview"],
     queryFn: () => operationsApi.qrDeliveryPreview(groupId),
     enabled,
+    refetchInterval: enabled ? 2_000 : false,
+    refetchIntervalInBackground: false,
     retry: false,
   });
 }

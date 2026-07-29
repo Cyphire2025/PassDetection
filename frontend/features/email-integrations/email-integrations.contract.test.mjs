@@ -15,6 +15,7 @@ const shell = read("./components/email-integrations-shell.tsx");
 const connections = read("./components/connections-page.tsx");
 const review = read("./components/review-queue-page.tsx");
 const message = read("./components/message-activity-page.tsx");
+const hooks = read("./hooks/use-email-integrations.ts");
 const types = read("./types.ts");
 const detailRoute = read(
   "../../app/(dashboard)/email-integrations/activity/[messageId]/page.tsx",
@@ -123,4 +124,9 @@ test("connection response type contains only the public contract fields", () => 
     assert.match(connection[1], new RegExp(`\\b${field}\\b`));
   }
   assert.doesNotMatch(connection[1], /token|secret|authorization_code/);
+});
+
+test("email connection, review, and activity views refresh near real time", () => {
+  assert.match(hooks, /const REFRESH_INTERVAL_MS = 5_000/);
+  assert.match(hooks, /refetchInterval: REFRESH_INTERVAL_MS/);
 });

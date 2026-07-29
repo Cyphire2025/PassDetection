@@ -20,7 +20,7 @@ export const EMAIL_INTEGRATION_QUERY_KEYS = {
     ["email-integrations", "messages", messageId] as const,
 };
 
-const REFRESH_INTERVAL_MS = 30_000;
+const REFRESH_INTERVAL_MS = 5_000;
 
 export function useEmailIntegrationStatus() {
   return useQuery({

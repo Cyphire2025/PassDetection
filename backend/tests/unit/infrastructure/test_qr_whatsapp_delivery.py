@@ -25,6 +25,9 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 from app.infrastructure.whatsapp.qr_delivery_runtime import (
     apply_qr_provider_status,
 )
+from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
+    _recover_stale_qr_deliveries,
+)
 from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
 
 
@@ -136,6 +139,31 @@ class QrWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             now=now + timedelta(seconds=1),
         )
         self.assertEqual(delivery.status, "read")
+
+    async def test_preview_recovery_distinguishes_safe_queue_retry_from_unknown_delivery(
+        self,
+    ) -> None:
+        queued_result = types.SimpleNamespace(rowcount=1)
+        processing_result = types.SimpleNamespace(rowcount=2)
+        session = AsyncMock()
+        session.execute.side_effect = [queued_result, processing_result]
+        group = types.SimpleNamespace(
+            id=uuid.uuid4(),
+            agency_id=uuid.uuid4(),
+        )
+
+        recovered = await _recover_stale_qr_deliveries(
+            session,
+            group=group,
+            now=datetime.now(tz=UTC),
+        )
+
+        self.assertEqual(recovered, 3)
+        self.assertEqual(session.execute.await_count, 2)
+        queued_statement = str(session.execute.await_args_list[0].args[0])
+        processing_statement = str(session.execute.await_args_list[1].args[0])
+        self.assertIn("passenger_qr_whatsapp_deliveries.status", queued_statement)
+        self.assertIn("passenger_qr_whatsapp_deliveries.status", processing_statement)
 
     async def test_webhook_updates_qr_delivery_when_no_other_log_matches(self) -> None:
         now = datetime.now(tz=UTC)
