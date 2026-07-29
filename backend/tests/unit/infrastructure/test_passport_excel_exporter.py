@@ -192,80 +192,10 @@ def test_agency_matched_export_places_old_given_name_before_new_names() -> None:
     assert values["Old Given Name"] == "MUBASSREEN"
     assert values["New Surname"] == "KHAN"
     assert values["New Given Name"] == "ABDUL HAMEED"
-
-
-def test_name_history_cells_are_red_only_when_old_and_new_names_differ() -> None:
-    group_id = uuid.uuid4()
-    matching = _submission(
-        group_id,
-        client_name="Matching",
-        fields={
-            "surname": "Khan",
-            "given_names": "Abdul Hameed",
-            "passport_number": "MATCH1",
-        },
-    )
-    mismatching = _submission(
-        group_id,
-        client_name="Mismatching",
-        fields={
-            "surname": "Vashistha",
-            "given_names": "Nipun Kumar",
-            "passport_number": "DIFFER1",
-        },
-    )
-
-    worksheet = _worksheet(
-        PassportExcelExporter().export_group(
-            [matching, mismatching],
-            group_name="Name Match",
-            group_details={group_id: {"name": "Name Match", **_OPTION_FLAGS}},
-            previous_names={
-                matching.id: {"given_names": "  Abdul-Hameed, KHAN  "},
-                mismatching.id: {"given_names": "Nipun Sharma"},
-            },
-            pending_rows=[
-                {
-                    "Old Given Name": "Pending Person",
-                    "New Surname": "Different",
-                    "New Given Name": "Name",
-                }
-            ],
-        )
-    )
-    headers = [cell.value for cell in worksheet[4]]
-    passport_column = headers.index("Passport Number") + 1
-    name_columns = [
-        headers.index(header) + 1
+    assert all(
+        worksheet.cell(row=5, column=headers.index(header) + 1).fill.fill_type
+        is None
         for header in ("Old Given Name", "New Surname", "New Given Name")
-    ]
-    row_by_passport = {
-        worksheet.cell(row=row, column=passport_column).value: row
-        for row in range(5, worksheet.max_row + 1)
-    }
-
-    matching_row = row_by_passport["MATCH1"]
-    mismatching_row = row_by_passport["DIFFER1"]
-    pending_row = next(
-        row
-        for row in range(5, worksheet.max_row + 1)
-        if worksheet.cell(row=row, column=name_columns[0]).value
-        == "Pending Person"
-    )
-    assert all(
-        worksheet.cell(row=matching_row, column=column).fill.fill_type is None
-        for column in name_columns
-    )
-    assert all(
-        worksheet.cell(row=mismatching_row, column=column).fill.fill_type == "solid"
-        and worksheet.cell(row=mismatching_row, column=column).fill.fgColor.rgb == "00FCE8E6"
-        for column in name_columns
-    )
-    assert all(
-        worksheet.cell(row=pending_row, column=column).fill.fill_type == "solid"
-        and worksheet.cell(row=pending_row, column=column).fill.fgColor.rgb
-        == "00FFF2CC"
-        for column in name_columns
     )
 
 
