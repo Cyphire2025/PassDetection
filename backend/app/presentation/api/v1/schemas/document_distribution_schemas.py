@@ -108,6 +108,7 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
     delivery_status: str
     eligible: bool = False
     reason: str
+    error_message: str | None = None
     message_preview: str | None = None
 
 

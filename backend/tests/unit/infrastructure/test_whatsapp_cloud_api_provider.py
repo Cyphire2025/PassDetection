@@ -10,6 +10,7 @@ import httpx
 
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
+    send_whatsapp_document_template,
     send_whatsapp_template,
     upload_whatsapp_image,
 )
@@ -115,6 +116,8 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
             status_code=400,
             json=lambda: {
                 "error": {
+                    "code": 132000,
+                    "error_subcode": 2494073,
                     "message": "Invalid parameter",
                     "error_data": {"details": "Template is not approved"},
                 }
@@ -145,6 +148,38 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Template is not approved", str(raised.exception))
         self.assertNotIn("Invalid parameter", str(raised.exception))
         self.assertIn("Meta rejected this template message", str(raised.exception))
+        self.assertIn("Meta code 132000", str(raised.exception))
+        self.assertIn("subcode 2494073", str(raised.exception))
+
+    async def test_document_template_rejection_includes_safe_meta_codes(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=400,
+            json=lambda: {
+                "error": {
+                    "code": 132012,
+                    "error_subcode": 2494074,
+                    "message": "Parameter format does not match",
+                    "error_data": {"details": "Private provider payload detail"},
+                }
+            },
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_document_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="documents_v1",
+                media_id="media-123",
+                filename="traveller.pdf",
+                parameters=["Attached VISA", "Please check your details"],
+            )
+
+        self.assertEqual(raised.exception.code, "WHATSAPP_PROVIDER_REJECTED")
+        self.assertIn("Meta code 132012", str(raised.exception))
+        self.assertIn("subcode 2494074", str(raised.exception))
+        self.assertNotIn("Private provider payload detail", str(raised.exception))
 
     async def test_passport_payload_has_image_header_and_four_body_parameters(self) -> None:
         response = types.SimpleNamespace(

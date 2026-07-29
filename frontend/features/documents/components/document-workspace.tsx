@@ -696,6 +696,11 @@ function DocumentDeliveryPreviewDialog({
                           <td className="px-4 py-3">
                             <DeliveryPreviewStatus status={row.delivery_status} />
                             <div className="mt-1 max-w-xs text-xs text-slate-500">{row.reason}</div>
+                            {row.error_message && row.delivery_status === "retryable" && (
+                              <div className="mt-1 max-w-md text-xs font-medium text-red-700">
+                                {row.error_message}
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))}

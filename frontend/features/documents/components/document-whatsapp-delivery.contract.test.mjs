@@ -18,6 +18,7 @@ test("saved document lists expose an explicit WhatsApp preview before sending", 
   assert.match(workspace, /documents_v1 preview/);
   assert.match(workspace, /Editable text 1/);
   assert.match(workspace, /Editable text 2/);
+  assert.match(workspace, /row\.error_message/);
 });
 
 test("frontend uses dedicated preview, send, and tracking contracts", () => {

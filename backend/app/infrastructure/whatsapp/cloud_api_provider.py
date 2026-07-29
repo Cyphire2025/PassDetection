@@ -57,6 +57,28 @@ def _document_parameter(media_id: str, filename: str) -> dict[str, Any]:
     }
 
 
+def _meta_error_reference(data: Any) -> tuple[str | None, str | None, str]:
+    """Return non-sensitive Meta error identifiers for staff diagnostics."""
+
+    error = data.get("error") if isinstance(data, dict) else None
+    if not isinstance(error, dict):
+        return None, None, ""
+    raw_code = error.get("code")
+    raw_subcode = error.get("error_subcode")
+    meta_code = str(raw_code).strip() if isinstance(raw_code, (int, str)) else None
+    meta_subcode = (
+        str(raw_subcode).strip()
+        if isinstance(raw_subcode, (int, str))
+        else None
+    )
+    parts = []
+    if meta_code:
+        parts.append(f"Meta code {meta_code}")
+    if meta_subcode:
+        parts.append(f"subcode {meta_subcode}")
+    return meta_code, meta_subcode, f" ({', '.join(parts)})" if parts else ""
+
+
 async def upload_whatsapp_image(
     *,
     client: httpx.AsyncClient,
@@ -251,20 +273,38 @@ async def send_whatsapp_document_template(
     except ValueError:
         data = {}
     if response.status_code >= 400:
+        meta_code, meta_subcode, meta_reference = _meta_error_reference(data)
+        logger.warning(
+            "whatsapp_document_template_rejected",
+            extra={
+                "status_code": response.status_code,
+                "meta_error_code": meta_code,
+                "meta_error_subcode": meta_subcode,
+            },
+        )
         if response.status_code == 429:
             code = "WHATSAPP_PROVIDER_RATE_LIMITED"
-            message = "Meta temporarily rate-limited this document message"
+            message = (
+                "Meta temporarily rate-limited this document message"
+                f"{meta_reference}"
+            )
         elif response.status_code in {401, 403}:
             code = "WHATSAPP_PROVIDER_AUTH_FAILED"
-            message = "Meta rejected the configured WhatsApp credentials"
+            message = (
+                "Meta rejected the configured WhatsApp credentials"
+                f"{meta_reference}"
+            )
         elif response.status_code >= 500:
             code = "WHATSAPP_DELIVERY_UNKNOWN"
-            message = "Meta returned a server error and delivery status is unknown"
+            message = (
+                "Meta returned a server error and delivery status is unknown"
+                f"{meta_reference}"
+            )
         else:
             code = "WHATSAPP_PROVIDER_REJECTED"
             message = (
                 "Meta rejected this document template; verify the approved template "
-                "and recipient details"
+                f"and recipient details{meta_reference}"
             )
         raise WhatsAppCloudApiError(
             message,
@@ -371,38 +411,37 @@ async def send_whatsapp_template(
     except ValueError:
         data = {}
     if response.status_code >= 400:
-        error = data.get("error", {}) if isinstance(data, dict) else {}
-        provider_code = error.get("code") if isinstance(error, dict) else None
-        provider_subcode = error.get("error_subcode") if isinstance(error, dict) else None
+        provider_code, provider_subcode, meta_reference = _meta_error_reference(data)
         if response.status_code == 429:
             code = "WHATSAPP_PROVIDER_RATE_LIMITED"
-            message = "Meta temporarily rate-limited this template message"
+            message = (
+                "Meta temporarily rate-limited this template message"
+                f"{meta_reference}"
+            )
         elif response.status_code in {401, 403}:
             code = "WHATSAPP_PROVIDER_AUTH_FAILED"
-            message = "Meta rejected the configured WhatsApp credentials"
+            message = (
+                "Meta rejected the configured WhatsApp credentials"
+                f"{meta_reference}"
+            )
         elif response.status_code >= 500:
             code = "WHATSAPP_DELIVERY_UNKNOWN"
-            message = "Meta returned a server error and delivery status is unknown"
+            message = (
+                "Meta returned a server error and delivery status is unknown"
+                f"{meta_reference}"
+            )
         else:
             code = "WHATSAPP_PROVIDER_REJECTED"
             message = (
                 "Meta rejected this template message; verify the approved template "
-                "configuration and recipient details"
+                f"configuration and recipient details{meta_reference}"
             )
         logger.warning(
             "whatsapp_cloud_api_request_rejected",
             extra={
                 "status_code": response.status_code,
-                "provider_code": (
-                    provider_code
-                    if isinstance(provider_code, (str, int))
-                    else None
-                ),
-                "provider_subcode": (
-                    provider_subcode
-                    if isinstance(provider_subcode, (str, int))
-                    else None
-                ),
+                "provider_code": provider_code,
+                "provider_subcode": provider_subcode,
             },
         )
         raise WhatsAppCloudApiError(

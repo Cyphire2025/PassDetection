@@ -340,6 +340,11 @@ async def _build_document_delivery_preview(
                 delivery_status=delivery_status,
                 eligible=eligible,
                 reason=reason,
+                error_message=(
+                    existing_delivery.error_message
+                    if existing_delivery and existing_delivery.status == "failed"
+                    else None
+                ),
                 message_preview=(
                     render_document_message(
                         message_content_1=message_content_1,

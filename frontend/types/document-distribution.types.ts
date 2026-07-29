@@ -99,6 +99,7 @@ export interface DocumentDeliveryPreviewRecipient {
   delivery_status: DocumentDeliveryPreviewStatus | string;
   eligible: boolean;
   reason: string;
+  error_message: string | null;
   message_preview: string | null;
 }
 
