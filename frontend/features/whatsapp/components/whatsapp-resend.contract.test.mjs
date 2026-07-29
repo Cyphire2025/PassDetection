@@ -70,7 +70,7 @@ test("sent messages expose resend and failed messages expose retry", () => {
   assert.match(pageSource, /canRetry\s*\? "Retry"/);
   assert.match(
     pageSource,
-    /return messageType === "welcome" \|\| messageType === "passport_link"/,
+    /messageType === "welcome"[\s\S]*messageType === "passport_link"[\s\S]*messageType === "reminder"/,
   );
 });
 

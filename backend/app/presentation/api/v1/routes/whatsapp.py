@@ -329,7 +329,7 @@ class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
 
 
 class WhatsAppSendRequest(BaseModel):
-    message_type: str = Field(pattern="^(welcome|passport_link)$")
+    message_type: str = Field(pattern="^(welcome|passport_link|reminder)$")
     passport_intro: str | None = Field(default=None, max_length=600)
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
@@ -732,7 +732,20 @@ def _clean_required_name(value: Any, field_label: str) -> str:
 
 
 def _as_message_type(value: str) -> WhatsAppMessageType:
-    return "welcome" if value == "welcome" else "passport_link"
+    if value == "welcome":
+        return "welcome"
+    if value == "reminder":
+        return "reminder"
+    return "passport_link"
+
+
+def _configured_template_name(message_type: WhatsAppMessageType) -> str:
+    settings = get_settings()
+    if message_type == "welcome":
+        return settings.whatsapp_welcome_template_name
+    if message_type == "reminder":
+        return settings.whatsapp_reminder_template_name
+    return settings.whatsapp_passport_link_template_name
 
 
 def _resolve_message_content(
@@ -788,7 +801,9 @@ def _resolve_send_header_image(
     value: str | None,
     *,
     resend: bool = False,
-) -> str:
+) -> str | None:
+    if message_type == "reminder":
+        return None
     media_id = (value or "").strip()
     if media_id:
         return media_id
@@ -2469,7 +2484,7 @@ def _decode_legacy_template_snapshot(
 def _template_snapshot_from_log(
     log: WhatsAppMessageLogModel,
 ) -> tuple[list[str], list[str]]:
-    if log.message_type not in {"welcome", "passport_link"}:
+    if log.message_type not in {"welcome", "passport_link", "reminder"}:
         raise ValueError("The saved WhatsApp message type cannot be resent")
     message_type = _as_message_type(log.message_type)
     saved_header = log.header_parameter_values
@@ -2498,7 +2513,7 @@ def _composer_snapshot_from_log(
 ) -> _WhatsAppComposerSnapshot:
     header_parameters, parameters = _template_snapshot_from_log(log)
     header_image_id = header_parameters[0] if header_parameters else None
-    if log.message_type == "welcome":
+    if log.message_type in {"welcome", "reminder"}:
         return _WhatsAppComposerSnapshot(
             log=log,
             passport_intro=None,
@@ -3448,12 +3463,7 @@ async def preview_broadcast_message(
             recipients=recipients,
             message_type=message_type,
         )
-    settings = get_settings()
-    template_name = (
-        settings.whatsapp_welcome_template_name
-        if message_type == "welcome"
-        else settings.whatsapp_passport_link_template_name
-    )
+    template_name = _configured_template_name(message_type)
     return WhatsAppPreviewResponse(
         message_type=message_type,
         template_name=template_name,
@@ -4241,11 +4251,7 @@ async def resend_recipient_message(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WhatsApp Cloud API credentials are incomplete",
         )
-    configured_template_name = (
-        settings.whatsapp_welcome_template_name
-        if message_type == "welcome"
-        else settings.whatsapp_passport_link_template_name
-    )
+    configured_template_name = _configured_template_name(message_type)
     merged_body = _merge_composer_snapshot(body, source_snapshot)
     header_image_id = _resolve_send_header_image(
         message_type,
@@ -4375,7 +4381,11 @@ async def resend_recipient_message(
             kwargs={
                 "batch_id": str(batch_id),
                 "message_type": message_type,
-                "message_content": parameters[0] if message_type == "welcome" else parameters[2],
+                "message_content": (
+                    parameters[0]
+                    if message_type in {"welcome", "reminder"}
+                    else parameters[2]
+                ),
                 "passport_intro": parameters[0] if message_type == "passport_link" else None,
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
                 "header_image_id": (header_parameters[0] if header_parameters else None),
@@ -4598,11 +4608,7 @@ async def send_broadcast_message(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WhatsApp Cloud API credentials are incomplete",
         )
-    template_name = (
-        settings.whatsapp_welcome_template_name
-        if message_type == "welcome"
-        else settings.whatsapp_passport_link_template_name
-    )
+    template_name = _configured_template_name(message_type)
     if not template_name.strip():
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

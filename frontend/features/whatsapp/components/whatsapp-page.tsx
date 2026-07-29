@@ -74,6 +74,7 @@ import {
   useRestoreWhatsAppReplacedRecipient,
   useResendWhatsAppRecipientMessage,
   useSendWhatsAppPassportLink,
+  useSendWhatsAppReminder,
   useSendWhatsAppWelcome,
   useUpdateWhatsAppGroup,
   useUpdateWhatsAppRecipientPhone,
@@ -480,6 +481,7 @@ export function WhatsAppPage() {
   const deleteGroup = useDeleteWhatsAppGroup();
   const sendWelcome = useSendWhatsAppWelcome();
   const sendPassportLink = useSendWhatsAppPassportLink();
+  const sendReminder = useSendWhatsAppReminder();
   const [showCreate, setShowCreate] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [recipientListGroup, setRecipientListGroup] =
@@ -673,7 +675,8 @@ export function WhatsAppPage() {
                             isOpen={openMenuId === group.id}
                             isSending={
                               sendWelcome.isPending ||
-                              sendPassportLink.isPending
+                              sendPassportLink.isPending ||
+                              sendReminder.isPending
                             }
                             onOpen={() =>
                               setOpenMenuId(
@@ -690,6 +693,9 @@ export function WhatsAppPage() {
                             }
                             onPassportLink={() =>
                               openMessagePreview(group, "passport_link")
+                            }
+                            onReminder={() =>
+                              openMessagePreview(group, "reminder")
                             }
                             onDelete={() => {
                               setActionError(null);
@@ -723,7 +729,11 @@ export function WhatsAppPage() {
         <MessagePreviewDialog
           group={messageTarget.group}
           messageType={messageTarget.messageType}
-          isSending={sendWelcome.isPending || sendPassportLink.isPending}
+          isSending={
+            sendWelcome.isPending ||
+            sendPassportLink.isPending ||
+            sendReminder.isPending
+          }
           onClose={() => setMessageTarget(null)}
           onSend={async ({
             passportIntro,
@@ -743,7 +753,13 @@ export function WhatsAppPage() {
                     headerImageId,
                     recipientIds,
                   })
-                : await sendPassportLink.mutateAsync({
+                : messageTarget.messageType === "reminder"
+                  ? await sendReminder.mutateAsync({
+                      groupId: messageTarget.group.id,
+                      messageContent,
+                      recipientIds,
+                    })
+                  : await sendPassportLink.mutateAsync({
                     groupId: messageTarget.group.id,
                     passportIntro,
                     passportLink,
@@ -821,6 +837,7 @@ function ActionMenu({
   onRecipients,
   onWelcome,
   onPassportLink,
+  onReminder,
   onDelete,
 }: {
   group: WhatsAppBroadcastGroup;
@@ -831,6 +848,7 @@ function ActionMenu({
   onRecipients: () => void;
   onWelcome: () => void;
   onPassportLink: () => void;
+  onReminder: () => void;
   onDelete: () => void;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -928,6 +946,20 @@ function ActionMenu({
             >
               <Send className="h-4 w-4" />
               Send Passport Link
+            </button>
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              disabled={isSending || group.recipient_count === 0}
+              title={
+                group.recipient_count === 0
+                  ? "Add a valid recipient before sending"
+                  : undefined
+              }
+              onClick={onReminder}
+            >
+              <Send className="h-4 w-4" />
+              Send Reminder
             </button>
             <button
               type="button"
@@ -2424,6 +2456,7 @@ function DeliveryBadge({
 function formatMessageType(messageType: string): string {
   if (messageType === "welcome") return "Welcome message";
   if (messageType === "passport_link") return "Passport link";
+  if (messageType === "reminder") return "Reminder";
   return messageType
     .split("_")
     .filter(Boolean)
@@ -2434,7 +2467,11 @@ function formatMessageType(messageType: string): string {
 function isWhatsAppMessageType(
   messageType: string,
 ): messageType is WhatsAppMessageType {
-  return messageType === "welcome" || messageType === "passport_link";
+  return (
+    messageType === "welcome" ||
+    messageType === "passport_link" ||
+    messageType === "reminder"
+  );
 }
 
 function CreateBroadcastDialog({
@@ -2920,12 +2957,12 @@ function MessagePreviewDialog({
       group.recipient_count;
   const canSend = Boolean(
     detail?.recipient_opt_in_confirmed &&
-    (messageType === "welcome" || resolvedSupportContactIds.length > 0) &&
+    (messageType !== "passport_link" || resolvedSupportContactIds.length > 0) &&
     resolvedMessageContent &&
     eligibleRecipientCount > 0 &&
     canResendTarget &&
-    hasHeaderImage &&
-    (messageType === "welcome" ||
+    (messageType === "reminder" || hasHeaderImage) &&
+    (messageType !== "passport_link" ||
       (resolvedPassportIntro && resolvedPassportLink)),
   );
 
@@ -2938,7 +2975,7 @@ function MessagePreviewDialog({
       );
       return;
     }
-    if (!hasHeaderImage) {
+    if (messageType !== "reminder" && !hasHeaderImage) {
       setError(
         `Upload the required ${messageType === "welcome" ? "Welcome" : "Passport Link"} image before sending.`,
       );
@@ -3004,7 +3041,11 @@ function MessagePreviewDialog({
     <DialogFrame
       title={
         `${targetRecipient ? targetRecipient.action === "retry" ? "Retry" : "Resend" : "Preview"} ${
-          messageType === "welcome" ? "Welcome Message" : "Passport Link Message"
+          messageType === "welcome"
+            ? "Welcome Message"
+            : messageType === "reminder"
+              ? "Reminder"
+              : "Passport Link Message"
         }`
       }
       onClose={onClose}
@@ -3019,6 +3060,12 @@ function MessagePreviewDialog({
               The uploaded picture is the required Meta IMAGE header. The text
               below supplies BODY variable {"{{1}}"}. Dear Delegates and the
               remaining wording stay fixed in the approved template.
+            </p>
+          ) : messageType === "reminder" ? (
+            <p>
+              The header, greeting, and sign-off are fixed in the approved
+              reminder_v1 template. Only the center paragraph below is editable
+              and supplies BODY variable {"{{1}}"}.
             </p>
           ) : (
             <p>
@@ -3043,6 +3090,7 @@ function MessagePreviewDialog({
           </div>
         )}
 
+        {messageType !== "reminder" && (
         <div className="space-y-2">
           <label
             className={`flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-dashed px-4 py-4 ${
@@ -3094,6 +3142,7 @@ function MessagePreviewDialog({
             Required for every send. Maximum size: 5 MB.
           </p>
         </div>
+        )}
 
         {messageType === "passport_link" && (
           <Input
@@ -3161,7 +3210,9 @@ function MessagePreviewDialog({
               >
                 {messageType === "welcome"
                   ? "Welcome trip message (BODY {{1}})"
-                  : "Passport instructions (BODY {{3}})"}
+                  : messageType === "reminder"
+                    ? "Reminder paragraph (BODY {{1}})"
+                    : "Passport instructions (BODY {{3}})"}
               </label>
               <div className="mt-1.5 overflow-hidden rounded-lg border border-slate-300 bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
                 <div className="flex items-center border-b border-slate-200 bg-slate-50 px-2 py-1.5">

@@ -356,7 +356,7 @@ def test_export_groups_exact_zone_names_with_two_blank_rows_between_zones() -> N
     ]
 
 
-def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() -> None:
+def test_overall_export_uses_one_filterable_table_and_yellow_pending_rows() -> None:
     group_id = uuid.uuid4()
     submitted_mumbai = _submission(
         group_id,
@@ -417,29 +417,20 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
     headers = [cell.value for cell in worksheet[4]]
     name_column = headers.index("GIVEN NAME") + 1
     zone_column = headers.index("Zone Name") + 1
-    pending_title_row = next(
-        row
-        for row in range(1, worksheet.max_row + 1)
-        if worksheet.cell(row=row, column=1).value == "PENDING"
-    )
     submitted_rows = [
         row
-        for row in range(5, pending_title_row)
-        if worksheet.cell(row=row, column=name_column).value
+        for row in range(5, worksheet.max_row + 1)
+        if (
+            worksheet.cell(row=row, column=name_column).value
+            in {"SUBMITTED DELHI", "SUBMITTED MUMBAI"}
+        )
     ]
 
     assert [
         worksheet.cell(row=row, column=name_column).value for row in submitted_rows
     ] == ["SUBMITTED DELHI", "SUBMITTED MUMBAI"]
-    assert pending_title_row == submitted_rows[-1] + 6
-    assert all(
-        all(cell.value is None for cell in worksheet[row])
-        for row in range(submitted_rows[-1] + 1, pending_title_row)
-    )
-    assert worksheet.cell(row=pending_title_row, column=1).font.bold
-    assert worksheet.cell(row=pending_title_row, column=1).font.sz == 18
 
-    pending_data_start = pending_title_row + 2
+    pending_data_start = submitted_rows[-1] + 1
     pending_data_or_gap_rows = [
         (
             worksheet.cell(row=row, column=zone_column).value,
@@ -471,11 +462,14 @@ def test_overall_export_separates_zone_sorted_pending_people_with_yellow_rows() 
             for cell in worksheet[row]
         )
 
+    assert set(worksheet.tables) == {"PassportSubmissions"}
     assert worksheet.tables["PassportSubmissions"].ref.endswith(
-        str(submitted_rows[-1])
+        str(worksheet.max_row)
     )
-    assert worksheet.tables["PendingPassportSubmissions"].ref.startswith(
-        f"A{pending_title_row + 1}:"
+    assert worksheet.auto_filter.ref is None
+    assert all(
+        merged.min_row in {1, 2}
+        for merged in worksheet.merged_cells.ranges
     )
 
 

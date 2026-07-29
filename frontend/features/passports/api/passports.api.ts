@@ -166,6 +166,22 @@ export interface PassportGroupExportRequest {
   agencyMatchField?: string;
 }
 
+export type PassportWhatsAppTrackingStatus =
+  | "all"
+  | "submitted"
+  | "not_submitted"
+  | "multiple_submissions"
+  | "needs_review"
+  | "unmatched_submission"
+  | "replacement"
+  | "rejected_upload";
+
+export interface PassportWhatsAppTrackingExportRequest {
+  groupId: string;
+  status: PassportWhatsAppTrackingStatus;
+  broadcastId?: string;
+}
+
 export interface PassportGroupExportFieldOption {
   key: string;
   label: string;
@@ -691,6 +707,27 @@ export const passportsApi = {
     );
     downloadBlob(response.data, `passport-export-${groupId}.xlsx`);
     await confirmStartedGroupExport(groupId, historyId);
+  },
+
+  exportWhatsAppTracking: async ({
+    groupId,
+    status,
+    broadcastId,
+  }: PassportWhatsAppTrackingExportRequest): Promise<void> => {
+    const response = await apiClient.get<Blob>(
+      API_ENDPOINTS.passports.groupWhatsAppTrackingExport(groupId),
+      {
+        responseType: "blob",
+        params: {
+          status,
+          broadcast_id: broadcastId,
+        },
+      },
+    );
+    downloadBlob(
+      response.data,
+      `whatsapp-tracking-${groupId}-${status}.xlsx`,
+    );
   },
 
   getGroupExportFields: async (

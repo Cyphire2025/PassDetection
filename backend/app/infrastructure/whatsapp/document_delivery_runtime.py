@@ -12,6 +12,7 @@ from sqlalchemy import select, update
 
 from app.application.use_cases.whatsapp.document_templates import (
     document_template_parameters,
+    legacy_document_template_parameters,
 )
 from app.core.config.settings import get_settings
 from app.infrastructure.database.models import (
@@ -228,10 +229,22 @@ async def run_document_whatsapp_broadcast(*, send_batch_id: str) -> None:
             if upload_failed or not media_id:
                 continue
 
-            parameters = document_template_parameters(
-                passenger_name=delivery.passenger_name,
-                document_type=delivery.document_type,
-                group_name=group.name,
+            saved_parameters = delivery.template_parameter_values
+            parameters = (
+                document_template_parameters(
+                    message_content_1=saved_parameters[0],
+                    message_content_2=saved_parameters[1],
+                )
+                if (
+                    isinstance(saved_parameters, list)
+                    and len(saved_parameters) == 2
+                    and all(isinstance(value, str) for value in saved_parameters)
+                )
+                else legacy_document_template_parameters(
+                    passenger_name=delivery.passenger_name,
+                    document_type=delivery.document_type,
+                    group_name=group.name,
+                )
             )
             for attempt in range(MAX_PROVIDER_ATTEMPTS):
                 try:

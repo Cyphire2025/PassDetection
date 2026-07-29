@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleHelp,
+  Download,
   Link2,
   Loader2,
   MessageCircle,
@@ -45,6 +46,9 @@ import type {
   GroupWhatsAppSubmissionDetail,
   ReplacementCandidate,
 } from "../api/upload-links.api";
+import {
+  useExportWhatsAppTracking,
+} from "../hooks/use-passports";
 import {
   useGroupWhatsAppLinks,
   useGroupWhatsAppMatches,
@@ -173,6 +177,7 @@ function GroupWhatsAppBroadcastWorkspace({
   const canManage = Boolean(links?.can_manage) && !readOnly;
   const rejectUpload = useRejectUnidentifiedUpload(groupId);
   const restoreResolution = useRestoreRosterResolution(groupId);
+  const exportTracking = useExportWhatsAppTracking();
   const matchesQuery = useGroupWhatsAppMatches(
     groupId,
     {
@@ -491,33 +496,79 @@ function GroupWhatsAppBroadcastWorkspace({
                       </div>
                     ))}
                   </div>
-                  {(links?.broadcasts.length ?? 0) > 1 && (
-                    <div className="flex shrink-0 items-center gap-2">
-                      <label
-                        htmlFor="whatsapp-broadcast-filter"
-                        className="text-xs font-semibold text-slate-600"
-                      >
-                        Broadcast
-                      </label>
-                      <select
-                        id="whatsapp-broadcast-filter"
-                        value={broadcastFilter}
-                        onChange={(event) => {
-                          setBroadcastFilter(event.target.value);
-                          setMatchPage(1);
-                        }}
-                        className="h-9 max-w-72 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      >
-                        <option value="all">All linked broadcasts</option>
-                        {links?.broadcasts.map((broadcast) => (
-                          <option key={broadcast.id} value={broadcast.id}>
-                            {broadcast.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    {(links?.broadcasts.length ?? 0) > 1 && (
+                      <>
+                        <label
+                          htmlFor="whatsapp-broadcast-filter"
+                          className="text-xs font-semibold text-slate-600"
+                        >
+                          Broadcast
+                        </label>
+                        <select
+                          id="whatsapp-broadcast-filter"
+                          value={broadcastFilter}
+                          onChange={(event) => {
+                            setBroadcastFilter(event.target.value);
+                            setMatchPage(1);
+                          }}
+                          className="h-9 max-w-72 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        >
+                          <option value="all">All linked broadcasts</option>
+                          {links?.broadcasts.map((broadcast) => (
+                            <option key={broadcast.id} value={broadcast.id}>
+                              {broadcast.name}
+                            </option>
+                          ))}
+                        </select>
+                      </>
+                    )}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={
+                        exportTracking.isPending
+                        || matchesQuery.isLoading
+                        || !matchesQuery.data?.total
+                      }
+                      aria-label={`Export ${
+                        MATCH_FILTERS.find(
+                          (filter) => filter.value === matchFilter,
+                        )?.label ?? "current tracking view"
+                      } to Excel`}
+                      onClick={() => {
+                        exportTracking.reset();
+                        exportTracking.mutate({
+                          groupId,
+                          status: matchFilter,
+                          broadcastId: broadcastFilter === "all"
+                            ? undefined
+                            : broadcastFilter,
+                        });
+                      }}
+                    >
+                      {exportTracking.isPending ? (
+                        <Loader2
+                          className="h-4 w-4 animate-spin"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Download className="h-4 w-4" aria-hidden="true" />
+                      )}
+                      {exportTracking.isPending ? "Exporting" : "Export Excel"}
+                    </Button>
+                  </div>
                 </div>
+
+                {exportTracking.error && (
+                  <div
+                    role="alert"
+                    className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  >
+                    This tracking view could not be exported. Refresh and try again.
+                  </div>
+                )}
 
                 <BroadcastMatchTable
                   rows={matchesQuery.data?.matches ?? []}

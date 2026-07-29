@@ -1596,6 +1596,9 @@ class DocumentWhatsAppDeliveryModel(Base):
     phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
     normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     template_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    template_parameter_values: Mapped[list[str] | None] = mapped_column(
+        JSONB, nullable=True
+    )
     status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)

@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.whatsapp.document_templates import (
+    default_document_message_content,
     render_document_message,
 )
 from app.application.use_cases.whatsapp.group_submission_matching import (
@@ -166,6 +167,9 @@ async def _build_document_delivery_preview(
     batch: DocumentDistributionBatchModel,
     passengers: list[PassportSubmission],
 ) -> DocumentDeliveryPreviewResponse:
+    message_content_1, message_content_2 = default_document_message_content(
+        batch.document_type
+    )
     linked_broadcasts, recipient_models = await _linked_whatsapp_recipients(
         session,
         group=group,
@@ -338,9 +342,8 @@ async def _build_document_delivery_preview(
                 reason=reason,
                 message_preview=(
                     render_document_message(
-                        passenger_name=passenger.client_name,
-                        document_type=batch.document_type,
-                        group_name=group.name,
+                        message_content_1=message_content_1,
+                        message_content_2=message_content_2,
                     )
                     if document and matched_recipient
                     else None
@@ -378,6 +381,8 @@ async def _build_document_delivery_preview(
         linked_broadcast_count=len(linked_broadcasts),
         can_send=configuration_error is None,
         configuration_error=configuration_error,
+        message_content_1=message_content_1,
+        message_content_2=message_content_2,
         summary=summary,
         recipients=preview_rows,
     )
@@ -988,6 +993,13 @@ async def send_document_whatsapp_broadcast(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> SendDocumentBroadcastResponse:
+    message_content_1 = payload.message_content_1.strip()
+    message_content_2 = payload.message_content_2.strip()
+    if not message_content_1 or not message_content_2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Both editable document message sections are required",
+        )
     batch_result = await session.execute(
         select(DocumentDistributionBatchModel)
         .where(DocumentDistributionBatchModel.id == batch_id)
@@ -1076,6 +1088,10 @@ async def send_document_whatsapp_broadcast(
             delivery.phone_number = row.phone_number
             delivery.normalized_phone_number = row.phone_number
             delivery.template_name = template_name
+            delivery.template_parameter_values = [
+                message_content_1,
+                message_content_2,
+            ]
             delivery.status = "queued"
             delivery.status_updated_at = now
             delivery.provider_status_at = None
@@ -1101,6 +1117,10 @@ async def send_document_whatsapp_broadcast(
                 phone_number=row.phone_number,
                 normalized_phone_number=row.phone_number,
                 template_name=template_name,
+                template_parameter_values=[
+                    message_content_1,
+                    message_content_2,
+                ],
                 status="queued",
                 attempt_count=0,
                 status_updated_at=now,
@@ -1128,6 +1148,10 @@ async def send_document_whatsapp_broadcast(
             "document_type": batch.document_type,
             "send_batch_id": str(send_batch_id),
             "queued_count": queued_count,
+            "message_content_lengths": [
+                len(message_content_1),
+                len(message_content_2),
+            ],
         },
     )
     await session.commit()

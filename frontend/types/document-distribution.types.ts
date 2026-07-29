@@ -111,6 +111,8 @@ export interface DocumentDeliveryPreview {
   linked_broadcast_count: number;
   can_send: boolean;
   configuration_error: string | null;
+  message_content_1: string;
+  message_content_2: string;
   summary: {
     total_passengers: number;
     ready: number;

@@ -31,7 +31,7 @@ from fastapi import (
     status,
 )
 from fastapi.responses import JSONResponse, StreamingResponse
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -78,7 +78,11 @@ from app.application.use_cases.passports.submission_view import (
     build_submission_view,
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
+from app.application.use_cases.whatsapp.contact_normalization import (
+    normalize_whatsapp_phone,
+)
 from app.application.use_cases.whatsapp.group_submission_matching import (
+    RecipientFieldSet,
     RecipientForComparison,
     SubmissionForComparison,
     SubmissionMatchRow,
@@ -949,6 +953,239 @@ async def _export_whatsapp_match_rows(
     return rows_by_group
 
 
+def _stored_resolution_uuid_list(values: list[str] | None) -> list[uuid.UUID]:
+    parsed: list[uuid.UUID] = []
+    for value in values or []:
+        try:
+            parsed.append(uuid.UUID(str(value)))
+        except (TypeError, ValueError, AttributeError):
+            continue
+    return parsed
+
+
+async def _whatsapp_tracking_export_rows(
+    session: AsyncSession,
+    *,
+    group: ClientGroup,
+    submissions: list[PassportSubmission],
+) -> tuple[dict[uuid.UUID, str], list[SubmissionMatchRow]]:
+    """Build the same complete roster view used by WhatsApp tracking."""
+
+    linked_result = await session.execute(
+        select(
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            WhatsAppBroadcastGroupModel.name,
+        )
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id
+            == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+        )
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+            WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
+        )
+    )
+    linked_broadcasts = {
+        broadcast_id: broadcast_name
+        for broadcast_id, broadcast_name in linked_result.all()
+    }
+
+    resolution_result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+            PassportRosterResolutionModel.status == "active",
+        )
+    )
+    active_resolutions = list(resolution_result.scalars().all())
+    suppressed_recipient_ids = {
+        recipient_id
+        for resolution in active_resolutions
+        for recipient_id in _stored_resolution_uuid_list(
+            resolution.suppressed_recipient_ids
+        )
+    }
+    excluded_submission_ids = {
+        submission_id
+        for resolution in active_resolutions
+        for submission_id in (
+            [resolution.submission_id]
+            + _stored_resolution_uuid_list(resolution.excluded_submission_ids)
+        )
+    }
+
+    recipient_models: list[WhatsAppBroadcastRecipientModel] = []
+    if linked_broadcasts:
+        recipient_visibility = (
+            or_(
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                WhatsAppBroadcastRecipientModel.id.in_(suppressed_recipient_ids),
+            )
+            if suppressed_recipient_ids
+            else WhatsAppBroadcastRecipientModel.removed_at.is_(None)
+        )
+        recipient_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel).where(
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(
+                    list(linked_broadcasts)
+                ),
+                recipient_visibility,
+            )
+        )
+        recipient_models = list(recipient_result.scalars().all())
+    recipients_by_id = {recipient.id: recipient for recipient in recipient_models}
+    comparison_recipients = [
+        RecipientForComparison(
+            id=recipient.id,
+            broadcast_id=recipient.broadcast_group_id,
+            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
+            name=recipient.name,
+            phone=recipient.normalized_phone_number,
+            updated_at=recipient.created_at,
+            imported_fields=dict(recipient.imported_fields or {}),
+        )
+        for recipient in recipient_models
+        if recipient.removed_at is None
+        and recipient.id not in suppressed_recipient_ids
+    ]
+    submissions_by_id = {submission.id: submission for submission in submissions}
+    comparison_submissions = [
+        SubmissionForComparison(
+            id=submission.id,
+            name=submission.client_name,
+            client_phone=submission.client_phone,
+            family_head_phone=submission.family_head_phone,
+            updated_at=submission.updated_at,
+            client_email=submission.client_email,
+            family_head_email=submission.family_head_email,
+            confirmed_fields=dict(submission.confirmed_fields or {}),
+            extracted_fields=dict(submission.extracted_fields or {}),
+            staff_metadata=dict(submission.staff_metadata or {}),
+        )
+        for submission in submissions
+        if submission.id not in excluded_submission_ids
+    ]
+    rows, _counts = compare_group_submissions(
+        comparison_recipients,
+        comparison_submissions,
+    )
+
+    for resolution in active_resolutions:
+        submission = submissions_by_id.get(resolution.submission_id)
+        if submission is None:
+            continue
+        if resolution.resolution_type == "replacement":
+            suppressed = [
+                recipients_by_id[recipient_id]
+                for recipient_id in _stored_resolution_uuid_list(
+                    resolution.suppressed_recipient_ids
+                )
+                if recipient_id in recipients_by_id
+            ]
+            broadcast_pairs = list(
+                dict.fromkeys(
+                    (
+                        recipient.broadcast_group_id,
+                        linked_broadcasts.get(
+                            recipient.broadcast_group_id,
+                            "Linked broadcast",
+                        ),
+                    )
+                    for recipient in suppressed
+                )
+            )
+            selected_recipient = recipients_by_id.get(
+                resolution.broadcast_recipient_id
+            )
+            rows.append(
+                SubmissionMatchRow(
+                    status="replacement",
+                    match_basis="manual_replacement",
+                    normalized_phone=(
+                        selected_recipient.normalized_phone_number
+                        if selected_recipient
+                        else None
+                    ),
+                    recipient_ids=tuple(recipient.id for recipient in suppressed),
+                    submission_ids=(submission.id,),
+                    broadcast_ids=tuple(item[0] for item in broadcast_pairs),
+                    broadcast_names=tuple(item[1] for item in broadcast_pairs),
+                    recipient_names=tuple(
+                        recipient.name or "Unnamed recipient"
+                        for recipient in suppressed
+                    ),
+                    submission_names=(submission.client_name,),
+                    updated_at=max(submission.updated_at, resolution.created_at),
+                    confidence="high",
+                    recipient_fields=tuple(
+                        RecipientFieldSet(
+                            recipient_id=recipient.id,
+                            fields=dict(recipient.imported_fields or {}),
+                        )
+                        for recipient in suppressed
+                    ),
+                    resolution_id=resolution.id,
+                )
+            )
+        else:
+            rows.append(
+                SubmissionMatchRow(
+                    status="rejected_upload",
+                    match_basis="manual_rejection",
+                    normalized_phone=normalize_whatsapp_phone(
+                        submission.client_phone or ""
+                    ),
+                    recipient_ids=(),
+                    submission_ids=(submission.id,),
+                    broadcast_ids=(),
+                    broadcast_names=(),
+                    recipient_names=(),
+                    submission_names=(submission.client_name,),
+                    updated_at=max(submission.updated_at, resolution.created_at),
+                    confidence="high",
+                    resolution_id=resolution.id,
+                )
+            )
+    return linked_broadcasts, rows
+
+
+def _select_whatsapp_tracking_export_payload(
+    submissions: list[PassportSubmission],
+    rows: list[SubmissionMatchRow],
+    *,
+    tracking_status: str,
+    broadcast_id: uuid.UUID | None,
+) -> tuple[list[PassportSubmission], list[SubmissionMatchRow]]:
+    selected_rows = [
+        row
+        for row in rows
+        if (
+            (tracking_status == "all" or row.status == tracking_status)
+            and (broadcast_id is None or broadcast_id in row.broadcast_ids)
+        )
+    ]
+    selected_submission_ids = {
+        submission_id
+        for row in selected_rows
+        for submission_id in (
+            row.candidate_submission_ids
+            if row.status == "needs_review"
+            else row.submission_ids
+        )
+    }
+    return (
+        [
+            submission
+            for submission in submissions
+            if submission.id in selected_submission_ids
+        ],
+        selected_rows,
+    )
+
+
 def _export_zone_names_from_match_rows(
     submissions: list[PassportSubmission],
     rows_by_group: dict[uuid.UUID, list[SubmissionMatchRow]],
@@ -962,7 +1199,11 @@ def _export_zone_names_from_match_rows(
         rows = rows_by_group.get(group_id, [])
         submissions_by_id = {submission.id: submission for submission in group_submissions}
         for row in rows:
-            if row.status not in {"submitted", "multiple_submissions"}:
+            if row.status not in {
+                "submitted",
+                "multiple_submissions",
+                "replacement",
+            }:
                 continue
             zones_by_key: dict[str, str] = {}
             for field_set in row.recipient_fields:
@@ -1101,7 +1342,11 @@ def _export_whatsapp_contacts(
 
     for rows in rows_by_group.values():
         for row in rows:
-            if row.status not in {"submitted", "multiple_submissions"}:
+            if row.status not in {
+                "submitted",
+                "multiple_submissions",
+                "replacement",
+            }:
                 continue
             email = _recipient_export_value(
                 row,
@@ -1644,7 +1889,11 @@ def _export_effective_whatsapp_matches(
     ambiguous_submission_ids: set[uuid.UUID] = set()
     for rows in rows_by_group.values():
         for row in rows:
-            if row.status not in {"submitted", "multiple_submissions"}:
+            if row.status not in {
+                "submitted",
+                "multiple_submissions",
+                "replacement",
+            }:
                 continue
             for submission_id in row.submission_ids:
                 if submission_id in ambiguous_submission_ids:
@@ -1840,7 +2089,11 @@ def _export_additional_values(
     ]
     for rows in rows_by_group.values():
         for row in rows:
-            if row.status not in {"submitted", "multiple_submissions"}:
+            if row.status not in {
+                "submitted",
+                "multiple_submissions",
+                "replacement",
+            }:
                 continue
             for submission_id in row.submission_ids:
                 if submission_id not in values:
@@ -3362,6 +3615,160 @@ async def get_passport_group_export_fields(
         default_group_by_field=(
             "zone_name" if "zone_name" in default_selected else None
         ),
+    )
+
+
+@router.get(
+    "/groups/{group_id}/whatsapp-tracking/export.xlsx",
+    status_code=status.HTTP_200_OK,
+    summary="Export the selected WhatsApp submission tracking view to Excel",
+)
+async def export_whatsapp_tracking_by_group(
+    group_id: uuid.UUID,
+    tracking_status: Literal[
+        "all",
+        "submitted",
+        "not_submitted",
+        "multiple_submissions",
+        "needs_review",
+        "unmatched_submission",
+        "replacement",
+        "rejected_upload",
+    ] = Query(default="all", alias="status"),
+    broadcast_id: uuid.UUID | None = Query(default=None),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    try:
+        await AuthorizationPolicy(session).require_export_data(current_user, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        )
+
+    submissions = await PassportSubmissionRepository(session).list_by_group(
+        current_user.agency_id,
+        group_id,
+        limit=PassportImageZipExporter.MAX_SUBMISSIONS + 1,
+        exclude_archived_groups=True,
+        created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
+    )
+    if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=(
+                "A single export is limited to "
+                f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
+            ),
+        )
+
+    linked_broadcasts, tracking_rows = await _whatsapp_tracking_export_rows(
+        session,
+        group=group,
+        submissions=submissions,
+    )
+    if not linked_broadcasts:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Link at least one WhatsApp broadcast before exporting tracking.",
+        )
+    if broadcast_id is not None and broadcast_id not in linked_broadcasts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The selected WhatsApp broadcast is not linked to this client group.",
+        )
+
+    selected_submissions, selected_rows = (
+        _select_whatsapp_tracking_export_payload(
+            submissions,
+            tracking_rows,
+            tracking_status=tracking_status,
+            broadcast_id=broadcast_id,
+        )
+    )
+    rows_by_group = {group.id: selected_rows}
+    catalog = _export_field_catalog(group, selected_rows, selected_submissions)
+    selected_fields = [
+        field for field in catalog if field["selected_by_default"]
+    ]
+    selected_field_keys = [str(field["key"]) for field in selected_fields]
+    resolved_group_by = _resolve_export_group_by(None, selected_field_keys)
+    pending_rows = _pending_recipient_export_rows(
+        group=group,
+        rows=selected_rows,
+    )
+    if pending_rows:
+        _apply_pending_export_fields(
+            pending_rows,
+            selected_rows,
+            selected_fields,
+        )
+
+    content = PassportExcelExporter().export_group(
+        selected_submissions,
+        group_name=group.name,
+        group_details={group.id: _group_export_details(group)},
+        zone_names=_export_zone_names_from_match_rows(
+            selected_submissions,
+            rows_by_group,
+        ),
+        additional_fields=[
+            {"key": str(field["key"]), "label": str(field["label"])}
+            for field in selected_fields
+        ],
+        additional_values=_export_additional_values(
+            selected_submissions,
+            rows_by_group,
+            selected_fields,
+        ),
+        whatsapp_contacts=_export_whatsapp_contacts(
+            selected_submissions,
+            rows_by_group,
+        ),
+        group_by_field=resolved_group_by,
+        pending_rows=pending_rows,
+    )
+    await AuditLogRepository(session).record(
+        action="passport_whatsapp_tracking_exported",
+        entity_type="client_group",
+        entity_id=str(group.id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "tracking_status": tracking_status,
+            "broadcast_id": str(broadcast_id) if broadcast_id else None,
+            "submission_count": len(selected_submissions),
+            "pending_recipient_count": len(pending_rows),
+            "workbook_bytes": len(content),
+        },
+    )
+    await session.commit()
+
+    filename = f"whatsapp-tracking-{group_id}-{tracking_status}.xlsx"
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Content-Type-Options": "nosniff",
+        },
     )
 
 

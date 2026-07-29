@@ -179,15 +179,11 @@ async def test_selected_groups_export_combines_pending_only_groups(
     name_column = headers.index("GIVEN NAME") + 1
     zone_column = headers.index("Zone Name") + 1
     staff_code_column = headers.index("Staff Code") + 1
-    pending_title_row = next(
-        row
-        for row in range(1, worksheet.max_row + 1)
-        if worksheet.cell(row=row, column=1).value == "PENDING"
-    )
     pending_rows = [
         row
-        for row in range(pending_title_row + 2, worksheet.max_row + 1)
+        for row in range(5, worksheet.max_row + 1)
         if worksheet.cell(row=row, column=name_column).value
+        in {"DELHI PENDING", "MUMBAI PENDING"}
     ]
 
     assert session.execute.await_count == 2
@@ -216,6 +212,10 @@ async def test_selected_groups_export_combines_pending_only_groups(
         cell.fill.fill_type == "solid" and cell.fill.fgColor.rgb == "00FFF2CC"
         for row in pending_rows
         for cell in worksheet[row]
+    )
+    assert set(worksheet.tables) == {"PassportSubmissions"}
+    assert worksheet.tables["PassportSubmissions"].ref.endswith(
+        str(worksheet.max_row)
     )
 
 

@@ -18,6 +18,14 @@ const hooks = readFileSync(
   new URL("../hooks/use-upload-links.ts", import.meta.url),
   "utf8",
 );
+const passportApi = readFileSync(
+  new URL("../api/passports.api.ts", import.meta.url),
+  "utf8",
+);
+const passportHooks = readFileSync(
+  new URL("../hooks/use-passports.ts", import.meta.url),
+  "utf8",
+);
 const endpoints = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
@@ -190,4 +198,23 @@ test("unidentified filter explains who appears there", () => {
   assert.match(panel, /role="tooltip"/);
   assert.match(panel, /group-hover\/filter:block/);
   assert.match(panel, /group-focus-within\/filter:block/);
+});
+
+test("every tracking filter can export its complete Excel view", () => {
+  assert.match(
+    endpoints,
+    /groupWhatsAppTrackingExport:[\s\S]*?whatsapp-tracking\/export\.xlsx/,
+  );
+  assert.match(
+    passportApi,
+    /exportWhatsAppTracking:[\s\S]*?status,[\s\S]*?broadcast_id: broadcastId/,
+  );
+  assert.match(passportHooks, /useExportWhatsAppTracking/);
+  assert.match(panel, /status: matchFilter/);
+  assert.match(
+    panel,
+    /broadcastId: broadcastFilter === "all"[\s\S]*?broadcastFilter/,
+  );
+  assert.match(panel, /Export Excel/);
+  assert.match(panel, /Exporting/);
 });

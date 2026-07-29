@@ -104,10 +104,16 @@ export const documentDistributionApi = {
   sendWhatsAppDelivery: async (
     batchId: string,
     documentIds: string[],
+    messageContent1: string,
+    messageContent2: string,
   ): Promise<SendDocumentBroadcastResult> => {
     const { data } = await apiClient.post<SendDocumentBroadcastResult>(
       API_ENDPOINTS.documents.sendWhatsApp(batchId),
-      { document_ids: documentIds },
+      {
+        document_ids: documentIds,
+        message_content_1: messageContent1,
+        message_content_2: messageContent2,
+      },
     );
     return data;
   },

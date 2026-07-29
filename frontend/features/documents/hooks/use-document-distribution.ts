@@ -107,8 +107,23 @@ export function useSendDocumentWhatsAppBroadcast(
 ) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ batchId, documentIds }: { batchId: string; documentIds: string[] }) =>
-      documentDistributionApi.sendWhatsAppDelivery(batchId, documentIds),
+    mutationFn: ({
+      batchId,
+      documentIds,
+      messageContent1,
+      messageContent2,
+    }: {
+      batchId: string;
+      documentIds: string[];
+      messageContent1: string;
+      messageContent2: string;
+    }) =>
+      documentDistributionApi.sendWhatsAppDelivery(
+        batchId,
+        documentIds,
+        messageContent1,
+        messageContent2,
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
       queryClient.invalidateQueries({ queryKey: documentKeys.deliveryTracking(groupId) });

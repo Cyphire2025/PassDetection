@@ -145,7 +145,7 @@ export interface WhatsAppBroadcastGroupDetail extends WhatsAppBroadcastGroup {
   rejected_contact_count: number;
 }
 
-export type WhatsAppMessageType = "welcome" | "passport_link";
+export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder";
 
 export interface WhatsAppMessageDraft {
   message_type: WhatsAppMessageType;
@@ -521,6 +521,22 @@ export const whatsappApi = {
       recipient_ids: recipientIds,
       support_contact_ids: supportContactIds,
     });
+    return data;
+  },
+
+  sendReminder: async (
+    groupId: string,
+    messageContent: string,
+    recipientIds: string[] | null = null,
+  ): Promise<WhatsAppSendResponse> => {
+    const { data } = await apiClient.post<WhatsAppSendResponse>(
+      API_ENDPOINTS.whatsapp.send(groupId),
+      {
+        message_type: "reminder",
+        message_content: messageContent,
+        recipient_ids: recipientIds,
+      },
+    );
     return data;
   },
 

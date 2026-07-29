@@ -15,6 +15,9 @@ test("saved document lists expose an explicit WhatsApp preview before sending", 
   assert.match(workspace, /Each passenger receives only the PDF shown in their row/);
   assert.match(workspace, /deliveryDocumentIds/);
   assert.match(workspace, /Successful and uncertain deliveries are excluded automatically/);
+  assert.match(workspace, /documents_v1 preview/);
+  assert.match(workspace, /Editable text 1/);
+  assert.match(workspace, /Editable text 2/);
 });
 
 test("frontend uses dedicated preview, send, and tracking contracts", () => {
@@ -23,6 +26,8 @@ test("frontend uses dedicated preview, send, and tracking contracts", () => {
   assert.match(endpoints, /whatsapp-deliveries\/tracking/);
   assert.match(api, /previewWhatsAppDelivery/);
   assert.match(api, /sendWhatsAppDelivery/);
+  assert.match(api, /message_content_1/);
+  assert.match(api, /message_content_2/);
   assert.match(api, /getDeliveryTracking/);
   assert.match(hooks, /useDocumentDeliveryPreview/);
   assert.match(hooks, /useSendDocumentWhatsAppBroadcast/);

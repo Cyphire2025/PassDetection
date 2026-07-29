@@ -4,52 +4,84 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-DOCUMENT_TYPE_LABELS = {
-    "visa": "Visa",
-    "flight_ticket": "Flight Ticket",
-    "other": "Travel Document",
+DOCUMENT_DEFAULT_MESSAGE_CONTENT = {
+    "visa": "This is your attached VISA",
+    "flight_ticket": "This is your attached FLIGHT TICKET",
+    "other": "This is your attached TRAVEL DOCUMENT",
 }
+DOCUMENT_DEFAULT_REVIEW_CONTENT = "Kindly cross check all your details"
 
 
 def document_type_label(document_type: str) -> str:
-    return DOCUMENT_TYPE_LABELS.get(document_type, "Travel Document")
+    return {
+        "visa": "Visa",
+        "flight_ticket": "Flight Ticket",
+        "other": "Travel Document",
+    }.get(document_type, "Travel Document")
+
+
+def default_document_message_content(document_type: str) -> tuple[str, str]:
+    return (
+        DOCUMENT_DEFAULT_MESSAGE_CONTENT.get(
+            document_type,
+            DOCUMENT_DEFAULT_MESSAGE_CONTENT["other"],
+        ),
+        DOCUMENT_DEFAULT_REVIEW_CONTENT,
+    )
 
 
 def document_template_parameters(
+    *,
+    message_content_1: str,
+    message_content_2: str,
+) -> list[str]:
+    """Return BODY variables for the approved documents_v1 template."""
+
+    parameters = [
+        message_content_1.strip(),
+        message_content_2.strip(),
+    ]
+    validate_document_template_parameters(parameters)
+    return parameters
+
+
+def legacy_document_template_parameters(
     *,
     passenger_name: str,
     document_type: str,
     group_name: str,
 ) -> list[str]:
-    """Return BODY variables for the approved document-header template."""
+    """Keep already-queued deliveries compatible during a rolling deployment."""
 
     parameters = [
         passenger_name.strip(),
         document_type_label(document_type),
         group_name.strip(),
     ]
-    validate_document_template_parameters(parameters)
+    if any(not value for value in parameters):
+        raise ValueError("legacy document delivery parameters must be non-empty")
     return parameters
 
 
 def validate_document_template_parameters(parameters: Sequence[str]) -> None:
-    if len(parameters) != 3:
-        raise ValueError("document delivery requires exactly three body parameters")
+    if len(parameters) not in {2, 3}:
+        raise ValueError(
+            "document delivery requires two current or three legacy body parameters"
+        )
     if any(not isinstance(value, str) or not value.strip() for value in parameters):
         raise ValueError("document delivery template parameters must be non-empty")
 
 
 def render_document_message(
     *,
-    passenger_name: str,
-    document_type: str,
-    group_name: str,
+    message_content_1: str,
+    message_content_2: str,
 ) -> str:
-    label = document_type_label(document_type)
     return (
-        f"Dear {passenger_name.strip()},\n\n"
-        f"Your {label} for {group_name.strip()} is attached. "
-        "Please download and review it carefully.\n\n"
+        "Dear Delegates\n\n"
+        "Greetings from Global Connect Travels\n\n"
+        f"{message_content_1.strip()}\n\n"
+        f"{message_content_2.strip()}\n\n"
         "Regards,\n"
         "Team Global Connect Travels"
     )

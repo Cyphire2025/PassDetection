@@ -338,6 +338,34 @@ export function useSendWhatsAppWelcome() {
   });
 }
 
+export function useSendWhatsAppReminder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      groupId,
+      messageContent,
+      recipientIds,
+    }: {
+      groupId: string;
+      messageContent: string;
+      recipientIds: string[] | null;
+    }) => whatsappApi.sendReminder(groupId, messageContent, recipientIds),
+    onSuccess: async (_, { groupId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.group(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.recipientRoster(groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: WHATSAPP_QUERY_KEYS.groups,
+        }),
+      ]);
+    },
+  });
+}
+
 export function useSendWhatsAppPassportLink() {
   const queryClient = useQueryClient();
   return useMutation({

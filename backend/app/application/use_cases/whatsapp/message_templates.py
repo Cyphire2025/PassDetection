@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Literal
 
-WhatsAppMessageType = Literal["welcome", "passport_link"]
+WhatsAppMessageType = Literal["welcome", "passport_link", "reminder"]
 
 STATIC_TEMPLATE_HEADER = "Dear Delegates"
 GREETING = "Greetings from Global Connect Travels."
@@ -13,6 +13,12 @@ GREETING = "Greetings from Global Connect Travels."
 PASSPORT_LINK_DEFAULT_MESSAGE_CONTENT = (
     "Please fill in all required details, upload clear copies of the requested documents, "
     "and review everything carefully before submitting."
+)
+
+REMINDER_DEFAULT_MESSAGE_CONTENT = (
+    "Kindly upload your documents using the provided link at the earliest. "
+    "These details are required to process your application. If you have already "
+    "submitted them, please ignore this reminder."
 )
 
 AUTOMATED_NOTICE = (
@@ -30,6 +36,7 @@ PASSPORT_INFORMATION_NOTICE = (
 EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
     "welcome": 1,
     "passport_link": 4,
+    "reminder": 1,
 }
 
 
@@ -51,6 +58,8 @@ def passport_link_intro(group_name: str) -> str:
 def default_message_content(message_type: WhatsAppMessageType, *, group_name: str) -> str:
     if message_type == "welcome":
         return welcome_default_message_content(group_name)
+    if message_type == "reminder":
+        return REMINDER_DEFAULT_MESSAGE_CONTENT
     return PASSPORT_LINK_DEFAULT_MESSAGE_CONTENT
 
 
@@ -82,6 +91,15 @@ def render_message(
             "Regards,\n"
             "Team Global Connect Travels"
         )
+    if message_type == "reminder":
+        return (
+            "URGENT REMINDER !!\n\n"
+            "Dear Delegates\n\n"
+            "Greetings from Global Connect Travels\n\n"
+            f"{message_content}\n\n"
+            "Regards,\n"
+            "Team Global Connect Travels"
+        )
 
     return (
         f"{STATIC_TEMPLATE_HEADER}\n\n"
@@ -109,6 +127,8 @@ def template_parameters(
     """Return positional BODY variables in the exact Meta template order."""
 
     if message_type == "welcome":
+        return [message_content]
+    if message_type == "reminder":
         return [message_content]
     return [
         passport_intro if passport_intro is not None else passport_link_intro(group_name),
@@ -140,7 +160,12 @@ def validate_template_parameters(
 ) -> None:
     """Reject payloads that cannot match the approved Meta templates."""
 
-    if message_type == "welcome":
+    if message_type == "reminder":
+        if header_parameters or len(body_parameters) != 1:
+            raise ValueError(
+                "reminder requires no media header and exactly one body parameter"
+            )
+    elif message_type == "welcome":
         is_current_media_template = (
             len(header_parameters) == 1 and len(body_parameters) == 1
         )
@@ -161,7 +186,7 @@ def validate_template_parameters(
 
     expected_body_count = EXPECTED_BODY_PARAMETER_COUNTS[message_type]
     if (
-        message_type != "welcome"
+        message_type not in {"welcome", "reminder"}
         and len(body_parameters) != expected_body_count
     ):
         raise ValueError(

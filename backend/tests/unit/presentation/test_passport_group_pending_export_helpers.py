@@ -28,6 +28,7 @@ from app.presentation.api.v1.routes.passports import (
     _pending_recipient_export_rows,
     _recipient_export_value,
     _resolve_export_group_by,
+    _select_whatsapp_tracking_export_payload,
 )
 
 NOW = datetime(2026, 7, 23, 12, tzinfo=UTC)
@@ -166,6 +167,127 @@ def test_pending_mapper_includes_unresolved_recipients_and_excludes_submitted() 
     assert "Upload Phone" not in pending[0]
     assert pending[0]["Destination"] == "Vietnam"
     assert pending[0]["Travel/Departure Date"] == "2026-08-12"
+
+
+@pytest.mark.parametrize(
+    ("tracking_status", "expected_submission_index", "expected_row_status"),
+    [
+        ("submitted", 0, "submitted"),
+        ("multiple_submissions", 1, "multiple_submissions"),
+        ("needs_review", 2, "needs_review"),
+        ("unmatched_submission", 3, "unmatched_submission"),
+        ("replacement", 4, "replacement"),
+        ("rejected_upload", 5, "rejected_upload"),
+    ],
+)
+def test_tracking_export_selects_every_filter_and_needs_review_candidates(
+    tracking_status: str,
+    expected_submission_index: int,
+    expected_row_status: str,
+) -> None:
+    submission_ids = [uuid.uuid4() for _ in range(6)]
+    broadcast_id = uuid.uuid4()
+    submissions = [SimpleNamespace(id=item) for item in submission_ids]
+    rows = [
+        SubmissionMatchRow(
+            status="submitted",
+            match_basis=None,
+            normalized_phone=None,
+            recipient_ids=(uuid.uuid4(),),
+            submission_ids=(submission_ids[0],),
+            broadcast_ids=(broadcast_id,),
+            broadcast_names=("Main",),
+            recipient_names=(),
+            submission_names=(),
+            updated_at=NOW,
+        ),
+        SubmissionMatchRow(
+            status="multiple_submissions",
+            match_basis=None,
+            normalized_phone=None,
+            recipient_ids=(uuid.uuid4(),),
+            submission_ids=(submission_ids[1],),
+            broadcast_ids=(broadcast_id,),
+            broadcast_names=("Main",),
+            recipient_names=(),
+            submission_names=(),
+            updated_at=NOW,
+        ),
+        SubmissionMatchRow(
+            status="needs_review",
+            match_basis=None,
+            normalized_phone=None,
+            recipient_ids=(uuid.uuid4(),),
+            submission_ids=(),
+            broadcast_ids=(broadcast_id,),
+            broadcast_names=("Main",),
+            recipient_names=(),
+            submission_names=(),
+            updated_at=NOW,
+            candidate_submission_ids=(submission_ids[2],),
+        ),
+        *[
+            SubmissionMatchRow(
+                status=row_status,
+                match_basis=None,
+                normalized_phone=None,
+                recipient_ids=(),
+                submission_ids=(submission_ids[index],),
+                broadcast_ids=(broadcast_id,),
+                broadcast_names=("Main",),
+                recipient_names=(),
+                submission_names=(),
+                updated_at=NOW,
+            )
+            for index, row_status in (
+                (3, "unmatched_submission"),
+                (4, "replacement"),
+                (5, "rejected_upload"),
+            )
+        ],
+    ]
+
+    selected_submissions, selected_rows = (
+        _select_whatsapp_tracking_export_payload(
+            submissions,  # type: ignore[arg-type]
+            rows,
+            tracking_status=tracking_status,
+            broadcast_id=broadcast_id,
+        )
+    )
+
+    assert [item.id for item in selected_submissions] == [
+        submission_ids[expected_submission_index]
+    ]
+    assert [row.status for row in selected_rows] == [expected_row_status]
+
+
+def test_tracking_export_not_submitted_keeps_recipient_row_without_upload() -> None:
+    broadcast_id = uuid.uuid4()
+    row = SubmissionMatchRow(
+        status="not_submitted",
+        match_basis=None,
+        normalized_phone=None,
+        recipient_ids=(uuid.uuid4(),),
+        submission_ids=(),
+        broadcast_ids=(broadcast_id,),
+        broadcast_names=("Main",),
+        recipient_names=(),
+        submission_names=(),
+        updated_at=NOW,
+    )
+
+    selected_submissions, selected_rows = (
+        _select_whatsapp_tracking_export_payload(
+            [],
+            [row],
+            tracking_status="not_submitted",
+            broadcast_id=broadcast_id,
+        )
+    )
+
+    assert selected_submissions == []
+    assert selected_rows == [row]
 
 
 def test_export_field_catalog_lists_only_selectable_whatsapp_columns() -> None:

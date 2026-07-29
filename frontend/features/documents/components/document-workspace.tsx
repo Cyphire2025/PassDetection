@@ -62,6 +62,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
   const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[]>([]);
+  const [deliveryMessageContent1, setDeliveryMessageContent1] = useState("");
+  const [deliveryMessageContent2, setDeliveryMessageContent2] = useState("");
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const initializedDeliveryPreviewRef = useRef<string | null>(null);
@@ -110,6 +112,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       .join("|")}`;
     if (initializedDeliveryPreviewRef.current === previewKey) return;
     initializedDeliveryPreviewRef.current = previewKey;
+    setDeliveryMessageContent1(preview.message_content_1);
+    setDeliveryMessageContent2(preview.message_content_2);
     setDeliveryDocumentIds(
       preview.recipients
         .filter((row) => row.eligible && row.document_id)
@@ -474,6 +478,10 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           selectedDocumentIds={deliveryDocumentIds}
           sending={sendDocuments.isPending}
           sendError={sendDocuments.error}
+          messageContent1={deliveryMessageContent1}
+          messageContent2={deliveryMessageContent2}
+          onMessageContent1Change={setDeliveryMessageContent1}
+          onMessageContent2Change={setDeliveryMessageContent2}
           onToggleDocument={(documentId) => {
             setDeliveryDocumentIds((current) =>
               current.includes(documentId)
@@ -488,7 +496,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             const batchId = deliveryPreview.data?.batch_id;
             if (!batchId) return;
             sendDocuments.mutate(
-              { batchId, documentIds: deliveryDocumentIds },
+              {
+                batchId,
+                documentIds: deliveryDocumentIds,
+                messageContent1: deliveryMessageContent1.trim(),
+                messageContent2: deliveryMessageContent2.trim(),
+              },
               {
                 onSuccess: (result) => {
                   setDeliveryFeedback(result.message);
@@ -510,6 +523,10 @@ function DocumentDeliveryPreviewDialog({
   selectedDocumentIds,
   sending,
   sendError,
+  messageContent1,
+  messageContent2,
+  onMessageContent1Change,
+  onMessageContent2Change,
   onToggleDocument,
   onClose,
   onSend,
@@ -520,11 +537,26 @@ function DocumentDeliveryPreviewDialog({
   selectedDocumentIds: string[];
   sending: boolean;
   sendError: Error | null;
+  messageContent1: string;
+  messageContent2: string;
+  onMessageContent1Change: (value: string) => void;
+  onMessageContent2Change: (value: string) => void;
   onToggleDocument: (documentId: string) => void;
   onClose: () => void;
   onSend: () => void;
 }) {
-  const sampleMessage = preview?.recipients.find((row) => row.message_preview)?.message_preview;
+  const sampleMessage = [
+    "Dear Delegates",
+    "Greetings from Global Connect Travels",
+    messageContent1,
+    messageContent2,
+    "Regards,\nTeam Global Connect Travels",
+  ].join("\n\n");
+  const messageContentValid =
+    Boolean(messageContent1.trim()) &&
+    Boolean(messageContent2.trim()) &&
+    messageContent1.length <= 600 &&
+    messageContent2.length <= 600;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
@@ -580,13 +612,50 @@ function DocumentDeliveryPreviewDialog({
                 </div>
               )}
 
-              {sampleMessage && (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
+                  <div>
+                    <label htmlFor="document-message-content-1" className="text-sm font-semibold text-slate-900">
+                      Editable text 1
+                    </label>
+                    <textarea
+                      id="document-message-content-1"
+                      value={messageContent1}
+                      onChange={(event) => onMessageContent1Change(event.target.value)}
+                      maxLength={600}
+                      rows={3}
+                      disabled={sending}
+                      className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                    />
+                    <p className="mt-1 text-right text-xs text-slate-400">{messageContent1.length}/600</p>
+                  </div>
+                  <div>
+                    <label htmlFor="document-message-content-2" className="text-sm font-semibold text-slate-900">
+                      Editable text 2
+                    </label>
+                    <textarea
+                      id="document-message-content-2"
+                      value={messageContent2}
+                      onChange={(event) => onMessageContent2Change(event.target.value)}
+                      maxLength={600}
+                      rows={3}
+                      disabled={sending}
+                      className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                    />
+                    <p className="mt-1 text-right text-xs text-slate-400">{messageContent2.length}/600</p>
+                  </div>
+                </div>
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Message preview</div>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-800">{sampleMessage}</p>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
+                    documents_v1 preview
+                  </div>
+                  <div className="mt-3 rounded-lg border border-emerald-100 bg-white p-3 text-xs font-medium text-slate-600">
+                    PDF document attached individually
+                  </div>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-800">{sampleMessage}</p>
                   <p className="mt-2 text-xs text-slate-500">Each passenger receives only the PDF shown in their row.</p>
                 </div>
-              )}
+              </div>
 
               <div className="overflow-hidden rounded-xl border border-slate-200">
                 <div className="overflow-x-auto">
@@ -654,7 +723,12 @@ function DocumentDeliveryPreviewDialog({
                 type="button"
                 onClick={onSend}
                 isLoading={sending}
-                disabled={!preview?.can_send || selectedDocumentIds.length === 0 || loading}
+                disabled={
+                  !preview?.can_send ||
+                  selectedDocumentIds.length === 0 ||
+                  loading ||
+                  !messageContentValid
+                }
               >
                 <Send className="h-4 w-4" />
                 Send individually to {selectedDocumentIds.length}

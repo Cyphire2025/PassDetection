@@ -201,7 +201,7 @@ test("message preview remains unsendable while the latest approved rendering loa
   assert.match(pageSource, /detail\?\.recipient_opt_in_confirmed/);
   assert.match(
     pageSource,
-    /messageType === "welcome" \|\| resolvedSupportContactIds\.length > 0/,
+    /messageType !== "passport_link" \|\| resolvedSupportContactIds\.length > 0/,
   );
 });
 

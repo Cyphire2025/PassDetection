@@ -58,10 +58,13 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             client=client,
             settings=self._settings(),
             to_number="+919876543210",
-            template_name="global_connect_document_v1",
+            template_name="documents_v1",
             media_id=media_id,
             filename="visa.pdf",
-            parameters=["Asha Singh", "Visa", "Thailand 2026"],
+            parameters=[
+                "This is your attached VISA",
+                "Kindly cross check all your details",
+            ],
         )
 
         self.assertEqual(provider_id, "wamid.document-1")
@@ -82,27 +85,29 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             components[1]["parameters"],
             [
-                {"type": "text", "text": "Asha Singh"},
-                {"type": "text", "text": "Visa"},
-                {"type": "text", "text": "Thailand 2026"},
+                {"type": "text", "text": "This is your attached VISA"},
+                {"type": "text", "text": "Kindly cross check all your details"},
             ],
         )
 
     def test_message_content_and_parameters_are_deterministic(self) -> None:
         self.assertEqual(
             document_template_parameters(
-                passenger_name=" Asha Singh ",
-                document_type="flight_ticket",
-                group_name=" Thailand 2026 ",
+                message_content_1=" This is your attached FLIGHT TICKET ",
+                message_content_2=" Kindly cross check all your details ",
             ),
-            ["Asha Singh", "Flight Ticket", "Thailand 2026"],
+            [
+                "This is your attached FLIGHT TICKET",
+                "Kindly cross check all your details",
+            ],
         )
         rendered = render_document_message(
-            passenger_name="Asha Singh",
-            document_type="visa",
-            group_name="Thailand 2026",
+            message_content_1="This is your attached VISA",
+            message_content_2="Kindly cross check all your details",
         )
-        self.assertIn("Your Visa for Thailand 2026 is attached", rendered)
+        self.assertIn("Dear Delegates", rendered)
+        self.assertIn("This is your attached VISA", rendered)
+        self.assertIn("Kindly cross check all your details", rendered)
         self.assertIn("Team Global Connect Travels", rendered)
 
     def test_receipts_are_monotonic_and_late_failures_do_not_regress_read(self) -> None:

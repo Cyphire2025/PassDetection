@@ -7,6 +7,7 @@ import type {
   PassportDocumentImportRequest,
   PassportGroupExportKind,
   PassportGroupExportRequest,
+  PassportWhatsAppTrackingExportRequest,
   PassportSelectedImagesExportRequest,
   PassportSelectedGroupsExportRequest,
 } from "../api/passports.api";
@@ -68,6 +69,13 @@ export function useExportPassportGroupImages() {
         queryKey: ["passport-export-history", request.groupId, "passport_images"],
       });
     },
+  });
+}
+
+export function useExportWhatsAppTracking() {
+  return useMutation({
+    mutationFn: (request: PassportWhatsAppTrackingExportRequest) =>
+      passportsApi.exportWhatsAppTracking(request),
   });
 }
 

@@ -110,6 +110,40 @@ class WhatsAppMessageTemplateTests(unittest.TestCase):
             body_parameters=parameters,
         )
 
+    def test_reminder_template_has_only_one_editable_body_variable(self) -> None:
+        message_content = default_message_content(
+            "reminder",
+            group_name="Ignored for reminder",
+        )
+        parameters = template_parameters(
+            message_type="reminder",
+            group_name="Ignored for reminder",
+            support_contacts="Ignored for reminder",
+            message_content=message_content,
+        )
+        rendered = render_message(
+            message_type="reminder",
+            group_name="Ignored for reminder",
+            support_contacts="Ignored for reminder",
+            message_content=message_content,
+        )
+
+        self.assertEqual(parameters, [message_content])
+        self.assertEqual(
+            rendered,
+            "URGENT REMINDER !!\n\n"
+            "Dear Delegates\n\n"
+            "Greetings from Global Connect Travels\n\n"
+            f"{message_content}\n\n"
+            "Regards,\n"
+            "Team Global Connect Travels",
+        )
+        validate_template_parameters(
+            message_type="reminder",
+            header_parameters=[],
+            body_parameters=parameters,
+        )
+
     def test_passport_intro_is_editable_without_changing_meta_parameter_order(self) -> None:
         parameters = template_parameters(
             message_type="passport_link",

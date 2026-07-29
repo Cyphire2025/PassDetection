@@ -129,12 +129,16 @@ class DocumentDeliveryPreviewResponse(BaseModel):
     linked_broadcast_count: int = 0
     can_send: bool = False
     configuration_error: str | None = None
+    message_content_1: str
+    message_content_2: str
     summary: DocumentDeliveryPreviewSummary
     recipients: list[DocumentDeliveryPreviewRecipient] = Field(default_factory=list)
 
 
 class SendDocumentBroadcastRequest(BaseModel):
     document_ids: list[uuid.UUID] | None = Field(default=None, max_length=500)
+    message_content_1: str = Field(min_length=1, max_length=600)
+    message_content_2: str = Field(min_length=1, max_length=600)
 
 
 class SendDocumentBroadcastResponse(BaseModel):
