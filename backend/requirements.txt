@@ -36,6 +36,7 @@ botocore==1.34.131
 opencv-python-headless==4.10.0.84
 Pillow==12.3.0
 pillow-heif==1.4.0
+qrcode==8.2
 numpy==1.26.4
 
 # ── OCR Engines (pluggable — only what's available will be loaded) ────────────

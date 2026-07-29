@@ -32,6 +32,9 @@ from app.presentation.api.v1.routes.passports import router as passport_router
 from app.presentation.api.v1.routes.rooming import router as rooming_router
 from app.presentation.api.v1.routes.search import router as search_router
 from app.presentation.api.v1.routes.tour_operations import router as tour_operations_router
+from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
+    router as tour_operations_qr_delivery_router,
+)
 from app.presentation.api.v1.routes.whatsapp import router as whatsapp_router
 
 api_v1_router = APIRouter()
@@ -48,6 +51,11 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(search_router, prefix="/search", tags=["Search"])
 api_v1_router.include_router(tour_operations_router, prefix="/tour-operations", tags=["Tour Operations"])
+api_v1_router.include_router(
+    tour_operations_qr_delivery_router,
+    prefix="/tour-operations",
+    tags=["Tour Operations"],
+)
 api_v1_router.include_router(rooming_router, prefix="/rooming", tags=["Rooming Lists"])
 api_v1_router.include_router(menu_router, prefix="/menu", tags=["Menu & Meal Planner"])
 api_v1_router.include_router(document_distribution_router, prefix="/document-distribution", tags=["Document Distribution"])

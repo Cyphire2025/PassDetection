@@ -414,6 +414,51 @@ export interface GroupPassengerQrCodes {
   passengers: GroupPassengerQrCode[];
 }
 
+export interface QrDeliveryPreviewRecipient {
+  passenger_id: string;
+  passenger_name: string;
+  passport_number: string | null;
+  qr_token_id: string | null;
+  qr_token_version: number | null;
+  qr_status: string;
+  recipient_id: string | null;
+  broadcast_group_id: string | null;
+  broadcast_name: string | null;
+  phone_number: string | null;
+  delivery_id: string | null;
+  delivery_status: string;
+  eligible: boolean;
+  reason: string;
+  error_message: string | null;
+  message_preview: string | null;
+}
+
+export interface QrDeliveryPreview {
+  group_id: string;
+  template_name: string | null;
+  template_configured: boolean;
+  linked_broadcast_count: number;
+  can_send: boolean;
+  configuration_error: string | null;
+  message_content: string;
+  summary: {
+    total_passengers: number;
+    ready: number;
+    retryable: number;
+    already_sent: number;
+    in_progress: number;
+    blocked: number;
+  };
+  recipients: QrDeliveryPreviewRecipient[];
+}
+
+export interface SendQrBroadcastResponse {
+  send_batch_id: string | null;
+  queued_count: number;
+  skipped_count: number;
+  message: string;
+}
+
 export const operationsApi = {
   adminOverview: async (): Promise<AdminOverview> => {
     const { data } = await apiClient.get<AdminOverview>(API_ENDPOINTS.admin.overview);
@@ -713,6 +758,24 @@ export const operationsApi = {
 
   groupQrCodes: async (groupId: string): Promise<GroupPassengerQrCodes> => {
     const { data } = await apiClient.get<GroupPassengerQrCodes>(API_ENDPOINTS.tourOperations.groupQrCodes(groupId));
+    return data;
+  },
+
+  qrDeliveryPreview: async (groupId: string): Promise<QrDeliveryPreview> => {
+    const { data } = await apiClient.get<QrDeliveryPreview>(
+      API_ENDPOINTS.tourOperations.groupQrWhatsAppPreview(groupId),
+    );
+    return data;
+  },
+
+  sendQrBroadcast: async (
+    groupId: string,
+    body: { qr_token_ids: string[]; message_content: string },
+  ): Promise<SendQrBroadcastResponse> => {
+    const { data } = await apiClient.post<SendQrBroadcastResponse>(
+      API_ENDPOINTS.tourOperations.groupQrWhatsAppSend(groupId),
+      body,
+    );
     return data;
   },
 

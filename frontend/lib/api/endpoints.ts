@@ -230,6 +230,10 @@ export const API_ENDPOINTS = {
     assignGroupPassengers: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/passengers/assign`,
     groupAttendance: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/attendance`,
     groupQrCodes: (groupId: string) => `/api/v1/tour-operations/groups/${groupId}/qr-codes`,
+    groupQrWhatsAppPreview: (groupId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/qr-codes/whatsapp-preview`,
+    groupQrWhatsAppSend: (groupId: string) =>
+      `/api/v1/tour-operations/groups/${groupId}/qr-codes/whatsapp-send`,
     passengerQr: (groupId: string, passengerId: string) =>
       `/api/v1/tour-operations/groups/${groupId}/passengers/${passengerId}/qr`,
     passengerQrRegenerate: (groupId: string, passengerId: string) =>

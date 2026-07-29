@@ -14,6 +14,9 @@ from app.application.use_cases.whatsapp.message_templates import (
     WhatsAppMessageType,
     validate_template_parameters,
 )
+from app.application.use_cases.whatsapp.qr_templates import (
+    validate_qr_template_parameters,
+)
 from app.core.config.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -116,13 +119,13 @@ async def upload_whatsapp_image(
         )
     except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
         raise WhatsAppCloudApiError(
-            "The Welcome image could not be uploaded to WhatsApp",
+            "The image could not be uploaded to WhatsApp",
             code="WHATSAPP_MEDIA_UPLOAD_UNREACHABLE",
             transient=True,
         ) from exc
     except httpx.HTTPError as exc:
         raise WhatsAppCloudApiError(
-            "The Welcome image upload was interrupted",
+            "The image upload was interrupted",
             code="WHATSAPP_MEDIA_UPLOAD_INTERRUPTED",
             transient=True,
         ) from exc
@@ -138,7 +141,7 @@ async def upload_whatsapp_image(
             extra={"status_code": response.status_code},
         )
         raise WhatsAppCloudApiError(
-            "Meta rejected the Welcome image; use a clear JPEG or PNG and try again",
+            "Meta rejected the image; use a clear JPEG or PNG and try again",
             code="WHATSAPP_MEDIA_UPLOAD_REJECTED",
             transient=response.status_code == 429 or response.status_code >= 500,
         )
@@ -321,6 +324,128 @@ async def send_whatsapp_document_template(
     if not provider_id:
         raise WhatsAppCloudApiError(
             "WhatsApp API accepted the document without returning a message ID",
+            code="WHATSAPP_PROVIDER_RESPONSE_INVALID",
+            delivery_unknown=True,
+        )
+    return str(provider_id)
+
+
+async def send_whatsapp_qr_template(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    to_number: str,
+    template_name: str,
+    media_id: str,
+    parameters: list[str],
+) -> str:
+    """Send the approved QR template with one passenger-specific image header."""
+
+    if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API credentials are incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+    try:
+        validate_qr_template_parameters(parameters)
+    except ValueError as exc:
+        raise WhatsAppCloudApiError(
+            f"Invalid WhatsApp QR template payload: {exc}",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        ) from exc
+
+    template = {
+        "name": template_name,
+        "language": {"code": settings.whatsapp_template_language},
+        "components": [
+            {
+                "type": "header",
+                "parameters": [_image_parameter(media_id)],
+            },
+            {
+                "type": "body",
+                "parameters": [_text_parameter(parameter) for parameter in parameters],
+            },
+        ],
+    }
+    try:
+        response = await client.post(
+            (
+                f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
+                f"{settings.whatsapp_phone_number_id}/messages"
+            ),
+            json={
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": to_number.lstrip("+"),
+                "type": "template",
+                "template": template,
+            },
+            headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
+        )
+    except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
+        raise WhatsAppCloudApiError(
+            "WhatsApp Cloud API could not be reached",
+            code="WHATSAPP_PROVIDER_UNREACHABLE",
+            transient=True,
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise WhatsAppCloudApiError(
+            "WhatsApp QR delivery outcome is unknown after a provider interruption",
+            code="WHATSAPP_DELIVERY_UNKNOWN",
+            delivery_unknown=True,
+        ) from exc
+
+    try:
+        data = response.json()
+    except ValueError:
+        data = {}
+    if response.status_code >= 400:
+        meta_code, meta_subcode, meta_reference = _meta_error_reference(data)
+        logger.warning(
+            "whatsapp_qr_template_rejected",
+            extra={
+                "status_code": response.status_code,
+                "meta_error_code": meta_code,
+                "meta_error_subcode": meta_subcode,
+            },
+        )
+        if response.status_code == 429:
+            code = "WHATSAPP_PROVIDER_RATE_LIMITED"
+            message = f"Meta temporarily rate-limited this QR message{meta_reference}"
+        elif response.status_code in {401, 403}:
+            code = "WHATSAPP_PROVIDER_AUTH_FAILED"
+            message = (
+                "Meta rejected the configured WhatsApp credentials"
+                f"{meta_reference}"
+            )
+        elif response.status_code >= 500:
+            code = "WHATSAPP_DELIVERY_UNKNOWN"
+            message = (
+                "Meta returned a server error and delivery status is unknown"
+                f"{meta_reference}"
+            )
+        else:
+            code = "WHATSAPP_PROVIDER_REJECTED"
+            message = (
+                "Meta rejected this QR template; verify the approved template "
+                f"and recipient details{meta_reference}"
+            )
+        raise WhatsAppCloudApiError(
+            message,
+            code=code,
+            transient=response.status_code == 429,
+            delivery_unknown=response.status_code >= 500,
+        )
+    messages = data.get("messages") if isinstance(data, dict) else None
+    provider_id = (
+        messages[0].get("id")
+        if isinstance(messages, list) and messages and isinstance(messages[0], dict)
+        else None
+    )
+    if not provider_id:
+        raise WhatsAppCloudApiError(
+            "WhatsApp API accepted the QR message without returning a message ID",
             code="WHATSAPP_PROVIDER_RESPONSE_INVALID",
             delivery_unknown=True,
         )

@@ -65,6 +65,7 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     DocumentWhatsAppDeliveryModel,
+    PassengerQrWhatsAppDeliveryModel,
     PassportRosterResolutionModel,
     PassportSubmissionModel,
     WhatsAppBroadcastGroupModel,
@@ -91,6 +92,9 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 )
 from app.infrastructure.whatsapp.document_delivery_runtime import (
     apply_document_provider_status,
+)
+from app.infrastructure.whatsapp.qr_delivery_runtime import (
+    apply_qr_provider_status,
 )
 from app.presentation.dependencies.auth import (
     WHATSAPP_BROADCAST_ROLES,
@@ -682,7 +686,8 @@ async def receive_whatsapp_webhook(
                     DocumentWhatsAppDeliveryModel.provider_message_id == provider_id
                 )
             )
-            for delivery in document_result.scalars().all():
+            document_deliveries = document_result.scalars().all()
+            for delivery in document_deliveries:
                 if not isinstance(delivery, DocumentWhatsAppDeliveryModel):
                     continue
                 apply_document_provider_status(
@@ -693,6 +698,24 @@ async def receive_whatsapp_webhook(
                     now=datetime.now(tz=UTC),
                 )
                 processed_statuses += 1
+            if not document_deliveries:
+                qr_result = await session.execute(
+                    select(PassengerQrWhatsAppDeliveryModel).where(
+                        PassengerQrWhatsAppDeliveryModel.provider_message_id
+                        == provider_id
+                    )
+                )
+                for delivery in qr_result.scalars().all():
+                    if not isinstance(delivery, PassengerQrWhatsAppDeliveryModel):
+                        continue
+                    apply_qr_provider_status(
+                        delivery,
+                        provider_status=provider_status,
+                        error_message=error_message,
+                        provider_status_at=provider_status_at,
+                        now=datetime.now(tz=UTC),
+                    )
+                    processed_statuses += 1
     if processed_statuses:
         await session.commit()
 

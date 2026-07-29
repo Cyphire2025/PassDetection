@@ -425,6 +425,28 @@ export function useGroupQrCodes(groupId: string) {
   });
 }
 
+export function useQrDeliveryPreview(groupId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ["operations", "tour-operations", "groups", groupId, "qr-whatsapp-preview"],
+    queryFn: () => operationsApi.qrDeliveryPreview(groupId),
+    enabled,
+    retry: false,
+  });
+}
+
+export function useSendQrBroadcast(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { qr_token_ids: string[]; message_content: string }) =>
+      operationsApi.sendQrBroadcast(groupId, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["operations", "tour-operations", "groups", groupId, "qr-whatsapp-preview"],
+      });
+    },
+  });
+}
+
 export function usePassengerQrLifecycle(groupId: string) {
   const queryClient = useQueryClient();
   const refresh = () => queryClient.invalidateQueries({ queryKey: QUERY_KEYS.operations.tourGroupQrCodes(groupId) });

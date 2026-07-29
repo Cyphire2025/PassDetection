@@ -381,6 +381,7 @@ class Settings(BaseSettings):
     whatsapp_passport_link_template_name: str = ""
     whatsapp_reminder_template_name: str = "reminder_v1"
     whatsapp_document_template_name: str = "documents_v1"
+    whatsapp_qr_template_name: str = "qrcode_v1"
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
 
