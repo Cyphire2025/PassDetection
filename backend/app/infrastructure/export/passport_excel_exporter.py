@@ -95,6 +95,7 @@ _NAME_HISTORY_COLUMNS = (
 
 _FORMULA_PREFIXES = ("=", "+", "-", "@")
 _PENDING_ROW_FILL = PatternFill("solid", fgColor="FFF2CC")
+_NAME_MISMATCH_FILL = PatternFill("solid", fgColor="FCE8E6")
 _ZONE_SEPARATOR_BLANK_ROWS = 2
 
 
@@ -124,6 +125,38 @@ def _uppercase(value: Any) -> str | None:
     if value in (None, ""):
         return None
     return str(value).upper()
+
+
+def _normalized_name_parts(value: Any) -> tuple[str, ...]:
+    """Normalize name parts while allowing surname/given-name order to differ."""
+
+    if value in (None, ""):
+        return ()
+    return tuple(
+        sorted(
+            re.findall(
+                r"[^\W_]+",
+                str(value).casefold(),
+            )
+        )
+    )
+
+
+def _name_history_differs(values: dict[str, Any]) -> bool:
+    """Compare the old full name with the current surname followed by given name."""
+
+    old_name = _normalized_name_parts(values.get("Old Given Name"))
+    new_name = _normalized_name_parts(
+        " ".join(
+            str(value)
+            for value in (
+                values.get("New Surname"),
+                values.get("New Given Name"),
+            )
+            if value not in (None, "")
+        )
+    )
+    return old_name != new_name
 
 
 def _excel_date_value(value: Any) -> Any:
@@ -304,6 +337,9 @@ class PassportExcelExporter:
             *custom_detail_fields,
         ]
         headers = [column.header for column in columns]
+        column_index_by_header = {
+            header: index for index, header in enumerate(headers, start=1)
+        }
         label_by_key = {
             str(field["key"]): str(field["label"])
             for field in imported_fields
@@ -382,6 +418,26 @@ class PassportExcelExporter:
                 cell = worksheet.cell(row=row_index, column=column_index)
                 if column.number_format and isinstance(cell.value, (date, datetime)):
                     cell.number_format = column.number_format
+            if (
+                all(
+                    header in column_index_by_header
+                    for header in (
+                        "Old Given Name",
+                        "New Surname",
+                        "New Given Name",
+                    )
+                )
+                and _name_history_differs(values)
+            ):
+                for header in (
+                    "Old Given Name",
+                    "New Surname",
+                    "New Given Name",
+                ):
+                    worksheet.cell(
+                        row=row_index,
+                        column=column_index_by_header[header],
+                    ).fill = _NAME_MISMATCH_FILL
             previous_group_key = group_key
             has_written_submission = True
 
