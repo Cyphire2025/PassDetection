@@ -15,6 +15,7 @@ import {
   runCoordinatedRefresh,
 } from "@/features/auth/services/refresh-coordinator";
 import { useAuthStore } from "@/stores/auth.store";
+import type { AuthSession } from "@/types";
 
 export interface ApiError {
   code: string;
@@ -37,7 +38,7 @@ const SESSION_EXPIRED_ERROR: ApiError = {
   message: "Your session expired. Please sign in again.",
 };
 
-let refreshPromise: Promise<void> | null = null;
+let refreshPromise: Promise<AuthSession | null> | null = null;
 let expirationPromise: Promise<void> | null = null;
 
 const apiBaseUrl = typeof window === "undefined"
@@ -126,19 +127,35 @@ async function decodeApiErrorResponse(
 function getRefreshPromise(observedEpoch: string) {
   if (refreshPromise) return refreshPromise;
 
+  let refreshedSession: AuthSession | null = null;
   refreshPromise = runCoordinatedRefresh(
     observedEpoch,
     async () => {
-      await axios.post(`${apiBaseUrl}/api/v1/auth/refresh`, undefined, {
-        withCredentials: true,
-        timeout: 10_000,
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post<AuthSession>(
+        `${apiBaseUrl}/api/v1/auth/refresh`,
+        undefined,
+        {
+          withCredentials: true,
+          timeout: 10_000,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      refreshedSession = response.data;
     },
   )
-    .catch(async () => {
-      await expireSession();
-      throw SESSION_EXPIRED_ERROR;
+    .then(() => refreshedSession)
+    .catch(async (error: unknown) => {
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 401 || error.response?.status === 403)
+      ) {
+        await expireSession();
+        throw SESSION_EXPIRED_ERROR;
+      }
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        throw await buildApiError(error);
+      }
+      throw error;
     })
     .finally(() => {
       refreshPromise = null;
@@ -147,13 +164,21 @@ function getRefreshPromise(observedEpoch: string) {
   return refreshPromise;
 }
 
+export function refreshAuthenticatedSession() {
+  return getRefreshPromise(readRefreshEpoch());
+}
+
 function expireSession() {
   if (expirationPromise) return expirationPromise;
 
   const expiring = (async () => {
     if (typeof window === "undefined") return;
 
-    await useAuthStore.getState().clearSession("session_expired");
+    await useAuthStore.getState().clearSession("session_expired", {
+      // A rejected refresh already proves that the server session cannot be
+      // reused. Avoid delaying navigation on a redundant logout request.
+      revokeServerSession: false,
+    });
   })().finally(() => {
     if (expirationPromise === expiring) expirationPromise = null;
   });

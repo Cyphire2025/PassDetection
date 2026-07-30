@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       hasHydrated: true,
       sessionVersion: state.sessionVersion + 1,
     }));
-    await Promise.all([
+    const cleanup = Promise.all([
       revokeServerSession ? clearServerSessionCookies() : Promise.resolve(),
       clearSensitiveBrowserState(reason, notifyOtherTabs),
     ]);
@@ -81,6 +81,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       const destination = `/login${params.size > 0 ? `?${params.toString()}` : ""}`;
       window.location.replace(destination);
     }
+    await cleanup;
   },
 
   markHydrated: () => set({ hasHydrated: true }),
