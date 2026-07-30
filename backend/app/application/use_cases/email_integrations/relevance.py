@@ -29,6 +29,23 @@ TRAVEL_TERMS = frozenset(
     }
 )
 
+STRONG_GROUP_EVIDENCE = frozenset(
+    {
+        "passport_number_exact",
+        "group_upload_token_exact",
+        "group_name_exact",
+        "passenger_email_exact",
+        "passenger_phone_exact",
+    }
+)
+
+GROUP_CONTEXT_EVIDENCE = STRONG_GROUP_EVIDENCE | {
+    "passenger_name_exact",
+    "destination_exact",
+    "travel_date_exact",
+    "conflicting_roster_identifiers",
+}
+
 
 @dataclass(frozen=True)
 class RelevanceDecision:
@@ -49,6 +66,10 @@ def decide_relevance(
     normalized = _normalize(" ".join([subject, body_text, *attachment_filenames]))
     term_hits = sorted(term for term in TRAVEL_TERMS if _contains_phrase(normalized, term))
     evidence = list(dict.fromkeys(deterministic_match_evidence or []))
+    has_document_like_file = any(
+        filename.casefold().endswith((".pdf", ".jpg", ".jpeg", ".png", ".webp"))
+        for filename in attachment_filenames
+    )
     recognized_types = sorted(
         {
             document_type
@@ -72,14 +93,7 @@ def decide_relevance(
             should_retrieve=True,
         )
 
-    if any(
-        item in evidence
-        for item in {
-            "passport_number_exact",
-            "group_upload_token_exact",
-            "group_name_exact",
-        }
-    ):
+    if any(item in evidence for item in STRONG_GROUP_EVIDENCE):
         return RelevanceDecision(
             status="relevant",
             confidence=0.9,
@@ -87,10 +101,15 @@ def decide_relevance(
             should_retrieve=True,
         )
 
-    has_document_like_file = any(
-        filename.casefold().endswith((".pdf", ".jpg", ".jpeg", ".png", ".webp"))
-        for filename in attachment_filenames
-    )
+    if any(item in evidence for item in GROUP_CONTEXT_EVIDENCE):
+        evidence.extend(f"term_{term.replace(' ', '_')}" for term in term_hits[:5])
+        return RelevanceDecision(
+            status="possibly_relevant",
+            confidence=0.78,
+            evidence=tuple(dict.fromkeys(evidence)),
+            should_retrieve=has_document_like_file,
+        )
+
     if has_document_like_file and term_hits:
         evidence.extend(f"term_{term.replace(' ', '_')}" for term in term_hits[:5])
         evidence.append("document_attachment")
@@ -121,6 +140,12 @@ def decide_relevance(
         evidence=(),
         should_retrieve=False,
     )
+
+
+def has_group_context_evidence(evidence: tuple[str, ...] | list[str]) -> bool:
+    """Return whether a decision is anchored to an active group or roster."""
+
+    return any(item in GROUP_CONTEXT_EVIDENCE for item in evidence)
 
 
 def _normalize(value: str) -> str:

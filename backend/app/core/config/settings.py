@@ -185,13 +185,17 @@ class Settings(BaseSettings):
             )
         return normalized
 
-    @field_validator("gmail_oauth_redirect_uri", mode="before")
+    @field_validator(
+        "gmail_oauth_redirect_uri",
+        "outlook_oauth_redirect_uri",
+        mode="before",
+    )
     @classmethod
-    def validate_gmail_oauth_redirect_uri(cls, value: object) -> str | None:
+    def validate_email_provider_oauth_redirect_uri(cls, value: object) -> str | None:
         if value is None:
             return None
         if not isinstance(value, str):
-            raise ValueError("GMAIL_OAUTH_REDIRECT_URI must be a string")
+            raise ValueError("Email provider OAuth redirect URI must be a string")
         normalized = value.strip()
         if not normalized:
             return None
@@ -204,7 +208,7 @@ class Settings(BaseSettings):
             or parsed.fragment
         ):
             raise ValueError(
-                "GMAIL_OAUTH_REDIRECT_URI must be an absolute HTTP(S) URL "
+                "Email provider OAuth redirect URI must be an absolute HTTP(S) URL "
                 "without credentials or a fragment"
             )
         return normalized
@@ -358,6 +362,19 @@ class Settings(BaseSettings):
     gmail_oauth_client_id: str | None = None
     gmail_oauth_client_secret: SecretStr | None = Field(default=None, repr=False)
     gmail_oauth_redirect_uri: str | None = None
+    outlook_oauth_client_id: str | None = None
+    outlook_oauth_client_secret: SecretStr | None = Field(default=None, repr=False)
+    outlook_oauth_redirect_uri: str | None = None
+    outlook_oauth_tenant: str = Field(
+        default="common",
+        min_length=4,
+        max_length=64,
+        pattern=(
+            r"^(?:common|organizations|consumers|"
+            r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+            r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
+        ),
+    )
     email_oauth_state_ttl_seconds: int = Field(default=600, ge=120, le=1_800)
     email_sync_interval_seconds: int = Field(default=15, ge=15, le=86_400)
     email_sync_lease_seconds: int = Field(default=300, ge=30, le=3_600)

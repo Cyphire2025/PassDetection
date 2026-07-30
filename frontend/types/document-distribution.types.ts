@@ -49,6 +49,11 @@ export interface DistributedDocument {
   extracted_name: string | null;
   extracted_passport_number: string | null;
   extracted_reference: string | null;
+  source: "email" | "manual" | string;
+  delivery_status: string;
+  sent_to: string | null;
+  last_sent_at: string | null;
+  can_resend: boolean;
   url: string | null;
 }
 
@@ -98,6 +103,7 @@ export interface DocumentDeliveryPreviewRecipient {
   delivery_id: string | null;
   delivery_status: DocumentDeliveryPreviewStatus | string;
   eligible: boolean;
+  resend_allowed: boolean;
   reason: string;
   error_message: string | null;
   message_preview: string | null;

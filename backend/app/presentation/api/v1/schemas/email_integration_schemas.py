@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 
 class EmailProviderAvailabilityResponse(BaseModel):
-    provider: Literal["gmail"]
+    provider: Literal["gmail", "outlook"]
     label: str
     configured: bool
 
@@ -40,8 +40,13 @@ class EmailConnectionResponse(BaseModel):
     allowed_actions: list[str] = Field(default_factory=list)
 
 
-class GmailAuthorizeRequest(BaseModel):
+class EmailAuthorizeRequest(BaseModel):
     connection_id: uuid.UUID | None = None
+
+
+# Backward-compatible import for callers that still use the Gmail-specific
+# schema name. The payload is provider-neutral.
+GmailAuthorizeRequest = EmailAuthorizeRequest
 
 
 class EmailAuthorizationUrlResponse(BaseModel):

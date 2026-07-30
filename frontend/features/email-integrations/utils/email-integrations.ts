@@ -32,6 +32,32 @@ const OAUTH_CALLBACK_MESSAGES: Record<string, EmailOAuthCallbackNotice> = {
   },
 };
 
+const OUTLOOK_CALLBACK_MESSAGES: Record<string, EmailOAuthCallbackNotice> = {
+  connected: {
+    tone: "success",
+    message:
+      "Microsoft Outlook was connected successfully. Inbox monitoring will begin shortly.",
+  },
+  reconnected: {
+    tone: "success",
+    message: "Microsoft Outlook access was restored successfully.",
+  },
+  cancelled: {
+    tone: "error",
+    message:
+      "Microsoft Outlook connection was cancelled. No account access was granted.",
+  },
+  denied: {
+    tone: "error",
+    message:
+      "Microsoft Outlook access was not granted. You can try connecting again.",
+  },
+  failed: {
+    tone: "error",
+    message: "Microsoft Outlook could not be connected. Please try again.",
+  },
+};
+
 export function normalizeEmailCollection<T>(
   value: T[] | CollectionEnvelope<T>,
 ): T[] {
@@ -86,7 +112,13 @@ export function emailStatusVariant(
 export function isSafeOAuthAuthorizationUrl(value: string): boolean {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && Boolean(url.hostname);
+    return (
+      url.protocol === "https:"
+      && (url.port === "" || url.port === "443")
+      && url.username === ""
+      && url.password === ""
+      && ["accounts.google.com", "login.microsoftonline.com"].includes(url.hostname)
+    );
   } catch {
     return false;
   }
@@ -100,7 +132,10 @@ export function readEmailOAuthCallback(
     params.get("email_oauth")
     ?? params.get("oauth_status")
     ?? params.get("connection_status");
-  return rawStatus ? OAUTH_CALLBACK_MESSAGES[rawStatus] ?? null : null;
+  const provider = params.get("email_provider");
+  const messages =
+    provider === "outlook" ? OUTLOOK_CALLBACK_MESSAGES : OAUTH_CALLBACK_MESSAGES;
+  return rawStatus ? messages[rawStatus] ?? null : null;
 }
 
 export function cleanEmailOAuthCallbackUrl(url: URL): string {
@@ -108,6 +143,7 @@ export function cleanEmailOAuthCallbackUrl(url: URL): string {
   cleaned.searchParams.delete("email_oauth");
   cleaned.searchParams.delete("oauth_status");
   cleaned.searchParams.delete("connection_status");
+  cleaned.searchParams.delete("email_provider");
   cleaned.searchParams.delete("code");
   cleaned.searchParams.delete("state");
   cleaned.searchParams.delete("error");

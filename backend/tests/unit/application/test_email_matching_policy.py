@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from app.application.use_cases.email_integrations.matching import (
     GroupForAssociation,
+    associate_email_context,
     associate_group,
     associate_passenger,
 )
@@ -46,6 +47,10 @@ def _passenger(
             "passport_number": passport_number,
         },
         extracted_fields=None,
+        client_email=None,
+        client_phone=None,
+        family_head_email=None,
+        family_head_phone=None,
     )
 
 
@@ -140,3 +145,51 @@ def test_passenger_passport_number_can_auto_match() -> None:
     assert result.passenger_id == passenger.id
     assert result.status == "matched"
     assert result.confidence == 0.98
+
+
+def test_email_context_uses_exact_roster_identifier_for_one_group() -> None:
+    group_id = uuid.uuid4()
+    passenger = _passenger(
+        group_id=group_id,
+        name="Asha Mehta",
+        passport_number="P1234567",
+    )
+
+    result = associate_email_context(
+        email_text="Visa issued for passport P1234567",
+        sender_address="vendor@example.com",
+        groups=[],
+        passengers=[passenger],
+    )
+
+    assert result.status == "matched"
+    assert result.group_id == group_id
+    assert result.evidence == ("passport_number_exact",)
+
+
+def test_email_context_does_not_guess_when_name_spans_multiple_groups() -> None:
+    first_group = uuid.uuid4()
+    second_group = uuid.uuid4()
+    passengers = [
+        _passenger(
+            group_id=first_group,
+            name="Asha Mehta",
+            passport_number="P1234567",
+        ),
+        _passenger(
+            group_id=second_group,
+            name="Asha Mehta",
+            passport_number="P7654321",
+        ),
+    ]
+
+    result = associate_email_context(
+        email_text="Travel documents for Asha Mehta",
+        sender_address="vendor@example.com",
+        groups=[],
+        passengers=passengers,
+    )
+
+    assert result.status == "needs_review"
+    assert result.group_id is None
+    assert set(result.candidate_group_ids) == {first_group, second_group}

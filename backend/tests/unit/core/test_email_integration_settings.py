@@ -25,6 +25,8 @@ def test_email_capabilities_are_disabled_by_default() -> None:
     assert settings.email_token_encryption_key is None
     assert settings.email_token_decryption_keys == {}
     assert settings.gmail_oauth_client_secret is None
+    assert settings.outlook_oauth_client_secret is None
+    assert settings.outlook_oauth_tenant == "common"
     assert settings.email_sync_interval_seconds == 15
 
 
@@ -33,11 +35,13 @@ def test_email_secret_values_remain_redacted() -> None:
         email_token_encryption_key="email-token-key-value",
         email_token_decryption_keys={"1": "prior-email-token-key-value"},
         gmail_oauth_client_secret="gmail-client-secret-value",
+        outlook_oauth_client_secret="outlook-client-secret-value",
     )
 
     assert "email-token-key-value" not in str(settings.email_token_encryption_key)
     assert "prior-email-token-key-value" not in repr(settings)
     assert "gmail-client-secret-value" not in str(settings.gmail_oauth_client_secret)
+    assert "outlook-client-secret-value" not in str(settings.outlook_oauth_client_secret)
 
 
 @pytest.mark.parametrize(
@@ -69,3 +73,7 @@ def test_oauth_redirect_destinations_must_be_explicit_http_urls() -> None:
         _settings(email_oauth_frontend_return_url="//attacker.example/email-integrations")
     with pytest.raises(ValidationError):
         _settings(gmail_oauth_redirect_uri="https://user:pass@example.com/callback")
+    with pytest.raises(ValidationError):
+        _settings(outlook_oauth_redirect_uri="https://user:pass@example.com/callback")
+    with pytest.raises(ValidationError):
+        _settings(outlook_oauth_tenant="../../common")

@@ -28,6 +28,7 @@ test("email integration routes and API endpoints are centralized", () => {
   assert.match(endpoints, /status: "\/api\/v1\/email-integrations\/status"/);
   assert.match(endpoints, /connections: "\/api\/v1\/email-integrations\/connections"/);
   assert.match(endpoints, /oauth\/gmail\/authorize/);
+  assert.match(endpoints, /oauth\/outlook\/authorize/);
   assert.match(endpoints, /reviews\/\$\{reviewId\}\/resolve/);
   assert.match(endpoints, /messages\/\$\{messageId\}/);
 });
@@ -63,6 +64,7 @@ test("sidebar and section navigation expose accessible normal links", () => {
 test("OAuth handoff never stores credentials in browser-managed storage", () => {
   assert.match(connections, /window\.location\.assign\(authorizationUrl\)/);
   assert.match(connections, /isSafeOAuthAuthorizationUrl\(authorizationUrl\)/);
+  assert.match(connections, /Connect Outlook/);
   assert.doesNotMatch(connections, /connection\.agency_name/);
   for (const source of [connections, review, message, types]) {
     assert.doesNotMatch(source, /localStorage|sessionStorage/);

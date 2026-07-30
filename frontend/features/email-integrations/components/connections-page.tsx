@@ -19,7 +19,7 @@ import {
 import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
 import type { EmailConnection } from "../types";
 import {
-  useAuthorizeGmail,
+  useAuthorizeEmailProvider,
   useDisconnectEmailConnection,
   useEmailConnections,
   useEmailIntegrationStatus,
@@ -61,7 +61,7 @@ export function EmailConnectionsPage() {
   const status = useEmailIntegrationStatus();
   const connections = useEmailConnections();
   const summary = useEmailIntegrationSummary();
-  const authorize = useAuthorizeGmail();
+  const authorize = useAuthorizeEmailProvider();
   const sync = useSyncEmailConnection();
   const pause = usePauseEmailConnection();
   const resume = useResumeEmailConnection();
@@ -95,6 +95,12 @@ export function EmailConnectionsPage() {
   );
   const canConnectGmail =
     status.data?.enabled === true && gmailProvider?.configured === true;
+  const outlookProvider = useMemo(
+    () => status.data?.providers.find((provider) => provider.provider === "outlook"),
+    [status.data],
+  );
+  const canConnectOutlook =
+    status.data?.enabled === true && outlookProvider?.configured === true;
   const anyConnectionMutation =
     sync.isPending
     || pause.isPending
@@ -102,10 +108,13 @@ export function EmailConnectionsPage() {
     || disconnect.isPending
     || authorize.isPending;
 
-  function startAuthorization(connectionId?: string) {
+  function startAuthorization(
+    provider: "gmail" | "outlook",
+    connectionId?: string,
+  ) {
     setNotice(null);
-    setActiveConnectionId(connectionId ?? "new");
-    authorize.mutate(connectionId, {
+    setActiveConnectionId(connectionId ?? `new-${provider}`);
+    authorize.mutate({ provider, connectionId }, {
       onSuccess: ({ authorization_url: authorizationUrl }) => {
         if (!isSafeOAuthAuthorizationUrl(authorizationUrl)) {
           setNotice({
@@ -121,7 +130,7 @@ export function EmailConnectionsPage() {
       onError: () => {
         setNotice({
           tone: "error",
-          message: "Gmail authorization could not be started. Please try again.",
+          message: `${provider === "outlook" ? "Microsoft Outlook" : "Gmail"} authorization could not be started. Please try again.`,
         });
         setActiveConnectionId(null);
       },
@@ -169,7 +178,8 @@ export function EmailConnectionsPage() {
         setActiveConnectionId(null);
         setNotice({
           tone: "success",
-          message: "The email account was disconnected and access was revoked.",
+          message:
+            "The email account was disconnected and its stored credentials were removed.",
         });
       },
       onError: () => {
@@ -177,7 +187,7 @@ export function EmailConnectionsPage() {
         setNotice({
           tone: "error",
           message:
-            "Provider revocation could not be confirmed. The connection remains blocked; retry Disconnect.",
+            "The account could not be disconnected safely. It remains blocked; retry Disconnect.",
         });
       },
     });
@@ -195,15 +205,27 @@ export function EmailConnectionsPage() {
             monitoring and processing.
           </p>
         </div>
-        <Button
-          type="button"
-          leftIcon={<Mail className="h-4 w-4" aria-hidden="true" />}
-          isLoading={authorize.isPending && activeConnectionId === "new"}
-          disabled={!canConnectGmail || anyConnectionMutation}
-          onClick={() => startAuthorization()}
-        >
-          Connect Gmail
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            leftIcon={<Mail className="h-4 w-4" aria-hidden="true" />}
+            isLoading={authorize.isPending && activeConnectionId === "new-gmail"}
+            disabled={!canConnectGmail || anyConnectionMutation}
+            onClick={() => startAuthorization("gmail")}
+          >
+            Connect Gmail
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            leftIcon={<Mail className="h-4 w-4" aria-hidden="true" />}
+            isLoading={authorize.isPending && activeConnectionId === "new-outlook"}
+            disabled={!canConnectOutlook || anyConnectionMutation}
+            onClick={() => startAuthorization("outlook")}
+          >
+            Connect Outlook
+          </Button>
+        </div>
       </div>
 
       {notice && <EmailNotice tone={notice.tone}>{notice.message}</EmailNotice>}
@@ -222,6 +244,12 @@ export function EmailConnectionsPage() {
       {status.data?.enabled && gmailProvider && !gmailProvider.configured && (
         <EmailNotice tone="warning">
           Gmail authorization has not been configured by an administrator.
+        </EmailNotice>
+      )}
+      {status.data?.enabled && outlookProvider && !outlookProvider.configured && (
+        <EmailNotice tone="warning">
+          Microsoft Outlook authorization has not been configured by an
+          administrator.
         </EmailNotice>
       )}
       {status.data?.enabled && !status.data.sync_enabled && (
@@ -306,7 +334,7 @@ export function EmailConnectionsPage() {
                       <Definition term="Provider">
                         {connection.provider === "gmail"
                           ? "Gmail"
-                          : connection.provider}
+                          : "Microsoft Outlook"}
                       </Definition>
                       <Definition term="Last successful sync">
                         <span title={formatDateTime(connection.last_successful_sync_at)}>
@@ -372,8 +400,15 @@ export function EmailConnectionsPage() {
                           size="sm"
                           variant="secondary"
                           isLoading={isBusy && authorize.isPending}
-                          disabled={anyConnectionMutation || !canConnectGmail}
-                          onClick={() => startAuthorization(connection.id)}
+                          disabled={
+                            anyConnectionMutation
+                            || (connection.provider === "gmail"
+                              ? !canConnectGmail
+                              : !canConnectOutlook)
+                          }
+                          onClick={() =>
+                            startAuthorization(connection.provider, connection.id)
+                          }
                         >
                           Reconnect
                         </Button>
@@ -407,8 +442,8 @@ export function EmailConnectionsPage() {
                 No email accounts connected
               </h3>
               <p className="mt-1 max-w-lg text-sm text-slate-600">
-                Connect a supported business Gmail account to begin background
-                monitoring.
+                Connect a supported Gmail or Microsoft Outlook account to begin
+                background monitoring.
               </p>
             </CardContent>
           </Card>
@@ -418,7 +453,7 @@ export function EmailConnectionsPage() {
       {disconnectTarget && (
         <EmailDialog
           title="Disconnect email account?"
-          description={`This revokes access to ${disconnectTarget.email_address} and stops future monitoring. Previously processed activity is retained for audit history.`}
+          description={`This stops future monitoring of ${disconnectTarget.email_address} and removes its stored credentials. Previously processed activity is retained for audit history.`}
           isBusy={disconnect.isPending}
           onClose={() => setDisconnectTarget(null)}
         >
@@ -437,7 +472,7 @@ export function EmailConnectionsPage() {
               isLoading={disconnect.isPending}
               onClick={confirmDisconnect}
             >
-              Disconnect and revoke
+              Disconnect
             </Button>
           </div>
         </EmailDialog>

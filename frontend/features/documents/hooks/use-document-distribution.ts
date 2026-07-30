@@ -110,17 +110,20 @@ export function useSendDocumentWhatsAppBroadcast(
     mutationFn: ({
       batchId,
       documentIds,
+      resendDocumentIds,
       messageContent1,
       messageContent2,
     }: {
       batchId: string;
       documentIds: string[];
+      resendDocumentIds: string[];
       messageContent1: string;
       messageContent2: string;
     }) =>
       documentDistributionApi.sendWhatsAppDelivery(
         batchId,
         documentIds,
+        resendDocumentIds,
         messageContent1,
         messageContent2,
       ),

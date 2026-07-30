@@ -42,6 +42,153 @@ class GroupForAssociation:
     travel_date: date | None
 
 
+@dataclass(frozen=True)
+class EmailContextAssociation:
+    """A group-level match derived only from trusted roster data."""
+
+    group_id: uuid.UUID | None
+    confidence: float
+    status: str
+    evidence: tuple[str, ...]
+    candidate_group_ids: tuple[uuid.UUID, ...] = ()
+
+
+def associate_email_context(
+    *,
+    email_text: str,
+    sender_address: str | None,
+    groups: list[GroupForAssociation],
+    passengers: list[PassportSubmission],
+) -> EmailContextAssociation:
+    """Relate an email envelope to active groups without trusting links or prose.
+
+    High-cardinality roster values (upload token, passport, email, and phone)
+    are strong evidence. Exact group/passenger names are useful review evidence
+    only when they identify one active group. Destination text is accepted only
+    as corroboration for an exact group name, never as a match by itself.
+    """
+
+    normalized_text = _normalize(email_text)
+    raw_text = email_text.casefold()
+    compact_digits = re.sub(r"\D+", "", email_text)
+    observed_emails = {
+        value.casefold()
+        for value in re.findall(
+            r"(?<![A-Za-z0-9._%+-])([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})",
+            email_text,
+        )
+    }
+    if sender_address:
+        observed_emails.add(sender_address.strip().casefold())
+
+    evidence_by_group: dict[uuid.UUID, set[str]] = {}
+    strong_groups: set[uuid.UUID] = set()
+
+    def add(group_id: uuid.UUID, evidence: str, *, strong: bool = False) -> None:
+        evidence_by_group.setdefault(group_id, set()).add(evidence)
+        if strong:
+            strong_groups.add(group_id)
+
+    for group in groups:
+        group_name = _normalize(group.name)
+        if group.token and group.token.casefold() in raw_text:
+            add(group.id, "group_upload_token_exact", strong=True)
+        if group_name and len(group_name) >= 4 and _contains_phrase(normalized_text, group_name):
+            add(group.id, "group_name_exact")
+            destination = _normalize(group.destination or "")
+            if (
+                destination
+                and len(destination) >= 3
+                and _contains_phrase(normalized_text, destination)
+            ):
+                add(group.id, "destination_exact")
+            if group.travel_date and _date_appears(normalized_text, group.travel_date):
+                add(group.id, "travel_date_exact")
+
+    for passenger in passengers:
+        fields = passenger.confirmed_fields or passenger.extracted_fields or {}
+        passport_number = _normalize(str(fields.get("passport_number") or ""))
+        if (
+            passport_number
+            and len(passport_number) >= 5
+            and _contains_phrase(normalized_text, passport_number)
+        ):
+            add(passenger.group_id, "passport_number_exact", strong=True)
+
+        passenger_emails = {
+            value.strip().casefold()
+            for value in (
+                passenger.client_email,
+                passenger.family_head_email,
+            )
+            if value and value.strip()
+        }
+        if passenger_emails & observed_emails:
+            add(passenger.group_id, "passenger_email_exact", strong=True)
+
+        for phone in (passenger.client_phone, passenger.family_head_phone):
+            normalized_phone = re.sub(r"\D+", "", phone or "")
+            if len(normalized_phone) >= 7 and normalized_phone in compact_digits:
+                add(passenger.group_id, "passenger_phone_exact", strong=True)
+                break
+
+        passenger_name = _normalize(passenger.client_name)
+        if (
+            passenger_name
+            and len(passenger_name) >= 5
+            and _contains_phrase(normalized_text, passenger_name)
+        ):
+            add(passenger.group_id, "passenger_name_exact")
+
+    candidates = sorted(evidence_by_group, key=str)
+    if len(strong_groups) == 1:
+        group_id = next(iter(strong_groups))
+        evidence = tuple(sorted(evidence_by_group[group_id]))
+        return EmailContextAssociation(
+            group_id=group_id,
+            confidence=0.98,
+            status="matched",
+            evidence=evidence,
+            candidate_group_ids=(group_id,),
+        )
+    if len(strong_groups) > 1:
+        return EmailContextAssociation(
+            group_id=None,
+            confidence=0.95,
+            status="needs_review",
+            evidence=("conflicting_roster_identifiers",),
+            candidate_group_ids=tuple(sorted(strong_groups, key=str)),
+        )
+    if len(candidates) == 1:
+        group_id = candidates[0]
+        evidence = tuple(sorted(evidence_by_group[group_id]))
+        group_named = "group_name_exact" in evidence
+        return EmailContextAssociation(
+            group_id=group_id,
+            confidence=0.9 if group_named else 0.78,
+            status="matched" if group_named else "needs_review",
+            evidence=evidence,
+            candidate_group_ids=(group_id,),
+        )
+    if candidates:
+        combined_evidence = tuple(
+            sorted({item for values in evidence_by_group.values() for item in values})
+        )
+        return EmailContextAssociation(
+            group_id=None,
+            confidence=0.65,
+            status="needs_review",
+            evidence=combined_evidence,
+            candidate_group_ids=tuple(candidates[:5]),
+        )
+    return EmailContextAssociation(
+        group_id=None,
+        confidence=0.0,
+        status="unmatched",
+        evidence=(),
+    )
+
+
 def associate_group(
     *,
     email_text: str,

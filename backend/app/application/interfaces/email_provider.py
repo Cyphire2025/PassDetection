@@ -94,6 +94,7 @@ class EmailHistoryPage:
     changes: tuple[EmailMessageChange, ...]
     next_page_token: str | None
     latest_history_id: str
+    resume_history_id: str | None = None
 
 
 class EmailProviderError(Exception):
@@ -193,6 +194,7 @@ class EmailProviderResponseError(EmailProviderError):
 
 class EmailProvider(Protocol):
     provider_name: EmailProviderName
+    supports_remote_token_revocation: bool
 
     def build_authorization_url(self, *, state: str, code_challenge: str) -> str:
         """Build a provider authorization URL for a persisted one-time state."""
@@ -223,7 +225,7 @@ class EmailProvider(Protocol):
         self,
         *,
         access_token: str,
-        query: str | None,
+        lookback_days: int,
         max_messages: int,
     ) -> tuple[EmailMessageReference, ...]:
         """Return a fully paginated message reference list, bounded by max_messages."""

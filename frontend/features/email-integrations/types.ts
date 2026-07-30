@@ -1,5 +1,5 @@
 export interface EmailProviderAvailability {
-  provider: "gmail" | string;
+  provider: "gmail" | "outlook";
   label: string;
   configured: boolean;
 }
@@ -16,7 +16,7 @@ export interface EmailConnection {
   id: string;
   agency_id: string;
   agency_name: string;
-  provider: string;
+  provider: "gmail" | "outlook";
   email_address: string;
   status: string;
   last_successful_sync_at: string | null;

@@ -23,6 +23,13 @@ test("OAuth redirect accepts HTTPS URLs and rejects unsafe or malformed URLs", (
     true,
   );
   assert.equal(isSafeOAuthAuthorizationUrl("http://accounts.google.com/auth"), false);
+  assert.equal(
+    isSafeOAuthAuthorizationUrl(
+      "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+    ),
+    true,
+  );
+  assert.equal(isSafeOAuthAuthorizationUrl("https://attacker.example/auth"), false);
   assert.equal(isSafeOAuthAuthorizationUrl("javascript:alert(1)"), false);
   assert.equal(isSafeOAuthAuthorizationUrl("not a url"), false);
 });
@@ -33,6 +40,14 @@ test("OAuth callback notices come only from fixed status values", () => {
     message:
       "Gmail was connected successfully. Inbox monitoring will begin shortly.",
   });
+  assert.deepEqual(
+    readEmailOAuthCallback("?email_oauth=connected&email_provider=outlook"),
+    {
+      tone: "success",
+      message:
+        "Microsoft Outlook was connected successfully. Inbox monitoring will begin shortly.",
+    },
+  );
   assert.equal(
     readEmailOAuthCallback("?email_oauth=%3Cscript%3Ealert(1)%3C%2Fscript%3E"),
     null,
@@ -43,7 +58,7 @@ test("OAuth callback notices come only from fixed status values", () => {
 test("OAuth callback cleanup removes sensitive and feature-owned parameters", () => {
   const cleaned = cleanEmailOAuthCallbackUrl(
     new URL(
-      "https://travel.example/email-integrations?email_oauth=connected&code=secret&state=opaque&view=all#connections",
+      "https://travel.example/email-integrations?email_oauth=connected&email_provider=outlook&code=secret&state=opaque&view=all#connections",
     ),
   );
   assert.equal(cleaned, "/email-integrations?view=all#connections");

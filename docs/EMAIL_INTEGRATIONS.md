@@ -1,16 +1,20 @@
 # Email Integrations
 
-Email Integrations is an opt-in, server-side mailbox monitoring feature. The
-first complete provider is Gmail. It uses OAuth 2.0 offline access, the
-read-only Gmail scope, incremental history synchronization, tenant-scoped
-storage, deterministic relevance and matching, and a staff review queue.
+Email Integrations is an opt-in, server-side mailbox monitoring feature for
+Gmail and Microsoft Outlook/Microsoft 365. It uses OAuth 2.0 authorization code
+flow with PKCE and offline access, read-only mailbox scopes, incremental
+provider cursors, tenant-scoped storage, deterministic relevance and matching,
+and a staff review queue.
 
 All feature flags default to `false`. Applying migration `0061` does not start
 mailbox access by itself.
 
 ## Current provider boundary
 
-- Gmail OAuth, initial bounded inbox scan, and incremental Gmail history sync
+- Gmail OAuth with incremental Gmail history synchronization
+- Microsoft OAuth for organizational Microsoft 365 and personal
+  Outlook/Hotmail accounts, using immutable Graph message IDs and per-Inbox
+  delta synchronization
 - Near-real-time bounded history polling every 15 seconds by default, with
   five-second due-work dispatch and duplicate-safe connection leases
 - PDF visa and flight-ticket retrieval through the existing document
@@ -21,8 +25,6 @@ mailbox access by itself.
   automatically
 - Passport images are never locally parsed by this feature. They remain in the
   existing Gemini-only passport upload workflow
-- Outlook is represented by the provider-neutral interface but is not enabled
-  yet
 
 ## Google Cloud setup
 
@@ -43,6 +45,39 @@ Google classifies Gmail scopes separately from ordinary sign-in scopes. Complete
 the consent-screen, verification, and security requirements that apply to the
 organization before enabling production users.
 
+## Microsoft Entra setup
+
+Register a web application that supports **Accounts in any organizational
+directory and personal Microsoft accounts**. Register this exact callback:
+
+```text
+https://YOUR_DOMAIN/api/v1/email-integrations/oauth/outlook/callback
+```
+
+The URI must exactly match `OUTLOOK_OAUTH_REDIRECT_URI`. Add these **delegated**
+Microsoft Graph permissions:
+
+```text
+Mail.Read
+User.Read
+offline_access
+openid
+profile
+```
+
+Do not add `Mail.ReadWrite`, `Mail.Send`, or application permissions. Create a
+client secret, copy the one-time **Value** (not its Secret ID), and store it only
+in the deployment secret environment. `OUTLOOK_OAUTH_TENANT=common` enables
+both business Microsoft 365 and personal Microsoft accounts. Some business
+tenants may require their own administrator to approve user consent.
+
+Track the Microsoft client-secret expiry in the operations calendar. Rotate it
+before expiry by creating an overlapping secret, updating
+`OUTLOOK_OAUTH_CLIENT_SECRET`, recreating the backend, email worker, and email
+Beat services together, verifying readiness and one mailbox sync, and only then
+deleting the previous secret. Never place either secret value in source control
+or logs.
+
 ## Required configuration
 
 Generate a dedicated Fernet key for email credentials. Do not reuse
@@ -62,6 +97,10 @@ EMAIL_OAUTH_FRONTEND_RETURN_URL=https://YOUR_DOMAIN/email-integrations
 GMAIL_OAUTH_CLIENT_ID=<google-client-id>
 GMAIL_OAUTH_CLIENT_SECRET=<google-client-secret>
 GMAIL_OAUTH_REDIRECT_URI=https://YOUR_DOMAIN/api/v1/email-integrations/oauth/gmail/callback
+OUTLOOK_OAUTH_CLIENT_ID=<microsoft-application-client-id>
+OUTLOOK_OAUTH_CLIENT_SECRET=<microsoft-client-secret-value>
+OUTLOOK_OAUTH_REDIRECT_URI=https://YOUR_DOMAIN/api/v1/email-integrations/oauth/outlook/callback
+OUTLOOK_OAUTH_TENANT=common
 EMAIL_CONTENT_RETENTION_DAYS=30
 EMAIL_STORAGE_ORPHAN_GRACE_HOURS=24
 ```
@@ -141,8 +180,8 @@ Never reuse a version number for different key material.
    EMAIL_AUTO_ACTIONS_ENABLED=false
    ```
 
-   The Gmail provider uses incremental history polling rather than Google
-   Pub/Sub push notifications. With the default interval and dispatcher
+   Gmail history and Microsoft Graph delta synchronization are polled rather
+   than using provider push subscriptions. With the default dispatcher
    cadence, a healthy connection normally discovers new mail within about
    15–20 seconds while retaining the existing lease and idempotency controls.
 
@@ -171,15 +210,37 @@ and completed email-only staging objects according to
 `EMAIL_CONTENT_RETENTION_DAYS`; this does not remove canonical documents already
 admitted to the document distribution workflow.
 
-Administrators can also revoke a mailbox from the Connections screen. Local
-encrypted tokens are cleared only after provider revocation succeeds or the
-provider confirms that the credential is already invalid. A transient provider
-failure leaves the connection blocked with a retryable Disconnect action.
+Administrators can disconnect a mailbox from the Connections screen. Gmail
+credentials are cleared after Google revocation succeeds or the provider
+confirms that the credential is already invalid. Microsoft identity does not
+offer an app-scoped token-revocation endpoint: Outlook disconnect atomically
+blocks synchronization and deletes the application's encrypted local
+credentials. The mailbox owner may additionally remove the app from Microsoft
+Account privacy permissions or My Apps to invalidate Microsoft-side consent.
+A transient Gmail revocation failure leaves the connection blocked with a
+retryable Disconnect action.
 
 ## Operational notes
 
 - Run exactly one Beat scheduler. Connection leases and generation checks still
   protect against duplicate worker delivery.
+- Links are never relevance evidence by themselves. A link-only message enters
+  review only when its envelope or text matches an active group/roster value
+  such as a group token/name, passport number, passenger email, phone, or a
+  unique passenger name. Legacy unrelated link-only reviews are cancelled by
+  migration `0064_document_resends`.
+- Recognized attachments are inspected in the bounded PDF pipeline, but an
+  artifact with no active-group or passenger evidence is ignored instead of
+  creating review noise. Ambiguous or conflicting roster evidence remains a
+  human review item.
+- Every accepted email document is copied into canonical document-distribution
+  storage and its batch is marked saved in the same database transaction.
+  Later email or dashboard uploads append new ledger rows; only the explicit
+  document removal action deletes an assignment.
+- WhatsApp delivery is idempotent per saved document. A prior successful or
+  uncertain send is excluded from normal sending. Staff must choose Resend
+  explicitly, which creates a new durable delivery attempt while preserving the
+  earlier attempt for audit and tracking.
 - The Activity screen exposes sanitized message, artifact, review, and failure
   state. Raw provider payloads, HTML, OAuth codes, access tokens, refresh tokens,
   and full signed URLs are not retained or returned by the API.
@@ -194,5 +255,6 @@ failure leaves the connection blocked with a retryable Disconnect action.
   `email_oauth` status values expected by the frontend.
 - Pausing or disconnecting a mailbox increments its synchronization generation,
   invalidating in-flight workers before they can persist additional changes.
-- A stale Gmail history cursor triggers a bounded lookback rescan. Message and
-  artifact uniqueness constraints make the replay idempotent.
+- A stale Gmail history or Microsoft Graph delta cursor triggers a bounded
+  lookback rescan. Message and artifact uniqueness constraints make the replay
+  idempotent.

@@ -89,10 +89,15 @@ function useInvalidateEmailIntegrations() {
     });
 }
 
-export function useAuthorizeGmail() {
+export function useAuthorizeEmailProvider() {
   return useMutation({
-    mutationFn: (connectionId?: string) =>
-      emailIntegrationsApi.authorizeGmail(connectionId),
+    mutationFn: ({
+      provider,
+      connectionId,
+    }: {
+      provider: "gmail" | "outlook";
+      connectionId?: string;
+    }) => emailIntegrationsApi.authorize(provider, connectionId),
   });
 }
 

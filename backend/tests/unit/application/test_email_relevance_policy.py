@@ -1,4 +1,7 @@
-from app.application.use_cases.email_integrations.relevance import decide_relevance
+from app.application.use_cases.email_integrations.relevance import (
+    decide_relevance,
+    has_group_context_evidence,
+)
 
 
 def test_recognized_travel_document_is_relevant() -> None:
@@ -38,3 +41,17 @@ def test_unrelated_mail_without_operational_signals_is_ignored() -> None:
 
     assert decision.status == "unrelated"
     assert decision.should_retrieve is False
+
+
+def test_unique_passenger_name_is_review_evidence_but_not_auto_action() -> None:
+    decision = decide_relevance(
+        subject="Documents for Asha Mehta",
+        body_text="Please review.",
+        attachment_filenames=[],
+        detected_document_types=[],
+        deterministic_match_evidence=["passenger_name_exact"],
+    )
+
+    assert decision.status == "possibly_relevant"
+    assert decision.should_retrieve is False
+    assert has_group_context_evidence(decision.evidence) is True

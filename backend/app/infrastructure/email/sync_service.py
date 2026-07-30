@@ -1,4 +1,4 @@
-"""Durable Gmail synchronization and conservative document processing.
+"""Durable provider-neutral email synchronization and document processing.
 
 The service keeps provider I/O outside row locks, claims each connection with a
 lease, and treats every provider message and artifact as an idempotent unit.
@@ -29,13 +29,19 @@ from app.application.interfaces.email_provider import (
     NormalizedEmailMessage,
 )
 from app.application.use_cases.email_integrations.matching import (
+    EmailContextAssociation,
     GroupForAssociation,
+    associate_email_context,
     associate_group,
     associate_passenger,
 )
-from app.application.use_cases.email_integrations.relevance import decide_relevance
+from app.application.use_cases.email_integrations.relevance import (
+    decide_relevance,
+    has_group_context_evidence,
+)
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
+from app.domain.entities.entities import PassportSubmission
 from app.infrastructure.database.email_models import (
     EmailActivityEventModel,
     EmailArtifactDocumentModel,
@@ -58,6 +64,7 @@ from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
 )
 from app.infrastructure.email.gmail_provider import GmailEmailProvider
+from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.pdf_validator import (
     EmailPdfValidationError,
     EmailPdfValidator,
@@ -111,6 +118,12 @@ class ReviewedArtifactIngestionResult:
     duplicate: bool
 
 
+@dataclass(frozen=True)
+class EmailRelevanceContext:
+    groups: tuple[GroupForAssociation, ...]
+    passengers: tuple[PassportSubmission, ...]
+
+
 def provider_for_connection(
     connection: EmailConnectionModel | SyncClaim,
     *,
@@ -118,6 +131,8 @@ def provider_for_connection(
 ) -> EmailProvider:
     if connection.provider == "gmail":
         return GmailEmailProvider(settings=settings)
+    if connection.provider == "outlook":
+        return OutlookEmailProvider(settings=settings)
     raise EmailProviderResponseError(
         "The connected email provider is not supported",
         code="EMAIL_PROVIDER_UNSUPPORTED",
@@ -180,6 +195,7 @@ async def run_connection_sync(
             provider=provider,
             settings=settings,
         )
+        relevance_context = await _load_relevance_context(claim.agency_id)
 
         message_ids: list[str]
         latest_cursor: str | None
@@ -247,6 +263,7 @@ async def run_connection_sync(
                     access_token=access_token,
                     message=normalized,
                     settings=settings,
+                    relevance_context=relevance_context,
                 )
                 await session.commit()
             if outcome == "stopped":
@@ -378,6 +395,36 @@ async def _claim_connection(
     )
 
 
+async def _load_relevance_context(agency_id: uuid.UUID) -> EmailRelevanceContext:
+    """Load a stable, read-only active roster snapshot once per sync run."""
+
+    async with AsyncSessionFactory() as session:
+        groups_result = await session.execute(
+            select(ClientGroupModel).where(
+                ClientGroupModel.agency_id == agency_id,
+                ClientGroupModel.status.notin_({"archived", "deleted"}),
+            )
+        )
+        groups = tuple(
+            GroupForAssociation(
+                id=group.id,
+                name=group.name,
+                token=group.token,
+                destination=group.destination,
+                travel_date=group.travel_date,
+            )
+            for group in groups_result.scalars().all()
+        )
+        passengers = tuple(
+            await PassportSubmissionRepository(session).list_by_agency(
+                agency_id,
+                limit=5_000,
+                exclude_archived_groups=True,
+            )
+        )
+    return EmailRelevanceContext(groups=groups, passengers=passengers)
+
+
 async def _fresh_access_token(
     claim: SyncClaim,
     *,
@@ -436,7 +483,7 @@ async def _initial_message_ids(
     profile = await provider.get_account_profile(access_token=access_token)
     references = await provider.list_messages(
         access_token=access_token,
-        query=f"in:inbox newer_than:{settings.email_sync_full_lookback_days}d",
+        lookback_days=settings.email_sync_full_lookback_days,
         max_messages=settings.email_sync_max_messages,
     )
     return (
@@ -474,11 +521,10 @@ async def _incremental_message_ids(
         if not page.next_page_token:
             break
         if len(message_ids) >= max_messages:
-            # The complete current history page is already represented in
-            # message_ids. Resume from its last change instead of advancing to
-            # Gmail's mailbox-wide latest cursor and skipping later pages.
-            if page.changes:
-                latest_cursor = page.changes[-1].provider_history_id
+            # Resume at the provider-supplied page boundary instead of
+            # advancing to a mailbox-wide latest cursor and skipping pages.
+            if page.resume_history_id:
+                latest_cursor = page.resume_history_id
             break
         page_token = page.next_page_token
     else:
@@ -597,6 +643,7 @@ async def _process_message(
     access_token: str,
     message: NormalizedEmailMessage,
     settings: Settings,
+    relevance_context: EmailRelevanceContext,
 ) -> str:
     now = datetime.now(tz=UTC)
     valid_claim = await session.scalar(
@@ -668,12 +715,36 @@ async def _process_message(
         stored.processing_status = "processing"
 
     filenames = [attachment.filename for attachment in message.attachments]
+    context_association: EmailContextAssociation = associate_email_context(
+        email_text=" ".join(
+            [
+                message.subject,
+                message.plain_text_excerpt or message.snippet,
+                message.sender.display_name
+                if message.sender and message.sender.display_name
+                else "",
+                *[
+                    " ".join(
+                        part for part in (recipient.address, recipient.display_name or "") if part
+                    )
+                    for recipient in (*message.to, *message.cc)
+                ],
+                *filenames,
+            ]
+        ),
+        sender_address=message.sender.address if message.sender else None,
+        groups=list(relevance_context.groups),
+        passengers=list(relevance_context.passengers),
+    )
     relevance = decide_relevance(
         subject=message.subject,
         body_text=message.plain_text_excerpt or message.snippet,
         attachment_filenames=filenames,
         detected_document_types=[],
+        deterministic_match_evidence=list(context_association.evidence),
     )
+    if context_association.group_id is not None:
+        stored.group_id = context_association.group_id
     stored.relevance_status = _stored_relevance_status(relevance.status)
     stored.relevance_confidence = relevance.confidence
     stored.evidence_json = {"signals": list(relevance.evidence)}
@@ -691,14 +762,15 @@ async def _process_message(
     )
 
     link_hosts = _safe_link_hosts(message.plain_text_excerpt)
-    for index, host in enumerate(link_hosts):
-        await _upsert_blocked_link(
-            session,
-            claim=claim,
-            stored_message=stored,
-            host=host,
-            index=index,
-        )
+    if has_group_context_evidence(relevance.evidence):
+        for index, host in enumerate(link_hosts):
+            await _upsert_blocked_link(
+                session,
+                claim=claim,
+                stored_message=stored,
+                host=host,
+                index=index,
+            )
 
     if _can_ignore_without_artifact_inspection(
         relevance_status=relevance.status,
@@ -1080,6 +1152,24 @@ async def _associate_and_route_document(
         document=classification,
         passengers=group_passengers,
     )
+    stored_signals = message.evidence_json.get("signals", [])
+    existing_signals = (
+        [item for item in stored_signals if isinstance(item, str)]
+        if isinstance(stored_signals, list)
+        else []
+    )
+    has_roster_evidence = bool(
+        group_association.candidate_group_ids
+        or passenger_association.candidate_passenger_ids
+        or has_group_context_evidence(existing_signals)
+    )
+    if not has_roster_evidence:
+        artifact.processing_status = "ignored"
+        artifact.processed_at = now
+        artifact.error_code = None
+        artifact.error_message = None
+        return []
+
     group_id = group_association.group_id
     passenger_id = passenger_association.passenger_id
     artifact.group_id = group_id
@@ -1105,12 +1195,6 @@ async def _associate_and_route_document(
     message.relevance_confidence = max(
         message.relevance_confidence or 0.0,
         0.94 if classification.detected_type in _SUPPORTED_PDF_TYPES else 0.5,
-    )
-    stored_signals = message.evidence_json.get("signals", [])
-    existing_signals = (
-        [item for item in stored_signals if isinstance(item, str)]
-        if isinstance(stored_signals, list)
-        else []
     )
     message.evidence_json = {"signals": list(dict.fromkeys([*existing_signals, *evidence]))}
 
@@ -1487,6 +1571,10 @@ async def _ingest_confirmed_artifact(
             else "The selected file did not produce a travel document"
         )
         raise ValueError(reason)
+    saved_at = datetime.now(tz=UTC)
+    result.batch.status = "saved"
+    result.batch.saved_at = saved_at
+    result.batch.updated_at = saved_at
     canonical_keys = list(dict.fromkeys(document.storage_key for document in result.documents))
     try:
         for document in result.documents:
@@ -1996,7 +2084,9 @@ def _can_ignore_without_artifact_inspection(
 ) -> bool:
     """Only ignore text-only messages that have no retrievable evidence."""
 
-    return relevance_status == "unrelated" and not has_attachments and not has_links
+    # Links are not relevance evidence. An unrelated link-only message should
+    # never enter the human review queue.
+    return relevance_status == "unrelated" and not has_attachments
 
 
 def _safe_link_hosts(body: str) -> list[str]:

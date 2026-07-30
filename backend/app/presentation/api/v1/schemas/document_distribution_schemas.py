@@ -57,6 +57,11 @@ class DistributedDocumentResponse(BaseModel):
     extracted_name: str | None = None
     extracted_passport_number: str | None = None
     extracted_reference: str | None = None
+    source: str = "manual"
+    delivery_status: str = "not_sent"
+    sent_to: str | None = None
+    last_sent_at: datetime | None = None
+    can_resend: bool = False
     url: str | None = None
 
 
@@ -107,6 +112,7 @@ class DocumentDeliveryPreviewRecipient(BaseModel):
     delivery_id: uuid.UUID | None = None
     delivery_status: str
     eligible: bool = False
+    resend_allowed: bool = False
     reason: str
     error_message: str | None = None
     message_preview: str | None = None
@@ -138,6 +144,7 @@ class DocumentDeliveryPreviewResponse(BaseModel):
 
 class SendDocumentBroadcastRequest(BaseModel):
     document_ids: list[uuid.UUID] | None = Field(default=None, max_length=500)
+    resend_document_ids: list[uuid.UUID] = Field(default_factory=list, max_length=500)
     message_content_1: str = Field(min_length=1, max_length=600)
     message_content_2: str = Field(min_length=1, max_length=600)
 

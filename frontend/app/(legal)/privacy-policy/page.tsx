@@ -33,9 +33,10 @@ export default function PrivacyPolicyPage() {
           operate and secure the service.
         </p>
         <p>
-          If a user connects a Google account, the service may access the
-          account email address, Gmail message metadata, message content, and
-          attachments that the user authorizes through Google.
+          If a user connects a Google or Microsoft account, the service may
+          access the account email address, Gmail message metadata or Outlook
+          message metadata, message content, and attachments that the user
+          authorizes through Google or Microsoft. Mail access is read-only.
         </p>
       </section>
 
@@ -45,7 +46,7 @@ export default function PrivacyPolicyPage() {
           Information is used to identify relevant travel communications,
           retrieve travel documents, match documents to traveller records,
           support staff review, maintain security, and provide technical
-          support. Google user data is not used for advertising.
+          support. Connected-account data is not used for advertising.
         </p>
       </section>
 
@@ -83,9 +84,9 @@ export default function PrivacyPolicyPage() {
         <p>
           Information is retained only as long as reasonably required for the
           service, legal obligations, security, and record keeping. Users may
-          disconnect a linked Google account to stop future access. Requests to
-          access, correct, or delete information can be sent to the contact
-          below.
+          disconnect a linked Google or Microsoft account to stop future
+          access. Requests to access, correct, or delete information can be sent
+          to the contact below.
         </p>
       </section>
 

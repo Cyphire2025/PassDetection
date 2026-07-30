@@ -15,6 +15,7 @@ from app.infrastructure.ai_priority.worker_readiness import (
 )
 from app.infrastructure.email.gmail_provider import GmailEmailProvider
 from app.infrastructure.email.oauth import generate_oauth_state, generate_pkce_pair
+from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.token_encryption import EmailTokenCipher, TokenEncryptionError
 
 EMAIL_INTEGRATION_QUEUE = "email_integrations"
@@ -81,21 +82,34 @@ def email_runtime_readiness(
 
 
 def _provider_configuration_ready(settings: Settings) -> bool:
-    if not (
-        settings.gmail_oauth_client_id
-        and settings.gmail_oauth_client_secret
-        and settings.gmail_oauth_client_secret.get_secret_value().strip()
-        and settings.gmail_oauth_redirect_uri
-        and settings.email_token_encryption_key
-    ):
+    if not settings.email_token_encryption_key:
         return False
     try:
         EmailTokenCipher.from_settings(settings)
         pkce = generate_pkce_pair()
-        GmailEmailProvider(settings=settings).build_authorization_url(
-            state=generate_oauth_state(),
-            code_challenge=pkce.challenge,
-        )
+        configured_providers = []
+        if (
+            settings.gmail_oauth_client_id
+            and settings.gmail_oauth_client_secret
+            and settings.gmail_oauth_client_secret.get_secret_value().strip()
+            and settings.gmail_oauth_redirect_uri
+        ):
+            configured_providers.append(GmailEmailProvider(settings=settings))
+        if (
+            settings.outlook_oauth_client_id
+            and settings.outlook_oauth_client_secret
+            and settings.outlook_oauth_client_secret.get_secret_value().strip()
+            and settings.outlook_oauth_redirect_uri
+        ):
+            configured_providers.append(OutlookEmailProvider(settings=settings))
+        if not configured_providers:
+            return False
+        state = generate_oauth_state()
+        for provider in configured_providers:
+            provider.build_authorization_url(
+                state=state,
+                code_challenge=pkce.challenge,
+            )
     except (EmailProviderError, TokenEncryptionError, TypeError, ValueError):
         return False
     return True

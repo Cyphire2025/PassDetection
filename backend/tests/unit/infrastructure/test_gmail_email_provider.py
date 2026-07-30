@@ -140,7 +140,7 @@ async def test_message_listing_paginates_and_stops_at_configured_bound() -> None
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path.endswith("/users/me/messages")
         seen_page_tokens.append(request.url.params.get("pageToken"))
-        assert request.url.params["q"] == "after:2026/07/01"
+        assert request.url.params["q"] == "in:inbox newer_than:7d"
         if request.url.params.get("pageToken") is None:
             return httpx.Response(
                 200,
@@ -171,7 +171,7 @@ async def test_message_listing_paginates_and_stops_at_configured_bound() -> None
         )
         messages = await provider.list_messages(
             access_token="access-token",
-            query="after:2026/07/01",
+            lookback_days=7,
             max_messages=20,
         )
 

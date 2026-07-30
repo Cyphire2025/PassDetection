@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import uuid
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock, patch
+
 from app.application.interfaces.email_provider import (
     EmailChangeKind,
     EmailHistoryPage,
@@ -8,6 +12,7 @@ from app.application.interfaces.email_provider import (
 from app.infrastructure.email.sync_service import (
     _can_ignore_without_artifact_inspection,
     _incremental_message_ids,
+    _ingest_confirmed_artifact,
     _safe_link_hosts,
     _stored_relevance_status,
 )
@@ -40,6 +45,7 @@ async def test_incremental_history_resumes_after_complete_bounded_page() -> None
         ),
         next_page_token="next",
         latest_history_id="999",
+        resume_history_id="103",
     )
     provider = _HistoryProvider([first])
 
@@ -110,7 +116,7 @@ def test_relevance_status_maps_to_database_vocabulary() -> None:
     assert _stored_relevance_status("unexpected") == "pending"
 
 
-def test_unrelated_messages_with_artifacts_are_still_inspected() -> None:
+def test_only_real_attachments_prevent_early_ignore() -> None:
     assert _can_ignore_without_artifact_inspection(
         relevance_status="unrelated",
         has_attachments=False,
@@ -121,8 +127,73 @@ def test_unrelated_messages_with_artifacts_are_still_inspected() -> None:
         has_attachments=True,
         has_links=False,
     )
-    assert not _can_ignore_without_artifact_inspection(
+    assert _can_ignore_without_artifact_inspection(
         relevance_status="unrelated",
         has_attachments=False,
         has_links=True,
     )
+
+
+async def test_confirmed_email_artifact_is_saved_in_canonical_ledger() -> None:
+    agency_id = uuid.uuid4()
+    connection_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger_id = uuid.uuid4()
+    document_id = uuid.uuid4()
+    batch = SimpleNamespace(status="draft", saved_at=None, updated_at=None)
+    document = SimpleNamespace(
+        id=document_id,
+        storage_key="canonical/document.pdf",
+    )
+    ingestion = SimpleNamespace(
+        batch=batch,
+        documents=[document],
+        rejected=[],
+    )
+    session = MagicMock()
+    session.add = MagicMock()
+    service = MagicMock()
+    service.ingest = AsyncMock(return_value=ingestion)
+
+    with (
+        patch(
+            "app.infrastructure.email.sync_service.PassportSubmissionRepository"
+        ) as repository_class,
+        patch(
+            "app.infrastructure.email.sync_service.TravelDocumentIngestionService",
+            return_value=service,
+        ),
+        patch(
+            "app.infrastructure.email.sync_service._record_event",
+            new=AsyncMock(),
+        ),
+    ):
+        repository_class.return_value.list_by_group = AsyncMock(return_value=[])
+        keys = await _ingest_confirmed_artifact(
+            session,
+            claim=SimpleNamespace(
+                agency_id=agency_id,
+                connection_id=connection_id,
+            ),
+            message=SimpleNamespace(id=uuid.uuid4()),
+            artifact=SimpleNamespace(
+                id=uuid.uuid4(),
+                match_confidence=0.99,
+            ),
+            validated=SimpleNamespace(
+                filename="visa.pdf",
+                content=b"%PDF",
+                content_type="application/pdf",
+            ),
+            document_type="visa",
+            group_id=group_id,
+            passenger_id=passenger_id,
+            created_by_user_id=None,
+            actor_email=None,
+            result_type="created",
+        )
+
+    assert keys == ["canonical/document.pdf"]
+    assert batch.status == "saved"
+    assert batch.saved_at is not None
+    assert session.add.call_count == 1

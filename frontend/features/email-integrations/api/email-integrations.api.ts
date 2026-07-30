@@ -32,11 +32,14 @@ export const emailIntegrationsApi = {
     return normalizeEmailCollection(data);
   },
 
-  authorizeGmail: async (
+  authorize: async (
+    provider: "gmail" | "outlook",
     connectionId?: string,
   ): Promise<EmailAuthorizationResponse> => {
     const { data } = await apiClient.post<EmailAuthorizationResponse>(
-      API_ENDPOINTS.emailIntegrations.gmailAuthorize,
+      provider === "outlook"
+        ? API_ENDPOINTS.emailIntegrations.outlookAuthorize
+        : API_ENDPOINTS.emailIntegrations.gmailAuthorize,
       connectionId ? { connection_id: connectionId } : {},
     );
     return data;

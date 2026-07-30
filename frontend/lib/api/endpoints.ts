@@ -95,6 +95,7 @@ export const API_ENDPOINTS = {
     status: "/api/v1/email-integrations/status",
     connections: "/api/v1/email-integrations/connections",
     gmailAuthorize: "/api/v1/email-integrations/oauth/gmail/authorize",
+    outlookAuthorize: "/api/v1/email-integrations/oauth/outlook/authorize",
     connectionSync: (connectionId: string) =>
       `/api/v1/email-integrations/connections/${connectionId}/sync`,
     connectionPause: (connectionId: string) =>

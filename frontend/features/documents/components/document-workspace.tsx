@@ -61,12 +61,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
-  const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[]>([]);
-  const [deliveryMessageContent1, setDeliveryMessageContent1] = useState("");
-  const [deliveryMessageContent2, setDeliveryMessageContent2] = useState("");
+  const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[] | null>(null);
+  const [deliveryResendDocumentIds, setDeliveryResendDocumentIds] = useState<string[]>([]);
+  const [deliveryMessageContent1, setDeliveryMessageContent1] = useState<string | null>(null);
+  const [deliveryMessageContent2, setDeliveryMessageContent2] = useState<string | null>(null);
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const initializedDeliveryPreviewRef = useRef<string | null>(null);
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
   const review = useDocumentReview(groupId, selectedType);
@@ -90,7 +90,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   }, [selectedFiles, verification]);
   const showRowActions = selectedType === "visa" || selectedType === "flight_ticket";
   const selectableDocumentIds = useMemo(
-    () => (review.data?.review_rows ?? []).map((row) => row.document?.id).filter((id): id is string => Boolean(id)),
+    () => [
+      ...(review.data?.review_rows ?? [])
+        .map((row) => row.document?.id)
+        .filter((id): id is string => Boolean(id)),
+      ...(review.data?.unmatched_documents ?? []).map((document) => document.id),
+    ],
     [review.data],
   );
   const activeSelectedDocumentIds = selectedDocumentIds.filter((id) => selectableDocumentIds.includes(id));
@@ -104,22 +109,19 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     return () => window.clearInterval(timer);
   }, [phase, verify.isPending]);
 
-  useEffect(() => {
-    const preview = deliveryPreview.data;
-    if (!isSendPreviewOpen || !preview) return;
-    const previewKey = `${preview.batch_id}:${preview.recipients
-      .map((row) => `${row.document_id ?? "none"}:${row.delivery_status}`)
-      .join("|")}`;
-    if (initializedDeliveryPreviewRef.current === previewKey) return;
-    initializedDeliveryPreviewRef.current = previewKey;
-    setDeliveryMessageContent1(preview.message_content_1);
-    setDeliveryMessageContent2(preview.message_content_2);
-    setDeliveryDocumentIds(
-      preview.recipients
+  const defaultDeliveryDocumentIds = useMemo(
+    () =>
+      (deliveryPreview.data?.recipients ?? [])
         .filter((row) => row.eligible && row.document_id)
         .map((row) => row.document_id as string),
-    );
-  }, [deliveryPreview.data, isSendPreviewOpen]);
+    [deliveryPreview.data],
+  );
+  const activeDeliveryDocumentIds =
+    deliveryDocumentIds ?? defaultDeliveryDocumentIds;
+  const activeDeliveryMessageContent1 =
+    deliveryMessageContent1 ?? deliveryPreview.data?.message_content_1 ?? "";
+  const activeDeliveryMessageContent2 =
+    deliveryMessageContent2 ?? deliveryPreview.data?.message_content_2 ?? "";
 
   const resetSelection = (files: File[]) => {
     setSelectedFiles(files);
@@ -343,7 +345,10 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   variant="secondary"
                   disabled={!review.data?.batch_id || review.data.status !== "saved"}
                   onClick={() => {
-                    initializedDeliveryPreviewRef.current = null;
+                    setDeliveryDocumentIds(null);
+                    setDeliveryResendDocumentIds([]);
+                    setDeliveryMessageContent1(null);
+                    setDeliveryMessageContent2(null);
                     setDeliveryFeedback(null);
                     setIsSendPreviewOpen(true);
                   }}
@@ -375,12 +380,13 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                     <th className="px-5 py-4">Document</th>
                     <th className="px-5 py-4">Confidence</th>
                     <th className="px-5 py-4">Status</th>
+                    <th className="px-5 py-4">Sent</th>
                     {showRowActions && <th className="px-5 py-4 text-right">Action</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {(review.data?.review_rows ?? []).map((row) => (
-                    <tr key={row.passenger_id}>
+                    <tr key={row.document?.id ?? `empty-${row.passenger_id}`}>
                       <td className="px-5 py-4">
                         <input
                           type="checkbox"
@@ -406,9 +412,14 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                       <td className="px-5 py-4 text-slate-700">{row.passport_number || "Not set"}</td>
                       <td className="px-5 py-4">
                         {row.document ? (
-                          <a href={row.document.url ?? "#"} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">
-                            {row.document.original_filename}
-                          </a>
+                          <div>
+                            <a href={row.document.url ?? "#"} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">
+                              {row.document.original_filename}
+                            </a>
+                            <div className="mt-1 text-xs text-slate-500">
+                              {row.document.source === "email" ? "Saved from email" : "Manual upload"}
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-slate-400">Empty</span>
                         )}
@@ -416,6 +427,28 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                       <td className="px-5 py-4 text-slate-700">{row.document ? formatConfidence(row.document.match_confidence) : "-"}</td>
                       <td className="px-5 py-4">
                         <MatchBadge status={row.document?.match_status ?? "no_document"} />
+                      </td>
+                      <td className="px-5 py-4">
+                        {row.document ? (
+                          <DocumentSentStatus
+                            status={row.document.delivery_status}
+                            sentTo={row.document.sent_to}
+                            sentAt={row.document.last_sent_at}
+                            canResend={row.document.can_resend}
+                            onResend={() => {
+                              const documentId = row.document?.id;
+                              if (!documentId) return;
+                              setDeliveryDocumentIds([documentId]);
+                              setDeliveryResendDocumentIds([documentId]);
+                              setDeliveryMessageContent1(null);
+                              setDeliveryMessageContent2(null);
+                              setDeliveryFeedback(null);
+                              setIsSendPreviewOpen(true);
+                            }}
+                          />
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
                       </td>
                       {showRowActions && (
                         <td className="px-5 py-4 text-right">
@@ -453,8 +486,24 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 <div className="mt-3 grid gap-2">
                   {review.data.unmatched_documents.map((document) => (
                     <div key={document.id} className="flex items-center justify-between gap-3 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm">
-                      <span className="font-medium text-amber-950">{document.original_filename}</span>
-                      <span className="text-amber-700">{document.match_reason || document.match_status}</span>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-amber-300"
+                          aria-label={`Select ${document.original_filename}`}
+                          checked={activeSelectedDocumentIds.includes(document.id)}
+                          disabled={deleteDocuments.isPending}
+                          onChange={(event) => {
+                            setSelectedDocumentIds((current) =>
+                              event.target.checked
+                                ? Array.from(new Set([...current, document.id]))
+                                : current.filter((id) => id !== document.id),
+                            );
+                          }}
+                        />
+                        <span className="truncate font-medium text-amber-950">{document.original_filename}</span>
+                      </div>
+                      <span className="text-right text-amber-700">{document.match_reason || document.match_status}</span>
                     </div>
                   ))}
                 </div>
@@ -475,22 +524,43 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           preview={deliveryPreview.data}
           loading={deliveryPreview.isLoading}
           loadError={deliveryPreview.error}
-          selectedDocumentIds={deliveryDocumentIds}
+          selectedDocumentIds={activeDeliveryDocumentIds}
+          resendDocumentIds={deliveryResendDocumentIds}
           sending={sendDocuments.isPending}
           sendError={sendDocuments.error}
-          messageContent1={deliveryMessageContent1}
-          messageContent2={deliveryMessageContent2}
+          messageContent1={activeDeliveryMessageContent1}
+          messageContent2={activeDeliveryMessageContent2}
           onMessageContent1Change={setDeliveryMessageContent1}
           onMessageContent2Change={setDeliveryMessageContent2}
           onToggleDocument={(documentId) => {
-            setDeliveryDocumentIds((current) =>
-              current.includes(documentId)
-                ? current.filter((id) => id !== documentId)
-                : [...current, documentId],
+            setDeliveryDocumentIds((current) => {
+              const selection = current ?? defaultDeliveryDocumentIds;
+              return selection.includes(documentId)
+                ? selection.filter((id) => id !== documentId)
+                : [...selection, documentId];
+            });
+            setDeliveryResendDocumentIds((current) =>
+              current.filter((id) => id !== documentId),
             );
           }}
+          onToggleResend={(documentId) => {
+            setDeliveryResendDocumentIds((current) => {
+              const removing = current.includes(documentId);
+              setDeliveryDocumentIds((selected) => {
+                const selection = selected ?? defaultDeliveryDocumentIds;
+                return removing
+                  ? selection.filter((id) => id !== documentId)
+                  : Array.from(new Set([...selection, documentId]));
+              });
+              return removing
+                ? current.filter((id) => id !== documentId)
+                : [...current, documentId];
+            });
+          }}
           onClose={() => {
-            if (!sendDocuments.isPending) setIsSendPreviewOpen(false);
+            if (!sendDocuments.isPending) {
+              setIsSendPreviewOpen(false);
+            }
           }}
           onSend={() => {
             const batchId = deliveryPreview.data?.batch_id;
@@ -498,14 +568,17 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             sendDocuments.mutate(
               {
                 batchId,
-                documentIds: deliveryDocumentIds,
-                messageContent1: deliveryMessageContent1.trim(),
-                messageContent2: deliveryMessageContent2.trim(),
+                documentIds: activeDeliveryDocumentIds,
+                resendDocumentIds: deliveryResendDocumentIds,
+                messageContent1: activeDeliveryMessageContent1.trim(),
+                messageContent2: activeDeliveryMessageContent2.trim(),
               },
               {
                 onSuccess: (result) => {
                   setDeliveryFeedback(result.message);
                   setIsSendPreviewOpen(false);
+                  setDeliveryDocumentIds(null);
+                  setDeliveryResendDocumentIds([]);
                 },
               },
             );
@@ -521,6 +594,7 @@ function DocumentDeliveryPreviewDialog({
   loading,
   loadError,
   selectedDocumentIds,
+  resendDocumentIds,
   sending,
   sendError,
   messageContent1,
@@ -528,6 +602,7 @@ function DocumentDeliveryPreviewDialog({
   onMessageContent1Change,
   onMessageContent2Change,
   onToggleDocument,
+  onToggleResend,
   onClose,
   onSend,
 }: {
@@ -535,6 +610,7 @@ function DocumentDeliveryPreviewDialog({
   loading: boolean;
   loadError: Error | null;
   selectedDocumentIds: string[];
+  resendDocumentIds: string[];
   sending: boolean;
   sendError: Error | null;
   messageContent1: string;
@@ -542,6 +618,7 @@ function DocumentDeliveryPreviewDialog({
   onMessageContent1Change: (value: string) => void;
   onMessageContent2Change: (value: string) => void;
   onToggleDocument: (documentId: string) => void;
+  onToggleResend: (documentId: string) => void;
   onClose: () => void;
   onSend: () => void;
 }) {
@@ -670,17 +747,34 @@ function DocumentDeliveryPreviewDialog({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {preview.recipients.map((row) => (
-                        <tr key={row.passenger_id} className={row.eligible ? "bg-white" : "bg-slate-50/60"}>
+                      {preview.recipients.map((row) => {
+                        const resendSelected = Boolean(
+                          row.document_id &&
+                          resendDocumentIds.includes(row.document_id),
+                        );
+                        return (
+                        <tr key={`${row.passenger_id}:${row.document_id ?? "empty"}`} className={row.eligible || resendSelected ? "bg-white" : "bg-slate-50/60"}>
                           <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={Boolean(row.document_id && selectedDocumentIds.includes(row.document_id))}
-                              disabled={!row.eligible || !row.document_id || sending}
-                              onChange={() => row.document_id && onToggleDocument(row.document_id)}
-                              aria-label={`Send document to ${row.passenger_name}`}
-                              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                            />
+                            {row.delivery_status === "already_sent" && row.resend_allowed && row.document_id ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant={resendSelected ? "secondary" : "outline"}
+                                disabled={sending}
+                                onClick={() => onToggleResend(row.document_id as string)}
+                              >
+                                {resendSelected ? "Resend selected" : "Resend"}
+                              </Button>
+                            ) : (
+                              <input
+                                type="checkbox"
+                                checked={Boolean(row.document_id && selectedDocumentIds.includes(row.document_id))}
+                                disabled={!row.eligible || !row.document_id || sending}
+                                onChange={() => row.document_id && onToggleDocument(row.document_id)}
+                                aria-label={`Send document to ${row.passenger_name}`}
+                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                              />
+                            )}
                           </td>
                           <td className="px-4 py-3">
                             <div className="font-semibold text-slate-900">{row.passenger_name}</div>
@@ -703,7 +797,8 @@ function DocumentDeliveryPreviewDialog({
                             )}
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -929,15 +1024,64 @@ function DocumentRowActionMenu({
             onClick={() => inputRef.current?.click()}
           >
             <RefreshCw className="h-4 w-4" />
-            Reupload document
+            Add another document
           </button>
           <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">
-            Upload one {label} PDF for this passenger.
+            Upload one more {label} PDF without removing saved documents.
           </div>
         </div>
       )}
     </div>
   );
+}
+
+function DocumentSentStatus({
+  status,
+  sentTo,
+  sentAt,
+  canResend,
+  onResend,
+}: {
+  status: string;
+  sentTo: string | null;
+  sentAt: string | null;
+  canResend: boolean;
+  onResend: () => void;
+}) {
+  if (status === "sent") {
+    return (
+      <div className="min-w-40">
+        <Badge variant="success">Sent</Badge>
+        <div className="mt-1 text-xs font-medium text-slate-700">
+          {sentTo || "WhatsApp accepted"}
+        </div>
+        {sentAt && (
+          <div className="mt-0.5 text-xs text-slate-500">
+            {new Date(sentAt).toLocaleString()}
+          </div>
+        )}
+        {canResend && (
+          <button
+            type="button"
+            onClick={onResend}
+            className="mt-2 text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline"
+          >
+            Resend explicitly
+          </button>
+        )}
+      </div>
+    );
+  }
+  if (status === "queued" || status === "processing") {
+    return <Badge variant="outline">In progress</Badge>;
+  }
+  if (status === "delivery_unknown") {
+    return <Badge variant="warning">Outcome unknown</Badge>;
+  }
+  if (status === "failed") {
+    return <Badge variant="destructive">Failed</Badge>;
+  }
+  return <Badge variant="outline">Not sent</Badge>;
 }
 
 function MatchBadge({ status }: { status: string }) {
@@ -956,6 +1100,9 @@ function MatchBadge({ status }: { status: string }) {
         No document
       </Badge>
     );
+  }
+  if (status === "duplicate_document") {
+    return <Badge variant="warning">Previously replaced</Badge>;
   }
   return (
     <Badge variant="warning" dot>

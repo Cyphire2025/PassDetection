@@ -18,6 +18,7 @@ from app.presentation.api.v1.routes.email_integrations import (
     _allowed_review_actions,
     _oauth_return_url,
     _provider_configured,
+    router,
 )
 from app.presentation.api.v1.schemas.email_integration_schemas import (
     ResolveEmailReviewRequest,
@@ -33,7 +34,10 @@ def test_oauth_return_contract_strips_provider_secrets() -> None:
 
     result = _oauth_return_url(settings, "connected")  # type: ignore[arg-type]
 
-    assert result == ("https://dashboard.example/email-integrations?keep=yes&email_oauth=connected")
+    assert result == (
+        "https://dashboard.example/email-integrations"
+        "?keep=yes&email_oauth=connected&email_provider=gmail"
+    )
 
 
 def test_oauth_return_contract_rejects_unknown_status() -> None:
@@ -43,7 +47,7 @@ def test_oauth_return_contract_rejects_unknown_status() -> None:
 
     result = _oauth_return_url(settings, "provider_text")  # type: ignore[arg-type]
 
-    assert result.endswith("?email_oauth=failed")
+    assert result.endswith("?email_oauth=failed&email_provider=gmail")
     assert "provider_text" not in result
 
 
@@ -63,6 +67,27 @@ def test_provider_configuration_requires_nonempty_secrets() -> None:
 
     assert _provider_configured(configured) is True  # type: ignore[arg-type]
     assert _provider_configured(missing_secret) is False  # type: ignore[arg-type]
+
+
+def test_outlook_configuration_is_independent_from_gmail() -> None:
+    configured = SimpleNamespace(
+        outlook_oauth_client_id="client",
+        outlook_oauth_client_secret=SecretStr("secret"),
+        outlook_oauth_redirect_uri="https://api.example/oauth/outlook/callback",
+        email_token_encryption_key=SecretStr("key"),
+    )
+
+    assert _provider_configured(configured, "outlook") is True  # type: ignore[arg-type]
+    assert _provider_configured(configured, "gmail") is False  # type: ignore[arg-type]
+
+
+def test_gmail_and_outlook_oauth_routes_are_registered_separately() -> None:
+    paths = {route.path for route in router.routes}
+
+    assert "/oauth/gmail/authorize" in paths
+    assert "/oauth/gmail/callback" in paths
+    assert "/oauth/outlook/authorize" in paths
+    assert "/oauth/outlook/callback" in paths
 
 
 def test_super_admin_has_platform_wide_email_access() -> None:

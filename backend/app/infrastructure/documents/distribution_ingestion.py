@@ -128,17 +128,8 @@ class TravelDocumentIngestionService:
                 self._matcher.match_all(classification, passengers)
                 for _, classification in accepted
             ]
-            flat_matches = [match for matches in document_matches for match in matches]
-            deduped_flat_matches = self._matcher.mark_duplicates(flat_matches)
-            deduped_document_matches: list[list[MatchResult]] = []
-            cursor = 0
-            for matches in document_matches:
-                deduped_document_matches.append(
-                    deduped_flat_matches[cursor : cursor + len(matches)]
-                )
-                cursor += len(matches)
         else:
-            deduped_document_matches = [
+            document_matches = [
                 [
                     MatchResult(
                         passenger_id=forced_passenger_id,
@@ -160,7 +151,7 @@ class TravelDocumentIngestionService:
         try:
             for (file, classification), matches in zip(
                 accepted,
-                deduped_document_matches,
+                document_matches,
             ):
                 storage_document_id = uuid.uuid4()
                 object_namespace = normalized_storage_prefix or (

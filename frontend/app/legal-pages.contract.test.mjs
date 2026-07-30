@@ -20,7 +20,7 @@ test("legal pages remain public and link to each other", () => {
   assert.match(layout, /"\/terms"/);
 });
 
-test("OAuth homepage uses the exact app name and explains its Gmail purpose", () => {
+test("OAuth homepage explains both supported read-only mail providers", () => {
   assert.match(
     home,
     /const APP_NAME = "Global Connect Travels Email Automation"/,
@@ -31,6 +31,7 @@ test("OAuth homepage uses the exact app name and explains its Gmail purpose", ()
   assert.match(home, /manifest: "\/email-automation\.webmanifest"/);
   assert.match(home, /identifies travel-related messages/);
   assert.match(home, /read-only Gmail access/);
+  assert.match(home, /delegated read-only mail access/);
   assert.match(home, /does not send, edit, or delete/);
   assert.match(home, /https:\/\/tech\.gctravels\.com\/privacy-policy/);
   assert.match(home, /https:\/\/tech\.gctravels\.com\/terms/);
@@ -39,12 +40,13 @@ test("OAuth homepage uses the exact app name and explains its Gmail purpose", ()
   assert.match(layout, /href=\{"\/email-automation" as never\}/);
 });
 
-test("privacy policy discloses Gmail access and data controls", () => {
+test("privacy policy discloses Gmail and Outlook access and data controls", () => {
   assert.match(privacy, /Gmail message metadata/);
+  assert.match(privacy, /Outlook\s+message metadata/);
   assert.match(privacy, /Google API Services User Data Policy/);
   assert.match(privacy, /Limited Use/);
   assert.match(privacy, /Retention and deletion/);
-  assert.match(privacy, /disconnect a linked Google account/);
+  assert.match(privacy, /disconnect a linked Google or Microsoft account/);
 });
 
 test("terms explain authorization and human review responsibilities", () => {

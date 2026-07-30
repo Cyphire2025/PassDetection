@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
 
-from app.application.interfaces.email_provider import EmailProviderError
+from app.application.interfaces.email_provider import EmailProvider, EmailProviderError
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
@@ -40,6 +40,7 @@ from app.infrastructure.email.oauth import (
     generate_pkce_pair,
     hash_oauth_state,
 )
+from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.sync_service import (
     ingest_reviewed_artifact,
     refresh_message_processing_state,
@@ -56,6 +57,7 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailActivityItemResponse,
     EmailArtifactDetailResponse,
     EmailAuthorizationUrlResponse,
+    EmailAuthorizeRequest,
     EmailConnectionActionResponse,
     EmailConnectionResponse,
     EmailIntegrationStatusResponse,
@@ -67,7 +69,6 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailReviewItemResponse,
     EmailReviewOptionsResponse,
     EmailReviewPassengerOption,
-    GmailAuthorizeRequest,
     ResolveEmailReviewRequest,
 )
 from app.presentation.dependencies.auth import require_role
@@ -86,13 +87,45 @@ _ACTIVE_CONNECTION_STATUSES = {"active", "failing", "paused"}
 _ACTIVE_REVIEW_STATUSES = {"open", "deferred"}
 
 
-def _provider_configured(settings: Settings) -> bool:
-    return bool(
-        settings.gmail_oauth_client_id
-        and _secret_is_set(settings.gmail_oauth_client_secret)
-        and settings.gmail_oauth_redirect_uri
-        and _secret_is_set(settings.email_token_encryption_key)
+def _provider_configured(settings: Settings, provider: str = "gmail") -> bool:
+    if provider == "gmail":
+        credentials_ready = bool(
+            getattr(settings, "gmail_oauth_client_id", None)
+            and _secret_is_set(getattr(settings, "gmail_oauth_client_secret", None))
+            and getattr(settings, "gmail_oauth_redirect_uri", None)
+        )
+    elif provider == "outlook":
+        credentials_ready = bool(
+            getattr(settings, "outlook_oauth_client_id", None)
+            and _secret_is_set(getattr(settings, "outlook_oauth_client_secret", None))
+            and getattr(settings, "outlook_oauth_redirect_uri", None)
+        )
+    else:
+        return False
+    return credentials_ready and _secret_is_set(settings.email_token_encryption_key)
+
+
+def _provider_instance(provider: str, settings: Settings) -> EmailProvider:
+    if provider == "gmail":
+        return GmailEmailProvider(settings=settings)
+    if provider == "outlook":
+        return OutlookEmailProvider(settings=settings)
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="This email provider is not supported.",
     )
+
+
+def _provider_scopes(provider: str) -> list[str]:
+    if provider == "outlook":
+        return [
+            "openid",
+            "profile",
+            "offline_access",
+            "https://graph.microsoft.com/User.Read",
+            "https://graph.microsoft.com/Mail.Read",
+        ]
+    return ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
 def _secret_is_set(value: object) -> bool:
@@ -130,7 +163,7 @@ async def _default_organization_agency_id(session: AsyncSession, user: User) -> 
     if agency_id is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Create the organization before connecting Gmail.",
+            detail="Create the organization before connecting an email account.",
         )
     return agency_id
 
@@ -143,16 +176,17 @@ def _require_feature(settings: Settings) -> None:
         )
 
 
-def _oauth_return_url(settings: Settings, outcome: str) -> str:
+def _oauth_return_url(settings: Settings, outcome: str, provider: str = "gmail") -> str:
     allowed = {"connected", "reconnected", "cancelled", "denied", "failed"}
     safe_outcome = outcome if outcome in allowed else "failed"
     parsed = urlsplit(settings.email_oauth_frontend_return_url)
     query = [
         (key, value)
         for key, value in parse_qsl(parsed.query, keep_blank_values=True)
-        if key not in {"code", "state", "error", "email_oauth"}
+        if key not in {"code", "state", "error", "email_oauth", "email_provider"}
     ]
     query.append(("email_oauth", safe_outcome))
+    query.append(("email_provider", provider if provider in {"gmail", "outlook"} else "gmail"))
     return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), ""))
 
 
@@ -160,7 +194,10 @@ def _allowed_connection_actions(
     connection: EmailConnectionModel,
     settings: Settings,
 ) -> list[str]:
-    reconnect_available = settings.email_integrations_enabled and _provider_configured(settings)
+    reconnect_available = settings.email_integrations_enabled and _provider_configured(
+        settings,
+        connection.provider,
+    )
     sync_available = settings.email_integrations_enabled and settings.email_sync_enabled
     if connection.status == "paused":
         actions = ["resume"] if sync_available else []
@@ -250,8 +287,13 @@ async def email_integration_status(
             EmailProviderAvailabilityResponse(
                 provider="gmail",
                 label="Gmail",
-                configured=_provider_configured(settings),
-            )
+                configured=_provider_configured(settings, "gmail"),
+            ),
+            EmailProviderAvailabilityResponse(
+                provider="outlook",
+                label="Microsoft Outlook",
+                configured=_provider_configured(settings, "outlook"),
+            ),
         ],
     )
 
@@ -292,7 +334,7 @@ async def list_email_connections(
     dependencies=[Depends(require_cookie_csrf)],
 )
 async def authorize_gmail(
-    payload: GmailAuthorizeRequest,
+    payload: EmailAuthorizeRequest,
     current_user: User = Depends(_current_email_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> EmailAuthorizationUrlResponse:
@@ -573,6 +615,317 @@ async def gmail_oauth_callback(
 
 
 @router.post(
+    "/oauth/outlook/authorize",
+    response_model=EmailAuthorizationUrlResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def authorize_outlook(
+    payload: EmailAuthorizeRequest,
+    current_user: User = Depends(_current_email_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> EmailAuthorizationUrlResponse:
+    settings = get_settings()
+    _require_feature(settings)
+    if not _provider_configured(settings, "outlook"):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Microsoft Outlook OAuth is not configured.",
+        )
+    agency_scope = _agency_scope(current_user)
+    if payload.connection_id is not None:
+        connection = await _owned_connection(
+            session,
+            connection_id=payload.connection_id,
+            agency_id=agency_scope,
+        )
+        agency_id = connection.agency_id
+        if connection.provider != "outlook":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This connection cannot be authorized with Microsoft Outlook.",
+            )
+    else:
+        agency_id = await _default_organization_agency_id(session, current_user)
+
+    state_value = generate_oauth_state()
+    pkce = generate_pkce_pair()
+    provider = OutlookEmailProvider(settings=settings)
+    try:
+        authorization_url = provider.build_authorization_url(
+            state=state_value,
+            code_challenge=pkce.challenge,
+        )
+        cipher = EmailTokenCipher.from_settings(settings)
+    except (EmailProviderError, TokenEncryptionError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from None
+    encrypted_verifier = cipher.encrypt(pkce.verifier)
+    now = datetime.now(tz=UTC)
+    session.add(
+        EmailOAuthStateModel(
+            id=uuid.uuid4(),
+            agency_id=agency_id,
+            user_id=current_user.id,
+            connection_id=payload.connection_id,
+            provider="outlook",
+            state_hash=hash_oauth_state(state_value),
+            nonce_hash=hashlib.sha256(uuid.uuid4().bytes).hexdigest(),
+            code_verifier_ciphertext=encrypted_verifier.ciphertext.encode("ascii"),
+            key_version=encrypted_verifier.key_version,
+            requested_scopes=_provider_scopes("outlook"),
+            return_path="/email-integrations",
+            expires_at=now + timedelta(seconds=settings.email_oauth_state_ttl_seconds),
+            consumed_at=None,
+            created_at=now,
+        )
+    )
+    await AuditLogRepository(session).record(
+        action="email_oauth_started",
+        entity_type="email_connection",
+        entity_id=str(payload.connection_id) if payload.connection_id else None,
+        agency_id=agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={"provider": "outlook", "reconnect": payload.connection_id is not None},
+    )
+    return EmailAuthorizationUrlResponse(authorization_url=authorization_url)
+
+
+@router.get("/oauth/outlook/callback", include_in_schema=False)
+async def outlook_oauth_callback(
+    state_value: str | None = Query(default=None, alias="state"),
+    code: str | None = Query(default=None, max_length=8_192),
+    error: str | None = Query(default=None, max_length=128),
+    session: AsyncSession = Depends(get_db_session),
+) -> RedirectResponse:
+    settings = get_settings()
+    if not state_value:
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+    try:
+        state_hash = hash_oauth_state(state_value)
+    except ValueError:
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+
+    state_row = await session.scalar(
+        select(EmailOAuthStateModel)
+        .options(undefer(EmailOAuthStateModel.code_verifier_ciphertext))
+        .where(EmailOAuthStateModel.state_hash == state_hash)
+        .with_for_update()
+    )
+    now = datetime.now(tz=UTC)
+    if (
+        state_row is None
+        or state_row.consumed_at is not None
+        or state_row.expires_at <= now
+        or state_row.provider != "outlook"
+    ):
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+
+    agency_id = state_row.agency_id
+    user_id = state_row.user_id
+    connection_id = state_row.connection_id
+    verifier_ciphertext = bytes(state_row.code_verifier_ciphertext)
+    verifier_key_version = state_row.key_version
+    state_row.consumed_at = now
+    await session.commit()
+
+    if error:
+        outcome = "denied" if error == "access_denied" else "cancelled"
+        return RedirectResponse(
+            _oauth_return_url(settings, outcome, "outlook"),
+            status_code=303,
+        )
+    if (
+        not code
+        or not settings.email_integrations_enabled
+        or not _provider_configured(settings, "outlook")
+    ):
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+    actor_is_still_authorized = await session.scalar(
+        select(UserModel.id)
+        .outerjoin(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .where(
+            UserModel.id == user_id,
+            UserModel.is_active.is_(True),
+            or_(
+                UserModel.role == UserRole.SUPER_ADMIN.value,
+                (
+                    (UserModel.agency_id == agency_id)
+                    & UserModel.role.in_(
+                        {
+                            UserRole.AGENCY_ADMIN.value,
+                            UserRole.AGENCY_MANAGER.value,
+                        }
+                    )
+                    & AgencyModel.is_active.is_(True)
+                ),
+            ),
+        )
+    )
+    if actor_is_still_authorized is None:
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+
+    provider = OutlookEmailProvider(settings=settings)
+    try:
+        cipher = EmailTokenCipher.from_settings(settings)
+        verifier = cipher.decrypt(
+            EncryptedToken(
+                ciphertext=verifier_ciphertext.decode("ascii"),
+                key_version=verifier_key_version,
+            )
+        )
+        token_set = await provider.exchange_authorization_code(
+            code=code,
+            code_verifier=verifier,
+        )
+        profile = await provider.get_account_profile(access_token=token_set.access_token)
+        encrypted_access = cipher.encrypt(token_set.access_token)
+        encrypted_refresh = (
+            cipher.encrypt(token_set.refresh_token) if token_set.refresh_token else None
+        )
+    except (EmailProviderError, TokenEncryptionError, UnicodeDecodeError):
+        logger.warning(
+            "email_oauth_exchange_failed",
+            agency_id=str(agency_id),
+            provider="outlook",
+            reconnect=connection_id is not None,
+        )
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+
+    reconnected = connection_id is not None
+    connection: EmailConnectionModel | None = None
+    try:
+        if connection_id is not None:
+            connection = await _owned_connection(
+                session,
+                connection_id=connection_id,
+                agency_id=agency_id,
+                for_update=True,
+                with_tokens=True,
+            )
+            if connection.provider != "outlook":
+                raise ValueError("Provider mismatch")
+            if connection.provider_account_id != profile.provider_account_id:
+                raise ValueError("The authorized Microsoft identity does not match this connection")
+            if encrypted_refresh is None and connection.refresh_token_ciphertext is None:
+                raise ValueError("Microsoft did not return offline access")
+        else:
+            connection = await session.scalar(
+                select(EmailConnectionModel)
+                .options(undefer(EmailConnectionModel.refresh_token_ciphertext))
+                .where(
+                    EmailConnectionModel.provider == "outlook",
+                    EmailConnectionModel.provider_account_id == profile.provider_account_id,
+                )
+                .with_for_update()
+            )
+            if connection is not None and connection.agency_id != agency_id:
+                raise ValueError("Provider account already belongs to another agency")
+            if connection is not None:
+                reconnected = True
+            else:
+                if encrypted_refresh is None:
+                    raise ValueError("Microsoft did not return offline access")
+                connection = EmailConnectionModel(
+                    id=uuid.uuid4(),
+                    agency_id=agency_id,
+                    provider="outlook",
+                    provider_account_id=profile.provider_account_id,
+                    email_address=profile.email_address,
+                    normalized_email_address=profile.email_address.casefold(),
+                    display_name=profile.display_name,
+                    status="active",
+                    sync_state="queued",
+                    scopes=list(token_set.scopes),
+                    token_key_version=cipher.key_version,
+                    sync_generation=0,
+                    consecutive_failures=0,
+                    created_by_user_id=user_id,
+                    created_at=now,
+                    updated_at=now,
+                )
+                session.add(connection)
+
+        if connection is None:
+            raise ValueError("Email connection could not be created")
+        if encrypted_refresh is None and connection.refresh_token_ciphertext is None:
+            raise ValueError("Microsoft did not return offline access")
+        connection.provider_account_id = profile.provider_account_id
+        connection.email_address = profile.email_address
+        connection.normalized_email_address = profile.email_address.casefold()
+        connection.display_name = profile.display_name[:255] if profile.display_name else None
+        connection.status = "active"
+        connection.sync_state = "queued"
+        connection.access_token_ciphertext = encrypted_access.ciphertext.encode("ascii")
+        if encrypted_refresh is not None:
+            # Microsoft rotates refresh tokens; every replacement is encrypted
+            # and committed atomically with the access token.
+            connection.refresh_token_ciphertext = encrypted_refresh.ciphertext.encode("ascii")
+        connection.token_key_version = cipher.key_version
+        connection.token_expires_at = token_set.expires_at
+        connection.scopes = list(token_set.scopes)
+        # Keep the first synchronization on the common bounded-lookback path;
+        # that path snapshots a fresh Graph delta cursor before listing recent
+        # inbox messages and therefore cannot miss mail during authorization.
+        connection.sync_cursor = None
+        connection.sync_generation += 1
+        connection.next_sync_at = now
+        connection.paused_at = None
+        connection.disconnected_at = None
+        connection.last_error_code = None
+        connection.last_error_message = None
+        connection.last_error_at = None
+        connection.updated_at = now
+        await session.flush()
+        await AuditLogRepository(session).record(
+            action=("email_connection_reauthorized" if reconnected else "email_connection_created"),
+            entity_type="email_connection",
+            entity_id=str(connection.id),
+            agency_id=agency_id,
+            user_id=user_id,
+            actor_email=None,
+            metadata={"provider": "outlook"},
+        )
+        await session.commit()
+    except (IntegrityError, ValueError, HTTPException):
+        await session.rollback()
+        return RedirectResponse(
+            _oauth_return_url(settings, "failed", "outlook"),
+            status_code=303,
+        )
+
+    _enqueue_connection_sync(connection.id)
+    return RedirectResponse(
+        _oauth_return_url(
+            settings,
+            "reconnected" if reconnected else "connected",
+            "outlook",
+        ),
+        status_code=303,
+    )
+
+
+@router.post(
     "/connections/{connection_id}/sync",
     response_model=EmailConnectionActionResponse,
     dependencies=[Depends(require_cookie_csrf)],
@@ -727,6 +1080,7 @@ async def disconnect_email_connection(
         with_tokens=True,
     )
     agency_id = connection.agency_id
+    provider = _provider_instance(connection.provider, get_settings())
     if (
         connection.status == "disconnected"
         and not connection.access_token_ciphertext
@@ -736,24 +1090,25 @@ async def disconnect_email_connection(
 
     token_to_revoke: str | None = None
     decryption_failed = False
-    try:
-        cipher = EmailTokenCipher.from_settings()
-        if connection.refresh_token_ciphertext:
-            token_to_revoke = cipher.decrypt(
-                EncryptedToken(
-                    ciphertext=connection.refresh_token_ciphertext.decode("ascii"),
-                    key_version=connection.token_key_version,
+    if provider.supports_remote_token_revocation:
+        try:
+            cipher = EmailTokenCipher.from_settings()
+            if connection.refresh_token_ciphertext:
+                token_to_revoke = cipher.decrypt(
+                    EncryptedToken(
+                        ciphertext=connection.refresh_token_ciphertext.decode("ascii"),
+                        key_version=connection.token_key_version,
+                    )
                 )
-            )
-        elif connection.access_token_ciphertext:
-            token_to_revoke = cipher.decrypt(
-                EncryptedToken(
-                    ciphertext=connection.access_token_ciphertext.decode("ascii"),
-                    key_version=connection.token_key_version,
+            elif connection.access_token_ciphertext:
+                token_to_revoke = cipher.decrypt(
+                    EncryptedToken(
+                        ciphertext=connection.access_token_ciphertext.decode("ascii"),
+                        key_version=connection.token_key_version,
+                    )
                 )
-            )
-    except (TokenEncryptionError, UnicodeDecodeError):
-        decryption_failed = True
+        except (TokenEncryptionError, UnicodeDecodeError):
+            decryption_failed = True
 
     now = datetime.now(tz=UTC)
     connection.status = "disconnecting"
@@ -773,7 +1128,7 @@ async def disconnect_email_connection(
         )
     elif token_to_revoke:
         try:
-            await GmailEmailProvider().revoke_token(token=token_to_revoke)
+            await provider.revoke_token(token=token_to_revoke)
         except EmailProviderError as exc:
             # Revocation endpoints commonly report an already-invalid token as
             # a client error. In that case access is already gone and local
@@ -839,8 +1194,15 @@ async def disconnect_email_connection(
         actor_email=current_user.email,
         metadata={
             "provider": connection.provider,
-            "provider_revoke_required": token_to_revoke is not None,
-            "provider_revoke_succeeded": True,
+            "provider_revoke_required": (
+                provider.supports_remote_token_revocation and token_to_revoke is not None
+            ),
+            "provider_revoke_succeeded": (
+                True
+                if provider.supports_remote_token_revocation and token_to_revoke is not None
+                else None
+            ),
+            "credential_disposition": "local_credentials_deleted",
         },
     )
     await session.commit()

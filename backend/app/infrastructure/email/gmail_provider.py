@@ -50,6 +50,11 @@ _MAX_PROVIDER_PAGE_SIZE = 500
 
 class GmailEmailProvider:
     provider_name = EmailProviderName.GMAIL
+    supports_remote_token_revocation = True
+
+    @property
+    def requested_scopes(self) -> tuple[str, ...]:
+        return (_GMAIL_SCOPE,)
 
     def __init__(
         self,
@@ -158,7 +163,7 @@ class GmailEmailProvider:
         self,
         *,
         access_token: str,
-        query: str | None,
+        lookback_days: int,
         max_messages: int,
     ) -> tuple[EmailMessageReference, ...]:
         configured_limit = _positive_setting(
@@ -169,7 +174,9 @@ class GmailEmailProvider:
         if max_messages < 1:
             raise ValueError("max_messages must be positive")
         effective_limit = min(max_messages, configured_limit)
-        normalized_query = _bounded_query(query)
+        if lookback_days < 1 or lookback_days > 365:
+            raise ValueError("lookback_days must be between 1 and 365")
+        normalized_query = f"in:inbox newer_than:{lookback_days}d"
 
         references: list[EmailMessageReference] = []
         seen_ids: set[str] = set()
@@ -309,6 +316,7 @@ class GmailEmailProvider:
                 max_chars=2_048,
             ),
             latest_history_id=latest_history_id,
+            resume_history_id=changes[-1].provider_history_id if changes else latest_history_id,
         )
 
     async def get_message(
@@ -678,15 +686,6 @@ def _safe_identifier(value: str, label: str) -> str:
     if not _SAFE_IDENTIFIER_PATTERN.fullmatch(value):
         raise ValueError(f"{label} is invalid")
     return value
-
-
-def _bounded_query(value: str | None) -> str | None:
-    if value is None:
-        return None
-    normalized = re.sub(r"[\x00-\x1f\x7f]", "", value).strip()
-    if len(normalized) > 1_024:
-        raise ValueError("Gmail query is too long")
-    return normalized or None
 
 
 def _optional_setting_text(settings: Any, name: str) -> str | None:

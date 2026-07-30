@@ -9,6 +9,7 @@ from app.infrastructure.email.oauth import (
     hash_oauth_state,
     oauth_state_matches,
 )
+from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.pdf_validator import (
     EmailPdfValidationError,
     EmailPdfValidator,
@@ -27,6 +28,7 @@ __all__ = [
     "EmailTokenCipher",
     "EncryptedToken",
     "GmailEmailProvider",
+    "OutlookEmailProvider",
     "PkcePair",
     "TokenDecryptionError",
     "TokenEncryptionError",

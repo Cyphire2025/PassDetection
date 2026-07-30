@@ -986,9 +986,7 @@ class PassportExportHistoryModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class PassportRosterResolutionModel(Base):
@@ -1035,12 +1033,8 @@ class PassportRosterResolutionModel(Base):
             "agency_id",
             "client_group_id",
             "replaced_recipient_normalized_phone",
-            postgresql_where=text(
-                "status = 'active' AND resolution_type = 'replacement'"
-            ),
-            sqlite_where=text(
-                "status = 'active' AND resolution_type = 'replacement'"
-            ),
+            postgresql_where=text("status = 'active' AND resolution_type = 'replacement'"),
+            sqlite_where=text("status = 'active' AND resolution_type = 'replacement'"),
         ),
         Index(
             "uq_passport_roster_resolutions_active_submission",
@@ -1086,12 +1080,8 @@ class PassportRosterResolutionModel(Base):
     replaced_recipient_normalized_phone: Mapped[str | None] = mapped_column(
         String(32), nullable=True
     )
-    original_recipient_name: Mapped[str | None] = mapped_column(
-        String(255), nullable=True
-    )
-    original_recipient_phone: Mapped[str | None] = mapped_column(
-        String(64), nullable=True
-    )
+    original_recipient_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    original_recipient_phone: Mapped[str | None] = mapped_column(String(64), nullable=True)
     original_recipient_imported_fields: Mapped[dict[str, str]] = mapped_column(
         JSONB,
         nullable=False,
@@ -1529,10 +1519,6 @@ class DocumentWhatsAppDeliveryModel(Base):
 
     __tablename__ = "document_whatsapp_deliveries"
     __table_args__ = (
-        UniqueConstraint(
-            "distributed_document_id",
-            name="uq_document_whatsapp_delivery_document",
-        ),
         Index(
             "ix_document_whatsapp_delivery_group_status",
             "group_id",
@@ -1596,9 +1582,7 @@ class DocumentWhatsAppDeliveryModel(Base):
     phone_number: Mapped[str] = mapped_column(String(64), nullable=False)
     normalized_phone_number: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     template_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    template_parameter_values: Mapped[list[str] | None] = mapped_column(
-        JSONB, nullable=True
-    )
+    template_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     status: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     provider_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
@@ -1756,9 +1740,7 @@ class RoomingHotelPassengerModel(Base):
         ),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("agencies.id", ondelete="CASCADE"),
@@ -2114,9 +2096,7 @@ class AttendanceSessionModel(Base):
             "group_id",
             "normalized_name",
             unique=True,
-            postgresql_where=text(
-                "status IN ('draft', 'active') AND id = canonical_session_id"
-            ),
+            postgresql_where=text("status IN ('draft', 'active') AND id = canonical_session_id"),
         ),
     )
 
