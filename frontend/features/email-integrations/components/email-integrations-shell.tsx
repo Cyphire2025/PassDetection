@@ -13,8 +13,8 @@ import {
 
 const SECTION_LINKS = [
   {
-    label: "Connections",
-    href: ROUTES.dashboard.emailIntegrations,
+    label: "Operations inbox",
+    href: ROUTES.dashboard.emailIntegrationsInbox,
   },
   {
     label: "Review queue",
@@ -23,6 +23,10 @@ const SECTION_LINKS = [
   {
     label: "Activity",
     href: ROUTES.dashboard.emailIntegrationsActivity,
+  },
+  {
+    label: "Connections",
+    href: ROUTES.dashboard.emailIntegrations,
   },
 ] as const;
 

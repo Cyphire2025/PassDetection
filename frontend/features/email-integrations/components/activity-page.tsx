@@ -17,7 +17,7 @@ export function EmailActivityPage() {
   const activity = useEmailActivity();
 
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-950">
           Email processing activity
@@ -116,7 +116,7 @@ export function EmailActivityPage() {
           </CardContent>
         </Card>
       )}
-    </main>
+    </div>
   );
 }
 

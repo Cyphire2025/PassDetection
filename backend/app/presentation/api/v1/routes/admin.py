@@ -5,11 +5,13 @@ Admin Routes
 
 from __future__ import annotations
 
+import secrets
 import uuid
 from dataclasses import dataclass
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.password import hash_password
@@ -21,6 +23,7 @@ from app.domain.entities.entities import (
     User,
     UserRole,
 )
+from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.database.models import (
     AgencyModel,
     AuditLogModel,
@@ -77,19 +80,27 @@ class _WhatsAppPurgeCounts:
 
 def _manager_scope(current_user: User) -> list:
     if current_user.role == UserRole.SUPER_ADMIN:
-        return [UserModel.role == UserRole.AGENCY_MANAGER.value]
+        return [
+            UserModel.role == UserRole.AGENCY_MANAGER.value,
+            UserModel.deleted_at.is_(None),
+        ]
     return [
         UserModel.role == UserRole.AGENCY_MANAGER.value,
         UserModel.agency_id == current_user.agency_id,
+        UserModel.deleted_at.is_(None),
     ]
 
 
 def _staff_scope(current_user: User) -> list:
     if current_user.role == UserRole.SUPER_ADMIN:
-        return [UserModel.role == UserRole.AGENCY_STAFF.value]
+        return [
+            UserModel.role == UserRole.AGENCY_STAFF.value,
+            UserModel.deleted_at.is_(None),
+        ]
     return [
         UserModel.role == UserRole.AGENCY_STAFF.value,
         UserModel.agency_id == current_user.agency_id,
+        UserModel.deleted_at.is_(None),
     ]
 
 
@@ -473,6 +484,15 @@ async def delete_manager(
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Manager was not found")
 
+    email_connection_count = int(
+        (
+            await session.execute(
+                select(func.count())
+                .select_from(EmailConnectionModel)
+                .where(EmailConnectionModel.owner_user_id == manager.id)
+            )
+        ).scalar_one()
+    )
     delete_owned_data = bool(body and body.delete_owned_data)
     response = DeleteManagerResponse(
         deleted_manager_id=manager.id,
@@ -544,7 +564,40 @@ async def delete_manager(
             **response.model_dump(mode="json"),
         },
     )
-    await session.delete(manager)
+    if email_connection_count:
+        now = datetime.now(tz=UTC)
+        await session.execute(
+            update(EmailConnectionModel)
+            .where(EmailConnectionModel.owner_user_id == manager.id)
+            .values(
+                status="disconnected",
+                sync_state="blocked",
+                ai_processing_enabled=False,
+                access_token_ciphertext=None,
+                refresh_token_ciphertext=None,
+                token_expires_at=None,
+                sync_cursor=None,
+                watch_resource_id=None,
+                watch_expiration_at=None,
+                sync_lease_token=None,
+                sync_lease_expires_at=None,
+                sync_generation=EmailConnectionModel.sync_generation + 1,
+                next_sync_at=None,
+                disconnected_at=now,
+                last_error_code="EMAIL_OWNER_ACCOUNT_REMOVED",
+                last_error_message="The mailbox owner account was removed.",
+                last_error_at=now,
+                updated_at=now,
+            )
+            .execution_options(synchronize_session=False)
+        )
+        manager.is_active = False
+        manager.email = f"deleted-{manager.id}@deleted.invalid"
+        manager.hashed_password = hash_password(secrets.token_urlsafe(48))
+        manager.deleted_at = now
+        manager.updated_at = now
+    else:
+        await session.delete(manager)
     await session.flush()
     return response
 

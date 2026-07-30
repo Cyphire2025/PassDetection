@@ -82,11 +82,13 @@ def _session_for_manager_deletion(
     manager: SimpleNamespace,
     group_id: uuid.UUID,
     submission: SimpleNamespace,
+    email_connection_count: int = 0,
 ) -> SimpleNamespace:
     return SimpleNamespace(
         execute=AsyncMock(
             side_effect=[
                 _Result(scalar_value=manager),
+                _Result(scalar_value=email_connection_count),
                 _Result(scalar_values=[group_id]),
                 _Result(rows=[submission]),
             ]
@@ -182,6 +184,54 @@ async def test_manager_owned_data_deletion_removes_every_passport_object() -> No
     assert response.deleted_storage_objects == 6
     session.delete.assert_awaited_once_with(manager)
     session.flush.assert_awaited_once_with()
+
+
+@pytest.mark.asyncio
+async def test_manager_with_an_owned_mailbox_is_disabled_instead_of_hard_deleted() -> None:
+    manager = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        email="manager@example.com",
+        full_name="Trip Manager",
+        hashed_password="existing-password-hash",
+        is_active=True,
+        deleted_at=None,
+        updated_at=None,
+    )
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _Result(scalar_value=manager),
+                _Result(scalar_value=1),
+                _Result(),
+            ]
+        ),
+        delete=AsyncMock(),
+        flush=AsyncMock(),
+    )
+
+    with (
+        patch.object(AuditLogRepository, "record", AsyncMock(return_value=None)),
+        patch(
+            "app.presentation.api.v1.routes.admin.hash_password",
+            return_value="revoked-password-hash",
+        ),
+    ):
+        response = await delete_manager(
+            manager_id=manager.id,
+            current_user=_super_admin(),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert response.deleted_manager_id == manager.id
+    session.delete.assert_not_awaited()
+    assert manager.is_active is False
+    assert manager.deleted_at is not None
+    assert manager.email == f"deleted-{manager.id}@deleted.invalid"
+    assert manager.hashed_password == "revoked-password-hash"
+    update_statement = session.execute.await_args_list[2].args[0]
+    assert "UPDATE email_connections" in str(update_statement)
+    assert "owner_user_id" in str(update_statement)
 
 
 @pytest.mark.asyncio

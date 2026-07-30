@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.password import hash_password
 from app.domain.entities.entities import User, UserRole
+from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceRecordModel,
@@ -35,11 +36,19 @@ from app.presentation.dependencies.auth import require_role
 router = APIRouter()
 ACCOUNT_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
 STAFF_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
-MANAGED_ROLES = (UserRole.AGENCY_MANAGER.value, UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
+MANAGED_ROLES = (
+    UserRole.AGENCY_MANAGER.value,
+    UserRole.AGENCY_STAFF.value,
+    UserRole.AGENCY_COORDINATOR.value,
+)
 LISTED_ACCOUNT_ROLES = (UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
 
 
-@router.get("", response_model=list[ManagedAccountResponse], summary="List accounts within the caller's management scope")
+@router.get(
+    "",
+    response_model=list[ManagedAccountResponse],
+    summary="List accounts within the caller's management scope",
+)
 async def list_managed_accounts(
     current_user: User = Depends(require_role(ACCOUNT_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
@@ -51,7 +60,9 @@ async def list_managed_accounts(
     if current_user.role == UserRole.AGENCY_ADMIN:
         filters.extend(
             [
-                UserModel.role.in_((UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)),
+                UserModel.role.in_(
+                    (UserRole.AGENCY_STAFF.value, UserRole.AGENCY_COORDINATOR.value)
+                ),
                 UserModel.agency_id == current_user.agency_id,
             ]
         )
@@ -104,12 +115,17 @@ async def create_staff_account(
     session: AsyncSession = Depends(get_db_session),
 ) -> ManagedAccountResponse:
     if not current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Assign the admin to an agency before creating staff")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Assign the admin to an agency before creating staff",
+        )
 
     email = str(body.email).lower().strip()
     existing = await session.execute(select(UserModel).where(UserModel.email == email))
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="A user with this email already exists"
+        )
 
     staff = UserModel(
         email=email,
@@ -217,7 +233,16 @@ async def delete_managed_account(
             detail="Manager accounts must be removed from the manager administration screen",
         )
 
-    preserves_history = False
+    email_connection_count = int(
+        (
+            await session.execute(
+                select(func.count())
+                .select_from(EmailConnectionModel)
+                .where(EmailConnectionModel.owner_user_id == account.id)
+            )
+        ).scalar_one()
+    )
+    preserves_history = email_connection_count > 0
     if account.role == UserRole.AGENCY_COORDINATOR.value:
         history_count = int(
             (
@@ -238,9 +263,37 @@ async def delete_managed_account(
             ).scalar_one()
         )
         preserves_history = history_count > 0 or session_count > 0
+        preserves_history = preserves_history or email_connection_count > 0
 
     await RefreshTokenRepository(session).revoke_all_for_user(account.id)
     await _deactivate_coordinator_assignments(session, account)
+    if email_connection_count:
+        now = datetime.now(tz=UTC)
+        await session.execute(
+            update(EmailConnectionModel)
+            .where(EmailConnectionModel.owner_user_id == account.id)
+            .values(
+                status="disconnected",
+                sync_state="blocked",
+                ai_processing_enabled=False,
+                access_token_ciphertext=None,
+                refresh_token_ciphertext=None,
+                token_expires_at=None,
+                sync_cursor=None,
+                watch_resource_id=None,
+                watch_expiration_at=None,
+                sync_lease_token=None,
+                sync_lease_expires_at=None,
+                sync_generation=EmailConnectionModel.sync_generation + 1,
+                next_sync_at=None,
+                disconnected_at=now,
+                last_error_code="EMAIL_OWNER_ACCOUNT_REMOVED",
+                last_error_message="The mailbox owner account was removed.",
+                last_error_at=now,
+                updated_at=now,
+            )
+            .execution_options(synchronize_session=False)
+        )
     await _audit_account_action(
         session,
         current_user,
@@ -285,12 +338,16 @@ async def _get_manageable_account(
     )
     row = result.first()
     if not row:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Managed account was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Managed account was not found"
+        )
     account, agency_name = row
     if current_user.role == UserRole.SUPER_ADMIN:
         return account, agency_name
     if account.agency_id != current_user.agency_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope"
+        )
     if current_user.role == UserRole.AGENCY_ADMIN and account.role in {
         UserRole.AGENCY_STAFF.value,
         UserRole.AGENCY_COORDINATOR.value,
@@ -306,7 +363,9 @@ async def _get_manageable_account(
     if current_user.role == UserRole.AGENCY_ADMIN and account.role == UserRole.AGENCY_MANAGER.value:
         return account, agency_name
     else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Account is outside your management scope"
+        )
 
 
 async def _deactivate_coordinator_assignments(session: AsyncSession, account: UserModel) -> None:

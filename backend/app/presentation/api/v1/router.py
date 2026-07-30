@@ -19,6 +19,12 @@ from app.presentation.api.v1.routes.document_distribution import (
     router as document_distribution_router,
 )
 from app.presentation.api.v1.routes.document_rename import router as document_rename_router
+from app.presentation.api.v1.routes.email_ai_inbox import (
+    router as email_ai_inbox_router,
+)
+from app.presentation.api.v1.routes.email_ai_rollout_admin import (
+    router as email_ai_rollout_admin_router,
+)
 from app.presentation.api.v1.routes.email_integrations import (
     router as email_integrations_router,
 )
@@ -63,6 +69,16 @@ api_v1_router.include_router(
     email_integrations_router,
     prefix="/email-integrations",
     tags=["Email Integrations"],
+)
+api_v1_router.include_router(
+    email_ai_inbox_router,
+    prefix="/email-integrations",
+    tags=["AI Travel Operations Inbox"],
+)
+api_v1_router.include_router(
+    email_ai_rollout_admin_router,
+    prefix="/admin/email-ai-rollout",
+    tags=["AI Travel Operations Rollout"],
 )
 api_v1_router.include_router(document_rename_router, prefix="/document-rename", tags=["Document Rename"])
 api_v1_router.include_router(admin_router, prefix="/admin", tags=["Admin"])

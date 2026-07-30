@@ -71,13 +71,13 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(ValidationError)
     async def validation_handler(request: Request, exc: ValidationError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
 
     @app.exception_handler(ImageValidationError)
     async def image_validation_handler(
         request: Request, exc: ImageValidationError
     ) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
 
     @app.exception_handler(GroupClosedError)
     async def link_expired_handler(
@@ -105,11 +105,11 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(MRZParsingError)
     async def mrz_handler(request: Request, exc: MRZParsingError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
 
     @app.exception_handler(LowConfidenceError)
     async def low_confidence_handler(request: Request, exc: LowConfidenceError) -> JSONResponse:
-        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return _error_response(exc.code, exc.message, status.HTTP_422_UNPROCESSABLE_CONTENT)
 
     @app.exception_handler(PassDetectionError)
     async def generic_domain_handler(request: Request, exc: PassDetectionError) -> JSONResponse:
@@ -121,7 +121,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content={
                 "error": {
                     "code": "REQUEST_VALIDATION_ERROR",

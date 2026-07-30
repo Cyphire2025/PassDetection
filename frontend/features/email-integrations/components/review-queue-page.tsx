@@ -77,7 +77,7 @@ export function EmailReviewQueuePage() {
   }
 
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">
@@ -348,7 +348,7 @@ export function EmailReviewQueuePage() {
           </div>
         </EmailDialog>
       )}
-    </main>
+    </div>
   );
 }
 

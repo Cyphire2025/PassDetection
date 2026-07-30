@@ -23,6 +23,13 @@ export const API_ENDPOINTS = {
     global: "/api/v1/search",
   },
 
+  notifications: {
+    feed: "/api/v1/notifications/feed",
+    read: (notificationId: string) =>
+      `/api/v1/notifications/${encodeURIComponent(notificationId)}/read`,
+    readAll: "/api/v1/notifications/read-all",
+  },
+
   auth: {
     login: "/api/v1/auth/login",
     logout: "/api/v1/auth/logout",
@@ -102,9 +109,12 @@ export const API_ENDPOINTS = {
       `/api/v1/email-integrations/connections/${connectionId}/pause`,
     connectionResume: (connectionId: string) =>
       `/api/v1/email-integrations/connections/${connectionId}/resume`,
+    connectionAiSettings: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}/ai-settings`,
     connection: (connectionId: string) =>
       `/api/v1/email-integrations/connections/${connectionId}`,
     summary: "/api/v1/email-integrations/summary",
+    inbox: "/api/v1/email-integrations/inbox",
     reviews: "/api/v1/email-integrations/reviews",
     reviewOptions: "/api/v1/email-integrations/review-options",
     resolveReview: (reviewId: string) =>
@@ -112,6 +122,20 @@ export const API_ENDPOINTS = {
     activity: "/api/v1/email-integrations/activity",
     message: (messageId: string) =>
       `/api/v1/email-integrations/messages/${messageId}`,
+    messageIntelligence: (messageId: string) =>
+      `/api/v1/email-integrations/messages/${messageId}/intelligence`,
+    proposalDecision: (proposalId: string) =>
+      `/api/v1/email-integrations/proposals/${proposalId}/decision`,
+    deadlineDecision: (deadlineId: string) =>
+      `/api/v1/email-integrations/deadlines/${deadlineId}/decision`,
+    draft: (draftId: string) =>
+      `/api/v1/email-integrations/drafts/${draftId}`,
+    draftDecision: (draftId: string) =>
+      `/api/v1/email-integrations/drafts/${draftId}/decision`,
+    analysisFeedback: (analysisId: string) =>
+      `/api/v1/email-integrations/analyses/${analysisId}/feedback`,
+    analysisRetry: (analysisId: string) =>
+      `/api/v1/email-integrations/analyses/${analysisId}/retry`,
   },
 
   passports: {
@@ -305,6 +329,7 @@ export const API_ENDPOINTS = {
     accountStatus: (accountId: string) => `/api/v1/admin/accounts/${accountId}/status`,
     settings: "/api/v1/admin/settings",
     passportData: "/api/v1/admin/passport-data",
+    emailAiRollout: "/api/v1/admin/email-ai-rollout",
   },
 
   analytics: {

@@ -15,7 +15,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
 
@@ -28,6 +28,7 @@ from app.application.interfaces.email_provider import (
     EmailProviderResponseError,
     NormalizedEmailMessage,
 )
+from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.email_integrations.matching import (
     EmailContextAssociation,
     GroupForAssociation,
@@ -41,7 +42,7 @@ from app.application.use_cases.email_integrations.relevance import (
 )
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import get_logger
-from app.domain.entities.entities import PassportSubmission
+from app.domain.entities.entities import PassportSubmission, UserRole
 from app.infrastructure.database.email_models import (
     EmailActivityEventModel,
     EmailArtifactDocumentModel,
@@ -53,6 +54,7 @@ from app.infrastructure.database.email_models import (
 from app.infrastructure.database.models import (
     ClientGroupModel,
     DistributedDocumentModel,
+    UserModel,
 )
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.documents.distribution_ingestion import (
@@ -81,6 +83,7 @@ from app.infrastructure.repositories.notification_repository import (
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
+from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 logger = get_logger(__name__)
@@ -94,7 +97,9 @@ _ACTIVE_REVIEW_STATUSES = {"open", "deferred"}
 class SyncClaim:
     connection_id: uuid.UUID
     agency_id: uuid.UUID
+    owner_user_id: uuid.UUID
     provider: str
+    provider_account_id: str
     lease_token: str
     generation: int
     access_token: str
@@ -124,6 +129,18 @@ class EmailRelevanceContext:
     passengers: tuple[PassportSubmission, ...]
 
 
+def _connection_claim_filters(claim: SyncClaim):  # type: ignore[no-untyped-def]
+    """Revalidate the complete immutable task envelope on every worker write."""
+
+    return (
+        EmailConnectionModel.id == claim.connection_id,
+        EmailConnectionModel.agency_id == claim.agency_id,
+        EmailConnectionModel.owner_user_id == claim.owner_user_id,
+        EmailConnectionModel.provider_account_id == claim.provider_account_id,
+        EmailConnectionModel.sync_generation == claim.generation,
+    )
+
+
 def _is_reusable_duplicate_document(document: DistributedDocumentModel) -> bool:
     """Return whether an exact-content duplicate still has a live assignment."""
 
@@ -133,6 +150,7 @@ def _is_reusable_duplicate_document(document: DistributedDocumentModel) -> bool:
 def _live_duplicate_documents_statement(
     *,
     agency_id: uuid.UUID,
+    owner_user_id: uuid.UUID,
     artifact_id: uuid.UUID,
     sha256_digest: str,
 ):
@@ -150,10 +168,12 @@ def _live_duplicate_documents_statement(
         )
         .where(
             EmailArtifactModel.agency_id == agency_id,
+            EmailArtifactModel.owner_user_id == owner_user_id,
             EmailArtifactModel.sha256_digest == sha256_digest,
             EmailArtifactModel.id != artifact_id,
             EmailArtifactModel.processing_status.in_({"completed", "duplicate"}),
             EmailArtifactDocumentModel.agency_id == agency_id,
+            EmailArtifactDocumentModel.owner_user_id == owner_user_id,
             DistributedDocumentModel.agency_id == agency_id,
             DistributedDocumentModel.passenger_id.is_not(None),
             DistributedDocumentModel.match_status == "matched",
@@ -184,6 +204,11 @@ def provider_for_connection(
 async def run_connection_sync(
     connection_id: uuid.UUID,
     provider_message_id: str | None = None,
+    *,
+    agency_id: uuid.UUID,
+    owner_user_id: uuid.UUID,
+    provider_account_id: str,
+    sync_generation: int,
 ) -> SyncResult | None:
     """Claim and synchronize one connection in a worker-safe transaction flow."""
 
@@ -194,13 +219,25 @@ async def run_connection_sync(
     claim: SyncClaim | None = None
     try:
         async with AsyncSessionFactory() as session:
-            claim = await _claim_connection(session, connection_id, settings=settings)
+            claim = await _claim_connection(
+                session,
+                connection_id,
+                agency_id=agency_id,
+                owner_user_id=owner_user_id,
+                provider_account_id=provider_account_id,
+                sync_generation=sync_generation,
+                settings=settings,
+            )
             if claim is None:
                 return None
         provider = provider_for_connection(claim, settings=settings)
     except (TokenEncryptionError, UnicodeDecodeError) as exc:
         await _record_connection_start_failure(
             connection_id,
+            agency_id=agency_id,
+            owner_user_id=owner_user_id,
+            provider_account_id=provider_account_id,
+            sync_generation=sync_generation,
             code="EMAIL_TOKEN_DECRYPTION_FAILED",
             message=("Stored email credentials could not be opened. Reconnect the email account."),
         )
@@ -223,6 +260,10 @@ async def run_connection_sync(
         else:
             await _record_connection_start_failure(
                 connection_id,
+                agency_id=agency_id,
+                owner_user_id=owner_user_id,
+                provider_account_id=provider_account_id,
+                sync_generation=sync_generation,
                 code=exc.code,
                 message=str(exc),
             )
@@ -237,7 +278,7 @@ async def run_connection_sync(
             provider=provider,
             settings=settings,
         )
-        relevance_context = await _load_relevance_context(claim.agency_id)
+        relevance_context = await _load_relevance_context(claim)
 
         message_ids: list[str]
         latest_cursor: str | None
@@ -370,16 +411,43 @@ async def _claim_connection(
     session: AsyncSession,
     connection_id: uuid.UUID,
     *,
+    agency_id: uuid.UUID,
+    owner_user_id: uuid.UUID,
+    provider_account_id: str,
+    sync_generation: int,
     settings: Settings,
 ) -> SyncClaim | None:
     now = datetime.now(tz=UTC)
     result = await session.execute(
         select(EmailConnectionModel)
+        .join(
+            UserModel,
+            UserModel.id == EmailConnectionModel.owner_user_id,
+        )
         .options(
             undefer(EmailConnectionModel.access_token_ciphertext),
             undefer(EmailConnectionModel.refresh_token_ciphertext),
         )
-        .where(EmailConnectionModel.id == connection_id)
+        .where(
+            EmailConnectionModel.id == connection_id,
+            EmailConnectionModel.agency_id == agency_id,
+            EmailConnectionModel.owner_user_id == owner_user_id,
+            EmailConnectionModel.provider_account_id == provider_account_id,
+            EmailConnectionModel.sync_generation == sync_generation,
+            UserModel.is_active.is_(True),
+            UserModel.role.in_(
+                {
+                    UserRole.SUPER_ADMIN.value,
+                    UserRole.AGENCY_ADMIN.value,
+                    UserRole.AGENCY_MANAGER.value,
+                    UserRole.AGENCY_STAFF.value,
+                }
+            ),
+            or_(
+                UserModel.role == UserRole.SUPER_ADMIN.value,
+                UserModel.agency_id == EmailConnectionModel.agency_id,
+            ),
+        )
         .with_for_update(skip_locked=True)
     )
     connection = result.scalar_one_or_none()
@@ -427,7 +495,9 @@ async def _claim_connection(
     return SyncClaim(
         connection_id=connection.id,
         agency_id=connection.agency_id,
+        owner_user_id=connection.owner_user_id,
         provider=connection.provider,
+        provider_account_id=connection.provider_account_id,
         lease_token=lease_token,
         generation=connection.sync_generation,
         access_token=access_token,
@@ -437,14 +507,21 @@ async def _claim_connection(
     )
 
 
-async def _load_relevance_context(agency_id: uuid.UUID) -> EmailRelevanceContext:
+async def _load_relevance_context(claim: SyncClaim) -> EmailRelevanceContext:
     """Load a stable, read-only active roster snapshot once per sync run."""
 
     async with AsyncSessionFactory() as session:
+        owner = await UserRepository(session).get_by_id(claim.owner_user_id)
+        if owner is None or not owner.is_active:
+            return EmailRelevanceContext(groups=(), passengers=())
+        groups_stmt = select(ClientGroupModel).where(
+            ClientGroupModel.agency_id == claim.agency_id,
+            ClientGroupModel.status.notin_({"archived", "deleted"}),
+        )
         groups_result = await session.execute(
-            select(ClientGroupModel).where(
-                ClientGroupModel.agency_id == agency_id,
-                ClientGroupModel.status.notin_({"archived", "deleted"}),
+            AuthorizationPolicy.apply_group_visibility_scope(
+                groups_stmt,
+                owner,
             )
         )
         groups = tuple(
@@ -459,9 +536,10 @@ async def _load_relevance_context(agency_id: uuid.UUID) -> EmailRelevanceContext
         )
         passengers = tuple(
             await PassportSubmissionRepository(session).list_by_agency(
-                agency_id,
+                claim.agency_id,
                 limit=5_000,
                 exclude_archived_groups=True,
+                visible_to_user=owner,
             )
         )
     return EmailRelevanceContext(groups=groups, passengers=passengers)
@@ -494,9 +572,8 @@ async def _fresh_access_token(
         result = await session.execute(
             select(EmailConnectionModel)
             .where(
-                EmailConnectionModel.id == claim.connection_id,
+                *_connection_claim_filters(claim),
                 EmailConnectionModel.sync_lease_token == claim.lease_token,
-                EmailConnectionModel.sync_generation == claim.generation,
             )
             .with_for_update()
         )
@@ -586,9 +663,8 @@ async def _renew_connection_lease(
         result = await session.execute(
             select(EmailConnectionModel)
             .where(
-                EmailConnectionModel.id == claim.connection_id,
+                *_connection_claim_filters(claim),
                 EmailConnectionModel.sync_lease_token == claim.lease_token,
-                EmailConnectionModel.sync_generation == claim.generation,
                 EmailConnectionModel.status.in_({"active", "failing"}),
             )
             .with_for_update()
@@ -615,9 +691,8 @@ async def _record_unreadable_message(
     valid_claim = await session.scalar(
         select(EmailConnectionModel.id)
         .where(
-            EmailConnectionModel.id == claim.connection_id,
+            *_connection_claim_filters(claim),
             EmailConnectionModel.sync_lease_token == claim.lease_token,
-            EmailConnectionModel.sync_generation == claim.generation,
             EmailConnectionModel.status.in_({"active", "failing"}),
         )
         .with_for_update()
@@ -628,6 +703,8 @@ async def _record_unreadable_message(
         select(EmailMessageModel)
         .where(
             EmailMessageModel.connection_id == claim.connection_id,
+            EmailMessageModel.agency_id == claim.agency_id,
+            EmailMessageModel.owner_user_id == claim.owner_user_id,
             EmailMessageModel.provider_message_id == provider_message_id,
         )
         .with_for_update()
@@ -636,6 +713,7 @@ async def _record_unreadable_message(
         message = EmailMessageModel(
             id=uuid.uuid4(),
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             connection_id=claim.connection_id,
             provider_message_id=provider_message_id,
             recipients_json=[],
@@ -691,9 +769,8 @@ async def _process_message(
     valid_claim = await session.scalar(
         select(EmailConnectionModel)
         .where(
-            EmailConnectionModel.id == claim.connection_id,
+            *_connection_claim_filters(claim),
             EmailConnectionModel.sync_lease_token == claim.lease_token,
-            EmailConnectionModel.sync_generation == claim.generation,
             EmailConnectionModel.status.in_({"active", "failing"}),
         )
         .with_for_update()
@@ -708,6 +785,8 @@ async def _process_message(
         select(EmailMessageModel)
         .where(
             EmailMessageModel.connection_id == claim.connection_id,
+            EmailMessageModel.agency_id == claim.agency_id,
+            EmailMessageModel.owner_user_id == claim.owner_user_id,
             EmailMessageModel.provider_message_id == message.provider_message_id,
         )
         .with_for_update()
@@ -717,6 +796,7 @@ async def _process_message(
         stored = EmailMessageModel(
             id=uuid.uuid4(),
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             connection_id=claim.connection_id,
             provider_message_id=message.provider_message_id,
             thread_id=message.thread_id,
@@ -795,6 +875,7 @@ async def _process_message(
         session,
         connection_id=claim.connection_id,
         agency_id=claim.agency_id,
+        owner_user_id=claim.owner_user_id,
         message_id=stored.id,
         event_type="email_detected",
         stage="info",
@@ -874,9 +955,8 @@ async def _process_message(
             current_claim = await session.scalar(
                 select(EmailConnectionModel)
                 .where(
-                    EmailConnectionModel.id == claim.connection_id,
+                    *_connection_claim_filters(claim),
                     EmailConnectionModel.sync_lease_token == claim.lease_token,
-                    EmailConnectionModel.sync_generation == claim.generation,
                     EmailConnectionModel.status.in_({"active", "failing"}),
                 )
                 .with_for_update()
@@ -892,6 +972,8 @@ async def _process_message(
                 .where(
                     EmailMessageModel.id == stored.id,
                     EmailMessageModel.agency_id == claim.agency_id,
+                    EmailMessageModel.owner_user_id == claim.owner_user_id,
+                    EmailMessageModel.connection_id == claim.connection_id,
                 )
                 .with_for_update()
             )
@@ -959,6 +1041,8 @@ async def _process_attachment(
         select(EmailArtifactModel)
         .where(
             EmailArtifactModel.message_id == stored_message.id,
+            EmailArtifactModel.agency_id == claim.agency_id,
+            EmailArtifactModel.owner_user_id == claim.owner_user_id,
             EmailArtifactModel.provider_artifact_id == provider_artifact_id,
         )
         .with_for_update(of=EmailArtifactModel)
@@ -968,6 +1052,7 @@ async def _process_attachment(
         artifact = EmailArtifactModel(
             id=uuid.uuid4(),
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             message_id=stored_message.id,
             provider_artifact_id=provider_artifact_id,
             kind="inline" if attachment.disposition == "inline" else "attachment",
@@ -1077,6 +1162,7 @@ async def _process_attachment(
     duplicate_result = await session.execute(
         _live_duplicate_documents_statement(
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             artifact_id=artifact.id,
             sha256_digest=validated.sha256_hex,
         )
@@ -1190,6 +1276,7 @@ async def _reuse_live_duplicate_assignments(
             EmailArtifactDocumentModel(
                 id=uuid.uuid4(),
                 agency_id=claim.agency_id,
+                owner_user_id=claim.owner_user_id,
                 artifact_id=artifact.id,
                 distributed_document_id=document.id,
                 result_type="existing_duplicate",
@@ -1236,6 +1323,7 @@ async def _reuse_live_duplicate_assignments(
         session,
         connection_id=claim.connection_id,
         agency_id=claim.agency_id,
+        owner_user_id=claim.owner_user_id,
         message_id=message.id,
         artifact_id=artifact.id,
         event_type="artifact_duplicate_reused",
@@ -1259,10 +1347,20 @@ async def _associate_and_route_document(
     settings: Settings,
 ) -> list[str]:
     now = datetime.now(tz=UTC)
+    owner = await UserRepository(session).get_by_id(claim.owner_user_id)
+    if owner is None or not owner.is_active:
+        artifact.processing_status = "review_required"
+        artifact.error_code = "EMAIL_OWNER_UNAVAILABLE"
+        artifact.error_message = "The mailbox owner is no longer active."
+        return []
+    groups_stmt = select(ClientGroupModel).where(
+        ClientGroupModel.agency_id == claim.agency_id,
+        ClientGroupModel.status.notin_({"archived", "deleted"}),
+    )
     groups_result = await session.execute(
-        select(ClientGroupModel).where(
-            ClientGroupModel.agency_id == claim.agency_id,
-            ClientGroupModel.status.notin_({"archived", "deleted"}),
+        AuthorizationPolicy.apply_group_visibility_scope(
+            groups_stmt,
+            owner,
         )
     )
     group_models = list(groups_result.scalars().all())
@@ -1270,6 +1368,7 @@ async def _associate_and_route_document(
         claim.agency_id,
         limit=5_000,
         exclude_archived_groups=True,
+        visible_to_user=owner,
     )
     group_association = associate_group(
         email_text=f"{message.subject or ''} {message.body_excerpt or ''}",
@@ -1492,20 +1591,31 @@ async def ingest_reviewed_artifact(
 ) -> ReviewedArtifactIngestionResult:
     """Route a staff-confirmed staged PDF through the shared document pipeline."""
 
+    if created_by_user_id != review.owner_user_id:
+        raise ValueError("The reviewed email artifact belongs to another user")
     result = await session.execute(
         select(EmailArtifactModel, EmailMessageModel, EmailConnectionModel)
         .join(
             EmailMessageModel,
-            EmailMessageModel.id == EmailArtifactModel.message_id,
+            (
+                (EmailMessageModel.id == EmailArtifactModel.message_id)
+                & (EmailMessageModel.owner_user_id == EmailArtifactModel.owner_user_id)
+            ),
         )
         .join(
             EmailConnectionModel,
-            EmailConnectionModel.id == EmailMessageModel.connection_id,
+            (
+                (EmailConnectionModel.id == EmailMessageModel.connection_id)
+                & (EmailConnectionModel.owner_user_id == EmailMessageModel.owner_user_id)
+            ),
         )
         .where(
             EmailArtifactModel.id == review.artifact_id,
             EmailArtifactModel.agency_id == review.agency_id,
+            EmailArtifactModel.owner_user_id == review.owner_user_id,
             EmailMessageModel.id == review.message_id,
+            EmailMessageModel.owner_user_id == review.owner_user_id,
+            EmailConnectionModel.owner_user_id == review.owner_user_id,
         )
         .with_for_update(of=EmailArtifactModel)
     )
@@ -1552,10 +1662,12 @@ async def ingest_reviewed_artifact(
         )
         .where(
             EmailArtifactModel.agency_id == review.agency_id,
+            EmailArtifactModel.owner_user_id == review.owner_user_id,
             EmailArtifactModel.sha256_digest == validated.sha256_hex,
             EmailArtifactModel.id != artifact.id,
             EmailArtifactModel.processing_status.in_({"completed", "duplicate"}),
             DistributedDocumentModel.agency_id == review.agency_id,
+            EmailArtifactDocumentModel.owner_user_id == review.owner_user_id,
             DistributedDocumentModel.group_id == group_id,
             DistributedDocumentModel.passenger_id == passenger_id,
             DistributedDocumentModel.document_type == artifact.detected_type,
@@ -1570,7 +1682,8 @@ async def ingest_reviewed_artifact(
             (
                 await session.execute(
                     select(EmailArtifactDocumentModel.distributed_document_id).where(
-                        EmailArtifactDocumentModel.artifact_id == artifact.id
+                        EmailArtifactDocumentModel.artifact_id == artifact.id,
+                        EmailArtifactDocumentModel.owner_user_id == review.owner_user_id,
                     )
                 )
             )
@@ -1584,6 +1697,7 @@ async def ingest_reviewed_artifact(
                 EmailArtifactDocumentModel(
                     id=uuid.uuid4(),
                     agency_id=review.agency_id,
+                    owner_user_id=review.owner_user_id,
                     artifact_id=artifact.id,
                     distributed_document_id=document_id,
                     result_type="existing_duplicate",
@@ -1606,6 +1720,7 @@ async def ingest_reviewed_artifact(
             session,
             connection_id=connection.id,
             agency_id=review.agency_id,
+            owner_user_id=review.owner_user_id,
             message_id=message.id,
             artifact_id=artifact.id,
             event_type="artifact_deduplicated",
@@ -1627,7 +1742,9 @@ async def ingest_reviewed_artifact(
         claim=SyncClaim(
             connection_id=connection.id,
             agency_id=review.agency_id,
+            owner_user_id=review.owner_user_id,
             provider=connection.provider,
+            provider_account_id=connection.provider_account_id,
             lease_token="human-review",
             generation=connection.sync_generation,
             access_token="",
@@ -1654,7 +1771,8 @@ async def ingest_reviewed_artifact(
         await _refresh_message_counts(session, message)
         document_ids_result = await session.execute(
             select(EmailArtifactDocumentModel.distributed_document_id).where(
-                EmailArtifactDocumentModel.artifact_id == artifact.id
+                EmailArtifactDocumentModel.artifact_id == artifact.id,
+                EmailArtifactDocumentModel.owner_user_id == review.owner_user_id,
             )
         )
     except Exception:
@@ -1725,6 +1843,7 @@ async def _ingest_confirmed_artifact(
                 EmailArtifactDocumentModel(
                     id=uuid.uuid4(),
                     agency_id=claim.agency_id,
+                    owner_user_id=claim.owner_user_id,
                     artifact_id=artifact.id,
                     distributed_document_id=document.id,
                     result_type=result_type,
@@ -1740,6 +1859,7 @@ async def _ingest_confirmed_artifact(
             session,
             connection_id=claim.connection_id,
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             message_id=message.id,
             artifact_id=artifact.id,
             event_type="document_added",
@@ -1774,6 +1894,8 @@ async def _upsert_blocked_link(
     artifact = await session.scalar(
         select(EmailArtifactModel).where(
             EmailArtifactModel.message_id == stored_message.id,
+            EmailArtifactModel.agency_id == claim.agency_id,
+            EmailArtifactModel.owner_user_id == claim.owner_user_id,
             EmailArtifactModel.provider_artifact_id == provider_artifact_id,
         )
     )
@@ -1781,6 +1903,7 @@ async def _upsert_blocked_link(
         artifact = EmailArtifactModel(
             id=uuid.uuid4(),
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             message_id=stored_message.id,
             provider_artifact_id=provider_artifact_id,
             kind="direct_link",
@@ -1877,6 +2000,7 @@ async def _ensure_review(
 ) -> EmailReviewItemModel:
     conditions = [
         EmailReviewItemModel.agency_id == claim.agency_id,
+        EmailReviewItemModel.owner_user_id == claim.owner_user_id,
         EmailReviewItemModel.message_id == message.id,
         EmailReviewItemModel.review_type == review_type,
         EmailReviewItemModel.status.in_(_ACTIVE_REVIEW_STATUSES),
@@ -1892,6 +2016,7 @@ async def _ensure_review(
         review = EmailReviewItemModel(
             id=uuid.uuid4(),
             agency_id=claim.agency_id,
+            owner_user_id=claim.owner_user_id,
             message_id=message.id,
             artifact_id=artifact.id if artifact else None,
             review_type=review_type,
@@ -1912,6 +2037,7 @@ async def _ensure_review(
         await session.flush()
         await NotificationRepository(session).create(
             agency_id=claim.agency_id,
+            user_id=claim.owner_user_id,
             type="email_review_required",
             title="Email document needs review",
             message="A retrieved email item needs a staff decision.",
@@ -1948,6 +2074,7 @@ async def _ensure_review(
         session,
         connection_id=claim.connection_id,
         agency_id=claim.agency_id,
+        owner_user_id=claim.owner_user_id,
         message_id=message.id,
         artifact_id=artifact.id if artifact else None,
         review_item_id=review.id,
@@ -1978,13 +2105,17 @@ async def _refresh_message_counts(
             func.count(EmailArtifactModel.id).filter(
                 EmailArtifactModel.processing_status == "failed"
             ),
-        ).where(EmailArtifactModel.message_id == message.id)
+        ).where(
+            EmailArtifactModel.message_id == message.id,
+            EmailArtifactModel.owner_user_id == message.owner_user_id,
+        )
     )
     total, retrieved, processed, failures = artifacts_result.one()
     reviews = int(
         await session.scalar(
             select(func.count(EmailReviewItemModel.id)).where(
                 EmailReviewItemModel.message_id == message.id,
+                EmailReviewItemModel.owner_user_id == message.owner_user_id,
                 EmailReviewItemModel.status.in_(_ACTIVE_REVIEW_STATUSES),
             )
         )
@@ -2041,6 +2172,7 @@ async def _record_event(
     *,
     connection_id: uuid.UUID,
     agency_id: uuid.UUID,
+    owner_user_id: uuid.UUID,
     event_type: str,
     stage: str,
     summary_code: str,
@@ -2062,6 +2194,7 @@ async def _record_event(
     existing = await session.scalar(
         select(EmailActivityEventModel.id).where(
             EmailActivityEventModel.agency_id == agency_id,
+            EmailActivityEventModel.owner_user_id == owner_user_id,
             EmailActivityEventModel.event_key == event_key,
         )
     )
@@ -2072,6 +2205,7 @@ async def _record_event(
         EmailActivityEventModel(
             id=uuid.uuid4(),
             agency_id=agency_id,
+            owner_user_id=owner_user_id,
             connection_id=connection_id,
             message_id=message_id,
             artifact_id=artifact_id,
@@ -2103,9 +2237,8 @@ async def _finish_connection(
     result = await session.execute(
         select(EmailConnectionModel)
         .where(
-            EmailConnectionModel.id == claim.connection_id,
+            *_connection_claim_filters(claim),
             EmailConnectionModel.sync_lease_token == claim.lease_token,
-            EmailConnectionModel.sync_generation == claim.generation,
         )
         .with_for_update()
     )
@@ -2141,9 +2274,8 @@ async def _record_connection_failure(
         result = await session.execute(
             select(EmailConnectionModel)
             .where(
-                EmailConnectionModel.id == claim.connection_id,
+                *_connection_claim_filters(claim),
                 EmailConnectionModel.sync_lease_token == claim.lease_token,
-                EmailConnectionModel.sync_generation == claim.generation,
             )
             .with_for_update()
         )
@@ -2171,13 +2303,23 @@ async def _record_connection_failure(
 async def _record_connection_start_failure(
     connection_id: uuid.UUID,
     *,
+    agency_id: uuid.UUID,
+    owner_user_id: uuid.UUID,
+    provider_account_id: str,
+    sync_generation: int,
     code: str,
     message: str,
 ) -> None:
     async with AsyncSessionFactory() as session:
         connection = await session.scalar(
             select(EmailConnectionModel)
-            .where(EmailConnectionModel.id == connection_id)
+            .where(
+                EmailConnectionModel.id == connection_id,
+                EmailConnectionModel.agency_id == agency_id,
+                EmailConnectionModel.owner_user_id == owner_user_id,
+                EmailConnectionModel.provider_account_id == provider_account_id,
+                EmailConnectionModel.sync_generation == sync_generation,
+            )
             .with_for_update()
         )
         if connection is None or connection.status in {

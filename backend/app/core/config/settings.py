@@ -13,10 +13,11 @@ from __future__ import annotations
 import json
 import re
 from functools import lru_cache
-from typing import Literal
+from typing import Literal, Self
 from urllib.parse import urlsplit
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import Field, SecretStr, computed_field, field_validator
+from pydantic import Field, SecretStr, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _GEMINI_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
@@ -165,6 +166,26 @@ class Settings(BaseSettings):
         normalized = value.strip()
         if normalized and not _GEMINI_MODEL_PATTERN.fullmatch(normalized):
             raise ValueError("Gemini image model names contain invalid characters")
+        return normalized
+
+    @field_validator("gemini_model")
+    @classmethod
+    def validate_gemini_model(cls, value: str) -> str:
+        normalized = value.strip()
+        if not _GEMINI_MODEL_PATTERN.fullmatch(normalized):
+            raise ValueError("GEMINI_MODEL contains invalid characters")
+        return normalized
+
+    @field_validator("email_ai_default_timezone")
+    @classmethod
+    def validate_email_ai_default_timezone(cls, value: str) -> str:
+        normalized = value.strip()
+        try:
+            ZoneInfo(normalized)
+        except (ZoneInfoNotFoundError, ValueError) as exc:
+            raise ValueError(
+                "EMAIL_AI_DEFAULT_TIMEZONE must be a valid IANA timezone"
+            ) from exc
         return normalized
 
     @field_validator("email_oauth_frontend_return_url")
@@ -352,6 +373,28 @@ class Settings(BaseSettings):
     email_attachment_processing_enabled: bool = False
     email_link_retrieval_enabled: bool = False
     email_auto_actions_enabled: bool = False
+    email_ai_enabled: bool = False
+    email_ai_notifications_enabled: bool = False
+    email_ai_analysis_timeout_seconds: float = Field(default=30.0, ge=1.0, le=60.0)
+    email_ai_max_input_chars: int = Field(default=16_000, ge=1_000, le=50_000)
+    email_ai_max_output_tokens: int = Field(default=2_048, ge=256, le=8_192)
+    email_ai_max_candidates: int = Field(default=24, ge=1, le=24)
+    email_ai_lease_seconds: int = Field(default=180, ge=30, le=3_600)
+    email_ai_max_attempts: int = Field(default=3, ge=1, le=10)
+    email_ai_max_manual_retries: int = Field(default=3, ge=0, le=10)
+    email_ai_max_inflight: int = Field(default=4, ge=1, le=20)
+    email_ai_auto_confidence_threshold: float = Field(default=0.9, ge=0.0, le=1.0)
+    email_ai_deadline_confidence_threshold: float = Field(
+        default=0.85,
+        ge=0.0,
+        le=1.0,
+    )
+    email_ai_deadline_notification_window_days: int = Field(
+        default=14,
+        ge=1,
+        le=30,
+    )
+    email_ai_default_timezone: str = "UTC"
     email_token_encryption_key: SecretStr | None = Field(default=None, repr=False)
     email_token_encryption_key_version: int = Field(default=1, ge=1, le=1_000_000)
     email_token_decryption_keys: dict[int, SecretStr] = Field(
@@ -401,6 +444,39 @@ class Settings(BaseSettings):
     whatsapp_qr_template_name: str = "qrcode_v1"
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
+
+    @model_validator(mode="after")
+    def validate_email_ai_lease_duration(self) -> Self:
+        minimum_lease = (2 * self.email_ai_analysis_timeout_seconds) + 30
+        if self.email_ai_lease_seconds < minimum_lease:
+            raise ValueError(
+                "EMAIL_AI_LEASE_SECONDS must cover two bounded analysis "
+                "attempts plus a 30-second safety margin"
+            )
+        return self
+
+    @property
+    def email_ai_runtime_ready(self) -> bool:
+        """Whether workers may send mailbox content to the configured AI."""
+
+        api_key = (
+            self.google_api_key.get_secret_value().strip()
+            if self.google_api_key is not None
+            else ""
+        )
+        return bool(
+            self.email_integrations_enabled
+            and self.email_sync_enabled
+            and self.email_ai_enabled
+            and api_key
+        )
+
+    @property
+    def email_ai_notifications_ready(self) -> bool:
+        return bool(
+            self.email_ai_runtime_ready
+            and self.email_ai_notifications_enabled
+        )
 
     @computed_field(repr=False)  # type: ignore[misc]
     @property

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from celery.utils.log import get_task_logger
@@ -11,13 +12,23 @@ from sqlalchemy import delete, or_, select, update
 
 from app.core.config.settings import get_settings
 from app.infrastructure.celery_async_runtime import celery_async_runtime
+from app.infrastructure.database.email_ai_models import (
+    EmailActionProposalModel,
+    EmailAiAnalysisModel,
+    EmailAiFeedbackModel,
+    EmailDetectedDeadlineModel,
+    EmailReplyDraftModel,
+)
 from app.infrastructure.database.email_models import (
     EmailArtifactModel,
     EmailConnectionModel,
     EmailMessageModel,
     EmailOAuthStateModel,
 )
-from app.infrastructure.database.models import DistributedDocumentModel
+from app.infrastructure.database.models import (
+    DistributedDocumentModel,
+    NotificationModel,
+)
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.email.readiness import EMAIL_SCHEDULER_HEARTBEAT_KEY
 from app.infrastructure.email.sync_service import run_connection_sync
@@ -38,6 +49,24 @@ _EMAIL_STORAGE_PREFIXES = (
 _EMAIL_STORAGE_RECONCILE_PAGE_SIZE = 1_000
 
 
+@dataclass(frozen=True)
+class EmailSyncTaskEnvelope:
+    connection_id: uuid.UUID
+    agency_id: uuid.UUID
+    owner_user_id: uuid.UUID
+    provider_account_id: str
+    sync_generation: int
+
+    def task_kwargs(self) -> dict[str, str | int]:
+        return {
+            "connection_id": str(self.connection_id),
+            "agency_id": str(self.agency_id),
+            "owner_user_id": str(self.owner_user_id),
+            "provider_account_id": self.provider_account_id,
+            "sync_generation": self.sync_generation,
+        }
+
+
 @celery_app.task(
     bind=True,
     name=EMAIL_SYNC_TASK,
@@ -47,20 +76,41 @@ _EMAIL_STORAGE_RECONCILE_PAGE_SIZE = 1_000
 def sync_email_connection(
     self: object,
     *,
-    connection_id: str,
+    connection_id: str | uuid.UUID,
+    agency_id: str | uuid.UUID | None = None,
+    owner_user_id: str | uuid.UUID | None = None,
+    provider_account_id: str | None = None,
+    sync_generation: int | str | None = None,
     provider_message_id: str | None = None,
 ) -> None:
     del self
     try:
-        parsed_id = uuid.UUID(connection_id)
-    except ValueError:
-        logger.warning("email_sync_task_invalid_connection_id")
+        parsed_id = (
+            connection_id if isinstance(connection_id, uuid.UUID) else uuid.UUID(connection_id)
+        )
+        parsed_agency_id = agency_id if isinstance(agency_id, uuid.UUID) else uuid.UUID(agency_id)
+        parsed_owner_user_id = (
+            owner_user_id if isinstance(owner_user_id, uuid.UUID) else uuid.UUID(owner_user_id)
+        )
+        parsed_generation = int(sync_generation)
+        if (
+            not isinstance(provider_account_id, str)
+            or not provider_account_id.strip()
+            or parsed_generation < 0
+        ):
+            raise ValueError("Invalid email sync envelope")
+    except (AttributeError, TypeError, ValueError):
+        logger.warning("email_sync_task_invalid_envelope")
         return
     try:
         celery_async_runtime.run(
             run_connection_sync(
                 parsed_id,
                 provider_message_id=provider_message_id,
+                agency_id=parsed_agency_id,
+                owner_user_id=parsed_owner_user_id,
+                provider_account_id=provider_account_id,
+                sync_generation=parsed_generation,
             )
         )
     except Exception as exc:
@@ -86,12 +136,13 @@ def dispatch_due_email_connections(self: object) -> int:
     settings = get_settings()
     if not (settings.email_integrations_enabled and settings.email_sync_enabled):
         return 0
-    connection_ids = celery_async_runtime.run(_claim_due_dispatches())
+    envelopes = celery_async_runtime.run(_claim_due_dispatches())
     published = 0
-    for connection_id in connection_ids:
+    for envelope in envelopes:
         try:
+            task_kwargs = envelope.task_kwargs()
             sync_email_connection.apply_async(
-                kwargs={"connection_id": str(connection_id)},
+                kwargs=task_kwargs,
                 queue=EMAIL_INTEGRATION_QUEUE,
             )
             published += 1
@@ -99,7 +150,7 @@ def dispatch_due_email_connections(self: object) -> int:
             logger.error(
                 "email_sync_dispatch_failed",
                 extra={
-                    "connection_id": str(connection_id),
+                    "connection_id": str(envelope.connection_id),
                     "error_type": type(exc).__name__,
                 },
             )
@@ -154,7 +205,7 @@ def record_email_scheduler_heartbeat(self: object) -> None:
         client.close()  # type: ignore[no-untyped-call]
 
 
-async def _claim_due_dispatches() -> list[uuid.UUID]:
+async def _claim_due_dispatches() -> list[EmailSyncTaskEnvelope]:
     settings = get_settings()
     now = datetime.now(tz=UTC)
     async with AsyncSessionFactory() as session:
@@ -164,6 +215,7 @@ async def _claim_due_dispatches() -> list[uuid.UUID]:
             update(EmailConnectionModel)
             .where(
                 EmailConnectionModel.status == "active",
+                EmailConnectionModel.owner_user_id.is_not(None),
                 EmailConnectionModel.sync_state == "idle",
                 EmailConnectionModel.next_sync_at.is_not(None),
                 EmailConnectionModel.next_sync_at
@@ -180,6 +232,7 @@ async def _claim_due_dispatches() -> list[uuid.UUID]:
             select(EmailConnectionModel)
             .where(
                 EmailConnectionModel.status.in_({"active", "failing"}),
+                EmailConnectionModel.owner_user_id.is_not(None),
                 EmailConnectionModel.next_sync_at.is_not(None),
                 EmailConnectionModel.next_sync_at <= now,
                 or_(
@@ -196,7 +249,16 @@ async def _claim_due_dispatches() -> list[uuid.UUID]:
             connection.sync_state = "queued"
             connection.next_sync_at = now + timedelta(seconds=settings.email_sync_interval_seconds)
         await session.commit()
-        return [connection.id for connection in connections]
+        return [
+            EmailSyncTaskEnvelope(
+                connection_id=connection.id,
+                agency_id=connection.agency_id,
+                owner_user_id=connection.owner_user_id,
+                provider_account_id=connection.provider_account_id,
+                sync_generation=connection.sync_generation,
+            )
+            for connection in connections
+        ]
 
 
 async def _apply_email_retention() -> int:
@@ -235,6 +297,98 @@ async def _apply_email_retention() -> int:
             )
             .values(body_excerpt="", updated_at=now)
         )
+        ai_analyses_scrubbed = await session.execute(
+            update(EmailAiAnalysisModel)
+            .where(
+                EmailAiAnalysisModel.updated_at < content_cutoff,
+                or_(
+                    EmailAiAnalysisModel.summary.is_not(None),
+                    EmailAiAnalysisModel.result_json != {},
+                    EmailAiAnalysisModel.context_manifest != {},
+                ),
+            )
+            .values(
+                summary=None,
+                result_json={},
+                context_manifest={},
+                updated_at=now,
+            )
+        )
+        deadlines_scrubbed = await session.execute(
+            update(EmailDetectedDeadlineModel)
+            .where(
+                EmailDetectedDeadlineModel.updated_at < content_cutoff,
+                or_(
+                    EmailDetectedDeadlineModel.source_phrase
+                    != "[retained content removed]",
+                    EmailDetectedDeadlineModel.resolution_evidence != {},
+                ),
+            )
+            .values(
+                source_phrase="[retained content removed]",
+                resolution_evidence={},
+                updated_at=now,
+            )
+        )
+        proposals_scrubbed = await session.execute(
+            update(EmailActionProposalModel)
+            .where(
+                EmailActionProposalModel.updated_at < content_cutoff,
+                or_(
+                    EmailActionProposalModel.explanation
+                    != "[retained content removed]",
+                    EmailActionProposalModel.payload_json != {},
+                    EmailActionProposalModel.decision_note.is_not(None),
+                    EmailActionProposalModel.execution_result != {},
+                ),
+            )
+            .values(
+                explanation="[retained content removed]",
+                payload_json={},
+                decision_note=None,
+                execution_result={},
+                updated_at=now,
+            )
+        )
+        drafts_deleted = await session.execute(
+            delete(EmailReplyDraftModel).where(
+                EmailReplyDraftModel.updated_at < content_cutoff,
+            )
+        )
+        feedback_scrubbed = await session.execute(
+            update(EmailAiFeedbackModel)
+            .where(
+                EmailAiFeedbackModel.created_at < content_cutoff,
+                or_(
+                    EmailAiFeedbackModel.original_value != {},
+                    EmailAiFeedbackModel.corrected_value != {},
+                    EmailAiFeedbackModel.note.is_not(None),
+                ),
+            )
+            .values(
+                original_value={},
+                corrected_value={},
+                note=None,
+            )
+        )
+        ai_notifications_scrubbed = await session.execute(
+            update(NotificationModel)
+            .where(
+                NotificationModel.created_at < content_cutoff,
+                or_(
+                    NotificationModel.category == "email_operations",
+                    NotificationModel.type.like("email_ai_%"),
+                ),
+                or_(
+                    NotificationModel.message != "[retained content removed]",
+                    NotificationModel.metadata_json != {},
+                ),
+            )
+            .values(
+                message="[retained content removed]",
+                metadata_json={},
+            )
+        )
         await session.execute(
             delete(EmailOAuthStateModel).where(
                 EmailOAuthStateModel.created_at < oauth_cutoff,
@@ -246,6 +400,17 @@ async def _apply_email_retention() -> int:
         )
         await session.commit()
         scrubbed_count = int(getattr(scrubbed, "rowcount", 0) or 0)
+        ai_content_count = sum(
+            int(getattr(result, "rowcount", 0) or 0)
+            for result in (
+                ai_analyses_scrubbed,
+                deadlines_scrubbed,
+                proposals_scrubbed,
+                drafts_deleted,
+                feedback_scrubbed,
+                ai_notifications_scrubbed,
+            )
+        )
 
     # Clear durable references before deleting. If object deletion fails, the
     # reconciler below (and the next daily run) can safely retry without
@@ -270,7 +435,7 @@ async def _apply_email_retention() -> int:
             "email_storage_reconciliation_failed",
             extra={"error_type": type(exc).__name__},
         )
-    return len(keys) + scrubbed_count + orphaned_count
+    return len(keys) + scrubbed_count + ai_content_count + orphaned_count
 
 
 async def _reconcile_orphaned_email_storage(

@@ -1607,7 +1607,7 @@ async def _parse_excel_contact_preview(
         payload.extend(chunk)
         if len(payload) > MAX_WHATSAPP_CONTACT_FILE_BYTES:
             raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
                 detail=(
                     "The Excel contact file must be "
                     f"{MAX_WHATSAPP_CONTACT_FILE_BYTES // (1024 * 1024)} MB or smaller"
@@ -3303,7 +3303,7 @@ async def upload_welcome_media(
         payload.extend(chunk)
         if len(payload) > MAX_WHATSAPP_WELCOME_IMAGE_BYTES:
             raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
                 detail="The Welcome image must be 5 MB or smaller",
             )
     try:

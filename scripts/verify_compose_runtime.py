@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 BASE_COMPOSE = ROOT / "docker-compose.yml"
 DEV_COMPOSE = ROOT / "docker-compose.dev.yml"
@@ -24,6 +23,7 @@ BACKEND_SERVICES = (
     "backend",
     "worker",
     "email-worker",
+    "email-ai-worker",
     "email-beat",
     "extraction-worker",
     "verification-worker",
@@ -75,6 +75,10 @@ WORKER_QUEUE_CONTRACTS = {
     "email-worker": (
         "email@",
         "email_integrations",
+    ),
+    "email-ai-worker": (
+        "email-ai@",
+        "email_ai",
     ),
 }
 

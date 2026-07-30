@@ -181,6 +181,28 @@ class MRZRegionDetectorTests(unittest.TestCase):
         self.assertGreater(right - left, 700)
         self.assertGreaterEqual(result.score, 0.58)
 
+    def test_detects_td3_mrz_when_optional_test_font_is_unavailable(self) -> None:
+        self._skip_without_cv2()
+        truetype = ImageFont.truetype
+
+        def load_font(font, *args, **kwargs):  # type: ignore[no-untyped-def]
+            if font == "DejaVuSansMono.ttf":
+                raise OSError("optional test font is unavailable")
+            return truetype(font, *args, **kwargs)
+
+        with patch.object(ImageFont, "truetype", side_effect=load_font):
+            image_bytes = self._synthetic_passport(
+                mrz_top=330,
+                line1="P<INDVASHISTHA<<NIPUN<<<<<<<<<<<<<<<<<<",
+                line2="W7114767<5IND0408237M32120802077188321822<58",
+            )
+
+        result = MRZRegionDetector().detect(image_bytes)
+
+        self.assertTrue(result.found, result.failure)
+        assert result.bbox is not None
+        self.assertGreater(result.bbox[2] - result.bbox[0], 700)
+
     def test_returns_structured_failure_when_no_mrz_candidate_exists(self) -> None:
         self._skip_without_cv2()
         image = Image.new("RGB", (1000, 700), "white")
@@ -216,7 +238,7 @@ class MRZRegionDetectorTests(unittest.TestCase):
         try:
             return ImageFont.truetype("DejaVuSansMono.ttf", size=size)
         except Exception:
-            return ImageFont.load_default()
+            return ImageFont.load_default(size=size)
 
     def _skip_without_cv2(self) -> None:
         try:

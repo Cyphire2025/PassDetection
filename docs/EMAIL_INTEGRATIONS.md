@@ -6,8 +6,9 @@ flow with PKCE and offline access, read-only mailbox scopes, incremental
 provider cursors, tenant-scoped storage, deterministic relevance and matching,
 and a staff review queue.
 
-All feature flags default to `false`. Applying migration `0061` does not start
-mailbox access by itself.
+All feature flags default to `false`. Applying the additive email migrations,
+including `0061_email_integrations` and `0065_ai_travel_inbox`, does not start
+mailbox access or AI processing by itself.
 
 ## Current provider boundary
 
@@ -103,7 +104,25 @@ OUTLOOK_OAUTH_REDIRECT_URI=https://YOUR_DOMAIN/api/v1/email-integrations/oauth/o
 OUTLOOK_OAUTH_TENANT=common
 EMAIL_CONTENT_RETENTION_DAYS=30
 EMAIL_STORAGE_ORPHAN_GRACE_HOURS=24
+GOOGLE_API_KEY=<existing-gemini-provider-key>
+GEMINI_MODEL=<existing-configured-model>
+EMAIL_AI_ANALYSIS_TIMEOUT_SECONDS=30
+EMAIL_AI_MAX_INPUT_CHARS=16000
+EMAIL_AI_MAX_OUTPUT_TOKENS=2048
+EMAIL_AI_MAX_CANDIDATES=24
+EMAIL_AI_LEASE_SECONDS=180
+EMAIL_AI_MAX_ATTEMPTS=3
+EMAIL_AI_MAX_MANUAL_RETRIES=3
+EMAIL_AI_MAX_INFLIGHT=4
+EMAIL_AI_AUTO_CONFIDENCE_THRESHOLD=0.9
+EMAIL_AI_DEADLINE_CONFIDENCE_THRESHOLD=0.85
+EMAIL_AI_DEADLINE_NOTIFICATION_WINDOW_DAYS=14
+EMAIL_AI_DEFAULT_TIMEZONE=Asia/Kolkata
 ```
+
+`EMAIL_AI_DEFAULT_TIMEZONE` is a deployment fallback for deterministic
+deadline resolution until account-level IANA timezones are introduced. Do not
+describe it as a mailbox-owner preference.
 
 ClamAV is optional defense-in-depth for email PDFs. When it is disabled, email
 PDFs still undergo strict byte-size, extension, MIME, PDF-signature,
@@ -145,29 +164,36 @@ Never reuse a version number for different key material.
 1. Deploy the code and apply `alembic upgrade head`.
 2. Configure OAuth and encryption while all email capability flags remain
    disabled. Optionally configure the external malware scanner.
-3. Start exactly one `email-beat` service and one or more `email-worker`
-   services.
+3. Start exactly one `email-beat` service, one or more `email-worker`
+   services, and the dedicated `email-ai-worker`. The latter consumes only the
+   `email_ai` queue. Its Gemini calls also enter the existing global
+   extraction-first priority coordinator through the background verification
+   lane, so interactive passport extraction retains admission priority.
 4. Enable connections without monitoring:
 
    ```dotenv
    EMAIL_INTEGRATIONS_ENABLED=true
    EMAIL_SYNC_ENABLED=false
-   EMAIL_ATTACHMENT_PROCESSING_ENABLED=false
-   EMAIL_LINK_RETRIEVAL_ENABLED=false
-   EMAIL_AUTO_ACTIONS_ENABLED=false
+EMAIL_ATTACHMENT_PROCESSING_ENABLED=false
+EMAIL_LINK_RETRIEVAL_ENABLED=false
+EMAIL_AUTO_ACTIONS_ENABLED=false
+EMAIL_AI_ENABLED=false
+EMAIL_AI_NOTIFICATIONS_ENABLED=false
    ```
 
    After this and every later email configuration or flag change, recreate all
-   three configuration consumers together:
+   four configuration consumers together:
 
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d \
-     --force-recreate backend email-worker email-beat
+     --force-recreate backend email-worker email-ai-worker email-beat
    ```
 
    If the email worker is scaled, append `--scale email-worker=<replica-count>`
-   so the coordinated recreation preserves the intended worker count. Keep
-   `email-beat` at exactly one replica.
+   and, if applicable, `--scale email-ai-worker=<replica-count>` so the
+   coordinated recreation preserves the intended worker counts. Keep
+   `email-beat` at exactly one replica. Readiness must report consumers for both
+   `email_integrations` and `email_ai`.
 
 5. Connect a test mailbox and verify the account identity and revoke flow.
 6. Enable synchronization, then PDF processing, while leaving automatic
@@ -196,19 +222,55 @@ Never reuse a version number for different key material.
 Links are intentionally review-only until a separate allowlisted, SSRF-safe
 retrieval service is introduced.
 
+The account-isolated AI Travel Operations Inbox is governed by the additional
+design and rollout controls in
+[`AI_TRAVEL_OPERATIONS_INBOX.md`](AI_TRAVEL_OPERATIONS_INBOX.md). Start with
+`EMAIL_AI_ENABLED=true` and `EMAIL_AI_NOTIFICATIONS_ENABLED=false` for one
+explicitly enabled owner connection. This shadow mode stores structured,
+owner-scoped analyses without producing bell noise. Provider scopes remain
+read-only, so reply drafts are prepared for manual use and are never sent by
+the platform. Opt-in records a timestamp watermark: only messages received at
+or after that point are eligible, and historical mail is not silently
+backfilled. Every eligible post-opt-in Inbox message, including one the
+deterministic document prefilter marked irrelevant, is bounded and classified
+so an incorrect ignore can be corrected.
+
+Agency-, user-, and connection-scoped deny policies in
+`email_ai_rollout_policies` sit below the global kill switch and the account
+opt-in. Any matching deny wins. The Connections response reports the effective
+state after all of these controls; an opt-in must never be displayed as active
+while a safety policy blocks work.
+
+Only SuperAdmin users can change these safety policies. The Connections page
+uses the audited, CSRF-protected `GET /api/v1/admin/email-ai-rollout` and
+`PUT /api/v1/admin/email-ai-rollout` controls to list bounded agency and user
+targets and only the requesting SuperAdmin's own mailbox targets. Staff
+mailbox identities are not disclosed by platform rollout administration.
+The panel shows both direct and inherited/effective state, and optimistic
+timestamps prevent stale changes. “Allow” at a child scope never overrides a
+paused parent, the global kill switch, or the mailbox owner's separate opt-in.
+
+Owners can retry a terminal analysis from its detail page. The owner-scoped
+`POST /api/v1/email-integrations/analyses/{analysis_id}/retry` endpoint
+rechecks the current mailbox opt-in epoch and safety-policy chain and enforces
+`EMAIL_AI_MAX_MANUAL_RETRIES`; it cannot revive mail from before the current
+opt-in or mail explicitly marked unrelated.
+
 ## Rollback
 
 Set all `EMAIL_*_ENABLED` flags to `false`, then recreate the backend, email
-worker, and email Beat services together with the command above. This stops new
-authorization, polling, retrieval, and automatic actions without deleting
-connections, audit history, reviews, or canonical documents. Do not downgrade
-migration `0061` as an operational rollback.
+worker, email AI worker, and email Beat services together with the command
+above. This stops new authorization, polling, retrieval, and AI work without
+deleting connections, audit history, reviews, or canonical documents. Do not
+downgrade either migration `0061` or the additive `0065` AI schema as an
+operational rollback.
 
 The daily retention schedule is independent of the capability flags and
-continues during an operational rollback. It still scrubs expired body excerpts
-and completed email-only staging objects according to
-`EMAIL_CONTENT_RETENTION_DAYS`; this does not remove canonical documents already
-admitted to the document distribution workflow.
+continues during an operational rollback. It scrubs expired body excerpts and
+derived AI content, deletes stale prepared drafts, and removes completed
+email-only staging objects according to `EMAIL_CONTENT_RETENTION_DAYS`; this
+does not remove canonical documents already admitted to the document
+distribution workflow or the privacy-safe decision/audit facts.
 
 Administrators can disconnect a mailbox from the Connections screen. Gmail
 credentials are cleared after Google revocation succeeds or the provider
@@ -244,10 +306,14 @@ retryable Disconnect action.
 - The Activity screen exposes sanitized message, artifact, review, and failure
   state. Raw provider payloads, HTML, OAuth codes, access tokens, refresh tokens,
   and full signed URLs are not retained or returned by the API.
-- A daily retention task scrubs stored body excerpts and removes completed
-  email-only staging objects after `EMAIL_CONTENT_RETENTION_DAYS`. Canonical
-  documents already admitted to the document distribution workflow are not
-  removed by this cleanup. The same task reconciles email-owned storage
+- A daily retention task scrubs stored body excerpts, AI summaries/context,
+  deadline source phrases, action payloads, feedback content, and AI
+  notification summaries/account metadata; it deletes stale prepared drafts
+  and completed email-only staging objects after
+  `EMAIL_CONTENT_RETENTION_DAYS`. Statuses, timestamps, confidence, decision
+  actors, and idempotency/audit facts remain. Canonical documents already
+  admitted to the document distribution workflow are not removed by this
+  cleanup. The same task reconciles email-owned storage
   namespaces and deletes only objects older than
   `EMAIL_STORAGE_ORPHAN_GRACE_HOURS` that have no durable artifact or document
   row; this safely resolves worker death and uncertain commit outcomes.

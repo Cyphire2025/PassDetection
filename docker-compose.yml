@@ -230,6 +230,49 @@ services:
       retries: 3
       start_period: 30s
 
+  email-ai-worker:
+    image: passdetection-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      PROCESSING_BACKEND: celery
+      C_FORCE_ROOT: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "celery -A app.infrastructure.processing.celery_app:celery_app
+      worker
+      --hostname=email-ai@%h
+      --loglevel=INFO
+      --concurrency=${EMAIL_AI_WORKER_CONCURRENCY:-2}
+      -Q email_ai"
+    networks:
+      - passdetection-net
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -m app.infrastructure.ai_priority.worker_healthcheck
+          --destination "email-ai@$$(hostname)"
+          --queue email_ai
+          --timeout "$${PROCESSING_WORKER_PING_TIMEOUT_SECONDS:-1}"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   email-beat:
     image: passdetection-backend
     build:

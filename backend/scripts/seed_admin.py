@@ -22,7 +22,7 @@ import sys
 # Allow running from any directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config.settings import get_settings
 from app.core.security.password import hash_password

@@ -181,7 +181,7 @@ async def update_hotel_passenger_selection(
         )
         if {passenger.id for passenger in eligible} != requested_ids:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Every selected passenger must be an eligible member of this group.",
             )
 
@@ -303,7 +303,7 @@ async def update_hotel_vip_status(
     )
     if {membership.passenger_id for membership in memberships} != requested_ids:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="VIP status can be changed only for passengers selected for this hotel.",
         )
     changed = [
@@ -362,7 +362,7 @@ async def auto_allocate_hotel_rooms(
     )
     if not memberships:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Select at least one passenger for this hotel before auto allocation.",
         )
 
@@ -398,7 +398,7 @@ async def auto_allocate_hotel_rooms(
     ]
     if unknown_fields:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(
                 "One or more priority fields are unavailable for this group "
                 f"({', '.join(unknown_fields)}). Refresh the priority options and try again."
@@ -434,7 +434,7 @@ async def auto_allocate_hotel_rooms(
         )
     if invalid_gender_ids:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(
                 f"Auto allocation requires Gender to be Male or Female for all "
                 f"selected passengers. Correct {len(invalid_gender_ids)} passenger(s) "
