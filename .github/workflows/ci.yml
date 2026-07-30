@@ -176,7 +176,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Verify Compose runtime separation
-        run: python scripts/verify_compose_runtime.py
+        run: |
+          cp .env.example .env
+          trap 'rm -f .env' EXIT
+          python scripts/verify_compose_runtime.py
 
       - name: Validate k6 harness syntax
         run: node --check load-tests/k6/passport-extraction.js
