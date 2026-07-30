@@ -512,7 +512,7 @@ async def _current_group_export_submissions(
     )
     if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=(
                 "A single export is limited to "
                 f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
@@ -3669,7 +3669,7 @@ async def export_whatsapp_tracking_by_group(
     )
     if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=(
                 "A single export is limited to "
                 f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
@@ -4144,7 +4144,7 @@ async def export_passport_images_by_group(
     except MissingPassportImagesError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     except PassportImageExportLimitError as exc:
-        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=str(exc))
     except StorageError:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -4277,7 +4277,7 @@ async def export_selected_passport_images_by_group(
         ) from exc
     except PassportImageExportLimitError as exc:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=str(exc),
         ) from exc
     except StorageError as exc:
@@ -5428,7 +5428,7 @@ async def _load_effective_passport_image(
                 ) from exc
             except PassportImageCropError as exc:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail=str(exc),
                 ) from exc
             return rendered.content, rendered.content_type, rendered.extension
@@ -5582,7 +5582,7 @@ async def get_passport_image_thumbnail(
             )
         except PassportImageCropError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=str(exc),
             ) from exc
 
@@ -5722,7 +5722,7 @@ async def update_passport_image_crop(
         ) from exc
     except PassportImageCropError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc
 
     derived_key = (
@@ -5900,7 +5900,7 @@ async def preview_visa_ai_image_edit(
 def _visa_ai_edit_http_exception(exc: GeminiVisaImageEditError) -> HTTPException:
     if isinstance(exc, GeminiVisaImageEditRejected):
         return HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         )
     if isinstance(exc, GeminiVisaImageEditNotConfigured):
@@ -6038,7 +6038,7 @@ async def create_visa_ai_image_job(
         normalized_prompt = GeminiVisaImageEditService.validate_prompt(body.prompt)
     except GeminiVisaImageEditRejected as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         ) from exc
 
@@ -6414,7 +6414,7 @@ async def use_visa_ai_library_image(
         ) from exc
     except PassportImageCropError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         ) from exc
 
@@ -6554,7 +6554,7 @@ async def apply_visa_ai_image_edit(
     content = await image.read(limit + 1)
     if not content or len(content) > limit:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail="The generated Visa image is empty or too large.",
         )
     try:
@@ -6605,7 +6605,7 @@ async def apply_visa_ai_image_edit(
         ) from exc
     except (PassportImageCropError, ValueError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(exc),
         ) from exc
 

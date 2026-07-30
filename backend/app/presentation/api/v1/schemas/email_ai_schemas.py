@@ -61,6 +61,10 @@ class EmailCandidateLinkResponse(BaseModel):
 
 
 class EmailIntelligenceResponse(BaseModel):
+    model_config = ConfigDict(
+        protected_namespaces=("model_validate", "model_dump")
+    )
+
     id: uuid.UUID
     status: str
     intent: str | None = None

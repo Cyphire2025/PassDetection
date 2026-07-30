@@ -786,7 +786,7 @@ async def _planner_categories(
 ) -> list[PlannerCategory]:
     if category_ids is not None and not category_ids:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Select at least one category",
         )
 
@@ -841,7 +841,7 @@ async def _planner_categories(
 
     if not planner_categories:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Select at least one category with active dishes",
         )
     return planner_categories
@@ -868,7 +868,7 @@ def _generate_or_422(
             for shortage in exc.shortages
         )
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(
                 f"Each selected category needs {exc.required_per_category} active "
                 f"dishes for a {trip_days}-day lunch and dinner plan. {shortages}."

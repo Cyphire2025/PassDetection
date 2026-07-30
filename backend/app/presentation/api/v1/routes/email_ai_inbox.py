@@ -1006,7 +1006,7 @@ async def _apply_typed_correction(
     correction = payload.correction
     if correction is None:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="A typed correction is required.",
         )
     result_json = dict(analysis.result_json or {})
@@ -1135,7 +1135,7 @@ async def _apply_typed_correction(
         due_at = _aware_utc(correction.due_at)
         if due_at is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="A timezone-aware corrected deadline is required.",
             )
         deadline: EmailDetectedDeadlineModel | None = None
@@ -1229,7 +1229,7 @@ async def _apply_typed_correction(
         return original, {"notification_expected": expected}
 
     raise HTTPException(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         detail="Unsupported correction field.",
     )
 
@@ -1304,7 +1304,7 @@ async def _visible_correction_group(
 ) -> ClientGroupModel:
     if group_id is None:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="A group selection is required.",
         )
     statement = select(ClientGroupModel).where(
@@ -2378,6 +2378,6 @@ def _decode_cursor(value: str) -> tuple[int, datetime, uuid.UUID]:
         return priority_rank, updated_at, analysis_id
     except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Invalid inbox cursor.",
         ) from exc

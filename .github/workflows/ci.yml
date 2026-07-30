@@ -35,10 +35,10 @@ jobs:
           pip install ruff mypy
 
       - name: Ruff lint
-        run: ruff check app tests
+        run: ruff check --no-fix app tests
 
       - name: Python compile check
-        run: python -m compileall -q app
+        run: python -m compileall -q app tests alembic scripts
 
   # ── Backend: Tests ──────────────────────────────────────────────────────────
   backend-test:
@@ -111,6 +111,12 @@ jobs:
         # and tested to HS256 so the ECDSA implementation is unreachable.
         run: pip-audit -r requirements.txt --ignore-vuln PYSEC-2026-1325
 
+      - name: Apply database migrations
+        run: |
+          alembic heads
+          alembic upgrade head
+          alembic current
+
       - name: Run tests
         run: pytest --cov=app --cov-report=xml
 
@@ -141,11 +147,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
       - name: ESLint
         run: npm run lint
 
       - name: TypeScript type check
         run: npm run type-check
+
+      - name: Node contract and regression tests
+        run: >-
+          find . -type f -name '*.test.mjs'
+          -not -path './node_modules/*'
+          -not -path './.next/*'
+          -print0 | sort -z | xargs -0 node --test --test-reporter=dot
 
   # ── Docker Build Verification ───────────────────────────────────────────────
   docker-build:

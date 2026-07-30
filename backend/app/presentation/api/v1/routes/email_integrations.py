@@ -1881,7 +1881,7 @@ async def resolve_email_review(
         )
     if payload.action not in _allowed_review_actions(review, artifact):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="That action is not available for this review item.",
         )
     now = datetime.now(tz=UTC)
@@ -1903,14 +1903,14 @@ async def resolve_email_review(
                 artifact.detected_type = payload.document_type
             else:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail=("Choose a supported PDF document type before assigning this item."),
                 )
         selected_group_id = payload.group_id or review.candidate_group_id
         selected_passenger_id = payload.passenger_id or review.candidate_passenger_id
         if selected_group_id is None or selected_passenger_id is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Choose both a client group and passenger.",
             )
         group_stmt = select(ClientGroupModel).where(
@@ -1936,7 +1936,7 @@ async def resolve_email_review(
         passenger = await session.scalar(passenger_stmt)
         if group is None or passenger is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="The selected group and passenger do not match.",
             )
         try:
@@ -1951,7 +1951,7 @@ async def resolve_email_review(
             created_storage_keys = list(ingestion_result.storage_keys)
         except ValueError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=str(exc),
             ) from None
         review.selected_group_id = selected_group_id
