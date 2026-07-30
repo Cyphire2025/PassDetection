@@ -700,6 +700,81 @@ async def test_large_roster_prioritizes_all_duplicate_named_passengers(
 
 
 @pytest.mark.asyncio
+async def test_passenger_name_ranking_treats_punctuation_as_literal_text(
+    db_session: AsyncSession,
+) -> None:
+    agency = AgencyModel(
+        id=uuid.uuid4(),
+        name="Literal Passenger Match Agency",
+        email="literal-passenger-match@example.test",
+    )
+    owner = _user(
+        email="literal-passenger-owner@example.test",
+        agency_id=agency.id,
+    )
+    db_session.add_all([agency, owner])
+    await db_session.flush()
+    group = _group(
+        agency_id=agency.id,
+        name="Literal Passenger Match Journey",
+        creator_id=owner.id,
+    )
+    db_session.add(group)
+    await db_session.flush()
+    exact_passenger = _passenger(
+        group=group,
+        name="Anne%Marie O'Neil",
+        status="confirmed",
+    )
+    exact_passenger.updated_at = NOW - timedelta(days=30)
+    wildcard_decoy = _passenger(
+        group=group,
+        name="%",
+        status="confirmed",
+    )
+    wildcard_decoy.updated_at = NOW + timedelta(days=1)
+    recent_decoy = _passenger(
+        group=group,
+        name="Recent Unrelated Passenger",
+        status="confirmed",
+    )
+    recent_decoy.updated_at = NOW
+    db_session.add_all(
+        [exact_passenger, wildcard_decoy, recent_decoy]
+    )
+    connection = _connection(
+        agency_id=agency.id,
+        owner_id=owner.id,
+        account="literal-passenger-owner@example.test",
+    )
+    db_session.add(connection)
+    await db_session.flush()
+    message = _message(
+        connection=connection,
+        provider_message_id="literal-passenger-name-message",
+        subject="Ticket update for Anne Marie O Neil",
+        body_excerpt="Please verify the revised passenger details.",
+        group_id=group.id,
+    )
+    db_session.add(message)
+    await db_session.flush()
+
+    context = await _load(
+        db_session,
+        message=message,
+        agency_id=agency.id,
+        owner_user_id=owner.id,
+        max_candidates=2,
+    )
+
+    assert context is not None
+    assert list(context.aliases.values()) == [
+        ("group", group.id),
+        ("passenger", exact_passenger.id),
+    ]
+
+
+@pytest.mark.asyncio
 async def test_bounded_fuzzy_and_abbreviation_group_retrieval_is_authorized(
     db_session: AsyncSession,
 ) -> None:

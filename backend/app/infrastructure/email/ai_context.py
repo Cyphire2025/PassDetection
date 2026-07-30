@@ -5,13 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import string
 import uuid
 from dataclasses import dataclass
 from datetime import UTC
 from difflib import SequenceMatcher
 
-from sqlalchemy import and_, case, false, func, literal, or_, select
+from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -36,28 +35,7 @@ _REQUEST_MAX_CANDIDATES = 24
 _GROUP_NAME_MAX_WORDS = 8
 _FUZZY_GROUP_SCAN_LIMIT = 240
 _FUZZY_GROUP_MIN_SCORE = 0.78
-_GROUP_NAME_SEPARATORS = (
-    *string.punctuation,
-    "–",
-    "—",
-    "−",
-    "‐",
-    "‑",
-    "‒",
-    "·",
-    "•",
-    "“",
-    "”",
-    "‘",
-    "’",
-    "…",
-    "\t",
-    "\r",
-    "\n",
-    "\v",
-    "\f",
-    "\u00a0",
-)
+_PASSENGER_SCAN_LIMIT = 500
 
 
 @dataclass(frozen=True)
@@ -100,77 +78,58 @@ async def load_email_ai_context(
             : min(max_input_chars, _REQUEST_MAX_BODY_CHARS)
         ],
     )
-    group_match_predicates: list[object] = []
-    if message.group_id is not None:
-        group_match_predicates.append(ClientGroupModel.id == message.group_id)
-    if normalized_email_group_windows:
-        normalized_group_name = _normalized_group_name_expression()
-        normalized_group_word_count = (
-            func.length(normalized_group_name)
-            - func.length(func.replace(normalized_group_name, " ", ""))
-            + 1
-        )
-        window_match_predicates = [
-            literal(f" {window} ").like(literal("% ") + normalized_group_name + literal(" %"))
-            for window in normalized_email_group_windows
-        ]
-        group_match_predicates.append(
-            and_(
-                func.length(normalized_group_name) >= 3,
-                normalized_group_word_count <= _GROUP_NAME_MAX_WORDS,
-                or_(*window_match_predicates),
-            )
-        )
     preferred_group_order = case(
         (ClientGroupModel.id == message.group_id, 0),
         else_=1,
     )
-    groups_statement = (
-        select(ClientGroupModel)
-        .where(
-            ClientGroupModel.agency_id == agency_id,
-            ClientGroupModel.status.notin_({"archived", "deleted"}),
-            (or_(*group_match_predicates) if group_match_predicates else false()),
-        )
-        .order_by(
-            preferred_group_order,
-            ClientGroupModel.travel_date.asc(),
-            ClientGroupModel.created_at.desc(),
-        )
-        .limit(group_limit)
-    )
-    groups_result = await session.execute(
-        AuthorizationPolicy.apply_group_visibility_scope(groups_statement, owner)
-    )
-    groups = list(groups_result.scalars().all())
-    if (
-        normalized_email_group_windows
-        and len(groups) < group_limit
+    scanned_groups: list[ClientGroupModel] = []
+    if group_limit > 0 and (
+        message.group_id is not None or normalized_email_group_windows
     ):
-        exact_group_ids = [group.id for group in groups]
-        fuzzy_statement = (
+        # Apply visibility before the bounded scan; matching below never sees
+        # an unauthorized or cross-tenant group.
+        groups_statement = (
             select(ClientGroupModel)
             .where(
                 ClientGroupModel.agency_id == agency_id,
                 ClientGroupModel.status.notin_({"archived", "deleted"}),
             )
             .order_by(
+                preferred_group_order,
                 ClientGroupModel.travel_date.asc(),
                 ClientGroupModel.created_at.desc(),
                 ClientGroupModel.id.asc(),
             )
             .limit(_FUZZY_GROUP_SCAN_LIMIT)
         )
-        if exact_group_ids:
-            fuzzy_statement = fuzzy_statement.where(
-                ClientGroupModel.id.notin_(exact_group_ids)
-            )
-        fuzzy_result = await session.execute(
+        groups_result = await session.execute(
             AuthorizationPolicy.apply_group_visibility_scope(
-                fuzzy_statement,
+                groups_statement,
                 owner,
             )
         )
+        scanned_groups = list(groups_result.scalars().all())
+
+    groups = [
+        group
+        for group in scanned_groups
+        if message.group_id is not None and group.id == message.group_id
+    ][:group_limit]
+    selected_group_ids = {group.id for group in groups}
+    if normalized_email_group_windows and len(groups) < group_limit:
+        exact_groups = [
+            group
+            for group in scanned_groups
+            if group.id not in selected_group_ids
+            and _name_matches_exact_phrase(
+                group.name,
+                normalized_email_group_windows,
+            )
+        ]
+        groups.extend(exact_groups[: group_limit - len(groups)])
+        selected_group_ids.update(group.id for group in groups)
+
+    if normalized_email_group_windows and len(groups) < group_limit:
         scored_groups = [
             (
                 _fuzzy_group_name_score(
@@ -179,7 +138,8 @@ async def load_email_ai_context(
                 ),
                 group,
             )
-            for group in fuzzy_result.scalars().all()
+            for group in scanned_groups
+            if group.id not in selected_group_ids
         ]
         scored_groups = [
             (score, group)
@@ -225,34 +185,6 @@ async def load_email_ai_context(
         else None
     )
     if passenger_slots and deterministic_group_id is not None:
-        normalized_passenger_name = _normalized_name_expression(
-            PassportSubmissionModel.client_name
-        )
-        normalized_passenger_word_count = (
-            func.length(normalized_passenger_name)
-            - func.length(
-                func.replace(normalized_passenger_name, " ", "")
-            )
-            + 1
-        )
-        passenger_window_predicates = [
-            literal(f" {window} ").like(
-                literal("% ")
-                + normalized_passenger_name
-                + literal(" %")
-            )
-            for window in normalized_email_group_windows
-        ]
-        passenger_name_match = (
-            and_(
-                func.length(normalized_passenger_name) >= 3,
-                normalized_passenger_word_count
-                <= _GROUP_NAME_MAX_WORDS,
-                or_(*passenger_window_predicates),
-            )
-            if passenger_window_predicates
-            else false()
-        )
         passenger_statement = (
             select(
                 PassportSubmissionModel.id,
@@ -266,11 +198,10 @@ async def load_email_ai_context(
                 PassportSubmissionModel.status != "failed",
             )
             .order_by(
-                case((passenger_name_match, 0), else_=1),
                 PassportSubmissionModel.updated_at.desc(),
                 PassportSubmissionModel.id.asc(),
             )
-            .limit(passenger_slots)
+            .limit(_PASSENGER_SCAN_LIMIT)
         )
         passenger_result = await session.execute(
             AuthorizationPolicy.apply_passport_visibility_scope(
@@ -278,7 +209,25 @@ async def load_email_ai_context(
                 owner,
             )
         )
-        for index, row in enumerate(passenger_result.all(), start=1):
+        passenger_rows = list(passenger_result.all())
+        exact_passengers = [
+            row
+            for row in passenger_rows
+            if _name_matches_exact_phrase(
+                row.client_name,
+                normalized_email_group_windows,
+            )
+        ]
+        exact_passenger_ids = {row.id for row in exact_passengers}
+        ranked_passengers = [
+            *exact_passengers,
+            *(
+                row
+                for row in passenger_rows
+                if row.id not in exact_passenger_ids
+            ),
+        ][:passenger_slots]
+        for index, row in enumerate(ranked_passengers, start=1):
             alias = f"passenger_{index:03d}"
             aliases[alias] = ("passenger", row.id)
             candidates.append(
@@ -431,20 +380,20 @@ def _normalized_email_group_windows(
     return tuple(windows)
 
 
-def _normalized_group_name_expression():  # type: ignore[no-untyped-def]
-    """Normalize stored group names with portable SQL string functions."""
+def _name_matches_exact_phrase(
+    name: str,
+    email_windows: tuple[str, ...],
+) -> bool:
+    """Match a normalized full name inside the bounded email text."""
 
-    return _normalized_name_expression(ClientGroupModel.name)
-
-
-def _normalized_name_expression(column):  # type: ignore[no-untyped-def]
-    normalized = func.lower(column)
-    for separator in _GROUP_NAME_SEPARATORS:
-        normalized = func.replace(normalized, separator, " ")
-    # Eight passes collapse any separator run within the 255-character column.
-    for _ in range(8):
-        normalized = func.replace(normalized, "  ", " ")
-    return func.trim(normalized)
+    name_tokens = re.findall(r"[a-z0-9]+", name.casefold())
+    if not 1 <= len(name_tokens) <= _GROUP_NAME_MAX_WORDS:
+        return False
+    normalized_name = " ".join(name_tokens)
+    if len(normalized_name) < 3:
+        return False
+    needle = f" {normalized_name} "
+    return any(needle in f" {window} " for window in email_windows)
 
 
 def _fuzzy_group_name_score(
