@@ -76,6 +76,20 @@ export function useDeleteDistributionDocuments(groupId: string, documentType: Di
   });
 }
 
+export function useUnassignDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (documentIds: string[]) =>
+      documentDistributionApi.unassignDocuments(groupId, documentType, documentIds),
+    onSuccess: (data) => {
+      queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
+      queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
+    },
+  });
+}
+
 export function useSaveDocumentBatch(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 

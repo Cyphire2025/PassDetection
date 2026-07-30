@@ -7,6 +7,9 @@ export interface DocumentDistributionGroup {
   destination: string | null;
   travel_date: string | null;
   total_passengers: number;
+  visa_assigned_count: number;
+  flight_ticket_assigned_count: number;
+  other_assigned_count: number;
 }
 
 export interface RejectedDistributedDocument {
@@ -63,6 +66,7 @@ export interface DocumentPassengerReviewRow {
   passport_number: string | null;
   departure_city: string | null;
   document: DistributedDocument | null;
+  documents: DistributedDocument[];
 }
 
 export interface DocumentBatchReview {

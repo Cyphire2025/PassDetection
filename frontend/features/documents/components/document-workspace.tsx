@@ -25,6 +25,7 @@ import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence } from "@/lib/utils/format";
 import type {
+  DistributedDocument,
   DistributionDocumentType,
   DocumentDeliveryPreview,
   DocumentPassengerReviewRow,
@@ -38,6 +39,7 @@ import {
   useReuploadPassengerDocument,
   useSaveDocumentBatch,
   useSendDocumentWhatsAppBroadcast,
+  useUnassignDistributionDocuments,
   useUploadDistributionDocuments,
   useVerifyDistributionDocuments,
 } from "../hooks/use-document-distribution";
@@ -53,11 +55,22 @@ const DOCUMENT_TYPES: Array<{
   { type: "other", title: "Other", description: "Upload supporting travel documents.", icon: FileQuestion },
 ];
 
+function reviewRowDocuments(row: DocumentPassengerReviewRow): DistributedDocument[] {
+  if (row.documents?.length) return row.documents;
+  return row.document ? [row.document] : [];
+}
+
+type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent";
+
+const SENT_DOCUMENT_STATUSES = new Set(["submitted", "sent", "delivered", "read"]);
+
 export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [selectedType, setSelectedType] = useState<DistributionDocumentType>("visa");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [verification, setVerification] = useState<DocumentVerificationResult | null>(null);
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
+  const [pendingRemovalDocumentIds, setPendingRemovalDocumentIds] = useState<string[] | null>(null);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
@@ -74,6 +87,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const upload = useUploadDistributionDocuments(groupId, selectedType);
   const reupload = useReuploadPassengerDocument(groupId, selectedType);
   const deleteDocuments = useDeleteDistributionDocuments(groupId, selectedType);
+  const unassignDocuments = useUnassignDistributionDocuments(groupId, selectedType);
   const save = useSaveDocumentBatch(groupId, selectedType);
   const deliveryPreview = useDocumentDeliveryPreview(
     groupId,
@@ -82,24 +96,111 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   );
   const sendDocuments = useSendDocumentWhatsAppBroadcast(groupId, selectedType);
   const selectedConfig = DOCUMENT_TYPES.find((item) => item.type === selectedType) ?? DOCUMENT_TYPES[0];
-  const missingCount = useMemo(() => (review.data?.review_rows ?? []).filter((row) => !row.document).length, [review.data]);
+  const reviewRows = useMemo(
+    () => review.data?.review_rows ?? [],
+    [review.data?.review_rows],
+  );
+  const reviewCounts = useMemo(() => {
+    const assigned = reviewRows.filter((row) => reviewRowDocuments(row).length > 0);
+    const sent = assigned.filter((row) =>
+      reviewRowDocuments(row).some((document) =>
+        SENT_DOCUMENT_STATUSES.has(document.delivery_status),
+      ),
+    );
+    const notSent = assigned.filter((row) =>
+      reviewRowDocuments(row).some(
+        (document) => !SENT_DOCUMENT_STATUSES.has(document.delivery_status),
+      ),
+    );
+    return {
+      all: reviewRows.length,
+      assigned: assigned.length,
+      missing: reviewRows.length - assigned.length,
+      sent: sent.length,
+      not_sent: notSent.length,
+    };
+  }, [reviewRows]);
+  const visibleReviewRows = useMemo(
+    () =>
+      reviewRows.filter((row) => {
+        const documents = reviewRowDocuments(row);
+        if (reviewFilter === "assigned") return documents.length > 0;
+        if (reviewFilter === "missing") return documents.length === 0;
+        if (reviewFilter === "sent") {
+          return documents.some((document) =>
+            SENT_DOCUMENT_STATUSES.has(document.delivery_status),
+          );
+        }
+        if (reviewFilter === "not_sent") {
+          return documents.some(
+            (document) => !SENT_DOCUMENT_STATUSES.has(document.delivery_status),
+          );
+        }
+        return true;
+      }),
+    [reviewFilter, reviewRows],
+  );
   const acceptedFiles = useMemo(() => {
     if (!verification) return [];
     const acceptedNames = new Set(verification.files.filter((file) => file.accepted).map((file) => file.filename));
     return selectedFiles.filter((file) => acceptedNames.has(file.name));
   }, [selectedFiles, verification]);
   const showRowActions = selectedType === "visa" || selectedType === "flight_ticket";
-  const selectableDocumentIds = useMemo(
-    () => [
-      ...(review.data?.review_rows ?? [])
-        .map((row) => row.document?.id)
-        .filter((id): id is string => Boolean(id)),
-      ...(review.data?.unmatched_documents ?? []).map((document) => document.id),
-    ],
+  const assignedDocumentIds = useMemo(
+    () =>
+      reviewRows.flatMap((row) =>
+        reviewRowDocuments(row).map((document) => document.id),
+      ),
+    [reviewRows],
+  );
+  const visibleAssignedDocumentIds = useMemo(
+    () =>
+      visibleReviewRows.flatMap((row) =>
+        reviewRowDocuments(row).map((document) => document.id),
+      ),
+    [visibleReviewRows],
+  );
+  const unmatchedDocumentIds = useMemo(
+    () => (review.data?.unmatched_documents ?? []).map((document) => document.id),
     [review.data],
   );
+  const selectableDocumentIds = useMemo(
+    () => [...assignedDocumentIds, ...unmatchedDocumentIds],
+    [assignedDocumentIds, unmatchedDocumentIds],
+  );
   const activeSelectedDocumentIds = selectedDocumentIds.filter((id) => selectableDocumentIds.includes(id));
-  const allDocumentsSelected = selectableDocumentIds.length > 0 && activeSelectedDocumentIds.length === selectableDocumentIds.length;
+  const activeSelectedAssignedDocumentIds = activeSelectedDocumentIds.filter((id) =>
+    assignedDocumentIds.includes(id),
+  );
+  const activeSelectedUnmatchedDocumentIds = activeSelectedDocumentIds.filter((id) =>
+    unmatchedDocumentIds.includes(id),
+  );
+  const selectedAssignedPassengerCount = reviewRows.filter((row) =>
+    reviewRowDocuments(row).some((document) =>
+      activeSelectedAssignedDocumentIds.includes(document.id),
+    ),
+  ).length;
+  const allVisibleAssignmentsSelected =
+    visibleAssignedDocumentIds.length > 0 &&
+    visibleAssignedDocumentIds.every((id) =>
+      activeSelectedAssignedDocumentIds.includes(id),
+    );
+  const removalDocumentIds =
+    activeSelectedAssignedDocumentIds.length > 0
+      ? activeSelectedAssignedDocumentIds
+      : assignedDocumentIds;
+  const removalPassengerCount =
+    activeSelectedAssignedDocumentIds.length > 0
+      ? selectedAssignedPassengerCount
+      : reviewCounts.assigned;
+  const pendingRemovalPassengerCount = pendingRemovalDocumentIds
+    ? reviewRows.filter((row) =>
+        reviewRowDocuments(row).some((document) =>
+          pendingRemovalDocumentIds.includes(document.id),
+        ),
+      ).length
+    : 0;
+  const removalPending = deleteDocuments.isPending || unassignDocuments.isPending;
 
   useEffect(() => {
     if (phase !== "checking" || !verify.isPending) return;
@@ -191,6 +292,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
         {DOCUMENT_TYPES.map((item) => {
           const Icon = item.icon;
           const active = selectedType === item.type;
+          const assignedCount =
+            item.type === "visa"
+              ? group?.visa_assigned_count
+              : item.type === "flight_ticket"
+                ? group?.flight_ticket_assigned_count
+                : group?.other_assigned_count;
           return (
             <button
               key={item.type}
@@ -200,6 +307,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 setSelectedFiles([]);
                 setVerification(null);
                 setSelectedDocumentIds([]);
+                setReviewFilter("all");
+                setPendingRemovalDocumentIds(null);
                 setProgress(0);
                 setPhase("idle");
               }}
@@ -214,6 +323,9 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 <div>
                   <div className="font-semibold text-slate-900">{item.title}</div>
                   <div className="mt-1 text-sm text-slate-500">{item.description}</div>
+                  <div className="mt-2 text-sm font-medium text-blue-700">
+                    {assignedCount ?? 0}/{group?.total_passengers ?? 0} assigned
+                  </div>
                 </div>
               </div>
             </button>
@@ -298,6 +410,12 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             </div>
           )}
 
+          {unassignDocuments.error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {unassignDocuments.error.message}
+            </div>
+          )}
+
           {verification && (
             <VerificationPanel verification={verification} />
           )}
@@ -313,24 +431,44 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               <div>
                 <h2 className="text-base font-semibold text-slate-900">Review Matches</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  {review.data?.matched_count ?? 0} matched, {missingCount} missing, {review.data?.rejected_count ?? 0} rejected.
+                  {reviewCounts.assigned} assigned, {reviewCounts.missing} missing, {review.data?.rejected_count ?? 0} rejected.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="danger"
-                  disabled={activeSelectedDocumentIds.length === 0 || deleteDocuments.isPending}
-                  isLoading={deleteDocuments.isPending}
-                  onClick={() =>
-                    deleteDocuments.mutate(activeSelectedDocumentIds, {
-                      onSuccess: () => setSelectedDocumentIds([]),
-                    })
-                  }
+                  disabled={removalDocumentIds.length === 0 || removalPending}
+                  isLoading={removalPending && pendingRemovalDocumentIds !== null}
+                  onClick={() => setPendingRemovalDocumentIds(removalDocumentIds)}
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete Selected {activeSelectedDocumentIds.length > 0 ? `(${activeSelectedDocumentIds.length})` : ""}
+                  {activeSelectedAssignedDocumentIds.length > 0
+                    ? `Remove assignments (${removalPassengerCount})`
+                    : `Remove all assigned (${removalPassengerCount})`}
                 </Button>
+                {activeSelectedUnmatchedDocumentIds.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={removalPending}
+                    isLoading={deleteDocuments.isPending && pendingRemovalDocumentIds === null}
+                    onClick={() =>
+                      deleteDocuments.mutate(activeSelectedUnmatchedDocumentIds, {
+                        onSuccess: () => {
+                          setSelectedDocumentIds((current) =>
+                            current.filter(
+                              (id) => !activeSelectedUnmatchedDocumentIds.includes(id),
+                            ),
+                          );
+                        },
+                      })
+                    }
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete unassigned files ({activeSelectedUnmatchedDocumentIds.length})
+                  </Button>
+                )}
                 <Button
                   type="button"
                   disabled={!review.data?.batch_id || review.data.status === "saved"}
@@ -359,6 +497,44 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               </div>
             </div>
 
+            <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-5 py-3">
+              {([
+                ["all", "All", reviewCounts.all],
+                ["assigned", "Assigned", reviewCounts.assigned],
+                ["missing", "Missing", reviewCounts.missing],
+                ["sent", "Sent", reviewCounts.sent],
+                ["not_sent", "Not sent", reviewCounts.not_sent],
+              ] as Array<[ReviewFilter, string, number]>).map(([value, label, count]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setReviewFilter(value)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    reviewFilter === value
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              ))}
+              {activeSelectedAssignedDocumentIds.length > 0 && (
+                <button
+                  type="button"
+                  className="ml-auto text-xs font-medium text-blue-700 hover:underline"
+                  onClick={() =>
+                    setSelectedDocumentIds((current) =>
+                      current.filter(
+                        (id) => !activeSelectedAssignedDocumentIds.includes(id),
+                      ),
+                    )
+                  }
+                >
+                  Clear selected assignments
+                </button>
+              )}
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
@@ -367,11 +543,18 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                       <input
                         type="checkbox"
                         className="h-4 w-4 rounded border-slate-300"
-                        aria-label="Select all documents"
-                        checked={allDocumentsSelected}
-                        disabled={selectableDocumentIds.length === 0 || deleteDocuments.isPending}
+                        aria-label="Select all visible assigned passengers"
+                        checked={allVisibleAssignmentsSelected}
+                        disabled={visibleAssignedDocumentIds.length === 0 || removalPending}
                         onChange={(event) => {
-                          setSelectedDocumentIds(event.target.checked ? selectableDocumentIds : []);
+                          setSelectedDocumentIds((current) => {
+                            const withoutVisible = current.filter(
+                              (id) => !visibleAssignedDocumentIds.includes(id),
+                            );
+                            return event.target.checked
+                              ? Array.from(new Set([...withoutVisible, ...visibleAssignedDocumentIds]))
+                              : withoutVisible;
+                          });
                         }}
                       />
                     </th>
@@ -385,73 +568,126 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {(review.data?.review_rows ?? []).map((row) => (
-                    <tr key={row.document?.id ?? `empty-${row.passenger_id}`}>
-                      <td className="px-5 py-4">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-slate-300"
-                          aria-label={`Select document for ${row.passenger_name}`}
-                          checked={Boolean(row.document?.id && activeSelectedDocumentIds.includes(row.document.id))}
-                          disabled={!row.document || deleteDocuments.isPending}
-                          onChange={(event) => {
-                            const documentId = row.document?.id;
-                            if (!documentId) return;
-                            setSelectedDocumentIds((current) =>
-                              event.target.checked
-                                ? Array.from(new Set([...current, documentId]))
-                                : current.filter((id) => id !== documentId),
-                            );
-                          }}
-                        />
+                  {visibleReviewRows.map((row) => {
+                    const documents = reviewRowDocuments(row);
+                    const rowDocumentIds = documents.map((document) => document.id);
+                    const rowAssignmentsSelected =
+                      rowDocumentIds.length > 0 &&
+                      rowDocumentIds.every((id) =>
+                        activeSelectedAssignedDocumentIds.includes(id),
+                      );
+                    return (
+                    <tr key={row.passenger_id}>
+                      <td className="px-5 py-4 align-top">
+                        {documents.length > 0 ? (
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-slate-300"
+                            aria-label={`Select all assignments for ${row.passenger_name}`}
+                            checked={rowAssignmentsSelected}
+                            disabled={removalPending}
+                            onChange={(event) => {
+                              setSelectedDocumentIds((current) => {
+                                const withoutRow = current.filter(
+                                  (id) => !rowDocumentIds.includes(id),
+                                );
+                                return event.target.checked
+                                  ? Array.from(new Set([...withoutRow, ...rowDocumentIds]))
+                                  : withoutRow;
+                              });
+                            }}
+                          />
+                        ) : (
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-slate-300"
+                            aria-label={`No document available for ${row.passenger_name}`}
+                            disabled
+                          />
+                        )}
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-4 align-top">
                         <div className="font-semibold text-slate-900">{row.passenger_name}</div>
                         <div className="mt-1 text-xs text-slate-500">{row.departure_city || "No departure city"}</div>
+                        {documents.length > 1 && (
+                          <Badge variant="outline" className="mt-2 whitespace-nowrap">
+                            {documents.length} saved documents
+                          </Badge>
+                        )}
                       </td>
-                      <td className="px-5 py-4 text-slate-700">{row.passport_number || "Not set"}</td>
-                      <td className="px-5 py-4">
-                        {row.document ? (
-                          <div>
-                            <a href={row.document.url ?? "#"} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">
-                              {row.document.original_filename}
-                            </a>
-                            <div className="mt-1 text-xs text-slate-500">
-                              {row.document.source === "email" ? "Saved from email" : "Manual upload"}
-                            </div>
+                      <td className="px-5 py-4 align-top text-slate-700">{row.passport_number || "Not set"}</td>
+                      <td className="px-5 py-4 align-top">
+                        {documents.length > 0 ? (
+                          <div className="divide-y divide-slate-100">
+                            {documents.map((document) => (
+                              <div key={document.id} className="flex min-h-16 flex-col justify-center py-2 first:pt-0 last:pb-0">
+                                <a href={document.url ?? "#"} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">
+                                  {document.original_filename}
+                                </a>
+                                <div className="mt-1 text-xs text-slate-500">
+                                  {document.source === "email" ? "Saved from email" : "Manual upload"}
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         ) : (
                           <span className="text-slate-400">Empty</span>
                         )}
                       </td>
-                      <td className="px-5 py-4 text-slate-700">{row.document ? formatConfidence(row.document.match_confidence) : "-"}</td>
-                      <td className="px-5 py-4">
-                        <MatchBadge status={row.document?.match_status ?? "no_document"} />
-                      </td>
-                      <td className="px-5 py-4">
-                        {row.document ? (
-                          <DocumentSentStatus
-                            status={row.document.delivery_status}
-                            sentTo={row.document.sent_to}
-                            sentAt={row.document.last_sent_at}
-                            canResend={row.document.can_resend}
-                            onResend={() => {
-                              const documentId = row.document?.id;
-                              if (!documentId) return;
-                              setDeliveryDocumentIds([documentId]);
-                              setDeliveryResendDocumentIds([documentId]);
-                              setDeliveryMessageContent1(null);
-                              setDeliveryMessageContent2(null);
-                              setDeliveryFeedback(null);
-                              setIsSendPreviewOpen(true);
-                            }}
-                          />
+                      <td className="px-5 py-4 align-top text-slate-700">
+                        {documents.length > 0 ? (
+                          <div className="divide-y divide-slate-100">
+                            {documents.map((document) => (
+                              <div key={document.id} className="flex min-h-16 items-center py-2 first:pt-0 last:pb-0">
+                                {formatConfidence(document.match_confidence)}
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          "-"
+                        )}
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        {documents.length > 0 ? (
+                          <div className="divide-y divide-slate-100">
+                            {documents.map((document) => (
+                              <div key={document.id} className="flex min-h-16 items-center py-2 first:pt-0 last:pb-0">
+                                <MatchBadge status={document.match_status} />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <MatchBadge status="no_document" />
+                        )}
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        {documents.length > 0 ? (
+                          <div className="divide-y divide-slate-100">
+                            {documents.map((document) => (
+                              <div key={document.id} className="flex min-h-16 items-center py-2 first:pt-0 last:pb-0">
+                                <DocumentSentStatus
+                                  status={document.delivery_status}
+                                  sentTo={document.sent_to}
+                                  sentAt={document.last_sent_at}
+                                  canResend={document.can_resend}
+                                  onResend={() => {
+                                    setDeliveryDocumentIds([document.id]);
+                                    setDeliveryResendDocumentIds([document.id]);
+                                    setDeliveryMessageContent1(null);
+                                    setDeliveryMessageContent2(null);
+                                    setDeliveryFeedback(null);
+                                    setIsSendPreviewOpen(true);
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">&mdash;</span>
                         )}
                       </td>
                       {showRowActions && (
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-5 py-4 text-right align-top">
                           <DocumentRowActionMenu
                             row={row}
                             documentType={selectedType}
@@ -461,7 +697,18 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         </td>
                       )}
                     </tr>
-                  ))}
+                    );
+                  })}
+                  {visibleReviewRows.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={showRowActions ? 8 : 7}
+                        className="px-5 py-10 text-center text-sm text-slate-500"
+                      >
+                        No passengers match this filter.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -492,7 +739,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           className="h-4 w-4 rounded border-amber-300"
                           aria-label={`Select ${document.original_filename}`}
                           checked={activeSelectedDocumentIds.includes(document.id)}
-                          disabled={deleteDocuments.isPending}
+                          disabled={removalPending}
                           onChange={(event) => {
                             setSelectedDocumentIds((current) =>
                               event.target.checked
@@ -511,6 +758,38 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {pendingRemovalDocumentIds && (
+        <RemoveAssignmentsDialog
+          passengerCount={pendingRemovalPassengerCount}
+          documentCount={pendingRemovalDocumentIds.length}
+          pending={removalPending}
+          error={unassignDocuments.error ?? deleteDocuments.error}
+          onClose={() => {
+            if (!removalPending) setPendingRemovalDocumentIds(null);
+          }}
+          onKeepFiles={() => {
+            unassignDocuments.mutate(pendingRemovalDocumentIds, {
+              onSuccess: () => {
+                setSelectedDocumentIds((current) =>
+                  current.filter((id) => !pendingRemovalDocumentIds.includes(id)),
+                );
+                setPendingRemovalDocumentIds(null);
+              },
+            });
+          }}
+          onDeleteFiles={() => {
+            deleteDocuments.mutate(pendingRemovalDocumentIds, {
+              onSuccess: () => {
+                setSelectedDocumentIds((current) =>
+                  current.filter((id) => !pendingRemovalDocumentIds.includes(id)),
+                );
+                setPendingRemovalDocumentIds(null);
+              },
+            });
+          }}
+        />
       )}
 
       {deliveryFeedback && (
@@ -585,6 +864,95 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function RemoveAssignmentsDialog({
+  passengerCount,
+  documentCount,
+  pending,
+  error,
+  onClose,
+  onKeepFiles,
+  onDeleteFiles,
+}: {
+  passengerCount: number;
+  documentCount: number;
+  pending: boolean;
+  error: Error | null;
+  onClose: () => void;
+  onKeepFiles: () => void;
+  onDeleteFiles: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="remove-assignments-title"
+        className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+          <div>
+            <h2 id="remove-assignments-title" className="text-lg font-semibold text-slate-900">
+              Remove document assignments?
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              This removes {documentCount} saved document{documentCount === 1 ? "" : "s"} from{" "}
+              {passengerCount} passenger{passengerCount === 1 ? "" : "s"}. Choose what should happen
+              to the saved PDF files.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close dialog"
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            disabled={pending}
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-3 px-6 py-5">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onKeepFiles}
+            className="w-full rounded-xl border border-blue-200 bg-blue-50 p-4 text-left transition hover:border-blue-300 disabled:pointer-events-none disabled:opacity-50"
+          >
+            <div className="font-semibold text-blue-950">Keep saved PDFs</div>
+            <div className="mt-1 text-sm leading-5 text-blue-800">
+              Remove the passenger assignments and move the PDFs to Needs Manual Review so they can
+              be assigned again later.
+            </div>
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={onDeleteFiles}
+            className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left transition hover:border-red-300 disabled:pointer-events-none disabled:opacity-50"
+          >
+            <div className="font-semibold text-red-950">Delete saved PDFs</div>
+            <div className="mt-1 text-sm leading-5 text-red-800">
+              Remove the assignments and permanently delete these saved document files. Delivery
+              history remains recorded for audit purposes.
+            </div>
+          </button>
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error.message}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end border-t border-slate-100 px-6 py-4">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
+            Cancel
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

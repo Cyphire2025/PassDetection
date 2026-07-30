@@ -8,6 +8,7 @@ const api = readFileSync(new URL("../api/document-distribution.api.ts", import.m
 const panel = readFileSync(new URL("../../passports/components/group-document-delivery-panel.tsx", import.meta.url), "utf8");
 const groupPage = readFileSync(new URL("../../passports/components/passport-group-detail.tsx", import.meta.url), "utf8");
 const endpoints = readFileSync(new URL("../../../lib/api/endpoints.ts", import.meta.url), "utf8");
+const types = readFileSync(new URL("../../../types/document-distribution.types.ts", import.meta.url), "utf8");
 
 test("saved document lists expose an explicit WhatsApp preview before sending", () => {
   assert.match(workspace, /Send WhatsApp Broadcast/);
@@ -41,4 +42,27 @@ test("group details include compact document delivery management", () => {
   assert.match(panel, /Manage deliveries/);
   assert.match(panel, /Visa, ticket, and travel-document WhatsApp delivery status/);
   assert.match(panel, /No document broadcasts sent yet/);
+});
+
+test("review tables keep one row per submitted passenger and nest saved documents", () => {
+  assert.match(types, /documents: DistributedDocument\[\]/);
+  assert.match(workspace, /const documents = reviewRowDocuments\(row\)/);
+  assert.match(workspace, /<tr key=\{row\.passenger_id\}>/);
+  assert.match(workspace, /\{documents\.length\} saved documents/);
+  assert.doesNotMatch(workspace, /<tr key=\{row\.document\?\.id/);
+});
+
+test("document review exposes assignment counts, filters, and safe bulk removal choices", () => {
+  assert.match(types, /visa_assigned_count: number/);
+  assert.match(types, /flight_ticket_assigned_count: number/);
+  assert.match(workspace, /Remove all assigned/);
+  assert.match(workspace, /Keep saved PDFs/);
+  assert.match(workspace, /Delete saved PDFs/);
+  assert.match(workspace, /\["assigned", "Assigned"/);
+  assert.match(workspace, /\["missing", "Missing"/);
+  assert.match(workspace, /\["sent", "Sent"/);
+  assert.match(workspace, /\["not_sent", "Not sent"/);
+  assert.match(endpoints, /documents\/unassign/);
+  assert.match(api, /unassignDocuments/);
+  assert.match(hooks, /useUnassignDistributionDocuments/);
 });

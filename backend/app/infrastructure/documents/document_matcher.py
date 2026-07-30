@@ -19,15 +19,47 @@ except ImportError:  # pragma: no cover - keeps local tooling usable until deps 
 
 DOCUMENT_TYPES = {"visa", "flight_ticket", "other"}
 
-VISA_TERMS = (
+VISA_CORE_TERMS = (
     "visa",
     "evisa",
     "e-visa",
-    "permit",
+    "electronic visa",
+)
+
+VISA_DOCUMENT_TERMS = (
+    "visa number",
+    "visa no",
+    "visa type",
+    "visa category",
+    "entry permit",
+    "visa grant",
+    "grant notice",
     "immigration",
-    "entry",
+    "number of entries",
+    "multiple entries",
+    "single entry",
+    "valid from",
     "valid until",
+    "date of issue",
+    "date of expiry",
     "duration of stay",
+    "permitted to stay",
+)
+
+VISA_PAYMENT_TERMS = (
+    "payment confirmation",
+    "payment receipt",
+    "fee charge payment",
+    "application fee",
+    "service fee",
+    "transaction id",
+    "payment details",
+    "payment method",
+    "total amount",
+    "amount paid",
+    "tax payment",
+    "invoice",
+    "receipt",
 )
 
 TICKET_TERMS = (
@@ -79,7 +111,9 @@ class DocumentMatcher:
         if expected_type not in DOCUMENT_TYPES:
             raise ValueError("Unsupported document type")
         if not filename.lower().endswith(".pdf") or not content.startswith(b"%PDF"):
-            return ClassifiedDocument(filename, "unknown", False, "Only PDF files are accepted", "", None, None, None)
+            return ClassifiedDocument(
+                filename, "unknown", False, "Only PDF files are accepted", "", None, None, None
+            )
 
         text = self._pdf_text(filename, content)
         detected_type = self._detect_type(text)
@@ -102,7 +136,9 @@ class DocumentMatcher:
             extracted_reference=self._extract_reference(text),
         )
 
-    def match(self, document: ClassifiedDocument, passengers: list[PassportSubmission]) -> MatchResult:
+    def match(
+        self, document: ClassifiedDocument, passengers: list[PassportSubmission]
+    ) -> MatchResult:
         best_passenger: PassportSubmission | None = None
         best_score = 0.0
         best_reason = "No passenger match found"
@@ -122,7 +158,9 @@ class DocumentMatcher:
                 name_tokens = [token for token in normalized_name.split() if len(token) > 1]
                 token_hits = sum(1 for token in name_tokens if token in haystack)
                 token_score = token_hits / max(len(name_tokens), 1)
-                sequence_score = SequenceMatcher(None, normalized_name, haystack[: max(len(normalized_name) * 3, 120)]).ratio()
+                sequence_score = SequenceMatcher(
+                    None, normalized_name, haystack[: max(len(normalized_name) * 3, 120)]
+                ).ratio()
                 score = max(token_score * 0.86, sequence_score * 0.72)
                 if normalized_name in haystack:
                     score = max(score, 0.9)
@@ -137,7 +175,9 @@ class DocumentMatcher:
             return MatchResult(best_passenger.id, min(best_score, 0.96), "matched", best_reason)
         return MatchResult(best_passenger.id, best_score, "needs_review", best_reason)
 
-    def match_all(self, document: ClassifiedDocument, passengers: list[PassportSubmission]) -> list[MatchResult]:
+    def match_all(
+        self, document: ClassifiedDocument, passengers: list[PassportSubmission]
+    ) -> list[MatchResult]:
         """Return every passenger that appears in a combined document."""
         haystack = self._normalize(f"{document.original_filename} {document.text}")
         matches: list[MatchResult] = []
@@ -145,7 +185,14 @@ class DocumentMatcher:
             fields = passenger.confirmed_fields or passenger.extracted_fields or {}
             passport_number = str(fields.get("passport_number") or "").strip()
             if passport_number and self._normalize(passport_number) in haystack:
-                matches.append(MatchResult(passenger.id, 0.98, "matched", "Passport number matched in combined document"))
+                matches.append(
+                    MatchResult(
+                        passenger.id,
+                        0.98,
+                        "matched",
+                        "Passport number matched in combined document",
+                    )
+                )
                 continue
 
             best_score = 0.0
@@ -165,7 +212,9 @@ class DocumentMatcher:
                     best_reason = f"Name found in combined document: {name}"
 
             if best_score >= 0.82:
-                matches.append(MatchResult(passenger.id, min(best_score, 0.96), "matched", best_reason))
+                matches.append(
+                    MatchResult(passenger.id, min(best_score, 0.96), "matched", best_reason)
+                )
             elif best_score >= 0.62:
                 matches.append(MatchResult(passenger.id, best_score, "needs_review", best_reason))
         if matches:
@@ -185,7 +234,12 @@ class DocumentMatcher:
         for index, match in enumerate(matches):
             if match.passenger_id and best_by_passenger.get(match.passenger_id) != index:
                 deduped.append(
-                    MatchResult(match.passenger_id, match.confidence, "duplicate_document", "Another uploaded file matched this passenger better")
+                    MatchResult(
+                        match.passenger_id,
+                        match.confidence,
+                        "duplicate_document",
+                        "Another uploaded file matched this passenger better",
+                    )
                 )
             else:
                 deduped.append(match)
@@ -218,16 +272,30 @@ class DocumentMatcher:
 
     def _detect_type(self, text: str) -> str:
         normalized = self._normalize(text)
-        visa_score = sum(1 for term in VISA_TERMS if term in normalized)
-        ticket_score = sum(1 for term in TICKET_TERMS if term in normalized)
-        passport_score = sum(1 for term in PASSPORT_TERMS if term in normalized)
+        visa_core_score = self._term_score(normalized, VISA_CORE_TERMS)
+        visa_document_score = self._term_score(normalized, VISA_DOCUMENT_TERMS)
+        visa_payment_score = self._term_score(normalized, VISA_PAYMENT_TERMS)
+        visa_score = visa_core_score + visa_document_score
+        ticket_score = self._term_score(normalized, TICKET_TERMS)
+        passport_score = self._term_score(normalized, PASSPORT_TERMS)
         if ticket_score >= max(2, visa_score + 1):
             return "flight_ticket"
-        if visa_score >= 1 and visa_score >= ticket_score:
+        # Application-fee receipts often contain both "e-Visa" and a passport
+        # number. Treat payment evidence as an explicit exclusion so these
+        # documents can only be assigned after human review.
+        if visa_payment_score >= 2:
+            return "unknown"
+        if visa_score >= ticket_score and (
+            (visa_core_score >= 1 and visa_document_score >= 1) or visa_document_score >= 3
+        ):
             return "visa"
         if passport_score >= 2 and ticket_score == 0 and visa_score == 0:
             return "passport"
         return "unknown"
+
+    def _term_score(self, normalized_text: str, terms: tuple[str, ...]) -> int:
+        padded_text = f" {normalized_text} "
+        return sum(1 for term in terms if f" {self._normalize(term)} " in padded_text)
 
     def _extract_name(self, text: str, detected_type: str) -> str | None:
         if detected_type == "flight_ticket":
@@ -261,7 +329,9 @@ class DocumentMatcher:
         return None
 
     def _extract_slash_ticket_name(self, text: str) -> str | None:
-        pattern = r"\b([A-Z]{2,})/([A-Z][A-Z ]{3,140}?)(?:\s+(?:MR|MRS|MS|MISS)\b|\s+FLIGHT|\s+DATE|\n)"
+        pattern = (
+            r"\b([A-Z]{2,})/([A-Z][A-Z ]{3,140}?)(?:\s+(?:MR|MRS|MS|MISS)\b|\s+FLIGHT|\s+DATE|\n)"
+        )
         candidates: list[tuple[int, str]] = []
         for match in re.finditer(pattern, text, flags=re.IGNORECASE):
             raw_given = match.group(2)
@@ -309,7 +379,9 @@ class DocumentMatcher:
         return match.group(1) if match else None
 
     def _extract_reference(self, text: str) -> str | None:
-        match = re.search(r"\b(?:PNR|BOOKING(?:\s+REFERENCE)?)\s*[:\-]?\s*([A-Z0-9]{5,10})\b", text.upper())
+        match = re.search(
+            r"\b(?:PNR|BOOKING(?:\s+REFERENCE)?)\s*[:\-]?\s*([A-Z0-9]{5,10})\b", text.upper()
+        )
         return match.group(1) if match else None
 
     def _candidate_names(self, passenger: PassportSubmission) -> list[str]:
@@ -325,4 +397,6 @@ class DocumentMatcher:
         return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
 
     def _label(self, value: str) -> str:
-        return {"visa": "visa", "flight_ticket": "flight ticket", "passport": "passport"}.get(value, value)
+        return {"visa": "visa", "flight_ticket": "flight ticket", "passport": "passport"}.get(
+            value, value
+        )

@@ -205,6 +205,8 @@ export const API_ENDPOINTS = {
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/passengers/${passengerId}/reupload`,
     deleteDocuments: (groupId: string, documentType: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/documents/delete`,
+    unassignDocuments: (groupId: string, documentType: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/documents/unassign`,
     saveBatch: (batchId: string) => `/api/v1/document-distribution/batches/${batchId}/save`,
     whatsappPreview: (groupId: string, documentType: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/whatsapp-preview`,

@@ -15,6 +15,9 @@ class DocumentGroupResponse(BaseModel):
     destination: str | None = None
     travel_date: str | None = None
     total_passengers: int
+    visa_assigned_count: int = 0
+    flight_ticket_assigned_count: int = 0
+    other_assigned_count: int = 0
 
 
 class RejectedDocumentResponse(BaseModel):
@@ -71,6 +74,7 @@ class DocumentPassengerReviewRow(BaseModel):
     passport_number: str | None = None
     departure_city: str | None = None
     document: DistributedDocumentResponse | None = None
+    documents: list[DistributedDocumentResponse] = Field(default_factory=list)
 
 
 class DocumentBatchResponse(BaseModel):

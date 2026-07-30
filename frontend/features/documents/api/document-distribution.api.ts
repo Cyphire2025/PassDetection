@@ -84,6 +84,20 @@ export const documentDistributionApi = {
     return data;
   },
 
+  unassignDocuments: async (
+    groupId: string,
+    documentType: DistributionDocumentType,
+    documentIds: string[],
+  ): Promise<DocumentBatchReview> => {
+    const { data } = await apiClient.post<DocumentBatchReview>(
+      API_ENDPOINTS.documents.unassignDocuments(groupId, documentType),
+      {
+        document_ids: documentIds,
+      },
+    );
+    return data;
+  },
+
   saveBatch: async (batchId: string): Promise<{ batch_id: string; status: string; saved_at: string }> => {
     const { data } = await apiClient.post<{ batch_id: string; status: string; saved_at: string }>(
       API_ENDPOINTS.documents.saveBatch(batchId),

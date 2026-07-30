@@ -610,6 +610,50 @@ async def _document_response(
     )
 
 
+def _passenger_review_rows(
+    *,
+    passengers: list[PassportSubmission],
+    documents: list[DistributedDocumentModel],
+    responses_by_document: dict[uuid.UUID, DistributedDocumentResponse],
+) -> tuple[
+    list[DocumentPassengerReviewRow],
+    list[DistributedDocumentResponse],
+    int,
+]:
+    """Group the persistent document ledger into one row per submitted passenger."""
+
+    passenger_ids = {passenger.id for passenger in passengers}
+    docs_by_passenger: dict[uuid.UUID, list[DistributedDocumentModel]] = {}
+    unmatched: list[DistributedDocumentResponse] = []
+    for document in documents:
+        if document.passenger_id in passenger_ids:
+            docs_by_passenger.setdefault(document.passenger_id, []).append(document)
+        else:
+            unmatched.append(responses_by_document[document.id])
+
+    rows: list[DocumentPassengerReviewRow] = []
+    matched_passenger_count = 0
+    for passenger in passengers:
+        passenger_documents = docs_by_passenger.get(passenger.id, [])
+        rendered_documents = [
+            responses_by_document[document.id] for document in passenger_documents
+        ]
+        if any(document.match_status == "matched" for document in passenger_documents):
+            matched_passenger_count += 1
+        rows.append(
+            DocumentPassengerReviewRow(
+                passenger_id=passenger.id,
+                passenger_name=passenger.client_name,
+                passport_number=_passport_number(passenger),
+                departure_city=passenger.departure_city,
+                document=rendered_documents[0] if rendered_documents else None,
+                documents=rendered_documents,
+            )
+        )
+
+    return rows, unmatched, matched_passenger_count
+
+
 async def _batch_response(
     *,
     session: AsyncSession,
@@ -675,41 +719,12 @@ async def _batch_response(
         for document, response in zip(response_documents, rendered_documents, strict=True)
     }
 
-    docs_by_passenger: dict[uuid.UUID, list[DistributedDocumentModel]] = {}
-    unmatched: list[DistributedDocumentResponse] = []
-    for document in documents:
-        if document.passenger_id:
-            docs_by_passenger.setdefault(document.passenger_id, []).append(document)
-        else:
-            unmatched.append(responses_by_document[document.id])
-
-    rows: list[DocumentPassengerReviewRow] = []
-    for passenger in passengers:
-        passenger_documents = docs_by_passenger.get(passenger.id, [])
-        if not passenger_documents:
-            rows.append(
-                DocumentPassengerReviewRow(
-                    passenger_id=passenger.id,
-                    passenger_name=passenger.client_name,
-                    passport_number=_passport_number(passenger),
-                    departure_city=passenger.departure_city,
-                    document=None,
-                )
-            )
-            continue
-        for document in passenger_documents:
-            rows.append(
-                DocumentPassengerReviewRow(
-                    passenger_id=passenger.id,
-                    passenger_name=passenger.client_name,
-                    passport_number=_passport_number(passenger),
-                    departure_city=passenger.departure_city,
-                    document=responses_by_document[document.id],
-                )
-            )
-
+    rows, unmatched, matched_count = _passenger_review_rows(
+        passengers=passengers,
+        documents=documents,
+        responses_by_document=responses_by_document,
+    )
     visible_documents = response_documents
-    matched_count = sum(1 for document in visible_documents if document.match_status == "matched")
     return DocumentBatchResponse(
         batch_id=response_batch.id if response_batch else None,
         group_id=group_id,
@@ -726,6 +741,33 @@ async def _batch_response(
     )
 
 
+async def _refresh_distribution_batches(
+    session: AsyncSession,
+    *,
+    batch_ids: set[uuid.UUID],
+    now: datetime,
+) -> None:
+    if not batch_ids:
+        return
+    batches_result = await session.execute(
+        select(DocumentDistributionBatchModel)
+        .where(DocumentDistributionBatchModel.id.in_(batch_ids))
+        .with_for_update()
+    )
+    for batch in batches_result.scalars().all():
+        remaining_result = await session.execute(
+            select(DistributedDocumentModel).where(DistributedDocumentModel.batch_id == batch.id)
+        )
+        remaining_documents = list(remaining_result.scalars().all())
+        batch.status = "draft"
+        batch.saved_at = None
+        batch.uploaded_count = len(remaining_documents)
+        batch.matched_count = sum(
+            1 for document in remaining_documents if document.match_status == "matched"
+        )
+        batch.updated_at = now
+
+
 @router.get("/groups", response_model=list[DocumentGroupResponse])
 async def list_document_groups(
     current_user: User = Depends(get_current_active_user),
@@ -740,6 +782,35 @@ async def list_document_groups(
     stmt = stmt.order_by(ClientGroupModel.created_at.desc())
     result = await session.execute(stmt)
     groups = result.scalars().all()
+
+    assigned_counts: dict[tuple[uuid.UUID, str], int] = {}
+    if groups:
+        assigned_count_result = await session.execute(
+            select(
+                DistributedDocumentModel.group_id,
+                DistributedDocumentModel.document_type,
+                func.count(func.distinct(DistributedDocumentModel.passenger_id)),
+            )
+            .join(
+                PassportSubmissionModel,
+                PassportSubmissionModel.id == DistributedDocumentModel.passenger_id,
+            )
+            .where(
+                DistributedDocumentModel.agency_id == current_user.agency_id,
+                DistributedDocumentModel.group_id.in_([group.id for group in groups]),
+                DistributedDocumentModel.document_type.in_(tuple(DOCUMENT_TYPES)),
+                PassportSubmissionModel.group_id == DistributedDocumentModel.group_id,
+                PassportSubmissionModel.status.in_(_submitted_statuses()),
+            )
+            .group_by(
+                DistributedDocumentModel.group_id,
+                DistributedDocumentModel.document_type,
+            )
+        )
+        assigned_counts = {
+            (group_id, document_type): int(count or 0)
+            for group_id, document_type, count in assigned_count_result.all()
+        }
 
     responses: list[DocumentGroupResponse] = []
     for group in groups:
@@ -760,6 +831,9 @@ async def list_document_groups(
                 destination=group.destination,
                 travel_date=group.travel_date.isoformat() if group.travel_date else None,
                 total_passengers=group_count,
+                visa_assigned_count=assigned_counts.get((group.id, "visa"), 0),
+                flight_ticket_assigned_count=assigned_counts.get((group.id, "flight_ticket"), 0),
+                other_assigned_count=assigned_counts.get((group.id, "other"), 0),
             )
         )
     return responses
@@ -1033,6 +1107,151 @@ async def reupload_passenger_document(
 
 
 @router.post(
+    "/groups/{group_id}/{document_type}/documents/unassign",
+    response_model=DocumentBatchResponse,
+)
+async def unassign_distribution_documents(
+    group_id: uuid.UUID,
+    document_type: str,
+    payload: DeleteDistributionDocumentsRequest,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentBatchResponse:
+    if document_type not in DOCUMENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
+        )
+    group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    passengers = await _group_passengers(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    document_ids = list(dict.fromkeys(payload.document_ids))
+    if not document_ids:
+        batch = await _latest_document_batch(
+            session,
+            group_id=group_id,
+            document_type=document_type,
+        )
+        documents = await _all_group_documents(
+            session,
+            group_id=group_id,
+            agency_id=group.agency_id,
+            document_type=document_type,
+        )
+        return await _batch_response(
+            session=session,
+            group_id=group_id,
+            document_type=document_type,
+            passengers=passengers,
+            batch=batch,
+            documents=documents,
+        )
+
+    await session.execute(
+        select(DocumentDistributionBatchModel.id)
+        .where(
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+        )
+        .order_by(DocumentDistributionBatchModel.id)
+        .with_for_update()
+    )
+    documents_result = await session.execute(
+        select(DistributedDocumentModel)
+        .where(
+            DistributedDocumentModel.id.in_(document_ids),
+            DistributedDocumentModel.group_id == group_id,
+            DistributedDocumentModel.agency_id == group.agency_id,
+            DistributedDocumentModel.document_type == document_type,
+            DistributedDocumentModel.passenger_id.is_not(None),
+        )
+        .with_for_update()
+    )
+    documents_to_unassign = list(documents_result.scalars().all())
+    if not documents_to_unassign:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No assigned documents were found",
+        )
+
+    active_delivery_result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel.id)
+        .where(
+            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
+                [document.id for document in documents_to_unassign]
+            ),
+            DocumentWhatsAppDeliveryModel.status.in_(DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES),
+        )
+        .with_for_update()
+        .limit(1)
+    )
+    if active_delivery_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "A selected document is currently being sent through WhatsApp. "
+                "Wait for delivery processing to finish before removing its assignment."
+            ),
+        )
+
+    affected_batch_ids = {document.batch_id for document in documents_to_unassign}
+    now = datetime.now(tz=UTC)
+    for document in documents_to_unassign:
+        document.passenger_id = None
+        document.match_status = "needs_review"
+        document.match_confidence = 0.0
+        document.match_reason = "Assignment removed manually; saved PDF retained for review"
+        document.updated_at = now
+    await session.flush()
+    await _refresh_distribution_batches(
+        session,
+        batch_ids=affected_batch_ids,
+        now=now,
+    )
+    await AuditLogRepository(session).record(
+        action="document_distribution_unassigned",
+        entity_type="document_distribution_batch",
+        entity_id=str(group_id),
+        agency_id=group.agency_id,
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        metadata={
+            "group_id": str(group_id),
+            "document_type": document_type,
+            "unassigned_count": len(documents_to_unassign),
+            "saved_files_retained": True,
+        },
+    )
+    await session.commit()
+    batch = await _latest_document_batch(
+        session,
+        group_id=group_id,
+        document_type=document_type,
+    )
+    remaining_documents = await _all_group_documents(
+        session,
+        group_id=group_id,
+        agency_id=group.agency_id,
+        document_type=document_type,
+    )
+    return await _batch_response(
+        session=session,
+        group_id=group_id,
+        document_type=document_type,
+        passengers=passengers,
+        batch=batch,
+        documents=remaining_documents,
+    )
+
+
+@router.post(
     "/groups/{group_id}/{document_type}/documents/delete", response_model=DocumentBatchResponse
 )
 async def delete_distribution_documents(
@@ -1131,25 +1350,11 @@ async def delete_distribution_documents(
     await session.flush()
 
     now = datetime.now(tz=UTC)
-    affected_batches_result = await session.execute(
-        select(DocumentDistributionBatchModel)
-        .where(DocumentDistributionBatchModel.id.in_(affected_batch_ids))
-        .with_for_update()
+    await _refresh_distribution_batches(
+        session,
+        batch_ids=affected_batch_ids,
+        now=now,
     )
-    for affected_batch in affected_batches_result.scalars().all():
-        remaining_batch_result = await session.execute(
-            select(DistributedDocumentModel).where(
-                DistributedDocumentModel.batch_id == affected_batch.id
-            )
-        )
-        remaining_batch_documents = list(remaining_batch_result.scalars().all())
-        affected_batch.status = "draft"
-        affected_batch.saved_at = None
-        affected_batch.uploaded_count = len(remaining_batch_documents)
-        affected_batch.matched_count = sum(
-            1 for document in remaining_batch_documents if document.match_status == "matched"
-        )
-        affected_batch.updated_at = now
     await AuditLogRepository(session).record(
         action="document_distribution_deleted",
         entity_type="document_distribution_batch",
