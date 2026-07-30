@@ -2012,6 +2012,7 @@ def _event_title(event: EmailActivityEventModel) -> str:
     return {
         "email_detected": "Email detected",
         "artifact_deduplicated": "Duplicate document skipped",
+        "artifact_duplicate_reused": "Existing document assignment reused",
         "review_required": "Staff review required",
         "document_added": "Document added",
         "review_decision": "Review decision recorded",

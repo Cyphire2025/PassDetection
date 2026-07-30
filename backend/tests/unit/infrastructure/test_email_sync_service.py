@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -13,6 +14,9 @@ from app.infrastructure.email.sync_service import (
     _can_ignore_without_artifact_inspection,
     _incremental_message_ids,
     _ingest_confirmed_artifact,
+    _is_reusable_duplicate_document,
+    _live_duplicate_documents_statement,
+    _reuse_live_duplicate_assignments,
     _safe_link_hosts,
     _stored_relevance_status,
 )
@@ -197,3 +201,106 @@ async def test_confirmed_email_artifact_is_saved_in_canonical_ledger() -> None:
     assert batch.status == "saved"
     assert batch.saved_at is not None
     assert session.add.call_count == 1
+
+
+def test_only_still_matched_passenger_documents_block_exact_reprocessing() -> None:
+    assigned = SimpleNamespace(passenger_id=uuid.uuid4(), match_status="matched")
+    unassigned = SimpleNamespace(passenger_id=None, match_status="needs_review")
+    uncertain = SimpleNamespace(
+        passenger_id=uuid.uuid4(),
+        match_status="needs_review",
+    )
+
+    assert _is_reusable_duplicate_document(assigned)
+    assert not _is_reusable_duplicate_document(unassigned)
+    assert not _is_reusable_duplicate_document(uncertain)
+
+    statement = str(
+        _live_duplicate_documents_statement(
+            agency_id=uuid.uuid4(),
+            artifact_id=uuid.uuid4(),
+            sha256_digest="a" * 64,
+        )
+    )
+    assert "distributed_documents.passenger_id IS NOT NULL" in statement
+    assert "distributed_documents.match_status =" in statement
+    assert "email_artifact_documents" in statement
+
+
+async def test_live_duplicate_reuses_existing_document_assignment() -> None:
+    agency_id = uuid.uuid4()
+    connection_id = uuid.uuid4()
+    message_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger_id = uuid.uuid4()
+    document_id = uuid.uuid4()
+    source_artifact = SimpleNamespace(
+        id=uuid.uuid4(),
+        detected_type="visa",
+    )
+    document = SimpleNamespace(
+        id=document_id,
+        agency_id=agency_id,
+        group_id=group_id,
+        passenger_id=passenger_id,
+        document_type="visa",
+        match_status="matched",
+        match_confidence=1.0,
+    )
+    artifact = SimpleNamespace(
+        id=uuid.uuid4(),
+        duplicate_of_id=None,
+        group_id=None,
+        passenger_id=None,
+        detected_type="unknown",
+        match_confidence=None,
+        processing_status="processing",
+        processed_at=None,
+        error_code="old",
+        error_message="old",
+    )
+    message = SimpleNamespace(
+        id=message_id,
+        group_id=None,
+        relevance_status="possible",
+        relevance_confidence=0.5,
+        evidence_json={"signals": ["document_attachment"]},
+    )
+    session = MagicMock()
+    session.add = MagicMock()
+    processed_at = datetime.now(tz=UTC)
+
+    with patch(
+        "app.infrastructure.email.sync_service._record_event",
+        new=AsyncMock(),
+    ) as record_event:
+        await _reuse_live_duplicate_assignments(
+            session,
+            claim=SimpleNamespace(
+                agency_id=agency_id,
+                connection_id=connection_id,
+            ),
+            message=message,
+            artifact=artifact,
+            duplicate_rows=[(source_artifact, document)],
+            processed_at=processed_at,
+        )
+
+    assert artifact.duplicate_of_id == source_artifact.id
+    assert artifact.group_id == group_id
+    assert artifact.passenger_id == passenger_id
+    assert artifact.detected_type == "visa"
+    assert artifact.match_confidence == 1.0
+    assert artifact.processing_status == "duplicate"
+    assert artifact.processed_at == processed_at
+    assert artifact.error_code is None
+    assert artifact.error_message is None
+    assert message.group_id == group_id
+    assert message.relevance_status == "relevant"
+    assert message.relevance_confidence == 0.94
+    assert "existing_document_assignment" in message.evidence_json["signals"]
+    linked_document = session.add.call_args.args[0]
+    assert linked_document.artifact_id == artifact.id
+    assert linked_document.distributed_document_id == document_id
+    assert linked_document.result_type == "existing_duplicate"
+    record_event.assert_awaited_once()
