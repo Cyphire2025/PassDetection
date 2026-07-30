@@ -5,13 +5,17 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from sqlalchemy import select
+
 from app.application.interfaces.email_provider import (
     EmailChangeKind,
     EmailHistoryPage,
     EmailMessageChange,
 )
+from app.infrastructure.database.email_models import EmailConnectionModel
 from app.infrastructure.email.sync_service import (
     _can_ignore_without_artifact_inspection,
+    _connection_claim_filters,
     _incremental_message_ids,
     _ingest_confirmed_artifact,
     _is_reusable_duplicate_document,
@@ -120,6 +124,25 @@ def test_relevance_status_maps_to_database_vocabulary() -> None:
     assert _stored_relevance_status("unexpected") == "pending"
 
 
+def test_worker_claim_revalidates_the_complete_owner_envelope() -> None:
+    claim = SimpleNamespace(
+        connection_id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        owner_user_id=uuid.uuid4(),
+        provider_account_id="provider-account",
+        generation=7,
+    )
+
+    statement = select(EmailConnectionModel).where(*_connection_claim_filters(claim))
+    parameters = statement.compile().params.values()
+
+    assert claim.connection_id in parameters
+    assert claim.agency_id in parameters
+    assert claim.owner_user_id in parameters
+    assert claim.provider_account_id in parameters
+    assert claim.generation in parameters
+
+
 def test_only_real_attachments_prevent_early_ignore() -> None:
     assert _can_ignore_without_artifact_inspection(
         relevance_status="unrelated",
@@ -140,6 +163,7 @@ def test_only_real_attachments_prevent_early_ignore() -> None:
 
 async def test_confirmed_email_artifact_is_saved_in_canonical_ledger() -> None:
     agency_id = uuid.uuid4()
+    owner_user_id = uuid.uuid4()
     connection_id = uuid.uuid4()
     group_id = uuid.uuid4()
     passenger_id = uuid.uuid4()
@@ -177,6 +201,7 @@ async def test_confirmed_email_artifact_is_saved_in_canonical_ledger() -> None:
             session,
             claim=SimpleNamespace(
                 agency_id=agency_id,
+                owner_user_id=owner_user_id,
                 connection_id=connection_id,
             ),
             message=SimpleNamespace(id=uuid.uuid4()),
@@ -218,6 +243,7 @@ def test_only_still_matched_passenger_documents_block_exact_reprocessing() -> No
     statement = str(
         _live_duplicate_documents_statement(
             agency_id=uuid.uuid4(),
+            owner_user_id=uuid.uuid4(),
             artifact_id=uuid.uuid4(),
             sha256_digest="a" * 64,
         )
@@ -229,6 +255,7 @@ def test_only_still_matched_passenger_documents_block_exact_reprocessing() -> No
 
 async def test_live_duplicate_reuses_existing_document_assignment() -> None:
     agency_id = uuid.uuid4()
+    owner_user_id = uuid.uuid4()
     connection_id = uuid.uuid4()
     message_id = uuid.uuid4()
     group_id = uuid.uuid4()
@@ -278,6 +305,7 @@ async def test_live_duplicate_reuses_existing_document_assignment() -> None:
             session,
             claim=SimpleNamespace(
                 agency_id=agency_id,
+                owner_user_id=owner_user_id,
                 connection_id=connection_id,
             ),
             message=message,

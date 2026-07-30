@@ -15,10 +15,14 @@ from app.infrastructure.visa_ai_image_jobs import (
 )
 
 EMAIL_INTEGRATION_QUEUE = "email_integrations"
+EMAIL_AI_QUEUE = "email_ai"
 EMAIL_SYNC_TASK = "email.sync_connection"
 EMAIL_DISPATCH_TASK = "email.dispatch_due_connections"
 EMAIL_RETENTION_TASK = "email.apply_retention"
 EMAIL_SCHEDULER_HEARTBEAT_TASK = "email.scheduler_heartbeat"
+EMAIL_AI_ANALYZE_TASK = "email.analyze_travel_message"
+EMAIL_AI_DISPATCH_TASK = "email.dispatch_ai_analyses"
+EMAIL_AI_DEADLINE_SCAN_TASK = "email.notify_ai_deadline_window"
 
 settings = get_settings()
 
@@ -32,6 +36,7 @@ celery_app = Celery(
         "app.infrastructure.visa_ai_image_jobs.tasks",
         "app.infrastructure.whatsapp.tasks",
         "app.infrastructure.email.tasks",
+        "app.infrastructure.email.ai_tasks",
     ],
 )
 
@@ -44,6 +49,7 @@ celery_app.conf.update(
         Queue(VERIFICATION_QUEUE, durable=True),
         Queue(VISA_AI_IMAGE_QUEUE, durable=True),
         Queue(EMAIL_INTEGRATION_QUEUE, durable=True),
+        Queue(EMAIL_AI_QUEUE, durable=True),
     ),
     task_routes={
         "passport.process_submission": {"queue": EXTRACTION_QUEUE},
@@ -53,6 +59,9 @@ celery_app.conf.update(
         EMAIL_DISPATCH_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         EMAIL_RETENTION_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         EMAIL_SCHEDULER_HEARTBEAT_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        EMAIL_AI_ANALYZE_TASK: {"queue": EMAIL_AI_QUEUE},
+        EMAIL_AI_DISPATCH_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -75,6 +84,16 @@ celery_app.conf.update(
         },
         "record-email-scheduler-heartbeat": {
             "task": EMAIL_SCHEDULER_HEARTBEAT_TASK,
+            "schedule": 60.0,
+            "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+        "dispatch-travel-email-analyses": {
+            "task": EMAIL_AI_DISPATCH_TASK,
+            "schedule": 5.0,
+            "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+        "notify-travel-email-deadline-window": {
+            "task": EMAIL_AI_DEADLINE_SCAN_TASK,
             "schedule": 60.0,
             "options": {"queue": EMAIL_INTEGRATION_QUEUE},
         },

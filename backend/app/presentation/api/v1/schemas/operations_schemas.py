@@ -35,9 +35,22 @@ class NotificationResponse(BaseModel):
     message: str
     entity_type: str | None = None
     entity_id: str | None = None
+    priority: str = "normal"
+    category: str = "general"
+    metadata: dict[str, Any] = Field(default_factory=dict)
     is_read: bool
     created_at: datetime
     read_at: datetime | None = None
+
+
+class NotificationFeedResponse(BaseModel):
+    items: list[NotificationResponse] = Field(default_factory=list)
+    unread_count: int = 0
+    next_cursor: str | None = None
+
+
+class NotificationReadAllResponse(BaseModel):
+    marked_read: int = 0
 
 
 class AdminOverviewResponse(BaseModel):

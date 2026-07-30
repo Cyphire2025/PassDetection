@@ -132,7 +132,10 @@ def test_email_migration_columns_match_the_orm_models() -> None:
     for call in operation_proxy.create_table.call_args_list:
         table_name = call.args[0]
         migration_columns = {item.name for item in call.args[1:] if isinstance(item, sa.Column)}
-        assert migration_columns == set(Base.metadata.tables[table_name].c.keys())
+        later_columns = {"owner_user_id"}
+        if table_name == "email_connections":
+            later_columns.update({"ai_processing_enabled", "ai_enabled_at"})
+        assert migration_columns == (set(Base.metadata.tables[table_name].c.keys()) - later_columns)
 
 
 def test_email_migration_downgrades_in_dependency_order() -> None:

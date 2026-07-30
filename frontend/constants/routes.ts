@@ -29,6 +29,7 @@ export const ROUTES = {
     uploadLinks: "/upload-links",
     whatsapp: "/whatsapp",
     emailIntegrations: "/email-integrations",
+    emailIntegrationsInbox: "/email-integrations/inbox",
     emailIntegrationsReview: "/email-integrations/review",
     emailIntegrationsActivity: "/email-integrations/activity",
     emailIntegrationMessage: (messageId: string) =>

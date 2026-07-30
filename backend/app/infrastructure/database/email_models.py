@@ -26,7 +26,11 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    event,
     text,
+)
+from sqlalchemy import (
+    inspect as sa_inspect,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -50,7 +54,7 @@ def _normalized_email_default(context: _ColumnDefaultContext) -> str:
 
 
 class EmailConnectionModel(Base):
-    """One provider mailbox connection owned by exactly one agency."""
+    """One provider mailbox connection owned by exactly one user and agency."""
 
     __tablename__ = "email_connections"
     __table_args__ = (
@@ -58,6 +62,12 @@ class EmailConnectionModel(Base):
             "id",
             "agency_id",
             name="uq_email_connections_id_agency",
+        ),
+        UniqueConstraint(
+            "id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_connections_id_agency_owner",
         ),
         UniqueConstraint(
             "provider",
@@ -123,6 +133,11 @@ class EmailConnectionModel(Base):
             "status",
         ),
         Index(
+            "ix_email_connections_owner_status",
+            "owner_user_id",
+            "status",
+        ),
+        Index(
             "ix_email_connections_sync_due",
             "status",
             "next_sync_at",
@@ -138,6 +153,11 @@ class EmailConnectionModel(Base):
     agency_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
         nullable=False,
     )
     provider: Mapped[str] = mapped_column(String(24), nullable=False)
@@ -166,6 +186,16 @@ class EmailConnectionModel(Base):
         nullable=False,
         default=list,
         server_default=text("'[]'"),
+    )
+    ai_processing_enabled: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+    ai_enabled_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
     )
     # Ciphertext is deferred so ordinary connection queries cannot accidentally
     # serialize provider credentials.
@@ -273,6 +303,16 @@ class EmailOAuthStateModel(Base):
             ["connection_id", "agency_id"],
             ["email_connections.id", "email_connections.agency_id"],
             name="fk_email_oauth_states_connection_agency",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["connection_id", "agency_id", "user_id"],
+            [
+                "email_connections.id",
+                "email_connections.agency_id",
+                "email_connections.owner_user_id",
+            ],
+            name="fk_email_oauth_states_connection_agency_owner",
             ondelete="CASCADE",
         ),
         CheckConstraint(
@@ -384,14 +424,37 @@ class EmailMessageModel(Base):
         UniqueConstraint("id", "agency_id", name="uq_email_messages_id_agency"),
         UniqueConstraint(
             "id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_messages_id_agency_owner",
+        ),
+        UniqueConstraint(
+            "id",
             "connection_id",
             "agency_id",
             name="uq_email_messages_id_connection_agency",
+        ),
+        UniqueConstraint(
+            "id",
+            "connection_id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_messages_id_connection_agency_owner",
         ),
         ForeignKeyConstraint(
             ["connection_id", "agency_id"],
             ["email_connections.id", "email_connections.agency_id"],
             name="fk_email_messages_connection_agency",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["connection_id", "agency_id", "owner_user_id"],
+            [
+                "email_connections.id",
+                "email_connections.agency_id",
+                "email_connections.owner_user_id",
+            ],
+            name="fk_email_messages_connection_agency_owner",
             ondelete="CASCADE",
         ),
         CheckConstraint(
@@ -420,6 +483,11 @@ class EmailMessageModel(Base):
             "received_at",
         ),
         Index(
+            "ix_email_messages_owner_received",
+            "owner_user_id",
+            "received_at",
+        ),
+        Index(
             "ix_email_messages_agency_processing",
             "agency_id",
             "processing_status",
@@ -442,6 +510,7 @@ class EmailMessageModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     connection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     provider_message_id: Mapped[str] = mapped_column(String(512), nullable=False)
     thread_id: Mapped[str | None] = mapped_column(String(512), nullable=True)
@@ -550,9 +619,22 @@ class EmailArtifactModel(Base):
         UniqueConstraint("id", "agency_id", name="uq_email_artifacts_id_agency"),
         UniqueConstraint(
             "id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_artifacts_id_agency_owner",
+        ),
+        UniqueConstraint(
+            "id",
             "message_id",
             "agency_id",
             name="uq_email_artifacts_id_message_agency",
+        ),
+        UniqueConstraint(
+            "id",
+            "message_id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_artifacts_id_message_agency_owner",
         ),
         ForeignKeyConstraint(
             ["message_id", "agency_id"],
@@ -561,9 +643,29 @@ class EmailArtifactModel(Base):
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
+            ["message_id", "agency_id", "owner_user_id"],
+            [
+                "email_messages.id",
+                "email_messages.agency_id",
+                "email_messages.owner_user_id",
+            ],
+            name="fk_email_artifacts_message_agency_owner",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
             ["duplicate_of_id", "agency_id"],
             ["email_artifacts.id", "email_artifacts.agency_id"],
             name="fk_email_artifacts_duplicate_agency",
+            ondelete="NO ACTION",
+        ),
+        ForeignKeyConstraint(
+            ["duplicate_of_id", "agency_id", "owner_user_id"],
+            [
+                "email_artifacts.id",
+                "email_artifacts.agency_id",
+                "email_artifacts.owner_user_id",
+            ],
+            name="fk_email_artifacts_duplicate_agency_owner",
             ondelete="NO ACTION",
         ),
         CheckConstraint(
@@ -630,6 +732,12 @@ class EmailArtifactModel(Base):
             "created_at",
         ),
         Index(
+            "ix_email_artifacts_owner_processing",
+            "owner_user_id",
+            "processing_status",
+            "created_at",
+        ),
+        Index(
             "ix_email_artifacts_retry_due",
             "retrieval_status",
             "next_retry_at",
@@ -652,6 +760,7 @@ class EmailArtifactModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     provider_artifact_id: Mapped[str] = mapped_column(String(768), nullable=False)
     kind: Mapped[str] = mapped_column(String(24), nullable=False)
@@ -771,6 +880,16 @@ class EmailArtifactDocumentModel(Base):
             name="fk_email_artifact_documents_artifact_agency",
             ondelete="CASCADE",
         ),
+        ForeignKeyConstraint(
+            ["artifact_id", "agency_id", "owner_user_id"],
+            [
+                "email_artifacts.id",
+                "email_artifacts.agency_id",
+                "email_artifacts.owner_user_id",
+            ],
+            name="fk_email_artifact_documents_artifact_agency_owner",
+            ondelete="CASCADE",
+        ),
         CheckConstraint(
             "result_type IN ("
             "'created', 'existing_duplicate', 'revision_candidate', 'conflict_candidate'"
@@ -786,6 +905,11 @@ class EmailArtifactDocumentModel(Base):
             "agency_id",
             "distributed_document_id",
         ),
+        Index(
+            "ix_email_artifact_documents_owner_document",
+            "owner_user_id",
+            "distributed_document_id",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -798,6 +922,7 @@ class EmailArtifactDocumentModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     artifact_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     distributed_document_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -828,9 +953,22 @@ class EmailReviewItemModel(Base):
         UniqueConstraint("id", "agency_id", name="uq_email_review_items_id_agency"),
         UniqueConstraint(
             "id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_review_items_id_agency_owner",
+        ),
+        UniqueConstraint(
+            "id",
             "message_id",
             "agency_id",
             name="uq_email_review_items_id_message_agency",
+        ),
+        UniqueConstraint(
+            "id",
+            "message_id",
+            "agency_id",
+            "owner_user_id",
+            name="uq_email_review_items_id_message_agency_owner",
         ),
         UniqueConstraint(
             "resolution_request_id",
@@ -843,6 +981,16 @@ class EmailReviewItemModel(Base):
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
+            ["message_id", "agency_id", "owner_user_id"],
+            [
+                "email_messages.id",
+                "email_messages.agency_id",
+                "email_messages.owner_user_id",
+            ],
+            name="fk_email_review_items_message_agency_owner",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
             ["artifact_id", "message_id", "agency_id"],
             [
                 "email_artifacts.id",
@@ -850,6 +998,17 @@ class EmailReviewItemModel(Base):
                 "email_artifacts.agency_id",
             ],
             name="fk_email_review_items_artifact_message_agency",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["artifact_id", "message_id", "agency_id", "owner_user_id"],
+            [
+                "email_artifacts.id",
+                "email_artifacts.message_id",
+                "email_artifacts.agency_id",
+                "email_artifacts.owner_user_id",
+            ],
+            name="fk_email_review_items_artifact_message_agency_owner",
             ondelete="CASCADE",
         ),
         CheckConstraint(
@@ -906,6 +1065,12 @@ class EmailReviewItemModel(Base):
             "status",
             "created_at",
         ),
+        Index(
+            "ix_email_review_items_owner_queue",
+            "owner_user_id",
+            "status",
+            "created_at",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -918,6 +1083,7 @@ class EmailReviewItemModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     artifact_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -1038,6 +1204,16 @@ class EmailActivityEventModel(Base):
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
+            ["connection_id", "agency_id", "owner_user_id"],
+            [
+                "email_connections.id",
+                "email_connections.agency_id",
+                "email_connections.owner_user_id",
+            ],
+            name="fk_email_activity_events_connection_agency_owner",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
             ["message_id", "connection_id", "agency_id"],
             [
                 "email_messages.id",
@@ -1045,6 +1221,17 @@ class EmailActivityEventModel(Base):
                 "email_messages.agency_id",
             ],
             name="fk_email_activity_events_message_connection_agency",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["message_id", "connection_id", "agency_id", "owner_user_id"],
+            [
+                "email_messages.id",
+                "email_messages.connection_id",
+                "email_messages.agency_id",
+                "email_messages.owner_user_id",
+            ],
+            name="fk_email_activity_events_message_connection_agency_owner",
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
@@ -1058,6 +1245,17 @@ class EmailActivityEventModel(Base):
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
+            ["artifact_id", "message_id", "agency_id", "owner_user_id"],
+            [
+                "email_artifacts.id",
+                "email_artifacts.message_id",
+                "email_artifacts.agency_id",
+                "email_artifacts.owner_user_id",
+            ],
+            name="fk_email_activity_events_artifact_message_agency_owner",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
             ["review_item_id", "message_id", "agency_id"],
             [
                 "email_review_items.id",
@@ -1065,6 +1263,17 @@ class EmailActivityEventModel(Base):
                 "email_review_items.agency_id",
             ],
             name="fk_email_activity_events_review_message_agency",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["review_item_id", "message_id", "agency_id", "owner_user_id"],
+            [
+                "email_review_items.id",
+                "email_review_items.message_id",
+                "email_review_items.agency_id",
+                "email_review_items.owner_user_id",
+            ],
+            name="fk_email_activity_events_review_message_agency_owner",
             ondelete="CASCADE",
         ),
         CheckConstraint(
@@ -1101,6 +1310,11 @@ class EmailActivityEventModel(Base):
             "occurred_at",
         ),
         Index(
+            "ix_email_activity_events_owner_occurred",
+            "owner_user_id",
+            "occurred_at",
+        ),
+        Index(
             "ix_email_activity_events_message_occurred",
             "message_id",
             "occurred_at",
@@ -1117,6 +1331,7 @@ class EmailActivityEventModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     connection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     message_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -1178,3 +1393,22 @@ class EmailActivityEventModel(Base):
         default=_utcnow,
         server_default=text("CURRENT_TIMESTAMP"),
     )
+
+
+def _reject_email_owner_change(_mapper: object, _connection: object, target: object) -> None:
+    """Keep ownership immutable after an email row has been persisted."""
+
+    owner_history = sa_inspect(target).attrs.owner_user_id.history
+    if owner_history.has_changes() and owner_history.deleted:
+        raise ValueError("Email record ownership cannot be changed")
+
+
+for _owner_model in (
+    EmailConnectionModel,
+    EmailMessageModel,
+    EmailArtifactModel,
+    EmailArtifactDocumentModel,
+    EmailReviewItemModel,
+    EmailActivityEventModel,
+):
+    event.listen(_owner_model, "before_update", _reject_email_owner_change)

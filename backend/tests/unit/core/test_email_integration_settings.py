@@ -22,12 +22,15 @@ def test_email_capabilities_are_disabled_by_default() -> None:
     assert settings.email_attachment_processing_enabled is False
     assert settings.email_link_retrieval_enabled is False
     assert settings.email_auto_actions_enabled is False
+    assert settings.email_ai_enabled is False
+    assert settings.email_ai_notifications_enabled is False
     assert settings.email_token_encryption_key is None
     assert settings.email_token_decryption_keys == {}
     assert settings.gmail_oauth_client_secret is None
     assert settings.outlook_oauth_client_secret is None
     assert settings.outlook_oauth_tenant == "common"
     assert settings.email_sync_interval_seconds == 15
+    assert settings.email_ai_max_manual_retries == 3
 
 
 def test_email_secret_values_remain_redacted() -> None:
@@ -54,6 +57,7 @@ def test_email_secret_values_remain_redacted() -> None:
         ("email_attachment_max_bytes", 1024),
         ("email_pdf_max_pages", 0),
         ("email_storage_orphan_grace_hours", 0),
+        ("email_ai_max_manual_retries", 11),
     ],
 )
 def test_email_processing_limits_are_bounded(
@@ -77,3 +81,38 @@ def test_oauth_redirect_destinations_must_be_explicit_http_urls() -> None:
         _settings(outlook_oauth_redirect_uri="https://user:pass@example.com/callback")
     with pytest.raises(ValidationError):
         _settings(outlook_oauth_tenant="../../common")
+
+
+def test_email_ai_lease_covers_schema_repair_worst_case() -> None:
+    with pytest.raises(
+        ValidationError,
+        match="two bounded analysis attempts",
+    ):
+        _settings(
+            email_ai_analysis_timeout_seconds=30,
+            email_ai_lease_seconds=89,
+        )
+
+    settings = _settings(
+        email_ai_analysis_timeout_seconds=60,
+        email_ai_lease_seconds=150,
+    )
+    assert settings.email_ai_lease_seconds == 150
+
+
+def test_email_ai_runtime_readiness_requires_sync_flags_and_provider_key() -> None:
+    assert _settings(
+        email_integrations_enabled=True,
+        email_sync_enabled=True,
+        email_ai_enabled=True,
+    ).email_ai_runtime_ready is False
+
+    ready = _settings(
+        email_integrations_enabled=True,
+        email_sync_enabled=True,
+        email_ai_enabled=True,
+        email_ai_notifications_enabled=True,
+        google_api_key="provider-key",
+    )
+    assert ready.email_ai_runtime_ready is True
+    assert ready.email_ai_notifications_ready is True

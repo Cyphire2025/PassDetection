@@ -101,7 +101,11 @@ async def test_deleting_staff_revokes_sessions_audits_and_removes_account() -> N
     agency_id = uuid.uuid4()
     staff = _account(agency_id=agency_id)
     manager = _manager(agency_id=agency_id)
-    session = SimpleNamespace(delete=AsyncMock(), flush=AsyncMock())
+    session = SimpleNamespace(
+        delete=AsyncMock(),
+        execute=AsyncMock(return_value=_ScalarResult(0)),
+        flush=AsyncMock(),
+    )
     refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
     audit_logs = SimpleNamespace(record=AsyncMock())
     request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
@@ -146,7 +150,13 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
     manager = _manager(agency_id=agency_id)
     session = SimpleNamespace(
         delete=AsyncMock(),
-        execute=AsyncMock(side_effect=[_ScalarResult(1), _ScalarResult(0)]),
+        execute=AsyncMock(
+            side_effect=[
+                _ScalarResult(0),
+                _ScalarResult(1),
+                _ScalarResult(0),
+            ]
+        ),
         flush=AsyncMock(),
     )
     refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
@@ -195,6 +205,54 @@ async def test_deleting_coordinator_with_attendance_history_removes_login_but_pr
     assert coordinator.hashed_password == "revoked-password-hash"
     assert result.result == "deleted"
     assert result.preserved_history is True
+
+
+@pytest.mark.asyncio
+async def test_deleting_staff_with_an_owned_mailbox_scrubs_credentials_and_preserves_owner() -> None:
+    agency_id = uuid.uuid4()
+    staff = _account(agency_id=agency_id)
+    manager = _manager(agency_id=agency_id)
+    session = SimpleNamespace(
+        delete=AsyncMock(),
+        execute=AsyncMock(side_effect=[_ScalarResult(1), SimpleNamespace()]),
+        flush=AsyncMock(),
+    )
+    refresh_tokens = SimpleNamespace(revoke_all_for_user=AsyncMock())
+    audit_logs = SimpleNamespace(record=AsyncMock())
+    request = SimpleNamespace(client=SimpleNamespace(host="127.0.0.1"))
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts._get_manageable_account",
+            AsyncMock(return_value=(staff, "Agency")),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.RefreshTokenRepository",
+            return_value=refresh_tokens,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.AuditLogRepository",
+            return_value=audit_logs,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.admin_accounts.hash_password",
+            return_value="revoked-password-hash",
+        ),
+    ):
+        result = await delete_managed_account(
+            account_id=staff.id,
+            request=request,  # type: ignore[arg-type]
+            current_user=manager,  # type: ignore[arg-type]
+            session=session,  # type: ignore[arg-type]
+        )
+
+    session.delete.assert_not_awaited()
+    assert result.preserved_history is True
+    assert staff.is_active is False
+    assert staff.deleted_at is not None
+    update_statement = session.execute.await_args_list[1].args[0]
+    assert "UPDATE email_connections" in str(update_statement)
+    assert "owner_user_id" in str(update_statement)
 
 
 @pytest.mark.asyncio

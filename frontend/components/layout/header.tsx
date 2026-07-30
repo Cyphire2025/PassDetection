@@ -10,6 +10,7 @@ import { useLogout } from "@/features/auth/hooks/use-logout";
 import { Button } from "@/components/ui";
 import { truncate } from "@/lib/utils/format";
 import { GlobalSearch } from "@/features/search/components/global-search";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 
 interface HeaderProps {
   title?: string;
@@ -38,6 +39,7 @@ export function Header({ title }: HeaderProps) {
 
       {/* Right actions */}
       <div className="flex items-center gap-2">
+        <NotificationBell />
         {user && (
           <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">

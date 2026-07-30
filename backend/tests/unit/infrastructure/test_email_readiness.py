@@ -10,6 +10,7 @@ from app.infrastructure.ai_priority.worker_readiness import (
     CeleryQueueSnapshot,
 )
 from app.infrastructure.email.readiness import (
+    EMAIL_AI_QUEUE,
     EMAIL_INTEGRATION_QUEUE,
     email_runtime_readiness,
 )
@@ -76,6 +77,42 @@ def test_enabled_sync_requires_worker_and_recent_scheduler_heartbeat() -> None:
 
     assert ready is False
     assert checks["email_worker"] == "queue_not_consumed"
+
+
+def test_enabled_ai_requires_effective_configuration_and_dedicated_worker() -> None:
+    ai_settings = _settings(
+        email_ai_enabled=True,
+        google_api_key="provider-key",
+    )
+
+    checks, ready = email_runtime_readiness(
+        ai_settings,
+        queue_probe=_queue_probe(EMAIL_INTEGRATION_QUEUE, EMAIL_AI_QUEUE),
+        heartbeat_probe=lambda _settings: True,
+    )
+
+    assert ready is True
+    assert checks["email_ai_configuration"] == "configured"
+    assert checks["email_ai_worker"] == "available"
+
+    checks, ready = email_runtime_readiness(
+        ai_settings,
+        queue_probe=_queue_probe(EMAIL_INTEGRATION_QUEUE),
+        heartbeat_probe=lambda _settings: True,
+    )
+
+    assert ready is False
+    assert checks["email_ai_worker"] == "queue_not_consumed"
+
+    checks, ready = email_runtime_readiness(
+        _settings(email_ai_enabled=True, google_api_key=""),
+        queue_probe=_queue_probe(EMAIL_INTEGRATION_QUEUE, EMAIL_AI_QUEUE),
+        heartbeat_probe=lambda _settings: True,
+    )
+
+    assert ready is False
+    assert checks["email_ai_configuration"] == "invalid_or_incomplete"
+    assert checks["email_ai_worker"] == "not_ready_configuration_invalid"
 
 
 def test_attachment_processing_allows_optional_scanner_to_be_disabled() -> None:

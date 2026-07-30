@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import { EmailIntegrationsShell } from "@/features/email-integrations/components/email-integrations-shell";
 
 export const metadata: Metadata = {
-  title: "Email Integrations",
+  title: "Travel Operations Inbox",
   description:
-    "Connect business inboxes and review travel document processing activity.",
+    "Review account-scoped email intelligence, approvals, deadlines, drafts, and processing activity.",
 };
 
 export default function EmailIntegrationsLayout({

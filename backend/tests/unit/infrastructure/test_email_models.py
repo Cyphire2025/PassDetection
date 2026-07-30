@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKeyConstraint, Index, UniqueConstraint
 
 from app.infrastructure.database.email_models import (
     EmailActivityEventModel,
+    EmailArtifactDocumentModel,
     EmailArtifactModel,
     EmailConnectionModel,
     EmailMessageModel,
@@ -56,6 +57,56 @@ def test_email_records_have_tenant_scoped_identity_and_parent_references() -> No
         "message_id",
         "connection_id",
         "agency_id",
+    ) in _foreign_key_column_sets(EmailActivityEventModel)
+
+
+def test_email_records_have_personal_owner_constraints() -> None:
+    owner_models = (
+        EmailConnectionModel,
+        EmailMessageModel,
+        EmailArtifactModel,
+        EmailArtifactDocumentModel,
+        EmailReviewItemModel,
+        EmailActivityEventModel,
+    )
+    assert all(model.__table__.c.owner_user_id.nullable is False for model in owner_models)
+    assert EmailConnectionModel.__table__.c.ai_processing_enabled.nullable is False
+    assert str(EmailConnectionModel.__table__.c.ai_processing_enabled.server_default.arg) == (
+        "false"
+    )
+    assert EmailConnectionModel.__table__.c.ai_enabled_at.nullable is True
+
+    assert (
+        "id",
+        "agency_id",
+        "owner_user_id",
+    ) in _unique_column_sets(EmailConnectionModel)
+    assert (
+        "connection_id",
+        "agency_id",
+        "owner_user_id",
+    ) in _foreign_key_column_sets(EmailMessageModel)
+    assert (
+        "message_id",
+        "agency_id",
+        "owner_user_id",
+    ) in _foreign_key_column_sets(EmailArtifactModel)
+    assert (
+        "artifact_id",
+        "agency_id",
+        "owner_user_id",
+    ) in _foreign_key_column_sets(EmailArtifactDocumentModel)
+    assert (
+        "artifact_id",
+        "message_id",
+        "agency_id",
+        "owner_user_id",
+    ) in _foreign_key_column_sets(EmailReviewItemModel)
+    assert (
+        "message_id",
+        "connection_id",
+        "agency_id",
+        "owner_user_id",
     ) in _foreign_key_column_sets(EmailActivityEventModel)
 
 

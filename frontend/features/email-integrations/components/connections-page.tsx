@@ -5,11 +5,13 @@ import {
   Pause,
   Play,
   RefreshCw,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Button,
+  Badge,
   Card,
   CardContent,
   CardHeader,
@@ -17,6 +19,7 @@ import {
   Skeleton,
 } from "@/components/ui";
 import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
+import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { EmailConnection } from "../types";
 import {
   useAuthorizeEmailProvider,
@@ -27,6 +30,7 @@ import {
   usePauseEmailConnection,
   useResumeEmailConnection,
   useSyncEmailConnection,
+  useUpdateEmailAiSettings,
 } from "../hooks/use-email-integrations";
 import {
   cleanEmailOAuthCallbackUrl,
@@ -41,6 +45,7 @@ import {
   EmailQueryError,
   EmailStatusBadge,
 } from "./email-integrations-ui";
+import { EmailAiRolloutControl } from "./email-ai-rollout-control";
 
 const SUMMARY_METRICS = [
   ["connected_accounts", "Connected accounts"],
@@ -57,7 +62,13 @@ type Notice = {
   message: string;
 };
 
+type AiSettingsTarget = {
+  connection: EmailConnection;
+  enabled: boolean;
+};
+
 export function EmailConnectionsPage() {
+  const role = useAuthStore(selectUserRole);
   const status = useEmailIntegrationStatus();
   const connections = useEmailConnections();
   const summary = useEmailIntegrationSummary();
@@ -66,9 +77,12 @@ export function EmailConnectionsPage() {
   const pause = usePauseEmailConnection();
   const resume = useResumeEmailConnection();
   const disconnect = useDisconnectEmailConnection();
+  const updateAiSettings = useUpdateEmailAiSettings();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [disconnectTarget, setDisconnectTarget] =
     useState<EmailConnection | null>(null);
+  const [aiSettingsTarget, setAiSettingsTarget] =
+    useState<AiSettingsTarget | null>(null);
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(
     null,
   );
@@ -106,6 +120,7 @@ export function EmailConnectionsPage() {
     || pause.isPending
     || resume.isPending
     || disconnect.isPending
+    || updateAiSettings.isPending
     || authorize.isPending;
 
   function startAuthorization(
@@ -168,6 +183,45 @@ export function EmailConnectionsPage() {
     });
   }
 
+  function openAiSettings(connection: EmailConnection, enabled: boolean) {
+    setNotice(null);
+    updateAiSettings.reset();
+    setAiSettingsTarget({ connection, enabled });
+  }
+
+  function closeAiSettings() {
+    if (updateAiSettings.isPending) return;
+    setAiSettingsTarget(null);
+    updateAiSettings.reset();
+  }
+
+  function confirmAiSettings() {
+    if (!aiSettingsTarget) return;
+    const { connection, enabled } = aiSettingsTarget;
+    setActiveConnectionId(connection.id);
+    updateAiSettings.mutate(
+      { connectionId: connection.id, enabled },
+      {
+        onSuccess: (response) => {
+          setActiveConnectionId(null);
+          setAiSettingsTarget(null);
+          setNotice({
+            tone:
+              response.enabled && !response.effective_enabled
+                ? "info"
+                : "success",
+            message: response.enabled
+              ? `${response.message} Prepared drafts remain unsent, and deployment policy may still keep analysis in shadow mode.`
+              : response.message,
+          });
+        },
+        onError: () => {
+          setActiveConnectionId(null);
+        },
+      },
+    );
+  }
+
   function confirmDisconnect() {
     if (!disconnectTarget) return;
     const connectionId = disconnectTarget.id;
@@ -194,7 +248,7 @@ export function EmailConnectionsPage() {
   }
 
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">
@@ -258,6 +312,8 @@ export function EmailConnectionsPage() {
           not synchronize until it is enabled again.
         </EmailNotice>
       )}
+
+      {role === "super_admin" && <EmailAiRolloutControl />}
 
       <section aria-labelledby="email-summary-heading">
         <h2
@@ -345,6 +401,88 @@ export function EmailConnectionsPage() {
                         {formatDateTime(connection.last_sync_attempt_at)}
                       </Definition>
                     </dl>
+
+                    <div
+                      className={`rounded-lg border p-4 ${
+                        connection.ai_processing_enabled
+                          ? "border-blue-200 bg-blue-50/60"
+                          : "border-slate-200 bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Sparkles
+                              className="h-4 w-4 text-blue-700"
+                              aria-hidden="true"
+                            />
+                            <h3 className="text-sm font-semibold text-slate-900">
+                              Travel AI assistance
+                            </h3>
+                            <Badge
+                              variant={
+                                connection.ai_processing_enabled
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                            >
+                              {connection.ai_processing_enabled
+                                ? connection.ai_effective_enabled
+                                  ? "Active"
+                                  : "Opted in · waiting"
+                                : "Off"}
+                            </Badge>
+                          </div>
+                          <p
+                            id={`email-ai-description-${connection.id}`}
+                            className="mt-2 text-xs leading-5 text-slate-600"
+                          >
+                            {connection.ai_processing_enabled
+                              ? connection.ai_effective_enabled
+                                ? "New relevant travel email can be analyzed for deadlines, risks, prepared actions, and drafts."
+                                : "Your preference is saved, but an organization, account, deployment, or mailbox safety control is keeping analysis inactive."
+                              : "Opt in to analyze new relevant travel email from this mailbox."}{" "}
+                            Prepared drafts remain unsent. Deployment policy may
+                            still keep analysis in shadow mode.
+                          </p>
+                          {connection.ai_processing_enabled
+                            && status.data
+                            && !status.data.ai_notifications_enabled && (
+                              <p className="mt-1 text-xs text-slate-500">
+                                AI bell notifications are currently off at the
+                                deployment level.
+                              </p>
+                            )}
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={
+                            connection.ai_processing_enabled
+                              ? "secondary"
+                              : "primary"
+                          }
+                          className="shrink-0"
+                          aria-describedby={`email-ai-description-${connection.id}`}
+                          isLoading={isBusy && updateAiSettings.isPending}
+                          disabled={
+                            anyConnectionMutation
+                            || connection.status === "disconnecting"
+                            || connection.status === "disconnected"
+                          }
+                          onClick={() =>
+                            openAiSettings(
+                              connection,
+                              !connection.ai_processing_enabled,
+                            )
+                          }
+                        >
+                          {connection.ai_processing_enabled
+                            ? "Turn off AI"
+                            : "Enable AI assistance"}
+                        </Button>
+                      </div>
+                    </div>
 
                     {connection.last_error_message && (
                       <EmailNotice tone="error">
@@ -450,6 +588,74 @@ export function EmailConnectionsPage() {
         )}
       </section>
 
+      {aiSettingsTarget && (
+        <EmailDialog
+          title={
+            aiSettingsTarget.enabled
+              ? "Enable AI assistance for this mailbox?"
+              : "Turn off AI assistance for this mailbox?"
+          }
+          description={`${aiSettingsTarget.connection.email_address} remains a read-only connected account.`}
+          isBusy={updateAiSettings.isPending}
+          onClose={closeAiSettings}
+        >
+          <div className="space-y-4">
+            {aiSettingsTarget.enabled ? (
+              <>
+                <p className="text-sm leading-6 text-slate-700">
+                  New relevant travel email can be analyzed for operational
+                  summaries, deadlines, risks, safe proposals, and prepared
+                  reply drafts.
+                </p>
+                <EmailNotice tone="info">
+                  Prepared drafts remain unsent. Enabling this preference does
+                  not grant mailbox write access, and deployment policy may
+                  still keep analysis in shadow mode.
+                </EmailNotice>
+                {status.data && !status.data.ai_enabled && (
+                  <EmailNotice tone="warning">
+                    Deployment-level AI is currently off. Your opt-in will be
+                    saved, but analysis will not become effective until an
+                    administrator enables the service.
+                  </EmailNotice>
+                )}
+              </>
+            ) : (
+              <p className="text-sm leading-6 text-slate-700">
+                New AI analysis will stop for this mailbox. Existing inbox
+                activity and audit history will remain available.
+              </p>
+            )}
+            {updateAiSettings.isError && (
+              <EmailNotice tone="error">
+                The AI preference could not be confirmed. The current mailbox
+                setting is being refreshed; check it before trying again.
+              </EmailNotice>
+            )}
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={updateAiSettings.isPending}
+                onClick={closeAiSettings}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant={aiSettingsTarget.enabled ? "primary" : "danger"}
+                isLoading={updateAiSettings.isPending}
+                onClick={confirmAiSettings}
+              >
+                {aiSettingsTarget.enabled
+                  ? "Enable AI assistance"
+                  : "Turn off AI"}
+              </Button>
+            </div>
+          </div>
+        </EmailDialog>
+      )}
+
       {disconnectTarget && (
         <EmailDialog
           title="Disconnect email account?"
@@ -477,6 +683,6 @@ export function EmailConnectionsPage() {
           </div>
         </EmailDialog>
       )}
-    </main>
+    </div>
   );
 }

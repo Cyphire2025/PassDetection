@@ -10,6 +10,7 @@ export const EMAIL_INTEGRATION_ROLES: readonly UserRole[] = [
   "super_admin",
   "agency_admin",
   "agency_manager",
+  "agency_staff",
 ];
 
 export function canAccessWhatsAppBroadcasts(

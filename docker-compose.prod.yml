@@ -49,6 +49,12 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
 
+  email-ai-worker:
+    volumes: !reset []
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+
   email-beat:
     volumes: !reset []
     environment:

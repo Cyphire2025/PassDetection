@@ -144,7 +144,13 @@ export function EmailDialog({
       }
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
+      if (
+        event.shiftKey
+        && (
+          document.activeElement === first
+          || document.activeElement === dialog
+        )
+      ) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {

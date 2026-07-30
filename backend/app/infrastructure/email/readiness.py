@@ -19,6 +19,7 @@ from app.infrastructure.email.outlook_provider import OutlookEmailProvider
 from app.infrastructure.email.token_encryption import EmailTokenCipher, TokenEncryptionError
 
 EMAIL_INTEGRATION_QUEUE = "email_integrations"
+EMAIL_AI_QUEUE = "email_ai"
 EMAIL_SCHEDULER_HEARTBEAT_KEY = "passdetection:email:scheduler-heartbeat:v1"
 
 HeartbeatProbe = Callable[[Settings], bool]
@@ -39,6 +40,8 @@ def email_runtime_readiness(
             {
                 "email_provider_configuration": "not_required_feature_disabled",
                 "email_worker": "not_required_feature_disabled",
+                "email_ai_worker": "not_required_feature_disabled",
+                "email_ai_configuration": "not_required_feature_disabled",
                 "email_scheduler": "not_required_feature_disabled",
                 "email_malware_scanner": "not_required_feature_disabled",
             },
@@ -66,6 +69,26 @@ def email_runtime_readiness(
     else:
         checks["email_worker"] = "not_required_sync_disabled"
         checks["email_scheduler"] = "not_required_sync_disabled"
+
+    if settings.email_ai_enabled:
+        ai_configured = settings.email_ai_runtime_ready
+        checks["email_ai_configuration"] = (
+            "configured" if ai_configured else "invalid_or_incomplete"
+        )
+        if ai_configured:
+            ai_worker_status, ai_worker_ready = celery_queue_readiness(
+                EMAIL_AI_QUEUE,
+                settings,
+                probe=queue_probe,
+            )
+            checks["email_ai_worker"] = ai_worker_status
+            overall_ready = overall_ready and ai_worker_ready
+        else:
+            checks["email_ai_worker"] = "not_ready_configuration_invalid"
+            overall_ready = False
+    else:
+        checks["email_ai_configuration"] = "not_required_ai_disabled"
+        checks["email_ai_worker"] = "not_required_ai_disabled"
 
     if settings.email_attachment_processing_enabled:
         if settings.malware_scanner_enabled:

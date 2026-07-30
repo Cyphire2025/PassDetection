@@ -24,6 +24,8 @@ class EmailIntegrationStatusResponse(BaseModel):
     sync_enabled: bool
     attachment_processing_enabled: bool
     auto_actions_enabled: bool
+    ai_enabled: bool = False
+    ai_notifications_enabled: bool = False
     providers: list[EmailProviderAvailabilityResponse] = Field(default_factory=list)
 
 
@@ -37,6 +39,8 @@ class EmailConnectionResponse(BaseModel):
     last_successful_sync_at: datetime | None = None
     last_sync_attempt_at: datetime | None = None
     last_error_message: str | None = None
+    ai_processing_enabled: bool = False
+    ai_effective_enabled: bool = False
     allowed_actions: list[str] = Field(default_factory=list)
 
 
@@ -56,6 +60,19 @@ class EmailAuthorizationUrlResponse(BaseModel):
 class EmailConnectionActionResponse(BaseModel):
     connection_id: uuid.UUID
     status: str
+    message: str
+
+
+class EmailAiConnectionSettingsRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    enabled: bool
+
+
+class EmailAiConnectionSettingsResponse(BaseModel):
+    connection_id: uuid.UUID
+    enabled: bool
+    effective_enabled: bool
     message: str
 
 
@@ -184,6 +201,7 @@ class EmailMessageDetailResponse(BaseModel):
     recipients: list[str] = Field(default_factory=list)
     subject: str
     body_excerpt: str
+    original_email_url: str | None = None
     received_at: datetime
     relevance_status: str
     relevance_confidence: float
