@@ -41,7 +41,7 @@ test("only permanent-delete roles receive the selected-row delete control", () =
   );
   assert.match(
     component,
-    /canPermanentlyDelete && !includeDeleted/,
+    /canPermanentlyDelete && !isReadOnlyGroup/,
   );
   assert.match(
     component,

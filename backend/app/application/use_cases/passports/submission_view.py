@@ -192,22 +192,43 @@ def _build_blocks(
             fallback_buckets.setdefault(fallback, []).append(index)
 
     # Fallback clustering is limited to rows whose primary identity is
-    # incomplete. A complete row can join a place-missing row only when the
-    # passport number and demographic fallback both corroborate.
+    # incomplete. Keep this pass linear in the bucket size: large incentive
+    # groups can contain thousands of people with the same demographic
+    # fallback, so comparing every pair would make each page request O(n^2).
+    #
+    # Blank-passport rows are intentionally kept separate when more than one
+    # non-blank passport is present. Otherwise a single incomplete row could
+    # transitively merge contradictory passport identities.
     for indexes in fallback_buckets.values():
-        # First allow cautious fallback among rows whose primary pair is
-        # incomplete, while honoring contradictory passport evidence.
-        for position, left in enumerate(indexes):
-            left_passport, left_place, _ = evidence[left]
-            left_complete = bool(left_passport and left_place)
-            for right in indexes[position + 1 :]:
-                right_passport, right_place, _ = evidence[right]
-                right_complete = bool(right_passport and right_place)
-                contradictory_passports = bool(
-                    left_passport and right_passport and left_passport != right_passport
-                )
-                if not left_complete and not right_complete and not contradictory_passports:
-                    union(left, right)
+        incomplete_by_passport: dict[str, list[int]] = {}
+        blank_passport_indexes: list[int] = []
+        nonblank_passports = {
+            evidence[index][0] for index in indexes if evidence[index][0]
+        }
+        for index in indexes:
+            passport_number, place_of_issue, _ = evidence[index]
+            if passport_number and place_of_issue:
+                continue
+            if passport_number:
+                incomplete_by_passport.setdefault(passport_number, []).append(index)
+            else:
+                blank_passport_indexes.append(index)
+
+        for passport_indexes in incomplete_by_passport.values():
+            anchor = passport_indexes[0]
+            for index in passport_indexes[1:]:
+                union(anchor, index)
+
+        if blank_passport_indexes:
+            blank_anchor = blank_passport_indexes[0]
+            for index in blank_passport_indexes[1:]:
+                union(blank_anchor, index)
+            if (
+                len(nonblank_passports) == 1
+                and len(incomplete_by_passport) == 1
+            ):
+                passport_anchor = next(iter(incomplete_by_passport.values()))[0]
+                union(passport_anchor, blank_anchor)
 
         # A place-missing row may bridge to a complete primary row only
         # when this corroborated passport+fallback bucket contains exactly
@@ -280,7 +301,7 @@ def _status_matches(entry: SubmissionViewEntry, submission_filter: str) -> bool:
         "needs_review": "needs_review",
         "staff_approved": "staff_approved",
     }
-    return entry.submission.status == status_map.get(submission_filter)
+    return bool(entry.submission.status == status_map.get(submission_filter))
 
 
 def _sort_value(entry: SubmissionViewEntry, sort_by: str) -> Any:

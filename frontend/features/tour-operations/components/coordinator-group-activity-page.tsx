@@ -38,6 +38,11 @@ import type {
 } from "@/features/operations/api/operations.api";
 import { offlineSnapshotKeys, readOfflineSnapshot, writeOfflineSnapshot } from "../services/offline-snapshot";
 import {
+  sanitizeOfflinePassengerSnapshots,
+  toOfflinePassengerSnapshot,
+  type OfflinePassengerSnapshot,
+} from "../services/passenger-offline-projection";
+import {
   mergeAttendanceSessionProgress,
   reconcileAttendanceSessionProgress,
 } from "../services/attendance-session-progress";
@@ -68,9 +73,14 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
   const group = visibleGroups.find((item) => item.id === groupId) ?? null;
   const passengersQuery = useMyTourGroupPassengers(groupId, hasHydrated && isCoordinator);
   const passengers = passengersQuery.data ?? EMPTY_PASSENGERS;
-  const cachedPassengers = useMemo<TourPassenger[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), []) : [],
-    [groupId, userId],
+  const passengerSnapshotKey = offlineSnapshotKeys.myPassengers(groupId);
+  const cachedPassengers = useMemo<OfflinePassengerSnapshot[]>(
+    () => userId
+      ? sanitizeOfflinePassengerSnapshots(
+          readOfflineSnapshot<unknown>(passengerSnapshotKey, []),
+        )
+      : [],
+    [passengerSnapshotKey, userId],
   );
   const visiblePassengers = passengersQuery.isSuccess ? passengers : cachedPassengers;
   const sessionsQuery = useMyAttendanceSessions(groupId, hasHydrated && isCoordinator);
@@ -95,9 +105,17 @@ export function CoordinatorGroupActivityPage({ groupId }: { groupId: string }) {
   );
 
   useEffect(() => {
+    if (!userId) return;
+    writeOfflineSnapshot(passengerSnapshotKey, cachedPassengers);
+  }, [cachedPassengers, passengerSnapshotKey, userId]);
+
+  useEffect(() => {
     if (!passengersQuery.isSuccess) return;
-    writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), passengers);
-  }, [groupId, passengers, passengersQuery.isSuccess]);
+    writeOfflineSnapshot(
+      passengerSnapshotKey,
+      passengers.map((passenger) => toOfflinePassengerSnapshot(passenger)),
+    );
+  }, [passengerSnapshotKey, passengers, passengersQuery.isSuccess]);
 
   useEffect(() => {
     if (!sessionsQuery.isSuccess) return;
@@ -344,7 +362,7 @@ const PassengerRoster = memo(function PassengerRoster({
   passengers,
   isLoading,
 }: {
-  passengers: TourPassenger[];
+  passengers: readonly OfflinePassengerSnapshot[];
   isLoading: boolean;
 }) {
   const [visibleCount, setVisibleCount] = useState(PASSENGER_PAGE_SIZE);

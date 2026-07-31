@@ -82,6 +82,7 @@ async def test_staff_cannot_link_broadcast_during_group_creation() -> None:
         await create_client_group(
             request=request,
             current_user=_user(UserRole.AGENCY_STAFF),
+            _csrf=None,
             use_case=use_case,
             session=SimpleNamespace(),  # type: ignore[arg-type]
         )

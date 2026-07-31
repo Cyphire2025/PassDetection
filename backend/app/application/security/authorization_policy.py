@@ -138,6 +138,24 @@ class AuthorizationPolicy:
 
         return await self.can_confirm_passport(user, passport)
 
+    async def passport_group_accepts_mutations(self, passport: Any) -> bool:
+        """Fail closed when the passport's group is archived, deleted, or missing."""
+
+        result = await self._session.execute(
+            select(ClientGroupModel.id)
+            .where(
+                ClientGroupModel.id == passport.group_id,
+                ClientGroupModel.agency_id == passport.agency_id,
+                ClientGroupModel.status.in_(
+                    [GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value]
+                ),
+                ClientGroupModel.deleted_at.is_(None),
+            )
+            .limit(1)
+            .with_for_update()
+        )
+        return result.scalar_one_or_none() is not None
+
     async def can_assign_coordinator(self, user: User, group: Any) -> bool:
         if user.role not in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF}:
             return False
@@ -155,7 +173,21 @@ class AuthorizationPolicy:
         return await self.coordinator_has_group(user.id, session.group_id)
 
     async def can_export_data(self, user: User, group: Any) -> bool:
-        return user.role in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF} and await self.can_view_group(user, group)
+        group_status = getattr(group.status, "value", group.status)
+        if (
+            user.role != UserRole.SUPER_ADMIN
+            and (
+                group_status == GroupStatus.DELETED.value
+                or getattr(group, "deleted_at", None) is not None
+            )
+        ):
+            return False
+        return user.role in {
+            UserRole.SUPER_ADMIN,
+            UserRole.AGENCY_ADMIN,
+            UserRole.AGENCY_MANAGER,
+            UserRole.AGENCY_STAFF,
+        } and await self.can_view_group(user, group)
 
     async def can_delete_data(self, user: User, group: Any, *, permanent: bool = False) -> bool:
         if user.role == UserRole.SUPER_ADMIN:
@@ -187,10 +219,18 @@ class AuthorizationPolicy:
     async def require_confirm_passport(self, user: User, passport: Any) -> None:
         if not await self.can_confirm_passport(user, passport):
             raise AuthorizationError("You cannot confirm this passport submission")
+        if not await self.passport_group_accepts_mutations(passport):
+            raise AuthorizationError(
+                "Archived or deleted groups are read-only"
+            )
 
     async def require_staff_approve_passport(self, user: User, passport: Any) -> None:
         if not await self.can_staff_approve_passport(user, passport):
             raise AuthorizationError("You cannot approve this passport submission")
+        if not await self.passport_group_accepts_mutations(passport):
+            raise AuthorizationError(
+                "Archived or deleted groups are read-only"
+            )
 
     async def require_assign_coordinator(self, user: User, group: Any) -> None:
         if not await self.can_assign_coordinator(user, group):

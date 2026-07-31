@@ -171,3 +171,11 @@ class PassportGroupSummaryDTO:
     designation_enabled: bool = False
     agency_dealership_name_enabled: bool = False
     notes: str | None = None
+
+
+@dataclass(frozen=True)
+class PassportGroupSummaryPageDTO:
+    items: list[PassportGroupSummaryDTO]
+    total: int
+    page: int
+    page_size: int

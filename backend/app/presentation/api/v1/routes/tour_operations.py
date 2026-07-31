@@ -94,6 +94,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     TourOperationsPhaseResponse,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
@@ -335,6 +336,7 @@ async def list_coordinators(
     response_model=CoordinatorResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a coordinator account",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def create_coordinator(
     body: CreateCoordinatorRequest,
@@ -398,6 +400,7 @@ async def list_tour_operation_groups(
     response_model=TourOperationsGroupResponse,
     status_code=status.HTTP_200_OK,
     summary="Assign multiple coordinators and evenly divide group passengers",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def assign_group_coordinators(
     group_id: uuid.UUID,
@@ -509,6 +512,7 @@ async def get_group_passenger_qr_codes(
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Generate a secure attendance QR token and reveal it once",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def generate_passenger_qr(
     group_id: uuid.UUID,
@@ -539,6 +543,7 @@ async def generate_passenger_qr(
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Revoke the current attendance QR and reveal a random replacement once",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def regenerate_passenger_qr(
     group_id: uuid.UUID,
@@ -569,6 +574,7 @@ async def regenerate_passenger_qr(
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Permanently revoke a passenger attendance QR",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def revoke_passenger_qr(
     group_id: uuid.UUID,
@@ -604,6 +610,7 @@ async def revoke_passenger_qr(
     "/groups/{group_id}/passengers/{passenger_id}/qr/active",
     response_model=PassengerQrTokenResponse,
     summary="Mark the latest passenger QR active or inactive",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def set_passenger_qr_active(
     group_id: uuid.UUID,
@@ -653,6 +660,7 @@ async def set_passenger_qr_active(
     "/groups/{group_id}/passengers/{passenger_id}/qr/expiration",
     response_model=PassengerQrTokenResponse,
     summary="Change or immediately expire the latest passenger QR",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def set_passenger_qr_expiration(
     group_id: uuid.UUID,
@@ -699,6 +707,7 @@ async def set_passenger_qr_expiration(
     response_model=list[AssignedPassengerResponse],
     status_code=status.HTTP_200_OK,
     summary="Assign selected group passengers to one assigned coordinator",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def assign_group_passengers(
     group_id: uuid.UUID,
@@ -873,7 +882,17 @@ async def get_my_group_passenger_detail(
     passenger = result.scalar_one_or_none()
     if not passenger:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group")
-    family_sizes = {passenger.family_group_id: 1} if passenger.family_group_id else {}
+    family_sizes: dict[uuid.UUID, int] = {}
+    if passenger.family_group_id:
+        family_count_result = await session.execute(
+            select(func.count(PassportSubmissionModel.id)).where(
+                PassportSubmissionModel.agency_id == agency_id,
+                PassportSubmissionModel.group_id == group_id,
+                PassportSubmissionModel.family_group_id == passenger.family_group_id,
+                PassportSubmissionModel.status.in_(SUBMITTED_PASSENGER_STATUSES),
+            )
+        )
+        family_sizes[passenger.family_group_id] = int(family_count_result.scalar_one())
     return AssignedPassengerDetailResponse(
         id=passenger.id,
         client_name=passenger.client_name,
@@ -906,6 +925,7 @@ async def get_my_group_passenger_detail(
     response_model=AttendanceSessionResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Start a coordinator attendance activity for a group",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def create_my_attendance_session(
     group_id: uuid.UUID,
@@ -1025,6 +1045,7 @@ async def get_my_attendance_session_details(
     response_model=AttendanceScanResponse,
     status_code=status.HTTP_200_OK,
     summary="Record one QR attendance scan for the current coordinator",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def record_my_attendance_scan(
     session_id: uuid.UUID,
@@ -1139,6 +1160,7 @@ async def record_my_attendance_scan(
     response_model=AttendanceSessionResponse,
     status_code=status.HTTP_200_OK,
     summary="Complete the current coordinator attendance activity",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def complete_my_attendance_session(
     session_id: uuid.UUID,

@@ -39,9 +39,17 @@ class RetryPublicPassportExtractionUseCase:
         token: str,
         submission_id: uuid.UUID,
     ) -> PassportSubmissionOutputDTO:
-        group = await self._client_group_repo.get_by_token(token)
+        group = await self._client_group_repo.get_by_token(
+            token,
+            for_update=True,
+        )
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
+        group_status = getattr(group.status, "value", group.status)
+        if group_status not in {"active", "closed"} or getattr(
+            group, "deleted_at", None
+        ) is not None:
+            raise ValidationError("Archived or deleted groups are read-only.")
 
         submission = await self._passport_repo.get_by_id_for_update(submission_id)
         if not submission or submission.group_id != group.id:

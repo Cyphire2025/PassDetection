@@ -7,6 +7,7 @@ import type {
   PassportDocumentImportRequest,
   PassportGroupExportKind,
   PassportGroupExportRequest,
+  PassportGroupSummariesParams,
   PassportWhatsAppTrackingExportRequest,
   PassportSelectedImagesExportRequest,
   PassportSelectedGroupsExportRequest,
@@ -56,6 +57,28 @@ export function useExportPassportGroup() {
         queryKey: ["passport-export-history", request.groupId, "passport_excel"],
       });
     },
+  });
+}
+
+export function usePassportGroupSummaries(params: PassportGroupSummariesParams) {
+  return useQuery({
+    queryKey: QUERY_KEYS.passports.groupSummaries(params),
+    queryFn: () => passportsApi.listGroupSummaries(params),
+    refetchInterval: 30_000,
+  });
+}
+
+export function usePassportGroupSummary(
+  groupId: string,
+  enabled = true,
+  includeArchived = false,
+) {
+  return useQuery({
+    queryKey: QUERY_KEYS.passports.groupSummary(groupId, includeArchived),
+    queryFn: () => passportsApi.getGroupSummary(groupId, includeArchived),
+    enabled: enabled && Boolean(groupId),
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 }
 

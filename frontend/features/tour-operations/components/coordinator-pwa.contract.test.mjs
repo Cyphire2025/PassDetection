@@ -60,8 +60,8 @@ test("offline scans remain pending until authoritative server reconciliation", (
   assert.match(queue, /groupId: string/);
   assert.match(queue, /\$\{ownerUserId\}:\$\{groupId\}:\$\{sessionId\}:\$\{qrPayload\}/);
   assert.match(progress, /:group:\$\{groupId\}/);
-  assert.match(queue, /const DB_VERSION = 3/);
-  assert.doesNotMatch(queue, /event\.oldVersion < 4/);
+  assert.match(queue, /const DB_VERSION = 4/);
+  assert.match(queue, /event\.oldVersion < 4/);
 });
 
 test("connected coordinator devices refresh shared activity counts within two seconds", () => {
@@ -92,6 +92,15 @@ test("offline replay quarantines every non-counting HTTP 200 response", () => {
     queue,
     /if \(!isSuccessfulAttendanceReplayStatus\(response\.status\)\) \{[\s\S]*?await quarantineRejectedAttendanceScan\([\s\S]*?discarded \+= 1;[\s\S]*?continue;/,
   );
+});
+
+test("rejected offline scans do not retain reusable QR bearer payloads", () => {
+  assert.match(
+    queue,
+    /projectRejectedAttendanceScanForStorage/,
+  );
+  assert.match(queue, /const pendingScanId = scan\.id/);
+  assert.match(queue, /migrateRejectedAttendanceScans\(rejectedStore\)/);
 });
 
 test("one coordinator completing a shared activity cannot block other scanners", () => {
@@ -163,7 +172,7 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
     /`\$\{SESSIONS_SNAPSHOT_KEY\}:\$\{groupId\}:user:\$\{ownerId\}`/,
   );
   assert.match(offlineScanner, /const DB_NAME = "passdetection-tour-ops"/);
-  assert.match(offlineScanner, /const DB_VERSION = 3/);
+  assert.match(offlineScanner, /const DB_VERSION = 4/);
   assert.match(offlineScanner, /const PENDING_STORE_NAME = "pending-attendance-scans"/);
   assert.match(offlineScanner, /\/\^pdatt:\[A-Za-z0-9_-\]\{43\}\$\//);
   assert.match(
@@ -206,7 +215,7 @@ test("cold-offline coordinator shell queues only owner-scoped attendance scans",
 });
 
 test("service worker caches only the exact public offline runtime and safely re-warms it", () => {
-  assert.match(serviceWorker, /passdetection-public-static-v8/);
+  assert.match(serviceWorker, /passdetection-public-static-v9/);
   assert.match(
     serviceWorker,
     /const PUBLIC_STATIC_ASSETS = \[\s*"\/offline\.html",\s*"\/offline-scanner\.js",\s*"\/offline\/vendor\/zxing-browser\.min\.js",\s*\]/,

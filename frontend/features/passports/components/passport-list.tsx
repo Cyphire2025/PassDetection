@@ -1,37 +1,66 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Download, Eye, FileText, FolderOpen, Link2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatDateTime } from "@/lib/utils/format";
 import type { PassportGroupSummary } from "@/types/passport.types";
-import { useExportSelectedGroups, usePassportGroups } from "../hooks/use-passports";
-import { PassportSelectedGroupsExportDialog } from "./passport-selected-groups-export-dialog";
+import type {
+  PassportGroupSummaryReviewFilter,
+  PassportGroupSummaryStatus,
+} from "../api/passports.api";
+import {
+  useExportSelectedGroups,
+  usePassportGroupSummaries,
+} from "../hooks/use-passports";
+
+const PassportSelectedGroupsExportDialog = dynamic(() =>
+  import("./passport-selected-groups-export-dialog").then(
+    (module) => module.PassportSelectedGroupsExportDialog,
+  ),
+);
+
+const GROUPS_PAGE_SIZE = 50;
 
 export function PassportList() {
-  const { data, isLoading, error } = usePassportGroups();
+  const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] =
+    useState<"all" | PassportGroupSummaryStatus>("all");
+  const [reviewFilter, setReviewFilter] =
+    useState<PassportGroupSummaryReviewFilter>("all");
+  const [destinationFilter, setDestinationFilter] = useState("");
+  const [debouncedDestinationFilter, setDebouncedDestinationFilter] = useState("");
+  const { data, isLoading, isFetching, error } = usePassportGroupSummaries({
+    page,
+    page_size: GROUPS_PAGE_SIZE,
+    ...(statusFilter !== "all" ? { group_status: statusFilter } : {}),
+    ...(reviewFilter !== "all" ? { review_filter: reviewFilter } : {}),
+    ...(debouncedDestinationFilter
+      ? { destination: debouncedDestinationFilter }
+      : {}),
+  });
   const exportSelected = useExportSelectedGroups();
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [reviewFilter, setReviewFilter] = useState("all");
-  const [destinationFilter, setDestinationFilter] = useState("");
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
-  const filteredGroups = useMemo(() => {
-    return (data ?? []).filter((group) => {
-      if (statusFilter !== "all" && group.group_status !== statusFilter) return false;
-      if (reviewFilter === "needs_review" && group.pending_review_count === 0) return false;
-      if (reviewFilter === "has_passports" && group.total_passports === 0) return false;
-      if (reviewFilter === "confirmed_only" && (group.total_passports === 0 || group.confirmed_count !== group.total_passports)) return false;
-      const tripText = `${group.destination ?? ""}`.toLowerCase();
-      if (destinationFilter.trim() && !tripText.includes(destinationFilter.trim().toLowerCase())) return false;
-      return true;
-    });
-  }, [data, destinationFilter, reviewFilter, statusFilter]);
+  const groups = data?.items ?? [];
+  const hasActiveFilters =
+    statusFilter !== "all"
+    || reviewFilter !== "all"
+    || Boolean(debouncedDestinationFilter);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedDestinationFilter(destinationFilter.trim());
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [destinationFilter]);
 
   const toggleGroup = (groupId: string) => {
     setSelectedGroups((current) =>
@@ -49,7 +78,12 @@ export function PassportList() {
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <select
           value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
+          onChange={(event) => {
+            setStatusFilter(
+              event.target.value as "all" | PassportGroupSummaryStatus,
+            );
+            setPage(1);
+          }}
           className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="all">All statuses</option>
@@ -59,7 +93,12 @@ export function PassportList() {
         </select>
         <select
           value={reviewFilter}
-          onChange={(event) => setReviewFilter(event.target.value)}
+          onChange={(event) => {
+            setReviewFilter(
+              event.target.value as PassportGroupSummaryReviewFilter,
+            );
+            setPage(1);
+          }}
           className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="all">All groups</option>
@@ -105,24 +144,33 @@ export function PassportList() {
             <Skeleton key={index} className="h-28 w-full rounded-2xl" />
           ))}
         </div>
-      ) : !data || data.length === 0 ? (
+      ) : data && data.total === 0 && !hasActiveFilters ? (
         <EmptyState
           icon={<Link2 className="h-5 w-5" />}
           title="Create an upload link"
           description="Start by creating a group link. Client passport submissions will appear here after they submit verified details."
           action={{ label: "Create Upload Link", onClick: () => { window.location.href = ROUTES.dashboard.uploadLinks; } }}
         />
-      ) : filteredGroups.length === 0 ? (
+      ) : groups.length === 0 ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
           title="No groups match these filters"
           description="Adjust the status, review, or destination filters to see more passport groups."
-          action={{ label: "Reset Filters", onClick: () => { setStatusFilter("all"); setReviewFilter("all"); setDestinationFilter(""); } }}
+          action={{
+            label: "Reset Filters",
+            onClick: () => {
+              setStatusFilter("all");
+              setReviewFilter("all");
+              setDestinationFilter("");
+              setDebouncedDestinationFilter("");
+              setPage(1);
+            },
+          }}
         />
       ) : (
         <>
           <div className="grid gap-4 lg:hidden">
-            {filteredGroups.map((group) => (
+            {groups.map((group) => (
               <PassportGroupMobileCard
                 key={group.group_id}
                 group={group}
@@ -148,7 +196,7 @@ export function PassportList() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredGroups.map((group) => (
+                    {groups.map((group) => (
                       <tr
                         key={group.group_id}
                         className="cursor-pointer hover:bg-slate-50/60"
@@ -186,7 +234,7 @@ export function PassportList() {
                           {group.total_passports > 0 ? formatDateTime(group.latest_submission_at) : "No uploads yet"}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} onClick={(event) => event.stopPropagation()}>
+                          <Link href={passportGroupHref(group) as never} onClick={(event) => event.stopPropagation()}>
                             <Button variant="outline" size="sm" className="gap-2">
                               <Eye className="h-4 w-4" />
                               Open Group
@@ -200,6 +248,41 @@ export function PassportList() {
               </div>
             </CardContent>
           </Card>
+          {data && data.total > 0 && (
+            <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                Showing {(data.page - 1) * data.page_size + 1}
+                {"–"}
+                {Math.min(data.page * data.page_size, data.total)} of {data.total} groups
+              </span>
+              <div className="flex items-center gap-2">
+                {isFetching && !isLoading && (
+                  <span className="mr-2 text-xs text-slate-400">Refreshing…</span>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={data.page <= 1 || isFetching}
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                >
+                  Previous
+                </Button>
+                <span className="min-w-24 text-center">
+                  Page {data.page} of {Math.max(data.total_pages, 1)}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={data.page >= data.total_pages || isFetching}
+                  onClick={() => setPage((current) => current + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -267,7 +350,7 @@ function PassportGroupMobileCard({
           <InfoPair label="Failed" value={String(group.failed_count)} />
         </div>
 
-        <Link href={ROUTES.dashboard.passportGroup(group.group_id) as never} className="block" onClick={(event) => event.stopPropagation()}>
+        <Link href={passportGroupHref(group) as never} className="block" onClick={(event) => event.stopPropagation()}>
           <Button variant="outline" className="w-full gap-2">
             <FolderOpen className="h-4 w-4" />
             Open Group
@@ -285,6 +368,13 @@ function InfoPair({ label, value }: { label: string; value: string }) {
       <div className="mt-1 font-medium text-slate-800">{value}</div>
     </div>
   );
+}
+
+function passportGroupHref(group: PassportGroupSummary) {
+  const pathname = ROUTES.dashboard.passportGroup(group.group_id);
+  return group.group_status === "archived"
+    ? `${pathname}?include_archived=1`
+    : pathname;
 }
 
 function GroupStatusBadge({ status }: { status: string }) {

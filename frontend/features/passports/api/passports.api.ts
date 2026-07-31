@@ -2,6 +2,7 @@ import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type {
   PassportGroupSummary,
+  PassportGroupSummaryPage,
   PassportSubmission,
   StaffApprovalRequest,
   StaffApprovalResult,
@@ -68,11 +69,28 @@ export type PassportGroupSubmissionSort =
 export interface PassportGroupSubmissionsViewParams {
   search?: string;
   include_deleted?: boolean;
+  include_archived?: boolean;
   submission_filter: PassportGroupSubmissionFilter;
   sort_by: PassportGroupSubmissionSort;
   sort_order: "asc" | "desc";
   page: number;
   page_size: number;
+}
+
+export type PassportGroupSummaryStatus = "active" | "closed" | "archived";
+export type PassportGroupSummaryReviewFilter =
+  | "all"
+  | "needs_review"
+  | "has_passports"
+  | "confirmed_only";
+
+export interface PassportGroupSummariesParams {
+  page: number;
+  page_size: number;
+  group_status?: PassportGroupSummaryStatus;
+  review_filter?: PassportGroupSummaryReviewFilter;
+  search?: string;
+  destination?: string;
 }
 
 export interface PassportExpiryAlert {
@@ -338,6 +356,29 @@ interface PassportReextractOptions {
 export const passportsApi = {
   listGroups: async (): Promise<PassportGroupSummary[]> => {
     const { data } = await apiClient.get<PassportGroupSummary[]>(API_ENDPOINTS.passports.groups);
+    return data;
+  },
+
+  listGroupSummaries: async (
+    params: PassportGroupSummariesParams,
+  ): Promise<PassportGroupSummaryPage> => {
+    const { data } = await apiClient.get<PassportGroupSummaryPage>(
+      API_ENDPOINTS.passports.groupSummaries,
+      { params },
+    );
+    return data;
+  },
+
+  getGroupSummary: async (
+    groupId: string,
+    includeArchived = false,
+  ): Promise<PassportGroupSummary> => {
+    const { data } = await apiClient.get<PassportGroupSummary>(
+      API_ENDPOINTS.passports.groupSummary(groupId),
+      {
+        params: includeArchived ? { include_archived: true } : undefined,
+      },
+    );
     return data;
   },
 

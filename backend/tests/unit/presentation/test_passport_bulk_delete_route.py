@@ -60,12 +60,27 @@ def _submission_row(submission_id: uuid.UUID) -> SimpleNamespace:
     )
 
 
+def _group(
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    *,
+    status: str = "active",
+    deleted_at: object | None = None,
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        id=group_id,
+        agency_id=agency_id,
+        status=status,
+        deleted_at=deleted_at,
+    )
+
+
 @pytest.mark.asyncio
 async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> None:
     group_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     submission_ids = [uuid.uuid4(), uuid.uuid4()]
-    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    group = _group(group_id, agency_id)
     events: list[str] = []
 
     async def commit() -> None:
@@ -172,7 +187,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
 async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> None:
     group_id = uuid.uuid4()
     submission_ids = [uuid.uuid4(), uuid.uuid4()]
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    group = _group(group_id, uuid.uuid4())
     session = SimpleNamespace(
         execute=AsyncMock(return_value=_Result(rows=[_submission_row(submission_ids[0])]))
     )
@@ -218,7 +233,7 @@ async def test_bulk_delete_is_all_or_nothing_when_a_selection_is_missing() -> No
 async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions() -> None:
     group_id = uuid.uuid4()
     submission_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    group = _group(group_id, uuid.uuid4())
     ordering: list[str] = []
 
     async def execute_locked_submission(_query: object) -> _Result:
@@ -270,7 +285,7 @@ async def test_bulk_delete_blocks_uploads_referenced_by_active_roster_decisions(
 @pytest.mark.asyncio
 async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
     group_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    group = _group(group_id, uuid.uuid4())
     session = SimpleNamespace(execute=AsyncMock())
 
     with (
@@ -299,10 +314,61 @@ async def test_bulk_delete_enforces_permanent_data_delete_permission() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("group_status", "deleted_at"),
+    [
+        ("archived", None),
+        ("deleted", None),
+        ("future_status", None),
+        ("active", object()),
+    ],
+)
+async def test_bulk_delete_rejects_historical_groups_before_selecting_rows(
+    group_status: str,
+    deleted_at: object | None,
+) -> None:
+    group_id = uuid.uuid4()
+    group = _group(
+        group_id,
+        uuid.uuid4(),
+        status=group_status,
+        deleted_at=deleted_at,
+    )
+    session = SimpleNamespace(execute=AsyncMock())
+
+    with (
+        patch.object(
+            ClientGroupRepository,
+            "get_by_id",
+            AsyncMock(return_value=group),
+        ),
+        patch.object(
+            AuthorizationPolicy,
+            "require_delete_data",
+            AsyncMock(return_value=None),
+        ),
+        pytest.raises(HTTPException) as caught,
+    ):
+        await bulk_delete_passport_submissions(
+            group_id=group_id,
+            body=BulkDeletePassportSubmissionsRequest(
+                submission_ids=[uuid.uuid4()]
+            ),
+            _csrf=None,
+            current_user=_super_admin(),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert caught.value.status_code == 409
+    assert "read-only" in str(caught.value.detail)
+    session.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> None:
     group_id = uuid.uuid4()
     submission_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    group = _group(group_id, uuid.uuid4())
     session = SimpleNamespace(
         execute=AsyncMock(
             side_effect=[
@@ -368,7 +434,7 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
 async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -> None:
     group_id = uuid.uuid4()
     submission_id = uuid.uuid4()
-    group = SimpleNamespace(id=group_id, agency_id=uuid.uuid4())
+    group = _group(group_id, uuid.uuid4())
     session = SimpleNamespace(
         execute=AsyncMock(
             side_effect=[

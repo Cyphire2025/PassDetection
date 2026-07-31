@@ -72,6 +72,7 @@ from app.presentation.api.v1.schemas.rooming_schemas import (
     UpdateRoomRequest,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 ROOMING_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF]
@@ -181,7 +182,7 @@ async def update_hotel_passenger_selection(
         )
         if {passenger.id for passenger in eligible} != requested_ids:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Every selected passenger must be an eligible member of this group.",
             )
 
@@ -303,7 +304,7 @@ async def update_hotel_vip_status(
     )
     if {membership.passenger_id for membership in memberships} != requested_ids:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="VIP status can be changed only for passengers selected for this hotel.",
         )
     changed = [
@@ -362,7 +363,7 @@ async def auto_allocate_hotel_rooms(
     )
     if not memberships:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Select at least one passenger for this hotel before auto allocation.",
         )
 
@@ -398,7 +399,7 @@ async def auto_allocate_hotel_rooms(
     ]
     if unknown_fields:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=(
                 "One or more priority fields are unavailable for this group "
                 f"({', '.join(unknown_fields)}). Refresh the priority options and try again."
@@ -434,7 +435,7 @@ async def auto_allocate_hotel_rooms(
         )
     if invalid_gender_ids:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=(
                 f"Auto allocation requires Gender to be Male or Female for all "
                 f"selected passengers. Correct {len(invalid_gender_ids)} passenger(s) "
@@ -836,7 +837,12 @@ async def get_hotel_checkins(
     return await _checkin_dashboard(session, hotel, group)
 
 
-@router.post("/hotels/{hotel_id}/check-ins/scan", response_model=HotelCheckinScanResponse, summary="Scan a passenger into a hotel")
+@router.post(
+    "/hotels/{hotel_id}/check-ins/scan",
+    response_model=HotelCheckinScanResponse,
+    summary="Scan a passenger into a hotel",
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def scan_hotel_checkin(
     hotel_id: uuid.UUID,
     body: HotelCheckinScanRequest,
@@ -903,7 +909,12 @@ async def scan_hotel_checkin(
     return HotelCheckinScanResponse(status="already_checked_in" if already_checked_in else "checked_in", message=f"{passenger.client_name} {'was already checked in' if already_checked_in else 'checked in'}.", checkin=item)
 
 
-@router.patch("/check-ins/{checkin_id}", response_model=HotelCheckinPassengerResponse, summary="Update hotel key, welcome kit, or remarks")
+@router.patch(
+    "/check-ins/{checkin_id}",
+    response_model=HotelCheckinPassengerResponse,
+    summary="Update hotel key, welcome kit, or remarks",
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def update_hotel_checkin(
     checkin_id: uuid.UUID,
     body: UpdateHotelCheckinRequest,

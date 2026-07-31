@@ -6,6 +6,7 @@ from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from fastapi import HTTPException
 from openpyxl import load_workbook
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,6 +23,7 @@ from app.domain.entities.entities import (
 from app.presentation.api.v1.routes import passports as passports_route
 from app.presentation.api.v1.schemas.passport_schemas import (
     ExportSelectedGroupsRequest,
+    ExportSelectedPassportsRequest,
 )
 
 NOW = datetime(2026, 7, 23, 12, tzinfo=UTC)
@@ -187,6 +189,12 @@ async def test_selected_groups_export_combines_pending_only_groups(
     ]
 
     assert session.execute.await_count == 2
+    group_sql = str(session.execute.await_args_list[0].args[0])
+    submission_sql = str(session.execute.await_args_list[1].args[0])
+    assert "client_groups.status !=" in group_sql
+    assert "client_groups.deleted_at IS NULL" in group_sql
+    assert "client_groups.status !=" in submission_sql
+    assert "client_groups.deleted_at IS NULL" in submission_sql
     matcher.assert_awaited_once_with(session, [], groups=groups)
     assert [
         worksheet.cell(row=row, column=name_column).value
@@ -217,6 +225,36 @@ async def test_selected_groups_export_combines_pending_only_groups(
     assert worksheet.tables["PassportSubmissions"].ref.endswith(
         str(worksheet.max_row)
     )
+
+
+@pytest.mark.asyncio
+async def test_selected_passport_export_excludes_retained_deleted_groups() -> None:
+    agency_id = uuid.uuid4()
+    empty_result = MagicMock()
+    empty_result.scalars.return_value.all.return_value = []
+    session = AsyncMock(spec=AsyncSession)
+    session.execute.return_value = empty_result
+
+    with pytest.raises(HTTPException) as exc_info:
+        await passports_route.export_selected_passports(
+            body=ExportSelectedPassportsRequest(
+                submission_ids=[uuid.uuid4()],
+            ),
+            current_user=User(
+                id=uuid.uuid4(),
+                email="admin@example.test",
+                hashed_password="hash",
+                full_name="Admin",
+                role=UserRole.AGENCY_ADMIN,
+                agency_id=agency_id,
+            ),
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 404
+    export_sql = str(session.execute.await_args.args[0])
+    assert "client_groups.status !=" in export_sql
+    assert "client_groups.deleted_at IS NULL" in export_sql
 
 
 def test_combined_catalog_places_common_fields_before_group_specific_fields() -> None:

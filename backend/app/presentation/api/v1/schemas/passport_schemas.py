@@ -530,3 +530,11 @@ class PassportGroupSummaryResponse(BaseModel):
     notes: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class PassportGroupSummaryPageResponse(BaseModel):
+    items: list[PassportGroupSummaryResponse] = Field(default_factory=list)
+    total: int = Field(ge=0)
+    page: int = Field(ge=1)
+    page_size: int = Field(ge=1)
+    total_pages: int = Field(ge=0)

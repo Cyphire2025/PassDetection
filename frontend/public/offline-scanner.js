@@ -17,7 +17,7 @@
   const SESSIONS_SNAPSHOT_KEY = "passdetection-tour-ops-my-sessions";
   const DEVICE_ID_KEY = "passdetection-coordinator-device-id";
   const DB_NAME = "passdetection-tour-ops";
-  const DB_VERSION = 3;
+  const DB_VERSION = 4;
   const PENDING_STORE_NAME = "pending-attendance-scans";
   const REJECTED_STORE_NAME = "rejected-attendance-scans";
   const OWNER_INDEX = "owner-user-id";
@@ -516,7 +516,14 @@
           database.deleteObjectStore(PENDING_STORE_NAME);
         }
         ensureOwnerScopedStore(database, upgrade, PENDING_STORE_NAME);
-        ensureOwnerScopedStore(database, upgrade, REJECTED_STORE_NAME);
+        const rejectedStore = ensureOwnerScopedStore(
+          database,
+          upgrade,
+          REJECTED_STORE_NAME,
+        );
+        if (event.oldVersion < 4) {
+          migrateRejectedAttendanceScans(rejectedStore);
+        }
       };
       request.onsuccess = () => {
         const database = request.result;
@@ -535,6 +542,61 @@
     if (!store.indexNames.contains(OWNER_INDEX)) {
       store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
     }
+    return store;
+  }
+
+  function migrateRejectedAttendanceScans(store) {
+    const request = store.openCursor();
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (!cursor) return;
+
+      const migrated = projectRejectedAttendanceScanForStorage(
+        cursor.value,
+        createClientEventId(),
+      );
+      if (!migrated) {
+        cursor.delete();
+        cursor.continue();
+        return;
+      }
+
+      store.put(migrated);
+      if (cursor.primaryKey !== migrated.id) {
+        store.delete(cursor.primaryKey);
+      }
+      cursor.continue();
+    };
+  }
+
+  function projectRejectedAttendanceScanForStorage(value, fallbackClientEventId) {
+    if (!value || typeof value !== "object") return null;
+    const ownerUserId = requiredStoredString(value.ownerUserId);
+    const sessionId = requiredStoredString(value.sessionId);
+    const clientEventId = requiredStoredString(value.clientEventId)
+      || requiredStoredString(fallbackClientEventId);
+    if (!ownerUserId || !sessionId || !clientEventId) return null;
+
+    const groupId = requiredStoredString(value.groupId) || undefined;
+    const rejectedAt = requiredStoredString(value.rejectedAt)
+      || new Date().toISOString();
+    const queuedAt = requiredStoredString(value.queuedAt) || rejectedAt;
+    return {
+      groupId,
+      sessionId,
+      clientEventId,
+      scannedAt: requiredStoredString(value.scannedAt) || queuedAt,
+      deviceId: requiredStoredString(value.deviceId) || "unknown",
+      ownerUserId,
+      queuedAt,
+      id: `${ownerUserId}:${groupId || "legacy"}:${sessionId}:${clientEventId}`,
+      rejectedAt,
+      errorCode: requiredStoredString(value.errorCode) || "UNKNOWN",
+    };
+  }
+
+  function requiredStoredString(value) {
+    return typeof value === "string" && value.length > 0 ? value : null;
   }
 
   function requestToPromise(request) {

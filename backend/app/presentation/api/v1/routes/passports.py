@@ -15,6 +15,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from functools import lru_cache
+from time import perf_counter
 from typing import Any, Literal
 
 from fastapi import (
@@ -99,6 +100,7 @@ from app.core.security.upload_session import upload_session_matches_identifier
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     ClientGroup,
+    GroupStatus,
     PassportSubmission,
     StaffApprovalOutcome,
     User,
@@ -164,6 +166,7 @@ from app.infrastructure.imports.passport_document_importer import (
     RejectedPassportDocument,
 )
 from app.infrastructure.imports.passport_excel_importer import PassportExcelImporter
+from app.infrastructure.observability.metrics import metrics
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
@@ -237,6 +240,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportExportHistoryItemResponse,
     PassportExportHistoryListResponse,
     PassportExportHistorySubmissionResponse,
+    PassportGroupSummaryPageResponse,
     PassportGroupSummaryResponse,
     PassportImageCropCoordinates,
     PassportImageCropResetRequest,
@@ -512,7 +516,7 @@ async def _current_group_export_submissions(
     )
     if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=(
                 "A single export is limited to "
                 f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
@@ -668,6 +672,20 @@ async def _cleanup_uncommitted_promotions(
 
 def _apply_manager_visibility(stmt, current_user: User):  # type: ignore[no-untyped-def]
     return AuthorizationPolicy.apply_passport_visibility_scope(stmt, current_user)
+
+
+def _apply_export_group_lifecycle_scope(
+    stmt: Any,
+    current_user: User,
+) -> Any:
+    """Keep retained deleted records behind the explicit super-admin boundary."""
+
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return stmt
+    return stmt.where(
+        ClientGroupModel.status != GroupStatus.DELETED.value,
+        ClientGroupModel.deleted_at.is_(None),
+    )
 
 
 async def _response_from_dto(
@@ -2538,7 +2556,13 @@ async def get_upload_passport_status(
     # async route can otherwise trigger an implicit synchronous refresh and
     # raise MissingGreenlet, turning an otherwise healthy status poll into 500.
     response_result = passport_submission_output_from_entity(submission, job=job)
-    if job is not None and queued_job_needs_redelivery(job):
+    if (
+        job is not None
+        and queued_job_needs_redelivery(job)
+        and await AuthorizationPolicy(session).passport_group_accepts_mutations(
+            submission
+        )
+    ):
         await _dispatch_processing_job(
             response_result,
             session=session,
@@ -2580,6 +2604,7 @@ async def scan_again_public_upload(
                 submission_id,
             )
         _require_public_upload_credential(submission, upload_session_id)
+        _require_mutable_passport_group(group)
         result = await use_case.execute(token=token, submission_id=submission_id)
         await _dispatch_processing_job(
             result,
@@ -2758,7 +2783,10 @@ async def discard_public_upload(
     ),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, bool]:
-    group = await ClientGroupRepository(session).get_by_token(token)
+    group = await ClientGroupRepository(session).get_by_token(
+        token,
+        for_update=True,
+    )
     submission_repo = PassportSubmissionRepository(session)
     submission = await submission_repo.get_by_id_for_update(submission_id)
     if not group or not submission or submission.group_id != group.id:
@@ -2772,6 +2800,7 @@ async def discard_public_upload(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Passport draft was not found",
         ) from exc
+    _require_mutable_passport_group(group)
     if submission.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Submitted passports cannot be discarded"
@@ -2816,8 +2845,8 @@ async def discard_public_upload(
 async def list_passport_groups(
     current_user: User = Depends(get_current_active_user),
     use_case: ListPassportGroupSummariesUseCase = Depends(_get_list_passport_groups_use_case),
-    skip: int = 0,
-    limit: int = 50,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
 ) -> list[PassportGroupSummaryResponse]:
     if not current_user.agency_id:
         return []
@@ -2830,6 +2859,110 @@ async def list_passport_groups(
         visible_to_user=current_user,
     )
     return [PassportGroupSummaryResponse.model_validate(item) for item in result]
+
+
+@router.get(
+    "/groups/summaries",
+    response_model=PassportGroupSummaryPageResponse,
+    status_code=status.HTTP_200_OK,
+    summary="List a filtered page of passport group summaries",
+)
+async def list_passport_group_summaries_page(
+    current_user: User = Depends(get_current_active_user),
+    use_case: ListPassportGroupSummariesUseCase = Depends(_get_list_passport_groups_use_case),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+    group_status: Literal["active", "closed", "archived"] | None = Query(default=None),
+    review_filter: Literal[
+        "all",
+        "needs_review",
+        "has_passports",
+        "confirmed_only",
+    ] = Query(default="all"),
+    search: str | None = Query(default=None, max_length=200),
+    destination: str | None = Query(default=None, max_length=255),
+) -> PassportGroupSummaryPageResponse:
+    if not current_user.agency_id:
+        return PassportGroupSummaryPageResponse(
+            items=[],
+            total=0,
+            page=page,
+            page_size=page_size,
+            total_pages=0,
+        )
+
+    query_started_at = perf_counter()
+    result = await use_case.execute_page(
+        agency_id=current_user.agency_id,
+        page=page,
+        page_size=page_size,
+        group_status=group_status,
+        review_filter=None if review_filter == "all" else review_filter,
+        search=search,
+        destination=destination,
+        include_archived=group_status == "archived",
+        created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
+    )
+    metrics.observe(
+        "passport.group_summaries.query_ms",
+        (perf_counter() - query_started_at) * 1000,
+    )
+    metrics.observe(
+        "passport.group_summaries.returned_count",
+        float(len(result.items)),
+    )
+    metrics.observe(
+        "passport.group_summaries.total_count",
+        float(result.total),
+    )
+    return PassportGroupSummaryPageResponse(
+        items=[
+            PassportGroupSummaryResponse.model_validate(item)
+            for item in result.items
+        ],
+        total=result.total,
+        page=result.page,
+        page_size=result.page_size,
+        total_pages=(
+            (result.total + result.page_size - 1) // result.page_size
+            if result.total
+            else 0
+        ),
+    )
+
+
+@router.get(
+    "/groups/{group_id}/summary",
+    response_model=PassportGroupSummaryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get one authorized passport group summary",
+)
+async def get_passport_group_summary(
+    group_id: uuid.UUID,
+    include_archived: bool = Query(default=False),
+    current_user: User = Depends(get_current_active_user),
+    use_case: ListPassportGroupSummariesUseCase = Depends(_get_list_passport_groups_use_case),
+) -> PassportGroupSummaryResponse:
+    if not current_user.agency_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport group not found",
+        )
+
+    result = await use_case.execute_one(
+        agency_id=current_user.agency_id,
+        group_id=group_id,
+        include_archived=include_archived,
+        created_by_user_id=_owner_scope_for(current_user),
+        visible_to_user=current_user,
+    )
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Passport group not found",
+        )
+    return PassportGroupSummaryResponse.model_validate(result)
 
 
 @router.get(
@@ -2900,6 +3033,7 @@ async def list_passports_by_group_view(
     page_size: int = Query(default=50, ge=1, le=200),
     search: str | None = Query(default=None, max_length=200),
     include_deleted: bool = False,
+    include_archived: bool = False,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
     use_case: ListPassportSubmissionsByGroupUseCase = Depends(
@@ -2923,9 +3057,15 @@ async def list_passports_by_group_view(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only super admins can view old data",
         )
+    if include_deleted and include_archived:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Choose either deleted or archived group access",
+        )
 
     # Identity clusters, search propagation, and status filtering must operate
     # over the complete authorized group before block-aware pagination.
+    load_started_at = perf_counter()
     all_submissions = await use_case.execute(
         agency_id=current_user.agency_id,
         group_id=group_id,
@@ -2934,16 +3074,34 @@ async def list_passports_by_group_view(
         search=None,
         created_by_user_id=(None if include_deleted else _owner_scope_for(current_user)),
         include_deleted_group=include_deleted,
+        include_archived_group=include_archived,
         visible_to_user=None if include_deleted else current_user,
     )
+    metrics.observe(
+        "passport.group_submissions_view.load_ms",
+        (perf_counter() - load_started_at) * 1000,
+    )
+    metrics.observe(
+        "passport.group_submissions_view.loaded_count",
+        float(len(all_submissions)),
+    )
     travel_date_stmt = select(ClientGroupModel.travel_date).where(ClientGroupModel.id == group_id)
-    if not include_deleted:
-        travel_date_stmt = travel_date_stmt.where(ClientGroupModel.deleted_at.is_(None))
+    if include_archived:
+        travel_date_stmt = travel_date_stmt.where(
+            ClientGroupModel.status != "deleted",
+            ClientGroupModel.deleted_at.is_(None),
+        )
+    elif not include_deleted:
+        travel_date_stmt = travel_date_stmt.where(
+            ClientGroupModel.status.notin_(["archived", "deleted"]),
+            ClientGroupModel.deleted_at.is_(None),
+        )
     travel_date_stmt = AuthorizationPolicy.apply_group_visibility_scope(
         travel_date_stmt,
         current_user,
     )
     travel_date = (await session.execute(travel_date_stmt)).scalar_one_or_none()
+    build_started_at = perf_counter()
     view = build_submission_view(
         all_submissions,
         submission_filter=submission_filter,
@@ -2953,6 +3111,14 @@ async def list_passports_by_group_view(
         page=page,
         page_size=page_size,
         travel_date=travel_date,
+    )
+    metrics.observe(
+        "passport.group_submissions_view.build_ms",
+        (perf_counter() - build_started_at) * 1000,
+    )
+    metrics.observe(
+        "passport.group_submissions_view.returned_count",
+        float(view.returned_count),
     )
     items: list[PassportSubmissionViewItemResponse] = []
     crop_rows = await PassportImageCropRepository(session).list_for_submissions(
@@ -3000,6 +3166,27 @@ async def list_passports_by_group_view(
     )
 
 
+def _passport_group_accepts_mutations(
+    group: ClientGroup | ClientGroupModel,
+) -> bool:
+    raw_status = group.status
+    group_status = raw_status.value if hasattr(raw_status, "value") else str(raw_status)
+    return (
+        group_status in {"active", "closed"}
+        and getattr(group, "deleted_at", None) is None
+    )
+
+
+def _require_mutable_passport_group(group: ClientGroup | ClientGroupModel) -> None:
+    """Reject office-side passport writes once a group becomes historical."""
+
+    if not _passport_group_accepts_mutations(group):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Archived or deleted groups are read-only",
+        )
+
+
 @router.post(
     "/groups/{group_id}/bulk-delete",
     response_model=BulkDeletePassportSubmissionsResponse,
@@ -3019,7 +3206,10 @@ async def bulk_delete_passport_submissions(
             detail="Insufficient permissions",
         )
 
-    group = await ClientGroupRepository(session).get_by_id(group_id)
+    group = await ClientGroupRepository(session).get_by_id(
+        group_id,
+        for_update=True,
+    )
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -3036,6 +3226,7 @@ async def bulk_delete_passport_submissions(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=exc.message,
         ) from exc
+    _require_mutable_passport_group(group)
 
     submission_ids = list(dict.fromkeys(body.submission_ids))
     selected_rows = await session.execute(
@@ -3669,7 +3860,7 @@ async def export_whatsapp_tracking_by_group(
     )
     if len(submissions) > PassportImageZipExporter.MAX_SUBMISSIONS:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=(
                 "A single export is limited to "
                 f"{PassportImageZipExporter.MAX_SUBMISSIONS} passengers."
@@ -4144,7 +4335,10 @@ async def export_passport_images_by_group(
     except MissingPassportImagesError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     except PassportImageExportLimitError as exc:
-        raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=str(exc))
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=str(exc),
+        )
     except StorageError:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -4277,7 +4471,7 @@ async def export_selected_passport_images_by_group(
         ) from exc
     except PassportImageExportLimitError as exc:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail=str(exc),
         ) from exc
     except StorageError as exc:
@@ -4322,6 +4516,7 @@ async def import_passports_by_group(
     group_id: uuid.UUID,
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> ImportPassportGroupResponse:
     if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
@@ -4330,7 +4525,7 @@ async def import_passports_by_group(
         )
 
     group_repo = ClientGroupRepository(session)
-    group = await group_repo.get_by_id(group_id)
+    group = await group_repo.get_by_id(group_id, for_update=True)
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
@@ -4339,6 +4534,7 @@ async def import_passports_by_group(
         await AuthorizationPolicy(session).require_export_data(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+    _require_mutable_passport_group(group)
 
     if not file.filename or not file.filename.lower().endswith((".xlsx", ".xlsm")):
         raise HTTPException(
@@ -4501,13 +4697,20 @@ def _staff_code_for_submission(submission: PassportSubmissionModel) -> str | Non
 
 
 async def _authorized_passport_document_group(
-    group_id: uuid.UUID, current_user: User, session: AsyncSession
-) -> ClientGroupModel:
+    group_id: uuid.UUID,
+    current_user: User,
+    session: AsyncSession,
+    *,
+    for_update: bool = False,
+) -> ClientGroup:
     if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
-    group = await ClientGroupRepository(session).get_by_id(group_id)
+    group = await ClientGroupRepository(session).get_by_id(
+        group_id,
+        for_update=for_update,
+    )
     if not group:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
@@ -4612,9 +4815,16 @@ async def save_passport_documents_by_group(
     background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(...),
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportDocumentImportSaveResponse:
-    group = await _authorized_passport_document_group(group_id, current_user, session)
+    group = await _authorized_passport_document_group(
+        group_id,
+        current_user,
+        session,
+        for_update=True,
+    )
+    _require_mutable_passport_group(group)
     if not any((file.filename or "").lower().endswith(".zip") for file in files):
         return await _save_loose_passport_documents_by_group(
             group=group,
@@ -4985,6 +5195,7 @@ async def export_selected_passports(
             PassportSubmissionModel.status.in_(_submitted_statuses()),
         )
     )
+    stmt = _apply_export_group_lifecycle_scope(stmt, current_user)
     stmt = _apply_manager_visibility(stmt, current_user)
     result = await session.execute(stmt)
     submissions = [
@@ -5097,6 +5308,10 @@ async def _selected_groups_export_context(
     group_stmt = select(ClientGroupModel).where(
         ClientGroupModel.id.in_(ordered_group_ids)
     )
+    group_stmt = _apply_export_group_lifecycle_scope(
+        group_stmt,
+        current_user,
+    )
     group_stmt = AuthorizationPolicy.apply_group_visibility_scope(
         group_stmt,
         current_user,
@@ -5125,6 +5340,7 @@ async def _selected_groups_export_context(
             PassportSubmissionModel.status.in_(_submitted_statuses()),
         )
     )
+    stmt = _apply_export_group_lifecycle_scope(stmt, current_user)
     stmt = _apply_manager_visibility(stmt, current_user)
     result = await session.execute(stmt)
     submissions = [
@@ -5428,7 +5644,7 @@ async def _load_effective_passport_image(
                 ) from exc
             except PassportImageCropError as exc:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail=str(exc),
                 ) from exc
             return rendered.content, rendered.content_type, rendered.extension
@@ -5582,7 +5798,7 @@ async def get_passport_image_thumbnail(
             )
         except PassportImageCropError as exc:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=str(exc),
             ) from exc
 
@@ -5722,7 +5938,7 @@ async def update_passport_image_crop(
         ) from exc
     except PassportImageCropError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
         ) from exc
 
     derived_key = (
@@ -5900,7 +6116,7 @@ async def preview_visa_ai_image_edit(
 def _visa_ai_edit_http_exception(exc: GeminiVisaImageEditError) -> HTTPException:
     if isinstance(exc, GeminiVisaImageEditRejected):
         return HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         )
     if isinstance(exc, GeminiVisaImageEditNotConfigured):
@@ -6038,7 +6254,7 @@ async def create_visa_ai_image_job(
         normalized_prompt = GeminiVisaImageEditService.validate_prompt(body.prompt)
     except GeminiVisaImageEditRejected as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
 
@@ -6414,7 +6630,7 @@ async def use_visa_ai_library_image(
         ) from exc
     except PassportImageCropError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
 
@@ -6554,7 +6770,7 @@ async def apply_visa_ai_image_edit(
     content = await image.read(limit + 1)
     if not content or len(content) > limit:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="The generated Visa image is empty or too large.",
         )
     try:
@@ -6605,7 +6821,7 @@ async def apply_visa_ai_image_edit(
         ) from exc
     except (PassportImageCropError, ValueError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
 
@@ -6824,10 +7040,15 @@ async def get_passport(
 ) -> PassportSubmissionResponse:
     try:
         result = await use_case.execute(submission_id)
-        await AuthorizationPolicy(session).require_view_passport(current_user, result)
+        policy = AuthorizationPolicy(session)
+        await policy.require_view_passport(current_user, result)
 
         job = await PassportProcessingJobRepository(session).latest_for_submission(result.id)
-        if job is not None and queued_job_needs_redelivery(job):
+        if (
+            job is not None
+            and queued_job_needs_redelivery(job)
+            and await policy.passport_group_accepts_mutations(result)
+        ):
             await _dispatch_processing_job(
                 replace(
                     result,
@@ -7195,6 +7416,7 @@ async def reextract_passport(
     submission_id: uuid.UUID,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
     reextract_use_case: ReextractPassportSubmissionUseCase = Depends(
         _get_reextract_passport_use_case
@@ -7233,6 +7455,7 @@ async def reextract_passport(
 async def cancel_passport_processing(
     submission_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     get_use_case: GetPassportSubmissionUseCase = Depends(_get_get_passport_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> PassportSubmissionResponse:

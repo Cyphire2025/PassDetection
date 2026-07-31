@@ -7,9 +7,15 @@ from __future__ import annotations
 
 import uuid
 
-from app.application.dtos.passport_dtos import PassportGroupSummaryDTO
+from app.application.dtos.passport_dtos import (
+    PassportGroupSummaryDTO,
+    PassportGroupSummaryPageDTO,
+)
 from app.domain.entities.entities import User
-from app.domain.repositories.interfaces import IPassportSubmissionRepository
+from app.domain.repositories.interfaces import (
+    IPassportSubmissionRepository,
+    PassportSubmissionGroupSummary,
+)
 
 
 class ListPassportGroupSummariesUseCase:
@@ -17,6 +23,36 @@ class ListPassportGroupSummariesUseCase:
 
     def __init__(self, passport_repo: IPassportSubmissionRepository) -> None:
         self._passport_repo = passport_repo
+
+    @staticmethod
+    def _to_dto(summary: PassportSubmissionGroupSummary) -> PassportGroupSummaryDTO:
+        return PassportGroupSummaryDTO(
+            group_id=summary.group_id,
+            group_name=summary.group_name,
+            group_status=summary.group_status,
+            total_passports=summary.total_passports,
+            pending_review_count=summary.pending_review_count,
+            confirmed_count=summary.confirmed_count,
+            failed_count=summary.failed_count,
+            latest_submission_at=summary.latest_submission_at,
+            destination=summary.destination,
+            travel_date=summary.travel_date,
+            return_date=summary.return_date,
+            package_name=summary.package_name,
+            departure_cities=list(summary.departure_cities or []),
+            base_city_enabled=summary.base_city_enabled,
+            nearest_international_airport_enabled=summary.nearest_international_airport_enabled,
+            staff_code_enabled=summary.staff_code_enabled,
+            agent_employee_code_enabled=summary.agent_employee_code_enabled,
+            meal_preference_enabled=summary.meal_preference_enabled,
+            require_selfie=summary.require_selfie,
+            allow_files_from_device=summary.allow_files_from_device,
+            ask_nearest_domestic_airport=summary.ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=summary.relation_with_qualifier_enabled,
+            designation_enabled=summary.designation_enabled,
+            agency_dealership_name_enabled=summary.agency_dealership_name_enabled,
+            notes=summary.notes,
+        )
 
     async def execute(
         self,
@@ -35,37 +71,55 @@ class ListPassportGroupSummariesUseCase:
             visible_to_user=visible_to_user,
         )
 
-        return [
-            PassportGroupSummaryDTO(
-                group_id=summary.group_id,
-                group_name=summary.group_name,
-                group_status=summary.group_status,
-                total_passports=summary.total_passports,
-                pending_review_count=summary.pending_review_count,
-                confirmed_count=summary.confirmed_count,
-                failed_count=summary.failed_count,
-                latest_submission_at=summary.latest_submission_at,
-                destination=summary.destination,
-                travel_date=summary.travel_date,
-                return_date=summary.return_date,
-                package_name=summary.package_name,
-                departure_cities=list(summary.departure_cities or []),
-                base_city_enabled=summary.base_city_enabled,
-                nearest_international_airport_enabled=summary.nearest_international_airport_enabled,
-                staff_code_enabled=summary.staff_code_enabled,
-                agent_employee_code_enabled=summary.agent_employee_code_enabled,
-                meal_preference_enabled=summary.meal_preference_enabled,
-                require_selfie=summary.require_selfie,
-                allow_files_from_device=summary.allow_files_from_device,
-                ask_nearest_domestic_airport=summary.ask_nearest_domestic_airport,
-                relation_with_qualifier_enabled=(
-                    summary.relation_with_qualifier_enabled
-                ),
-                designation_enabled=summary.designation_enabled,
-                agency_dealership_name_enabled=(
-                    summary.agency_dealership_name_enabled
-                ),
-                notes=summary.notes,
-            )
-            for summary in summaries
-        ]
+        return [self._to_dto(summary) for summary in summaries]
+
+    async def execute_page(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        page: int,
+        page_size: int,
+        group_status: str | None = None,
+        review_filter: str | None = None,
+        search: str | None = None,
+        destination: str | None = None,
+        include_archived: bool = False,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportGroupSummaryPageDTO:
+        result = await self._passport_repo.list_group_summaries_page_by_agency(
+            agency_id,
+            skip=(page - 1) * page_size,
+            limit=page_size,
+            group_status=group_status,
+            review_filter=review_filter,
+            search=search,
+            destination=destination,
+            exclude_archived_groups=not include_archived,
+            created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        )
+        return PassportGroupSummaryPageDTO(
+            items=[self._to_dto(summary) for summary in result.items],
+            total=result.total,
+            page=page,
+            page_size=page_size,
+        )
+
+    async def execute_one(
+        self,
+        agency_id: uuid.UUID,
+        group_id: uuid.UUID,
+        *,
+        include_archived: bool = False,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportGroupSummaryDTO | None:
+        summary = await self._passport_repo.get_group_summary_by_agency(
+            agency_id,
+            group_id,
+            exclude_archived_groups=not include_archived,
+            created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        )
+        return self._to_dto(summary) if summary else None

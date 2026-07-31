@@ -28,7 +28,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
     async def test_snapshots_submission_before_redelivery_commit(self) -> None:
         group_id = uuid.uuid4()
         submission_id = uuid.uuid4()
-        group = SimpleNamespace(id=group_id)
+        group = SimpleNamespace(
+            id=group_id,
+            status="active",
+            deleted_at=None,
+        )
         upload_credential = "private-upload-credential-12345678"
         submission = SimpleNamespace(
             id=submission_id,
@@ -91,6 +95,11 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
                 return_value=True,
             ),
             patch(
+                "app.presentation.api.v1.routes.passports.AuthorizationPolicy."
+                "passport_group_accepts_mutations",
+                AsyncMock(return_value=True),
+            ),
+            patch(
                 "app.presentation.api.v1.routes.passports."
                 "passport_submission_output_from_entity",
                 side_effect=snapshot,
@@ -115,6 +124,84 @@ class PassportUploadStatusRouteTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertIs(result, expected_response)
         self.assertEqual(events, ["snapshot", "dispatch_commit", "response"])
+
+    async def test_archived_group_poll_does_not_redeliver_queued_work(self) -> None:
+        group_id = uuid.uuid4()
+        submission_id = uuid.uuid4()
+        upload_credential = "private-upload-credential-12345678"
+        submission = SimpleNamespace(
+            id=submission_id,
+            group_id=group_id,
+            upload_idempotency_key=upload_credential,
+        )
+        response_snapshot = SimpleNamespace(id=submission_id)
+        dispatch = AsyncMock()
+        response = AsyncMock(return_value=object())
+
+        with (
+            patch(
+                "app.presentation.api.v1.routes.passports.ClientGroupRepository",
+                return_value=SimpleNamespace(
+                    get_by_token=AsyncMock(
+                        return_value=SimpleNamespace(
+                            id=group_id,
+                            status="archived",
+                            deleted_at=None,
+                        )
+                    )
+                ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports."
+                "PassportSubmissionRepository",
+                return_value=SimpleNamespace(
+                    get_by_id=AsyncMock(return_value=submission)
+                ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports."
+                "PassportProcessingJobRepository",
+                return_value=SimpleNamespace(
+                    latest_for_submission=AsyncMock(
+                        return_value=SimpleNamespace(id=uuid.uuid4())
+                    )
+                ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports."
+                "queued_job_needs_redelivery",
+                return_value=True,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports.AuthorizationPolicy."
+                "passport_group_accepts_mutations",
+                AsyncMock(return_value=False),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports."
+                "passport_submission_output_from_entity",
+                return_value=response_snapshot,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports."
+                "_dispatch_processing_job",
+                dispatch,
+            ),
+            patch(
+                "app.presentation.api.v1.routes.passports._response_from_dto",
+                response,
+            ),
+        ):
+            await get_upload_passport_status(
+                token="public-upload-token",
+                submission_id=submission_id,
+                background_tasks=BackgroundTasks(),
+                upload_session_id=upload_credential,
+                session=AsyncMock(),
+            )
+
+        dispatch.assert_not_awaited()
+        response.assert_awaited_once()
 
     async def test_cross_submission_credential_is_rejected_before_response(
         self,

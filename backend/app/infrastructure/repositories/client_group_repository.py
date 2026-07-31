@@ -97,17 +97,29 @@ class ClientGroupRepository(IClientGroupRepository):
             deletion_retained_records=entity.deletion_retained_records,
         )
 
-    async def get_by_id(self, link_id: uuid.UUID) -> ClientGroup | None:
-        result = await self._session.execute(
-            select(ClientGroupModel).where(ClientGroupModel.id == link_id)
-        )
+    async def get_by_id(
+        self,
+        link_id: uuid.UUID,
+        *,
+        for_update: bool = False,
+    ) -> ClientGroup | None:
+        stmt = select(ClientGroupModel).where(ClientGroupModel.id == link_id)
+        if for_update:
+            stmt = stmt.with_for_update()
+        result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 
-    async def get_by_token(self, token: str) -> ClientGroup | None:
-        result = await self._session.execute(
-            select(ClientGroupModel).where(ClientGroupModel.token == token)
-        )
+    async def get_by_token(
+        self,
+        token: str,
+        *,
+        for_update: bool = False,
+    ) -> ClientGroup | None:
+        stmt = select(ClientGroupModel).where(ClientGroupModel.token == token)
+        if for_update:
+            stmt = stmt.with_for_update()
+        result = await self._session.execute(stmt)
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
 

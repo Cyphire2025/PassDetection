@@ -262,6 +262,14 @@ export interface PassportGroupSummary {
   notes: string | null;
 }
 
+export interface PassportGroupSummaryPage {
+  items: PassportGroupSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
 export interface UploadLink extends TimestampedEntity {
   id: string;
   token: string;

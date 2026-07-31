@@ -19,7 +19,11 @@ import {
   readOfflineSnapshot,
   writeOfflineSnapshot,
 } from "../services/offline-snapshot";
-import type { TourPassenger } from "@/features/operations/api/operations.api";
+import {
+  sanitizeOfflinePassengerSnapshots,
+  toOfflinePassengerSnapshot,
+  type OfflinePassengerSnapshot,
+} from "../services/passenger-offline-projection";
 import { useNetworkStatus } from "../hooks/use-network-status";
 
 export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { groupId: string; passengerId: string }) {
@@ -36,21 +40,37 @@ export function CoordinatorPassengerDetailPage({ groupId, passengerId }: { group
     passengerId,
     hasHydrated && isCoordinator,
   );
-  const cachedPassengers = useMemo<TourPassenger[]>(
-    () => userId ? readOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), []) : [],
-    [groupId, userId],
+  const passengerSnapshotKey = offlineSnapshotKeys.myPassengers(groupId);
+  const cachedPassengers = useMemo<OfflinePassengerSnapshot[]>(
+    () => userId
+      ? sanitizeOfflinePassengerSnapshots(
+          readOfflineSnapshot<unknown>(passengerSnapshotKey, []),
+        )
+      : [],
+    [passengerSnapshotKey, userId],
   );
   const cachedPassenger = cachedPassengers.find((item) => item.id === passengerId) ?? null;
   const passenger = passengerQuery.data ?? cachedPassenger;
   const isShowingSavedPassenger = !passengerQuery.isSuccess && Boolean(cachedPassenger);
 
   useEffect(() => {
+    if (!userId) return;
+    writeOfflineSnapshot(passengerSnapshotKey, cachedPassengers);
+  }, [cachedPassengers, passengerSnapshotKey, userId]);
+
+  useEffect(() => {
     if (!passengerQuery.isSuccess || !passengerQuery.data) return;
-    const nextPassengers = cachedPassengers.some((item) => item.id === passengerQuery.data?.id)
-      ? cachedPassengers.map((item) => item.id === passengerQuery.data?.id ? passengerQuery.data : item)
-      : [...cachedPassengers, passengerQuery.data];
-    writeOfflineSnapshot(offlineSnapshotKeys.myPassengers(groupId), nextPassengers);
-  }, [cachedPassengers, groupId, passengerQuery.data, passengerQuery.isSuccess]);
+    const offlinePassenger = toOfflinePassengerSnapshot(passengerQuery.data);
+    const nextPassengers = cachedPassengers.some((item) => item.id === offlinePassenger.id)
+      ? cachedPassengers.map((item) => item.id === offlinePassenger.id ? offlinePassenger : item)
+      : [...cachedPassengers, offlinePassenger];
+    writeOfflineSnapshot(passengerSnapshotKey, nextPassengers);
+  }, [
+    cachedPassengers,
+    passengerQuery.data,
+    passengerQuery.isSuccess,
+    passengerSnapshotKey,
+  ]);
 
   if (!hasHydrated) {
     return <CoordinatorHydrationState label="Loading passenger details" />;

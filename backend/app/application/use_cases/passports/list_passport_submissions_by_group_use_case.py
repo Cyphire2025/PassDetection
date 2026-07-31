@@ -31,6 +31,7 @@ class ListPassportSubmissionsByGroupUseCase:
         search: str | None = None,
         created_by_user_id: uuid.UUID | None = None,
         include_deleted_group: bool = False,
+        include_archived_group: bool = False,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmissionOutputDTO]:
         submissions = await self._passport_repo.list_by_group(
@@ -39,7 +40,12 @@ class ListPassportSubmissionsByGroupUseCase:
             skip=skip,
             limit=limit,
             search=search,
-            exclude_archived_groups=not include_deleted_group,
+            exclude_archived_groups=(
+                not include_deleted_group and not include_archived_group
+            ),
+            include_archived_group=(
+                include_archived_group and not include_deleted_group
+            ),
             created_by_user_id=created_by_user_id,
             visible_to_user=visible_to_user,
         )

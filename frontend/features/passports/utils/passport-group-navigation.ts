@@ -97,9 +97,11 @@ export function buildPassportGroupHref(
   groupId: string,
   state: PassportGroupViewState,
   includeDeleted: boolean,
+  includeArchived = false,
 ) {
   const params = serializeViewState(state);
   if (includeDeleted) params.set("old_data", "1");
+  if (includeArchived && !includeDeleted) params.set("include_archived", "1");
   const query = params.toString();
   const pathname = ROUTES.dashboard.passportGroup(groupId);
   return query ? `${pathname}?${query}` : pathname;

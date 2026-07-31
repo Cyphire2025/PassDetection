@@ -264,6 +264,7 @@ async def test_same_agency_manager_can_manage_links_and_read_matches(
             whatsapp_broadcast_group_ids=[]
         ),
         current_user=viewer,
+        _csrf=None,
         session=db_session,
     )
     assert replacement.can_manage is True
@@ -412,6 +413,7 @@ async def test_patch_without_link_field_preserves_links_and_cross_tenant_rejects
         group.id,
         request,
         current_user=creator,
+        _csrf=None,
         session=db_session,
     )
     link_count = await db_session.scalar(

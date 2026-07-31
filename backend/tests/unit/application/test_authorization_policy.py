@@ -10,6 +10,7 @@ from sqlalchemy.dialects import postgresql
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import User, UserRole
+from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel
 
 
@@ -24,8 +25,20 @@ def _user(role: UserRole, agency_id: uuid.UUID | None = None) -> User:
     )
 
 
-def _group(agency_id: uuid.UUID, *, created_by_user_id: uuid.UUID | None = None):
-    return SimpleNamespace(id=uuid.uuid4(), agency_id=agency_id, created_by_user_id=created_by_user_id)
+def _group(
+    agency_id: uuid.UUID,
+    *,
+    created_by_user_id: uuid.UUID | None = None,
+    status: str = "active",
+    deleted_at: object | None = None,
+):
+    return SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        created_by_user_id=created_by_user_id,
+        status=status,
+        deleted_at=deleted_at,
+    )
 
 
 def _passport(agency_id: uuid.UUID, group_id: uuid.UUID):
@@ -80,6 +93,52 @@ async def test_manager_can_access_every_passport_in_own_agency() -> None:
         is True
     )
     assert await policy.can_view_passport(manager, other_agency_passport) is False
+
+
+@pytest.mark.asyncio
+async def test_passport_mutation_guard_is_group_and_tenant_scoped() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passport = _passport(agency_id, group_id)
+    result = SimpleNamespace(scalar_one_or_none=lambda: group_id)
+    session = SimpleNamespace(execute=AsyncMock(return_value=result))
+
+    assert (
+        await AuthorizationPolicy(session).passport_group_accepts_mutations(passport)
+        is True
+    )
+
+    sql = str(
+        session.execute.await_args.args[0].compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+    assert f"client_groups.id = '{group_id}'" in sql
+    assert f"client_groups.agency_id = '{agency_id}'" in sql
+    assert "client_groups.status IN ('active', 'closed')" in sql
+    assert "client_groups.deleted_at IS NULL" in sql
+    assert "FOR UPDATE" in sql
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "guard_method",
+    ["require_confirm_passport", "require_staff_approve_passport"],
+)
+async def test_passport_mutation_guards_reject_historical_or_missing_groups(
+    guard_method: str,
+) -> None:
+    agency_id = uuid.uuid4()
+    passport = _passport(agency_id, uuid.uuid4())
+    user = _user(UserRole.AGENCY_ADMIN, agency_id)
+    result = SimpleNamespace(scalar_one_or_none=lambda: None)
+    policy = AuthorizationPolicy(
+        SimpleNamespace(execute=AsyncMock(return_value=result))
+    )
+
+    with pytest.raises(AuthorizationError, match="read-only"):
+        await getattr(policy, guard_method)(user, passport)
 
 
 @pytest.mark.asyncio
@@ -281,3 +340,28 @@ async def test_delete_policy_separates_archive_from_permanent_delete() -> None:
     )
     assert await policy.can_delete_data(manager, other_manager_group) is True
     assert await policy.can_delete_data(manager, _group(uuid.uuid4())) is False
+
+
+@pytest.mark.asyncio
+async def test_deleted_groups_are_exportable_only_by_super_admins() -> None:
+    policy = AuthorizationPolicy(AsyncMock())
+    agency_id = uuid.uuid4()
+    admin = _user(UserRole.AGENCY_ADMIN, agency_id)
+    super_admin = _user(UserRole.SUPER_ADMIN)
+
+    assert await policy.can_export_data(
+        admin,
+        _group(agency_id, status="archived"),
+    )
+    assert not await policy.can_export_data(
+        admin,
+        _group(agency_id, status="deleted"),
+    )
+    assert not await policy.can_export_data(
+        admin,
+        _group(agency_id, deleted_at=object()),
+    )
+    assert await policy.can_export_data(
+        super_admin,
+        _group(agency_id, status="deleted", deleted_at=object()),
+    )

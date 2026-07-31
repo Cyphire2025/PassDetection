@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
@@ -27,7 +28,7 @@ import {
   useBulkDeletePassportSubmissions,
   useGroupSubmissionsView,
   useImportPassportGroup,
-  usePassportGroups,
+  usePassportGroupSummary,
   useReextractPassportSubmission,
   usePreviewPassportDocuments,
   useSavePassportDocuments,
@@ -47,8 +48,6 @@ import {
 import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
 import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
-import { PassportImageCropEditor } from "./passport-image-crop-editor";
-import { PassportExportDialog } from "./passport-export-dialog";
 import {
   buildPassportDetailNavigationHref,
   buildPassportGroupHref,
@@ -59,6 +58,17 @@ import {
   type PassportGroupViewState,
 } from "../utils/passport-group-navigation";
 
+const PassportImageCropEditor = dynamic(() =>
+  import("./passport-image-crop-editor").then(
+    (module) => module.PassportImageCropEditor,
+  ),
+);
+const PassportExportDialog = dynamic(() =>
+  import("./passport-export-dialog").then(
+    (module) => module.PassportExportDialog,
+  ),
+);
+
 interface PassportGroupDetailProps {
   groupId: string;
 }
@@ -66,6 +76,9 @@ interface PassportGroupDetailProps {
 export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const searchParams = useSearchParams();
   const includeDeleted = searchParams.get("old_data") === "1";
+  const includeArchived =
+    !includeDeleted && searchParams.get("include_archived") === "1";
+  const isReadOnlyGroup = includeDeleted || includeArchived;
   const currentUser = useAuthStore(selectUser);
   const currentUserId = currentUser?.id ?? null;
   const role = currentUser?.role ?? null;
@@ -129,6 +142,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   } = useGroupSubmissionsView(groupId, {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
     include_deleted: includeDeleted,
+    include_archived: includeArchived,
     submission_filter: submissionFilter,
     sort_by: sortBy,
     sort_order: sortOrder,
@@ -136,10 +150,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     page_size: pageSize,
   });
   const data = submissionsView?.items;
-  const { data: groups = [] } = usePassportGroups();
+  const { data: group } = usePassportGroupSummary(
+    groupId,
+    !includeDeleted,
+    includeArchived,
+  );
   const { data: deletedGroups = [] } = useUploadLinks("deleted", includeDeleted);
   const deletedGroup = deletedGroups.find((item) => item.id === groupId);
-  const group = groups.find((item) => item.group_id === groupId);
   const groupDetails = group ?? (deletedGroup ? {
     group_id: deletedGroup.id,
     group_name: deletedGroup.name,
@@ -241,11 +258,17 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       page,
       viewMode,
     };
-    const href = buildPassportGroupHref(groupId, viewState, includeDeleted);
+    const href = buildPassportGroupHref(
+      groupId,
+      viewState,
+      includeDeleted,
+      includeArchived,
+    );
     const currentHref = `${window.location.pathname}${window.location.search}`;
     if (href !== currentHref) window.history.replaceState(null, "", href);
   }, [
     groupId,
+    includeArchived,
     includeDeleted,
     page,
     debouncedSearch,
@@ -348,6 +371,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   };
 
   const handlePassportImportFiles = (files: File[]) => {
+    if (isReadOnlyGroup) return;
     setImportMessage(null);
     setPassportImportPreview(null);
     setPassportImportFiles(files);
@@ -421,7 +445,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <PageHeader
           title="Group Submissions"
-          description="Review the passport submissions uploaded through this group link."
+          description={
+            includeArchived
+              ? "Review this archived group in read-only mode."
+              : "Review the passport submissions uploaded through this group link."
+          }
         />
         <div className="flex items-center gap-2">
           <input
@@ -430,6 +458,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
             className="hidden"
             onChange={(event) => {
+              if (isReadOnlyGroup) return;
               const file = event.target.files?.[0];
               event.target.value = "";
               if (!file) return;
@@ -455,6 +484,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             accept=".zip,image/jpeg,image/png,image/webp"
             className="hidden"
             onChange={(event) => {
+              if (isReadOnlyGroup) return;
               const files = Array.from(event.target.files ?? []);
               event.target.value = "";
               if (!files.length) return;
@@ -511,32 +541,36 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                   <Download className="h-4 w-4 text-slate-500" />
                   {exportImagesMutation.isPending ? "Preparing Images" : "Download Passport Images"}
                 </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  disabled={importMutation.isPending}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  onClick={() => {
-                    setIsActionsMenuOpen(false);
-                    importInputRef.current?.click();
-                  }}
-                >
-                  <UploadCloud className="h-4 w-4 text-slate-500" />
-                  {importMutation.isPending ? "Importing" : "Import Excel"}
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  disabled={passportPreviewMutation.isPending || passportSaveMutation.isPending}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  onClick={() => {
-                    setIsActionsMenuOpen(false);
-                    passportImportInputRef.current?.click();
-                  }}
-                >
-                  <UploadCloud className="h-4 w-4 text-slate-500" />
-                  {passportPreviewMutation.isPending ? "Checking documents" : "Import Passports"}
-                </button>
+                {!isReadOnlyGroup && (
+                  <>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={importMutation.isPending}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => {
+                        setIsActionsMenuOpen(false);
+                        importInputRef.current?.click();
+                      }}
+                    >
+                      <UploadCloud className="h-4 w-4 text-slate-500" />
+                      {importMutation.isPending ? "Importing" : "Import Excel"}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={passportPreviewMutation.isPending || passportSaveMutation.isPending}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => {
+                        setIsActionsMenuOpen(false);
+                        passportImportInputRef.current?.click();
+                      }}
+                    >
+                      <UploadCloud className="h-4 w-4 text-slate-500" />
+                      {passportPreviewMutation.isPending ? "Checking documents" : "Import Passports"}
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   role="menuitem"
@@ -559,6 +593,16 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           </div>
         </div>
       </div>
+
+      {includeArchived && (
+        <div
+          role="status"
+          className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+          This group is archived. Its trip details and passport submissions are
+          available for reference only.
+        </div>
+      )}
 
       {groupDetails && (
         <Card>
@@ -588,12 +632,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                   />
                   {isTripDetailsExpanded ? "Hide details" : "Show details"}
                 </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    setTripForm({
+                {!isReadOnlyGroup && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setTripForm({
                       name: groupDetails.group_name,
                       destination: groupDetails.destination ?? "",
                       travel_date: groupDetails.travel_date ?? "",
@@ -614,12 +659,13 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                         groupDetails.agency_dealership_name_enabled ?? false,
                       notes: groupDetails.notes ?? "",
                     });
-                    setIsEditingTrip(true);
-                  }}
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </Button>
+                      setIsEditingTrip(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </Button>
+                )}
               </div>
             </div>
             {isTripDetailsExpanded && (
@@ -655,7 +701,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         </Card>
       )}
 
-      {!includeDeleted && (
+      {!isReadOnlyGroup && (
         <>
           {canAccessWhatsApp && (
             <GroupWhatsAppBroadcastPanel groupId={groupId} />
@@ -689,7 +735,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         </div>
       )}
 
-      {passportImportProgress && (
+      {!isReadOnlyGroup && passportImportProgress && (
         <PassportDocumentImportProgress
           processed={passportImportProgress.processed}
           total={passportImportProgress.total}
@@ -697,7 +743,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         />
       )}
 
-      {passportImportPreview && (
+      {!isReadOnlyGroup && passportImportPreview && (
         <PassportDocumentImportDialog
           preview={passportImportPreview}
           files={passportImportFiles}
@@ -767,13 +813,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 id={expiryAlertsRegionId}
                 className="grid gap-3 border-t border-red-200 px-5 pb-5 pt-4 md:grid-cols-2"
               >
-                {expiryAlerts.map((passport) => (
-                  <Link
-                    key={passport.submission_id}
-                    href={passportDetailHref(passport.submission_id) as never}
-                    onClick={persistNavigationContext}
-                    className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
-                  >
+                {expiryAlerts.map((passport) => {
+                  const alertContent = (
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="font-semibold text-slate-900">{passport.client_name}</div>
@@ -787,8 +828,26 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                         ) || "Expiry missing"}
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  );
+
+                  return includeArchived ? (
+                    <div
+                      key={passport.submission_id}
+                      className="rounded-lg border border-red-200 bg-white p-3"
+                    >
+                      {alertContent}
+                    </div>
+                  ) : (
+                    <Link
+                      key={passport.submission_id}
+                      href={passportDetailHref(passport.submission_id) as never}
+                      onClick={persistNavigationContext}
+                      className="rounded-lg border border-red-200 bg-white p-3 hover:bg-red-50"
+                    >
+                      {alertContent}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </CardContent>
@@ -884,7 +943,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               <Download className="h-4 w-4" />
               Download Passports ({selectedPassports.length})
             </Button>
-            {canPermanentlyDelete && !includeDeleted && (
+            {canPermanentlyDelete && !isReadOnlyGroup && (
               <Button
                 type="button"
                 variant="danger"
@@ -938,8 +997,12 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       ) : error ? null : (submissionsView?.group_total ?? 0) === 0 ? (
         <EmptyState
           icon={<UploadCloud className="h-5 w-5" />}
-          title="Drop passport here"
-          description="Share this group link with clients or upload a passport through the client page. Submitted passports will appear here."
+          title={includeArchived ? "No passport submissions" : "Drop passport here"}
+          description={
+            includeArchived
+              ? "This archived group has no passport submissions available for reference."
+              : "Share this group link with clients or upload a passport through the client page. Submitted passports will appear here."
+          }
         />
       ) : !data || data.length === 0 ? (
         <EmptyState
@@ -961,7 +1024,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       ) : viewMode === "docs" ? (
         <PassportDocumentMatrix
           passports={filteredPassports}
-          canEdit={canEditImages && !includeDeleted}
+          canEdit={canEditImages && !isReadOnlyGroup}
           revision={imageRevision}
           onEdit={(submissionId, imageType, label, returnFocusTarget) => {
             setImageEditor({ submissionId, imageType, label, returnFocusTarget });
@@ -981,6 +1044,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 <PassportMobileCard
                   passport={passport}
                   selected={selectedPassports.includes(passport.id)}
+                  readOnly={isReadOnlyGroup}
+                  canOpen={!includeArchived}
                   onToggle={() => togglePassport(passport.id)}
                   detailHref={passportDetailHref(passport.id)}
                   onOpen={persistNavigationContext}
@@ -1059,19 +1124,34 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                         <td className="px-6 py-4 text-slate-500">{formatDateTime(passport.updated_at)}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
-                            <ReextractPassportControl passport={passport} compact />
-                            <Link
-                              href={passportDetailHref(passport.id) as never}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                persistNavigationContext();
-                              }}
-                            >
-                              <Button variant="outline" size="sm" className="gap-2">
+                            {!isReadOnlyGroup && (
+                              <ReextractPassportControl passport={passport} compact />
+                            )}
+                            {includeArchived ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                disabled
+                              >
                                 <Eye className="h-4 w-4" />
-                                Open
+                                Archived
                               </Button>
-                            </Link>
+                            ) : (
+                              <Link
+                                href={passportDetailHref(passport.id) as never}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  persistNavigationContext();
+                                }}
+                              >
+                                <Button variant="outline" size="sm" className="gap-2">
+                                  <Eye className="h-4 w-4" />
+                                  Open
+                                </Button>
+                              </Link>
+                            )}
                           </div>
                         </td>
                         </tr>
@@ -1120,7 +1200,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         </div>
       )}
 
-      {isEditingTrip && groupDetails && (
+      {!isReadOnlyGroup && isEditingTrip && groupDetails && (
         <TripDetailsDialog
           form={tripForm}
           isLoading={updateGroup.isPending}
@@ -1157,7 +1237,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           }}
         />
       )}
-      {imageEditor && canEditImages && (
+      {!isReadOnlyGroup && imageEditor && canEditImages && (
         <PassportImageCropEditor
           submissionId={imageEditor.submissionId}
           imageType={imageEditor.imageType}
@@ -1219,7 +1299,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         />
       )}
       <ConfirmDialog
-        isOpen={isBulkDeleteConfirmationOpen}
+        isOpen={!isReadOnlyGroup && isBulkDeleteConfirmationOpen}
         title="Delete selected submissions?"
         description={`Permanently delete ${selectedPassports.length} selected passport submission${selectedPassports.length === 1 ? "" : "s"}, including uploaded passport and Visa Photo files? This cannot be undone.`}
         confirmLabel={`Delete ${selectedPassports.length} submission${selectedPassports.length === 1 ? "" : "s"}`}
@@ -1229,7 +1309,11 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           if (!bulkDelete.isPending) setIsBulkDeleteConfirmationOpen(false);
         }}
         onConfirm={() => {
-          if (selectedPassports.length === 0 || bulkDelete.isPending) return;
+          if (
+            isReadOnlyGroup
+            || selectedPassports.length === 0
+            || bulkDelete.isPending
+          ) return;
           bulkDelete.mutate(selectedPassports, {
             onSuccess: (result) => {
               setSelectedPassports([]);
@@ -1303,12 +1387,16 @@ function DuplicateClusterHeader({
 function PassportMobileCard({
   passport,
   selected,
+  readOnly,
+  canOpen,
   onToggle,
   detailHref,
   onOpen,
 }: {
   passport: PassportSubmission;
   selected: boolean;
+  readOnly: boolean;
+  canOpen: boolean;
   onToggle: () => void;
   detailHref: string;
   onOpen: () => void;
@@ -1354,21 +1442,33 @@ function PassportMobileCard({
           <InfoPair label="Date of Expiry" value={getDashboardPassportDate(passport, "date_of_expiry")} />
         </div>
 
-        <div className={`grid gap-2 ${needsReextraction(passport) || passport.extraction_status === "processing" ? "sm:grid-cols-2" : ""}`}>
-          <ReextractPassportControl passport={passport} />
-          <Link
-            href={detailHref as never}
-            className="block"
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpen();
-            }}
-          >
-            <Button variant="outline" className="w-full gap-2">
+        <div className={`grid gap-2 ${!readOnly && (needsReextraction(passport) || passport.extraction_status === "processing") ? "sm:grid-cols-2" : ""}`}>
+          {!readOnly && <ReextractPassportControl passport={passport} />}
+          {canOpen ? (
+            <Link
+              href={detailHref as never}
+              className="block"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+            >
+              <Button variant="outline" className="w-full gap-2">
+                <Eye className="h-4 w-4" />
+                Open Submission
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2"
+              disabled
+            >
               <Eye className="h-4 w-4" />
-              Open Submission
+              Archived - read only
             </Button>
-          </Link>
+          )}
         </div>
       </CardContent>
     </Card>

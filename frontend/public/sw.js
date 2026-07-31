@@ -1,4 +1,4 @@
-const CACHE_NAME = "passdetection-public-static-v8";
+const CACHE_NAME = "passdetection-public-static-v9";
 const PUBLIC_STATIC_ASSETS = [
   "/offline.html",
   "/offline-scanner.js",

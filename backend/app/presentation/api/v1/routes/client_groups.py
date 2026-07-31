@@ -67,6 +67,7 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 from app.core.security.upload_session import is_valid_upload_session_id
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
+    ClientGroup,
     User,
     UserRole,
 )
@@ -449,7 +450,9 @@ async def _require_managed_group(
     session: AsyncSession,
     current_user: User,
     link_id: uuid.UUID,
-):  # type: ignore[no-untyped-def]
+    *,
+    require_mutable: bool = False,
+) -> ClientGroup:
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
         raise HTTPException(
@@ -463,14 +466,39 @@ async def _require_managed_group(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=exc.message,
         ) from exc
+    if require_mutable:
+        await _require_mutable_client_group(session, group)
     return group
+
+
+async def _require_mutable_client_group(
+    session: AsyncSession,
+    group: ClientGroup,
+) -> None:
+    """Lock and allow office writes only while a group is active or closed."""
+
+    result = await session.execute(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group.id,
+            ClientGroupModel.agency_id == group.agency_id,
+            ClientGroupModel.status.in_(["active", "closed"]),
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .with_for_update()
+    )
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Archived or deleted groups are read-only",
+        )
 
 
 async def _require_viewable_group(
     session: AsyncSession,
     current_user: User,
     link_id: uuid.UUID,
-):  # type: ignore[no-untyped-def]
+) -> ClientGroup:
     group = await ClientGroupRepository(session).get_by_id(link_id)
     if not group:
         raise HTTPException(
@@ -605,6 +633,7 @@ def _require_matching_roster_resolution_replay(
 async def create_client_group(
     request: CreateClientGroupRequest,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     use_case: CreateClientGroupUseCase = Depends(_get_create_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
@@ -968,10 +997,16 @@ async def replace_client_group_whatsapp_links(
     link_id: uuid.UUID,
     body: ReplaceWhatsAppBroadcastLinksRequest,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(
+        session,
+        current_user,
+        link_id,
+        require_mutable=True,
+    )
     summaries, previous_ids, changed = await _replace_whatsapp_links(
         session,
         group_id=group.id,
@@ -1382,7 +1417,12 @@ async def resolve_unidentified_as_replacement(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(
+        session,
+        current_user,
+        link_id,
+        require_mutable=True,
+    )
     existing_result = await session.execute(
         select(PassportRosterResolutionModel).where(
             PassportRosterResolutionModel.client_group_id == group.id,
@@ -1663,7 +1703,12 @@ async def reject_unidentified_upload(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(
+        session,
+        current_user,
+        link_id,
+        require_mutable=True,
+    )
     existing_result = await session.execute(
         select(PassportRosterResolutionModel).where(
             PassportRosterResolutionModel.client_group_id == group.id,
@@ -1783,7 +1828,12 @@ async def restore_roster_resolution(
     _csrf: None = Depends(require_cookie_csrf),
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
-    group = await _require_managed_group(session, current_user, link_id)
+    group = await _require_managed_group(
+        session,
+        current_user,
+        link_id,
+        require_mutable=True,
+    )
     result = await session.execute(
         select(PassportRosterResolutionModel)
         .where(
@@ -1881,6 +1931,7 @@ async def restore_roster_resolution(
 async def revoke_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     use_case: RevokeClientGroupUseCase = Depends(_get_revoke_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
@@ -1896,6 +1947,7 @@ async def revoke_client_group(
         )
     try:
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
+        await _require_mutable_client_group(session, group)
         result = await use_case.execute(
             link_id=link_id,
             agency_id=current_user.agency_id,
@@ -1920,6 +1972,7 @@ async def update_client_group(
     link_id: uuid.UUID,
     request: UpdateClientGroupRequest,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
     if not current_user.agency_id:
@@ -1937,6 +1990,7 @@ async def update_client_group(
         await AuthorizationPolicy(session).require_manage_group(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+    await _require_mutable_client_group(session, group)
 
     if request.whatsapp_broadcast_group_ids is not None:
         _require_whatsapp_broadcast_access(current_user)
@@ -2048,6 +2102,7 @@ async def update_client_group(
 async def delete_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     use_case: DeleteClientGroupUseCase = Depends(_get_delete_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
@@ -2063,6 +2118,7 @@ async def delete_client_group(
         )
     try:
         await AuthorizationPolicy(session).require_delete_data(current_user, group)
+        await _require_mutable_client_group(session, group)
         result = await use_case.execute(
             group_id=link_id,
             agency_id=current_user.agency_id,
@@ -2086,6 +2142,7 @@ async def permanently_delete_client_group(
     link_id: uuid.UUID,
     retain_records: bool = True,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, int | bool]:
     if not current_user.agency_id:
@@ -2220,6 +2277,7 @@ async def permanently_delete_client_group(
 async def restore_client_group(
     link_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     use_case: RestoreClientGroupUseCase = Depends(_get_restore_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:

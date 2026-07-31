@@ -156,6 +156,76 @@ def test_mixed_place_missing_requires_corroboration_and_rejects_conflict() -> No
     assert conflicting_view.items == ()
 
 
+def test_blank_passport_does_not_bridge_conflicting_passport_identities() -> None:
+    passport_a_fields = _passport_fields("A111", "")
+    blank_fields = _passport_fields("", "")
+    passport_b_fields = _passport_fields("B222", "")
+    passport_a = _submission(name="Asha", confirmed=passport_a_fields)
+    blank = _submission(name="Asha", confirmed=blank_fields)
+    passport_b = _submission(name="Asha", confirmed=passport_b_fields)
+
+    view = build_submission_view(
+        [passport_a, blank, passport_b],
+        submission_filter="duplicates",
+        sort_by="name",
+        sort_order="asc",
+        search=None,
+        page=1,
+        page_size=50,
+    )
+
+    assert view.items == ()
+    assert view.total == 0
+
+
+def test_blank_passport_does_not_join_when_complete_identity_conflicts() -> None:
+    incomplete_a = _submission(
+        name="Asha",
+        confirmed=_passport_fields("A111", ""),
+    )
+    blank = _submission(
+        name="Asha",
+        confirmed=_passport_fields("", ""),
+    )
+    complete_b = _submission(
+        name="Asha",
+        confirmed=_passport_fields("B222", "Chennai"),
+    )
+
+    view = build_submission_view(
+        [incomplete_a, blank, complete_b],
+        submission_filter="duplicates",
+        sort_by="name",
+        sort_order="asc",
+        search=None,
+        page=1,
+        page_size=50,
+    )
+
+    assert view.items == ()
+    assert view.total == 0
+
+
+def test_blank_passport_can_join_one_unambiguous_incomplete_identity() -> None:
+    passport_fields = _passport_fields("A111", "")
+    blank_fields = _passport_fields("", "")
+    passport = _submission(name="Asha", confirmed=passport_fields)
+    blank = _submission(name="Asha", confirmed=blank_fields)
+
+    view = build_submission_view(
+        [passport, blank],
+        submission_filter="duplicates",
+        sort_by="name",
+        sort_order="asc",
+        search=None,
+        page=1,
+        page_size=50,
+    )
+
+    assert {item.submission.id for item in view.items} == {passport.id, blank.id}
+    assert all(item.duplicate_cluster_size == 2 for item in view.items)
+
+
 def test_search_returns_whole_cluster_then_status_filter_is_member_truthful() -> None:
     fields = _passport_fields("P777", "Chennai")
     approved = _submission(

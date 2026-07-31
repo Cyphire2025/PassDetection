@@ -57,6 +57,10 @@ export const QUERY_KEYS = {
     all: ["passports"] as const,
     list: (params?: object) => ["passports", "list", params] as const,
     groups: (params?: object) => ["passports", "groups", params] as const,
+    groupSummaries: (params?: object) =>
+      ["passports", "group-summaries", params] as const,
+    groupSummary: (groupId: string, includeArchived = false) =>
+      ["passports", "group-summary", groupId, { includeArchived }] as const,
     groupDetail: (groupId: string, params?: object) => ["passports", "groups", groupId, params] as const,
     detail: (id: string) => ["passports", "detail", id] as const,
   },

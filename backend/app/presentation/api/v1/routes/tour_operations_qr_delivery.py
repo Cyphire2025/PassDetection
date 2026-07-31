@@ -46,6 +46,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     SendQrBroadcastResponse,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
@@ -461,6 +462,7 @@ async def preview_qr_whatsapp_broadcast(
     "/groups/{group_id}/qr-codes/whatsapp-send",
     response_model=SendQrBroadcastResponse,
     status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def send_qr_whatsapp_broadcast(
     group_id: uuid.UUID,

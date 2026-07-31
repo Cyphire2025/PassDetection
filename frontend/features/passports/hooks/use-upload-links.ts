@@ -2,8 +2,14 @@
  * React Query Hooks for Upload Links
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { isAxiosError } from "axios";
+import { QUERY_KEYS as APP_QUERY_KEYS } from "@/constants";
 import {
   uploadLinksApi,
   type CreateUploadLinkRequest,
@@ -27,6 +33,24 @@ const QUERY_KEYS = {
     ["upload-links", id, "replacement-candidates"] as const
   ),
 };
+
+function invalidatePassportGroupQueries(
+  queryClient: QueryClient,
+  groupId?: string,
+) {
+  queryClient.invalidateQueries({
+    queryKey: APP_QUERY_KEYS.passports.groups(),
+    exact: true,
+  });
+  queryClient.invalidateQueries({
+    queryKey: ["passports", "group-summaries"],
+  });
+  if (groupId) {
+    queryClient.invalidateQueries({
+      queryKey: ["passports", "group-summary", groupId],
+    });
+  }
+}
 
 export function useUploadLinks(statusFilter?: UploadLinkResponse["status"], enabled = true) {
   return useQuery({
@@ -55,8 +79,9 @@ export function useCreateUploadLink() {
 
   return useMutation({
     mutationFn: (data: CreateUploadLinkRequest) => uploadLinksApi.create(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, response.id);
     },
   });
 }
@@ -66,8 +91,9 @@ export function useRevokeUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.revoke(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, id);
     },
   });
 }
@@ -77,8 +103,9 @@ export function useDeleteUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.delete(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, id);
     },
   });
 }
@@ -90,6 +117,7 @@ export function useUpdateUploadLink() {
     mutationFn: ({ id, ...data }: UpdateUploadLinkRequest & { id: string }) => uploadLinksApi.update(id, data),
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, variables.id);
       queryClient.invalidateQueries({
         queryKey: ["passport-export-fields", variables.id],
       });
@@ -248,8 +276,9 @@ export function usePermanentlyDeleteUploadLink() {
   return useMutation({
     mutationFn: ({ id, retainRecords }: { id: string; retainRecords: boolean }) =>
       uploadLinksApi.permanentDelete(id, retainRecords),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, variables.id);
     },
   });
 }
@@ -259,8 +288,9 @@ export function useRestoreUploadLink() {
 
   return useMutation({
     mutationFn: (id: string) => uploadLinksApi.restore(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.all });
+      invalidatePassportGroupQueries(queryClient, id);
     },
   });
 }

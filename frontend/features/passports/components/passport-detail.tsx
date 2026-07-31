@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -56,7 +57,6 @@ import {
   PASSPORT_LIBRARY_IMAGE_ACCEPT,
   validatePassportLibraryImage,
 } from "../utils/passport-image-library";
-import { PassportImageCropEditor } from "./passport-image-crop-editor";
 import {
   buildPassportDetailNavigationHref,
   buildPassportGroupHref,
@@ -66,6 +66,12 @@ import {
   type PassportDetailNavigationState,
   type StoredPassportNavigationContext,
 } from "../utils/passport-group-navigation";
+
+const PassportImageCropEditor = dynamic(() =>
+  import("./passport-image-crop-editor").then(
+    (module) => module.PassportImageCropEditor,
+  ),
+);
 
 interface PassportDetailProps {
   id: string;

@@ -121,6 +121,7 @@ async def test_data_removal_deletes_submissions_before_qualifier_rows() -> None:
             link_id=group.id,
             retain_records=False,
             current_user=current_user,  # type: ignore[arg-type]
+            _csrf=None,
             session=session,  # type: ignore[arg-type]
         )
 
@@ -187,6 +188,7 @@ async def test_permanent_group_delete_blocks_active_roster_decisions() -> None:
             link_id=group.id,
             retain_records=False,
             current_user=current_user,  # type: ignore[arg-type]
+            _csrf=None,
             session=session,  # type: ignore[arg-type]
         )
 

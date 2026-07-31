@@ -57,6 +57,12 @@ class PassportSubmissionGroupSummary:
     notes: str | None = None
 
 
+@dataclass(frozen=True)
+class PassportSubmissionGroupSummaryPage:
+    items: list[PassportSubmissionGroupSummary]
+    total: int
+
+
 class IUserRepository(ABC):
     """Contract for user persistence operations."""
 
@@ -104,10 +110,20 @@ class IClientGroupRepository(ABC):
     """Contract for upload link persistence operations."""
 
     @abstractmethod
-    async def get_by_id(self, link_id: uuid.UUID) -> ClientGroup | None: ...
+    async def get_by_id(
+        self,
+        link_id: uuid.UUID,
+        *,
+        for_update: bool = False,
+    ) -> ClientGroup | None: ...
 
     @abstractmethod
-    async def get_by_token(self, token: str) -> ClientGroup | None: ...
+    async def get_by_token(
+        self,
+        token: str,
+        *,
+        for_update: bool = False,
+    ) -> ClientGroup | None: ...
 
     @abstractmethod
     async def save(self, link: ClientGroup) -> ClientGroup: ...
@@ -252,6 +268,7 @@ class IPassportSubmissionRepository(ABC):
         limit: int | None = 50,
         search: str | None = None,
         exclude_archived_groups: bool = False,
+        include_archived_group: bool = False,
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmission]: ...
@@ -267,6 +284,33 @@ class IPassportSubmissionRepository(ABC):
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmissionGroupSummary]: ...
+
+    @abstractmethod
+    async def list_group_summaries_page_by_agency(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        skip: int = 0,
+        limit: int = 50,
+        group_status: str | None = None,
+        review_filter: str | None = None,
+        search: str | None = None,
+        destination: str | None = None,
+        exclude_archived_groups: bool = True,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportSubmissionGroupSummaryPage: ...
+
+    @abstractmethod
+    async def get_group_summary_by_agency(
+        self,
+        agency_id: uuid.UUID,
+        group_id: uuid.UUID,
+        *,
+        exclude_archived_groups: bool = True,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportSubmissionGroupSummary | None: ...
 
     @abstractmethod
     async def exists_contact_in_group(

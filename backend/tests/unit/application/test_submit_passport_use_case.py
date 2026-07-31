@@ -27,4 +27,7 @@ class SubmitPassportUseCaseTests(unittest.IsolatedAsyncioTestCase):
                 passport_photo=None,
             )
 
-        client_group_repo.get_by_token.assert_awaited_once_with("public-token")
+        client_group_repo.get_by_token.assert_awaited_once_with(
+            "public-token",
+            for_update=True,
+        )

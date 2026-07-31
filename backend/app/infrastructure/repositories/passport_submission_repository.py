@@ -7,6 +7,7 @@ Concrete implementation of IPassportSubmissionRepository.
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
 from sqlalchemy import and_, case, delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
@@ -27,6 +28,7 @@ from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import (
     IPassportSubmissionRepository,
     PassportSubmissionGroupSummary,
+    PassportSubmissionGroupSummaryPage,
 )
 from app.infrastructure.database.models import (
     ClientGroupModel,
@@ -499,6 +501,7 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         limit: int | None = 50,
         search: str | None = None,
         exclude_archived_groups: bool = False,
+        include_archived_group: bool = False,
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> list[PassportSubmission]:
@@ -512,7 +515,15 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             )
         )
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
+            stmt = stmt.where(
+                ClientGroupModel.status.notin_(["archived", "deleted"]),
+                ClientGroupModel.deleted_at.is_(None),
+            )
+        elif include_archived_group:
+            stmt = stmt.where(
+                ClientGroupModel.status != "deleted",
+                ClientGroupModel.deleted_at.is_(None),
+            )
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         if visible_to_user:
@@ -543,16 +554,102 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             )
         )
 
-    async def list_group_summaries_by_agency(
+    @staticmethod
+    def _group_summary_from_row(row: Any) -> PassportSubmissionGroupSummary:
+        return PassportSubmissionGroupSummary(
+            group_id=row.group_id,
+            group_name=row.group_name,
+            group_status=row.group_status,
+            total_passports=int(row.total_passports or 0),
+            pending_review_count=int(row.pending_review_count or 0),
+            confirmed_count=int(row.confirmed_count or 0),
+            failed_count=int(row.failed_count or 0),
+            latest_submission_at=row.latest_submission_at,
+            destination=row.destination,
+            travel_date=row.travel_date,
+            return_date=row.return_date,
+            package_name=row.package_name,
+            departure_cities=list(row.departure_cities or []),
+            base_city_enabled=row.base_city_enabled,
+            nearest_international_airport_enabled=(
+                row.nearest_international_airport_enabled
+            ),
+            staff_code_enabled=row.staff_code_enabled,
+            agent_employee_code_enabled=row.agent_employee_code_enabled,
+            meal_preference_enabled=row.meal_preference_enabled,
+            require_selfie=row.require_selfie,
+            allow_files_from_device=row.allow_files_from_device,
+            ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
+            relation_with_qualifier_enabled=row.relation_with_qualifier_enabled,
+            designation_enabled=row.designation_enabled,
+            agency_dealership_name_enabled=row.agency_dealership_name_enabled,
+            notes=row.notes,
+        )
+
+    @staticmethod
+    def _literal_contains_pattern(value: str) -> str:
+        normalized = " ".join(value.strip().lower().split())
+        escaped = (
+            normalized.replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
+        return f"%{escaped}%"
+
+    def _group_summary_statement(
         self,
         agency_id: uuid.UUID,
         *,
-        skip: int = 0,
-        limit: int = 50,
+        group_id: uuid.UUID | None = None,
+        group_status: str | None = None,
+        review_filter: str | None = None,
+        search: str | None = None,
+        destination: str | None = None,
         exclude_archived_groups: bool = True,
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
-    ) -> list[PassportSubmissionGroupSummary]:
+    ) -> Any:
+        summary_statuses = (
+            *self._office_visible_statuses(),
+            PassportProcessingStatus.FAILED.value,
+        )
+        total_passports = func.count(PassportSubmissionModel.id)
+        pending_review_count = func.sum(
+            case(
+                (
+                    PassportSubmissionModel.status.in_(
+                        PENDING_REVIEW_PASSPORT_STATUS_VALUES
+                    ),
+                    1,
+                ),
+                else_=0,
+            )
+        )
+        confirmed_count = func.sum(
+            case(
+                (
+                    PassportSubmissionModel.status.in_(
+                        CONFIRMED_PASSPORT_STATUS_VALUES
+                    ),
+                    1,
+                ),
+                else_=0,
+            )
+        )
+        failed_count = func.sum(
+            case(
+                (
+                    PassportSubmissionModel.status
+                    == PassportProcessingStatus.FAILED.value,
+                    1,
+                ),
+                else_=0,
+            )
+        )
+        latest_submission_at = func.coalesce(
+            func.max(PassportSubmissionModel.updated_at),
+            ClientGroupModel.created_at,
+        )
         stmt = (
             select(
                 ClientGroupModel.id.label("group_id"),
@@ -581,51 +678,60 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.agency_dealership_name_enabled.label(
                     "agency_dealership_name_enabled"
                 ),
-                func.count(PassportSubmissionModel.id).label("total_passports"),
-                func.sum(
-                    case(
-                        (
-                            PassportSubmissionModel.status.in_(
-                                PENDING_REVIEW_PASSPORT_STATUS_VALUES
-                            ),
-                            1,
-                        ),
-                        else_=0,
-                    )
-                ).label("pending_review_count"),
-                func.sum(
-                    case(
-                        (
-                            PassportSubmissionModel.status.in_(
-                                CONFIRMED_PASSPORT_STATUS_VALUES
-                            ),
-                            1,
-                        ),
-                        else_=0,
-                    )
-                ).label("confirmed_count"),
-                func.sum(
-                    case((PassportSubmissionModel.status == PassportProcessingStatus.FAILED.value, 1), else_=0)
-                ).label("failed_count"),
-                func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).label(
-                    "latest_submission_at"
-                ),
+                total_passports.label("total_passports"),
+                pending_review_count.label("pending_review_count"),
+                confirmed_count.label("confirmed_count"),
+                failed_count.label("failed_count"),
+                latest_submission_at.label("latest_submission_at"),
             )
             .outerjoin(
                 PassportSubmissionModel,
                 and_(
                     PassportSubmissionModel.group_id == ClientGroupModel.id,
-                    PassportSubmissionModel.status.in_(self._office_visible_statuses()),
+                    PassportSubmissionModel.status.in_(summary_statuses),
                 ),
             )
             .where(ClientGroupModel.agency_id == agency_id)
         )
+        if group_id:
+            stmt = stmt.where(ClientGroupModel.id == group_id)
         if exclude_archived_groups:
-            stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
+            stmt = stmt.where(
+                ClientGroupModel.status.notin_(["archived", "deleted"]),
+                ClientGroupModel.deleted_at.is_(None),
+            )
+        else:
+            stmt = stmt.where(
+                ClientGroupModel.status != "deleted",
+                ClientGroupModel.deleted_at.is_(None),
+            )
         if created_by_user_id:
             stmt = self._apply_manager_group_scope(stmt, created_by_user_id)
         if visible_to_user:
             stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, visible_to_user)
+        if group_status:
+            stmt = stmt.where(ClientGroupModel.status == group_status)
+        if destination and destination.strip():
+            pattern = self._literal_contains_pattern(destination)
+            stmt = stmt.where(
+                func.lower(func.coalesce(ClientGroupModel.destination, "")).like(
+                    pattern,
+                    escape="\\",
+                )
+            )
+        if search and search.strip():
+            pattern = self._literal_contains_pattern(search)
+            stmt = stmt.where(
+                or_(
+                    func.lower(ClientGroupModel.name).like(pattern, escape="\\"),
+                    func.lower(
+                        func.coalesce(ClientGroupModel.destination, "")
+                    ).like(pattern, escape="\\"),
+                    func.lower(
+                        func.coalesce(ClientGroupModel.package_name, "")
+                    ).like(pattern, escape="\\"),
+                )
+            )
         stmt = (
             stmt.group_by(
                 ClientGroupModel.id,
@@ -650,45 +756,118 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
                 ClientGroupModel.agency_dealership_name_enabled,
                 ClientGroupModel.created_at,
             )
-            .order_by(func.coalesce(func.max(PassportSubmissionModel.updated_at), ClientGroupModel.created_at).desc())
+        )
+        if review_filter == "needs_review":
+            stmt = stmt.having(pending_review_count > 0)
+        elif review_filter == "has_passports":
+            stmt = stmt.having(total_passports > 0)
+        elif review_filter == "confirmed_only":
+            stmt = stmt.having(
+                and_(
+                    total_passports > 0,
+                    confirmed_count == total_passports,
+                )
+            )
+        return stmt
+
+    @staticmethod
+    def _order_group_summary_statement(stmt: Any) -> Any:
+        return stmt.order_by(
+            func.coalesce(
+                func.max(PassportSubmissionModel.updated_at),
+                ClientGroupModel.created_at,
+            ).desc(),
+            ClientGroupModel.id.asc(),
+        )
+
+    async def list_group_summaries_by_agency(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        skip: int = 0,
+        limit: int = 50,
+        exclude_archived_groups: bool = True,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> list[PassportSubmissionGroupSummary]:
+        stmt = self._group_summary_statement(
+            agency_id,
+            exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        )
+        stmt = self._order_group_summary_statement(stmt).offset(skip).limit(limit)
+        result = await self._session.execute(stmt)
+        return [self._group_summary_from_row(row) for row in result.all()]
+
+    async def list_group_summaries_page_by_agency(
+        self,
+        agency_id: uuid.UUID,
+        *,
+        skip: int = 0,
+        limit: int = 50,
+        group_status: str | None = None,
+        review_filter: str | None = None,
+        search: str | None = None,
+        destination: str | None = None,
+        exclude_archived_groups: bool = True,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportSubmissionGroupSummaryPage:
+        unpaged_stmt = self._group_summary_statement(
+            agency_id,
+            group_status=group_status,
+            review_filter=review_filter,
+            search=search,
+            destination=destination,
+            exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        )
+        count_source = (
+            unpaged_stmt
+            .with_only_columns(ClientGroupModel.id)
+            .group_by(None)
+            .group_by(ClientGroupModel.id)
+        )
+        count_result = await self._session.execute(
+            select(func.count()).select_from(count_source.subquery())
+        )
+        total = int(count_result.scalar_one())
+
+        page_stmt = (
+            self._order_group_summary_statement(unpaged_stmt)
             .offset(skip)
             .limit(limit)
         )
+        page_result = await self._session.execute(page_stmt)
+        return PassportSubmissionGroupSummaryPage(
+            items=[
+                self._group_summary_from_row(row)
+                for row in page_result.all()
+            ],
+            total=total,
+        )
+
+    async def get_group_summary_by_agency(
+        self,
+        agency_id: uuid.UUID,
+        group_id: uuid.UUID,
+        *,
+        exclude_archived_groups: bool = True,
+        created_by_user_id: uuid.UUID | None = None,
+        visible_to_user: User | None = None,
+    ) -> PassportSubmissionGroupSummary | None:
+        stmt = self._group_summary_statement(
+            agency_id,
+            group_id=group_id,
+            exclude_archived_groups=exclude_archived_groups,
+            created_by_user_id=created_by_user_id,
+            visible_to_user=visible_to_user,
+        ).limit(1)
         result = await self._session.execute(stmt)
-        return [
-            PassportSubmissionGroupSummary(
-                group_id=row.group_id,
-                group_name=row.group_name,
-                group_status=row.group_status,
-                total_passports=int(row.total_passports),
-                pending_review_count=int(row.pending_review_count or 0),
-                confirmed_count=int(row.confirmed_count or 0),
-                failed_count=int(row.failed_count or 0),
-                latest_submission_at=row.latest_submission_at,
-                destination=row.destination,
-                travel_date=row.travel_date,
-                return_date=row.return_date,
-                package_name=row.package_name,
-                departure_cities=list(row.departure_cities or []),
-                base_city_enabled=row.base_city_enabled,
-                nearest_international_airport_enabled=row.nearest_international_airport_enabled,
-                staff_code_enabled=row.staff_code_enabled,
-                agent_employee_code_enabled=row.agent_employee_code_enabled,
-                meal_preference_enabled=row.meal_preference_enabled,
-                require_selfie=row.require_selfie,
-                allow_files_from_device=row.allow_files_from_device,
-                ask_nearest_domestic_airport=row.ask_nearest_domestic_airport,
-                relation_with_qualifier_enabled=(
-                    row.relation_with_qualifier_enabled
-                ),
-                designation_enabled=row.designation_enabled,
-                agency_dealership_name_enabled=(
-                    row.agency_dealership_name_enabled
-                ),
-                notes=row.notes,
-            )
-            for row in result.all()
-        ]
+        row = result.first()
+        return self._group_summary_from_row(row) if row else None
 
     async def exists_contact_in_group(
         self,

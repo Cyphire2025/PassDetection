@@ -7,6 +7,10 @@ import {
   isSuccessfulAttendanceReplayStatus,
   type AttendanceSyncUpdate,
 } from "./attendance-sync-policy";
+import {
+  projectRejectedAttendanceScanForStorage,
+  type RejectedAttendanceScanStorageRecord,
+} from "./rejected-attendance-scan-projection";
 
 export interface AttendanceScanInput {
   groupId: string;
@@ -25,10 +29,7 @@ export interface PendingAttendanceScan extends Omit<AttendanceScanInput, "groupI
   queuedAt: string;
 }
 
-export interface RejectedAttendanceScan extends PendingAttendanceScan {
-  rejectedAt: string;
-  errorCode: string;
-}
+export type RejectedAttendanceScan = RejectedAttendanceScanStorageRecord;
 
 export interface AttendanceScanSyncResult {
   synced: number;
@@ -40,7 +41,7 @@ export interface AttendanceScanSyncResult {
 export type AttendanceScanSyncUpdate = AttendanceSyncUpdate;
 
 const DB_NAME = "passdetection-tour-ops";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const PENDING_STORE_NAME = "pending-attendance-scans";
 const REJECTED_STORE_NAME = "rejected-attendance-scans";
 const OWNER_INDEX = "owner-user-id";
@@ -246,19 +247,23 @@ async function performPendingAttendanceScanSync(): Promise<AttendanceScanSyncRes
 async function quarantineRejectedAttendanceScan(scan: PendingAttendanceScan, errorCode: string) {
   const ownerUserId = getCurrentUserId();
   if (!ownerUserId || scan.ownerUserId !== ownerUserId) return;
+  const pendingScanId = scan.id;
   const db = await openDb();
   try {
     const transaction = db.transaction([PENDING_STORE_NAME, REJECTED_STORE_NAME], "readwrite");
     const completion = transactionToPromise(transaction);
     const pendingStore = transaction.objectStore(PENDING_STORE_NAME);
     const rejectedStore = transaction.objectStore(REJECTED_STORE_NAME);
-    const rejectedScan: RejectedAttendanceScan = {
-      ...scan,
+    const rejectedScan = projectRejectedAttendanceScanForStorage(scan, {
       rejectedAt: new Date().toISOString(),
       errorCode,
-    };
+      fallbackClientEventId: scan.clientEventId || createMigrationClientEventId(),
+    });
+    if (!rejectedScan) {
+      throw new Error("The rejected attendance scan could not be projected safely.");
+    }
     await requestToPromise(rejectedStore.put(rejectedScan));
-    await requestToPromise(pendingStore.delete(scan.id));
+    await requestToPromise(pendingStore.delete(pendingScanId));
     await completion;
   } finally {
     db.close();
@@ -307,24 +312,71 @@ function openDb() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = (event) => {
       const db = request.result;
+      const upgrade = request.transaction;
+      if (!upgrade) return;
       // Version 1 records were not user-scoped. Versions 2 and 3 are preserved
       // and replayed; they remain server-authorized even though they predate
       // the explicit groupId field added to new queue records.
       if (db.objectStoreNames.contains(PENDING_STORE_NAME) && event.oldVersion < 2) {
         db.deleteObjectStore(PENDING_STORE_NAME);
       }
-      if (!db.objectStoreNames.contains(PENDING_STORE_NAME)) {
-        const store = db.createObjectStore(PENDING_STORE_NAME, { keyPath: "id" });
-        store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(REJECTED_STORE_NAME)) {
-        const store = db.createObjectStore(REJECTED_STORE_NAME, { keyPath: "id" });
-        store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
+      ensureOwnerScopedStore(db, upgrade, PENDING_STORE_NAME);
+      const rejectedStore = ensureOwnerScopedStore(
+        db,
+        upgrade,
+        REJECTED_STORE_NAME,
+      );
+      if (event.oldVersion < 4) {
+        migrateRejectedAttendanceScans(rejectedStore);
       }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+function ensureOwnerScopedStore(
+  db: IDBDatabase,
+  upgrade: IDBTransaction,
+  storeName: string,
+) {
+  const store = db.objectStoreNames.contains(storeName)
+    ? upgrade.objectStore(storeName)
+    : db.createObjectStore(storeName, { keyPath: "id" });
+  if (!store.indexNames.contains(OWNER_INDEX)) {
+    store.createIndex(OWNER_INDEX, "ownerUserId", { unique: false });
+  }
+  return store;
+}
+
+function migrateRejectedAttendanceScans(store: IDBObjectStore) {
+  const request = store.openCursor();
+  request.onsuccess = () => {
+    const cursor = request.result;
+    if (!cursor) return;
+
+    const migrated = projectRejectedAttendanceScanForStorage(cursor.value, {
+      fallbackClientEventId: createMigrationClientEventId(),
+    });
+    if (!migrated) {
+      cursor.delete();
+      cursor.continue();
+      return;
+    }
+
+    store.put(migrated);
+    if (cursor.primaryKey !== migrated.id) {
+      store.delete(cursor.primaryKey);
+    }
+    cursor.continue();
+  };
+}
+
+function createMigrationClientEventId() {
+  const randomPart = typeof globalThis.crypto?.randomUUID === "function"
+    ? globalThis.crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
+  return `migrated-${Date.now()}-${randomPart}`;
 }
 
 function requestToPromise<T>(request: IDBRequest<T>) {

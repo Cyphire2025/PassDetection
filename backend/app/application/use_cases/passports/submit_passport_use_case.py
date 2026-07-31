@@ -67,7 +67,10 @@ class SubmitPassportUseCase:
         upload_idempotency_key: str | None = None,
         qualifier_selection_token: str | None = None,
     ) -> PassportSubmissionOutputDTO:
-        group = await self._client_group_repo.get_by_token(token)
+        group = await self._client_group_repo.get_by_token(
+            token,
+            for_update=True,
+        )
         if not group:
             raise EntityNotFoundError("ClientGroup", token)
 
