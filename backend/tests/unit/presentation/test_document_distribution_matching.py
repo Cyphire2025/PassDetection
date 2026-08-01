@@ -7,8 +7,11 @@ from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException
+from sqlalchemy import inspect
+from sqlalchemy.orm import Session
 
 from app.domain.entities.entities import UserRole
+from app.infrastructure.database.models import DocumentDistributionBatchModel
 from app.infrastructure.documents.document_matcher import DocumentMatcher
 from app.presentation.api.v1.routes import document_distribution
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
@@ -497,6 +500,131 @@ async def test_refresh_batches_loads_remaining_documents_once() -> None:
     assert (batches[1].uploaded_count, batches[1].matched_count) == (1, 1)
     assert all(batch.status == "draft" for batch in batches)
     assert all(batch.saved_at is None for batch in batches)
+
+
+@pytest.mark.asyncio
+async def test_refresh_preserves_processing_status_for_incomplete_chunk_manifest() -> None:
+    now = datetime.now(tz=UTC)
+    batch = SimpleNamespace(
+        id=uuid.uuid4(),
+        status="processing",
+        saved_at=None,
+        uploaded_count=10,
+        matched_count=8,
+        updated_at=now,
+    )
+    batches_result = MagicMock()
+    batches_result.scalars.return_value.all.return_value = [batch]
+    receipts_result = MagicMock()
+    receipts_result.all.return_value = [(batch.id, 0, 2, 20, 10)]
+    documents_result = MagicMock()
+    documents_result.all.return_value = [(batch.id, "matched")]
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[batches_result, receipts_result, documents_result]
+    )
+
+    await document_distribution._refresh_distribution_batches(
+        session,
+        batch_ids={batch.id},
+        agency_id=uuid.uuid4(),
+        group_id=uuid.uuid4(),
+        now=now,
+    )
+
+    assert batch.status == "processing"
+    assert (batch.uploaded_count, batch.matched_count) == (1, 1)
+
+
+def test_distribution_batch_is_detached_before_rollback_so_loaded_counters_survive() -> None:
+    now = datetime.now(tz=UTC)
+    batch = DocumentDistributionBatchModel(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        group_id=uuid.uuid4(),
+        document_type="visa",
+        status="processing",
+        uploaded_count=25,
+        rejected_count=2,
+        matched_count=20,
+        created_by_user_id=uuid.uuid4(),
+        created_at=now,
+        updated_at=now,
+    )
+    sync_session = Session()
+    sync_session.add(batch)
+    async_session = SimpleNamespace(sync_session=sync_session)
+
+    document_distribution._detach_distribution_batch_before_long_processing(
+        async_session,
+        batch,
+    )
+    sync_session.rollback()
+
+    assert inspect(batch).transient
+    assert (batch.uploaded_count, batch.rejected_count, batch.matched_count) == (25, 2, 20)
+
+
+@pytest.mark.asyncio
+async def test_final_distribution_response_aggregates_rejections_from_every_chunk(
+    monkeypatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    batch = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        group_id=group_id,
+        document_type="visa",
+        status="draft",
+        uploaded_count=0,
+        rejected_count=2,
+        matched_count=0,
+        saved_at=None,
+        created_at=datetime.now(tz=UTC),
+    )
+    batches_result = MagicMock()
+    batches_result.scalars.return_value.all.return_value = [batch]
+    receipts_result = MagicMock()
+    receipts_result.scalars.return_value.all.return_value = [
+        [
+            {
+                "filename": "first.pdf",
+                "detected_type": "unknown",
+                "reason": "Not a visa",
+            }
+        ],
+        [
+            {
+                "filename": "second.pdf",
+                "detected_type": "flight_ticket",
+                "reason": "Wrong selected document type",
+            }
+        ],
+    ]
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[batches_result, receipts_result])
+    monkeypatch.setattr(
+        document_distribution,
+        "MinioStorageRepository",
+        MagicMock(return_value=MagicMock()),
+    )
+
+    response = await document_distribution._batch_response(
+        session=session,
+        group_id=group_id,
+        agency_id=agency_id,
+        document_type="visa",
+        passengers=[],
+        batch=batch,
+        documents=[],
+    )
+
+    assert response.rejected_count == 2
+    assert [item.filename for item in response.rejected_documents] == [
+        "first.pdf",
+        "second.pdf",
+    ]
 
 
 @pytest.mark.asyncio

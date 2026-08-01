@@ -4,18 +4,20 @@ from __future__ import annotations
 
 import asyncio
 import re
+import threading
 import uuid
 import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from tempfile import SpooledTemporaryFile
-from typing import BinaryIO
+from typing import Annotated, BinaryIO, cast
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
@@ -23,6 +25,7 @@ from app.infrastructure.database.models import (
     AgencyModel,
     DocumentRenameBatchModel,
     DocumentRenameItemModel,
+    DocumentUploadChunkModel,
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
@@ -32,6 +35,9 @@ from app.infrastructure.documents.document_matcher import (
     DocumentParserUnavailableError,
     classify_documents_bounded,
 )
+from app.infrastructure.documents.pdf_parser_sandbox import (
+    bounded_pdf_batch_timeout_seconds,
+)
 from app.infrastructure.documents.storage_cleanup import (
     persist_storage_cleanup_job,
     process_storage_cleanup_job,
@@ -39,6 +45,16 @@ from app.infrastructure.documents.storage_cleanup import (
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.document_chunk_uploads import (
+    acquire_document_upload_advisory_lock,
+    document_chunk_fingerprint,
+    new_document_chunk_receipt,
+    resolve_concurrent_document_chunk_replay,
+    resolve_document_chunk_metadata,
+    validate_document_chunk_size,
+    validate_existing_document_chunk,
+    validate_next_document_chunk,
+)
 from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
 from app.presentation.api.v1.schemas.document_rename_schemas import (
     DeleteRenameBatchesRequest,
@@ -48,9 +64,13 @@ from app.presentation.api.v1.schemas.document_rename_schemas import (
     RenameDocumentItemResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 logger = get_logger(__name__)
+MAX_RENAME_ARCHIVE_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
+RENAME_ARCHIVE_FETCH_BATCH_SIZE = 8
+_RENAME_ARCHIVE_ADMISSION = threading.BoundedSemaphore(value=1)
 
 
 def _ensure_allowed(current_user: User) -> uuid.UUID:
@@ -66,8 +86,9 @@ async def _lock_active_rename_actor(
     *,
     user_id: uuid.UUID,
     agency_id: uuid.UUID,
+    expected_role: UserRole,
 ) -> UserModel:
-    """Re-authorize the actor and agency inside the short write transaction."""
+    """Re-authorize the unchanged actor role and agency under row locks."""
 
     result = await session.execute(
         select(UserModel)
@@ -77,10 +98,10 @@ async def _lock_active_rename_actor(
             UserModel.agency_id == agency_id,
             UserModel.is_active.is_(True),
             UserModel.deleted_at.is_(None),
-            UserModel.role != UserRole.AGENCY_COORDINATOR.value,
+            UserModel.role == expected_role.value,
             AgencyModel.is_active.is_(True),
         )
-        .with_for_update(of=(UserModel, AgencyModel))
+        .with_for_update(of=(UserModel, AgencyModel))  # type: ignore[arg-type]
         .execution_options(populate_existing=True)
     )
     actor = result.scalar_one_or_none()
@@ -92,11 +113,31 @@ async def _lock_active_rename_actor(
     return actor
 
 
-def _batch_filters(current_user: User, agency_id: uuid.UUID) -> list:
+def _role_value(role: UserRole | str) -> str:
+    return role.value if isinstance(role, UserRole) else role
+
+
+def _batch_filters_for_identity(
+    *,
+    user_id: uuid.UUID,
+    role: UserRole | str,
+    agency_id: uuid.UUID,
+) -> list[ColumnElement[bool]]:
     filters = [DocumentRenameBatchModel.agency_id == agency_id]
-    if current_user.role == UserRole.AGENCY_STAFF:
-        filters.append(DocumentRenameBatchModel.created_by_user_id == current_user.id)
+    if _role_value(role) == UserRole.AGENCY_STAFF.value:
+        filters.append(DocumentRenameBatchModel.created_by_user_id == user_id)
     return filters
+
+
+def _batch_filters(
+    current_user: User,
+    agency_id: uuid.UUID,
+) -> list[ColumnElement[bool]]:
+    return _batch_filters_for_identity(
+        user_id=current_user.id,
+        role=current_user.role,
+        agency_id=agency_id,
+    )
 
 
 def _document_label(detected_type: str) -> str:
@@ -140,12 +181,34 @@ def _reason(name: str | None, detected_type: str) -> str | None:
     return None
 
 
-async def _stream_archive(archive: BinaryIO) -> AsyncIterator[bytes]:
+async def _stream_archive(
+    archive: BinaryIO,
+    *,
+    release_admission: bool = False,
+) -> AsyncIterator[bytes]:
     try:
         while chunk := await asyncio.to_thread(archive.read, 64 * 1024):
             yield chunk
     finally:
         archive.close()
+        if release_admission:
+            _RENAME_ARCHIVE_ADMISSION.release()
+
+
+async def _fetch_rename_archive_batch(
+    storage: MinioStorageRepository,
+    items: list[tuple[uuid.UUID, str, str, str, str]],
+) -> list[bytes]:
+    """Fetch one bounded window and drain every sibling on failure/cancellation."""
+
+    tasks = [asyncio.create_task(storage.get_file(item[3])) for item in items]
+    try:
+        return list(await asyncio.gather(*tasks))
+    except BaseException:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+        raise
 
 
 async def _cleanup_owned_rename_storage(
@@ -247,7 +310,11 @@ async def list_rename_batches(
     return [_batch_summary_response(batch) for batch in result.scalars().all()]
 
 
-@router.post("/batches/bulk-delete", response_model=DeleteRenameBatchesResponse)
+@router.post(
+    "/batches/bulk-delete",
+    response_model=DeleteRenameBatchesResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def delete_rename_batches(
     payload: DeleteRenameBatchesRequest,
     current_user: User = Depends(get_current_active_user),
@@ -283,6 +350,18 @@ async def delete_rename_batches(
         .execution_options(populate_existing=True)
     )
     items = list(items_result.scalars().all())
+    receipts_result = await session.execute(
+        select(DocumentUploadChunkModel)
+        .where(
+            DocumentUploadChunkModel.upload_id.in_(found_batch_ids),
+            DocumentUploadChunkModel.agency_id == agency_id,
+            DocumentUploadChunkModel.workflow == "rename",
+        )
+        .order_by(DocumentUploadChunkModel.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    receipts = list(receipts_result.scalars().all())
     storage_keys = list({item.storage_key for item in items if item.storage_key})
     cleanup_jobs = stage_storage_cleanup_jobs(
         session,
@@ -292,6 +371,8 @@ async def delete_rename_batches(
         storage_keys=storage_keys,
     )
 
+    for receipt in receipts:
+        await session.delete(receipt)
     for batch in batches:
         await session.delete(batch)
 
@@ -306,6 +387,7 @@ async def delete_rename_batches(
             "requested_count": len(batch_ids),
             "deleted_count": len(batches),
             "deleted_item_count": len(items),
+            "deleted_upload_receipt_count": len(receipts),
             "storage_cleanup_object_count": len(storage_keys),
         },
     )
@@ -364,52 +446,185 @@ async def get_rename_batch(
 
 
 @router.post(
-    "/batches", response_model=RenameDocumentBatchResponse, status_code=status.HTTP_201_CREATED
+    "/batches",
+    response_model=RenameDocumentBatchResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def analyze_and_rename_documents(
     files: list[UploadFile] = File(...),
     title: str = Form(...),
+    upload_id: Annotated[uuid.UUID | None, Form()] = None,
+    chunk_id: Annotated[uuid.UUID | None, Form()] = None,
+    chunk_index: Annotated[int | None, Form()] = None,
+    expected_chunk_count: Annotated[int | None, Form()] = None,
+    expected_file_count: Annotated[int | None, Form()] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> RenameDocumentBatchResponse:
     agency_id = _ensure_allowed(current_user)
     actor_id = current_user.id
+    expected_actor_role = current_user.role
     title = " ".join(title.split())[:160]
     if not title:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Enter a title for this rename batch"
         )
+    chunk_metadata = resolve_document_chunk_metadata(
+        upload_id=upload_id,
+        chunk_id=chunk_id,
+        chunk_index=chunk_index,
+        expected_chunk_count=expected_chunk_count,
+        expected_file_count=expected_file_count,
+    )
+    validate_document_chunk_size(chunk_metadata, file_count=len(files))
 
     # Authentication uses this request session and may have opened a read
     # transaction. Release it before bounded upload reads, PDF parsing, and
     # object storage; authorization is repeated under lock before DB staging.
     await session.rollback()
     uploads = await read_bounded_document_uploads(files)
+    chunk_byte_count = sum(len(upload.content) for upload in uploads)
+    fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
+
+    batch_id = chunk_metadata.upload_id if chunk_metadata else uuid.uuid4()
+    existing_batch: DocumentRenameBatchModel | None = None
+    if chunk_metadata is not None:
+        batch_result = await session.execute(
+            select(DocumentRenameBatchModel).where(
+                DocumentRenameBatchModel.id == batch_id,
+                *_batch_filters(current_user, agency_id),
+            )
+        )
+        existing_batch = batch_result.scalar_one_or_none()
+    if chunk_metadata is not None and existing_batch is None:
+        collision_result = await session.execute(
+            select(DocumentRenameBatchModel.id).where(
+                DocumentRenameBatchModel.id == batch_id
+            )
+        )
+        if collision_result.scalar_one_or_none() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The upload session is not available to this account",
+            )
+    if chunk_metadata is not None and existing_batch is not None and existing_batch.title != title:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The upload session title does not match its first chunk",
+        )
+
+    existing_receipts: list[DocumentUploadChunkModel] = []
+    if chunk_metadata is not None:
+        receipt_result = await session.execute(
+            select(DocumentUploadChunkModel).where(
+                DocumentUploadChunkModel.id == chunk_metadata.chunk_id
+            )
+        )
+        existing_receipt = receipt_result.scalar_one_or_none()
+        if existing_receipt is not None:
+            assert fingerprint is not None
+            validate_existing_document_chunk(
+                existing_receipt,
+                metadata=chunk_metadata,
+                agency_id=agency_id,
+                workflow="rename",
+                group_id=None,
+                document_type=None,
+                fingerprint=fingerprint,
+                file_count=len(uploads),
+                byte_count=chunk_byte_count,
+            )
+            if existing_batch is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is not available to this account",
+                )
+            if existing_batch.status != "completed":
+                return await _batch_response(existing_batch, [])
+            items_result = await session.execute(
+                select(DocumentRenameItemModel)
+                .where(
+                    DocumentRenameItemModel.batch_id == existing_batch.id,
+                    DocumentRenameItemModel.agency_id == agency_id,
+                )
+                .order_by(DocumentRenameItemModel.renamed_filename.asc())
+            )
+            return await _batch_response(
+                existing_batch,
+                list(items_result.scalars().all()),
+            )
+        receipts_result = await session.execute(
+            select(DocumentUploadChunkModel)
+            .where(
+                DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,
+                DocumentUploadChunkModel.agency_id == agency_id,
+                DocumentUploadChunkModel.workflow == "rename",
+            )
+            .order_by(DocumentUploadChunkModel.chunk_index.asc())
+        )
+        existing_receipts = list(receipts_result.scalars().all())
+        if (existing_batch is None) != (len(existing_receipts) == 0):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The upload session is incomplete and requires administrator review",
+            )
+        if existing_batch is not None and existing_batch.status == "completed":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This upload session is already complete",
+            )
+        validate_next_document_chunk(
+            existing_receipts,
+            metadata=chunk_metadata,
+            incoming_file_count=len(uploads),
+            incoming_byte_count=chunk_byte_count,
+        )
+
+    used_names: set[str] = set()
+    if existing_batch is not None:
+        items_result = await session.execute(
+            select(DocumentRenameItemModel).where(
+                DocumentRenameItemModel.batch_id == existing_batch.id,
+                DocumentRenameItemModel.agency_id == agency_id,
+            )
+        )
+        used_names = {
+            item.renamed_filename for item in items_result.scalars().all()
+        }
+    if chunk_metadata is not None:
+        await session.rollback()
+
     matcher = DocumentMatcher()
     storage = MinioStorageRepository()
     now = datetime.now(tz=UTC)
-    batch = DocumentRenameBatchModel(
-        id=uuid.uuid4(),
+    batch = existing_batch or DocumentRenameBatchModel(
+        id=batch_id,
         agency_id=agency_id,
         title=title,
-        status="completed",
+        status="processing" if chunk_metadata else "completed",
         total_count=0,
         visa_count=0,
         ticket_count=0,
         unknown_count=0,
-        created_by_user_id=current_user.id,
+        created_by_user_id=actor_id,
         created_at=now,
         updated_at=now,
     )
-    used_names: set[str] = set()
     items: list[DocumentRenameItemModel] = []
     uploaded_keys: list[str] = []
     try:
+        parser_timeout = (
+            bounded_pdf_batch_timeout_seconds(len(uploads))
+            if chunk_metadata is not None
+            else None
+        )
         classifications = await asyncio.to_thread(
             classify_documents_bounded,
             matcher,
             [(upload.filename, upload.content, "other") for upload in uploads],
             isolate_pdf_parsing=True,
+            batch_timeout_seconds=parser_timeout,
         )
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
@@ -429,7 +644,7 @@ async def analyze_and_rename_documents(
                     used_names,
                 )
                 storage_key = (
-                    f"document-rename/{batch.id}/{document_id}-{_safe_part(upload.filename)}"
+                    f"document-rename/{batch_id}/{document_id}-{_safe_part(upload.filename)}"
                 )
                 uploaded_keys.append(storage_key)
                 await storage.upload_file(upload.content, storage_key, "application/pdf")
@@ -445,7 +660,7 @@ async def analyze_and_rename_documents(
                 item_status = "rejected"
             item = DocumentRenameItemModel(
                 id=document_id,
-                batch_id=batch.id,
+                batch_id=batch_id,
                 agency_id=agency_id,
                 original_filename=upload.filename,
                 renamed_filename=renamed_filename,
@@ -468,7 +683,7 @@ async def analyze_and_rename_documents(
             storage,
             uploaded_keys,
             agency_id=agency_id,
-            batch_id=batch.id,
+            batch_id=batch_id,
         )
         raise
 
@@ -477,16 +692,133 @@ async def analyze_and_rename_documents(
             session,
             user_id=actor_id,
             agency_id=agency_id,
+            expected_role=expected_actor_role,
         )
-        batch.total_count = len(items)
-        batch.visa_count = sum(1 for item in items if item.detected_type == "visa")
-        batch.ticket_count = sum(1 for item in items if item.detected_type == "flight_ticket")
-        batch.unknown_count = sum(1 for item in items if item.detected_type == "unknown")
+        complete = True
+        if chunk_metadata is not None:
+            await acquire_document_upload_advisory_lock(
+                session,
+                workflow="rename",
+                upload_id=chunk_metadata.upload_id,
+            )
+            serialized_batch_result = await session.execute(
+                select(DocumentRenameBatchModel)
+                .where(DocumentRenameBatchModel.id == batch_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            serialized_batch = serialized_batch_result.scalar_one_or_none()
+            if serialized_batch is not None:
+                owner_mismatch = (
+                    _role_value(actor.role) == UserRole.AGENCY_STAFF.value
+                    and serialized_batch.created_by_user_id != actor.id
+                )
+                if serialized_batch.agency_id != agency_id or owner_mismatch:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="The upload session is not available to this account",
+                    )
+                if serialized_batch.title != title:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="The upload session title does not match its first chunk",
+                    )
+                batch = serialized_batch
+            locked_receipts_result = await session.execute(
+                select(DocumentUploadChunkModel)
+                .where(
+                    DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,
+                    DocumentUploadChunkModel.workflow == "rename",
+                )
+                .order_by(DocumentUploadChunkModel.chunk_index.asc())
+                .with_for_update()
+            )
+            locked_receipts = list(locked_receipts_result.scalars().all())
+            assert fingerprint is not None
+            concurrent_replay = resolve_concurrent_document_chunk_replay(
+                locked_receipts,
+                metadata=chunk_metadata,
+                agency_id=agency_id,
+                workflow="rename",
+                group_id=None,
+                document_type=None,
+                fingerprint=fingerprint,
+                file_count=len(uploads),
+                byte_count=chunk_byte_count,
+            )
+            if concurrent_replay is not None:
+                if serialized_batch is None:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="The committed upload session is no longer available",
+                    )
+                replay_items: list[DocumentRenameItemModel] = []
+                if serialized_batch.status == "completed":
+                    replay_items_result = await session.execute(
+                        select(DocumentRenameItemModel)
+                        .where(
+                            DocumentRenameItemModel.batch_id == batch_id,
+                            DocumentRenameItemModel.agency_id == agency_id,
+                        )
+                        .order_by(DocumentRenameItemModel.renamed_filename.asc())
+                    )
+                    replay_items = list(replay_items_result.scalars().all())
+                replay_response = await _batch_response(serialized_batch, replay_items)
+                await session.rollback()
+                await _cleanup_owned_rename_storage(
+                    storage,
+                    uploaded_keys,
+                    agency_id=agency_id,
+                    batch_id=batch_id,
+                )
+                return replay_response
+            if serialized_batch is not None and existing_batch is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is incomplete and requires administrator review",
+                )
+            if serialized_batch is None and existing_batch is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is no longer available",
+                )
+            complete = validate_next_document_chunk(
+                locked_receipts,
+                metadata=chunk_metadata,
+                incoming_file_count=len(uploads),
+                incoming_byte_count=chunk_byte_count,
+            )
+            session.add(
+                new_document_chunk_receipt(
+                    metadata=chunk_metadata,
+                    agency_id=agency_id,
+                    workflow="rename",
+                    group_id=None,
+                    document_type=None,
+                    fingerprint=fingerprint,
+                    file_count=len(uploads),
+                    byte_count=chunk_byte_count,
+                    accepted_count=sum(
+                        1 for item in items if item.detected_type != "unknown"
+                    ),
+                    rejected_count=sum(
+                        1 for item in items if item.detected_type == "unknown"
+                    ),
+                )
+            )
+        batch.total_count += len(items)
+        batch.visa_count += sum(1 for item in items if item.detected_type == "visa")
+        batch.ticket_count += sum(
+            1 for item in items if item.detected_type == "flight_ticket"
+        )
+        batch.unknown_count += sum(1 for item in items if item.detected_type == "unknown")
+        batch.status = "completed" if complete else "processing"
+        batch.updated_at = now
         session.add(batch)
         for item in items:
             session.add(item)
         await AuditLogRepository(session).record(
-            action="document_rename_completed",
+            action=("document_rename_completed" if complete else "document_rename_chunk_uploaded"),
             entity_type="document_rename_batch",
             entity_id=str(batch.id),
             agency_id=agency_id,
@@ -498,6 +830,7 @@ async def analyze_and_rename_documents(
                 "ticket_count": batch.ticket_count,
                 "unknown_count": batch.unknown_count,
                 "stored_count": len(uploaded_keys),
+                "chunk_index": chunk_metadata.chunk_index if chunk_metadata else None,
             },
         )
         await session.flush()
@@ -507,7 +840,7 @@ async def analyze_and_rename_documents(
             storage,
             uploaded_keys,
             agency_id=agency_id,
-            batch_id=batch.id,
+            batch_id=batch_id,
         )
         raise
     try:
@@ -519,11 +852,23 @@ async def analyze_and_rename_documents(
         await session.rollback()
         logger.warning(
             "document_rename_commit_outcome_ambiguous",
-            batch_id=str(batch.id),
+            batch_id=str(batch_id),
             object_count=len(uploaded_keys),
         )
         raise
-    return await _batch_response(batch, items)
+    if chunk_metadata is None:
+        return await _batch_response(batch, items)
+    if getattr(batch, "status", "completed") != "completed":
+        return await _batch_response(batch, [])
+    all_items_result = await session.execute(
+        select(DocumentRenameItemModel)
+        .where(
+            DocumentRenameItemModel.batch_id == batch_id,
+            DocumentRenameItemModel.agency_id == agency_id,
+        )
+        .order_by(DocumentRenameItemModel.renamed_filename.asc())
+    )
+    return await _batch_response(batch, list(all_items_result.scalars().all()))
 
 
 @router.get("/items/{item_id}/download")
@@ -587,6 +932,11 @@ async def download_renamed_zip(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Rename batch was not found"
         )
+    if getattr(batch, "status", "completed") != "completed":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This rename upload is still processing",
+        )
     items_result = await session.execute(
         select(DocumentRenameItemModel)
         .where(
@@ -615,36 +965,86 @@ async def download_renamed_zip(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="This batch has no verified visa or flight-ticket PDFs to download.",
         )
-    storage = MinioStorageRepository()
-    archive = SpooledTemporaryFile(max_size=16 * 1024 * 1024, mode="w+b")
+    downloadable_items = [
+        item
+        for item in items
+        if item[1] in SUPPORTED_TRAVEL_DOCUMENT_TYPES
+        and item[2] != "rejected"
+        and bool(item[3])
+    ]
+    if not downloadable_items:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This batch has no verified visa or flight-ticket PDFs to download.",
+        )
+    if not _RENAME_ARCHIVE_ADMISSION.acquire(blocking=False):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="A large renamed ZIP is already being prepared; retry shortly",
+            headers={"Retry-After": "30"},
+        )
+    archive: BinaryIO | None = None
+    total_uncompressed_bytes = 0
     try:
-        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+        storage = MinioStorageRepository()
+        active_archive = cast(
+            BinaryIO,
+            SpooledTemporaryFile(max_size=16 * 1024 * 1024, mode="w+b"),
+        )
+        archive = active_archive
+        with zipfile.ZipFile(
+            active_archive,
+            "w",
+            compression=zipfile.ZIP_STORED,
+            allowZip64=True,
+        ) as zip_file:
             used: set[str] = set()
-            for item_id, detected_type, item_status, storage_key, renamed_filename in items:
-                if (
-                    detected_type not in SUPPORTED_TRAVEL_DOCUMENT_TYPES
-                    or item_status == "rejected"
-                    or not storage_key
-                ):
-                    continue
-                filename = renamed_filename
-                if filename in used:
-                    stem = filename[:-4] if filename.lower().endswith(".pdf") else filename
-                    filename = f"{stem}_{item_id.hex[:6]}.pdf"
-                used.add(filename)
-                content = await storage.get_file(storage_key)
-                await asyncio.to_thread(zip_file.writestr, filename, content)
-        archive.seek(0)
-    except Exception:
-        archive.close()
+            for offset in range(
+                0,
+                len(downloadable_items),
+                RENAME_ARCHIVE_FETCH_BATCH_SIZE,
+            ):
+                item_batch = downloadable_items[
+                    offset : offset + RENAME_ARCHIVE_FETCH_BATCH_SIZE
+                ]
+                contents = await _fetch_rename_archive_batch(storage, item_batch)
+                for item, content in zip(item_batch, contents, strict=True):
+                    item_id, _, _, _, renamed_filename = item
+                    total_uncompressed_bytes += len(content)
+                    if total_uncompressed_bytes > MAX_RENAME_ARCHIVE_UNCOMPRESSED_BYTES:
+                        raise HTTPException(
+                            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                            detail="The renamed ZIP exceeds the 512 MB safety limit",
+                        )
+                    filename = renamed_filename
+                    if filename in used:
+                        stem = filename[:-4] if filename.lower().endswith(".pdf") else filename
+                        filename = f"{stem}_{item_id.hex[:6]}.pdf"
+                    used.add(filename)
+                    await asyncio.to_thread(zip_file.writestr, filename, content)
+        active_archive.seek(0, 2)
+        archive_size = active_archive.tell()
+        active_archive.seek(0)
+    except BaseException:
+        if archive is not None:
+            archive.close()
+        _RENAME_ARCHIVE_ADMISSION.release()
         raise
+    assert archive is not None
     zip_name = f"renamed-documents-{resolved_batch_id}.zip"
-    return StreamingResponse(
-        _stream_archive(archive),
-        media_type="application/zip",
-        headers={
-            "Content-Disposition": f'attachment; filename="{zip_name}"',
-            "X-Content-Type-Options": "nosniff",
-            "Cache-Control": "private, no-store",
-        },
-    )
+    try:
+        response = StreamingResponse(
+            _stream_archive(archive, release_admission=True),
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f'attachment; filename="{zip_name}"',
+                "Content-Length": str(archive_size),
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "private, no-store",
+            },
+        )
+    except BaseException:
+        archive.close()
+        _RENAME_ARCHIVE_ADMISSION.release()
+        raise
+    return response

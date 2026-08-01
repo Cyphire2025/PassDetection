@@ -155,6 +155,33 @@ def test_cleanup_tombstone_rejects_cross_namespace_key() -> None:
         )
 
 
+def test_distribution_abort_cleanup_accepts_only_distribution_namespace() -> None:
+    cipher = StorageCleanupCipher("cleanup-secret-123456789")
+    session = MagicMock()
+    session.add = MagicMock()
+
+    job = stage_storage_cleanup_job(
+        session,
+        agency_id=uuid.uuid4(),
+        source="document_distribution_abort",
+        context_id=str(uuid.uuid4()),
+        storage_keys=["document-distribution/group/incomplete-visa.pdf"],
+        cipher=cipher,
+    )
+
+    assert job is not None
+    assert job.source == "document_distribution_abort"
+    with pytest.raises(StorageCleanupPayloadError, match="scope is invalid"):
+        stage_storage_cleanup_job(
+            MagicMock(),
+            agency_id=uuid.uuid4(),
+            source="document_distribution_abort",
+            context_id=str(uuid.uuid4()),
+            storage_keys=["document-rename/foreign.pdf"],
+            cipher=cipher,
+        )
+
+
 def test_bulk_cleanup_validates_every_key_before_staging_any_chunk() -> None:
     session = MagicMock()
     valid_keys = [f"document-distribution/group/{index:04d}.pdf" for index in range(2_500)]
@@ -170,6 +197,45 @@ def test_bulk_cleanup_validates_every_key_before_staging_any_chunk() -> None:
         )
 
     session.add.assert_not_called()
+
+
+def test_passport_cleanup_accepts_only_owned_passport_namespaces() -> None:
+    session = MagicMock()
+    cipher = StorageCleanupCipher("cleanup-secret-123456789")
+    keys = [
+        "front/legacy-front.jpg",
+        "thumbnail/legacy-thumbnail.jpg",
+        "back/legacy-back.jpg",
+        "photo/legacy-photo.jpg",
+        "visa-photo/legacy-visa-photo.jpg",
+        "visa_photo/legacy-ai-visa-photo.jpg",
+        "drafts/agency/group/front.jpg",
+        "excel-imports/group/passenger.placeholder",
+        "passport-bulk/agency/group/passenger/front.jpg",
+        "passport-crops/agency/passenger/front/1.jpg",
+        "passport-edits/agency/passenger/photo/1.jpg",
+    ]
+
+    jobs = stage_storage_cleanup_jobs(
+        session,
+        agency_id=uuid.uuid4(),
+        source="passport_submission_delete",
+        context_id="passport-bulk-delete",
+        storage_keys=keys,
+        cipher=cipher,
+    )
+
+    assert len(jobs) == 1
+    assert jobs[0].object_count == len(keys)
+    with pytest.raises(StorageCleanupPayloadError, match="scope is invalid"):
+        stage_storage_cleanup_jobs(
+            MagicMock(),
+            agency_id=uuid.uuid4(),
+            source="passport_submission_delete",
+            context_id="cross-scope",
+            storage_keys=["document-rename/other-agency/file.pdf"],
+            cipher=cipher,
+        )
 
 
 @pytest.mark.asyncio
@@ -304,6 +370,7 @@ async def test_cleanup_success_removes_tombstone_after_idempotent_delete(
 def test_cleanup_task_is_registered_and_scheduled_on_general_worker() -> None:
     from app.infrastructure.processing.celery_app import (
         DOCUMENT_STORAGE_CLEANUP_TASK,
+        DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK,
         celery_app,
     )
 
@@ -311,3 +378,12 @@ def test_cleanup_task_is_registered_and_scheduled_on_general_worker() -> None:
     schedule = celery_app.conf.beat_schedule["cleanup-deferred-document-storage"]
     assert schedule["task"] == DOCUMENT_STORAGE_CLEANUP_TASK
     assert schedule["options"] == {"queue": "passport_ocr"}
+    assert celery_app.conf.task_routes[DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK] == {
+        "queue": "passport_ocr"
+    }
+    orphan_schedule = celery_app.conf.beat_schedule[
+        "reconcile-orphaned-document-storage"
+    ]
+    assert orphan_schedule["task"] == DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK
+    assert orphan_schedule["schedule"] == 3_600.0
+    assert orphan_schedule["options"] == {"queue": "passport_ocr"}

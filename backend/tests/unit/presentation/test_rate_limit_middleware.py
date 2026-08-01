@@ -691,6 +691,7 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         self.assertNotIn("limit_req_log_level warn", nginx_site)
         self.assertIn("error_log /dev/null crit", nginx_site)
         self.assertEqual(nginx_site.count("client_max_body_size 512M"), 1)
+        self.assertEqual(nginx_site.count("client_max_body_size 72M"), 1)
         self.assertIn("client_max_body_size 16M", nginx_site)
         self.assertIn("client_max_body_size 64K", nginx_site)
         self.assertGreaterEqual(

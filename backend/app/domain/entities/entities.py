@@ -1111,6 +1111,42 @@ class PassportSubmission:
         self.updated_at = now
         return StaffApprovalOutcome.APPROVED
 
+    def bulk_staff_approve_completed_verification(
+        self,
+        *,
+        reviewer_id: uuid.UUID,
+        reviewer_name: str,
+    ) -> StaffApprovalOutcome:
+        """Approve a completed office record without bypassing in-flight work.
+
+        Bulk review is intentionally narrower than a generic status override:
+        only completed legacy/imported records, AI-approved records, and rows
+        already awaiting staff review are eligible. Processing, failed, and
+        merely submitted rows remain untouched for explicit review.
+        """
+
+        if self.status == PassportProcessingStatus.STAFF_APPROVED:
+            return StaffApprovalOutcome.ALREADY_APPROVED
+        if self.status not in {
+            PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.AI_APPROVED,
+            PassportProcessingStatus.NEEDS_REVIEW,
+        }:
+            raise StaffApprovalUnavailableError(current_status=self.status.value)
+
+        # Publish a new canonical decision revision while leaving confirmed
+        # passport fields unchanged.
+        self.extraction_revision += 1
+        self.post_submission_verification_revision += 1
+        now = _utcnow()
+        self.status = PassportProcessingStatus.STAFF_APPROVED
+        self.verification_reviewed_by_user_id = reviewer_id
+        self.verification_reviewer_name = " ".join(reviewer_name.strip().split())[:255]
+        self.verification_reviewed_at = now
+        self.confirmed_at = now
+        self.updated_at = now
+        return StaffApprovalOutcome.APPROVED
+
     def update_reviewed_fields(self, confirmed_fields: dict) -> None:
         """Save staff edits without bypassing the canonical approval transition."""
 

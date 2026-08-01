@@ -10,3 +10,15 @@ test("all-rejected rename batches do not expose empty ZIP downloads", () => {
   assert.match(page, /hasDownloadableDocuments \?/);
   assert.match(page, /No verified PDFs to download/);
 });
+
+test("rename ZIP opens safely only after the logical upload completes", () => {
+  assert.match(page, /batch\.status === "completed"/);
+  assert.match(page, /Upload incomplete/);
+  assert.match(page, /target="_blank" rel="noopener noreferrer"/);
+});
+
+test("same-page retries keep the immutable title bound to the upload session", () => {
+  assert.match(page, /const \[uploadSessionTitle, setUploadSessionTitle\]/);
+  assert.match(page, /title: activeTitle \?\? title\.trim\(\)/);
+  assert.match(page, /disabled=\{analyze\.isPending \|\| uploadSession !== null\}/);
+});

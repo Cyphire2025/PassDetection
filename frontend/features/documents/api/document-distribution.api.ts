@@ -1,6 +1,7 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type {
+  AbortDocumentUploadResult,
   DistributionDocumentType,
   DocumentBatchReview,
   DocumentDistributionGroup,
@@ -9,6 +10,12 @@ import type {
   DocumentVerificationResult,
   SendDocumentBroadcastResult,
 } from "@/types/document-distribution.types";
+import {
+  createDocumentUploadSession,
+  runChunkedDocumentUpload,
+  type DocumentUploadProgress,
+  type DocumentUploadSession,
+} from "../services/document-upload-batching";
 
 export const documentDistributionApi = {
   listGroups: async (): Promise<DocumentDistributionGroup[]> => {
@@ -25,32 +32,80 @@ export const documentDistributionApi = {
     groupId: string,
     documentType: DistributionDocumentType,
     files: File[],
+    onProgress?: (progress: DocumentUploadProgress) => void,
   ): Promise<DocumentVerificationResult> => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
-    const { data } = await apiClient.post<DocumentVerificationResult>(API_ENDPOINTS.documents.verify(groupId, documentType), formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: 60_000,
+    const session = createDocumentUploadSession(files);
+    const results: DocumentVerificationResult[] = [];
+    await runChunkedDocumentUpload({
+      session,
+      onProgress,
+      uploadChunk: async (chunk, _chunkIndex, reportUpload) => {
+        const formData = new FormData();
+        chunk.forEach((file) => formData.append("files", file));
+        const { data } = await apiClient.post<DocumentVerificationResult>(
+          API_ENDPOINTS.documents.verify(groupId, documentType),
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            timeout: 240_000,
+            onUploadProgress: (event) => reportUpload(event.loaded, event.total),
+          },
+        );
+        results.push(data);
+        return data;
+      },
     });
-    return data;
+    return {
+      group_id: groupId,
+      document_type: documentType,
+      total_count: results.reduce((total, result) => total + result.total_count, 0),
+      accepted_count: results.reduce((total, result) => total + result.accepted_count, 0),
+      rejected_count: results.reduce((total, result) => total + result.rejected_count, 0),
+      files: results.flatMap((result) => result.files),
+    };
   },
 
   uploadDocuments: async (
     groupId: string,
     documentType: DistributionDocumentType,
     files: File[],
-    onProgress?: (progress: number) => void,
+    onProgress?: (progress: DocumentUploadProgress) => void,
+    existingSession?: DocumentUploadSession,
   ): Promise<DocumentBatchReview> => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
-    const { data } = await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.upload(groupId, documentType), formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: 120_000,
-      onUploadProgress: (event) => {
-        if (!event.total) return;
-        onProgress?.(Math.round((event.loaded / event.total) * 100));
+    const session = existingSession ?? createDocumentUploadSession(files);
+    return runChunkedDocumentUpload({
+      session,
+      onProgress,
+      uploadChunk: async (chunk, chunkIndex, reportUpload) => {
+        const formData = new FormData();
+        formData.append("upload_id", session.uploadId);
+        formData.append("chunk_id", session.chunkIds[chunkIndex]);
+        formData.append("chunk_index", String(chunkIndex));
+        formData.append("expected_chunk_count", String(session.chunks.length));
+        formData.append("expected_file_count", String(session.totalFiles));
+        chunk.forEach((file) => formData.append("files", file));
+        const { data } = await apiClient.post<DocumentBatchReview>(
+          API_ENDPOINTS.documents.upload(groupId, documentType),
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            timeout: 240_000,
+            onUploadProgress: (event) => reportUpload(event.loaded, event.total),
+          },
+        );
+        return data;
       },
     });
+  },
+
+  abortUpload: async (
+    groupId: string,
+    documentType: DistributionDocumentType,
+    batchId: string,
+  ): Promise<AbortDocumentUploadResult> => {
+    const { data } = await apiClient.post<AbortDocumentUploadResult>(
+      API_ENDPOINTS.documents.abortUpload(groupId, documentType, batchId),
+    );
     return data;
   },
 

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from io import BytesIO
 from types import SimpleNamespace
+from unittest.mock import patch
 
+import pytest
 from pypdf import PdfWriter
 
 from app.infrastructure.documents import pdf_parser_sandbox
@@ -52,6 +54,172 @@ class _FakeAdmission:
 
     def release(self) -> None:
         self.release_calls += 1
+
+
+class _FakeLeaseRedis:
+    def __init__(self, *, acquire_result: int = 1, fail: bool = False) -> None:
+        self.acquire_result = acquire_result
+        self.fail = fail
+        self.calls: list[tuple[object, ...]] = []
+
+    def eval(self, *args):
+        self.calls.append(args)
+        if self.fail:
+            raise ConnectionError("redis unavailable")
+        if args[0] == pdf_parser_sandbox._ACQUIRE_PDF_BATCH_LEASE_LUA:
+            return self.acquire_result
+        return 1
+
+
+def test_global_lease_acquire_and_release_use_one_stable_opaque_member(monkeypatch) -> None:
+    redis = _FakeLeaseRedis()
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+
+    with patch.object(
+        pdf_parser_sandbox.uuid,
+        "uuid4",
+        return_value=SimpleNamespace(hex="a" * 32),
+    ):
+        lease = pdf_parser_sandbox._acquire_global_pdf_batch_lease(
+            batch_timeout_seconds=90,
+        )
+
+    assert lease is not None
+    acquire_call = redis.calls[0]
+    assert acquire_call[2] == pdf_parser_sandbox.PDF_BATCH_LEASE_KEY
+    assert acquire_call[3] == "a" * 32
+    assert acquire_call[4] == "2"
+    assert 0 < int(acquire_call[5]) <= pdf_parser_sandbox.PDF_BATCH_LEASE_MAX_MS
+    assert "ZREMRANGEBYSCORE" in str(acquire_call[0])
+    assert "ZCARD" in str(acquire_call[0])
+    assert "PEXPIREAT" in str(acquire_call[0])
+
+    lease.release()
+    lease.release()
+
+    assert len(redis.calls) == 2
+    release_call = redis.calls[1]
+    assert release_call[3] == "a" * 32
+    assert "ZREM" in str(release_call[0])
+    assert pdf_parser_sandbox.MAX_PROCESS_LOCAL_PDF_BATCHES == 1
+
+
+def test_global_lease_cap_rejects_without_spawning_and_releases_local_slot(
+    monkeypatch,
+) -> None:
+    admission = _FakeAdmission(admitted=True)
+    redis = _FakeLeaseRedis(acquire_result=0)
+    monkeypatch.setattr(pdf_parser_sandbox, "_PDF_BATCH_ADMISSION", admission)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_production_global_pdf_batch_lease_required",
+        lambda: True,
+    )
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_classify_pdf_batch_admitted",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("must not parse")),
+    )
+
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [("visa.pdf", _blank_pdf(), "visa")]
+    )
+
+    assert results[0]["reason"] == "PDF parser capacity is temporarily exhausted"
+    assert admission.acquire_calls == 1
+    assert admission.release_calls == 1
+    assert len(redis.calls) == 1
+
+
+def test_global_lease_is_released_when_parser_raises_base_exception(monkeypatch) -> None:
+    admission = _FakeAdmission(admitted=True)
+    redis = _FakeLeaseRedis()
+    monkeypatch.setattr(pdf_parser_sandbox, "_PDF_BATCH_ADMISSION", admission)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_production_global_pdf_batch_lease_required",
+        lambda: True,
+    )
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_classify_pdf_batch_admitted",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(KeyboardInterrupt()),
+    )
+
+    with pytest.raises(KeyboardInterrupt):
+        pdf_parser_sandbox.classify_pdf_batch_isolated(
+            [("visa.pdf", _blank_pdf(), "visa")]
+        )
+
+    assert len(redis.calls) == 2
+    assert redis.calls[1][0] == pdf_parser_sandbox._RELEASE_PDF_BATCH_LEASE_LUA
+    assert redis.calls[1][3] == redis.calls[0][3]
+    assert admission.release_calls == 1
+
+
+def test_production_redis_outage_fails_closed_without_spawning(monkeypatch) -> None:
+    admission = _FakeAdmission(admitted=True)
+    redis = _FakeLeaseRedis(fail=True)
+    monkeypatch.setattr(pdf_parser_sandbox, "_PDF_BATCH_ADMISSION", admission)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_production_global_pdf_batch_lease_required",
+        lambda: True,
+    )
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_classify_pdf_batch_admitted",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("must not parse")),
+    )
+
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [("visa.pdf", _blank_pdf(), "visa")]
+    )
+
+    assert results[0]["reason"] == "PDF parser service is temporarily unavailable"
+    assert admission.release_calls == 1
+
+
+def test_development_parser_path_never_initializes_redis(monkeypatch) -> None:
+    admission = _FakeAdmission(admitted=True)
+    expected = [
+        {
+            "original_filename": "visa.pdf",
+            "detected_type": "unknown",
+            "accepted": False,
+            "reason": "deterministic",
+            "text": "",
+            "extracted_name": None,
+            "extracted_passport_number": None,
+            "extracted_reference": None,
+        }
+    ]
+    monkeypatch.setattr(pdf_parser_sandbox, "_PDF_BATCH_ADMISSION", admission)
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_production_global_pdf_batch_lease_required",
+        lambda: False,
+    )
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_pdf_batch_redis_client",
+        lambda: (_ for _ in ()).throw(AssertionError("development must not use Redis")),
+    )
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "_classify_pdf_batch_admitted",
+        lambda *_args, **_kwargs: expected,
+    )
+
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [("visa.pdf", _blank_pdf(), "visa")]
+    )
+
+    assert results == expected
+    assert admission.release_calls == 1
 
 
 def test_parser_admission_saturation_fails_closed_without_spawning(monkeypatch) -> None:

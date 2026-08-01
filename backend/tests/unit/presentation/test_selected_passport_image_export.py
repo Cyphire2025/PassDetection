@@ -7,12 +7,13 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.entities import User, UserRole
 from app.presentation.api.v1.routes import passports as passports_route
 from app.presentation.api.v1.schemas.passport_schemas import (
-    ExportSelectedPassportsRequest,
+    ExportSelectedPassportImagesRequest,
 )
 
 
@@ -39,6 +40,14 @@ def test_selected_image_export_route_contract() -> None:
     assert route.methods == {"POST"}
 
 
+def test_selected_image_export_is_bounded_below_bulk_action_capacity() -> None:
+    ids = [uuid.uuid4() for _ in range(501)]
+
+    assert len(ExportSelectedPassportImagesRequest(submission_ids=ids[:500]).submission_ids) == 500
+    with pytest.raises(ValidationError):
+        ExportSelectedPassportImagesRequest(submission_ids=ids)
+
+
 @pytest.mark.asyncio
 async def test_selected_image_export_uses_full_group_naming_namespace(
     monkeypatch: pytest.MonkeyPatch,
@@ -60,9 +69,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
     crop_metadata = {selected_id: {}}
     zones = {selected_id: "South", other_id: "North"}
     exporter = SimpleNamespace(
-        export_group=AsyncMock(
-            return_value=(io.BytesIO(b"zip-content"), 3, 1024)
-        )
+        export_group=AsyncMock(return_value=(io.BytesIO(b"zip-content"), 3, 1024))
     )
     storage = object()
 
@@ -84,9 +91,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
     monkeypatch.setattr(
         passports_route,
         "PassportImageCropRepository",
-        lambda session: SimpleNamespace(
-            list_for_submissions=AsyncMock(return_value=crop_metadata)
-        ),
+        lambda session: SimpleNamespace(list_for_submissions=AsyncMock(return_value=crop_metadata)),
     )
     monkeypatch.setattr(
         passports_route,
@@ -106,9 +111,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
 
     response = await passports_route.export_selected_passport_images_by_group(
         group_id=group_id,
-        body=ExportSelectedPassportsRequest(
-            submission_ids=[selected_id, selected_id]
-        ),
+        body=ExportSelectedPassportImagesRequest(submission_ids=[selected_id, selected_id]),
         current_user=_user(agency_id),
         session=AsyncMock(spec=AsyncSession),
     )
@@ -119,9 +122,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
     assert b"".join(chunks) == b"zip-content"
     assert response.headers["content-type"] == "application/zip"
     assert response.headers["content-length"] == str(len(b"zip-content"))
-    assert "Vietnam 2026_PASSPORT_IMAGES.zip" in response.headers[
-        "content-disposition"
-    ]
+    assert "Vietnam 2026_PASSPORT_IMAGES.zip" in response.headers["content-disposition"]
     authorize.assert_awaited_once()
     exporter.export_group.assert_awaited_once_with(
         [selected],
@@ -132,6 +133,7 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
         crop_metadata=crop_metadata,
         zone_names=zones,
         namespace_submissions=current_submissions,
+        max_uncompressed_bytes=passports_route.SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES,
     )
 
 
@@ -168,9 +170,7 @@ async def test_selected_image_export_rejects_ids_outside_the_current_group(
     with pytest.raises(HTTPException) as raised:
         await passports_route.export_selected_passport_images_by_group(
             group_id=group_id,
-            body=ExportSelectedPassportsRequest(
-                submission_ids=[uuid.uuid4()]
-            ),
+            body=ExportSelectedPassportImagesRequest(submission_ids=[uuid.uuid4()]),
             current_user=_user(agency_id),
             session=AsyncMock(spec=AsyncSession),
         )

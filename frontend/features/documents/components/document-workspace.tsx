@@ -32,6 +32,7 @@ import type {
   DocumentVerificationResult,
 } from "@/types/document-distribution.types";
 import {
+  useAbortDistributionUploads,
   useDeleteDistributionDocuments,
   useDocumentDeliveryPreview,
   useDocumentGroups,
@@ -43,6 +44,11 @@ import {
   useUploadDistributionDocuments,
   useVerifyDistributionDocuments,
 } from "../hooks/use-document-distribution";
+import {
+  createDocumentUploadSession,
+  type DocumentUploadProgress,
+  type DocumentUploadSession,
+} from "../services/document-upload-batching";
 
 const DOCUMENT_TYPES: Array<{
   type: DistributionDocumentType;
@@ -72,6 +78,10 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [pendingRemovalDocumentIds, setPendingRemovalDocumentIds] = useState<string[] | null>(null);
   const [progress, setProgress] = useState(0);
+  const [progressDetail, setProgressDetail] = useState<DocumentUploadProgress | null>(null);
+  const [uploadSession, setUploadSession] = useState<DocumentUploadSession | null>(null);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const [isAbortUploadDialogOpen, setIsAbortUploadDialogOpen] = useState(false);
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
   const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[] | null>(null);
@@ -85,6 +95,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const review = useDocumentReview(groupId, selectedType);
   const verify = useVerifyDistributionDocuments(groupId, selectedType);
   const upload = useUploadDistributionDocuments(groupId, selectedType);
+  const abortUploads = useAbortDistributionUploads(groupId, selectedType);
   const reupload = useReuploadPassengerDocument(groupId, selectedType);
   const deleteDocuments = useDeleteDistributionDocuments(groupId, selectedType);
   const unassignDocuments = useUnassignDistributionDocuments(groupId, selectedType);
@@ -96,6 +107,27 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   );
   const sendDocuments = useSendDocumentWhatsAppBroadcast(groupId, selectedType);
   const selectedConfig = DOCUMENT_TYPES.find((item) => item.type === selectedType) ?? DOCUMENT_TYPES[0];
+  const documentTypeOperationPending =
+    phase !== "idle" ||
+    verify.isPending ||
+    upload.isPending ||
+    abortUploads.isPending ||
+    reupload.isPending ||
+    deleteDocuments.isPending ||
+    unassignDocuments.isPending ||
+    save.isPending ||
+    sendDocuments.isPending;
+  const processingUploadIds = useMemo(() => {
+    const surfacedIds = review.data?.processing_upload_ids ?? [];
+    if (surfacedIds.length > 0) return surfacedIds;
+    return review.data?.status === "processing" && review.data.batch_id
+      ? [review.data.batch_id]
+      : [];
+  }, [review.data]);
+  const canResumeCurrentUpload = Boolean(
+    uploadSession && processingUploadIds.includes(uploadSession.uploadId),
+  );
+  const hasIncompleteUploads = processingUploadIds.length > 0;
   const reviewRows = useMemo(
     () => review.data?.review_rows ?? [],
     [review.data?.review_rows],
@@ -142,8 +174,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   );
   const acceptedFiles = useMemo(() => {
     if (!verification) return [];
-    const acceptedNames = new Set(verification.files.filter((file) => file.accepted).map((file) => file.filename));
-    return selectedFiles.filter((file) => acceptedNames.has(file.name));
+    return selectedFiles.filter((_file, index) => verification.files[index]?.accepted);
   }, [selectedFiles, verification]);
   const showRowActions = selectedType === "visa" || selectedType === "flight_ticket";
   const assignedDocumentIds = useMemo(
@@ -168,22 +199,58 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     () => [...assignedDocumentIds, ...unmatchedDocumentIds],
     [assignedDocumentIds, unmatchedDocumentIds],
   );
-  const activeSelectedDocumentIds = selectedDocumentIds.filter((id) => selectableDocumentIds.includes(id));
-  const activeSelectedAssignedDocumentIds = activeSelectedDocumentIds.filter((id) =>
-    assignedDocumentIds.includes(id),
+  const assignedDocumentIdSet = useMemo(
+    () => new Set(assignedDocumentIds),
+    [assignedDocumentIds],
   );
-  const activeSelectedUnmatchedDocumentIds = activeSelectedDocumentIds.filter((id) =>
-    unmatchedDocumentIds.includes(id),
+  const visibleAssignedDocumentIdSet = useMemo(
+    () => new Set(visibleAssignedDocumentIds),
+    [visibleAssignedDocumentIds],
   );
-  const selectedAssignedPassengerCount = reviewRows.filter((row) =>
-    reviewRowDocuments(row).some((document) =>
-      activeSelectedAssignedDocumentIds.includes(document.id),
-    ),
-  ).length;
+  const unmatchedDocumentIdSet = useMemo(
+    () => new Set(unmatchedDocumentIds),
+    [unmatchedDocumentIds],
+  );
+  const selectableDocumentIdSet = useMemo(
+    () => new Set(selectableDocumentIds),
+    [selectableDocumentIds],
+  );
+  const activeSelectedDocumentIds = useMemo(
+    () => selectedDocumentIds.filter((id) => selectableDocumentIdSet.has(id)),
+    [selectableDocumentIdSet, selectedDocumentIds],
+  );
+  const activeSelectedDocumentIdSet = useMemo(
+    () => new Set(activeSelectedDocumentIds),
+    [activeSelectedDocumentIds],
+  );
+  const activeSelectedAssignedDocumentIds = useMemo(
+    () => activeSelectedDocumentIds.filter((id) => assignedDocumentIdSet.has(id)),
+    [activeSelectedDocumentIds, assignedDocumentIdSet],
+  );
+  const activeSelectedAssignedDocumentIdSet = useMemo(
+    () => new Set(activeSelectedAssignedDocumentIds),
+    [activeSelectedAssignedDocumentIds],
+  );
+  const activeSelectedUnmatchedDocumentIds = useMemo(
+    () => activeSelectedDocumentIds.filter((id) => unmatchedDocumentIdSet.has(id)),
+    [activeSelectedDocumentIds, unmatchedDocumentIdSet],
+  );
+  const activeSelectedUnmatchedDocumentIdSet = useMemo(
+    () => new Set(activeSelectedUnmatchedDocumentIds),
+    [activeSelectedUnmatchedDocumentIds],
+  );
+  const selectedAssignedPassengerCount = useMemo(
+    () => reviewRows.filter((row) =>
+      reviewRowDocuments(row).some((document) =>
+        activeSelectedAssignedDocumentIdSet.has(document.id),
+      ),
+    ).length,
+    [activeSelectedAssignedDocumentIdSet, reviewRows],
+  );
   const allVisibleAssignmentsSelected =
     visibleAssignedDocumentIds.length > 0 &&
     visibleAssignedDocumentIds.every((id) =>
-      activeSelectedAssignedDocumentIds.includes(id),
+      activeSelectedAssignedDocumentIdSet.has(id),
     );
   const removalDocumentIds =
     activeSelectedAssignedDocumentIds.length > 0
@@ -193,22 +260,21 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     activeSelectedAssignedDocumentIds.length > 0
       ? selectedAssignedPassengerCount
       : reviewCounts.assigned;
-  const pendingRemovalPassengerCount = pendingRemovalDocumentIds
-    ? reviewRows.filter((row) =>
-        reviewRowDocuments(row).some((document) =>
-          pendingRemovalDocumentIds.includes(document.id),
-        ),
-      ).length
-    : 0;
+  const pendingRemovalDocumentIdSet = useMemo(
+    () => new Set(pendingRemovalDocumentIds ?? []),
+    [pendingRemovalDocumentIds],
+  );
+  const pendingRemovalPassengerCount = useMemo(
+    () => pendingRemovalDocumentIds
+      ? reviewRows.filter((row) =>
+          reviewRowDocuments(row).some((document) =>
+            pendingRemovalDocumentIdSet.has(document.id),
+          ),
+        ).length
+      : 0,
+    [pendingRemovalDocumentIdSet, pendingRemovalDocumentIds, reviewRows],
+  );
   const removalPending = deleteDocuments.isPending || unassignDocuments.isPending;
-
-  useEffect(() => {
-    if (phase !== "checking" || !verify.isPending) return;
-    const timer = window.setInterval(() => {
-      setProgress((current) => (current >= 88 ? current : Math.min(current + 7, 88)));
-    }, 220);
-    return () => window.clearInterval(timer);
-  }, [phase, verify.isPending]);
 
   const defaultDeliveryDocumentIds = useMemo(
     () =>
@@ -227,15 +293,26 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const resetSelection = (files: File[]) => {
     setSelectedFiles(files);
     setVerification(null);
+    setUploadSession(null);
+    setSelectionError(null);
+    setProgressDetail(null);
     setProgress(0);
     setPhase("idle");
   };
 
   const checkDocuments = () => {
     if (selectedFiles.length === 0) return;
+    setUploadSession(null);
+    setSelectionError(null);
     setPhase("checking");
-    setProgress(8);
-    verify.mutate(selectedFiles, {
+    setProgress(0);
+    verify.mutate({
+      files: selectedFiles,
+      onProgress: (value) => {
+        setProgressDetail(value);
+        setProgress(value.percent);
+      },
+    }, {
       onSuccess: (data) => {
         setVerification(data);
         setProgress(100);
@@ -249,20 +326,41 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
 
   const startUpload = () => {
     if (acceptedFiles.length === 0) return;
+    if (hasIncompleteUploads && !canResumeCurrentUpload) {
+      setSelectionError(
+        "Discard the incomplete upload before starting another PDF upload.",
+      );
+      return;
+    }
+    let activeSession = uploadSession;
+    if (!activeSession) {
+      try {
+        activeSession = createDocumentUploadSession(acceptedFiles);
+        setUploadSession(activeSession);
+      } catch (error) {
+        setSelectionError(error instanceof Error ? error.message : "The selected PDFs are invalid");
+        return;
+      }
+    }
+    setSelectionError(null);
     setPhase("uploading");
     setProgress(0);
     upload.mutate(
       {
         files: acceptedFiles,
+        session: activeSession,
         onProgress: (value) => {
           setPhase("uploading");
-          setProgress(value);
+          setProgressDetail(value);
+          setProgress(value.percent);
         },
       },
       {
         onSuccess: () => {
           setSelectedFiles([]);
           setVerification(null);
+          setUploadSession(null);
+          setProgressDetail(null);
           setProgress(100);
           setPhase("idle");
         },
@@ -271,6 +369,37 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
         },
       },
     );
+  };
+
+  const changeDocumentType = (nextType: DistributionDocumentType) => {
+    if (nextType === selectedType || documentTypeOperationPending) return;
+
+    setSelectedType(nextType);
+    setSelectedFiles([]);
+    setVerification(null);
+    setSelectedDocumentIds([]);
+    setReviewFilter("all");
+    setPendingRemovalDocumentIds(null);
+    setUploadSession(null);
+    setSelectionError(null);
+    setIsAbortUploadDialogOpen(false);
+    setProgressDetail(null);
+    setProgress(0);
+    setPhase("idle");
+    setIsSendPreviewOpen(false);
+    setDeliveryDocumentIds(null);
+    setDeliveryResendDocumentIds([]);
+    setDeliveryMessageContent1(null);
+    setDeliveryMessageContent2(null);
+    setDeliveryFeedback(null);
+    verify.reset();
+    upload.reset();
+    abortUploads.reset();
+    reupload.reset();
+    deleteDocuments.reset();
+    unassignDocuments.reset();
+    save.reset();
+    sendDocuments.reset();
   };
 
   return (
@@ -302,19 +431,11 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             <button
               key={item.type}
               type="button"
-              onClick={() => {
-                setSelectedType(item.type);
-                setSelectedFiles([]);
-                setVerification(null);
-                setSelectedDocumentIds([]);
-                setReviewFilter("all");
-                setPendingRemovalDocumentIds(null);
-                setProgress(0);
-                setPhase("idle");
-              }}
+              disabled={documentTypeOperationPending}
+              onClick={() => changeDocumentType(item.type)}
               className={`rounded-xl border bg-white p-5 text-left shadow-sm transition ${
                 active ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300"
-              }`}
+              } disabled:cursor-not-allowed disabled:opacity-60`}
             >
               <div className="flex items-center gap-3">
                 <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${active ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500"}`}>
@@ -345,6 +466,32 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             <Badge variant="outline">{review.data?.review_rows.length ?? 0} passengers</Badge>
           </div>
 
+          {hasIncompleteUploads && (
+            <div className="flex flex-col gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="font-semibold text-amber-950">
+                  {processingUploadIds.length === 1
+                    ? "An incomplete upload needs attention"
+                    : `${processingUploadIds.length} incomplete uploads need attention`}
+                </div>
+                <p className="mt-1 text-sm leading-5 text-amber-800">
+                  {canResumeCurrentUpload
+                    ? "Continue with the same selected PDFs, or discard the incomplete upload before choosing new files."
+                    : "Discard the incomplete upload data before choosing and uploading a new set of PDFs."}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="danger"
+                disabled={upload.isPending || verify.isPending || abortUploads.isPending}
+                onClick={() => setIsAbortUploadDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Discard incomplete {processingUploadIds.length === 1 ? "upload" : "uploads"}
+              </Button>
+            </div>
+          )}
+
           <input
             ref={inputRef}
             type="file"
@@ -358,15 +505,15 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           />
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()} disabled={upload.isPending || verify.isPending}>
+            <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()} disabled={hasIncompleteUploads || upload.isPending || verify.isPending}>
               <UploadCloud className="h-4 w-4" />
               Choose PDFs
             </Button>
-            <Button type="button" variant="outline" onClick={checkDocuments} disabled={selectedFiles.length === 0 || upload.isPending || verify.isPending}>
+            <Button type="button" variant="outline" onClick={checkDocuments} disabled={hasIncompleteUploads || selectedFiles.length === 0 || upload.isPending || verify.isPending}>
               <SearchCheck className="h-4 w-4" />
               Check Documents {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""}
             </Button>
-            <Button type="button" onClick={startUpload} disabled={!verification || acceptedFiles.length === 0 || upload.isPending || verify.isPending}>
+            <Button type="button" onClick={startUpload} disabled={!verification || acceptedFiles.length === 0 || (hasIncompleteUploads && !canResumeCurrentUpload) || upload.isPending || verify.isPending}>
               Upload Accepted {verification ? `(${acceptedFiles.length})` : ""}
             </Button>
             {selectedFiles.length > 0 && (
@@ -377,7 +524,18 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           {(upload.isPending || phase !== "idle") && (
             <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <div className="flex items-center justify-between text-sm font-medium text-blue-900">
-                <span>{phase === "checking" ? "Checking documents uploaded" : "Uploading documents"}</span>
+                <span>
+                  {phase === "checking"
+                    ? progressDetail?.phase === "processing"
+                      ? "Checking PDFs"
+                      : "Uploading PDFs for checks"
+                    : progressDetail?.phase === "processing"
+                      ? "Matching and saving PDFs"
+                      : "Uploading accepted PDFs"}
+                  {progressDetail
+                    ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
+                    : ""}
+                </span>
                 <span>{progress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white">
@@ -389,6 +547,15 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           {upload.error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {upload.error.message}
+              {progressDetail && progressDetail.completedFiles > 0
+                ? ` ${progressDetail.completedFiles} of ${progressDetail.totalFiles} PDFs are safely committed; click Upload Accepted again to resume.`
+                : ""}
+            </div>
+          )}
+
+          {selectionError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {selectionError}
             </div>
           )}
 
@@ -458,7 +625,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         onSuccess: () => {
                           setSelectedDocumentIds((current) =>
                             current.filter(
-                              (id) => !activeSelectedUnmatchedDocumentIds.includes(id),
+                              (id) => !activeSelectedUnmatchedDocumentIdSet.has(id),
                             ),
                           );
                         },
@@ -471,7 +638,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 )}
                 <Button
                   type="button"
-                  disabled={!review.data?.batch_id || review.data.status === "saved"}
+                  disabled={!review.data?.batch_id || review.data.status === "saved" || hasIncompleteUploads}
                   isLoading={save.isPending}
                   onClick={() => review.data?.batch_id && save.mutate(review.data.batch_id)}
                 >
@@ -525,7 +692,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   onClick={() =>
                     setSelectedDocumentIds((current) =>
                       current.filter(
-                        (id) => !activeSelectedAssignedDocumentIds.includes(id),
+                        (id) => !activeSelectedAssignedDocumentIdSet.has(id),
                       ),
                     )
                   }
@@ -549,7 +716,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         onChange={(event) => {
                           setSelectedDocumentIds((current) => {
                             const withoutVisible = current.filter(
-                              (id) => !visibleAssignedDocumentIds.includes(id),
+                              (id) => !visibleAssignedDocumentIdSet.has(id),
                             );
                             return event.target.checked
                               ? Array.from(new Set([...withoutVisible, ...visibleAssignedDocumentIds]))
@@ -571,10 +738,11 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   {visibleReviewRows.map((row) => {
                     const documents = reviewRowDocuments(row);
                     const rowDocumentIds = documents.map((document) => document.id);
+                    const rowDocumentIdSet = new Set(rowDocumentIds);
                     const rowAssignmentsSelected =
                       rowDocumentIds.length > 0 &&
                       rowDocumentIds.every((id) =>
-                        activeSelectedAssignedDocumentIds.includes(id),
+                        activeSelectedAssignedDocumentIdSet.has(id),
                       );
                     return (
                     <tr key={row.passenger_id}>
@@ -589,7 +757,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                             onChange={(event) => {
                               setSelectedDocumentIds((current) => {
                                 const withoutRow = current.filter(
-                                  (id) => !rowDocumentIds.includes(id),
+                                  (id) => !rowDocumentIdSet.has(id),
                                 );
                                 return event.target.checked
                                   ? Array.from(new Set([...withoutRow, ...rowDocumentIds]))
@@ -717,8 +885,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               <div className="border-t border-slate-100 p-5">
                 <h3 className="text-sm font-semibold text-slate-900">Rejected Files</h3>
                 <div className="mt-3 grid gap-2">
-                  {review.data.rejected_documents.map((file) => (
-                    <div key={file.filename} className="flex items-center justify-between gap-3 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm">
+                  {review.data.rejected_documents.map((file, index) => (
+                    <div key={`${file.filename}:${index}`} className="flex items-center justify-between gap-3 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-sm">
                       <span className="font-medium text-red-950">{file.filename}</span>
                       <span className="text-red-700">{file.reason}</span>
                     </div>
@@ -738,7 +906,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           type="checkbox"
                           className="h-4 w-4 rounded border-amber-300"
                           aria-label={`Select ${document.original_filename}`}
-                          checked={activeSelectedDocumentIds.includes(document.id)}
+                          checked={activeSelectedDocumentIdSet.has(document.id)}
                           disabled={removalPending}
                           onChange={(event) => {
                             setSelectedDocumentIds((current) =>
@@ -773,7 +941,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             unassignDocuments.mutate(pendingRemovalDocumentIds, {
               onSuccess: () => {
                 setSelectedDocumentIds((current) =>
-                  current.filter((id) => !pendingRemovalDocumentIds.includes(id)),
+                  current.filter((id) => !pendingRemovalDocumentIdSet.has(id)),
                 );
                 setPendingRemovalDocumentIds(null);
               },
@@ -783,9 +951,34 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
             deleteDocuments.mutate(pendingRemovalDocumentIds, {
               onSuccess: () => {
                 setSelectedDocumentIds((current) =>
-                  current.filter((id) => !pendingRemovalDocumentIds.includes(id)),
+                  current.filter((id) => !pendingRemovalDocumentIdSet.has(id)),
                 );
                 setPendingRemovalDocumentIds(null);
+              },
+            });
+          }}
+        />
+      )}
+
+      {isAbortUploadDialogOpen && hasIncompleteUploads && (
+        <AbortIncompleteUploadDialog
+          uploadCount={processingUploadIds.length}
+          pending={abortUploads.isPending}
+          error={abortUploads.error}
+          onClose={() => {
+            if (!abortUploads.isPending) setIsAbortUploadDialogOpen(false);
+          }}
+          onConfirm={() => {
+            abortUploads.mutate(processingUploadIds, {
+              onSuccess: () => {
+                setSelectedFiles([]);
+                setVerification(null);
+                setUploadSession(null);
+                setSelectionError(null);
+                setProgressDetail(null);
+                setProgress(0);
+                setPhase("idle");
+                setIsAbortUploadDialogOpen(false);
               },
             });
           }}
@@ -864,6 +1057,70 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           }}
         />
       )}
+    </div>
+  );
+}
+
+function AbortIncompleteUploadDialog({
+  uploadCount,
+  pending,
+  error,
+  onClose,
+  onConfirm,
+}: {
+  uploadCount: number;
+  pending: boolean;
+  error: Error | null;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="abort-incomplete-upload-title"
+        className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+          <div>
+            <h2 id="abort-incomplete-upload-title" className="text-lg font-semibold text-slate-900">
+              Discard incomplete {uploadCount === 1 ? "upload" : "uploads"}?
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              This permanently removes only the PDFs and partial matches from {uploadCount === 1 ? "this unfinished upload" : `these ${uploadCount} unfinished uploads`}. Completed and saved document lists are not changed.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close dialog"
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+            disabled={pending}
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="space-y-3 px-6 py-5">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            After cleanup, you can choose a new PDF selection and Save List will no longer be blocked by these unfinished uploads.
+          </div>
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error.message}
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 border-t border-slate-100 px-6 py-4">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
+            Keep upload
+          </Button>
+          <Button type="button" variant="danger" onClick={onConfirm} isLoading={pending}>
+            <Trash2 className="h-4 w-4" />
+            Discard incomplete {uploadCount === 1 ? "upload" : "uploads"}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -990,6 +1247,14 @@ function DocumentDeliveryPreviewDialog({
   onClose: () => void;
   onSend: () => void;
 }) {
+  const selectedDocumentIdSet = useMemo(
+    () => new Set(selectedDocumentIds),
+    [selectedDocumentIds],
+  );
+  const resendDocumentIdSet = useMemo(
+    () => new Set(resendDocumentIds),
+    [resendDocumentIds],
+  );
   const sampleMessage = [
     "Dear Delegates",
     "Greetings from Global Connect Travels",
@@ -1118,7 +1383,7 @@ function DocumentDeliveryPreviewDialog({
                       {preview.recipients.map((row) => {
                         const resendSelected = Boolean(
                           row.document_id &&
-                          resendDocumentIds.includes(row.document_id),
+                          resendDocumentIdSet.has(row.document_id),
                         );
                         return (
                         <tr key={`${row.passenger_id}:${row.document_id ?? "empty"}`} className={row.eligible || resendSelected ? "bg-white" : "bg-slate-50/60"}>
@@ -1136,7 +1401,7 @@ function DocumentDeliveryPreviewDialog({
                             ) : (
                               <input
                                 type="checkbox"
-                                checked={Boolean(row.document_id && selectedDocumentIds.includes(row.document_id))}
+                                checked={Boolean(row.document_id && selectedDocumentIdSet.has(row.document_id))}
                                 disabled={!row.eligible || !row.document_id || sending}
                                 onChange={() => row.document_id && onToggleDocument(row.document_id)}
                                 aria-label={`Send document to ${row.passenger_name}`}

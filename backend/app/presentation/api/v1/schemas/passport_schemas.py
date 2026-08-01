@@ -178,13 +178,21 @@ class ReconcilePassportUploadResponse(BaseModel):
 
 
 class ExportSelectedPassportsRequest(BaseModel):
+    submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=1500)
+
+
+class ExportSelectedPassportImagesRequest(BaseModel):
+    """Bound the synchronous ZIP path independently from lightweight exports."""
+
+    model_config = ConfigDict(extra="forbid")
+
     submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=500)
 
 
 class BulkDeletePassportSubmissionsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=100)
+    submission_ids: list[uuid.UUID] = Field(..., min_length=1, max_length=1500)
 
 
 class BulkDeletePassportSubmissionsResponse(BaseModel):
@@ -193,6 +201,47 @@ class BulkDeletePassportSubmissionsResponse(BaseModel):
     deleted_storage_objects: int
     deleted_notifications: int
     storage_cleanup_deferred: bool
+
+
+class BulkStaffApprovePassportSelection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    expected_extraction_revision: int = Field(ge=0)
+
+
+class BulkStaffApprovePassportSubmissionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submissions: list[BulkStaffApprovePassportSelection] = Field(
+        ...,
+        min_length=1,
+        max_length=1500,
+    )
+
+
+class BulkStaffApproveSkippedSubmission(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    current_status: str
+    reason: Literal["not_completed", "stale"]
+    expected_extraction_revision: int = Field(ge=0)
+    current_extraction_revision: int = Field(ge=0)
+
+
+class BulkStaffApprovePassportSubmissionsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    requested_count: int = Field(ge=1)
+    approved_count: int = Field(ge=0)
+    already_approved_count: int = Field(ge=0)
+    skipped_count: int = Field(ge=0)
+    approved_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    already_approved_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    skipped_submissions: list[BulkStaffApproveSkippedSubmission] = Field(
+        default_factory=list
+    )
 
 
 class ExportSelectedGroupsRequest(BaseModel):
@@ -476,6 +525,13 @@ class PassportSubmissionViewItemResponse(PassportSubmissionResponse):
     verification_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
+class PassportSubmissionSelectionSnapshotResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    submission_id: uuid.UUID
+    extraction_revision: int = Field(ge=0)
+
+
 class PassportExpiryAlertResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -492,6 +548,9 @@ class PassportSubmissionsViewResponse(BaseModel):
 
     items: list[PassportSubmissionViewItemResponse] = Field(default_factory=list)
     ordered_submission_ids: list[uuid.UUID] = Field(default_factory=list)
+    ordered_selection_snapshot: list[PassportSubmissionSelectionSnapshotResponse] = Field(
+        default_factory=list
+    )
     group_total: int = Field(ge=0)
     total: int = Field(ge=0)
     page: int = Field(ge=1)

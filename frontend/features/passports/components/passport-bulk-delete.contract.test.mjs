@@ -45,7 +45,7 @@ test("only permanent-delete roles receive the selected-row delete control", () =
   );
   assert.match(
     component,
-    /Delete Selected \(\{selectedPassports\.length\}\)/,
+    /Delete selected \(\{selectedPassports\.length\}\)/,
   );
   assert.match(
     component,
@@ -55,6 +55,7 @@ test("only permanent-delete roles receive the selected-row delete control", () =
     component,
     /disabled=\{bulkDelete\.isPending\}/,
   );
+  assert.match(component, /role="menu"[\s\S]*?aria-label="Bulk submission actions"/);
 });
 
 test("bulk delete requires a count-specific destructive confirmation", () => {

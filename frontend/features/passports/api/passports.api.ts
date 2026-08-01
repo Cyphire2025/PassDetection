@@ -87,6 +87,7 @@ export interface PassportExpiryAlert {
 export interface PassportGroupSubmissionsView {
   items: PassportSubmission[];
   ordered_submission_ids: string[];
+  ordered_selection_snapshot: PassportSubmissionSelectionSnapshot[];
   group_total: number;
   total: number;
   page: number;
@@ -103,6 +104,34 @@ export interface BulkDeletePassportSubmissionsResult {
   deleted_storage_objects: number;
   deleted_notifications: number;
   storage_cleanup_deferred: boolean;
+}
+
+export interface PassportSubmissionSelectionSnapshot {
+  submission_id: string;
+  extraction_revision: number;
+}
+
+export interface BulkStaffApproveSkippedSubmission {
+  submission_id: string;
+  current_status: string;
+  reason: "not_completed" | "stale";
+  expected_extraction_revision: number;
+  current_extraction_revision: number;
+}
+
+export interface BulkStaffApprovePassportSelection {
+  submission_id: string;
+  expected_extraction_revision: number;
+}
+
+export interface BulkStaffApprovePassportSubmissionsResult {
+  requested_count: number;
+  approved_count: number;
+  already_approved_count: number;
+  skipped_count: number;
+  approved_submission_ids: string[];
+  already_approved_submission_ids: string[];
+  skipped_submissions: BulkStaffApproveSkippedSubmission[];
 }
 
 export type PassportGroupExportKind = "passport_images" | "passport_excel";
@@ -880,6 +909,17 @@ export const passportsApi = {
     const { data } = await apiClient.post<BulkDeletePassportSubmissionsResult>(
       API_ENDPOINTS.passports.bulkDelete(groupId),
       { submission_ids: submissionIds },
+    );
+    return data;
+  },
+
+  bulkStaffApprove: async (
+    groupId: string,
+    submissions: BulkStaffApprovePassportSelection[],
+  ): Promise<BulkStaffApprovePassportSubmissionsResult> => {
+    const { data } = await apiClient.post<BulkStaffApprovePassportSubmissionsResult>(
+      API_ENDPOINTS.passports.bulkStaffApprove(groupId),
+      { submissions },
     );
     return data;
   },

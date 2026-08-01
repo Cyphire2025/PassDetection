@@ -160,7 +160,7 @@ test("group rows show imported birth, issue, and expiry dates", () => {
 test("selection actions stay hidden until a passport is selected", () => {
   assert.match(
     source,
-    /\{selectedPassports\.length > 0 && \([\s\S]*?Export Excel[\s\S]*?Download Passports[\s\S]*?Delete Selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
+    /\{selectedPassports\.length > 0 && \([\s\S]*?Bulk submission actions[\s\S]*?Staff approve all selected[\s\S]*?Export Excel[\s\S]*?Download Passport Images[\s\S]*?Delete selected[\s\S]*?Clear selection[\s\S]*?\)\}/,
   );
   assert.doesNotMatch(
     source,
@@ -187,7 +187,7 @@ test("selected passport downloads use the scoped ZIP endpoint without duplicate 
   );
   assert.match(
     source,
-    /disabled=\{exportSelectedImages\.isPending\}[\s\S]*?isLoading=\{exportSelectedImages\.isPending\}/,
+    /disabled=\{[\s\S]*?exportSelectedImages\.isPending[\s\S]*?selectedPassports\.length > MAX_SELECTED_IMAGE_DOWNLOAD[\s\S]*?handleSelectedPassportDownload\(\)/,
   );
   assert.match(
     source,
@@ -217,17 +217,82 @@ test("trip details are collapsed by default behind an accessible disclosure", ()
   assert.match(source, /Edit[\s\S]*?\{isTripDetailsExpanded && \(/);
 });
 
-test("submission toolbar remains a compact non-wrapping row with horizontal overflow", () => {
+test("submission toolbar wraps so the accessible bulk menu is not clipped", () => {
   assert.match(
     source,
-    /className="flex flex-nowrap items-center gap-2 overflow-x-auto rounded-xl/,
+    /className="flex flex-wrap items-center gap-2 rounded-xl/,
   );
-  assert.match(source, /className="shrink-0 whitespace-nowrap"/);
-  assert.match(source, /\{viewMode === "docs" \? "Table view" : "DOCS view"\}/);
+  assert.match(source, /aria-expanded=\{isBulkActionsMenuOpen\}/);
+  assert.match(source, /aria-controls=\{bulkActionsDisclosureId\}/);
+  assert.match(source, /bulkActionsButtonRef\.current\?\.focus\(\)/);
   assert.doesNotMatch(
     source,
-    /className="flex flex-wrap items-center gap-3 rounded-xl/,
+    /id=\{bulkActionsDisclosureId\}[\s\S]{0,120}?role="menu"/,
   );
+  assert.match(source, /\{viewMode === "docs" \? "Table view" : "DOCS view"\}/);
+  assert.doesNotMatch(source, /overflow-x-auto rounded-xl/);
+});
+
+test("selection presets use the complete filtered and sorted server order", () => {
+  assert.match(source, /<option value="all">[\s\S]*?submissionsView\?\.total[\s\S]*?> MAX_BULK_SELECTION[\s\S]*?First 1,500 \(maximum\)[\s\S]*?: "All"/);
+  assert.match(source, /<option value="50">First 50<\/option>/);
+  assert.match(source, /<option value="100">First 100<\/option>/);
+  assert.match(source, /<option value="200">First 200<\/option>/);
+  assert.match(source, /<option value="custom">Custom number<\/option>/);
+  assert.match(
+    source,
+    /const orderedIds = submissionsView\?\.ordered_submission_ids \?\? \[\]/,
+  );
+  assert.match(source, /MAX_BULK_SELECTION = 1500/);
+  assert.match(source, /MAX_SELECTED_IMAGE_DOWNLOAD = 500/);
+  assert.match(source, /orderedIds\.slice\(0, boundedCount\)/);
+  assert.match(source, /const selectedPassportIdSet = useMemo\([\s\S]*?new Set\(selectedPassports\)/);
+  assert.doesNotMatch(source, /selectedPassports\.includes\(/);
+  assert.match(source, /id="group-submission-custom-selection"[\s\S]*?type="number"[\s\S]*?min=\{1\}/);
+});
+
+test("manual selection supports later pages while enforcing the 1,500-record cap", () => {
+  assert.match(
+    source,
+    /for \(const submission of submissionsView\?\.items \?\? \[\]\)[\s\S]*?revisions\.set\(submission\.id, submission\.extraction_revision\)/,
+  );
+  assert.match(source, /selectedPassports\.length >= MAX_BULK_SELECTION/);
+  assert.match(source, /Select at most \$\{MAX_BULK_SELECTION\.toLocaleString\(\)\} submissions at a time\./);
+});
+
+test("bulk staff approval is selected-scope, confirmed, and summarized", () => {
+  assert.match(
+    endpoints,
+    /bulkStaffApprove:[\s\S]*?bulk-staff-approve/,
+  );
+  assert.match(
+    api,
+    /bulkStaffApprove: async \([\s\S]*?\{ submissions \}/,
+  );
+  assert.match(
+    hooks,
+    /useBulkStaffApprovePassportSubmissions\(groupId: string\)[\s\S]*?QUERY_KEYS\.passports\.all[\s\S]*?QUERY_KEYS\.dashboard\.stats/,
+  );
+  assert.match(source, /title="Staff approve selected submissions\?"/);
+  assert.match(source, /bulkStaffApprove\.mutate\(approvalSelections/);
+  assert.match(source, /expected_extraction_revision: expectedRevision/);
+  assert.match(source, /ordered_selection_snapshot/);
+  assert.match(
+    source,
+    /result\.skipped_submissions[\s\S]*?\.filter\(\(item\) => item\.reason === "not_completed"\)[\s\S]*?\.map/,
+  );
+  assert.match(source, /Incomplete submissions remain selected/);
+  assert.match(source, /item\.reason === "not_completed"/);
+  assert.match(source, /item\.reason === "stale"/);
+  assert.match(source, /must be refreshed and reviewed again/);
+});
+
+test("large selections keep synchronous passport image ZIPs within their safe cap", () => {
+  assert.match(
+    source,
+    /selectedPassports\.length > MAX_SELECTED_IMAGE_DOWNLOAD[\s\S]*?Download Passport Images \(select up to \$\{MAX_SELECTED_IMAGE_DOWNLOAD\}\)/,
+  );
+  assert.match(source, /const MAX_SELECTED_IMAGE_DOWNLOAD = 500/);
 });
 
 test("all document-import previews use full-group backend reconciliation", () => {

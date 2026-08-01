@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import uuid
 import zipfile
 from datetime import UTC, datetime
@@ -17,7 +18,9 @@ from app.infrastructure.documents.document_matcher import (
     DocumentParserUnavailableError,
 )
 from app.presentation.api.v1.routes.document_rename import (
+    _fetch_rename_archive_batch,
     _lock_active_rename_actor,
+    _stream_archive,
     analyze_and_rename_documents,
     delete_rename_batches,
     download_renamed_document,
@@ -496,6 +499,7 @@ async def test_rename_actor_reauthorization_locks_active_user_and_agency() -> No
         session,
         user_id=user.id,
         agency_id=user.agency_id,
+        expected_role=UserRole.AGENCY_ADMIN,
     )
 
     assert actor is user
@@ -504,8 +508,117 @@ async def test_rename_actor_reauthorization_locks_active_user_and_agency() -> No
     assert "JOIN agencies" in rendered
     assert "users.is_active IS true" in rendered
     assert "agencies.is_active IS true" in rendered
+    assert "users.role =" in rendered
+    assert UserRole.AGENCY_ADMIN.value in statement.compile().params.values()
     assert "FOR UPDATE" in rendered
     assert statement.get_execution_options()["populate_existing"] is True
+
+
+async def test_rename_uses_locked_actor_role_for_existing_batch_owner_scope() -> None:
+    user = _user()
+    batch_id = uuid.uuid4()
+    other_staff_id = uuid.uuid4()
+    existing_batch = SimpleNamespace(
+        id=batch_id,
+        agency_id=user.agency_id,
+        title="Visa batch",
+        status="processing",
+        created_by_user_id=other_staff_id,
+        total_count=1,
+        visa_count=1,
+        ticket_count=0,
+        unknown_count=0,
+    )
+    first_receipt = SimpleNamespace(
+        upload_id=batch_id,
+        chunk_index=0,
+        expected_chunk_count=2,
+        expected_file_count=2,
+        file_count=1,
+        byte_count=13,
+    )
+
+    def scalar_result(value):
+        result = MagicMock()
+        result.scalar_one_or_none.return_value = value
+        return result
+
+    def scalars_result(values):
+        result = MagicMock()
+        result.scalars.return_value.all.return_value = values
+        return result
+
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock()
+    session.commit = AsyncMock()
+    session.rollback = AsyncMock()
+    session.execute = AsyncMock(
+        side_effect=[
+            scalar_result(existing_batch),
+            scalar_result(None),
+            scalars_result([first_receipt]),
+            scalars_result([]),
+            MagicMock(),  # PostgreSQL advisory lock
+            scalar_result(existing_batch),
+        ]
+    )
+    locked_actor = SimpleNamespace(
+        id=user.id,
+        agency_id=user.agency_id,
+        role=UserRole.AGENCY_STAFF.value,
+        email=user.email,
+    )
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="Electronic visa",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference=None,
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    storage.delete_files = AsyncMock(return_value=1)
+    reauthorize = AsyncMock(return_value=locked_actor)
+    content = b"%PDF-1.7 visa"
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.document_rename.DocumentMatcher",
+            return_value=matcher,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.document_rename.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.document_rename._lock_active_rename_actor",
+            new=reauthorize,
+        ),
+        pytest.raises(HTTPException) as exc_info,
+    ):
+        await analyze_and_rename_documents(
+            files=[UploadFile(file=BytesIO(content), filename="visa.pdf", size=len(content))],
+            title="Visa batch",
+            upload_id=batch_id,
+            chunk_id=uuid.uuid4(),
+            chunk_index=1,
+            expected_chunk_count=2,
+            expected_file_count=2,
+            current_user=user,
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 409
+    assert exc_info.value.detail == "The upload session is not available to this account"
+    assert reauthorize.await_args.kwargs["expected_role"] == UserRole.AGENCY_ADMIN
+    storage.upload_file.assert_awaited_once()
+    storage.delete_files.assert_awaited_once()
+    session.add.assert_not_called()
 
 
 async def test_rename_bulk_delete_does_not_touch_storage_when_commit_fails() -> None:
@@ -517,8 +630,11 @@ async def test_rename_bulk_delete_does_not_touch_storage_when_commit_fails() -> 
     batch_result.scalars.return_value.all.return_value = [batch]
     item_result = MagicMock()
     item_result.scalars.return_value.all.return_value = [item]
+    receipt = SimpleNamespace(id=uuid.uuid4())
+    receipt_result = MagicMock()
+    receipt_result.scalars.return_value.all.return_value = [receipt]
     session = MagicMock()
-    session.execute = AsyncMock(side_effect=[batch_result, item_result])
+    session.execute = AsyncMock(side_effect=[batch_result, item_result, receipt_result])
     session.delete = AsyncMock()
     session.commit = AsyncMock(side_effect=RuntimeError("commit failed"))
     storage = MagicMock()
@@ -552,10 +668,15 @@ async def test_rename_bulk_delete_does_not_touch_storage_when_commit_fails() -> 
     process_cleanup.assert_not_awaited()
     batch_statement = session.execute.await_args_list[0].args[0]
     item_statement = session.execute.await_args_list[1].args[0]
+    receipt_statement = session.execute.await_args_list[2].args[0]
     assert "ORDER BY document_rename_batches.id" in str(batch_statement)
     assert "FOR UPDATE" in str(batch_statement)
     assert "ORDER BY document_rename_items.id" in str(item_statement)
     assert "FOR UPDATE" in str(item_statement)
+    assert "document_upload_chunks.agency_id" in str(receipt_statement)
+    assert "document_upload_chunks.workflow" in str(receipt_statement)
+    assert "FOR UPDATE" in str(receipt_statement)
+    session.delete.assert_any_await(receipt)
 
 
 async def test_rename_bulk_delete_processes_every_job_and_defers_runner_failure() -> None:
@@ -568,8 +689,11 @@ async def test_rename_bulk_delete_processes_every_job_and_defers_runner_failure(
     batch_result.scalars.return_value.all.return_value = [batch]
     item_result = MagicMock()
     item_result.scalars.return_value.all.return_value = [item]
+    receipt = SimpleNamespace(id=uuid.uuid4())
+    receipt_result = MagicMock()
+    receipt_result.scalars.return_value.all.return_value = [receipt]
     session = MagicMock()
-    session.execute = AsyncMock(side_effect=[batch_result, item_result])
+    session.execute = AsyncMock(side_effect=[batch_result, item_result, receipt_result])
     session.delete = AsyncMock()
     session.commit = AsyncMock()
     audit = MagicMock()
@@ -606,6 +730,7 @@ async def test_rename_bulk_delete_processes_every_job_and_defers_runner_failure(
     assert response.deleted_count == 1
     assert response.deleted_storage_objects == 1
     session.commit.assert_awaited_once()
+    session.delete.assert_any_await(receipt)
     assert process_cleanup.await_args_list == [
         call(cleanup_job_ids[0]),
         call(cleanup_job_ids[1]),
@@ -657,6 +782,7 @@ async def test_rename_zip_skips_rejected_rows_even_if_repository_returns_one() -
     assert response.media_type == "application/zip"
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["content-disposition"].startswith("attachment;")
+    assert int(response.headers["content-length"]) == len(body)
     with zipfile.ZipFile(BytesIO(body)) as archive:
         assert archive.namelist() == ["ASHA_VISA.pdf"]
 
@@ -682,6 +808,192 @@ async def test_all_rejected_rename_batch_has_no_zip_download() -> None:
     assert exc_info.value.status_code == 404
     assert "no verified" in str(exc_info.value.detail).lower()
     session.rollback.assert_awaited_once()
+
+
+async def test_processing_rename_batch_cannot_be_downloaded_as_zip() -> None:
+    user = _user()
+    batch = SimpleNamespace(id=uuid.uuid4(), status="processing")
+    batch_result = MagicMock()
+    batch_result.scalar_one_or_none.return_value = batch
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=batch_result)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await download_renamed_zip(
+            batch_id=batch.id,
+            current_user=user,
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 409
+    assert session.execute.await_count == 1
+
+
+async def test_rename_zip_has_hard_aggregate_byte_cap() -> None:
+    user = _user()
+    batch = SimpleNamespace(id=uuid.uuid4(), status="completed")
+    items = [
+        SimpleNamespace(
+            id=uuid.uuid4(),
+            detected_type="visa",
+            status="renamed",
+            storage_key=f"accepted-key-{index}",
+            renamed_filename=f"PASSENGER_{index}_VISA.pdf",
+            created_at=datetime.now(tz=UTC),
+        )
+        for index in range(2)
+    ]
+    batch_result = MagicMock()
+    batch_result.scalar_one_or_none.return_value = batch
+    items_result = MagicMock()
+    items_result.scalars.return_value.all.return_value = items
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[batch_result, items_result])
+    session.rollback = AsyncMock()
+    storage = MagicMock()
+    storage.get_file = AsyncMock(side_effect=[b"1234", b"5678"])
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.document_rename.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.document_rename.MAX_RENAME_ARCHIVE_UNCOMPRESSED_BYTES",
+            6,
+        ),
+        pytest.raises(HTTPException) as exc_info,
+    ):
+        await download_renamed_zip(
+            batch_id=batch.id,
+            current_user=user,
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 413
+    assert storage.get_file.await_count == 2
+
+
+async def test_rename_zip_rejects_concurrent_archive_with_retry_after() -> None:
+    user = _user()
+    batch = SimpleNamespace(id=uuid.uuid4(), status="completed")
+    item = SimpleNamespace(
+        id=uuid.uuid4(),
+        detected_type="visa",
+        status="renamed",
+        storage_key="accepted-key",
+        renamed_filename="PASSENGER_VISA.pdf",
+        created_at=datetime.now(tz=UTC),
+    )
+    batch_result = MagicMock()
+    batch_result.scalar_one_or_none.return_value = batch
+    items_result = MagicMock()
+    items_result.scalars.return_value.all.return_value = [item]
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[batch_result, items_result])
+    session.rollback = AsyncMock()
+    admission = MagicMock()
+    admission.acquire.return_value = False
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.document_rename._RENAME_ARCHIVE_ADMISSION",
+            admission,
+        ),
+        pytest.raises(HTTPException) as exc_info,
+    ):
+        await download_renamed_zip(
+            batch_id=batch.id,
+            current_user=user,
+            session=session,
+        )
+
+    assert exc_info.value.status_code == 503
+    assert exc_info.value.headers == {"Retry-After": "30"}
+    admission.acquire.assert_called_once_with(blocking=False)
+
+
+async def test_archive_fetch_failure_cancels_and_drains_sibling_tasks() -> None:
+    sibling_cancelled = asyncio.Event()
+
+    class Storage:
+        async def get_file(self, key: str) -> bytes:
+            if key == "failure":
+                await asyncio.sleep(0)
+                raise RuntimeError("storage failed")
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                sibling_cancelled.set()
+                raise
+
+    items = [
+        (uuid.uuid4(), "visa", "renamed", "slow", "SLOW.pdf"),
+        (uuid.uuid4(), "visa", "renamed", "failure", "FAIL.pdf"),
+    ]
+
+    with pytest.raises(RuntimeError, match="storage failed"):
+        await _fetch_rename_archive_batch(Storage(), items)
+
+    assert sibling_cancelled.is_set()
+
+
+async def test_archive_stream_close_releases_admission_slot() -> None:
+    archive = BytesIO(b"zip-bytes")
+    admission = MagicMock()
+    with patch(
+        "app.presentation.api.v1.routes.document_rename._RENAME_ARCHIVE_ADMISSION",
+        admission,
+    ):
+        stream = _stream_archive(archive, release_admission=True)
+        assert await anext(stream) == b"zip-bytes"
+        await stream.aclose()
+
+    assert archive.closed
+    admission.release.assert_called_once_with()
+
+
+async def test_archive_preparation_cancellation_releases_admission_slot() -> None:
+    user = _user()
+    batch = SimpleNamespace(id=uuid.uuid4(), status="completed")
+    item = SimpleNamespace(
+        id=uuid.uuid4(),
+        detected_type="visa",
+        status="renamed",
+        storage_key="accepted-key",
+        renamed_filename="PASSENGER_VISA.pdf",
+        created_at=datetime.now(tz=UTC),
+    )
+    batch_result = MagicMock()
+    batch_result.scalar_one_or_none.return_value = batch
+    items_result = MagicMock()
+    items_result.scalars.return_value.all.return_value = [item]
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[batch_result, items_result])
+    session.rollback = AsyncMock()
+    storage = MagicMock()
+    storage.get_file = AsyncMock(side_effect=asyncio.CancelledError)
+    admission = MagicMock()
+    admission.acquire.return_value = True
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.document_rename.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.document_rename._RENAME_ARCHIVE_ADMISSION",
+            admission,
+        ),
+        pytest.raises(asyncio.CancelledError),
+    ):
+        await download_renamed_zip(
+            batch_id=batch.id,
+            current_user=user,
+            session=session,
+        )
+
+    admission.release.assert_called_once_with()
 
 
 async def test_foreign_or_other_staff_rename_item_returns_404_without_storage_access() -> None:

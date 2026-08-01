@@ -9,10 +9,45 @@ from unittest.mock import AsyncMock, Mock
 
 from app.infrastructure.qr.approved_passenger_qr_issuer import (
     ensure_approved_passenger_qr,
+    ensure_approved_passenger_qrs,
 )
 
 
 class ApprovedPassengerQrIssuerTests(unittest.IsolatedAsyncioTestCase):
+    async def test_bulk_issuer_reuses_existing_and_creates_missing_tokens(self) -> None:
+        group = SimpleNamespace(return_date=None, created_by_user_id=uuid.uuid4())
+        existing_passenger = SimpleNamespace(
+            id=uuid.uuid4(), agency_id=uuid.uuid4(), status="staff_approved"
+        )
+        new_passenger = SimpleNamespace(
+            id=uuid.uuid4(), agency_id=uuid.uuid4(), status="staff_approved"
+        )
+        existing_token = SimpleNamespace(
+            passenger_id=existing_passenger.id,
+            token_version=1,
+        )
+        row_result = Mock()
+        row_result.all.return_value = [
+            (existing_passenger, group),
+            (new_passenger, group),
+        ]
+        token_result = Mock()
+        token_result.scalars.return_value.all.return_value = [existing_token]
+        session = AsyncMock()
+        session.add = Mock()
+        session.execute.side_effect = [row_result, token_result]
+
+        tokens = await ensure_approved_passenger_qrs(
+            session,
+            [new_passenger.id, existing_passenger.id, new_passenger.id],
+        )
+
+        self.assertEqual(len(tokens), 2)
+        self.assertIs(tokens[0], existing_token)
+        self.assertEqual(tokens[1].passenger_id, new_passenger.id)
+        session.add.assert_called_once_with(tokens[1])
+        session.flush.assert_awaited_once()
+
     async def test_ai_approved_passenger_receives_one_idempotent_token(self) -> None:
         passenger = SimpleNamespace(
             id=uuid.uuid4(),

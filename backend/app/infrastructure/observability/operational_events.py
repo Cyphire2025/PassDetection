@@ -69,6 +69,7 @@ _ALLOWED_REASONS: dict[OperationalEvent, frozenset[str]] = {
         {
             "approved",
             "already_approved",
+            "skipped",
             "stale",
             "unavailable",
             "forbidden",

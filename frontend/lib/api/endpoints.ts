@@ -168,6 +168,8 @@ export const API_ENDPOINTS = {
     passportDocumentPreview: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/preview`,
     passportDocumentSave: (groupId: string) => `/api/v1/passports/groups/${groupId}/import-passports/save`,
     bulkDelete: (groupId: string) => `/api/v1/passports/groups/${groupId}/bulk-delete`,
+    bulkStaffApprove: (groupId: string) =>
+      `/api/v1/passports/groups/${groupId}/bulk-staff-approve`,
     selectedExport: "/api/v1/passports/export.xlsx",
     detail: (id: string) => `/api/v1/passports/${id}`,
     imageCrop: (
@@ -229,6 +231,8 @@ export const API_ENDPOINTS = {
     review: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}`,
     verify: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/verify`,
     upload: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/upload`,
+    abortUpload: (groupId: string, documentType: string, batchId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/uploads/${batchId}/abort`,
     reupload: (groupId: string, documentType: string, passengerId: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/passengers/${passengerId}/reupload`,
     deleteDocuments: (groupId: string, documentType: string) =>

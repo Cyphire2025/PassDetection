@@ -145,3 +145,66 @@ async def ensure_approved_passenger_qr(
     session.add(token)
     await session.flush()
     return token
+
+
+async def ensure_approved_passenger_qrs(
+    session: AsyncSession,
+    submission_ids: list[uuid.UUID],
+    *,
+    created_by_user_id: uuid.UUID | None = None,
+) -> list[PassengerQRTokenModel]:
+    """Issue missing QR tokens for a locked approval batch in bounded queries."""
+
+    ordered_ids = sorted(set(submission_ids), key=str)
+    if not ordered_ids:
+        return []
+
+    result = await session.execute(
+        select(PassportSubmissionModel, ClientGroupModel)
+        .join(ClientGroupModel, ClientGroupModel.id == PassportSubmissionModel.group_id)
+        .where(
+            PassportSubmissionModel.id.in_(ordered_ids),
+            PassportSubmissionModel.status.in_(
+                OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+            ),
+        )
+        .order_by(PassportSubmissionModel.id)
+        .with_for_update(of=PassportSubmissionModel)
+    )
+    approved_rows = list(result.all())
+    approved_ids = [submission.id for submission, _group in approved_rows]
+    if not approved_ids:
+        return []
+
+    existing_result = await session.execute(
+        select(PassengerQRTokenModel)
+        .where(PassengerQRTokenModel.passenger_id.in_(approved_ids))
+        .order_by(
+            PassengerQRTokenModel.passenger_id,
+            PassengerQRTokenModel.token_version.desc(),
+            PassengerQRTokenModel.created_at.desc(),
+        )
+        .with_for_update()
+    )
+    existing_by_passenger: dict[uuid.UUID, PassengerQRTokenModel] = {}
+    for token_row in existing_result.scalars().all():
+        existing_by_passenger.setdefault(token_row.passenger_id, token_row)
+
+    tokens: list[PassengerQRTokenModel] = []
+    for submission, group in approved_rows:
+        existing_token = existing_by_passenger.get(submission.id)
+        if existing_token is not None:
+            tokens.append(existing_token)
+            continue
+        token, _payload = build_passenger_qr_token(
+            agency_id=submission.agency_id,
+            passenger_id=submission.id,
+            created_by_user_id=created_by_user_id or group.created_by_user_id,
+            group=group,
+            token_version=1,
+        )
+        tokens.append(token)
+        session.add(token)
+
+    await session.flush()
+    return tokens

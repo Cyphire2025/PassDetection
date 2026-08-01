@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
@@ -24,6 +24,11 @@ import {
   useOpenRenameBatch,
   useRenameBatches,
 } from "../hooks/use-document-rename";
+import {
+  createDocumentUploadSession,
+  type DocumentUploadProgress,
+  type DocumentUploadSession,
+} from "../services/document-upload-batching";
 
 type RenameFilter = "visa" | "flight_ticket" | "unknown";
 
@@ -45,6 +50,10 @@ export function DocumentRenamePage() {
   const [result, setResult] = useState<RenameDocumentBatch | null>(null);
   const [selectedBatchIds, setSelectedBatchIds] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
+  const [progressDetail, setProgressDetail] = useState<DocumentUploadProgress | null>(null);
+  const [uploadSession, setUploadSession] = useState<DocumentUploadSession | null>(null);
+  const [uploadSessionTitle, setUploadSessionTitle] = useState<string | null>(null);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
   const [phase, setPhase] = useState<"idle" | "analyzing">("idle");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const analyze = useAnalyzeRenameDocuments();
@@ -52,30 +61,43 @@ export function DocumentRenamePage() {
   const openBatch = useOpenRenameBatch();
   const deleteBatches = useDeleteRenameBatches();
 
-  useEffect(() => {
-    if (phase !== "analyzing" || !analyze.isPending) return;
-    const timer = window.setInterval(() => {
-      setProgress((current) => (current >= 92 ? current : Math.min(current + 5, 92)));
-    }, 250);
-    return () => window.clearInterval(timer);
-  }, [phase, analyze.isPending]);
-
   const startAnalyze = () => {
     if (selectedFiles.length === 0 || !title.trim()) return;
+    let activeSession = uploadSession;
+    let activeTitle = uploadSessionTitle;
+    if (!activeSession) {
+      try {
+        activeSession = createDocumentUploadSession(selectedFiles);
+        activeTitle = title.trim();
+        setUploadSession(activeSession);
+        setUploadSessionTitle(activeTitle);
+      } catch (error) {
+        setSelectionError(error instanceof Error ? error.message : "The selected PDFs are invalid");
+        return;
+      }
+    }
+    setSelectionError(null);
     setResult(null);
     setPhase("analyzing");
-    setProgress(6);
+    setProgress(0);
     analyze.mutate(
       {
-        title: title.trim(),
+        title: activeTitle ?? title.trim(),
         files: selectedFiles,
-        onProgress: (value) => setProgress(Math.max(value, 6)),
+        session: activeSession,
+        onProgress: (value) => {
+          setProgressDetail(value);
+          setProgress(value.percent);
+        },
       },
       {
         onSuccess: (data) => {
           setResult(data);
           setTitle("");
           setSelectedFiles([]);
+          setUploadSession(null);
+          setUploadSessionTitle(null);
+          setProgressDetail(null);
           setProgress(100);
           setPhase("idle");
         },
@@ -116,7 +138,7 @@ export function DocumentRenamePage() {
             placeholder="Thailand Group"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            disabled={analyze.isPending}
+            disabled={analyze.isPending || uploadSession !== null}
           />
 
           <input
@@ -128,6 +150,10 @@ export function DocumentRenamePage() {
             onChange={(event) => {
               setSelectedFiles(Array.from(event.target.files ?? []));
               setResult(null);
+              setUploadSession(null);
+              setUploadSessionTitle(null);
+              setSelectionError(null);
+              setProgressDetail(null);
               setProgress(0);
               event.currentTarget.value = "";
             }}
@@ -149,7 +175,12 @@ export function DocumentRenamePage() {
           {(analyze.isPending || phase !== "idle") && (
             <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <div className="flex items-center justify-between text-sm font-medium text-blue-900">
-                <span>Reading and renaming PDFs</span>
+                <span>
+                  {progressDetail?.phase === "processing" ? "Processing PDFs" : "Uploading PDFs"}
+                  {progressDetail
+                    ? ` — ${progressDetail.completedFiles}/${progressDetail.totalFiles} complete`
+                    : ""}
+                </span>
                 <span>{progress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white">
@@ -158,9 +189,12 @@ export function DocumentRenamePage() {
             </div>
           )}
 
-          {analyze.error && (
+          {(analyze.error || selectionError) && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {analyze.error.message}
+              {selectionError ?? analyze.error?.message}
+              {analyze.error && progressDetail && progressDetail.completedFiles > 0
+                ? ` ${progressDetail.completedFiles} of ${progressDetail.totalFiles} PDFs are safely committed; click Analyze And Rename again to resume.`
+                : ""}
             </div>
           )}
         </CardContent>
@@ -300,14 +334,18 @@ function SavedRenameBatches({
                     <FolderOpen className="h-4 w-4" />
                     Open
                   </Button>
-                  {batch.visa_count + batch.ticket_count > 0 && (
-                    <a href={batch.zip_download_url}>
+                  {batch.status === "completed" && batch.visa_count + batch.ticket_count > 0 ? (
+                    <a href={batch.zip_download_url} target="_blank" rel="noopener noreferrer">
                       <Button type="button" variant="secondary">
                         <Archive className="h-4 w-4" />
                         ZIP
                       </Button>
                     </a>
-                  )}
+                  ) : batch.status === "processing" ? (
+                    <span className="self-center text-xs font-medium text-amber-700">
+                      Upload incomplete
+                    </span>
+                  ) : null}
                   <Button
                     type="button"
                     variant="danger"
@@ -330,7 +368,8 @@ function SavedRenameBatches({
 
 function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: () => void }) {
   const [filter, setFilter] = useState<RenameFilter>("visa");
-  const hasDownloadableDocuments = batch.visa_count + batch.ticket_count > 0;
+  const hasDownloadableDocuments =
+    batch.status === "completed" && batch.visa_count + batch.ticket_count > 0;
   const filteredItems = useMemo(
     () =>
       batch.items
@@ -384,12 +423,16 @@ function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: 
                 {batch.unknown_count} rejected
               </FilterButton>
               {hasDownloadableDocuments ? (
-                <a href={batch.zip_download_url}>
+                <a href={batch.zip_download_url} target="_blank" rel="noopener noreferrer">
                   <Button type="button">
                     <Archive className="h-4 w-4" />
                     Download ZIP
                   </Button>
                 </a>
+              ) : batch.status === "processing" ? (
+                <span className="self-center text-xs font-medium text-amber-700">
+                  Upload incomplete — resume the same selection to finish
+                </span>
               ) : (
                 <span className="self-center text-xs font-medium text-amber-700">
                   No verified PDFs to download

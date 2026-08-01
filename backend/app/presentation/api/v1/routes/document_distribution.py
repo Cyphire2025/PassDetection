@@ -8,9 +8,10 @@ import re
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import and_, func, select
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from sqlalchemy import and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -39,6 +40,7 @@ from app.infrastructure.database.models import (
     ClientGroupWhatsAppBroadcastLinkModel,
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
+    DocumentUploadChunkModel,
     DocumentWhatsAppDeliveryModel,
     PassportSubmissionModel,
     UserModel,
@@ -46,6 +48,11 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.distribution_capacity import (
+    MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE,
+    DocumentDistributionCapacityError,
+    enforce_distribution_scope_capacity,
+)
 from app.infrastructure.documents.distribution_ingestion import (
     TravelDocumentFile,
     TravelDocumentIngestionService,
@@ -59,6 +66,9 @@ from app.infrastructure.documents.document_matcher import (
     PassengerIdentifier,
     classify_documents_bounded,
 )
+from app.infrastructure.documents.pdf_parser_sandbox import (
+    bounded_pdf_batch_timeout_seconds,
+)
 from app.infrastructure.documents.storage_cleanup import (
     persist_storage_cleanup_job,
     process_storage_cleanup_job,
@@ -69,8 +79,20 @@ from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.document_chunk_uploads import (
+    acquire_document_upload_advisory_lock,
+    acquire_document_upload_scope_advisory_lock,
+    document_chunk_fingerprint,
+    new_document_chunk_receipt,
+    resolve_concurrent_document_chunk_replay,
+    resolve_document_chunk_metadata,
+    validate_document_chunk_size,
+    validate_existing_document_chunk,
+    validate_next_document_chunk,
+)
 from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
+    AbortDocumentUploadResponse,
     DeleteDistributionDocumentsRequest,
     DistributedDocumentResponse,
     DocumentBatchResponse,
@@ -90,9 +112,15 @@ from app.presentation.api.v1.schemas.document_distribution_schemas import (
     VerifyDocumentBatchResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 logger = get_logger(__name__)
+DOCUMENT_RESPONSE_RENDER_WINDOW = 64
+
+
+class _ConcurrentDocumentChunkReplay(Exception):
+    """Internal control flow after an exact chunk wins a persistence race."""
 
 
 def _owner_scope_for(user: User) -> uuid.UUID | None:
@@ -296,8 +324,74 @@ async def _all_group_documents(
             DistributedDocumentModel.created_at.desc(),
             DistributedDocumentModel.id.desc(),
         )
+        .limit(MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE + 1)
     )
-    return list(result.scalars().all())
+    documents = list(result.scalars().all())
+    if len(documents) > MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This document list exceeds the supported "
+                f"{MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE:,} assignment limit. "
+                "Remove obsolete documents before continuing."
+            ),
+        )
+    return documents
+
+
+async def _enforce_group_document_assignment_capacity(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    document_type: str,
+    incoming_rows: int,
+) -> None:
+    """Fail before ORM staging when a locked distribution ledger is full."""
+
+    result = await session.execute(
+        select(func.count(DistributedDocumentModel.id)).where(
+            DistributedDocumentModel.group_id == group_id,
+            DistributedDocumentModel.agency_id == agency_id,
+            DistributedDocumentModel.document_type == document_type,
+        )
+    )
+    enforce_distribution_scope_capacity(
+        existing_rows=int(result.scalar_one()),
+        incoming_rows=incoming_rows,
+    )
+
+
+async def _first_blocking_processing_upload_id(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    document_type: str,
+    exclude_upload_id: uuid.UUID,
+    lock: bool = False,
+) -> uuid.UUID | None:
+    """Find a different incomplete upload without leaking another scope."""
+
+    statement = (
+        select(DocumentDistributionBatchModel.id)
+        .where(
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.agency_id == agency_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+            DocumentDistributionBatchModel.status == "processing",
+            DocumentDistributionBatchModel.id != exclude_upload_id,
+        )
+        .order_by(
+            DocumentDistributionBatchModel.created_at.asc(),
+            DocumentDistributionBatchModel.id.asc(),
+        )
+        .limit(1)
+    )
+    if lock:
+        statement = statement.with_for_update()
+    result = await session.execute(statement)
+    return result.scalar_one_or_none()
 
 
 async def _linked_whatsapp_recipients(
@@ -1092,6 +1186,15 @@ def _document_match_roster_snapshot(
     return tuple(sorted(snapshots))
 
 
+def _detach_distribution_batch_before_long_processing(
+    session: AsyncSession,
+    batch: DocumentDistributionBatchModel,
+) -> None:
+    """Retain loaded counters across rollback without keeping a transaction open."""
+
+    session.sync_session.expunge(batch)
+
+
 async def _lock_and_validate_document_match_scope(
     session: AsyncSession,
     *,
@@ -1286,8 +1389,11 @@ async def _batch_response(
     )
     all_batches = list(batches_result.scalars().all())
     pending_batches = [item for item in all_batches if item.status != "saved"]
+    processing_batches = [item for item in all_batches if item.status == "processing"]
     response_batch = (
-        pending_batches[0]
+        processing_batches[0]
+        if processing_batches
+        else pending_batches[0]
         if pending_batches
         else batch or (all_batches[0] if all_batches else None)
     )
@@ -1316,17 +1422,68 @@ async def _batch_response(
         email_document_ids = set(email_link_result.scalars().all())
 
     response_documents = list(documents)
-    rendered_documents = await asyncio.gather(
-        *(
-            _document_response(
+    presign_slots = asyncio.Semaphore(16)
+
+    async def render_document(
+        document: DistributedDocumentModel,
+    ) -> DistributedDocumentResponse:
+        async with presign_slots:
+            return await _document_response(
                 document,
                 storage,
                 source="email" if document.id in email_document_ids else "manual",
                 deliveries=deliveries_by_document.get(document.id, []),
             )
-            for document in response_documents
+
+    rendered_documents: list[DistributedDocumentResponse] = []
+    for offset in range(0, len(response_documents), DOCUMENT_RESPONSE_RENDER_WINDOW):
+        rendered_documents.extend(
+            await asyncio.gather(
+                *(
+                    render_document(document)
+                    for document in response_documents[
+                        offset : offset + DOCUMENT_RESPONSE_RENDER_WINDOW
+                    ]
+                )
+            )
         )
-    )
+    persisted_rejections: list[RejectedDocumentResponse] = []
+    if (
+        response_batch is not None
+        and getattr(response_batch, "rejected_count", 0) > 0
+        and not rejected_documents
+    ):
+        receipts_result = await session.execute(
+            select(DocumentUploadChunkModel.rejected_documents)
+            .where(
+                DocumentUploadChunkModel.upload_id == response_batch.id,
+                DocumentUploadChunkModel.agency_id == agency_id,
+                DocumentUploadChunkModel.workflow == "distribution",
+                DocumentUploadChunkModel.group_id == group_id,
+                DocumentUploadChunkModel.document_type == document_type,
+            )
+            .order_by(DocumentUploadChunkModel.chunk_index.asc())
+        )
+        for chunk_rejections in receipts_result.scalars().all():
+            for item in chunk_rejections if isinstance(chunk_rejections, list) else []:
+                if not isinstance(item, dict):
+                    continue
+                filename = item.get("filename")
+                detected_type = item.get("detected_type")
+                reason = item.get("reason")
+                if not isinstance(filename, str):
+                    continue
+                if not isinstance(detected_type, str):
+                    continue
+                if not isinstance(reason, str):
+                    continue
+                persisted_rejections.append(
+                    RejectedDocumentResponse(
+                        filename=filename,
+                        detected_type=detected_type,
+                        reason=reason,
+                    )
+                )
     responses_by_document = {
         document.id: response
         for document, response in zip(response_documents, rendered_documents, strict=True)
@@ -1342,15 +1499,38 @@ async def _batch_response(
         batch_id=response_batch.id if response_batch else None,
         group_id=group_id,
         document_type=document_type,
-        status="draft" if pending_batches else response_batch.status if response_batch else "draft",
+        status=response_batch.status if response_batch else "draft",
         uploaded_count=len(visible_documents),
         rejected_count=response_batch.rejected_count if response_batch else 0,
         matched_count=matched_count,
+        processing_upload_ids=[item.id for item in processing_batches],
         saved_at=response_batch.saved_at if response_batch else None,
         created_at=response_batch.created_at if response_batch else None,
         review_rows=rows,
         unmatched_documents=unmatched,
-        rejected_documents=rejected_documents or [],
+        rejected_documents=persisted_rejections or rejected_documents or [],
+    )
+
+
+def _processing_batch_response(
+    batch: DocumentDistributionBatchModel,
+) -> DocumentBatchResponse:
+    """Avoid O(n-squared) roster hydration for non-final upload chunks."""
+
+    return DocumentBatchResponse(
+        batch_id=batch.id,
+        group_id=batch.group_id,
+        document_type=batch.document_type,
+        status="processing",
+        uploaded_count=batch.uploaded_count,
+        rejected_count=batch.rejected_count,
+        matched_count=batch.matched_count,
+        processing_upload_ids=[batch.id],
+        saved_at=None,
+        created_at=batch.created_at,
+        review_rows=[],
+        unmatched_documents=[],
+        rejected_documents=[],
     )
 
 
@@ -1376,6 +1556,45 @@ async def _refresh_distribution_batches(
     batches = list(batches_result.scalars().all())
     if not batches:
         return
+    processing_batch_ids = {batch.id for batch in batches if batch.status == "processing"}
+    incomplete_processing_ids = set(processing_batch_ids)
+    if processing_batch_ids:
+        receipts_result = await session.execute(
+            select(
+                DocumentUploadChunkModel.upload_id,
+                DocumentUploadChunkModel.chunk_index,
+                DocumentUploadChunkModel.expected_chunk_count,
+                DocumentUploadChunkModel.expected_file_count,
+                DocumentUploadChunkModel.file_count,
+            ).where(
+                DocumentUploadChunkModel.upload_id.in_(processing_batch_ids),
+                DocumentUploadChunkModel.agency_id == agency_id,
+                DocumentUploadChunkModel.workflow == "distribution",
+                DocumentUploadChunkModel.group_id == group_id,
+            )
+        )
+        manifests: dict[uuid.UUID, list[tuple[int, int, int, int]]] = {}
+        for upload_id, chunk_index, chunk_count, file_count, chunk_files in (
+            receipts_result.all()
+        ):
+            manifests.setdefault(upload_id, []).append(
+                (chunk_index, chunk_count, file_count, chunk_files)
+            )
+        for upload_id, manifest in manifests.items():
+            ordered = sorted(manifest)
+            expected_chunks = ordered[0][1]
+            expected_files = ordered[0][2]
+            complete = (
+                len(ordered) == expected_chunks
+                and [item[0] for item in ordered] == list(range(expected_chunks))
+                and all(
+                    item[1] == expected_chunks and item[2] == expected_files
+                    for item in ordered
+                )
+                and sum(item[3] for item in ordered) == expected_files
+            )
+            if complete:
+                incomplete_processing_ids.discard(upload_id)
     remaining_result = await session.execute(
         select(
             DistributedDocumentModel.batch_id,
@@ -1395,7 +1614,9 @@ async def _refresh_distribution_batches(
         )
     for batch in batches:
         uploaded_count, matched_count = counts_by_batch.get(batch.id, (0, 0))
-        batch.status = "draft"
+        batch.status = (
+            "processing" if batch.id in incomplete_processing_ids else "draft"
+        )
         batch.saved_at = None
         batch.uploaded_count = uploaded_count
         batch.matched_count = matched_count
@@ -1577,6 +1798,7 @@ async def verify_documents(
                 for upload in uploads
             ],
             isolate_pdf_parsing=True,
+            batch_timeout_seconds=bounded_pdf_batch_timeout_seconds(len(uploads)),
         )
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
@@ -1642,11 +1864,17 @@ async def verify_documents(
     "/groups/{group_id}/{document_type}/upload",
     response_model=DocumentBatchResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def upload_documents(
     group_id: uuid.UUID,
     document_type: str,
     files: list[UploadFile] = File(...),
+    upload_id: Annotated[uuid.UUID | None, Form()] = None,
+    chunk_id: Annotated[uuid.UUID | None, Form()] = None,
+    chunk_index: Annotated[int | None, Form()] = None,
+    expected_chunk_count: Annotated[int | None, Form()] = None,
+    expected_file_count: Annotated[int | None, Form()] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentBatchResponse:
@@ -1654,7 +1882,35 @@ async def upload_documents(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
-    await _get_authorized_group(group_id, current_user=current_user, session=session)
+    chunk_metadata = resolve_document_chunk_metadata(
+        upload_id=upload_id,
+        chunk_id=chunk_id,
+        chunk_index=chunk_index,
+        expected_chunk_count=expected_chunk_count,
+        expected_file_count=expected_file_count,
+    )
+    validate_document_chunk_size(chunk_metadata, file_count=len(files))
+    authorized_group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    if chunk_metadata is not None and chunk_metadata.chunk_index == 0:
+        blocking_upload_id = await _first_blocking_processing_upload_id(
+            session,
+            group_id=group_id,
+            agency_id=authorized_group.agency_id,
+            document_type=document_type,
+            exclude_upload_id=chunk_metadata.upload_id,
+        )
+        if blocking_upload_id is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "Discard or resume the existing incomplete upload before "
+                    "starting another one"
+                ),
+            )
     initial_passengers = await _group_passengers(
         group_id,
         current_user=current_user,
@@ -1667,6 +1923,8 @@ async def upload_documents(
         )
     await session.rollback()
     uploads = await read_bounded_document_uploads(files)
+    chunk_byte_count = sum(len(upload.content) for upload in uploads)
+    fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
     file_payloads = [
         TravelDocumentFile(
             filename=upload.filename,
@@ -1696,7 +1954,104 @@ async def upload_documents(
         source=linked_source,
     )
     agency_id = group.agency_id
+    existing_batch: DocumentDistributionBatchModel | None = None
+    existing_receipts: list[DocumentUploadChunkModel] = []
+    chunk_completes_upload = True
+    if chunk_metadata is not None:
+        batch_result = await session.execute(
+            select(DocumentDistributionBatchModel).where(
+                DocumentDistributionBatchModel.id == chunk_metadata.upload_id,
+                DocumentDistributionBatchModel.agency_id == agency_id,
+                DocumentDistributionBatchModel.group_id == group_id,
+                DocumentDistributionBatchModel.document_type == document_type,
+            )
+        )
+        existing_batch = batch_result.scalar_one_or_none()
+        if existing_batch is None:
+            collision_result = await session.execute(
+                select(DocumentDistributionBatchModel.id).where(
+                    DocumentDistributionBatchModel.id == chunk_metadata.upload_id
+                )
+            )
+            if collision_result.scalar_one_or_none() is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is not available to this group",
+                )
+        receipt_result = await session.execute(
+            select(DocumentUploadChunkModel).where(
+                DocumentUploadChunkModel.id == chunk_metadata.chunk_id
+            )
+        )
+        existing_receipt = receipt_result.scalar_one_or_none()
+        if existing_receipt is not None:
+            assert fingerprint is not None
+            validate_existing_document_chunk(
+                existing_receipt,
+                metadata=chunk_metadata,
+                agency_id=agency_id,
+                workflow="distribution",
+                group_id=group_id,
+                document_type=document_type,
+                fingerprint=fingerprint,
+                file_count=len(uploads),
+                byte_count=chunk_byte_count,
+            )
+            if existing_batch is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is not available to this group",
+                )
+            if existing_batch.status == "processing":
+                return _processing_batch_response(existing_batch)
+            documents = await _all_group_documents(
+                session,
+                group_id=group_id,
+                agency_id=agency_id,
+                document_type=document_type,
+            )
+            return await _batch_response(
+                session=session,
+                group_id=group_id,
+                agency_id=agency_id,
+                document_type=document_type,
+                passengers=passengers,
+                batch=existing_batch,
+                documents=documents,
+            )
+        receipts_result = await session.execute(
+            select(DocumentUploadChunkModel)
+            .where(
+                DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,
+                DocumentUploadChunkModel.agency_id == agency_id,
+                DocumentUploadChunkModel.workflow == "distribution",
+                DocumentUploadChunkModel.group_id == group_id,
+                DocumentUploadChunkModel.document_type == document_type,
+            )
+            .order_by(DocumentUploadChunkModel.chunk_index.asc())
+        )
+        existing_receipts = list(receipts_result.scalars().all())
+        if (existing_batch is None) != (len(existing_receipts) == 0):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The upload session is incomplete and requires administrator review",
+            )
+        if existing_batch is not None and existing_batch.status != "processing":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This upload session is already complete",
+            )
+        chunk_completes_upload = validate_next_document_chunk(
+            existing_receipts,
+            metadata=chunk_metadata,
+            incoming_file_count=len(uploads),
+            incoming_byte_count=chunk_byte_count,
+        )
     roster_snapshot = _document_match_roster_snapshot(passengers)
+    if existing_batch is not None:
+        # Keep the already-loaded cumulative counters available without
+        # retaining a database transaction during untrusted PDF parsing.
+        _detach_distribution_batch_before_long_processing(session, existing_batch)
     await session.rollback()
 
     async def reauthorize_before_persistence() -> tuple[uuid.UUID | None, str | None]:
@@ -1710,7 +2065,103 @@ async def upload_documents(
             expected_source_snapshot=linked_source.snapshot,
             expected_supplemental_identifiers=supplemental_identifiers,
         )
+        await acquire_document_upload_scope_advisory_lock(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type=document_type,
+        )
+        if chunk_metadata is not None:
+            await acquire_document_upload_advisory_lock(
+                session,
+                workflow="distribution",
+                upload_id=chunk_metadata.upload_id,
+            )
+            serialized_batch_result = await session.execute(
+                select(DocumentDistributionBatchModel)
+                .where(DocumentDistributionBatchModel.id == chunk_metadata.upload_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            serialized_batch = serialized_batch_result.scalar_one_or_none()
+            if serialized_batch is not None and (
+                serialized_batch.agency_id != agency_id
+                or serialized_batch.group_id != group_id
+                or serialized_batch.document_type != document_type
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is not available to this group",
+                )
+            if (
+                chunk_metadata.chunk_index == 0
+                and serialized_batch is None
+                and await _first_blocking_processing_upload_id(
+                    session,
+                    group_id=group_id,
+                    agency_id=agency_id,
+                    document_type=document_type,
+                    exclude_upload_id=chunk_metadata.upload_id,
+                    lock=True,
+                )
+                is not None
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=(
+                        "Discard or resume the existing incomplete upload before "
+                        "starting another one"
+                    ),
+                )
+            locked_receipts_result = await session.execute(
+                select(DocumentUploadChunkModel)
+                .where(
+                    DocumentUploadChunkModel.upload_id == chunk_metadata.upload_id,
+                    DocumentUploadChunkModel.workflow == "distribution",
+                )
+                .order_by(DocumentUploadChunkModel.chunk_index.asc())
+                .with_for_update()
+            )
+            locked_receipts = list(locked_receipts_result.scalars().all())
+            assert fingerprint is not None
+            if resolve_concurrent_document_chunk_replay(
+                locked_receipts,
+                metadata=chunk_metadata,
+                agency_id=agency_id,
+                workflow="distribution",
+                group_id=group_id,
+                document_type=document_type,
+                fingerprint=fingerprint,
+                file_count=len(uploads),
+                byte_count=chunk_byte_count,
+            ) is not None:
+                raise _ConcurrentDocumentChunkReplay
+            if serialized_batch is not None and existing_batch is None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is incomplete and requires administrator review",
+                )
+            if serialized_batch is None and existing_batch is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="The upload session is no longer available",
+                )
+            validate_next_document_chunk(
+                locked_receipts,
+                metadata=chunk_metadata,
+                incoming_file_count=len(uploads),
+                incoming_byte_count=chunk_byte_count,
+                )
         return actor.id, actor.email
+
+    async def enforce_capacity_before_persistence(incoming_rows: int) -> None:
+        await _enforce_group_document_assignment_capacity(
+            session,
+            group_id=group_id,
+            agency_id=agency_id,
+            document_type=document_type,
+            incoming_rows=incoming_rows,
+        )
 
     try:
         ingestion = await TravelDocumentIngestionService(session, matcher=matcher).ingest(
@@ -1721,9 +2172,50 @@ async def upload_documents(
             files=file_payloads,
             created_by_user_id=current_user.id,
             actor_email=current_user.email,
+            existing_batch=existing_batch,
+            batch_id=chunk_metadata.upload_id if chunk_metadata else None,
             supplemental_identifiers=supplemental_identifiers,
             isolate_pdf_parsing=True,
+            parser_batch_timeout_seconds=(
+                bounded_pdf_batch_timeout_seconds(len(uploads))
+                if chunk_metadata is not None
+                else None
+            ),
             before_persistence=reauthorize_before_persistence,
+            before_persistence_capacity=enforce_capacity_before_persistence,
+        )
+    except _ConcurrentDocumentChunkReplay:
+        assert chunk_metadata is not None
+        replay_batch_result = await session.execute(
+            select(DocumentDistributionBatchModel).where(
+                DocumentDistributionBatchModel.id == chunk_metadata.upload_id,
+                DocumentDistributionBatchModel.agency_id == agency_id,
+                DocumentDistributionBatchModel.group_id == group_id,
+                DocumentDistributionBatchModel.document_type == document_type,
+            )
+        )
+        replay_batch = replay_batch_result.scalar_one_or_none()
+        if replay_batch is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The committed upload session is no longer available",
+            )
+        if replay_batch.status == "processing":
+            return _processing_batch_response(replay_batch)
+        documents = await _all_group_documents(
+            session,
+            group_id=group_id,
+            agency_id=agency_id,
+            document_type=document_type,
+        )
+        return await _batch_response(
+            session=session,
+            group_id=group_id,
+            agency_id=agency_id,
+            document_type=document_type,
+            passengers=passengers,
+            batch=replay_batch,
+            documents=documents,
         )
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
@@ -1731,6 +2223,47 @@ async def upload_documents(
             detail=str(exc),
             headers={"Retry-After": "1"},
         ) from exc
+    except DocumentDistributionCapacityError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail=str(exc),
+        ) from exc
+    if chunk_metadata is not None:
+        ingestion.batch.status = "draft" if chunk_completes_upload else "processing"
+        assert fingerprint is not None
+        session.add(
+            new_document_chunk_receipt(
+                metadata=chunk_metadata,
+                agency_id=agency_id,
+                workflow="distribution",
+                group_id=group_id,
+                document_type=document_type,
+                fingerprint=fingerprint,
+                file_count=len(uploads),
+                byte_count=chunk_byte_count,
+                accepted_count=len(uploads) - len(ingestion.rejected),
+                rejected_count=len(ingestion.rejected),
+                rejected_documents=[
+                    {
+                        "filename": item.filename,
+                        "detected_type": item.detected_type,
+                        "reason": item.reason,
+                    }
+                    for item in ingestion.rejected
+                ],
+            )
+        )
+        try:
+            await session.flush()
+        except Exception:
+            await session.rollback()
+            await _cleanup_distribution_storage_keys(
+                list(ingestion.created_storage_keys),
+                agency_id=agency_id,
+                group_id=group_id,
+                document_type=document_type,
+            )
+            raise
     try:
         await session.commit()
     except Exception:
@@ -1745,6 +2278,8 @@ async def upload_documents(
             object_count=len(ingestion.created_storage_keys),
         )
         raise
+    if ingestion.batch.status == "processing":
+        return _processing_batch_response(ingestion.batch)
     documents = await _all_group_documents(
         session,
         group_id=group_id,
@@ -1759,14 +2294,251 @@ async def upload_documents(
         passengers=passengers,
         batch=ingestion.batch,
         documents=documents,
-        rejected_documents=[
-            RejectedDocumentResponse(
-                filename=item.filename,
-                detected_type=item.detected_type,
-                reason=item.reason,
+        rejected_documents=(
+            [
+                RejectedDocumentResponse(
+                    filename=item.filename,
+                    detected_type=item.detected_type,
+                    reason=item.reason,
+                )
+                for item in ingestion.rejected
+            ]
+            if chunk_metadata is None
+            else None
+        ),
+    )
+
+
+@router.post(
+    "/groups/{group_id}/{document_type}/uploads/{batch_id}/abort",
+    response_model=AbortDocumentUploadResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def abort_incomplete_distribution_upload(
+    group_id: uuid.UUID,
+    document_type: str,
+    batch_id: uuid.UUID,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> AbortDocumentUploadResponse:
+    """Discard one incomplete upload without affecting any completed batch."""
+
+    if document_type not in DOCUMENT_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported document type",
+        )
+    group = await _get_authorized_group(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    actor, _ = await _lock_active_document_scope(
+        session,
+        current_user=current_user,
+        group_id=group_id,
+        agency_id=group.agency_id,
+    )
+    await acquire_document_upload_scope_advisory_lock(
+        session,
+        agency_id=group.agency_id,
+        group_id=group_id,
+        document_type=document_type,
+    )
+    await acquire_document_upload_advisory_lock(
+        session,
+        workflow="distribution",
+        upload_id=batch_id,
+    )
+
+    batch_result = await session.execute(
+        select(DocumentDistributionBatchModel)
+        .where(
+            DocumentDistributionBatchModel.id == batch_id,
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+        )
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    batch = batch_result.scalar_one_or_none()
+    if batch is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incomplete document upload was not found",
+        )
+    if batch.status != "processing":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Only an incomplete processing upload can be discarded",
+        )
+
+    receipts_result = await session.execute(
+        select(DocumentUploadChunkModel)
+        .where(
+            DocumentUploadChunkModel.upload_id == batch_id,
+            DocumentUploadChunkModel.agency_id == group.agency_id,
+            DocumentUploadChunkModel.workflow == "distribution",
+            DocumentUploadChunkModel.group_id == group_id,
+            DocumentUploadChunkModel.document_type == document_type,
+        )
+        .order_by(
+            DocumentUploadChunkModel.chunk_index.asc(),
+            DocumentUploadChunkModel.id.asc(),
+        )
+        .with_for_update()
+    )
+    receipts = list(receipts_result.scalars().all())
+    documents_result = await session.execute(
+        select(DistributedDocumentModel)
+        .where(
+            DistributedDocumentModel.batch_id == batch_id,
+            DistributedDocumentModel.agency_id == group.agency_id,
+            DistributedDocumentModel.group_id == group_id,
+            DistributedDocumentModel.document_type == document_type,
+        )
+        .order_by(DistributedDocumentModel.id.asc())
+        .with_for_update()
+    )
+    documents = list(documents_result.scalars().all())
+
+    delivery_result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel.id)
+        .where(
+            DocumentWhatsAppDeliveryModel.document_batch_id == batch_id,
+            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == group_id,
+            DocumentWhatsAppDeliveryModel.document_type == document_type,
+        )
+        .order_by(DocumentWhatsAppDeliveryModel.id.asc())
+        .with_for_update()
+        .limit(1)
+    )
+    if delivery_result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This upload has delivery history and cannot be discarded",
+        )
+
+    candidate_storage_keys = sorted({document.storage_key for document in documents})
+    still_used_storage_keys: set[str] = set()
+    if candidate_storage_keys:
+        remaining_key_result = await session.execute(
+            select(DistributedDocumentModel.storage_key)
+            .where(
+                DistributedDocumentModel.storage_key.in_(candidate_storage_keys),
+                DistributedDocumentModel.batch_id != batch_id,
             )
-            for item in ingestion.rejected
-        ],
+            .order_by(DistributedDocumentModel.storage_key.asc())
+            .with_for_update()
+        )
+        still_used_storage_keys = set(remaining_key_result.scalars().all())
+    delete_storage_keys = [
+        key for key in candidate_storage_keys if key not in still_used_storage_keys
+    ]
+    cleanup_jobs = stage_storage_cleanup_jobs(
+        session,
+        agency_id=group.agency_id,
+        source="document_distribution_abort",
+        context_id=str(batch_id),
+        storage_keys=delete_storage_keys,
+    )
+
+    await session.execute(
+        delete(DistributedDocumentModel)
+        .where(
+            DistributedDocumentModel.batch_id == batch_id,
+            DistributedDocumentModel.agency_id == group.agency_id,
+            DistributedDocumentModel.group_id == group_id,
+            DistributedDocumentModel.document_type == document_type,
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        delete(DocumentUploadChunkModel)
+        .where(
+            DocumentUploadChunkModel.upload_id == batch_id,
+            DocumentUploadChunkModel.agency_id == group.agency_id,
+            DocumentUploadChunkModel.workflow == "distribution",
+            DocumentUploadChunkModel.group_id == group_id,
+            DocumentUploadChunkModel.document_type == document_type,
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        delete(DocumentDistributionBatchModel)
+        .where(
+            DocumentDistributionBatchModel.id == batch_id,
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+            DocumentDistributionBatchModel.status == "processing",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    remaining_result = await session.execute(
+        select(DocumentDistributionBatchModel.id)
+        .where(
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
+            DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.document_type == document_type,
+            DocumentDistributionBatchModel.status == "processing",
+            DocumentDistributionBatchModel.id != batch_id,
+        )
+        .order_by(
+            DocumentDistributionBatchModel.created_at.desc(),
+            DocumentDistributionBatchModel.id.desc(),
+        )
+        .with_for_update()
+    )
+    remaining_processing_upload_ids = list(remaining_result.scalars().all())
+    await AuditLogRepository(session).record(
+        action="document_distribution_upload_aborted",
+        entity_type="document_distribution_batch",
+        entity_id=str(batch_id),
+        agency_id=group.agency_id,
+        user_id=actor.id,
+        metadata={
+            "group_id": str(group_id),
+            "document_type": document_type,
+            "deleted_document_count": len(documents),
+            "deleted_chunk_count": len(receipts),
+            "deleted_storage_object_count": len(delete_storage_keys),
+            "remaining_processing_upload_count": len(remaining_processing_upload_ids),
+        },
+    )
+    try:
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
+
+    storage_cleanup_pending = False
+    for cleanup_job in cleanup_jobs:
+        try:
+            cleanup_result = await process_storage_cleanup_job(cleanup_job.id)
+            if cleanup_result is None or not cleanup_result.completed:
+                storage_cleanup_pending = True
+        except Exception as exc:
+            storage_cleanup_pending = True
+            logger.warning(
+                "document_distribution_abort_cleanup_deferred",
+                batch_id=str(batch_id),
+                group_id=str(group_id),
+                document_type=document_type,
+                cleanup_job_id=str(cleanup_job.id),
+                object_count=cleanup_job.object_count,
+                error_type=type(exc).__name__,
+            )
+
+    return AbortDocumentUploadResponse(
+        batch_id=batch_id,
+        deleted_document_count=len(documents),
+        deleted_chunk_count=len(receipts),
+        deleted_storage_object_count=len(delete_storage_keys),
+        storage_cleanup_pending=storage_cleanup_pending,
+        remaining_processing_upload_ids=remaining_processing_upload_ids,
     )
 
 
@@ -1774,6 +2546,7 @@ async def upload_documents(
     "/groups/{group_id}/{document_type}/passengers/{passenger_id}/reupload",
     response_model=DocumentBatchResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def reupload_passenger_document(
     group_id: uuid.UUID,
@@ -1850,7 +2623,22 @@ async def reupload_passenger_document(
             expected_supplemental_identifiers=None,
             required_passenger_id=passenger_id,
         )
+        await acquire_document_upload_scope_advisory_lock(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type=document_type,
+        )
         return actor.id, actor.email
+
+    async def enforce_capacity_before_persistence(incoming_rows: int) -> None:
+        await _enforce_group_document_assignment_capacity(
+            session,
+            group_id=group_id,
+            agency_id=agency_id,
+            document_type=document_type,
+            incoming_rows=incoming_rows,
+        )
 
     ingestion = None
     try:
@@ -1872,6 +2660,7 @@ async def reupload_passenger_document(
             audit_source="dashboard_passenger_add",
             isolate_pdf_parsing=True,
             before_persistence=reauthorize_before_persistence,
+            before_persistence_capacity=enforce_capacity_before_persistence,
         )
         await AuditLogRepository(session).record(
             action="document_distribution_passenger_document_added",
@@ -1887,6 +2676,12 @@ async def reupload_passenger_document(
                 "filename": filename,
             },
         )
+    except DocumentDistributionCapacityError as exc:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail=str(exc),
+        ) from exc
     except Exception:
         await session.rollback()
         if ingestion is not None:
@@ -1928,6 +2723,7 @@ async def reupload_passenger_document(
 @router.post(
     "/groups/{group_id}/{document_type}/documents/unassign",
     response_model=DocumentBatchResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def unassign_distribution_documents(
     group_id: uuid.UUID,
@@ -2079,7 +2875,9 @@ async def unassign_distribution_documents(
 
 
 @router.post(
-    "/groups/{group_id}/{document_type}/documents/delete", response_model=DocumentBatchResponse
+    "/groups/{group_id}/{document_type}/documents/delete",
+    response_model=DocumentBatchResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def delete_distribution_documents(
     group_id: uuid.UUID,
@@ -2251,7 +3049,11 @@ async def delete_distribution_documents(
     )
 
 
-@router.post("/batches/{batch_id}/save", response_model=SaveDocumentBatchResponse)
+@router.post(
+    "/batches/{batch_id}/save",
+    response_model=SaveDocumentBatchResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def save_batch(
     batch_id: uuid.UUID,
     current_user: User = Depends(get_current_active_user),
@@ -2279,6 +3081,11 @@ async def save_batch(
         .with_for_update()
     )
     group_batches = list(group_batches_result.scalars().all())
+    if any(item.status == "processing" for item in group_batches):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Wait for the document upload to finish before saving the list",
+        )
     saved_batches = [item for item in group_batches if item.status != "saved"]
     for pending_batch in saved_batches:
         pending_batch.status = "saved"
@@ -2380,6 +3187,7 @@ async def _lock_retry_document_deliveries(
     "/batches/{batch_id}/whatsapp-send",
     response_model=SendDocumentBroadcastResponse,
     status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def send_document_whatsapp_broadcast(
     batch_id: uuid.UUID,

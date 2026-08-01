@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileSpreadsheet, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, UserCheck, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from "@/components/ui";
@@ -25,6 +25,7 @@ import {
   useExportSelectedPassportImages,
   useExportSelectedPassports,
   useBulkDeletePassportSubmissions,
+  useBulkStaffApprovePassportSubmissions,
   useGroupSubmissionsView,
   useImportPassportGroup,
   usePassportGroups,
@@ -63,6 +64,9 @@ interface PassportGroupDetailProps {
   groupId: string;
 }
 
+const MAX_BULK_SELECTION = 1500;
+const MAX_SELECTED_IMAGE_DOWNLOAD = 500;
+
 export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const searchParams = useSearchParams();
   const includeDeleted = searchParams.get("old_data") === "1";
@@ -70,6 +74,10 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const currentUserId = currentUser?.id ?? null;
   const role = currentUser?.role ?? null;
   const canPermanentlyDelete = role === "super_admin" || role === "agency_admin";
+  const canBulkStaffApprove = role === "super_admin"
+    || role === "agency_admin"
+    || role === "agency_manager"
+    || role === "agency_staff";
   const canEditImages = canEditPassportImages(role);
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [search, setSearch] = useState(
@@ -79,6 +87,9 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     () => parsePassportGroupViewState(searchParams).search,
   );
   const [selectedPassports, setSelectedPassports] = useState<string[]>([]);
+  const [selectedPassportRevisions, setSelectedPassportRevisions] = useState<
+    Record<string, number>
+  >({});
   const [submissionFilter, setSubmissionFilter] =
     useState<PassportGroupSubmissionFilter>(
       () => parsePassportGroupViewState(searchParams).submissionFilter,
@@ -177,12 +188,19 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const exportSelected = useExportSelectedPassports();
   const exportSelectedImages = useExportSelectedPassportImages();
   const bulkDelete = useBulkDeletePassportSubmissions(groupId);
+  const bulkStaffApprove = useBulkStaffApprovePassportSubmissions(groupId);
   const updateGroup = useUpdateUploadLink();
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const bulkActionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const bulkActionsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const bulkActionsDisclosureId = useId();
   const selectedImageDownloadStartedRef = useRef(false);
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [isBulkActionsMenuOpen, setIsBulkActionsMenuOpen] = useState(false);
+  const [selectionPreset, setSelectionPreset] = useState("");
+  const [customSelectionCount, setCustomSelectionCount] = useState("");
   const [exportDialogKind, setExportDialogKind] =
     useState<PassportGroupExportKind | null>(null);
   const [importMessage, setImportMessage] = useState<string | null>(null);
@@ -191,6 +209,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     message: string;
   } | null>(null);
   const [isBulkDeleteConfirmationOpen, setIsBulkDeleteConfirmationOpen] = useState(false);
+  const [isBulkApprovalConfirmationOpen, setIsBulkApprovalConfirmationOpen] = useState(false);
   const [passportImportFiles, setPassportImportFiles] = useState<File[]>([]);
   const [passportImportPreview, setPassportImportPreview] = useState<PassportDocumentImportPreview | null>(null);
   const [passportImportProgress, setPassportImportProgress] = useState<{ processed: number; total: number; label: string } | null>(null);
@@ -283,11 +302,61 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     };
   }, [isActionsMenuOpen]);
 
+  useEffect(() => {
+    if (!isBulkActionsMenuOpen) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!bulkActionsMenuRef.current?.contains(event.target as Node)) {
+        setIsBulkActionsMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsBulkActionsMenuOpen(false);
+        bulkActionsButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isBulkActionsMenuOpen]);
+
   const expiryAlerts = useMemo(() => {
     return submissionsView?.expiry_alerts ?? [];
   }, [submissionsView?.expiry_alerts]);
 
   const filteredPassports = data ?? [];
+  const selectedPassportIdSet = useMemo(
+    () => new Set(selectedPassports),
+    [selectedPassports],
+  );
+  const selectionRevisionById = useMemo(
+    () => {
+      const revisions = new Map(
+        (submissionsView?.ordered_selection_snapshot ?? []).map((snapshot) => [
+          snapshot.submission_id,
+          snapshot.extraction_revision,
+        ]),
+      );
+      for (const submission of submissionsView?.items ?? []) {
+        revisions.set(submission.id, submission.extraction_revision);
+      }
+      return revisions;
+    },
+    [submissionsView?.items, submissionsView?.ordered_selection_snapshot],
+  );
+  const maxBulkSelectionCount = Math.min(
+    MAX_BULK_SELECTION,
+    submissionsView?.total ?? 0,
+  );
+  const parsedCustomSelectionCount = Number.parseInt(customSelectionCount, 10);
+  const customSelectionIsValid = Number.isInteger(parsedCustomSelectionCount)
+    && parsedCustomSelectionCount >= 1
+    && parsedCustomSelectionCount <= maxBulkSelectionCount;
 
   const detailNavigation: PassportDetailNavigationState = useMemo(() => ({
     token: navigationToken,
@@ -341,10 +410,71 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const passportDetailHref = (submissionId: string) =>
     buildPassportDetailNavigationHref(submissionId, detailNavigation);
 
+  const resetBulkSelection = () => {
+    setSelectedPassports([]);
+    setSelectedPassportRevisions({});
+    setSelectionPreset("");
+    setCustomSelectionCount("");
+    setIsBulkActionsMenuOpen(false);
+  };
+
   const togglePassport = (passportId: string) => {
-    setSelectedPassports((current) =>
-      current.includes(passportId) ? current.filter((id) => id !== passportId) : [...current, passportId],
+    setSelectionPreset("");
+    if (selectedPassportIdSet.has(passportId)) {
+      setSelectedPassports((current) => current.filter((id) => id !== passportId));
+      setSelectedPassportRevisions((revisions) => ({
+        ...Object.fromEntries(
+          Object.entries(revisions).filter(([submissionId]) => submissionId !== passportId),
+        ),
+      }));
+      return;
+    }
+    const revision = selectionRevisionById.get(passportId);
+    if (revision === undefined) return;
+    if (selectedPassports.length >= MAX_BULK_SELECTION) {
+      setBulkDeleteFeedback({
+        tone: "warning",
+        message: `Select at most ${MAX_BULK_SELECTION.toLocaleString()} submissions at a time.`,
+      });
+      return;
+    }
+    setSelectedPassports((current) => [...current, passportId]);
+    setSelectedPassportRevisions((revisions) => ({
+      ...revisions,
+      [passportId]: revision,
+    }));
+  };
+
+  const selectFirstPassports = (requestedCount: number) => {
+    const orderedIds = submissionsView?.ordered_submission_ids ?? [];
+    const boundedCount = Math.min(
+      Math.max(0, requestedCount),
+      orderedIds.length,
+      MAX_BULK_SELECTION,
     );
+    const selectedIds = orderedIds.slice(0, boundedCount);
+    setSelectedPassports(selectedIds);
+    setSelectedPassportRevisions(Object.fromEntries(
+      selectedIds.flatMap((submissionId) => {
+        const revision = selectionRevisionById.get(submissionId);
+        return revision === undefined ? [] : [[submissionId, revision]];
+      }),
+    ));
+    setIsBulkActionsMenuOpen(false);
+  };
+
+  const handleSelectionPreset = (preset: string) => {
+    setSelectionPreset(preset);
+    if (preset === "custom") {
+      setCustomSelectionCount((current) => current || "1");
+      return;
+    }
+    if (preset === "all") {
+      selectFirstPassports(submissionsView?.ordered_submission_ids.length ?? 0);
+      return;
+    }
+    const count = Number.parseInt(preset, 10);
+    if (Number.isFinite(count)) selectFirstPassports(count);
   };
 
   const handlePassportImportFiles = (files: File[]) => {
@@ -387,6 +517,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const handleSelectedPassportDownload = () => {
     if (
       selectedPassports.length === 0
+      || selectedPassports.length > MAX_SELECTED_IMAGE_DOWNLOAD
       || selectedImageDownloadStartedRef.current
       || exportSelectedImages.isPending
     ) {
@@ -437,6 +568,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               importMutation.mutate(file, {
                 onSuccess: (result) => {
                   setSelectedPassports([]);
+                  setSelectedPassportRevisions({});
+                  setSelectionPreset("");
                   setImportMessage(
                     `Imported ${result.imported_count} new, updated ${result.updated_count}, skipped ${result.skipped_count} duplicate row${result.skipped_count === 1 ? "" : "s"}.`,
                   );
@@ -802,6 +935,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           onChange={(event) => {
             setSearch(event.target.value);
             setPage(1);
+            resetBulkSelection();
           }}
           placeholder="Search name, email, phone, passport number"
           className="h-10 pl-9"
@@ -814,7 +948,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         )}
       </div>
 
-      <div className="flex flex-nowrap items-center gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <label className="sr-only" htmlFor="group-submission-sort">Sort submissions by</label>
         <select
           id="group-submission-sort"
@@ -822,6 +956,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           onChange={(event) => {
             setSortBy(event.target.value as PassportGroupSubmissionSort);
             setPage(1);
+            resetBulkSelection();
           }}
           className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
@@ -836,6 +971,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           onChange={(event) => {
             setSubmissionFilter(event.target.value as PassportGroupSubmissionFilter);
             setPage(1);
+            resetBulkSelection();
           }}
           className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
@@ -853,60 +989,157 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           onChange={(event) => {
             setSortOrder(event.target.value as "asc" | "desc");
             setPage(1);
+            resetBulkSelection();
           }}
           className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
         >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
+        <label className="sr-only" htmlFor="group-submission-selection">Select submissions</label>
+        <select
+          id="group-submission-selection"
+          value={selectionPreset}
+          disabled={(submissionsView?.total ?? 0) === 0}
+          onChange={(event) => handleSelectionPreset(event.target.value)}
+          className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <option value="">Select passengers</option>
+          <option value="all">
+            {(submissionsView?.total ?? 0) > MAX_BULK_SELECTION
+              ? "First 1,500 (maximum)"
+              : "All"}
+          </option>
+          <option value="50">First 50</option>
+          <option value="100">First 100</option>
+          <option value="200">First 200</option>
+          <option value="custom">Custom number</option>
+        </select>
+        {selectionPreset === "custom" && (
+          <div className="flex shrink-0 items-center gap-2">
+            <label className="sr-only" htmlFor="group-submission-custom-selection">
+              Number of submissions to select
+            </label>
+            <Input
+              id="group-submission-custom-selection"
+              type="number"
+              min={1}
+              max={Math.min(
+                MAX_BULK_SELECTION,
+                Math.max(1, submissionsView?.total ?? 1),
+              )}
+              value={customSelectionCount}
+              onChange={(event) => setCustomSelectionCount(event.target.value)}
+              className="h-9 w-28"
+              placeholder="Count"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={!customSelectionIsValid}
+              onClick={() => {
+                if (customSelectionIsValid) {
+                  selectFirstPassports(parsedCustomSelectionCount);
+                }
+              }}
+            >
+              Apply
+            </Button>
+          </div>
+        )}
         {selectedPassports.length > 0 && (
           <>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="shrink-0 whitespace-nowrap"
-              isLoading={exportSelected.isPending}
-              onClick={() => exportSelected.mutate(selectedPassports)}
-            >
-              <Download className="h-4 w-4" />
-              Export Excel ({selectedPassports.length})
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="shrink-0 whitespace-nowrap"
-              disabled={exportSelectedImages.isPending}
-              isLoading={exportSelectedImages.isPending}
-              onClick={handleSelectedPassportDownload}
-            >
-              <Download className="h-4 w-4" />
-              Download Passports ({selectedPassports.length})
-            </Button>
-            {canPermanentlyDelete && !includeDeleted && (
+            <span className="shrink-0 text-sm font-medium text-slate-700" aria-live="polite">
+              {selectedPassports.length.toLocaleString()} selected
+            </span>
+            <div ref={bulkActionsMenuRef} className="relative shrink-0">
               <Button
+                ref={bulkActionsButtonRef}
                 type="button"
-                variant="danger"
-                size="sm"
-                className="shrink-0 whitespace-nowrap"
-                disabled={bulkDelete.isPending}
-                isLoading={bulkDelete.isPending}
-                onClick={() => {
-                  setBulkDeleteFeedback(null);
-                  setIsBulkDeleteConfirmationOpen(true);
-                }}
+                variant="secondary"
+                size="icon"
+                aria-label={`Open bulk actions for ${selectedPassports.length} selected submissions`}
+                aria-expanded={isBulkActionsMenuOpen}
+                aria-controls={bulkActionsDisclosureId}
+                onClick={() => setIsBulkActionsMenuOpen((open) => !open)}
               >
-                <Trash2 className="h-4 w-4" />
-                Delete Selected ({selectedPassports.length})
+                <MoreVertical className="h-4 w-4" />
               </Button>
-            )}
+              {isBulkActionsMenuOpen && (
+                <div
+                  id={bulkActionsDisclosureId}
+                  aria-label="Bulk submission actions"
+                  className="absolute right-0 top-11 z-40 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+                >
+                  {canBulkStaffApprove && !includeDeleted && (
+                    <button
+                      type="button"
+                      disabled={bulkStaffApprove.isPending}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => {
+                        setIsBulkActionsMenuOpen(false);
+                        setBulkDeleteFeedback(null);
+                        setIsBulkApprovalConfirmationOpen(true);
+                      }}
+                    >
+                      <UserCheck className="h-4 w-4 text-emerald-600" />
+                      Staff approve all selected ({selectedPassports.length})
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    disabled={exportSelected.isPending}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => {
+                      setIsBulkActionsMenuOpen(false);
+                      exportSelected.mutate(selectedPassports);
+                    }}
+                  >
+                    <FileSpreadsheet className="h-4 w-4 text-slate-500" />
+                    Export Excel ({selectedPassports.length})
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      exportSelectedImages.isPending
+                      || selectedPassports.length > MAX_SELECTED_IMAGE_DOWNLOAD
+                    }
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={() => {
+                      setIsBulkActionsMenuOpen(false);
+                      handleSelectedPassportDownload();
+                    }}
+                  >
+                    <Download className="h-4 w-4 text-slate-500" />
+                    {selectedPassports.length > MAX_SELECTED_IMAGE_DOWNLOAD
+                      ? `Download Passport Images (select up to ${MAX_SELECTED_IMAGE_DOWNLOAD})`
+                      : `Download Passport Images (${selectedPassports.length})`}
+                  </button>
+                  {canPermanentlyDelete && !includeDeleted && (
+                    <button
+                      type="button"
+                      disabled={bulkDelete.isPending}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => {
+                        setIsBulkActionsMenuOpen(false);
+                        setBulkDeleteFeedback(null);
+                        setIsBulkDeleteConfirmationOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete selected ({selectedPassports.length})
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               className="shrink-0 whitespace-nowrap"
-              onClick={() => setSelectedPassports([])}
+              onClick={resetBulkSelection}
             >
               Clear selection
             </Button>
@@ -980,7 +1213,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 )}
                 <PassportMobileCard
                   passport={passport}
-                  selected={selectedPassports.includes(passport.id)}
+                  selected={selectedPassportIdSet.has(passport.id)}
                   onToggle={() => togglePassport(passport.id)}
                   detailHref={passportDetailHref(passport.id)}
                   onOpen={persistNavigationContext}
@@ -1028,7 +1261,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={selectedPassports.includes(passport.id)}
+                              checked={selectedPassportIdSet.has(passport.id)}
                               onChange={() => togglePassport(passport.id)}
                               onClick={(event) => event.stopPropagation()}
                               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
@@ -1219,6 +1452,88 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
         />
       )}
       <ConfirmDialog
+        isOpen={isBulkApprovalConfirmationOpen}
+        title="Staff approve selected submissions?"
+        description={`Mark completed records among ${selectedPassports.length} selected submission${selectedPassports.length === 1 ? "" : "s"} as Staff Approved? Processing, failed, and incomplete records will be left unchanged and reported.`}
+        confirmLabel={`Approve ${selectedPassports.length} selected`}
+        isLoading={bulkStaffApprove.isPending}
+        onClose={() => {
+          if (!bulkStaffApprove.isPending) {
+            setIsBulkApprovalConfirmationOpen(false);
+          }
+        }}
+        onConfirm={() => {
+          if (selectedPassports.length === 0 || bulkStaffApprove.isPending) return;
+          const approvalSelections = selectedPassports.flatMap((submissionId) => {
+            const expectedRevision = selectedPassportRevisions[submissionId];
+            return expectedRevision === undefined
+              ? []
+              : [{
+                submission_id: submissionId,
+                expected_extraction_revision: expectedRevision,
+              }];
+          });
+          if (approvalSelections.length !== selectedPassports.length) {
+            setIsBulkApprovalConfirmationOpen(false);
+            setBulkDeleteFeedback({
+              tone: "error",
+              message: "The selection snapshot is incomplete. Refresh the group and select the submissions again.",
+            });
+            void refetchSubmissions();
+            return;
+          }
+          bulkStaffApprove.mutate(approvalSelections, {
+            onSuccess: (result) => {
+              const retryableSkippedIds = result.skipped_submissions
+                .filter((item) => item.reason === "not_completed")
+                .map((item) => item.submission_id);
+              const retryableSkippedIdSet = new Set(retryableSkippedIds);
+              const staleCount = result.skipped_submissions.filter(
+                (item) => item.reason === "stale",
+              ).length;
+              const incompleteCount = result.skipped_count - staleCount;
+              setSelectedPassports(retryableSkippedIds);
+              setSelectedPassportRevisions((revisions) => Object.fromEntries(
+                Object.entries(revisions).filter(([submissionId]) => (
+                  retryableSkippedIdSet.has(submissionId)
+                )),
+              ));
+              setSelectionPreset("");
+              setIsBulkApprovalConfirmationOpen(false);
+              setBulkDeleteFeedback({
+                tone: result.skipped_count > 0 ? "warning" : "success",
+                message: [
+                  `Staff approved ${result.approved_count} submission${result.approved_count === 1 ? "" : "s"}.`,
+                  result.already_approved_count > 0
+                    ? `${result.already_approved_count} were already Staff Approved.`
+                    : "",
+                  staleCount > 0
+                    ? `${staleCount} submission${staleCount === 1 ? " changed" : "s changed"} after selection and must be refreshed and reviewed again.`
+                    : "",
+                  incompleteCount > 0
+                    ? `${incompleteCount} incomplete or in-progress submission${incompleteCount === 1 ? " was" : "s were"} left unchanged.`
+                    : "",
+                  incompleteCount > 0
+                    ? "Incomplete submissions remain selected."
+                    : "",
+                ].filter(Boolean).join(" "),
+              });
+              if (staleCount > 0) void refetchSubmissions();
+            },
+            onError: (approvalError) => {
+              setIsBulkApprovalConfirmationOpen(false);
+              setBulkDeleteFeedback({
+                tone: "error",
+                message: mutationErrorMessage(
+                  approvalError,
+                  "The selected passport submissions could not be staff approved.",
+                ),
+              });
+            },
+          });
+        }}
+      />
+      <ConfirmDialog
         isOpen={isBulkDeleteConfirmationOpen}
         title="Delete selected submissions?"
         description={`Permanently delete ${selectedPassports.length} selected passport submission${selectedPassports.length === 1 ? "" : "s"}, including uploaded passport and Visa Photo files? This cannot be undone.`}
@@ -1233,6 +1548,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
           bulkDelete.mutate(selectedPassports, {
             onSuccess: (result) => {
               setSelectedPassports([]);
+              setSelectedPassportRevisions({});
+              setSelectionPreset("");
               setIsBulkDeleteConfirmationOpen(false);
               setBulkDeleteFeedback({
                 tone: result.storage_cleanup_deferred ? "warning" : "success",

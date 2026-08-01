@@ -77,11 +77,22 @@ export interface DocumentBatchReview {
   uploaded_count: number;
   rejected_count: number;
   matched_count: number;
+  processing_upload_ids: string[];
   saved_at: string | null;
   created_at: string | null;
   review_rows: DocumentPassengerReviewRow[];
   unmatched_documents: DistributedDocument[];
   rejected_documents: RejectedDistributedDocument[];
+}
+
+export interface AbortDocumentUploadResult {
+  batch_id: string;
+  status: string;
+  deleted_document_count: number;
+  deleted_chunk_count: number;
+  deleted_storage_object_count: number;
+  storage_cleanup_pending: boolean;
+  remaining_processing_upload_ids: string[];
 }
 
 export type DocumentDeliveryPreviewStatus =

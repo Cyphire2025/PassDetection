@@ -10,6 +10,7 @@ from app.domain.entities.entities import ClientGroup, PassportSubmission
 from app.infrastructure.export.passport_image_zip_exporter import (
     MissingPassportImagesError,
     PassportImageExportError,
+    PassportImageExportLimitError,
     PassportImageZipExporter,
 )
 
@@ -399,6 +400,28 @@ class PassportImageZipExporterTests(unittest.IsolatedAsyncioTestCase):
                 )
         finally:
             spool.close()
+
+    async def test_export_honours_a_stricter_caller_byte_limit(self) -> None:
+        group = self._group()
+        submission = self._submission(group, include_selfie=False)
+        storage = FakeStorage(
+            {
+                submission.image_s3_key: b"front",
+                submission.passport_back_s3_key: b"back",
+            }
+        )
+
+        with self.assertRaisesRegex(
+            PassportImageExportLimitError,
+            "8 bytes uncompressed safety limit",
+        ):
+            await PassportImageZipExporter().export_group(
+                [submission],
+                group_name=group.name,
+                staff_code_enabled=False,
+                storage=storage,  # type: ignore[arg-type]
+                max_uncompressed_bytes=8,
+            )
 
 
 if __name__ == "__main__":

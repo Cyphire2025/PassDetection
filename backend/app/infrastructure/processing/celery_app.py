@@ -24,6 +24,7 @@ EMAIL_AI_ANALYZE_TASK = "email.analyze_travel_message"
 EMAIL_AI_DISPATCH_TASK = "email.dispatch_ai_analyses"
 EMAIL_AI_DEADLINE_SCAN_TASK = "email.notify_ai_deadline_window"
 DOCUMENT_STORAGE_CLEANUP_TASK = "documents.cleanup_storage"
+DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK = "documents.reconcile_storage_orphans"
 
 settings = get_settings()
 
@@ -65,6 +66,7 @@ celery_app.conf.update(
         EMAIL_AI_DISPATCH_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
+        DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -103,6 +105,11 @@ celery_app.conf.update(
         "cleanup-deferred-document-storage": {
             "task": DOCUMENT_STORAGE_CLEANUP_TASK,
             "schedule": 60.0,
+            "options": {"queue": "passport_ocr"},
+        },
+        "reconcile-orphaned-document-storage": {
+            "task": DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK,
+            "schedule": 3_600.0,
             "options": {"queue": "passport_ocr"},
         },
     },

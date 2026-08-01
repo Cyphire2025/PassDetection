@@ -5,6 +5,7 @@ import { passportsApi } from "../api/passports.api";
 import type {
   PassportDocumentImportChunkRequest,
   PassportDocumentImportRequest,
+  BulkStaffApprovePassportSelection,
   PassportGroupExportKind,
   PassportGroupExportRequest,
   PassportWhatsAppTrackingExportRequest,
@@ -196,6 +197,20 @@ export function useBulkDeletePassportSubmissions(groupId: string) {
   return useMutation({
     mutationFn: (submissionIds: string[]) => (
       passportsApi.bulkDelete(groupId, submissionIds)
+    ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard.stats });
+    },
+  });
+}
+
+export function useBulkStaffApprovePassportSubmissions(groupId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (submissions: BulkStaffApprovePassportSelection[]) => (
+      passportsApi.bulkStaffApprove(groupId, submissions)
     ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.passports.all });

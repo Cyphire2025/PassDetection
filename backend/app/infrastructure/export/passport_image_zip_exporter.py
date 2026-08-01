@@ -6,10 +6,11 @@ import asyncio
 import re
 import tempfile
 import unicodedata
+import uuid
 import zipfile
 from dataclasses import dataclass
 from pathlib import PurePosixPath
-from typing import BinaryIO, Iterable, Mapping
+from typing import BinaryIO, Iterable, Mapping, cast
 
 from app.domain.entities.entities import PassportSubmission
 from app.domain.exceptions.exceptions import StorageError
@@ -75,9 +76,12 @@ class PassportImageZipExporter:
         staff_code_enabled: bool,
         storage: IObjectStorageRepository,
         agent_employee_code_enabled: bool = False,
-        crop_metadata: Mapping[object, Mapping[PassportImageType, PassportImageCrop]] | None = None,
-        zone_names: Mapping[object, str] | None = None,
+        crop_metadata: (
+            Mapping[uuid.UUID, Mapping[PassportImageType, PassportImageCrop]] | None
+        ) = None,
+        zone_names: Mapping[uuid.UUID, str] | None = None,
         namespace_submissions: list[PassportSubmission] | None = None,
+        max_uncompressed_bytes: int | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
             raise PassportImageExportLimitError(
@@ -126,6 +130,14 @@ class PassportImageZipExporter:
             raise MissingPassportImagesError(
                 f"Passport front and back images are required before export for: {preview}{remainder}."
             )
+
+        byte_limit = (
+            self.MAX_UNCOMPRESSED_BYTES
+            if max_uncompressed_bytes is None
+            else min(max_uncompressed_bytes, self.MAX_UNCOMPRESSED_BYTES)
+        )
+        if byte_limit <= 0:
+            raise PassportImageExportLimitError("Image export byte limit is invalid.")
 
         spool = tempfile.SpooledTemporaryFile(max_size=self.SPOOL_MEMORY_BYTES, mode="w+b")
         total_bytes = 0
@@ -231,9 +243,18 @@ class PassportImageZipExporter:
                     )
                     for loaded_image in loaded_images:
                         total_bytes += len(loaded_image.content)
-                        if total_bytes > self.MAX_UNCOMPRESSED_BYTES:
+                        if total_bytes > byte_limit:
+                            limit_label = (
+                                "2 GB"
+                                if byte_limit == self.MAX_UNCOMPRESSED_BYTES
+                                else (
+                                    f"{byte_limit // (1024 * 1024)} MB"
+                                    if byte_limit >= 1024 * 1024
+                                    else f"{byte_limit} bytes"
+                                )
+                            )
                             raise PassportImageExportLimitError(
-                                "Image export exceeds the 2 GB uncompressed safety limit."
+                                f"Image export exceeds the {limit_label} uncompressed safety limit."
                             )
                         archive.writestr(
                             self._zip_info(loaded_image.path),
@@ -242,7 +263,7 @@ class PassportImageZipExporter:
                         entry_count += 1
 
             spool.seek(0)
-            return spool, entry_count, total_bytes
+            return cast(BinaryIO, spool), entry_count, total_bytes
         except Exception:
             spool.close()
             raise
@@ -323,7 +344,7 @@ class PassportImageZipExporter:
     @staticmethod
     def _zone_name(
         submission: PassportSubmission,
-        zone_names: Mapping[object, str] | None,
+        zone_names: Mapping[uuid.UUID, str] | None,
     ) -> str:
         def normalize(value: object) -> str:
             normalized = " ".join(str(value or "").strip().split())

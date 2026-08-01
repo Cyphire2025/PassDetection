@@ -342,6 +342,7 @@ def classify_documents_bounded(
     jobs: list[tuple[str, bytes, str]],
     *,
     isolate_pdf_parsing: bool,
+    batch_timeout_seconds: float | None = None,
 ) -> list[ClassifiedDocument]:
     """Classify a request batch, isolating untrusted parsing when requested.
 
@@ -369,7 +370,14 @@ def classify_documents_bounded(
         classify_pdf_batch_isolated,
     )
 
-    payloads = classify_pdf_batch_isolated(jobs)
+    payloads = (
+        classify_pdf_batch_isolated(jobs)
+        if batch_timeout_seconds is None
+        else classify_pdf_batch_isolated(
+            jobs,
+            batch_timeout_seconds=batch_timeout_seconds,
+        )
+    )
     classifications: list[ClassifiedDocument] = []
     for (filename, _content, _expected_type), payload in zip(jobs, payloads, strict=True):
         detected_type = payload.get("detected_type")

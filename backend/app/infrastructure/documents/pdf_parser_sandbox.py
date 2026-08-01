@@ -13,22 +13,157 @@ import os
 import signal
 import threading
 import time
+import uuid
 from collections.abc import Callable, Sequence
+from dataclasses import dataclass
+from functools import lru_cache
 from multiprocessing.pool import AsyncResult
 from typing import Any, TypeAlias, cast
+
+from redis import Redis
+
+from app.core.config.settings import get_settings
+from app.core.logging.logger import get_logger
 
 PdfClassificationJob: TypeAlias = tuple[int, str, bytes, str]
 PdfClassificationPayload: TypeAlias = dict[str, str | bool | None]
 
 MAX_PDF_BATCH_PARSE_SECONDS = 20.0
+MAX_PDF_FILE_PARSE_SECONDS = 3.0
+MAX_PDF_SCALED_BATCH_SECONDS = 90.0
 MAX_PDF_BATCH_TEXT_CHARS = 12_000_000
 MAX_PDF_PARSER_PROCESSES = 2
 MAX_PDF_PARSER_TASKS_PER_CHILD = 250
 PDF_PARSER_MEMORY_BYTES = 384 * 1024 * 1024
 PDF_PARSER_ADMISSION_WAIT_SECONDS = 0.25
-MAX_CONCURRENT_PDF_BATCHES = 2
+MAX_PROCESS_LOCAL_PDF_BATCHES = 1
+MAX_DEPLOYMENT_PDF_BATCHES = 2
+PDF_BATCH_LEASE_KEY = "global-connect:pdf-parser:batch-leases:v1"
+PDF_BATCH_LEASE_GRACE_MS = 15_000
+PDF_BATCH_LEASE_MIN_MS = 30_000
+PDF_BATCH_LEASE_MAX_MS = 120_000
 
-_PDF_BATCH_ADMISSION = threading.BoundedSemaphore(MAX_CONCURRENT_PDF_BATCHES)
+_PDF_BATCH_ADMISSION = threading.BoundedSemaphore(MAX_PROCESS_LOCAL_PDF_BATCHES)
+logger = get_logger(__name__)
+
+_ACQUIRE_PDF_BATCH_LEASE_LUA = """
+local redis_time = redis.call('TIME')
+local now_ms = (tonumber(redis_time[1]) * 1000) + math.floor(tonumber(redis_time[2]) / 1000)
+redis.call('ZREMRANGEBYSCORE', KEYS[1], '-inf', now_ms)
+if redis.call('ZCARD', KEYS[1]) >= tonumber(ARGV[2]) then
+  return 0
+end
+local expires_at_ms = now_ms + tonumber(ARGV[3])
+redis.call('ZADD', KEYS[1], expires_at_ms, ARGV[1])
+local latest = redis.call('ZRANGE', KEYS[1], -1, -1, 'WITHSCORES')
+if latest[2] then
+  redis.call('PEXPIREAT', KEYS[1], math.floor(tonumber(latest[2])) + 1000)
+end
+return 1
+"""
+
+_RELEASE_PDF_BATCH_LEASE_LUA = """
+local removed = redis.call('ZREM', KEYS[1], ARGV[1])
+local latest = redis.call('ZRANGE', KEYS[1], -1, -1, 'WITHSCORES')
+if latest[2] then
+  redis.call('PEXPIREAT', KEYS[1], math.floor(tonumber(latest[2])) + 1000)
+else
+  redis.call('DEL', KEYS[1])
+end
+return removed
+"""
+
+
+class _PdfBatchLeaseUnavailable(RuntimeError):
+    """The production-wide parser admission store could not be reached safely."""
+
+
+@dataclass(slots=True)
+class _PdfBatchLease:
+    client: Any
+    token: str
+    released: bool = False
+
+    def release(self) -> None:
+        """Release this exact lease once; expiry remains the crash fallback."""
+
+        if self.released:
+            return
+        self.released = True
+        try:
+            self.client.eval(
+                _RELEASE_PDF_BATCH_LEASE_LUA,
+                1,
+                PDF_BATCH_LEASE_KEY,
+                self.token,
+            )
+        except Exception:
+            # Never expose the random lease member or Redis connection details.
+            # The sorted-set score and key expiry reclaim the slot after a crash
+            # or a coordination-store outage.
+            logger.warning("pdf_parser_global_lease_release_failed")
+
+
+@lru_cache(maxsize=1)
+def _pdf_batch_redis_client() -> Redis:
+    settings = get_settings()
+    return Redis.from_url(
+        settings.redis.url,
+        socket_connect_timeout=0.5,
+        socket_timeout=0.5,
+        retry_on_timeout=False,
+        decode_responses=False,
+    )
+
+
+def _production_global_pdf_batch_lease_required() -> bool:
+    return get_settings().app_env == "production"
+
+
+def _pdf_batch_lease_ms(batch_timeout_seconds: float) -> int:
+    requested_ms = math.ceil(batch_timeout_seconds * 1000) + PDF_BATCH_LEASE_GRACE_MS
+    return min(
+        PDF_BATCH_LEASE_MAX_MS,
+        max(PDF_BATCH_LEASE_MIN_MS, requested_ms),
+    )
+
+
+def _acquire_global_pdf_batch_lease(
+    *,
+    batch_timeout_seconds: float,
+) -> _PdfBatchLease | None:
+    """Atomically prune expired leases and acquire one deployment-wide slot."""
+
+    token = uuid.uuid4().hex
+    try:
+        client = cast(Any, _pdf_batch_redis_client())
+        result = client.eval(
+            _ACQUIRE_PDF_BATCH_LEASE_LUA,
+            1,
+            PDF_BATCH_LEASE_KEY,
+            token,
+            str(MAX_DEPLOYMENT_PDF_BATCHES),
+            str(_pdf_batch_lease_ms(batch_timeout_seconds)),
+        )
+        admitted = int(cast(Any, result))
+    except Exception as exc:
+        raise _PdfBatchLeaseUnavailable from exc
+    if admitted == 0:
+        return None
+    if admitted != 1:
+        raise _PdfBatchLeaseUnavailable
+    return _PdfBatchLease(client=client, token=token)
+
+
+def bounded_pdf_batch_timeout_seconds(job_count: int) -> float:
+    """Budget all bounded workers without crossing the request timeout envelope."""
+
+    waves = math.ceil(max(1, job_count) / MAX_PDF_PARSER_PROCESSES)
+    worst_case_seconds = waves * MAX_PDF_FILE_PARSE_SECONDS + 5.0
+    return min(
+        MAX_PDF_SCALED_BATCH_SECONDS,
+        max(MAX_PDF_BATCH_PARSE_SECONDS, worst_case_seconds),
+    )
 
 
 class _PdfFileTimeoutError(Exception):
@@ -142,7 +277,7 @@ def classify_pdf_batch_isolated(
     jobs: Sequence[tuple[str, bytes, str]],
     *,
     batch_timeout_seconds: float = MAX_PDF_BATCH_PARSE_SECONDS,
-    per_file_timeout_seconds: float = 3.0,
+    per_file_timeout_seconds: float = MAX_PDF_FILE_PARSE_SECONDS,
 ) -> list[PdfClassificationPayload]:
     """Classify a request batch with hard process and output budgets.
 
@@ -159,17 +294,37 @@ def classify_pdf_batch_isolated(
             for filename, _content, _expected_type in jobs
         ]
 
-    admission_wait = min(PDF_PARSER_ADMISSION_WAIT_SECONDS, batch_timeout_seconds)
+    effective_batch_timeout_seconds = min(
+        batch_timeout_seconds,
+        MAX_PDF_SCALED_BATCH_SECONDS,
+    )
+    admission_wait = min(PDF_PARSER_ADMISSION_WAIT_SECONDS, effective_batch_timeout_seconds)
     if not _PDF_BATCH_ADMISSION.acquire(timeout=admission_wait):
         return [
             _failed_payload(filename, "PDF parser capacity is temporarily exhausted")
             for filename, _content, _expected_type in jobs
         ]
+    global_lease: _PdfBatchLease | None = None
     try:
+        if _production_global_pdf_batch_lease_required():
+            try:
+                global_lease = _acquire_global_pdf_batch_lease(
+                    batch_timeout_seconds=effective_batch_timeout_seconds,
+                )
+            except _PdfBatchLeaseUnavailable:
+                return [
+                    _failed_payload(filename, "PDF parser service is temporarily unavailable")
+                    for filename, _content, _expected_type in jobs
+                ]
+            if global_lease is None:
+                return [
+                    _failed_payload(filename, "PDF parser capacity is temporarily exhausted")
+                    for filename, _content, _expected_type in jobs
+                ]
         try:
             return _classify_pdf_batch_admitted(
                 jobs,
-                batch_timeout_seconds=batch_timeout_seconds,
+                batch_timeout_seconds=effective_batch_timeout_seconds,
                 per_file_timeout_seconds=per_file_timeout_seconds,
             )
         except Exception:
@@ -178,7 +333,11 @@ def classify_pdf_batch_isolated(
                 for filename, _content, _expected_type in jobs
             ]
     finally:
-        _PDF_BATCH_ADMISSION.release()
+        try:
+            if global_lease is not None:
+                global_lease.release()
+        finally:
+            _PDF_BATCH_ADMISSION.release()
 
 
 def _classify_pdf_batch_admitted(

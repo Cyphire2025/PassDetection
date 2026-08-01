@@ -29,9 +29,28 @@ MAX_STORAGE_CLEANUP_KEYS = 2_000
 MAX_STORAGE_CLEANUP_KEY_LENGTH = 512
 STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_distribution_delete": ("document-distribution/",),
+    "document_distribution_abort": ("document-distribution/",),
     "document_distribution_compensation": ("document-distribution/",),
     "document_rename_batch_delete": ("document-rename/",),
     "document_rename_compensation": ("document-rename/",),
+    "passport_submission_delete": (
+        # Legacy deployments stored the four canonical submission images in
+        # short top-level namespaces.  They remain ownership-bound because
+        # keys are read only from the locked submission/crop rows selected for
+        # deletion; accepting these prefixes keeps durable cleanup compatible
+        # with retained production data.
+        "front/",
+        "thumbnail/",
+        "back/",
+        "photo/",
+        "visa-photo/",
+        "visa_photo/",
+        "drafts/",
+        "excel-imports/",
+        "passport-bulk/",
+        "passport-crops/",
+        "passport-edits/",
+    ),
 }
 
 

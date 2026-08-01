@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { DistributionDocumentType } from "@/types/document-distribution.types";
+import type {
+  AbortDocumentUploadResult,
+  DistributionDocumentType,
+} from "@/types/document-distribution.types";
 import { documentDistributionApi } from "../api/document-distribution.api";
+import type {
+  DocumentUploadProgress,
+  DocumentUploadSession,
+} from "../services/document-upload-batching";
 
 const documentKeys = {
   all: ["document-distribution"] as const,
@@ -33,19 +40,66 @@ export function useUploadDistributionDocuments(groupId: string, documentType: Di
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ files, onProgress }: { files: File[]; onProgress?: (progress: number) => void }) =>
-      documentDistributionApi.uploadDocuments(groupId, documentType, files, onProgress),
+    mutationFn: ({ files, onProgress, session }: {
+      files: File[];
+      onProgress?: (progress: DocumentUploadProgress) => void;
+      session?: DocumentUploadSession;
+    }) => documentDistributionApi.uploadDocuments(
+      groupId,
+      documentType,
+      files,
+      onProgress,
+      session,
+    ),
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
       queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
       queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: documentKeys.review(groupId, documentType) });
+    },
+  });
+}
+
+export function useAbortDistributionUploads(
+  groupId: string,
+  documentType: DistributionDocumentType,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (batchIds: string[]) => {
+      const uniqueBatchIds = Array.from(new Set(batchIds));
+      const results: AbortDocumentUploadResult[] = [];
+      for (const batchId of uniqueBatchIds) {
+        results.push(
+          await documentDistributionApi.abortUpload(groupId, documentType, batchId),
+        );
+      }
+      return results;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: documentKeys.review(groupId, documentType) });
+      queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({
+        queryKey: documentKeys.deliveryPreview(groupId, documentType),
+      });
     },
   });
 }
 
 export function useVerifyDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   return useMutation({
-    mutationFn: (files: File[]) => documentDistributionApi.verifyDocuments(groupId, documentType, files),
+    mutationFn: ({ files, onProgress }: {
+      files: File[];
+      onProgress?: (progress: DocumentUploadProgress) => void;
+    }) => documentDistributionApi.verifyDocuments(
+      groupId,
+      documentType,
+      files,
+      onProgress,
+    ),
   });
 }
 

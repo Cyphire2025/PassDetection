@@ -71,9 +71,9 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
     async def commit() -> None:
         events.append("commit")
 
-    async def delete_files(keys: list[str]) -> int:
+    async def process_cleanup(_job_id: uuid.UUID) -> SimpleNamespace:
         events.append("storage")
-        return len(keys)
+        return SimpleNamespace(completed=True, deleted_count=11)
 
     session = SimpleNamespace(
         execute=AsyncMock(
@@ -85,7 +85,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
         ),
         commit=AsyncMock(side_effect=commit),
     )
-    storage = SimpleNamespace(delete_files=AsyncMock(side_effect=delete_files))
+    storage = SimpleNamespace(delete_files=AsyncMock())
     authorize = AsyncMock(return_value=None)
     audit = AsyncMock(return_value=None)
     derived_keys = [
@@ -93,6 +93,7 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
         f"passport-crops/{submission_ids[1]}/photo/2.jpg",
     ]
     edit_keys = [f"passport-edits/{submission_ids[0]}/photo/3.jpg"]
+    cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=11)
 
     with (
         patch.object(
@@ -123,6 +124,14 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
             return_value=storage,
         ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            return_value=(cleanup_job,),
+        ) as stage_cleanup,
+        patch(
+            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            AsyncMock(side_effect=process_cleanup),
+        ),
         patch.object(AuditLogRepository, "record", audit),
     ):
         response = await bulk_delete_passport_submissions(
@@ -135,20 +144,20 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
 
     authorize.assert_awaited_once()
     assert authorize.await_args.kwargs["permanent"] is True
-    storage.delete_files.assert_awaited_once_with(
-        [
-            f"front/{submission_ids[0]}.jpg",
-            f"thumbnail/{submission_ids[0]}.jpg",
-            f"back/{submission_ids[0]}.jpg",
-            f"photo/{submission_ids[0]}.jpg",
-            f"front/{submission_ids[1]}.jpg",
-            f"thumbnail/{submission_ids[1]}.jpg",
-            f"back/{submission_ids[1]}.jpg",
-            f"photo/{submission_ids[1]}.jpg",
-            *derived_keys,
-            *edit_keys,
-        ]
-    )
+    stage_cleanup.assert_called_once()
+    assert stage_cleanup.call_args.kwargs["storage_keys"] == [
+        f"front/{submission_ids[0]}.jpg",
+        f"thumbnail/{submission_ids[0]}.jpg",
+        f"back/{submission_ids[0]}.jpg",
+        f"photo/{submission_ids[0]}.jpg",
+        f"front/{submission_ids[1]}.jpg",
+        f"thumbnail/{submission_ids[1]}.jpg",
+        f"back/{submission_ids[1]}.jpg",
+        f"photo/{submission_ids[1]}.jpg",
+        *derived_keys,
+        *edit_keys,
+    ]
+    storage.delete_files.assert_not_awaited()
     assert response.deleted_count == 2
     assert response.deleted_submission_ids == submission_ids
     assert response.deleted_storage_objects == 11
@@ -166,6 +175,75 @@ async def test_bulk_delete_removes_all_selected_rows_and_stored_documents() -> N
     assert audit.await_args.kwargs["metadata"]["deleted_count"] == 2
     assert audit.await_args.kwargs["metadata"]["deleted_notifications"] == 3
     assert audit.await_args.kwargs["metadata"]["storage_objects_scheduled_for_cleanup"] == 11
+
+
+@pytest.mark.asyncio
+async def test_bulk_delete_defers_large_storage_cleanup_after_commit() -> None:
+    group_id = uuid.uuid4()
+    agency_id = uuid.uuid4()
+    submission_id = uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _Result(rows=[_submission_row(submission_id)]),
+                _Result(rowcount=1),
+                _Result(rowcount=1),
+            ]
+        ),
+        commit=AsyncMock(),
+    )
+    cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=501)
+    process_cleanup = AsyncMock()
+
+    with (
+        patch.object(
+            ClientGroupRepository,
+            "get_by_id",
+            AsyncMock(return_value=group),
+        ),
+        patch.object(
+            AuthorizationPolicy,
+            "require_delete_data",
+            AsyncMock(return_value=None),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports._active_roster_resolution_references",
+            AsyncMock(return_value=set()),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "derived_storage_keys",
+            AsyncMock(return_value=[]),
+        ),
+        patch.object(
+            PassportImageCropRepository,
+            "edit_storage_keys",
+            AsyncMock(return_value=[]),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            return_value=(cleanup_job,),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            process_cleanup,
+        ),
+        patch.object(AuditLogRepository, "record", AsyncMock()),
+    ):
+        response = await bulk_delete_passport_submissions(
+            group_id=group_id,
+            body=BulkDeletePassportSubmissionsRequest(submission_ids=[submission_id]),
+            _csrf=None,
+            current_user=_super_admin(),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    session.commit.assert_awaited_once_with()
+    process_cleanup.assert_not_awaited()
+    assert response.deleted_count == 1
+    assert response.deleted_storage_objects == 0
+    assert response.storage_cleanup_deferred is True
 
 
 @pytest.mark.asyncio
@@ -316,6 +394,7 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
     storage = SimpleNamespace(
         delete_files=AsyncMock(side_effect=StorageError("storage unavailable"))
     )
+    cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=5)
 
     with (
         patch.object(
@@ -345,6 +424,14 @@ async def test_bulk_delete_reports_deferred_cleanup_after_storage_failure() -> N
         patch(
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
             return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            return_value=(cleanup_job,),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            AsyncMock(side_effect=StorageError("storage unavailable")),
         ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
     ):
@@ -380,6 +467,8 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
         commit=AsyncMock(side_effect=RuntimeError("database unavailable")),
     )
     storage = SimpleNamespace(delete_files=AsyncMock())
+    cleanup_job = SimpleNamespace(id=uuid.uuid4(), object_count=5)
+    process_cleanup = AsyncMock()
 
     with (
         patch.object(
@@ -410,6 +499,14 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
             "app.presentation.api.v1.routes.passports.MinioStorageRepository",
             return_value=storage,
         ),
+        patch(
+            "app.presentation.api.v1.routes.passports.stage_storage_cleanup_jobs",
+            return_value=(cleanup_job,),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.passports.process_storage_cleanup_job",
+            process_cleanup,
+        ),
         patch.object(AuditLogRepository, "record", AsyncMock()) as audit,
         pytest.raises(RuntimeError, match="database unavailable"),
     ):
@@ -424,3 +521,4 @@ async def test_bulk_delete_does_not_touch_storage_when_database_commit_fails() -
     audit.assert_awaited_once()
     session.commit.assert_awaited_once_with()
     storage.delete_files.assert_not_awaited()
+    process_cleanup.assert_not_awaited()

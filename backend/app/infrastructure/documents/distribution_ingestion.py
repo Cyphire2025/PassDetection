@@ -22,6 +22,9 @@ from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
 )
+from app.infrastructure.documents.distribution_capacity import (
+    enforce_distribution_assignment_capacity,
+)
 from app.infrastructure.documents.document_matcher import (
     DOCUMENT_TYPES,
     ClassifiedDocument,
@@ -85,14 +88,18 @@ class TravelDocumentIngestionService:
         files: list[TravelDocumentFile],
         created_by_user_id: uuid.UUID | None,
         actor_email: str | None,
+        existing_batch: DocumentDistributionBatchModel | None = None,
+        batch_id: uuid.UUID | None = None,
         forced_passenger_id: uuid.UUID | None = None,
         audit_source: str = "dashboard_upload",
         storage_prefix: str | None = None,
         supplemental_identifiers: tuple[PassengerIdentifier, ...] = (),
         isolate_pdf_parsing: bool = False,
+        parser_batch_timeout_seconds: float | None = None,
         before_persistence: (
             Callable[[], Awaitable[tuple[uuid.UUID | None, str | None] | None]] | None
         ) = None,
+        before_persistence_capacity: Callable[[int], Awaitable[None]] | None = None,
     ) -> TravelDocumentIngestionResult:
         if document_type not in DOCUMENT_TYPES:
             raise ValueError("Unsupported document type")
@@ -106,6 +113,7 @@ class TravelDocumentIngestionService:
             self._matcher,
             [(file.filename, file.content, document_type) for file in files],
             isolate_pdf_parsing=isolate_pdf_parsing,
+            batch_timeout_seconds=parser_batch_timeout_seconds,
         )
         accepted: list[tuple[TravelDocumentFile, ClassifiedDocument]] = []
         rejected: list[RejectedTravelDocument] = []
@@ -122,14 +130,20 @@ class TravelDocumentIngestionService:
             accepted.append((file, classification))
 
         now = datetime.now(tz=UTC)
-        batch = DocumentDistributionBatchModel(
-            id=uuid.uuid4(),
+        if existing_batch is not None and (
+            existing_batch.agency_id != agency_id
+            or existing_batch.group_id != group_id
+            or existing_batch.document_type != document_type
+        ):
+            raise ValueError("The existing document batch is outside the upload scope")
+        batch = existing_batch or DocumentDistributionBatchModel(
+            id=batch_id or uuid.uuid4(),
             agency_id=agency_id,
             group_id=group_id,
             document_type=document_type,
             status="draft",
             uploaded_count=0,
-            rejected_count=len(rejected),
+            rejected_count=0,
             matched_count=0,
             created_by_user_id=created_by_user_id,
             created_at=now,
@@ -143,11 +157,25 @@ class TravelDocumentIngestionService:
                 group_id=group_id,
                 supplemental_identifiers=supplemental_identifiers,
             )
+
+            def match_with_capacity() -> list[list[MatchResult]]:
+                matches_by_document: list[list[MatchResult]] = []
+                projected_rows = batch.uploaded_count
+                for _, classification in accepted:
+                    matches = self._matcher.match_all(
+                        classification,
+                        passengers,
+                        index=match_index,
+                    )
+                    projected_rows = enforce_distribution_assignment_capacity(
+                        existing_rows=projected_rows,
+                        match_groups=(matches,),
+                    )
+                    matches_by_document.append(matches)
+                return matches_by_document
+
             document_matches = await asyncio.to_thread(
-                lambda: [
-                    self._matcher.match_all(classification, passengers, index=match_index)
-                    for _, classification in accepted
-                ]
+                match_with_capacity,
             )
         else:
             document_matches = [
@@ -161,6 +189,10 @@ class TravelDocumentIngestionService:
                 ]
                 for _ in accepted
             ]
+            enforce_distribution_assignment_capacity(
+                existing_rows=batch.uploaded_count,
+                match_groups=document_matches,
+            )
 
         documents: list[DistributedDocumentModel] = []
         uploaded_keys: list[str] = []
@@ -233,10 +265,14 @@ class TravelDocumentIngestionService:
                 if refreshed_actor is not None:
                     created_by_user_id, actor_email = refreshed_actor
                     batch.created_by_user_id = created_by_user_id
-            batch.uploaded_count = len(documents)
-            batch.matched_count = sum(
+            if before_persistence_capacity is not None:
+                await before_persistence_capacity(len(documents))
+            batch.uploaded_count += len(documents)
+            batch.rejected_count += len(rejected)
+            batch.matched_count += sum(
                 1 for document in documents if document.match_status == "matched"
             )
+            batch.updated_at = now
             self._session.add(batch)
             for document in documents:
                 self._session.add(document)

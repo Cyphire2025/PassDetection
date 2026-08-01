@@ -99,6 +99,8 @@ from app.core.security.upload_session import upload_session_matches_identifier
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     ClientGroup,
+    GroupStatus,
+    PassportProcessingStatus,
     PassportSubmission,
     StaffApprovalOutcome,
     User,
@@ -134,6 +136,7 @@ from app.infrastructure.ai.gemini_visa_image_edit_service import (
     GeminiVisaImageEditService,
 )
 from app.infrastructure.database.models import (
+    AuditLogModel,
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     NotificationModel,
@@ -141,10 +144,15 @@ from app.infrastructure.database.models import (
     PassportExportHistoryModel,
     PassportRosterResolutionModel,
     PassportSubmissionModel,
+    UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.storage_cleanup import (
+    process_storage_cleanup_job,
+    stage_storage_cleanup_jobs,
+)
 from app.infrastructure.export.passport_excel_exporter import (
     PassportExcelExporter,
     passport_age_group,
@@ -183,6 +191,7 @@ from app.infrastructure.processing.dispatcher import (
 from app.infrastructure.processing.job_repository import PassportProcessingJobRepository
 from app.infrastructure.qr.approved_passenger_qr_issuer import (
     ensure_approved_passenger_qr,
+    ensure_approved_passenger_qrs,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
@@ -229,9 +238,13 @@ from app.infrastructure.visa_ai_image_jobs.dispatcher import (
 from app.presentation.api.v1.schemas.passport_schemas import (
     BulkDeletePassportSubmissionsRequest,
     BulkDeletePassportSubmissionsResponse,
+    BulkStaffApprovePassportSubmissionsRequest,
+    BulkStaffApprovePassportSubmissionsResponse,
+    BulkStaffApproveSkippedSubmission,
     ClientSubmitPassportRequest,
     ConfirmPassportSubmissionRequest,
     ExportSelectedGroupsRequest,
+    ExportSelectedPassportImagesRequest,
     ExportSelectedPassportsRequest,
     ImportPassportGroupResponse,
     PassportDocumentImportItem,
@@ -253,6 +266,7 @@ from app.presentation.api.v1.schemas.passport_schemas import (
     PassportImageCropUpdateRequest,
     PassportSelectedGroupsExportFieldOptionsResponse,
     PassportSubmissionResponse,
+    PassportSubmissionSelectionSnapshotResponse,
     PassportSubmissionsViewResponse,
     PassportSubmissionViewItemResponse,
     PassportVisaAiImageJobResponse,
@@ -270,6 +284,41 @@ from app.presentation.dependencies.csrf import require_cookie_csrf
 router = APIRouter()
 logger = get_logger(__name__)
 PASSPORT_EXCEL_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
+PASSPORT_DELETE_INLINE_CLEANUP_MAX_OBJECTS = 500
+PASSPORT_BULK_SELECTION_MAX = 1_500
+SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES = 512 * 1024 * 1024
+
+
+async def _lock_active_bulk_approval_actor(
+    session: AsyncSession,
+    current_user: User,
+) -> User:
+    """Revalidate the unchanged bulk-approval actor under a row lock."""
+
+    agency_filter = (
+        UserModel.agency_id.is_(None)
+        if current_user.agency_id is None
+        else UserModel.agency_id == current_user.agency_id
+    )
+    result = await session.execute(
+        select(UserModel)
+        .where(
+            UserModel.id == current_user.id,
+            UserModel.role == current_user.role.value,
+            agency_filter,
+            UserModel.is_active.is_(True),
+            UserModel.deleted_at.is_(None),
+        )
+        .with_for_update(of=UserModel)
+        .execution_options(populate_existing=True)
+    )
+    actor_model = result.scalar_one_or_none()
+    if actor_model is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account permissions changed. Sign in again and retry.",
+        )
+    return UserRepository._to_entity(actor_model)
 
 
 def _passport_image_api_url(
@@ -3038,6 +3087,7 @@ async def list_passports_by_group_view(
         return PassportSubmissionsViewResponse(
             items=[],
             ordered_submission_ids=[],
+            ordered_selection_snapshot=[],
             group_total=0,
             total=0,
             page=page,
@@ -3082,6 +3132,7 @@ async def list_passports_by_group_view(
         page_size=page_size,
         travel_date=travel_date,
     )
+    submissions_by_id = {submission.id: submission for submission in all_submissions}
     items: list[PassportSubmissionViewItemResponse] = []
     crop_rows = await PassportImageCropRepository(session).list_for_submissions(
         [entry.submission.id for entry in view.items]
@@ -3104,9 +3155,19 @@ async def list_passports_by_group_view(
                 }
             )
         )
+    ordered_selection_ids = list(
+        view.ordered_submission_ids[:PASSPORT_BULK_SELECTION_MAX]
+    )
     return PassportSubmissionsViewResponse(
         items=items,
-        ordered_submission_ids=list(view.ordered_submission_ids),
+        ordered_submission_ids=ordered_selection_ids,
+        ordered_selection_snapshot=[
+            PassportSubmissionSelectionSnapshotResponse(
+                submission_id=submission_id,
+                extraction_revision=submissions_by_id[submission_id].extraction_revision,
+            )
+            for submission_id in ordered_selection_ids
+        ],
         group_total=view.group_total,
         total=view.total,
         page=view.page,
@@ -3218,6 +3279,15 @@ async def bulk_delete_passport_submissions(
     crop_repository = PassportImageCropRepository(session)
     storage_keys.extend(await crop_repository.derived_storage_keys(submission_ids))
     storage_keys.extend(await crop_repository.edit_storage_keys(submission_ids))
+    cleanup_jobs = stage_storage_cleanup_jobs(
+        session,
+        agency_id=group.agency_id,
+        source="passport_submission_delete",
+        context_id=(
+            f"{group_id}:" + ",".join(str(item) for item in sorted(submission_ids, key=str))
+        ),
+        storage_keys=storage_keys,
+    )
     notification_result = await session.execute(
         delete(NotificationModel).where(
             NotificationModel.agency_id == group.agency_id,
@@ -3255,6 +3325,7 @@ async def bulk_delete_passport_submissions(
             "deleted_count": deleted_count,
             "deleted_submission_ids": [str(submission_id) for submission_id in submission_ids],
             "storage_objects_scheduled_for_cleanup": len(storage_keys),
+            "storage_cleanup_job_count": len(cleanup_jobs),
             "deleted_notifications": deleted_notifications,
         },
     )
@@ -3263,18 +3334,33 @@ async def bulk_delete_passport_submissions(
     await session.commit()
 
     deleted_storage_objects = 0
-    storage_cleanup_deferred = False
-    try:
-        deleted_storage_objects = await MinioStorageRepository().delete_files(storage_keys)
-    except StorageError as exc:
-        storage_cleanup_deferred = True
-        logger.warning(
-            "passport_bulk_delete_storage_cleanup_deferred",
-            group_id=str(group_id),
-            submission_count=deleted_count,
-            object_count=len(storage_keys),
-            error_type=type(exc).__name__,
-        )
+    cleanup_object_count = sum(job.object_count for job in cleanup_jobs)
+    # Keep the request path responsive for large deletions. The committed,
+    # encrypted cleanup jobs are picked up by the periodic worker; small jobs
+    # still get an immediate best-effort pass for prompt object removal.
+    storage_cleanup_deferred = (
+        cleanup_object_count > PASSPORT_DELETE_INLINE_CLEANUP_MAX_OBJECTS
+    )
+    if not storage_cleanup_deferred:
+        for cleanup_job in cleanup_jobs:
+            try:
+                cleanup_result = await process_storage_cleanup_job(cleanup_job.id)
+                if cleanup_result is None or not cleanup_result.completed:
+                    storage_cleanup_deferred = True
+                    continue
+                deleted_storage_objects += cleanup_result.deleted_count
+            except Exception as exc:
+                # The database deletion and encrypted retry job are already
+                # committed. The periodic worker will safely resume this cleanup.
+                storage_cleanup_deferred = True
+                logger.warning(
+                    "passport_bulk_delete_storage_cleanup_deferred",
+                    cleanup_job_id=str(cleanup_job.id),
+                    group_id=str(group_id),
+                    submission_count=deleted_count,
+                    object_count=cleanup_job.object_count,
+                    error_type=type(exc).__name__,
+                )
 
     return BulkDeletePassportSubmissionsResponse(
         deleted_count=deleted_count,
@@ -3282,6 +3368,245 @@ async def bulk_delete_passport_submissions(
         deleted_storage_objects=deleted_storage_objects,
         deleted_notifications=deleted_notifications,
         storage_cleanup_deferred=storage_cleanup_deferred,
+    )
+
+
+@router.post(
+    "/groups/{group_id}/bulk-staff-approve",
+    response_model=BulkStaffApprovePassportSubmissionsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Staff approve selected completed passport submissions",
+)
+async def bulk_staff_approve_passport_submissions(
+    group_id: uuid.UUID,
+    body: BulkStaffApprovePassportSubmissionsRequest,
+    response: Response,
+    _csrf: None = Depends(require_cookie_csrf),
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> BulkStaffApprovePassportSubmissionsResponse:
+    """Atomically approve eligible rows while reporting ineligible rows."""
+
+    allowed_roles = {
+        UserRole.SUPER_ADMIN,
+        UserRole.AGENCY_ADMIN,
+        UserRole.AGENCY_MANAGER,
+        UserRole.AGENCY_STAFF,
+    }
+    if current_user.role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    actor = await _lock_active_bulk_approval_actor(session, current_user)
+
+    group = await ClientGroupRepository(session).get_by_id(group_id)
+    group_status = getattr(group, "status", None)
+    group_status_value = (
+        group_status.value if isinstance(group_status, GroupStatus) else group_status
+    )
+    if (
+        not group
+        or getattr(group, "deleted_at", None) is not None
+        or group_status_value
+        in {GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value}
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
+        )
+    policy = AuthorizationPolicy(session)
+    if not await policy.can_view_group(actor, group):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You cannot approve passport submissions in this group",
+        )
+
+    selection_by_id: dict[uuid.UUID, int] = {}
+    for selection in body.submissions:
+        previous_revision = selection_by_id.setdefault(
+            selection.submission_id,
+            selection.expected_extraction_revision,
+        )
+        if previous_revision != selection.expected_extraction_revision:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "A selected submission was supplied with conflicting revisions. "
+                    "Refresh the page and try again."
+                ),
+            )
+    requested_ids = list(selection_by_id)
+    # Lock in a stable order to avoid deadlocks between overlapping batches.
+    stmt = (
+        select(PassportSubmissionModel)
+        .join(
+            ClientGroupModel,
+            ClientGroupModel.id == PassportSubmissionModel.group_id,
+        )
+        .where(
+            PassportSubmissionModel.group_id == group_id,
+            PassportSubmissionModel.id.in_(requested_ids),
+            ClientGroupModel.deleted_at.is_(None),
+            ClientGroupModel.status.notin_(
+                [GroupStatus.ARCHIVED.value, GroupStatus.DELETED.value]
+            ),
+        )
+        .order_by(PassportSubmissionModel.id)
+        # Lock the active group and its selected rows in one statement. Group
+        # deletion and approval therefore have a deterministic order instead
+        # of racing after the initial authorization snapshot.
+        .with_for_update(
+            of=(ClientGroupModel, PassportSubmissionModel)  # type: ignore[arg-type]
+        )
+    )
+    stmt = AuthorizationPolicy.apply_passport_visibility_scope(stmt, actor)
+    result = await session.execute(stmt)
+    models = list(result.scalars().all())
+    if len(models) != len(requested_ids):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=(
+                "One or more selected passport submissions were not found "
+                "in this group. Refresh the page and try again."
+            ),
+        )
+
+    approvable_statuses = {
+        PassportProcessingStatus.CONFIRMED.value,
+        PassportProcessingStatus.AI_APPROVED.value,
+        PassportProcessingStatus.NEEDS_REVIEW.value,
+        PassportProcessingStatus.STAFF_APPROVED.value,
+    }
+    approved_ids: list[uuid.UUID] = []
+    already_approved_ids: list[uuid.UUID] = []
+    skipped: list[BulkStaffApproveSkippedSubmission] = []
+    audit_rows: list[AuditLogModel] = []
+    now = datetime.now(tz=UTC)
+
+    for model in models:
+        expected_revision = selection_by_id[model.id]
+        if model.status == PassportProcessingStatus.STAFF_APPROVED.value:
+            already_approved_ids.append(model.id)
+            continue
+        if model.status not in approvable_statuses:
+            skipped.append(
+                BulkStaffApproveSkippedSubmission(
+                    submission_id=model.id,
+                    current_status=model.status,
+                    reason="not_completed",
+                    expected_extraction_revision=expected_revision,
+                    current_extraction_revision=model.extraction_revision,
+                )
+            )
+            continue
+        if model.extraction_revision != expected_revision:
+            skipped.append(
+                BulkStaffApproveSkippedSubmission(
+                    submission_id=model.id,
+                    current_status=model.status,
+                    reason="stale",
+                    expected_extraction_revision=expected_revision,
+                    current_extraction_revision=model.extraction_revision,
+                )
+            )
+            continue
+
+        entity = PassportSubmissionRepository._to_entity(model)
+        prior_status = entity.status.value
+        outcome = entity.bulk_staff_approve_completed_verification(
+            reviewer_id=actor.id,
+            reviewer_name=actor.full_name,
+        )
+        if outcome is StaffApprovalOutcome.ALREADY_APPROVED:  # pragma: no cover
+            already_approved_ids.append(model.id)
+            continue
+
+        model.status = entity.status.value
+        model.extraction_revision = entity.extraction_revision
+        model.post_submission_verification_revision = (
+            entity.post_submission_verification_revision
+        )
+        model.verification_reviewed_by_user_id = (
+            entity.verification_reviewed_by_user_id
+        )
+        model.verification_reviewer_name = entity.verification_reviewer_name
+        model.verification_reviewed_at = entity.verification_reviewed_at
+        model.confirmed_at = entity.confirmed_at
+        model.updated_at = entity.updated_at
+        approved_ids.append(model.id)
+        audit_rows.append(
+            AuditLogModel(
+                id=uuid.uuid4(),
+                agency_id=model.agency_id,
+                user_id=actor.id,
+                actor_email=actor.email,
+                action="passport_staff_approved",
+                entity_type="passport_submission",
+                entity_id=str(model.id),
+                metadata_json={
+                    "group_id": str(group_id),
+                    "prior_status": prior_status,
+                    "new_status": PassportProcessingStatus.STAFF_APPROVED.value,
+                    "outcome": StaffApprovalOutcome.APPROVED.value,
+                    "bulk": True,
+                    "extraction_revision": entity.extraction_revision,
+                    "verification_revision": (
+                        entity.post_submission_verification_revision
+                    ),
+                },
+                created_at=now,
+            )
+        )
+
+    try:
+        if audit_rows:
+            session.add_all(audit_rows)
+        await session.flush()
+        if approved_ids:
+            await ensure_approved_passenger_qrs(
+                session,
+                approved_ids,
+                created_by_user_id=actor.id,
+            )
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "unexpected_failure",
+            amount=len(requested_ids),
+        )
+        raise
+
+    response.headers["Cache-Control"] = "no-store"
+    if approved_ids:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "approved",
+            amount=len(approved_ids),
+        )
+    if already_approved_ids:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "already_approved",
+            amount=len(already_approved_ids),
+        )
+    if skipped:
+        record_operational_event(
+            OperationalEvent.STAFF_APPROVAL,
+            "skipped",
+            amount=len(skipped),
+        )
+    return BulkStaffApprovePassportSubmissionsResponse(
+        requested_count=len(requested_ids),
+        approved_count=len(approved_ids),
+        already_approved_count=len(already_approved_ids),
+        skipped_count=len(skipped),
+        approved_submission_ids=approved_ids,
+        already_approved_submission_ids=already_approved_ids,
+        skipped_submissions=skipped,
     )
 
 
@@ -4337,7 +4662,7 @@ async def export_passport_images_by_group(
 )
 async def export_selected_passport_images_by_group(
     group_id: uuid.UUID,
-    body: ExportSelectedPassportsRequest,
+    body: ExportSelectedPassportImagesRequest,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
@@ -4396,6 +4721,7 @@ async def export_selected_passport_images_by_group(
                 crop_metadata=crop_metadata,
                 zone_names=zone_names,
                 namespace_submissions=current_submissions,
+                max_uncompressed_bytes=SELECTED_PASSPORT_IMAGE_EXPORT_MAX_BYTES,
             )
         )
     except MissingPassportImagesError as exc:
