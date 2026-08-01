@@ -151,6 +151,66 @@ async def test_multiple_documents_for_one_passenger_are_all_preserved() -> None:
     assert len(result.created_storage_keys) == 2
 
 
+async def test_new_batch_is_flushed_before_its_distributed_documents() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    events: list[str] = []
+    session = MagicMock()
+    session.add = MagicMock(side_effect=lambda model: events.append(f"add:{type(model).__name__}"))
+    session.flush = AsyncMock(
+        side_effect=lambda objects=None: events.append(
+            "flush:batch" if objects is not None else "flush:all"
+        )
+    )
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference="EV123456",
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    audit_repository = MagicMock()
+
+    async def record_audit(**_kwargs) -> None:
+        events.append("audit")
+
+    audit_repository.record = AsyncMock(side_effect=record_audit)
+
+    with patch(
+        "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+        return_value=audit_repository,
+    ):
+        await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="visa.pdf", content=b"%PDF visa")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+        )
+
+    assert events == [
+        "add:DocumentDistributionBatchModel",
+        "flush:batch",
+        "add:DistributedDocumentModel",
+        "audit",
+        "flush:all",
+    ]
+
+
 async def test_rejected_claim_form_is_never_uploaded_or_persisted_as_a_document(
     monkeypatch,
 ) -> None:
@@ -205,7 +265,7 @@ async def test_precommit_persistence_failure_cleans_owned_storage_keys() -> None
     passenger = SimpleNamespace(id=uuid.uuid4())
     session = MagicMock()
     session.add = MagicMock()
-    session.flush = AsyncMock(side_effect=RuntimeError("constraint failure"))
+    session.flush = AsyncMock(side_effect=[None, RuntimeError("constraint failure")])
     session.rollback = AsyncMock()
     matcher = MagicMock()
     matcher.classify.return_value = ClassifiedDocument(
@@ -497,7 +557,7 @@ async def test_one_combined_pdf_may_assign_all_1500_passengers() -> None:
     assert result.batch.uploaded_count == 1_500
     assert result.batch.matched_count == 1_500
     storage.upload_file.assert_awaited_once()
-    session.flush.assert_awaited_once()
+    assert session.flush.await_count == 2
 
 
 async def test_multi_pdf_amplification_is_rejected_before_storage_or_database_writes() -> None:

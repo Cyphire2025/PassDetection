@@ -276,6 +276,12 @@ class TravelDocumentIngestionService:
             )
             batch.updated_at = now
             self._session.add(batch)
+            # The models intentionally do not expose a broad ORM relationship.
+            # Flush the new parent explicitly so a later audit-log flush cannot
+            # send distributed_documents before their batch and violate the FK.
+            # This remains inside the request transaction and is rolled back
+            # together with the document rows on any later failure.
+            await self._session.flush([batch])
             for document in documents:
                 self._session.add(document)
             await AuditLogRepository(self._session).record(
