@@ -56,11 +56,11 @@ def upgrade() -> None:
         ),
         sa.CheckConstraint(
             "expected_file_count >= expected_chunk_count "
-            "AND expected_file_count <= expected_chunk_count * 50",
+            "AND expected_file_count <= expected_chunk_count * 25",
             name="ck_document_upload_chunks_manifest_capacity",
         ),
         sa.CheckConstraint(
-            "file_count BETWEEN 1 AND 50",
+            "file_count BETWEEN 1 AND 25",
             name="ck_document_upload_chunks_file_count",
         ),
         sa.CheckConstraint(
