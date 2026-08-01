@@ -16,6 +16,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Input,
   Skeleton,
 } from "@/components/ui";
 import { formatDateTime, formatRelativeTime } from "@/lib/utils/format";
@@ -23,11 +24,11 @@ import { selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { EmailConnection } from "../types";
 import {
   useAuthorizeEmailProvider,
-  useDisconnectEmailConnection,
   useEmailConnections,
   useEmailIntegrationStatus,
   useEmailIntegrationSummary,
   usePauseEmailConnection,
+  useRemoveEmailConnection,
   useResumeEmailConnection,
   useSyncEmailConnection,
   useUpdateEmailAiSettings,
@@ -76,11 +77,12 @@ export function EmailConnectionsPage() {
   const sync = useSyncEmailConnection();
   const pause = usePauseEmailConnection();
   const resume = useResumeEmailConnection();
-  const disconnect = useDisconnectEmailConnection();
+  const removeConnection = useRemoveEmailConnection();
   const updateAiSettings = useUpdateEmailAiSettings();
   const [notice, setNotice] = useState<Notice | null>(null);
-  const [disconnectTarget, setDisconnectTarget] =
+  const [removeTarget, setRemoveTarget] =
     useState<EmailConnection | null>(null);
+  const [removalConfirmation, setRemovalConfirmation] = useState("");
   const [aiSettingsTarget, setAiSettingsTarget] =
     useState<AiSettingsTarget | null>(null);
   const [activeConnectionId, setActiveConnectionId] = useState<string | null>(
@@ -119,7 +121,7 @@ export function EmailConnectionsPage() {
     sync.isPending
     || pause.isPending
     || resume.isPending
-    || disconnect.isPending
+    || removeConnection.isPending
     || updateAiSettings.isPending
     || authorize.isPending;
 
@@ -222,30 +224,52 @@ export function EmailConnectionsPage() {
     );
   }
 
-  function confirmDisconnect() {
-    if (!disconnectTarget) return;
-    const connectionId = disconnectTarget.id;
-    setActiveConnectionId(connectionId);
-    disconnect.mutate(connectionId, {
-      onSuccess: () => {
-        setDisconnectTarget(null);
-        setActiveConnectionId(null);
-        setNotice({
-          tone: "success",
-          message:
-            "The email account was disconnected and its stored credentials were removed.",
-        });
-      },
-      onError: () => {
-        setActiveConnectionId(null);
-        setNotice({
-          tone: "error",
-          message:
-            "The account could not be disconnected safely. It remains blocked; retry Disconnect.",
-        });
-      },
-    });
+  function openRemoval(connection: EmailConnection) {
+    setNotice(null);
+    removeConnection.reset();
+    setRemovalConfirmation("");
+    setRemoveTarget(connection);
   }
+
+  function closeRemoval() {
+    if (removeConnection.isPending) return;
+    setRemoveTarget(null);
+    setRemovalConfirmation("");
+    removeConnection.reset();
+  }
+
+  function confirmRemoval() {
+    if (!removeTarget) return;
+    const connectionId = removeTarget.id;
+    setActiveConnectionId(connectionId);
+    removeConnection.mutate(
+      {
+        connectionId,
+        confirmationEmail: removalConfirmation,
+      },
+      {
+        onSuccess: (response) => {
+          setRemoveTarget(null);
+          setRemovalConfirmation("");
+          setActiveConnectionId(null);
+          setNotice({
+            tone: response.storage_cleanup_pending ? "warning" : "success",
+            message: response.storage_cleanup_pending
+              ? "The account and visible integration data were removed. Final cleanup of unreferenced stored files will complete automatically."
+              : response.message,
+          });
+        },
+        onError: () => {
+          setActiveConnectionId(null);
+        },
+      },
+    );
+  }
+
+  const removalEmailMatches =
+    removeTarget !== null &&
+    removalConfirmation.trim().toLowerCase() ===
+      removeTarget.email_address.trim().toLowerCase();
 
   return (
     <div className="space-y-6">
@@ -551,7 +575,7 @@ export function EmailConnectionsPage() {
                           Reconnect
                         </Button>
                       )}
-                      {actions.has("disconnect") && (
+                      {actions.has("remove") && (
                         <Button
                           type="button"
                           size="sm"
@@ -559,9 +583,9 @@ export function EmailConnectionsPage() {
                           className="text-red-700 hover:bg-red-50 hover:text-red-800"
                           leftIcon={<Trash2 className="h-3.5 w-3.5" aria-hidden="true" />}
                           disabled={anyConnectionMutation}
-                          onClick={() => setDisconnectTarget(connection)}
+                          onClick={() => openRemoval(connection)}
                         >
-                          Disconnect
+                          Remove account
                         </Button>
                       )}
                     </div>
@@ -656,30 +680,63 @@ export function EmailConnectionsPage() {
         </EmailDialog>
       )}
 
-      {disconnectTarget && (
+      {removeTarget && (
         <EmailDialog
-          title="Disconnect email account?"
-          description={`This stops future monitoring of ${disconnectTarget.email_address} and removes its stored credentials. Previously processed activity is retained for audit history.`}
-          isBusy={disconnect.isPending}
-          onClose={() => setDisconnectTarget(null)}
+          title="Permanently remove email account?"
+          description={`This permanently removes ${removeTarget.email_address} and the integration data attributable to it.`}
+          isBusy={removeConnection.isPending}
+          onClose={closeRemoval}
         >
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={disconnect.isPending}
-              onClick={() => setDisconnectTarget(null)}
-            >
-              Keep connected
-            </Button>
-            <Button
-              type="button"
-              variant="danger"
-              isLoading={disconnect.isPending}
-              onClick={confirmDisconnect}
-            >
-              Disconnect
-            </Button>
+          <div className="space-y-4">
+            <EmailNotice tone="warning">
+              This cannot be undone. It removes stored credentials, synced
+              messages, activity, review items, AI analyses, notifications,
+              retrieved attachments, and saved travel documents created only
+              from this mailbox. Other connected accounts, passengers, groups,
+              and manually uploaded documents are not changed.
+            </EmailNotice>
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-medium text-slate-800"
+                htmlFor="email-removal-confirmation"
+              >
+                Type {removeTarget.email_address} to confirm
+              </label>
+              <Input
+                id="email-removal-confirmation"
+                type="email"
+                autoComplete="off"
+                spellCheck={false}
+                value={removalConfirmation}
+                disabled={removeConnection.isPending}
+                onChange={(event) => setRemovalConfirmation(event.target.value)}
+              />
+            </div>
+            {removeConnection.isError && (
+              <EmailNotice tone="error">
+                The account could not be removed safely. No partial database
+                cleanup was performed; retry after checking the connection.
+              </EmailNotice>
+            )}
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={removeConnection.isPending}
+                onClick={closeRemoval}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                isLoading={removeConnection.isPending}
+                disabled={!removalEmailMatches || removeConnection.isPending}
+                onClick={confirmRemoval}
+              >
+                Permanently remove account
+              </Button>
+            </div>
           </div>
         </EmailDialog>
       )}

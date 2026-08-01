@@ -39,6 +39,7 @@ test("email integration routes and API endpoints are centralized", () => {
   assert.match(endpoints, /oauth\/gmail\/authorize/);
   assert.match(endpoints, /oauth\/outlook\/authorize/);
   assert.match(endpoints, /connections\/\$\{connectionId\}\/ai-settings/);
+  assert.match(endpoints, /connections\/\$\{connectionId\}\/data/);
   assert.match(endpoints, /reviews\/\$\{reviewId\}\/resolve/);
   assert.match(endpoints, /messages\/\$\{messageId\}/);
   assert.match(endpoints, /messages\/\$\{messageId\}\/intelligence/);
@@ -222,6 +223,19 @@ test("mailbox AI assistance requires an explicit owner opt-in", () => {
   assert.match(connections, /updateAiSettings\.isPending/);
   assert.match(connections, /could not be confirmed/);
   assert.doesNotMatch(connections, /No mailbox setting was\s+changed/);
+});
+
+test("account removal is explicit, confirmed, and invalidates email views", () => {
+  assert.match(types, /export interface RemoveEmailConnectionResponse/);
+  assert.match(api, /confirmation_email: confirmationEmail/);
+  assert.match(api, /connectionData\(connectionId\)/);
+  assert.match(hooks, /useRemoveEmailConnection/);
+  assert.match(hooks, /useRemoveEmailConnection\(\)[\s\S]*?onSettled: invalidate/);
+  assert.match(connections, /Permanently remove email account\?/);
+  assert.match(connections, /Type \{removeTarget\.email_address\} to confirm/);
+  assert.match(connections, /This cannot be undone/);
+  assert.match(connections, /manually uploaded documents are not changed/);
+  assert.doesNotMatch(connections, /Previously processed activity is retained/);
 });
 
 test("review queue exposes full history and confirms whole-email unrelated scope", () => {

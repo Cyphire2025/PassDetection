@@ -115,6 +115,8 @@ export const API_ENDPOINTS = {
       `/api/v1/email-integrations/connections/${connectionId}/ai-settings`,
     connection: (connectionId: string) =>
       `/api/v1/email-integrations/connections/${connectionId}`,
+    connectionData: (connectionId: string) =>
+      `/api/v1/email-integrations/connections/${connectionId}/data`,
     summary: "/api/v1/email-integrations/summary",
     inbox: "/api/v1/email-integrations/inbox",
     reviews: "/api/v1/email-integrations/reviews",

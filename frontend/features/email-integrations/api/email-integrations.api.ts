@@ -28,6 +28,7 @@ import type {
   EmailReviewItem,
   EmailReviewOptions,
   ResolveEmailReviewRequest,
+  RemoveEmailConnectionResponse,
   UpdateEmailAiRolloutPolicyRequest,
   UpdateEmailReplyDraftRequest,
 } from "../types";
@@ -113,6 +114,20 @@ export const emailIntegrationsApi = {
   summary: async (): Promise<EmailIntegrationSummary> => {
     const { data } = await apiClient.get<EmailIntegrationSummary>(
       API_ENDPOINTS.emailIntegrations.summary,
+    );
+    return data;
+  },
+
+  removeConnection: async ({
+    connectionId,
+    confirmationEmail,
+  }: {
+    connectionId: string;
+    confirmationEmail: string;
+  }): Promise<RemoveEmailConnectionResponse> => {
+    const { data } = await apiClient.delete<RemoveEmailConnectionResponse>(
+      API_ENDPOINTS.emailIntegrations.connectionData(connectionId),
+      { data: { confirmation_email: confirmationEmail } },
     );
     return data;
   },

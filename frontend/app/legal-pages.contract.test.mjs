@@ -46,7 +46,8 @@ test("privacy policy discloses Gmail and Outlook access and data controls", () =
   assert.match(privacy, /Google API Services User Data Policy/);
   assert.match(privacy, /Limited Use/);
   assert.match(privacy, /Retention and deletion/);
-  assert.match(privacy, /disconnect a linked Google or Microsoft account/);
+  assert.match(privacy, /permanently remove a linked Google or Microsoft account/);
+  assert.match(home, /permanently remove a Gmail or Microsoft Outlook account/);
 });
 
 test("terms explain authorization and human review responsibilities", () => {

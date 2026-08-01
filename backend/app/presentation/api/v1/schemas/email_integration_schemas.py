@@ -63,6 +63,25 @@ class EmailConnectionActionResponse(BaseModel):
     message: str
 
 
+class RemoveEmailConnectionRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    confirmation_email: str = Field(min_length=3, max_length=320)
+
+
+class RemoveEmailConnectionResponse(BaseModel):
+    connection_id: uuid.UUID
+    status: Literal["removed"] = "removed"
+    messages_removed: int = 0
+    artifacts_removed: int = 0
+    reviews_removed: int = 0
+    activity_events_removed: int = 0
+    documents_removed: int = 0
+    notifications_removed: int = 0
+    storage_cleanup_pending: bool = False
+    message: str
+
+
 class EmailAiConnectionSettingsRequest(BaseModel):
     model_config = {"extra": "forbid"}
 

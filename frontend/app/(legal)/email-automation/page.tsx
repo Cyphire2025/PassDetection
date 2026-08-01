@@ -94,9 +94,10 @@ export default function EmailAutomationPage() {
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">User control</h2>
         <p>
-          Users can disconnect a Gmail or Microsoft Outlook account from the
-          application and can also revoke access at any time from their Google
-          Account or Microsoft Account permissions.
+          Users can permanently remove a Gmail or Microsoft Outlook account
+          and its attributable stored integration data from the application.
+          They can also revoke access at any time from their Google Account or
+          Microsoft Account permissions.
           Questions and data requests may be sent to{" "}
           <a
             className="text-blue-700 underline"

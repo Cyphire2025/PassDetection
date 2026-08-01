@@ -297,6 +297,16 @@ export function useResolveEmailReview() {
   });
 }
 
+export function useRemoveEmailConnection() {
+  const invalidate = useInvalidateEmailIntegrations();
+  return useMutation({
+    mutationFn: emailIntegrationsApi.removeConnection,
+    // Provider revocation failures keep the card in a retryable blocked state;
+    // successful removal clears every owner-scoped email integration view.
+    onSettled: invalidate,
+  });
+}
+
 export function useDecideEmailProposal() {
   const invalidate = useInvalidateEmailIntegrations();
   return useMutation({

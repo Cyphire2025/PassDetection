@@ -20,6 +20,7 @@ from app.presentation.api.v1.routes.email_integrations import (
     _allowed_connection_actions,
     _allowed_review_actions,
     _email_owner_filters,
+    _email_removal_confirmation_matches,
     _oauth_return_url,
     _original_email_url,
     _owned_connection,
@@ -71,13 +72,9 @@ def test_original_email_urls_are_server_derived_and_provider_allowlisted() -> No
     )
 
     assert gmail == (
-        "https://mail.google.com/mail/u/owner%2Bops@example.test/"
-        "#all/18f%2Fopaque%20id"
+        "https://mail.google.com/mail/u/owner%2Bops@example.test/#all/18f%2Fopaque%20id"
     )
-    assert outlook == (
-        "https://outlook.office.com/mail/deeplink/read/"
-        "AAMk%2B%2Fopaque%20id"
-    )
+    assert outlook == ("https://outlook.office.com/mail/deeplink/read/AAMk%2B%2Fopaque%20id")
     assert (
         _original_email_url(
             provider="unknown",
@@ -125,6 +122,18 @@ def test_gmail_and_outlook_oauth_routes_are_registered_separately() -> None:
     assert "/oauth/gmail/callback" in paths
     assert "/oauth/outlook/authorize" in paths
     assert "/oauth/outlook/callback" in paths
+    assert "/connections/{connection_id}/data" in paths
+
+
+def test_account_removal_confirmation_requires_selected_mailbox() -> None:
+    assert _email_removal_confirmation_matches(
+        confirmation_email="  OPS@Example.com ",
+        connection_email="ops@example.com",
+    )
+    assert not _email_removal_confirmation_matches(
+        confirmation_email="other@example.com",
+        connection_email="ops@example.com",
+    )
 
 
 def test_super_admin_email_scope_is_personal_even_without_an_agency() -> None:
@@ -188,20 +197,26 @@ def test_connection_actions_follow_lifecycle() -> None:
         "pause",
         "reconnect",
         "disconnect",
+        "remove",
     ]
     connection.status = "paused"
     assert _allowed_connection_actions(connection, settings) == [
         "resume",
         "reconnect",
         "disconnect",
+        "remove",
     ]
     settings.email_sync_enabled = False
     assert _allowed_connection_actions(connection, settings) == [
         "reconnect",
         "disconnect",
+        "remove",
     ]
     connection.status = "disconnecting"
-    assert _allowed_connection_actions(connection, settings) == ["disconnect"]
+    assert _allowed_connection_actions(connection, settings) == [
+        "disconnect",
+        "remove",
+    ]
 
 
 def test_review_actions_require_a_staged_assignable_document() -> None:

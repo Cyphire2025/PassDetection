@@ -39,6 +39,19 @@ export interface EmailConnectionActionResponse {
   message: string;
 }
 
+export interface RemoveEmailConnectionResponse {
+  connection_id: string;
+  status: "removed";
+  messages_removed: number;
+  artifacts_removed: number;
+  reviews_removed: number;
+  activity_events_removed: number;
+  documents_removed: number;
+  notifications_removed: number;
+  storage_cleanup_pending: boolean;
+  message: string;
+}
+
 export interface EmailAiConnectionSettingsResponse {
   connection_id: string;
   enabled: boolean;

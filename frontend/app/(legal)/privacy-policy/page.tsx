@@ -84,9 +84,11 @@ export default function PrivacyPolicyPage() {
         <p>
           Information is retained only as long as reasonably required for the
           service, legal obligations, security, and record keeping. Users may
-          disconnect a linked Google or Microsoft account to stop future
-          access. Requests to access, correct, or delete information can be sent
-          to the contact below.
+          permanently remove a linked Google or Microsoft account and its
+          attributable stored integration data from the application. Limited
+          security or legal records may be retained when required. Requests to
+          access, correct, or delete information can be sent to the contact
+          below.
         </p>
       </section>
 

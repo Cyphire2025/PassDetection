@@ -45,6 +45,7 @@ from app.infrastructure.database.models import (
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.email.account_removal import purge_email_connection_records
 from app.infrastructure.email.gmail_provider import GmailEmailProvider
 from app.infrastructure.email.oauth import (
     generate_oauth_state,
@@ -82,6 +83,8 @@ from app.presentation.api.v1.schemas.email_integration_schemas import (
     EmailReviewItemResponse,
     EmailReviewOptionsResponse,
     EmailReviewPassengerOption,
+    RemoveEmailConnectionRequest,
+    RemoveEmailConnectionResponse,
     ResolveEmailReviewRequest,
 )
 from app.presentation.dependencies.auth import require_role
@@ -252,20 +255,30 @@ def _allowed_connection_actions(
         actions = ["resume"] if sync_available else []
         if reconnect_available:
             actions.append("reconnect")
-        actions.append("disconnect")
+        actions.extend(["disconnect", "remove"])
         return actions
     if connection.status in {"expired", "disconnected"}:
         actions = ["reconnect"] if reconnect_available else []
-        actions.append("disconnect")
+        actions.extend(["disconnect", "remove"])
         return actions
     if connection.status == "disconnecting":
-        return ["disconnect"]
+        return ["disconnect", "remove"]
     actions = ["sync"] if sync_available else []
     actions.append("pause")
     if reconnect_available:
         actions.append("reconnect")
-    actions.append("disconnect")
+    actions.extend(["disconnect", "remove"])
     return actions
+
+
+def _email_removal_confirmation_matches(
+    *,
+    confirmation_email: str,
+    connection_email: str,
+) -> bool:
+    """Require the operator to type the exact selected mailbox address."""
+
+    return confirmation_email.strip().casefold() == connection_email.strip().casefold()
 
 
 async def _owned_connection(
@@ -1309,6 +1322,188 @@ async def disconnect_email_connection(
     )
     await session.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/connections/{connection_id}/data",
+    response_model=RemoveEmailConnectionResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
+async def remove_email_connection_and_data(
+    connection_id: uuid.UUID,
+    payload: RemoveEmailConnectionRequest,
+    current_user: User = Depends(_current_email_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> RemoveEmailConnectionResponse:
+    """Permanently remove one owned mailbox and its attributable data."""
+
+    agency_scope = _agency_scope(current_user)
+    connection = await _owned_connection(
+        session,
+        connection_id=connection_id,
+        owner_user_id=current_user.id,
+        agency_id=agency_scope,
+        for_update=True,
+        with_tokens=True,
+    )
+    if not _email_removal_confirmation_matches(
+        confirmation_email=payload.confirmation_email,
+        connection_email=connection.email_address,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Type the connected email address exactly to confirm removal.",
+        )
+
+    agency_id = connection.agency_id
+    provider = _provider_instance(connection.provider, get_settings())
+    provider_name = connection.provider
+    token_to_revoke: str | None = None
+    decryption_failed = False
+    credentials_already_removed = (
+        connection.status == "disconnected"
+        and not connection.access_token_ciphertext
+        and not connection.refresh_token_ciphertext
+    )
+    if provider.supports_remote_token_revocation and not credentials_already_removed:
+        try:
+            cipher = EmailTokenCipher.from_settings()
+            if connection.refresh_token_ciphertext:
+                token_to_revoke = cipher.decrypt(
+                    EncryptedToken(
+                        ciphertext=connection.refresh_token_ciphertext.decode("ascii"),
+                        key_version=connection.token_key_version,
+                    )
+                )
+            elif connection.access_token_ciphertext:
+                token_to_revoke = cipher.decrypt(
+                    EncryptedToken(
+                        ciphertext=connection.access_token_ciphertext.decode("ascii"),
+                        key_version=connection.token_key_version,
+                    )
+                )
+        except (TokenEncryptionError, UnicodeDecodeError):
+            decryption_failed = True
+
+    # Commit the generation fence before contacting the provider. Any worker
+    # already holding a stale claim will fail its ownership/generation checks.
+    now = datetime.now(tz=UTC)
+    connection.status = "disconnecting"
+    connection.sync_state = "blocked"
+    connection.sync_generation += 1
+    connection.sync_lease_token = None
+    connection.sync_lease_expires_at = None
+    connection.next_sync_at = None
+    connection.updated_at = now
+    await session.commit()
+
+    revoke_error: EmailProviderError | None = None
+    if decryption_failed:
+        revoke_error = EmailProviderError(
+            "Stored email credentials could not be opened",
+            code="EMAIL_TOKEN_DECRYPTION_FAILED",
+        )
+    elif token_to_revoke:
+        try:
+            await provider.revoke_token(token=token_to_revoke)
+        except EmailProviderError as exc:
+            if exc.status_code not in {400, 401, 404}:
+                revoke_error = exc
+
+    connection = await _owned_connection(
+        session,
+        connection_id=connection_id,
+        owner_user_id=current_user.id,
+        agency_id=agency_id,
+        for_update=True,
+        with_tokens=True,
+    )
+    if revoke_error is not None:
+        now = datetime.now(tz=UTC)
+        connection.status = "disconnecting"
+        connection.sync_state = "blocked"
+        connection.next_sync_at = None
+        connection.last_error_code = revoke_error.code[:80]
+        connection.last_error_message = (
+            "Provider access could not be revoked. Retry removing this account."
+        )
+        connection.last_error_at = now
+        connection.updated_at = now
+        await AuditLogRepository(session).record(
+            action="email_connection_removal_failed",
+            entity_type="email_connection",
+            entity_id=str(connection.id),
+            agency_id=agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={
+                "provider": provider_name,
+                "error_code": revoke_error.code,
+            },
+        )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Provider access could not be revoked. The connection remains "
+                "blocked; retry removing it."
+            ),
+        )
+
+    try:
+        removal = await purge_email_connection_records(
+            session,
+            connection=connection,
+        )
+        await AuditLogRepository(session).record(
+            action="email_connection_data_removed",
+            entity_type="email_connection",
+            entity_id=str(removal.connection_id),
+            agency_id=agency_id,
+            user_id=current_user.id,
+            actor_email=None,
+            metadata={
+                "provider": provider_name,
+                "messages_removed": removal.message_count,
+                "artifacts_removed": removal.artifact_count,
+                "reviews_removed": removal.review_count,
+                "activity_events_removed": removal.activity_count,
+                "documents_removed": removal.document_count,
+                "notifications_removed": removal.notification_count,
+                "credential_disposition": "local_credentials_deleted",
+            },
+        )
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        raise
+
+    storage_cleanup_pending = False
+    if removal.storage_keys:
+        try:
+            await MinioStorageRepository().delete_files(list(removal.storage_keys))
+        except Exception as exc:
+            # Relational cleanup is already committed. The retention sweeper
+            # safely removes these now-unreferenced objects on a later pass.
+            storage_cleanup_pending = True
+            logger.error(
+                "email_connection_storage_cleanup_deferred",
+                connection_id=str(removal.connection_id),
+                object_count=len(removal.storage_keys),
+                error_type=type(exc).__name__,
+            )
+
+    return RemoveEmailConnectionResponse(
+        connection_id=removal.connection_id,
+        messages_removed=removal.message_count,
+        artifacts_removed=removal.artifact_count,
+        reviews_removed=removal.review_count,
+        activity_events_removed=removal.activity_count,
+        documents_removed=removal.document_count,
+        notifications_removed=removal.notification_count,
+        storage_cleanup_pending=storage_cleanup_pending,
+        message="The email account and its stored integration data were removed.",
+    )
 
 
 @router.put(
