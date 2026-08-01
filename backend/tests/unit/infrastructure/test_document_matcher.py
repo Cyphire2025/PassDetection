@@ -4,6 +4,7 @@ import uuid
 from io import BytesIO
 from types import SimpleNamespace
 
+import pytest
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import DictionaryObject, NameObject, TextStringObject
 
@@ -12,6 +13,8 @@ from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
     DocumentMatcher,
     PassengerIdentifier,
+    UnsupportedDocumentBatchFormatError,
+    classify_documents_bounded,
 )
 
 
@@ -67,6 +70,110 @@ def _pdf_reader(mutator=None) -> PdfReader:
     writer.write(stream)
     stream.seek(0)
     return PdfReader(stream)
+
+
+VIETNAM_EVISA_LAYOUTS = (
+    (
+        "label-before-same-line",
+        """
+        SOCIALIST REPUBLIC OF VIETNAM
+        VIETNAM ELECTRONIC VISA
+        Issuing authority: Vietnam Immigration Department
+        Visa number: EVN240001
+        Full name: ASHA MEHTA
+        Passport number: P1234567
+        Valid from: 01 August 2026
+        Valid until: 30 August 2026
+        Number of entries: Multiple
+        """,
+        "Asha Mehta",
+        "P1234567",
+        "EVN240001",
+    ),
+    (
+        "label-before-nearby-line",
+        """
+        E-VISA
+        Issuing authority
+        Vietnam Immigration Department
+        Document reference
+        EVN240002
+        Full name
+        RAVI SHARMA
+        Passport no.
+        R7654321
+        Valid from
+        02/08/2026
+        Valid until
+        31/08/2026
+        Entries
+        Single
+        """,
+        "Ravi Sharma",
+        "R7654321",
+        "EVN240002",
+    ),
+    (
+        "value-before-english-bilingual-label",
+        """
+        THI THUC DIEN TU / VIETNAM E-VISA
+        CUC QUAN LY XUAT NHAP CANH / VIETNAM IMMIGRATION DEPARTMENT
+        EVN240003
+        Visa number / So thi thuc
+        MAYA SINGH
+        Full name / Ho va ten
+        M1122334
+        Passport number / So ho chieu
+        03-08-2026
+        Valid from / Co gia tri tu
+        01-09-2026
+        Valid until / Den
+        Multiple
+        Number of entries / So lan nhap canh
+        """,
+        "Maya Singh",
+        "M1122334",
+        "EVN240003",
+    ),
+    (
+        "unicode-bilingual-labels-and-name",
+        """
+        THỊ THỰC ĐIỆN TỬ VIỆT NAM / VIETNAM E-VISA
+        Cục Quản lý Xuất nhập cảnh / Vietnam Immigration Department
+        Số thị thực / Visa reference: EVN240004
+        Họ và tên / Full name: NGUYỄN THỊ ÁNH
+        Số hộ chiếu / Passport number: B2233445
+        Có giá trị từ / Valid from: 04/08/2026
+        Đến / Valid until: 02/09/2026
+        Số lần nhập cảnh / Number of entries: Multiple
+        """,
+        "Nguyễn Thị Ánh",
+        "B2233445",
+        "EVN240004",
+    ),
+    (
+        "mixed-order-nearby-values",
+        """
+        ELECTRONIC VISA - VIET NAM
+        Vietnam Immigration Authority
+        PRIYA IYER
+        Full name / Ho va ten
+        Passport number / So ho chieu
+        N3344556
+        Date of expiry / Ngay het han
+        05 September 2026
+        EVN240005
+        Visa reference / Ma thi thuc
+        Two
+        Entries / So lan nhap canh
+        Date of issue / Ngay cap
+        06 August 2026
+        """,
+        "Priya Iyer",
+        "N3344556",
+        "EVN240005",
+    ),
+)
 
 
 def test_normal_static_pdf_has_no_active_features() -> None:
@@ -138,6 +245,212 @@ def test_lightweight_passenger_projection_does_not_require_distribution_metadata
 
     assert result.passenger_id == passenger.id
     assert result.status == "matched"
+
+
+@pytest.mark.parametrize(
+    ("text", "expected_name", "expected_passport", "expected_reference"),
+    [layout[1:] for layout in VIETNAM_EVISA_LAYOUTS],
+    ids=[layout[0] for layout in VIETNAM_EVISA_LAYOUTS],
+)
+def test_varied_vietnam_evisa_layouts_extract_the_same_verified_facts(
+    monkeypatch,
+    text: str,
+    expected_name: str,
+    expected_passport: str,
+    expected_reference: str,
+) -> None:
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    result = matcher.classify(
+        filename="source.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="visa",
+    )
+
+    assert result.detected_type == "visa"
+    assert result.accepted is True
+    assert result.extracted_name == expected_name
+    assert result.extracted_passport_number == expected_passport
+    assert result.extracted_reference == expected_reference
+
+
+def test_identity_facts_are_extracted_independently_of_document_classification(
+    monkeypatch,
+) -> None:
+    text = """
+    INTERNAL PARTICIPANT RECORD
+    Full name: LEENA DAS
+    Passport number: L4455667
+    Document reference: DOC901122
+    Meeting date: 07 August 2026
+    """
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    result = matcher.classify(
+        filename="record.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="other",
+    )
+
+    assert result.detected_type == "unknown"
+    assert result.extracted_name == "Leena Das"
+    assert result.extracted_passport_number == "L4455667"
+    assert result.extracted_reference == "DOC901122"
+
+
+@pytest.mark.parametrize("reference_label", ("Visa number", "N0"))
+def test_visa_reference_never_borrows_an_earlier_passport_no(
+    monkeypatch,
+    reference_label: str,
+) -> None:
+    text = f"""
+    VIETNAM ELECTRONIC VISA
+    Vietnam Immigration Department
+    Passport No: P1234567
+    {reference_label}: EVN240099
+    Valid from: 01 August 2026
+    Number of entries: Multiple
+    """
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    result = matcher.classify(
+        filename="visa.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="visa",
+    )
+
+    assert result.extracted_passport_number == "P1234567"
+    assert result.extracted_reference == "EVN240099"
+
+
+def test_ticket_passenger_name_is_not_replaced_by_airline_name(monkeypatch) -> None:
+    text = """
+    E-TICKET ITINERARY
+    Booking reference: ABC123
+    AIRLINE NAME: GLOBAL AIRWAYS
+    Departure: Delhi
+    Arrival: Hanoi
+    Passenger name: ASHA MEHTA
+    """
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    result = matcher.classify(
+        filename="ticket.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="flight_ticket",
+    )
+
+    assert result.detected_type == "flight_ticket"
+    assert result.extracted_name == "Asha Mehta"
+
+
+def test_rename_and_distribution_expected_types_return_identical_detected_facts(
+    monkeypatch,
+) -> None:
+    text = VIETNAM_EVISA_LAYOUTS[0][1]
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    rename_result = matcher.classify(
+        filename="visa.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="other",
+    )
+    distribution_result = matcher.classify(
+        filename="visa.pdf",
+        content=b"%PDF-1.7 synthetic",
+        expected_type="visa",
+    )
+
+    assert (
+        rename_result.detected_type,
+        rename_result.extracted_name,
+        rename_result.extracted_passport_number,
+        rename_result.extracted_reference,
+    ) == (
+        distribution_result.detected_type,
+        distribution_result.extracted_name,
+        distribution_result.extracted_passport_number,
+        distribution_result.extracted_reference,
+    )
+    assert rename_result.accepted is True
+    assert distribution_result.accepted is True
+
+
+def test_common_unknown_batch_raises_once_only_when_a_shared_format_is_verifiable(
+    monkeypatch,
+) -> None:
+    first_content = b"%PDF-1.7 unsupported-one"
+    second_content = b"%PDF-1.7 unsupported-two"
+    common_text = {
+        first_content: """
+            REGIONAL TRAVEL CLEARANCE RECORD
+            Full name: FIRST PERSON
+            Passport number: F1000001
+            Document reference: RC100001
+        """,
+        second_content: """
+            REGIONAL TRAVEL CLEARANCE RECORD
+            Full name: SECOND PERSON
+            Passport number: S2000002
+            Document reference: RC100002
+        """,
+    }
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", common_text.__getitem__)
+    jobs = [
+        ("first.pdf", first_content, "other"),
+        ("second.pdf", second_content, "other"),
+    ]
+
+    ordinary_results = classify_documents_bounded(
+        matcher,
+        jobs,
+        isolate_pdf_parsing=False,
+    )
+    assert [item.detected_type for item in ordinary_results] == ["unknown", "unknown"]
+
+    with pytest.raises(UnsupportedDocumentBatchFormatError):
+        classify_documents_bounded(
+            matcher,
+            jobs,
+            isolate_pdf_parsing=False,
+            reject_common_unsupported_format=True,
+        )
+
+    image_only_matcher = DocumentMatcher()
+    monkeypatch.setattr(image_only_matcher, "_pdf_text", lambda _content: "")
+    image_only_results = classify_documents_bounded(
+        image_only_matcher,
+        [
+            ("scan-one.pdf", b"%PDF-1.7 scan-one", "other"),
+            ("scan-two.pdf", b"%PDF-1.7 scan-two", "other"),
+        ],
+        isolate_pdf_parsing=False,
+        reject_common_unsupported_format=True,
+    )
+    assert [item.detected_type for item in image_only_results] == ["unknown", "unknown"]
+
+    unrelated_text = {
+        b"%PDF-1.7 report": "Quarterly financial report and board meeting notes",
+        b"%PDF-1.7 menu": "Restaurant menu with prices and opening hours",
+    }
+    unrelated_matcher = DocumentMatcher()
+    monkeypatch.setattr(unrelated_matcher, "_pdf_text", unrelated_text.__getitem__)
+    unrelated_results = classify_documents_bounded(
+        unrelated_matcher,
+        [
+            ("report.pdf", b"%PDF-1.7 report", "other"),
+            ("menu.pdf", b"%PDF-1.7 menu", "other"),
+        ],
+        isolate_pdf_parsing=False,
+        reject_common_unsupported_format=True,
+    )
+    assert [item.detected_type for item in unrelated_results] == ["unknown", "unknown"]
 
 
 def test_payment_confirmation_is_not_classified_as_a_visa() -> None:

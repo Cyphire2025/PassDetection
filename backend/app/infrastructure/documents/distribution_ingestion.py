@@ -96,6 +96,7 @@ class TravelDocumentIngestionService:
         supplemental_identifiers: tuple[PassengerIdentifier, ...] = (),
         isolate_pdf_parsing: bool = False,
         parser_batch_timeout_seconds: float | None = None,
+        reject_common_unsupported_format: bool = False,
         before_persistence: (
             Callable[[], Awaitable[tuple[uuid.UUID | None, str | None] | None]] | None
         ) = None,
@@ -114,6 +115,7 @@ class TravelDocumentIngestionService:
             [(file.filename, file.content, document_type) for file in files],
             isolate_pdf_parsing=isolate_pdf_parsing,
             batch_timeout_seconds=parser_batch_timeout_seconds,
+            reject_common_unsupported_format=reject_common_unsupported_format,
         )
         accepted: list[tuple[TravelDocumentFile, ClassifiedDocument]] = []
         rejected: list[RejectedTravelDocument] = []

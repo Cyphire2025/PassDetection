@@ -33,6 +33,7 @@ from app.infrastructure.documents.document_matcher import (
     SUPPORTED_TRAVEL_DOCUMENT_TYPES,
     DocumentMatcher,
     DocumentParserUnavailableError,
+    UnsupportedDocumentBatchFormatError,
     classify_documents_bounded,
 )
 from app.infrastructure.documents.pdf_parser_sandbox import (
@@ -625,7 +626,13 @@ async def analyze_and_rename_documents(
             [(upload.filename, upload.content, "other") for upload in uploads],
             isolate_pdf_parsing=True,
             batch_timeout_seconds=parser_timeout,
+            reject_common_unsupported_format=True,
         )
+    except UnsupportedDocumentBatchFormatError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        ) from exc
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

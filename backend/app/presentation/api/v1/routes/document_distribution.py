@@ -64,6 +64,7 @@ from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
     DocumentParserUnavailableError,
     PassengerIdentifier,
+    UnsupportedDocumentBatchFormatError,
     classify_documents_bounded,
 )
 from app.infrastructure.documents.pdf_parser_sandbox import (
@@ -1799,7 +1800,13 @@ async def verify_documents(
             ],
             isolate_pdf_parsing=True,
             batch_timeout_seconds=bounded_pdf_batch_timeout_seconds(len(uploads)),
+            reject_common_unsupported_format=True,
         )
+    except UnsupportedDocumentBatchFormatError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        ) from exc
     except DocumentParserUnavailableError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -2181,9 +2188,15 @@ async def upload_documents(
                 if chunk_metadata is not None
                 else None
             ),
+            reject_common_unsupported_format=True,
             before_persistence=reauthorize_before_persistence,
             before_persistence_capacity=enforce_capacity_before_persistence,
         )
+    except UnsupportedDocumentBatchFormatError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        ) from exc
     except _ConcurrentDocumentChunkReplay:
         assert chunk_metadata is not None
         replay_batch_result = await session.execute(

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import ts from "typescript";
 
 const batching = readFileSync(
   new URL("../services/document-upload-batching.ts", import.meta.url),
@@ -22,16 +23,59 @@ const distributionTypes = readFileSync(
 );
 const renamePage = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
+const batchingModule = await import(
+  `data:text/javascript;base64,${Buffer.from(
+    ts.transpileModule(batching, {
+      compilerOptions: {
+        module: ts.ModuleKind.ESNext,
+        target: ts.ScriptTarget.ES2022,
+      },
+    }).outputText,
+  ).toString("base64")}`
+);
+const { createDocumentUploadSession } = batchingModule;
+
+function pdfFiles(count, size = 1) {
+  return Array.from({ length: count }, (_, index) => ({
+    name: `visa-${index + 1}.pdf`,
+    size,
+    type: "application/pdf",
+  }));
+}
+
+function createSession(files) {
+  let nextId = 0;
+  return createDocumentUploadSession(files, () => `upload-${nextId++}`);
+}
 
 test("one 1500-file selection is partitioned into bounded resumable chunks", () => {
   assert.match(batching, /MAX_DOCUMENT_SELECTION_FILES = 1_500/);
   assert.match(batching, /MAX_DOCUMENT_SELECTION_BYTES = 2 \* 1024 \* 1024 \* 1024/);
-  assert.match(batching, /MAX_DOCUMENT_CHUNK_FILES = 25/);
+  assert.match(batching, /MAX_DOCUMENT_CHUNK_FILES = 50/);
   assert.match(batching, /TARGET_DOCUMENT_CHUNK_BYTES = 24 \* 1024 \* 1024/);
   assert.match(batching, /completedChunks: number/);
   assert.match(batching, /let chunkIndex = session\.completedChunks/);
   assert.match(batching, /session\.completedChunks = chunkIndex \+ 1/);
   assert.match(batching, /complete PDF selection exceeds the 2 GB safety limit/);
+});
+
+test("the client sends up to 50 PDFs and moves the 51st into the next sequential chunk", () => {
+  assert.deepEqual(createSession(pdfFiles(50)).chunks.map((chunk) => chunk.length), [50]);
+  assert.deepEqual(createSession(pdfFiles(51)).chunks.map((chunk) => chunk.length), [50, 1]);
+});
+
+test("the 24 MiB target splits a chunk before the 50-file ceiling", () => {
+  const twelveMiB = 12 * 1024 * 1024;
+  const session = createSession([
+    ...pdfFiles(2, twelveMiB),
+    ...pdfFiles(1, 1),
+  ]);
+
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [2, 1]);
+  assert.equal(
+    session.chunks[0].reduce((total, file) => total + file.size, 0),
+    24 * 1024 * 1024,
+  );
 });
 
 test("rename and distribution send one immutable upload manifest", () => {

@@ -74,8 +74,11 @@ VISA_VALIDITY_TERMS = (
 VISA_AUTHORITY_TERMS = (
     "immigration",
     "ministry of interior",
+    "ministry of public security",
     "department of immigration",
+    "immigration department",
     "immigration authority",
+    "vietnam immigration department",
 )
 VISA_APPLICATION_TERMS = (
     "application received",
@@ -270,8 +273,8 @@ _NON_TRAVEL_DOCUMENT_PATTERNS = (
 
 _DATE_VALUE_PATTERN = (
     r"(?:\d{1,4}[./-]\d{1,2}[./-]\d{1,4}"
-    r"|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{2,4}"
-    r"|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{2,4})"
+    r"|\d{1,2}\s+[^\W\d_]{3,15}\s+\d{2,4}"
+    r"|[^\W\d_]{3,15}\s+\d{1,2},?\s+\d{2,4})"
 )
 
 
@@ -285,6 +288,19 @@ class ClassifiedDocument:
     extracted_name: str | None
     extracted_passport_number: str | None
     extracted_reference: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class _VisaDocumentFacts:
+    """Deterministic fields and structural facts extracted before classification."""
+
+    name: str | None
+    passport_number: str | None
+    reference: str | None
+    validity_dates: tuple[str, ...]
+    has_heading: bool
+    has_authority: bool
+    has_entry_information: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -337,12 +353,45 @@ class DocumentParserUnavailableError(RuntimeError):
     """Transient parser-capacity failure that callers should expose as retryable."""
 
 
+class UnsupportedDocumentBatchFormatError(RuntimeError):
+    """A repeated, readable batch layout could not be verified safely."""
+
+
+def _raise_for_common_unsupported_format(
+    matcher: DocumentMatcher,
+    jobs: list[tuple[str, bytes, str]],
+    classifications: list[ClassifiedDocument],
+) -> None:
+    if len(classifications) < 2 or any(item.detected_type != "unknown" for item in classifications):
+        return
+    signatures = [matcher._unsupported_format_signature(item.text) for item in classifications]
+    if (
+        not signatures[0]
+        or len(signatures[0]) < 3
+        or any(signature != signatures[0] for signature in signatures[1:])
+    ):
+        return
+
+    expected_types = {expected_type for _filename, _content, expected_type in jobs}
+    if expected_types == {"visa"}:
+        target = "a visa"
+    elif expected_types == {"flight_ticket"}:
+        target = "a flight ticket"
+    else:
+        target = "a visa or flight ticket"
+    raise UnsupportedDocumentBatchFormatError(
+        "Unsupported common document format: these PDFs share a readable layout "
+        f"that could not be verified as {target}. No files were stored."
+    )
+
+
 def classify_documents_bounded(
     matcher: DocumentMatcher,
     jobs: list[tuple[str, bytes, str]],
     *,
     isolate_pdf_parsing: bool,
     batch_timeout_seconds: float | None = None,
+    reject_common_unsupported_format: bool = False,
 ) -> list[ClassifiedDocument]:
     """Classify a request batch, isolating untrusted parsing when requested.
 
@@ -357,7 +406,7 @@ def classify_documents_bounded(
         and "_pdf_text" not in matcher.__dict__
     )
     if not use_sandbox:
-        return [
+        classifications = [
             matcher.classify(
                 filename=filename,
                 content=content,
@@ -365,6 +414,9 @@ def classify_documents_bounded(
             )
             for filename, content, expected_type in jobs
         ]
+        if reject_common_unsupported_format:
+            _raise_for_common_unsupported_format(matcher, jobs, classifications)
+        return classifications
 
     from app.infrastructure.documents.pdf_parser_sandbox import (
         classify_pdf_batch_isolated,
@@ -429,6 +481,8 @@ def classify_documents_bounded(
                 extracted_reference=cast(str | None, extracted_reference),
             )
         )
+    if reject_common_unsupported_format:
+        _raise_for_common_unsupported_format(matcher, jobs, classifications)
     return classifications
 
 
@@ -453,7 +507,8 @@ class DocumentMatcher:
         # The filename is intentionally excluded from classification. A file
         # named VISA.pdf must not turn an unrelated or unreadable PDF into a visa.
         text = self._pdf_text(content)
-        detected_type = self._detect_type(text)
+        visa_facts = self._extract_visa_facts(text)
+        detected_type = self._detect_type(text, visa_facts=visa_facts)
         accepted = expected_type == "other" or detected_type == expected_type
         reason = "Accepted"
         if not accepted:
@@ -471,8 +526,8 @@ class DocumentMatcher:
             accepted=accepted,
             reason=reason,
             text=text,
-            extracted_name=self._extract_name(text, detected_type),
-            extracted_passport_number=self._extract_passport_number(text),
+            extracted_name=visa_facts.name or self._extract_name(text, detected_type),
+            extracted_passport_number=visa_facts.passport_number,
             extracted_reference=self._extract_reference(text),
         )
 
@@ -889,13 +944,16 @@ class DocumentMatcher:
                     return ""
                 if not page_text:
                     continue
-                normalized = " ".join(page_text.split())
+                normalized_lines = [
+                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
+                ]
+                normalized = "\n".join(normalized_lines)
                 remaining = MAX_PDF_TEXT_CHARS - text_length
                 if remaining <= 0:
                     break
                 page_texts.append(normalized[:remaining])
                 text_length += min(len(normalized), remaining)
-            return " ".join(page_texts)[:MAX_PDF_TEXT_CHARS]
+            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
         except Exception:
             # A malformed, encrypted, image-only, or otherwise unreadable PDF
             # is uncertain and must fail closed instead of being classified by
@@ -1048,14 +1106,20 @@ class DocumentMatcher:
         resolver = getattr(value, "get_object", None)
         return resolver() if callable(resolver) else value
 
-    def _detect_type(self, text: str) -> str:
+    def _detect_type(
+        self,
+        text: str,
+        *,
+        visa_facts: _VisaDocumentFacts | None = None,
+    ) -> str:
         normalized = self._normalize(text)
         if not normalized:
             return "unknown"
         if any(re.search(pattern, normalized) for pattern in _NON_TRAVEL_DOCUMENT_PATTERNS):
             return "unknown"
+        facts = visa_facts or self._extract_visa_facts(text)
         ticket_has_structure = self._has_ticket_structure(text)
-        visa_has_structure = self._has_visa_structure(text)
+        visa_has_structure = self._has_visa_structure(text, visa_facts=facts)
         if "application status" in normalized and not visa_has_structure:
             return "unknown"
         if "invoice" in normalized and not ticket_has_structure:
@@ -1075,48 +1139,119 @@ class DocumentMatcher:
         )
         ticket_is_conclusive = ticket_core_score >= 1 and ticket_has_structure
 
-        visa_core_score = self._term_score(normalized, VISA_CORE_TERMS)
-        visa_identity_score = self._term_score(normalized, VISA_IDENTITY_TERMS)
-        visa_validity_score = self._term_score(normalized, VISA_VALIDITY_TERMS)
         visa_application_score = self._term_score(normalized, VISA_APPLICATION_TERMS)
-        visa_is_conclusive = visa_core_score >= 1 and visa_has_structure
 
         if ticket_is_conclusive and not (payment_score >= 3 and ticket_operational_score < 4):
             return "flight_ticket"
-        if visa_application_score >= 1 and visa_identity_score == 0:
+        if visa_application_score >= 1 and not visa_has_structure:
             return "unknown"
-        if payment_score >= 2 and not (visa_identity_score >= 1 and visa_validity_score >= 2):
+        if payment_score >= 2 and not visa_has_structure:
             return "unknown"
-        if visa_is_conclusive:
+        if visa_has_structure:
             return "visa"
 
         passport_score = self._term_score(normalized, PASSPORT_TERMS)
-        if passport_score >= 3 and visa_core_score == 0 and not ticket_is_conclusive:
+        if passport_score >= 3 and not facts.has_heading and not ticket_is_conclusive:
             return "passport"
         return "unknown"
 
-    def _has_visa_structure(self, text: str) -> bool:
-        identity_value = self._has_labeled_value(
-            text,
-            r"(?:visa\s+(?:number|no)|grant\s+number|entry\s+permit\s+number|travel\s+document\s+number)",
-            r"(?=[A-Z0-9-]{5,24}\b)(?=[A-Z0-9-]*\d)[A-Z0-9-]+",
+    def _has_visa_structure(
+        self,
+        text: str,
+        *,
+        visa_facts: _VisaDocumentFacts | None = None,
+    ) -> bool:
+        facts = visa_facts or self._extract_visa_facts(text)
+        has_validity = bool(facts.validity_dates)
+
+        # This is a boolean issuance-fact quorum, not a confidence score.  A
+        # heading plus a document reference and another issuance fact covers
+        # grant notices, while layouts without a labeled reference require the
+        # stronger passport + validity + entry/authority combination.
+        referenced_issuance = bool(facts.reference) and any(
+            (
+                has_validity,
+                facts.has_entry_information,
+                bool(facts.passport_number),
+                facts.has_authority,
+            )
         )
-        dated_validity = self._has_labeled_value(
-            text,
-            r"(?:valid\s+from|valid\s+until|date\s+of\s+issue|date\s+of\s+expiry)",
-            _DATE_VALUE_PATTERN,
+        identity_issuance = (
+            bool(facts.passport_number)
+            and has_validity
+            and (facts.has_entry_information or facts.has_authority)
         )
+        return facts.has_heading and (referenced_issuance or identity_issuance)
+
+    def _extract_visa_facts(self, text: str) -> _VisaDocumentFacts:
+        normalized = self._normalize(text)
+        return _VisaDocumentFacts(
+            name=self._extract_labeled_name(text),
+            passport_number=self._extract_passport_number(text),
+            reference=self._extract_visa_reference(text),
+            validity_dates=self._extract_visa_dates(text),
+            has_heading=self._has_visa_heading(text),
+            has_authority=self._term_score(normalized, VISA_AUTHORITY_TERMS) >= 1,
+            has_entry_information=self._has_visa_entry_information(text),
+        )
+
+    def _has_visa_heading(self, text: str) -> bool:
+        for line in self._text_lines(text):
+            normalized = self._normalize(line)
+            if not normalized:
+                continue
+            has_grant_heading = "visa grant" in normalized or "grant notice" in normalized
+            has_explicit_heading = any(
+                term in normalized for term in ("electronic visa", "e visa", "entry permit")
+            )
+            blocked_context = any(
+                term in normalized
+                for term in ("application fee", "application form", "payment", "receipt")
+            )
+            if has_grant_heading or (has_explicit_heading and not blocked_context):
+                return True
+            if normalized in {"visa", "electronic visa", "e visa"}:
+                return True
+        return False
+
+    def _has_visa_entry_information(self, text: str) -> bool:
         entry_value = self._has_labeled_value(
             text,
-            r"(?:number\s+of\s+entries|entries)",
-            r"(?:single|multiple|one|two|[1-9]\d?)",
+            (
+                r"(?:number\s+of\s+entries|entries|good\s+for\s+single\s*/?\s*multiple\s+entries|"
+                r"sử\s+dụng\s+một\s*/?\s*nhiều\s+lần)"
+            ),
+            r"(?:single|multiple|one|two|một|nhiều|[1-9]\d?)",
         )
         stay_value = self._has_labeled_value(
             text,
-            r"(?:duration\s+of\s+stay|permitted\s+to\s+stay)",
-            r"[1-9]\d{0,3}(?:\s+(?:day|days|month|months))?",
+            r"(?:duration\s+of\s+stay|permitted\s+to\s+stay|thời\s+hạn\s+tạm\s+trú)",
+            r"[1-9]\d{0,3}(?:\s+(?:day|days|month|months|ngày|tháng))?",
         )
-        return identity_value and (dated_validity or entry_value or stay_value)
+        return entry_value or stay_value
+
+    def _unsupported_format_signature(self, text: str) -> tuple[str, ...]:
+        """Return deterministic structural anchors for repeated unknown layouts."""
+
+        normalized = self._normalize(text)
+        if not normalized:
+            return ()
+        groups: tuple[tuple[str, tuple[str, ...]], ...] = (
+            ("visa", VISA_CORE_TERMS),
+            ("ticket", TICKET_CORE_TERMS),
+            ("name", ("full name", "applicant name", "passenger name", "họ tên")),
+            ("passport", ("passport number", "passport no", "số hộ chiếu")),
+            (
+                "reference",
+                ("visa number", "grant number", "document reference", "reference number", "code"),
+            ),
+            ("validity", VISA_VALIDITY_TERMS),
+            ("authority", VISA_AUTHORITY_TERMS),
+            ("booking", TICKET_BOOKING_TERMS),
+            ("route", TICKET_ROUTE_TERMS),
+            ("payment", PAYMENT_TERMS),
+        )
+        return tuple(name for name, terms in groups if self._term_score(normalized, terms) >= 1)
 
     def _has_ticket_structure(self, text: str) -> bool:
         booking_value = self._has_labeled_value(
@@ -1171,22 +1306,140 @@ class DocumentMatcher:
             ),
         )
 
-    def _has_labeled_value(self, text: str, label_pattern: str, value_pattern: str) -> bool:
-        compact = " ".join(text.split())[:MAX_PDF_TEXT_CHARS]
-        return bool(
-            re.search(
-                rf"\b{label_pattern}\s*[:#-]?\s*({value_pattern})",
-                compact,
-                flags=re.IGNORECASE,
-            )
+    def _text_lines(self, text: str) -> list[str]:
+        lines = [" ".join(line.split()) for line in text.splitlines() if line.strip()]
+        if not lines and text.strip():
+            lines = [" ".join(text.split())]
+        return lines[:4_000]
+
+    def _nearby_label_candidates(self, text: str, label_pattern: str) -> list[str]:
+        """Return bounded value candidates on either side of nearby labels."""
+
+        label_re = re.compile(
+            rf"(?<!\w)(?:{label_pattern})(?!\w)",
+            flags=re.IGNORECASE,
         )
+        lines = self._text_lines(text)
+        candidates: list[str] = []
+
+        def add(candidate: str) -> None:
+            bounded = " ".join(candidate.split()).strip(" \t:#–—-")[:180]
+            if bounded and bounded not in candidates:
+                candidates.append(bounded)
+
+        for index, line in enumerate(lines):
+            for label_match in label_re.finditer(line):
+                after = line[label_match.end() : label_match.end() + 180].strip()
+                if after:
+                    # A translated label may sit between the English anchor and
+                    # its value: ``Full name / Họ tên: VALUE``.
+                    colon = after.find(":")
+                    translated_prefix_without_value = (
+                        after.lstrip().startswith(("/", "(", "[")) and colon < 0
+                    )
+                    if translated_prefix_without_value:
+                        after = ""
+                    elif colon == 0 or (
+                        0 < colon <= 80 and after.lstrip().startswith(("/", "(", "["))
+                    ):
+                        after = after[colon + 1 :]
+                    add(after)
+
+                before = line[max(0, label_match.start() - 180) : label_match.start()]
+                if ":" in before:
+                    before = before.rsplit(":", 1)[1]
+                add(before)
+
+                # PDF extractors commonly put a translated label/value on the
+                # line immediately before the English label, or the value on
+                # the immediately following line.  One-line adjacency is
+                # enough for that layout and avoids borrowing distant fields.
+                for neighbor_index in (index - 1, index + 1):
+                    if not 0 <= neighbor_index < len(lines):
+                        continue
+                    neighbor = lines[neighbor_index]
+                    if ":" in neighbor:
+                        neighbor = neighbor.rsplit(":", 1)[1]
+                    add(neighbor)
+        return candidates
+
+    def _nearby_labeled_values(
+        self,
+        text: str,
+        label_pattern: str,
+        value_pattern: str,
+    ) -> tuple[str, ...]:
+        value_re = re.compile(value_pattern, flags=re.IGNORECASE)
+        values: list[str] = []
+        for candidate in self._nearby_label_candidates(text, label_pattern):
+            for match in value_re.finditer(candidate):
+                value = " ".join(match.group(0).split())
+                if value not in values:
+                    values.append(value)
+        return tuple(values)
+
+    def _has_labeled_value(self, text: str, label_pattern: str, value_pattern: str) -> bool:
+        return bool(self._nearby_labeled_values(text, label_pattern, value_pattern))
 
     def _term_score(self, normalized_text: str, terms: tuple[str, ...]) -> int:
         padded_text = f" {normalized_text} "
         normalized_terms = {self._normalize(term) for term in terms}
         return sum(1 for term in normalized_terms if f" {term} " in padded_text)
 
+    def _extract_labeled_name(self, text: str) -> str | None:
+        label_pattern = (
+            r"(?:full\s+name|name\s+of\s+(?:applicant|holder)|applicant\s+name|"
+            r"visa\s+holder(?:'s)?\s+name|passenger\s+name|họ\s+(?:và\s+)?tên|"
+            r"nom\s+complet|nombre\s+completo|nome\s+completo|vollständiger\s+name)"
+        )
+        for candidate in self._nearby_label_candidates(text, label_pattern):
+            if any(character.isdigit() for character in candidate):
+                continue
+            cleaned = self._clean_person_name(candidate, "visa")
+            letters = sum(character.isalpha() for character in cleaned)
+            words = re.findall(r"[^\W\d_]+", cleaned, flags=re.UNICODE)
+            if letters >= 3 and 1 <= len(words) <= MAX_NAME_TOKENS:
+                return cleaned[:255]
+        return None
+
+    def _extract_visa_reference(self, text: str) -> str | None:
+        label_pattern = (
+            r"(?:e-?visa\s+(?:number|no|n[o0º°])|electronic\s+visa\s+(?:number|no)|"
+            r"visa\s+(?:number|no|n[o0º°]|reference|code)|grant\s+number|"
+            r"entry\s+permit\s+number|"
+            r"document\s+(?:reference|number)|reference\s+(?:no|number)|"
+            r"(?<!\w\s)(?:n[o0º°]|code))"
+        )
+        token_re = re.compile(
+            r"(?<!\w)[A-Z0-9](?:[A-Z0-9./-]{4,31})(?!\w)",
+            flags=re.IGNORECASE,
+        )
+        for candidate in self._nearby_label_candidates(text, label_pattern):
+            for match in token_re.finditer(candidate):
+                raw = match.group(0)
+                if re.fullmatch(r"\d{1,4}[./-]\d{1,2}[./-]\d{1,4}", raw):
+                    continue
+                normalized = self._normalize_identifier(raw)
+                if (
+                    normalized
+                    and len(normalized) >= 5
+                    and any(character.isdigit() for character in normalized)
+                ):
+                    return normalized
+        return None
+
+    def _extract_visa_dates(self, text: str) -> tuple[str, ...]:
+        label_pattern = (
+            r"(?:good\s+for\s+entry\s+valid\s+from|valid\s+from|valid\s+until|until|"
+            r"date\s+of\s+(?:issue|expiry)|có\s+giá\s+trị\s+từ\s+ngày|đến\s+ngày|"
+            r"thời\s+hạn\s+đến)"
+        )
+        return self._nearby_labeled_values(text, label_pattern, _DATE_VALUE_PATTERN)[:6]
+
     def _extract_name(self, text: str, detected_type: str) -> str | None:
+        labeled_name = self._extract_labeled_name(text)
+        if labeled_name:
+            return labeled_name
         if detected_type == "flight_ticket":
             slash_name = self._extract_slash_ticket_name(text)
             if slash_name:
@@ -1238,14 +1491,25 @@ class DocumentMatcher:
         return max(candidates, key=lambda item: item[0])[1]
 
     def _clean_person_name(self, raw_name: str, detected_type: str) -> str:
-        name = raw_name.replace("\n", " ")
+        name = unicodedata.normalize("NFKC", raw_name).replace("\n", " ")
         stop_pattern = (
-            r"\b(?:adult|child|infant|sector|seat|add[- ]?ons|departing|confirmed|payment|status|complete|"
-            r"passport|nationality|citizenship|date|birth|gender|male|female|visa|ticket|pnr|booking|flight)\b"
+            r"\b(?:adult|child|infant|sector|seat|add[- ]?ons|departing|confirmed|payment|"
+            r"status|complete|passport|nationality|citizenship|date|birth|gender|male|"
+            r"female|visa|ticket|pnr|booking|flight|full\s+name|name\s+of\s+applicant|"
+            r"ngày|số\s+hộ\s+chiếu|thời\s+hạn)\b"
         )
         name = re.split(stop_pattern, name, flags=re.IGNORECASE)[0]
         name = re.sub(r"\b(?:mr|mrs|ms|miss)\.?\b", " ", name, flags=re.IGNORECASE)
-        name = re.sub(r"[^A-Za-z ]+", " ", name)
+        name = "".join(
+            character
+            if (
+                character.isalpha()
+                or unicodedata.category(character).startswith("M")
+                or character in " '-."
+            )
+            else " "
+            for character in name
+        )
         name = re.sub(
             r"\b(?:personal|passenger)\s+information\b",
             " ",
@@ -1270,6 +1534,19 @@ class DocumentMatcher:
         return merged
 
     def _extract_passport_number(self, text: str) -> str | None:
+        label_pattern = (
+            r"(?:passport|travel\s+document)(?:\s+(?:no|num|number))?|"
+            r"số\s+hộ\s+chiếu|numéro\s+de\s+passeport|número\s+de\s+pasaporte"
+        )
+        token_re = re.compile(
+            r"(?<!\w)(?:[A-Z]{1,3}[\s-]?\d{5,10}[A-Z]?|\d{6,12})(?!\w)",
+            flags=re.IGNORECASE,
+        )
+        for candidate in self._nearby_label_candidates(text, label_pattern):
+            for match in token_re.finditer(candidate):
+                if normalized := self._normalize_identifier(match.group(0)):
+                    return normalized
+
         match = re.search(
             r"\b([A-Z]{1,2}[\s-]?[0-9]{6,8})\b",
             text.upper(),
@@ -1281,7 +1558,9 @@ class DocumentMatcher:
             r"\b(?:PNR|BOOKING(?:\s+(?:NO|NUMBER|REF|REFERENCE))?)\s*[:#\-]?\s*([A-Z0-9]{5,10})\b",
             text.upper(),
         )
-        return match.group(1) if match else None
+        if match:
+            return match.group(1)
+        return self._extract_visa_reference(text)
 
     def _passport_fields(self, passenger: PassportSubmission) -> dict[str, Any]:
         fields = dict(passenger.extracted_fields or {})
@@ -1590,7 +1869,7 @@ class DocumentMatcher:
 
     def _name_words(self, value: str) -> list[str]:
         compatible = unicodedata.normalize("NFKC", value).casefold()
-        return re.findall(r"[a-z0-9]+", compatible)[:40_000]
+        return re.findall(r"[^\W_]+", compatible, flags=re.UNICODE)[:40_000]
 
     def _normalize_identifier(self, value: object) -> str | None:
         if isinstance(value, bool) or value is None:
@@ -1648,7 +1927,8 @@ class DocumentMatcher:
         return {value: tuple(sorted(owners, key=str)) for value, owners in index.items()}
 
     def _normalize(self, value: str) -> str:
-        return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+        compatible = unicodedata.normalize("NFKC", value).casefold()
+        return " ".join(re.findall(r"[^\W_]+", compatible, flags=re.UNICODE))
 
     def _label(self, value: str) -> str:
         return {"visa": "visa", "flight_ticket": "flight ticket", "passport": "passport"}.get(

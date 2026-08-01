@@ -87,6 +87,27 @@ async def test_document_upload_rejects_excess_file_count_before_read(monkeypatch
     assert second.file.closed
 
 
+async def test_document_upload_accepts_fifty_files_and_rejects_fifty_one(monkeypatch) -> None:
+    monkeypatch.setattr(
+        document_uploads,
+        "get_settings",
+        lambda: SimpleNamespace(upload_max_file_size_bytes=4),
+    )
+    accepted = [_upload(b"1", filename=f"visa-{index}.pdf", size=1) for index in range(50)]
+
+    result = await document_uploads.read_bounded_document_uploads(accepted)
+
+    assert len(result) == 50
+
+    rejected = [_upload(b"1", filename=f"visa-{index}.pdf", size=1) for index in range(51)]
+    with pytest.raises(HTTPException) as exc_info:
+        await document_uploads.read_bounded_document_uploads(rejected)
+
+    assert exc_info.value.status_code == 413
+    assert exc_info.value.detail == "Upload at most 50 PDFs at a time"
+    assert all(upload.file.closed for upload in rejected)
+
+
 async def test_document_upload_closes_unread_handles_after_mid_batch_failure(
     monkeypatch,
 ) -> None:

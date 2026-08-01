@@ -12,7 +12,7 @@ from app.core.config.settings import get_settings
 # limit and the 120-second production worker envelope.  The browser presents
 # one logical selection of up to 1,500 files and sends these bounded requests
 # sequentially through the resumable upload protocol.
-MAX_DOCUMENT_FILES_PER_REQUEST = 25
+MAX_DOCUMENT_FILES_PER_REQUEST = 50
 MAX_DOCUMENT_BATCH_BYTES = 64 * 1024 * 1024
 
 

@@ -2,7 +2,7 @@ import type { ApiError } from "@/lib/api/client";
 
 export const MAX_DOCUMENT_SELECTION_FILES = 1_500;
 export const MAX_DOCUMENT_SELECTION_BYTES = 2 * 1024 * 1024 * 1024;
-export const MAX_DOCUMENT_CHUNK_FILES = 25;
+export const MAX_DOCUMENT_CHUNK_FILES = 50;
 export const TARGET_DOCUMENT_CHUNK_BYTES = 24 * 1024 * 1024;
 
 export interface DocumentUploadSession {

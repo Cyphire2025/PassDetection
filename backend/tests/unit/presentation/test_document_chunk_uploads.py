@@ -220,6 +220,22 @@ def test_server_chunk_count_remains_memory_bounded() -> None:
     assert error.value.status_code == 413
 
 
+def test_server_accepts_fifty_file_chunk_and_rejects_fifty_one() -> None:
+    assert MAX_DOCUMENT_FILES_PER_CHUNK == 50
+    metadata = _metadata(expected_file_count=50)
+    assert metadata is not None
+
+    validate_document_chunk_size(metadata, file_count=50)
+
+    with pytest.raises(HTTPException) as manifest_error:
+        _metadata(expected_file_count=51)
+    assert manifest_error.value.status_code == 400
+
+    with pytest.raises(HTTPException) as chunk_error:
+        validate_document_chunk_size(metadata, file_count=51)
+    assert chunk_error.value.status_code == 413
+
+
 def test_same_chunk_token_replay_requires_exact_scope_manifest_and_fingerprint() -> None:
     agency_id = uuid.uuid4()
     upload_id = uuid.uuid4()
@@ -327,7 +343,7 @@ def test_out_of_order_or_mismatched_totals_never_complete() -> None:
 
 
 def test_scaled_parser_budget_covers_max_chunk_below_request_timeout() -> None:
-    assert bounded_pdf_batch_timeout_seconds(MAX_DOCUMENT_FILES_PER_CHUNK) == 44.0
+    assert bounded_pdf_batch_timeout_seconds(MAX_DOCUMENT_FILES_PER_CHUNK) == 80.0
     assert bounded_pdf_batch_timeout_seconds(1_500) == MAX_PDF_SCALED_BATCH_SECONDS
 
 
@@ -369,7 +385,10 @@ def test_database_constraints_fence_concurrent_chunk_index_and_manifest_shape() 
     assert "chunk_index < expected_chunk_count" in constraints[
         "ck_document_upload_chunks_index_manifest"
     ]
-    assert "file_count BETWEEN 1 AND 25" in constraints[
+    assert "expected_file_count <= expected_chunk_count * 50" in constraints[
+        "ck_document_upload_chunks_manifest_capacity"
+    ]
+    assert "file_count BETWEEN 1 AND 50" in constraints[
         "ck_document_upload_chunks_file_count"
     ]
     assert "accepted_count + rejected_count = file_count" in constraints[

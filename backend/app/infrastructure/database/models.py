@@ -1703,11 +1703,11 @@ class DocumentUploadChunkModel(Base):
         ),
         CheckConstraint(
             "expected_file_count >= expected_chunk_count "
-            "AND expected_file_count <= expected_chunk_count * 25",
+            "AND expected_file_count <= expected_chunk_count * 50",
             name="ck_document_upload_chunks_manifest_capacity",
         ),
         CheckConstraint(
-            "file_count BETWEEN 1 AND 25",
+            "file_count BETWEEN 1 AND 50",
             name="ck_document_upload_chunks_file_count",
         ),
         CheckConstraint(
