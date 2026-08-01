@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { WhatsAppBroadcastGroupDetail } from "../api/whatsapp.api";
 import { whatsappApi } from "../api/whatsapp.api";
+import {
+  isMissingWhatsAppBatchStatus,
+  shouldRetryWhatsAppBatchStatus,
+  whatsappBatchHttpStatus,
+  whatsappBatchPollInterval,
+} from "../utils/batch-polling";
 
 export const WHATSAPP_QUERY_KEYS = {
   groups: ["whatsapp", "groups"] as const,
@@ -269,19 +275,43 @@ export function useResendWhatsAppRecipientMessage() {
   });
 }
 
-export const WHATSAPP_BATCH_POLL_LIMIT_MS = 10 * 60 * 1000;
+function whatsappBatchErrorStatus(error: unknown): number | undefined {
+  return whatsappBatchHttpStatus(error);
+}
 
-export function useWhatsAppBatchStatus(batchId: string | null, batchStartedAt: number | null) {
+export function isMissingWhatsAppBatchError(error: unknown): boolean {
+  return isMissingWhatsAppBatchStatus(whatsappBatchErrorStatus(error));
+}
+
+export function useWhatsAppBatchStatus(
+  batchId: string | null,
+  batchStartedAt: number | null,
+  onMissingBatch?: (batchId: string) => void,
+) {
   return useQuery({
     queryKey: ["whatsapp", "batches", batchId],
-    queryFn: () => whatsappApi.batchStatus(batchId as string),
+    queryFn: async () => {
+      try {
+        return await whatsappApi.batchSummary(batchId as string);
+      } catch (error) {
+        if (batchId && isMissingWhatsAppBatchError(error)) {
+          onMissingBatch?.(batchId);
+        }
+        throw error;
+      }
+    },
     enabled: Boolean(batchId),
+    retry: (failureCount, error) =>
+      shouldRetryWhatsAppBatchStatus(
+        failureCount,
+        whatsappBatchErrorStatus(error),
+      ),
     refetchInterval: (query) => {
-      const pollingStartedAt = batchStartedAt ?? query.state.dataUpdatedAt;
-      const stillWithinPollingWindow = Boolean(
-        pollingStartedAt && Date.now() - pollingStartedAt < WHATSAPP_BATCH_POLL_LIMIT_MS,
+      if (isMissingWhatsAppBatchError(query.state.error)) return false;
+      return whatsappBatchPollInterval(
+        query.state.data?.queued,
+        batchStartedAt,
       );
-      return (query.state.data?.queued ?? 1) > 0 && stillWithinPollingWindow ? 2_000 : false;
     },
   });
 }

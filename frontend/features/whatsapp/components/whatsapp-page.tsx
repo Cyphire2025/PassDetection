@@ -23,6 +23,7 @@ import {
   type FormEvent,
   Fragment,
   type SetStateAction,
+  useCallback,
   useEffect,
   useId,
   useMemo,
@@ -84,7 +85,6 @@ import {
   useWhatsAppRecipientRoster,
 } from "../hooks/use-whatsapp";
 import {
-  countEligibleRecipients,
   getMessageStatus,
   hasAlreadySentMessage,
   isRecipientEligible,
@@ -504,10 +504,31 @@ export function WhatsAppPage() {
       }
     },
   );
+  const clearMissingBatchTracking = useCallback((missingBatchId: string) => {
+    setLastSend((current) =>
+      current?.batch_id === missingBatchId ? null : current,
+    );
+    setPersistedBatch((current) =>
+      current?.id === missingBatchId ? null : current,
+    );
+
+    if (typeof window === "undefined") return;
+    const saved = window.sessionStorage.getItem(LAST_BATCH_STORAGE_KEY);
+    if (!saved) return;
+    try {
+      const storedBatch = JSON.parse(saved) as Partial<PersistedBatch>;
+      if (storedBatch.id === missingBatchId) {
+        window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
+      }
+    } catch {
+      window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
+    }
+  }, []);
   const activeBatchId = lastSend?.batch_id ?? persistedBatch?.id ?? null;
   const { data: currentBatch } = useWhatsAppBatchStatus(
     activeBatchId,
     persistedBatch?.startedAt ?? null,
+    clearMissingBatchTracking,
   );
   const displayedSend = mergeWhatsAppSendProgress(
     currentBatch,
@@ -523,7 +544,6 @@ export function WhatsAppPage() {
       return;
     window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
   }, [currentBatch]);
-
   const openMessagePreview = (
     group: WhatsAppBroadcastGroup,
     messageType: WhatsAppMessageType,
@@ -2935,25 +2955,39 @@ function MessagePreviewDialog({
       ? targetMessageStatus?.status === "failed"
       : targetMessageStatus?.already_sent && !targetMessageStatus.resend_blocked,
   );
-  const eligibleRecipients = detail?.recipients.filter((recipient) =>
-    isRecipientEligible(recipient, messageType),
-  ) ?? [];
-  const selectedEligibleRecipients =
-    messageType === "passport_link"
-    && !targetRecipient
-    && recipientSelectionMode === "custom"
-      ? eligibleRecipients.filter((recipient) =>
-          selectedRecipientIds.includes(recipient.id),
-        )
-      : eligibleRecipients;
+  const eligibleRecipients = useMemo(
+    () => detail?.recipients.filter((recipient) =>
+      isRecipientEligible(recipient, messageType),
+    ) ?? [],
+    [detail?.recipients, messageType],
+  );
+  const selectedRecipientIdSet = useMemo(
+    () => new Set(selectedRecipientIds),
+    [selectedRecipientIds],
+  );
+  const selectedEligibleRecipients = useMemo(
+    () =>
+      messageType === "passport_link"
+      && !targetRecipient
+      && recipientSelectionMode === "custom"
+        ? eligibleRecipients.filter((recipient) =>
+            selectedRecipientIdSet.has(recipient.id),
+          )
+        : eligibleRecipients,
+    [
+      eligibleRecipients,
+      messageType,
+      recipientSelectionMode,
+      selectedRecipientIdSet,
+      targetRecipient,
+    ],
+  );
   const eligibleRecipientCount = targetRecipient
     ? 1
     : recipientSelectionMode === "custom"
       ? selectedEligibleRecipients.length
       : preview?.eligible_recipient_count ??
-      (detail
-        ? countEligibleRecipients(detail.recipients, messageType)
-        : undefined) ??
+      (detail ? eligibleRecipients.length : undefined) ??
       group.recipient_count;
   const canSend = Boolean(
     detail?.recipient_opt_in_confirmed &&
@@ -3324,7 +3358,7 @@ function MessagePreviewDialog({
                           <input
                             type="checkbox"
                             className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                            checked={selectedRecipientIds.includes(recipient.id)}
+                            checked={selectedRecipientIdSet.has(recipient.id)}
                             onChange={(event) => {
                               const checked = event.target.checked;
                               const nextIds = checked

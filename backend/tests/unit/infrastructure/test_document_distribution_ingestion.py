@@ -4,14 +4,49 @@ import uuid
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
+from app.infrastructure.documents import distribution_ingestion
 from app.infrastructure.documents.distribution_ingestion import (
     TravelDocumentFile,
     TravelDocumentIngestionService,
 )
 from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
+    DocumentMatcher,
     MatchResult,
 )
+
+
+async def test_failed_dashboard_compensation_is_durably_tracked(monkeypatch) -> None:
+    storage = MagicMock()
+    storage.delete_files = AsyncMock(side_effect=RuntimeError("storage unavailable"))
+    persist_cleanup = AsyncMock(return_value=uuid.uuid4())
+    monkeypatch.setattr(
+        distribution_ingestion,
+        "persist_storage_cleanup_job",
+        persist_cleanup,
+    )
+    service = TravelDocumentIngestionService(
+        MagicMock(),
+        storage=storage,
+    )
+    agency_id = uuid.uuid4()
+    batch_id = uuid.uuid4()
+
+    await service._cleanup_owned_storage(
+        ["document-distribution/group/batch/visa.pdf"],
+        agency_id=agency_id,
+        batch_id=batch_id,
+        durable=True,
+    )
+
+    persist_cleanup.assert_awaited_once_with(
+        agency_id=agency_id,
+        source="document_distribution_compensation",
+        context_id=str(batch_id),
+        storage_keys=["document-distribution/group/batch/visa.pdf"],
+    )
 
 
 async def test_multiple_documents_for_one_passenger_are_all_preserved() -> None:
@@ -85,3 +120,251 @@ async def test_multiple_documents_for_one_passenger_are_all_preserved() -> None:
     assert {document.match_status for document in result.documents} == {"matched"}
     assert result.batch.uploaded_count == 2
     assert result.batch.matched_count == 2
+    assert len(result.created_storage_keys) == 2
+
+
+async def test_rejected_claim_form_is_never_uploaded_or_persisted_as_a_document(
+    monkeypatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock()
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    storage.delete_files = AsyncMock(return_value=0)
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(
+        matcher,
+        "_pdf_text",
+        lambda _content: (
+            "TRAVEL INSURANCE CLAIM FORM INVOICE Ticket number: Flight number: Departure: Arrival:"
+        ),
+    )
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+
+    with patch(
+        "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+        return_value=audit_repository,
+    ):
+        result = await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="flight_ticket",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="claim.pdf", content=b"%PDF-1.7 claim")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+        )
+
+    storage.upload_file.assert_not_awaited()
+    assert result.documents == []
+    assert result.batch.rejected_count == 1
+    assert result.created_storage_keys == ()
+
+
+async def test_precommit_persistence_failure_cleans_owned_storage_keys() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock(side_effect=RuntimeError("constraint failure"))
+    session.rollback = AsyncMock()
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference=None,
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    storage.delete_files = AsyncMock(return_value=1)
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+
+    with (
+        patch(
+            "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+            return_value=audit_repository,
+        ),
+        pytest.raises(RuntimeError, match="constraint failure"),
+    ):
+        await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="visa.pdf", content=b"%PDF visa")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+        )
+
+    storage.delete_files.assert_awaited_once()
+    assert len(storage.delete_files.await_args.args[0]) == 1
+    session.rollback.assert_awaited_once()
+
+
+async def test_storage_finishes_before_reauthorization_and_database_staging() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    events: list[str] = []
+    session = MagicMock()
+    session.add = MagicMock(side_effect=lambda _row: events.append("db-stage"))
+    session.flush = AsyncMock()
+    session.rollback = AsyncMock()
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference=None,
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock(side_effect=lambda *_args: events.append("upload"))
+    storage.delete_files = AsyncMock(return_value=0)
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+
+    async def reauthorize():
+        events.append("reauthorize")
+        return uuid.uuid4(), "current@example.test"
+
+    with patch(
+        "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+        return_value=audit_repository,
+    ):
+        await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="visa.pdf", content=b"%PDF visa")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+            before_persistence=reauthorize,
+        )
+
+    assert events.index("upload") < events.index("reauthorize")
+    assert events.index("reauthorize") < events.index("db-stage")
+
+
+async def test_reauthorization_failure_rolls_back_and_cleans_uploaded_objects() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock()
+    session.rollback = AsyncMock()
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference=None,
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    storage.delete_files = AsyncMock(return_value=1)
+
+    async def reject_authorization():
+        raise RuntimeError("authorization changed")
+
+    with pytest.raises(RuntimeError, match="authorization changed"):
+        await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="visa.pdf", content=b"%PDF visa")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+            before_persistence=reject_authorization,
+        )
+
+    storage.upload_file.assert_awaited_once()
+    storage.delete_files.assert_awaited_once()
+    session.rollback.assert_awaited_once()
+    session.add.assert_not_called()
+
+
+async def test_ambiguous_upload_failure_cleans_the_preclaimed_storage_key() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    session = MagicMock()
+    session.add = MagicMock()
+    matcher = MagicMock()
+    matcher.classify.return_value = ClassifiedDocument(
+        original_filename="visa.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Accepted",
+        text="",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference=None,
+    )
+    storage = MagicMock()
+    storage.upload_file = AsyncMock(side_effect=RuntimeError("upload acknowledgement lost"))
+    storage.delete_files = AsyncMock(return_value=1)
+
+    with pytest.raises(RuntimeError, match="acknowledgement lost"):
+        await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="visa.pdf", content=b"%PDF visa")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger.id,
+        )
+
+    storage.delete_files.assert_awaited_once()
+    claimed_keys = storage.delete_files.await_args.args[0]
+    assert len(claimed_keys) == 1
+    assert claimed_keys[0].startswith(f"document-distribution/{group_id}/")
+    session.add.assert_not_called()

@@ -6,7 +6,7 @@ export interface RenameDocumentItem {
   extracted_name: string | null;
   extracted_passport_number: string | null;
   extracted_reference: string | null;
-  status: "renamed" | "needs_review" | string;
+  status: "renamed" | "needs_review" | "rejected" | string;
   reason: string | null;
   download_url: string;
 }

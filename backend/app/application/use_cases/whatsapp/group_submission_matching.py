@@ -461,6 +461,60 @@ def _unique_compound_names(
     )
 
 
+def _submission_evidence_indexes(
+    profiles: list[_IdentityProfile],
+) -> tuple[
+    dict[str, set[int]],
+    dict[str, set[int]],
+    dict[str, set[int]],
+    dict[str, set[int]],
+    dict[str, set[int]],
+]:
+    """Invert exact evidence once instead of scanning every recipient/submission pair."""
+
+    phones: dict[str, set[int]] = defaultdict(set)
+    emails: dict[str, set[int]] = defaultdict(set)
+    passports: dict[str, set[int]] = defaultdict(set)
+    staff_codes: dict[str, set[int]] = defaultdict(set)
+    names: dict[str, set[int]] = defaultdict(set)
+    for index, profile in enumerate(profiles):
+        for value in profile.phones:
+            phones[value].add(index)
+        for value in profile.emails:
+            emails[value].add(index)
+        for value in profile.passport_numbers:
+            passports[value].add(index)
+        for value in profile.staff_codes:
+            staff_codes[value].add(index)
+        for value in profile.entered_names | profile.passport_names:
+            names[value].add(index)
+    return phones, emails, passports, staff_codes, names
+
+
+def _candidate_submission_indexes(
+    profile: _IdentityProfile,
+    evidence_indexes: tuple[
+        dict[str, set[int]],
+        dict[str, set[int]],
+        dict[str, set[int]],
+        dict[str, set[int]],
+        dict[str, set[int]],
+    ],
+) -> set[int]:
+    candidates: set[int] = set()
+    value_groups = (
+        (profile.phones, evidence_indexes[0]),
+        (profile.emails, evidence_indexes[1]),
+        (profile.passport_numbers, evidence_indexes[2]),
+        (profile.staff_codes, evidence_indexes[3]),
+        (profile.names, evidence_indexes[4]),
+    )
+    for values, index in value_groups:
+        for value in values:
+            candidates.update(index.get(value, ()))
+    return candidates
+
+
 def _same_identity_basis(matches: list[_PairEvidence]) -> bool:
     if len(matches) < 2:
         return True
@@ -635,12 +689,17 @@ def compare_group_submissions(
         logical_recipients,
         submission_profiles,
     )
+    evidence_indexes = _submission_evidence_indexes(submission_profiles)
 
     pairs: list[_PairEvidence] = []
     for recipient_index, recipient in enumerate(logical_recipients):
-        for submission_index, (submission, profile) in enumerate(
-            zip(ordered_submissions, submission_profiles, strict=True)
-        ):
+        candidate_indexes = _candidate_submission_indexes(
+            recipient.profile,
+            evidence_indexes,
+        )
+        for submission_index in sorted(candidate_indexes):
+            submission = ordered_submissions[submission_index]
+            profile = submission_profiles[submission_index]
             pair = _pair_evidence(
                 recipient_index=recipient_index,
                 recipient=recipient,

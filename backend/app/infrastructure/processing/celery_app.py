@@ -23,6 +23,7 @@ EMAIL_SCHEDULER_HEARTBEAT_TASK = "email.scheduler_heartbeat"
 EMAIL_AI_ANALYZE_TASK = "email.analyze_travel_message"
 EMAIL_AI_DISPATCH_TASK = "email.dispatch_ai_analyses"
 EMAIL_AI_DEADLINE_SCAN_TASK = "email.notify_ai_deadline_window"
+DOCUMENT_STORAGE_CLEANUP_TASK = "documents.cleanup_storage"
 
 settings = get_settings()
 
@@ -37,6 +38,7 @@ celery_app = Celery(
         "app.infrastructure.whatsapp.tasks",
         "app.infrastructure.email.tasks",
         "app.infrastructure.email.ai_tasks",
+        "app.infrastructure.documents.cleanup_tasks",
     ],
 )
 
@@ -62,6 +64,7 @@ celery_app.conf.update(
         EMAIL_AI_ANALYZE_TASK: {"queue": EMAIL_AI_QUEUE},
         EMAIL_AI_DISPATCH_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
+        DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -96,6 +99,11 @@ celery_app.conf.update(
             "task": EMAIL_AI_DEADLINE_SCAN_TASK,
             "schedule": 60.0,
             "options": {"queue": EMAIL_INTEGRATION_QUEUE},
+        },
+        "cleanup-deferred-document-storage": {
+            "task": DOCUMENT_STORAGE_CLEANUP_TASK,
+            "schedule": 60.0,
+            "options": {"queue": "passport_ocr"},
         },
     },
 )

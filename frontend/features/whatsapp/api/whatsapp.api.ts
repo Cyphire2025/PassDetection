@@ -197,6 +197,14 @@ export interface WhatsAppSendResponse {
   }>;
 }
 
+export interface WhatsAppBatchSummary {
+  batch_id: string;
+  queued: number;
+  sent: number;
+  failed: number;
+  delivery_unknown: number;
+}
+
 export interface WhatsAppWelcomeMediaResponse {
   media_id: string;
   file_name: string;
@@ -543,6 +551,13 @@ export const whatsappApi = {
   batchStatus: async (batchId: string): Promise<WhatsAppSendResponse> => {
     const { data } = await apiClient.get<WhatsAppSendResponse>(
       API_ENDPOINTS.whatsapp.batch(batchId),
+    );
+    return data;
+  },
+
+  batchSummary: async (batchId: string): Promise<WhatsAppBatchSummary> => {
+    const { data } = await apiClient.get<WhatsAppBatchSummary>(
+      API_ENDPOINTS.whatsapp.batchSummary(batchId),
     );
     return data;
   },

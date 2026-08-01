@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from sqlalchemy import select, update
@@ -35,9 +35,8 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 )
 
 MAX_PROVIDER_ATTEMPTS = 3
-ACCEPTED_DELIVERY_STATUSES = frozenset(
-    {"submitted", "sent", "delivered", "read"}
-)
+WHATSAPP_BATCH_HEARTBEAT_INTERVAL = timedelta(minutes=5)
+ACCEPTED_DELIVERY_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 
 
 def _resolve_log_template_snapshot(
@@ -98,19 +97,13 @@ async def _set_message_state(
         # recovery changed the ledger while the HTTP request was in flight.
         # Never regress a more advanced accepted state.
         predicates.append(
-            ~WhatsAppRecipientMessageStateModel.status.in_(
-                ACCEPTED_DELIVERY_STATUSES
-            )
+            ~WhatsAppRecipientMessageStateModel.status.in_(ACCEPTED_DELIVERY_STATUSES)
         )
     else:
-        predicates.append(
-            WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id
-        )
+        predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
         if release_claim or state_status == "delivery_unknown":
             predicates.append(
-                ~WhatsAppRecipientMessageStateModel.status.in_(
-                    ACCEPTED_DELIVERY_STATUSES
-                )
+                ~WhatsAppRecipientMessageStateModel.status.in_(ACCEPTED_DELIVERY_STATUSES)
             )
     await session.execute(
         update(WhatsAppRecipientMessageStateModel)
@@ -128,9 +121,7 @@ async def _load_sendable_recipient(
 ) -> tuple[WhatsAppBroadcastRecipientModel | None, str | None]:
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
-        .where(
-            WhatsAppBroadcastGroupModel.id == log.broadcast_group_id
-        )
+        .where(WhatsAppBroadcastGroupModel.id == log.broadcast_group_id)
         .with_for_update()
     )
     if not group_result.scalar_one_or_none():
@@ -179,6 +170,38 @@ async def _load_sendable_recipient(
     ):
         return None, "Delivery claim was superseded before provider submission"
     return recipient, None
+
+
+async def _heartbeat_queued_batch_claims(
+    session: AsyncSession,
+    *,
+    batch_id: uuid.UUID,
+    heartbeat_at: datetime,
+) -> None:
+    """Keep an actively processed large batch out of stale-claim recovery."""
+
+    await session.execute(
+        update(WhatsAppMessageLogModel)
+        .where(
+            WhatsAppMessageLogModel.batch_id == batch_id,
+            WhatsAppMessageLogModel.status == "queued",
+        )
+        .values(status_updated_at=heartbeat_at)
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(WhatsAppRecipientMessageStateModel)
+        .where(
+            WhatsAppRecipientMessageStateModel.batch_id == batch_id,
+            WhatsAppRecipientMessageStateModel.status == "queued",
+        )
+        .values(
+            status_updated_at=heartbeat_at,
+            updated_at=heartbeat_at,
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.commit()
 
 
 async def run_whatsapp_broadcast(
@@ -241,8 +264,17 @@ async def run_whatsapp_broadcast(
             [(contact.name, contact.phone_number) for contact in support_contacts]
         )
 
+        last_batch_heartbeat_at = datetime.now(tz=UTC)
         async with httpx.AsyncClient(timeout=timeout) as client:
             for log in logs:
+                heartbeat_at = datetime.now(tz=UTC)
+                if heartbeat_at - last_batch_heartbeat_at >= WHATSAPP_BATCH_HEARTBEAT_INTERVAL:
+                    await _heartbeat_queued_batch_claims(
+                        session,
+                        batch_id=parsed_batch_id,
+                        heartbeat_at=heartbeat_at,
+                    )
+                    last_batch_heartbeat_at = heartbeat_at
                 claim_time = datetime.now(tz=UTC)
                 claim_result = await session.execute(
                     update(WhatsAppMessageLogModel)
@@ -261,9 +293,7 @@ async def run_whatsapp_broadcast(
                 if not claimed_id:
                     await session.rollback()
                     current_log_result = await session.execute(
-                        select(WhatsAppMessageLogModel).where(
-                            WhatsAppMessageLogModel.id == log.id
-                        )
+                        select(WhatsAppMessageLogModel).where(WhatsAppMessageLogModel.id == log.id)
                     )
                     current_log = current_log_result.scalar_one_or_none()
                     if current_log and current_log.status == "processing":
@@ -286,12 +316,9 @@ async def run_whatsapp_broadcast(
                     state_claim_result = await session.execute(
                         update(WhatsAppRecipientMessageStateModel)
                         .where(
-                            WhatsAppRecipientMessageStateModel.recipient_id
-                            == log.recipient_id,
-                            WhatsAppRecipientMessageStateModel.message_type
-                            == log.message_type,
-                            WhatsAppRecipientMessageStateModel.batch_id
-                            == parsed_batch_id,
+                            WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
+                            WhatsAppRecipientMessageStateModel.message_type == log.message_type,
+                            WhatsAppRecipientMessageStateModel.batch_id == parsed_batch_id,
                             WhatsAppRecipientMessageStateModel.status == "queued",
                         )
                         .values(
@@ -416,9 +443,9 @@ async def run_whatsapp_broadcast(
                         if exc.transient and attempt + 1 < MAX_PROVIDER_ATTEMPTS:
                             log.status = "processing"
                             log.status_updated_at = datetime.now(tz=UTC)
-                            log.error_message = (
-                                f"{exc.code}: Temporary provider error; retrying"
-                            )[:2000]
+                            log.error_message = (f"{exc.code}: Temporary provider error; retrying")[
+                                :2000
+                            ]
                             await session.commit()
                             await asyncio.sleep(2**attempt)
                             continue
@@ -437,9 +464,7 @@ async def run_whatsapp_broadcast(
                     except Exception as exc:  # noqa: BLE001 - outcome may be ambiguous.
                         log.status = "delivery_unknown"
                         log.status_updated_at = datetime.now(tz=UTC)
-                        log.error_message = (
-                            f"WhatsApp delivery outcome is unknown: {exc}"
-                        )[:2000]
+                        log.error_message = (f"WhatsApp delivery outcome is unknown: {exc}")[:2000]
                         await _set_message_state(
                             session,
                             log=log,
@@ -507,10 +532,7 @@ async def mark_whatsapp_batch_failed(*, batch_id: str, error_message: str) -> No
             log.status = "delivery_unknown" if was_processing else "failed"
             log.status_updated_at = datetime.now(tz=UTC)
             log.error_message = (
-                (
-                    f"{error_message}; delivery outcome is unknown and "
-                    "automatic resend is suppressed"
-                )
+                (f"{error_message}; delivery outcome is unknown and automatic resend is suppressed")
                 if was_processing
                 else error_message
             )[:2000]

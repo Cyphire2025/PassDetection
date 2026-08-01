@@ -195,7 +195,7 @@ test("selected passport downloads use the scoped ZIP endpoint without duplicate 
   );
   assert.match(source, /\{importMessage && \([\s\S]*?role="status"[\s\S]*?aria-live="polite"/);
   const selectedDownloadHandler = source.match(
-    /const handleSelectedPassportDownload = \(\) => \{([\s\S]*?)\n  \};\n\n  return \(/,
+    /const handleSelectedPassportDownload = \(\) => \{([\s\S]*?)\r?\n  \};\r?\n\r?\n  return \(/,
   )?.[1];
   assert.ok(selectedDownloadHandler);
   assert.doesNotMatch(

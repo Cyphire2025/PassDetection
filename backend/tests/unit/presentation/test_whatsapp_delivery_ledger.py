@@ -753,10 +753,7 @@ def test_manual_recipient_rejects_non_phone_characters_and_excess_digits() -> No
 
 
 def test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounded() -> None:
-    at_limit = {
-        f"field_{index}": f"value_{index}"
-        for index in range(MAX_WHATSAPP_IMPORTED_FIELDS)
-    }
+    at_limit = {f"field_{index}": f"value_{index}" for index in range(MAX_WHATSAPP_IMPORTED_FIELDS)}
 
     assert len(_safe_imported_fields(at_limit)) == MAX_WHATSAPP_IMPORTED_FIELDS
 
@@ -770,8 +767,7 @@ def test_imported_recipient_field_limit_accepts_large_rosters_but_remains_bounde
 
     assert exc_info.value.status_code == 400
     assert (
-        exc_info.value.detail
-        == "Each WhatsApp recipient can contain at most 256 imported fields"
+        exc_info.value.detail == "Each WhatsApp recipient can contain at most 256 imported fields"
     )
 
 
@@ -1306,7 +1302,8 @@ def test_excel_contact_preview_route_is_role_gated_and_has_stable_contract() -> 
         "omitted_rejected_count",
     }
     assert [dependency.call.__name__ for dependency in route.dependant.dependencies] == [
-        "_check_role"
+        "_check_role",
+        "_release_auth_transaction",
     ]
 
 
@@ -1315,7 +1312,7 @@ async def test_excel_contact_upload_stops_after_recipient_row_limit() -> None:
     workbook = Workbook()
     sheet = workbook.active
     sheet.append(["Name", "WhatsApp Phone"])
-    for index in range(501):
+    for index in range(1_501):
         sheet.append([f"Recipient {index}", f"9190000{index:05d}"])
     payload = BytesIO()
     workbook.save(payload)
@@ -1327,7 +1324,7 @@ async def test_excel_contact_upload_stops_after_recipient_row_limit() -> None:
         await _parse_excel_contacts(upload)
 
     assert exc_info.value.status_code == 400
-    assert "at most 500 recipients" in str(exc_info.value.detail)
+    assert "at most 1500 recipients" in str(exc_info.value.detail)
 
 
 def test_explicit_resend_schema_freezes_payload_and_has_single_active_guard() -> None:

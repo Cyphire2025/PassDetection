@@ -29,6 +29,15 @@ _ACCEPTED_REVIEWABLE_PASSPORT_FIELDS = (
 _ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 MAX_REVIEWED_FIELD_VALUE_LENGTH = 160
 MAX_REVIEWED_FIELDS_TOTAL_LENGTH = 1_440
+_PASSPORT_SEX_IDENTITIES = {
+    "m": "M",
+    "male": "M",
+    "f": "F",
+    "female": "F",
+    "x": "X",
+    "unspecified": "X",
+    "<": "X",
+}
 
 
 def validate_reviewed_passport_payload(fields: dict[str, str]) -> None:
@@ -245,6 +254,29 @@ def normalize_passport_date(value: str, *, field: str) -> str:
     return parsed.isoformat()
 
 
+def normalize_passport_sex_identity(value: str) -> str:
+    """Return the canonical ICAO sex marker for a recognized source value.
+
+    Unknown labels intentionally return an empty string so an importer cannot
+    silently invent gender evidence. The original source value can remain in
+    audit metadata for staff review.
+    """
+
+    if not isinstance(value, str):
+        return ""
+    normalized = " ".join(unicodedata.normalize("NFKC", value).strip().split()).casefold()
+    return _PASSPORT_SEX_IDENTITIES.get(normalized, "")
+
+
+def normalize_passport_number_identity(value: str) -> str:
+    """Return the punctuation-insensitive canonical passport identity."""
+
+    if not isinstance(value, str):
+        return ""
+    normalized = unicodedata.normalize("NFKC", value).upper()
+    return re.sub(r"[^A-Z0-9]", "", normalized)
+
+
 def _validate_date_order(fields: dict[str, str]) -> None:
     birth = _parsed(fields.get("date_of_birth"))
     issued = _parsed(fields.get("date_of_issue"))
@@ -288,20 +320,12 @@ def _text_value(value: Any) -> str:
 def _comparable_passport_value(field: str, value: str) -> str:
     normalized = " ".join(unicodedata.normalize("NFKC", value).strip().split())
     if field == "passport_number":
-        return re.sub(r"[^A-Z0-9]", "", normalized.upper())
+        return normalize_passport_number_identity(normalized)
     if field == "nationality":
         return canonical_country_identity(normalized)
     if field == "sex":
         key = normalized.casefold()
-        return {
-            "m": "M",
-            "male": "M",
-            "f": "F",
-            "female": "F",
-            "x": "X",
-            "unspecified": "X",
-            "<": "X",
-        }.get(key, key)
+        return normalize_passport_sex_identity(normalized) or key
     return normalized.casefold()
 
 

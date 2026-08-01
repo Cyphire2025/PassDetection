@@ -96,6 +96,8 @@ export const API_ENDPOINTS = {
       `/api/v1/whatsapp/groups/${groupId}/welcome-media`,
     send: (groupId: string) => `/api/v1/whatsapp/groups/${groupId}/send`,
     batch: (batchId: string) => `/api/v1/whatsapp/batches/${batchId}`,
+    batchSummary: (batchId: string) =>
+      `/api/v1/whatsapp/batches/${batchId}/summary`,
   },
 
   emailIntegrations: {
