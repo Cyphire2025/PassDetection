@@ -2348,7 +2348,7 @@ async def _read_bounded_passport_excel_upload(
 
     if len(payload) > max_bytes:
         raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             detail=(
                 "The Excel file is too large; use a file no larger than "
                 f"{max_bytes // (1024 * 1024)} MB."

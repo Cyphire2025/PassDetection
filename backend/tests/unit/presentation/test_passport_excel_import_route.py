@@ -86,7 +86,7 @@ async def test_excel_upload_reader_accepts_exact_limit_and_rejects_one_byte_over
             max_bytes=32,
         )
 
-    assert exc_info.value.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+    assert exc_info.value.status_code == status.HTTP_413_CONTENT_TOO_LARGE
     assert exc_info.value.detail.startswith("The Excel file is too large")
 
 
