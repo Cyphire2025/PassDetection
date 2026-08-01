@@ -64,6 +64,10 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
     filter_and_sort_match_rows,
     summarize_match_rows,
 )
+from app.application.use_cases.whatsapp.recipient_capacity import (
+    MAX_WHATSAPP_RECIPIENTS,
+    WhatsAppRecipientCapacityExceeded,
+)
 from app.core.security.upload_session import is_valid_upload_session_id
 from app.domain.entities.entities import (
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
@@ -110,6 +114,9 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 )
 from app.infrastructure.repositories.qualifier_selection_repository import (
     QualifierSelectionRepository,
+)
+from app.infrastructure.repositories.whatsapp_recipient_capacity_repository import (
+    require_locked_broadcast_recipient_capacity,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
@@ -638,9 +645,7 @@ async def create_client_group(
         custom_questions=[
             question.model_dump(mode="json") for question in request.custom_questions
         ],
-        custom_details=[
-            detail.model_dump(mode="json") for detail in request.custom_details
-        ],
+        custom_details=[detail.model_dump(mode="json") for detail in request.custom_details],
         notes=request.notes,
     )
 
@@ -1541,9 +1546,7 @@ async def resolve_unidentified_as_replacement(
         replaced_recipient_normalized_phone=selected_recipient.normalized_phone_number,
         original_recipient_name=selected_recipient.name,
         original_recipient_phone=selected_recipient.phone_number,
-        original_recipient_imported_fields=dict(
-            selected_recipient.imported_fields or {}
-        ),
+        original_recipient_imported_fields=dict(selected_recipient.imported_fields or {}),
         resolution_type="replacement",
         request_id=body.request_id,
         suppressed_recipient_ids=[str(recipient_id) for recipient_id in suppressed_ids],
@@ -1784,6 +1787,41 @@ async def restore_roster_resolution(
 ) -> PassportRosterResolutionResponse:
     _require_whatsapp_broadcast_access(current_user)
     group = await _require_managed_group(session, current_user, link_id)
+    preliminary_result = await session.execute(
+        select(PassportRosterResolutionModel).where(
+            PassportRosterResolutionModel.id == resolution_id,
+            PassportRosterResolutionModel.client_group_id == group.id,
+            PassportRosterResolutionModel.agency_id == group.agency_id,
+        )
+    )
+    preliminary_resolution = preliminary_result.scalar_one_or_none()
+    if preliminary_resolution is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Roster resolution was not found.",
+        )
+    if preliminary_resolution.status == "restored":
+        return _roster_resolution_response(preliminary_resolution)
+
+    broadcast_ids: list[uuid.UUID] = []
+    locked_broadcast_ids: list[uuid.UUID] = []
+    if preliminary_resolution.resolution_type == "replacement":
+        broadcast_ids_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel.broadcast_group_id).where(
+                WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
+                == preliminary_resolution.id,
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            )
+        )
+        broadcast_ids = list(dict.fromkeys(broadcast_ids_result.scalars().all()))
+        locked_broadcast_ids = await lock_whatsapp_broadcast_groups(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_ids=broadcast_ids,
+        )
+
+    # Every path that can suppress or reactivate recipients takes broadcast
+    # locks before the resolution lock. Keep the same global order here.
     result = await session.execute(
         select(PassportRosterResolutionModel)
         .where(
@@ -1792,6 +1830,7 @@ async def restore_roster_resolution(
             PassportRosterResolutionModel.agency_id == group.agency_id,
         )
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     resolution = result.scalar_one_or_none()
     if resolution is None:
@@ -1805,19 +1844,6 @@ async def restore_roster_resolution(
     now = datetime.now(tz=UTC)
     restored_recipient_ids: list[uuid.UUID] = []
     if resolution.resolution_type == "replacement":
-        broadcast_ids_result = await session.execute(
-            select(WhatsAppBroadcastRecipientModel.broadcast_group_id).where(
-                WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id
-                == resolution.id,
-                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
-            )
-        )
-        broadcast_ids = list(dict.fromkeys(broadcast_ids_result.scalars().all()))
-        await lock_whatsapp_broadcast_groups(
-            session,
-            agency_id=group.agency_id,
-            broadcast_group_ids=broadcast_ids,
-        )
         recipients_result = await session.execute(
             select(WhatsAppBroadcastRecipientModel)
             .where(
@@ -1827,6 +1853,36 @@ async def restore_roster_resolution(
             .with_for_update()
         )
         recipients = list(recipients_result.scalars().all())
+        live_broadcast_ids = {recipient.broadcast_group_id for recipient in recipients}
+        if not live_broadcast_ids.issubset(set(locked_broadcast_ids)):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "The linked WhatsApp recipients changed while the replacement "
+                    "was being restored. Refresh and try again."
+                ),
+            )
+        activating_by_broadcast: dict[uuid.UUID, int] = {}
+        for recipient in recipients:
+            if recipient.removed_at is not None:
+                activating_by_broadcast[recipient.broadcast_group_id] = (
+                    activating_by_broadcast.get(recipient.broadcast_group_id, 0) + 1
+                )
+        try:
+            await require_locked_broadcast_recipient_capacity(
+                session,
+                agency_id=group.agency_id,
+                locked_broadcast_ids=locked_broadcast_ids,
+                activating_by_broadcast=activating_by_broadcast,
+            )
+        except WhatsAppRecipientCapacityExceeded as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "Restoring this replacement would exceed the maximum of "
+                    f"{MAX_WHATSAPP_RECIPIENTS} recipients in a WhatsApp list."
+                ),
+            ) from exc
         for recipient in recipients:
             recipient.removed_at = None
             recipient.suppressed_by_roster_resolution_id = None
@@ -1961,18 +2017,12 @@ async def update_client_group(
         designation_enabled=request.designation_enabled,
         agency_dealership_name_enabled=request.agency_dealership_name_enabled,
         custom_questions=(
-            [
-                question.model_dump(mode="json")
-                for question in request.custom_questions
-            ]
+            [question.model_dump(mode="json") for question in request.custom_questions]
             if request.custom_questions is not None
             else None
         ),
         custom_details=(
-            [
-                detail.model_dump(mode="json")
-                for detail in request.custom_details
-            ]
+            [detail.model_dump(mode="json") for detail in request.custom_details]
             if request.custom_details is not None
             else None
         ),

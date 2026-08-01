@@ -433,6 +433,17 @@ class Settings(BaseSettings):
     email_content_retention_days: int = Field(default=30, ge=1, le=3_650)
     email_storage_orphan_grace_hours: int = Field(default=24, ge=1, le=168)
 
+    # Dedicated, versioned encryption for durable document-cleanup tombstones.
+    # When unset, version 1 derives from APP_SECRET_KEY for zero-downtime
+    # adoption.  Set an explicit active key plus the previous version in the
+    # decryption keyring before rotating either secret.
+    storage_cleanup_encryption_key: SecretStr | None = Field(default=None, repr=False)
+    storage_cleanup_encryption_key_version: int = Field(default=1, ge=1, le=1_000_000)
+    storage_cleanup_decryption_keys: dict[int, SecretStr] = Field(
+        default_factory=dict,
+        repr=False,
+    )
+
     whatsapp_access_token: str | None = None
     whatsapp_phone_number_id: str | None = None
     whatsapp_api_version: str = "v25.0"

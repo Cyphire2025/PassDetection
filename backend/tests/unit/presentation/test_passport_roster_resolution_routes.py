@@ -291,9 +291,7 @@ async def test_replacement_records_needs_review_candidates_as_excluded_uploads()
     )
     assert stored_resolution.original_recipient_name == selected_recipient.name
     assert stored_resolution.original_recipient_phone == selected_recipient.phone_number
-    assert stored_resolution.original_recipient_imported_fields == {
-        "staff_code": "GC42"
-    }
+    assert stored_resolution.original_recipient_imported_fields == {"staff_code": "GC42"}
     assert selected_recipient.suppressed_by_roster_resolution_id == response.id
     assert selected_recipient.removed_at is not None
     audit_repository.record.assert_awaited_once()
@@ -400,6 +398,7 @@ async def test_restoring_replacement_reactivates_only_its_suppressed_recipients(
         side_effect=[
             _scalar_result(resolution),
             _scalars_result([recipient.broadcast_group_id]),
+            _scalar_result(resolution),
             _scalars_result([recipient]),
             MagicMock(),
         ]
@@ -410,6 +409,10 @@ async def test_restoring_replacement_reactivates_only_its_suppressed_recipients(
         id=uuid.uuid4(),
         email="admin@example.com",
     )
+    lock_broadcasts = AsyncMock(return_value=[recipient.broadcast_group_id])
+    call_order = MagicMock()
+    call_order.attach_mock(session.execute, "execute")
+    call_order.attach_mock(lock_broadcasts, "lock_broadcasts")
 
     with (
         patch.object(
@@ -429,6 +432,11 @@ async def test_restoring_replacement_reactivates_only_its_suppressed_recipients(
         patch.object(
             client_groups,
             "lock_whatsapp_broadcast_groups",
+            new=lock_broadcasts,
+        ),
+        patch.object(
+            client_groups,
+            "require_locked_broadcast_recipient_capacity",
             new=AsyncMock(),
         ),
         patch.object(
@@ -453,6 +461,15 @@ async def test_restoring_replacement_reactivates_only_its_suppressed_recipients(
     assert response.status == "restored"
     assert session.flush.await_count == 2
     audit_repository.record.assert_awaited_once()
+    assert [call[0] for call in call_order.mock_calls[:4]] == [
+        "execute",
+        "execute",
+        "lock_broadcasts",
+        "execute",
+    ]
+    locked_resolution_statement = session.execute.await_args_list[2].args[0]
+    assert "FOR UPDATE" in str(locked_resolution_statement)
+    assert locked_resolution_statement.get_execution_options()["populate_existing"] is True
 
 
 @pytest.mark.asyncio

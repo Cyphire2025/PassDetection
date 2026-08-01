@@ -22,7 +22,13 @@ test("preserves initial skip counts when batch polling reports only delivery out
     skipped_in_progress: 1,
     skipped_delivery_unknown: 2,
   });
-  const current = response({ sent: 1, delivery_unknown: 1 });
+  const current = {
+    batch_id: "batch-1",
+    queued: 0,
+    sent: 1,
+    failed: 0,
+    delivery_unknown: 1,
+  };
 
   assert.deepEqual(mergeWhatsAppSendProgress(current, initial), {
     ...current,

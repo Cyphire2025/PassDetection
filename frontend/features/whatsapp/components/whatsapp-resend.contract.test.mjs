@@ -43,7 +43,7 @@ test("recipient details refresh after an accepted resend request", () => {
     "export function useResendWhatsAppRecipientMessage",
   );
   const end = hooksSource.indexOf(
-    "export const WHATSAPP_BATCH_POLL_LIMIT_MS",
+    "export function useWhatsAppBatchStatus",
     start,
   );
   const resendHook = hooksSource.slice(start, end);
@@ -54,6 +54,26 @@ test("recipient details refresh after an accepted resend request", () => {
     /WHATSAPP_QUERY_KEYS\.group\(groupId\)/,
   );
   assert.match(resendHook, /invalidateQueries/);
+});
+
+test("large broadcasts retain progress polling and set-based recipient selection", () => {
+  assert.match(hooksSource, /whatsappApi\.batchSummary/);
+  assert.match(hooksSource, /whatsappBatchPollInterval/);
+  assert.doesNotMatch(hooksSource, /WHATSAPP_BATCH_POLL_LIMIT_MS/);
+  assert.match(
+    endpointSource,
+    /batchSummary:[\s\S]*\/batches\/\$\{batchId\}\/summary/,
+  );
+  assert.match(apiSource, /batchSummary: async/);
+  assert.match(pageSource, /const selectedRecipientIdSet = useMemo/);
+  assert.match(
+    pageSource,
+    /selectedRecipientIdSet\.has\(recipient\.id\)/,
+  );
+  assert.doesNotMatch(
+    pageSource,
+    /selectedRecipientIds\.includes\(recipient\.id\)/,
+  );
 });
 
 test("sent messages expose resend and failed messages expose retry", () => {

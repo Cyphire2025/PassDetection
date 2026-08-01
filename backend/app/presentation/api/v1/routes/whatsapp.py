@@ -58,16 +58,23 @@ from app.application.use_cases.whatsapp.message_templates import (
     template_parameters,
     validate_template_parameters,
 )
+from app.application.use_cases.whatsapp.recipient_capacity import (
+    MAX_WHATSAPP_RECIPIENTS,
+    WhatsAppRecipientCapacityExceeded,
+    require_whatsapp_recipient_capacity,
+)
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import ImageValidationError
 from app.infrastructure.database.models import (
+    AgencyModel,
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     DocumentWhatsAppDeliveryModel,
     PassengerQrWhatsAppDeliveryModel,
     PassportRosterResolutionModel,
     PassportSubmissionModel,
+    UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
@@ -84,6 +91,9 @@ from app.infrastructure.repositories.passport_roster_resolution_repository impor
 )
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
+)
+from app.infrastructure.repositories.whatsapp_recipient_capacity_repository import (
+    require_locked_broadcast_recipient_capacity,
 )
 from app.infrastructure.security.upload_validator import UploadValidator
 from app.infrastructure.whatsapp.cloud_api_provider import (
@@ -123,7 +133,6 @@ WHATSAPP_SUPPRESSED_STATUSES = (
     WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
 )
 WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
-MAX_WHATSAPP_RECIPIENTS = 500
 MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
 MAX_WHATSAPP_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
@@ -402,6 +411,16 @@ class WhatsAppSendResponse(BaseModel):
     skipped_in_progress: int = 0
     skipped_delivery_unknown: int = 0
     results: list[WhatsAppSendResult]
+
+
+class WhatsAppBatchSummaryResponse(BaseModel):
+    """Compact batch progress payload used by the polling UI."""
+
+    batch_id: uuid.UUID
+    queued: int
+    sent: int
+    failed: int
+    delivery_unknown: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -701,8 +720,7 @@ async def receive_whatsapp_webhook(
             if not document_deliveries:
                 qr_result = await session.execute(
                     select(PassengerQrWhatsAppDeliveryModel).where(
-                        PassengerQrWhatsAppDeliveryModel.provider_message_id
-                        == provider_id
+                        PassengerQrWhatsAppDeliveryModel.provider_message_id == provider_id
                     )
                 )
                 for delivery in qr_result.scalars().all():
@@ -734,6 +752,68 @@ def _agency_filter(current_user: User) -> list[Any]:
             status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
         )
     return [WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id]
+
+
+async def _lock_active_whatsapp_actor(
+    session: AsyncSession,
+    *,
+    current_user: User,
+    require_agency: bool,
+) -> UserModel:
+    """Re-authorize the actor after untrusted workbook parsing.
+
+    Authentication and role dependencies read the user before the route starts,
+    which opens a database transaction. Workbook bytes must be read and parsed
+    only after that transaction is released. The write transaction therefore
+    re-fetches and locks the actor (and their agency when agency scope is
+    required) so deactivation, role changes, reassignment, or agency suspension
+    during parsing fail closed before any roster mutation.
+    """
+
+    expected_agency_id = current_user.agency_id
+    expected_role = current_user.role.value
+    predicates = [
+        UserModel.id == current_user.id,
+        UserModel.role == expected_role,
+        UserModel.is_active.is_(True),
+        UserModel.deleted_at.is_(None),
+    ]
+    statement = select(UserModel).where(*predicates)
+    if require_agency:
+        if expected_agency_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account is no longer authorized for WhatsApp broadcasts.",
+            )
+        statement = (
+            select(UserModel)
+            .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+            .where(
+                *predicates,
+                UserModel.agency_id == expected_agency_id,
+                AgencyModel.is_active.is_(True),
+            )
+            .with_for_update(of=(UserModel, AgencyModel))
+        )
+    else:
+        statement = statement.with_for_update(of=UserModel)
+
+    result = await session.execute(statement.execution_options(populate_existing=True))
+    actor = result.scalar_one_or_none()
+    if actor is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account is no longer authorized for WhatsApp broadcasts.",
+        )
+    return actor
+
+
+async def _release_auth_transaction(
+    session: AsyncSession = Depends(get_db_session),
+) -> None:
+    """End the read-only authentication transaction before CPU/file work."""
+
+    await session.rollback()
 
 
 def _normalize_phone(raw: str) -> str | None:
@@ -1584,14 +1664,19 @@ def _parse_excel_contact_bytes(
                     )
                     continue
                 contacts_by_phone[normalized] = incoming
-                if len(contacts_by_phone) > MAX_WHATSAPP_RECIPIENTS:
+                try:
+                    require_whatsapp_recipient_capacity(
+                        active_count=0,
+                        activating_count=len(contacts_by_phone),
+                    )
+                except WhatsAppRecipientCapacityExceeded as exc:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail=(
                             "The Excel contact file can contain at most "
                             f"{MAX_WHATSAPP_RECIPIENTS} recipients"
                         ),
-                    )
+                    ) from exc
     return _WhatsAppExcelContactParseResult(
         contacts=list(contacts_by_phone.values()),
         rejected_rows=rejected_rows,
@@ -2649,8 +2734,9 @@ def _merge_composer_snapshot(
 async def preview_excel_contacts(
     contacts_file: UploadFile = File(...),
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    _auth_transaction_released: None = Depends(_release_auth_transaction),
 ) -> WhatsAppContactPreviewResponse:
-    del current_user
+    del current_user, _auth_transaction_released
     result = await _parse_excel_contact_preview(contacts_file)
     return _excel_contact_preview_response(
         result.contacts,
@@ -2744,11 +2830,7 @@ def _unidentified_submission_details(
         submission.confirmed_fields,
     ):
         details.update(dict(fields or {}))
-    return {
-        str(key): value
-        for key, value in details.items()
-        if value is not None and value != ""
-    }
+    return {str(key): value for key, value in details.items() if value is not None and value != ""}
 
 
 async def _unidentified_uploads_for_broadcast(
@@ -2761,12 +2843,10 @@ async def _unidentified_uploads_for_broadcast(
         select(ClientGroupModel)
         .join(
             ClientGroupWhatsAppBroadcastLinkModel,
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
-            == ClientGroupModel.id,
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == ClientGroupModel.id,
         )
         .where(
-            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-            == broadcast_group_id,
+            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == broadcast_group_id,
             ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
             ClientGroupModel.agency_id == agency_id,
             ClientGroupModel.deleted_at.is_(None),
@@ -2809,9 +2889,7 @@ async def _unidentified_uploads_for_broadcast(
                     client_group_id=client_group.id,
                     client_group_name=client_group.name,
                     name=submission.client_name,
-                    phone_number=(
-                        submission.client_phone or submission.family_head_phone
-                    ),
+                    phone_number=(submission.client_phone or submission.family_head_phone),
                     email=submission.client_email or submission.family_head_email,
                     details=_unidentified_submission_details(submission),
                     updated_at=submission.updated_at,
@@ -2892,21 +2970,17 @@ async def get_broadcast_recipient_roster(
         )
         .join(
             ClientGroupModel,
-            PassportRosterResolutionModel.client_group_id
-            == ClientGroupModel.id,
+            PassportRosterResolutionModel.client_group_id == ClientGroupModel.id,
         )
         .join(
             PassportSubmissionModel,
-            PassportRosterResolutionModel.submission_id
-            == PassportSubmissionModel.id,
+            PassportRosterResolutionModel.submission_id == PassportSubmissionModel.id,
         )
         .where(
             WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
             WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
             WhatsAppBroadcastRecipientModel.removed_at.is_not(None),
-            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_not(
-                None
-            ),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_not(None),
             PassportRosterResolutionModel.agency_id == group.agency_id,
             PassportRosterResolutionModel.status == "active",
             PassportRosterResolutionModel.resolution_type == "replacement",
@@ -2934,12 +3008,14 @@ async def get_broadcast_recipient_roster(
             Literal["recipient", "rejected", "replaced"],
             WhatsAppBroadcastRecipientModel | WhatsAppBroadcastRejectedContactModel,
         ]
-    ] = [("recipient", recipient) for recipient in recipients] + [
-        ("rejected", rejected_contact) for rejected_contact in rejected_contacts
-    ] + [
-        ("replaced", recipient)
-        for recipient, _resolution, _client_group, _submission in replaced_rows
-    ]
+    ] = (
+        [("recipient", recipient) for recipient in recipients]
+        + [("rejected", rejected_contact) for rejected_contact in rejected_contacts]
+        + [
+            ("replaced", recipient)
+            for recipient, _resolution, _client_group, _submission in replaced_rows
+        ]
+    )
     replaced_by_recipient_id = {
         recipient.id: (resolution, client_group, submission)
         for recipient, resolution, client_group, submission in replaced_rows
@@ -2996,9 +3072,7 @@ async def get_broadcast_recipient_roster(
         else:
             recipient = model
             assert isinstance(recipient, WhatsAppBroadcastRecipientModel)
-            resolution, client_group, submission = replaced_by_recipient_id[
-                recipient.id
-            ]
+            resolution, client_group, submission = replaced_by_recipient_id[recipient.id]
             items.append(
                 WhatsAppRecipientRosterItemResponse(
                     kind="replaced",
@@ -3010,12 +3084,8 @@ async def get_broadcast_recipient_roster(
                         client_group_name=client_group.name,
                         name=resolution.original_recipient_name,
                         phone_number=resolution.original_recipient_phone,
-                        normalized_phone_number=(
-                            resolution.replaced_recipient_normalized_phone
-                        ),
-                        imported_fields=dict(
-                            resolution.original_recipient_imported_fields
-                        ),
+                        normalized_phone_number=(resolution.replaced_recipient_normalized_phone),
+                        imported_fields=dict(resolution.original_recipient_imported_fields),
                         replacement_submission_id=submission.id,
                         replacement_name=submission.client_name,
                         replacement_phone=submission.client_phone,
@@ -3190,24 +3260,30 @@ async def resolve_broadcast_rejected_contact(
             status_code=status.HTTP_409_CONFLICT,
             detail="That WhatsApp number is already in the valid recipient list",
         )
-
-    if not existing_recipient:
-        active_count_result = await session.execute(
-            select(func.count())
-            .select_from(WhatsAppBroadcastRecipientModel)
-            .where(
-                WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
-                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-            )
+    if existing_recipient and existing_recipient.suppressed_by_roster_resolution_id is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This recipient is currently marked as replaced in a "
+                "linked passport group. Restore that replacement from "
+                "the group before adding them back."
+            ),
         )
-        if int(active_count_result.scalar_one()) >= MAX_WHATSAPP_RECIPIENTS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "This WhatsApp list already contains the maximum of "
-                    f"{MAX_WHATSAPP_RECIPIENTS} valid recipients"
-                ),
-            )
+    try:
+        await require_locked_broadcast_recipient_capacity(
+            session,
+            agency_id=group.agency_id,
+            locked_broadcast_ids=[group.id],
+            activating_by_broadcast={group.id: 1},
+        )
+    except WhatsAppRecipientCapacityExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "This WhatsApp list already contains the maximum of "
+                f"{MAX_WHATSAPP_RECIPIENTS} valid recipients"
+            ),
+        ) from exc
 
     now = datetime.now(tz=UTC)
     imported_fields = dict(rejected_contact.imported_fields or {})
@@ -3219,15 +3295,6 @@ async def resolve_broadcast_rejected_contact(
     if resolved_display_order is None:
         resolved_display_order = await _next_roster_display_order(session, group.id)
     if existing_recipient:
-        if existing_recipient.suppressed_by_roster_resolution_id is not None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "This recipient is currently marked as replaced in a "
-                    "linked passport group. Restore that replacement from "
-                    "the group before adding them back."
-                ),
-            )
         existing_recipient.name = name
         existing_recipient.phone_number = body.phone_number.strip()
         existing_recipient.imported_fields = imported_fields
@@ -3528,6 +3595,9 @@ async def create_broadcast_group(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
         )
+    # The authentication dependency has already performed a database read.
+    # Release that transaction before parsing request JSON or workbook bytes.
+    await session.rollback()
     group_name = name.strip()
     if not group_name:
         raise HTTPException(
@@ -3583,11 +3653,16 @@ async def create_broadcast_group(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Confirm recipient WhatsApp opt-in before saving this list",
         )
-    if len(normalized_contacts) > MAX_WHATSAPP_RECIPIENTS:
+    try:
+        require_whatsapp_recipient_capacity(
+            active_count=0,
+            activating_count=len(normalized_contacts),
+        )
+    except WhatsAppRecipientCapacityExceeded as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients"),
-        )
+        ) from exc
     unnamed_numbers = [
         contact.phone_number
         for contact in normalized_contacts.values()
@@ -3628,13 +3703,24 @@ async def create_broadcast_group(
             detail="Add no more than three customer support contacts",
         )
 
+    actor = await _lock_active_whatsapp_actor(
+        session,
+        current_user=current_user,
+        require_agency=True,
+    )
+    agency_id = actor.agency_id
+    if agency_id is None:  # Defensive; the locked query requires an agency.
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account is no longer authorized for WhatsApp broadcasts.",
+        )
     now = datetime.now(tz=UTC)
     group = WhatsAppBroadcastGroupModel(
-        agency_id=current_user.agency_id,
+        agency_id=agency_id,
         name=group_name,
         organizing_company_name=company_name,
         recipient_opt_in_confirmed_at=now if normalized_contacts else None,
-        created_by_user_id=current_user.id,
+        created_by_user_id=actor.id,
         created_at=now,
         updated_at=now,
     )
@@ -3651,7 +3737,7 @@ async def create_broadcast_group(
         session.add(
             WhatsAppBroadcastRecipientModel(
                 broadcast_group_id=group.id,
-                agency_id=current_user.agency_id,
+                agency_id=agency_id,
                 name=_clean_name(contact.name),
                 phone_number=contact.phone_number.strip(),
                 normalized_phone_number=normalized,
@@ -3672,7 +3758,7 @@ async def create_broadcast_group(
         session.add(
             WhatsAppBroadcastSupportContactModel(
                 broadcast_group_id=group.id,
-                agency_id=current_user.agency_id,
+                agency_id=agency_id,
                 name=_clean_required_name(support_contact.name, "Customer support name"),
                 phone_number=support_contact.phone_number.strip(),
                 normalized_phone_number=normalized,
@@ -3779,21 +3865,9 @@ async def add_broadcast_recipients(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
-    group_result = await session.execute(
-        select(WhatsAppBroadcastGroupModel)
-        .where(
-            WhatsAppBroadcastGroupModel.id == group_id,
-            *_agency_filter(current_user),
-        )
-        .with_for_update()
-    )
-    group = group_result.scalar_one_or_none()
-    if not group:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WhatsApp broadcast group not found",
-        )
-
+    # Do not retain the authentication transaction (or a group row lock)
+    # while reading and parsing an untrusted workbook.
+    await session.rollback()
     manual_contacts = _parse_manual_contacts(contacts_json)
     rejected_contacts = _parse_rejected_contacts(rejected_contacts_json)
     excel_contacts = await _parse_excel_contacts(contacts_file) if contacts_file else []
@@ -3808,6 +3882,28 @@ async def add_broadcast_recipients(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Confirm recipient WhatsApp opt-in before adding contacts",
+        )
+
+    actor = await _lock_active_whatsapp_actor(
+        session,
+        current_user=current_user,
+        require_agency=current_user.role != UserRole.SUPER_ADMIN,
+    )
+    group_predicates = [WhatsAppBroadcastGroupModel.id == group_id]
+    if actor.role != UserRole.SUPER_ADMIN.value:
+        group_predicates.append(WhatsAppBroadcastGroupModel.agency_id == actor.agency_id)
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .join(AgencyModel, AgencyModel.id == WhatsAppBroadcastGroupModel.agency_id)
+        .where(*group_predicates, AgencyModel.is_active.is_(True))
+        .with_for_update(of=(AgencyModel, WhatsAppBroadcastGroupModel))
+        .execution_options(populate_existing=True)
+    )
+    group = group_result.scalar_one_or_none()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast group not found",
         )
 
     existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel] = {}
@@ -3830,13 +3926,19 @@ async def add_broadcast_recipients(
             if normalized not in existing_by_phone
             or existing_by_phone[normalized].removed_at is not None
         )
-        if active_count + activating_count > MAX_WHATSAPP_RECIPIENTS:
+        try:
+            require_whatsapp_recipient_capacity(
+                active_count=active_count,
+                activating_count=activating_count,
+                broadcast_group_id=group.id,
+            )
+        except WhatsAppRecipientCapacityExceeded as exc:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=(
                     f"A WhatsApp list can contain at most {MAX_WHATSAPP_RECIPIENTS} recipients"
                 ),
-            )
+            ) from exc
 
     existing_rejected_by_fingerprint: dict[
         str,
@@ -4023,6 +4125,49 @@ async def update_broadcast_recipient_phone(
     return await _group_detail(session, group)
 
 
+async def _lock_removable_broadcast_recipient(
+    session: AsyncSession,
+    *,
+    group_id: uuid.UUID,
+    recipient_id: uuid.UUID,
+    current_user: User,
+) -> tuple[WhatsAppBroadcastGroupModel, WhatsAppBroadcastRecipientModel]:
+    """Lock a tenant-owned broadcast parent before its recipient child."""
+
+    group_result = await session.execute(
+        select(WhatsAppBroadcastGroupModel)
+        .where(
+            WhatsAppBroadcastGroupModel.id == group_id,
+            *_agency_filter(current_user),
+        )
+        .with_for_update()
+    )
+    group = group_result.scalar_one_or_none()
+    if group is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp recipient not found",
+        )
+
+    recipient_result = await session.execute(
+        select(WhatsAppBroadcastRecipientModel)
+        .where(
+            WhatsAppBroadcastRecipientModel.id == recipient_id,
+            WhatsAppBroadcastRecipientModel.broadcast_group_id == group.id,
+            WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+        )
+        .with_for_update()
+    )
+    recipient = recipient_result.scalar_one_or_none()
+    if recipient is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp recipient not found",
+        )
+    return group, recipient
+
+
 @router.delete(
     "/groups/{group_id}/recipients/{recipient_id}",
     status_code=status.HTTP_200_OK,
@@ -4033,26 +4178,12 @@ async def remove_broadcast_recipient(
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict[str, bool]:
-    result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel)
-        .join(
-            WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id == WhatsAppBroadcastRecipientModel.broadcast_group_id,
-        )
-        .where(
-            WhatsAppBroadcastRecipientModel.id == recipient_id,
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
-            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-            *_agency_filter(current_user),
-        )
-        .with_for_update()
+    group, recipient = await _lock_removable_broadcast_recipient(
+        session,
+        group_id=group_id,
+        recipient_id=recipient_id,
+        current_user=current_user,
     )
-    recipient = result.scalar_one_or_none()
-    if not recipient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="WhatsApp recipient not found",
-        )
 
     now = datetime.now(tz=UTC)
     recipient.removed_at = now
@@ -4083,11 +4214,7 @@ async def remove_broadcast_recipient(
         )
         .execution_options(synchronize_session=False)
     )
-    await session.execute(
-        update(WhatsAppBroadcastGroupModel)
-        .where(WhatsAppBroadcastGroupModel.id == group_id)
-        .values(updated_at=now)
-    )
+    group.updated_at = now
     return {"deleted": True}
 
 
@@ -4405,9 +4532,7 @@ async def resend_recipient_message(
                 "batch_id": str(batch_id),
                 "message_type": message_type,
                 "message_content": (
-                    parameters[0]
-                    if message_type in {"welcome", "reminder"}
-                    else parameters[2]
+                    parameters[0] if message_type in {"welcome", "reminder"} else parameters[2]
                 ),
                 "passport_intro": parameters[0] if message_type == "passport_link" else None,
                 "passport_link": parameters[1] if message_type == "passport_link" else None,
@@ -4588,6 +4713,19 @@ async def send_broadcast_message(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This WhatsApp list has no recipients",
         )
+    try:
+        require_whatsapp_recipient_capacity(
+            active_count=len(all_recipients),
+            activating_count=0,
+        )
+    except WhatsAppRecipientCapacityExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "This WhatsApp list exceeds the maximum of "
+                f"{MAX_WHATSAPP_RECIPIENTS} recipients. Remove extra recipients before sending."
+            ),
+        ) from exc
     message_type = _as_message_type(body.message_type)
     recipients = _select_group_recipients(all_recipients, body.recipient_ids)
     support_contacts = await _support_contacts_for_group(session, group.id)
@@ -4901,6 +5039,87 @@ async def send_broadcast_message(
         skipped_in_progress=skipped_in_progress,
         skipped_delivery_unknown=skipped_delivery_unknown,
         results=results,
+    )
+
+
+def _broadcast_batch_summary_statement(
+    *,
+    batch_id: uuid.UUID,
+    current_user: User,
+    stale_cutoff: datetime,
+) -> Any:
+    """Build a tenant-scoped aggregate query without loading recipient details."""
+
+    log_status = WhatsAppMessageLogModel.status
+    is_in_progress = log_status.in_(WHATSAPP_IN_PROGRESS_STATUSES)
+    is_stale = and_(
+        is_in_progress,
+        WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
+    )
+    is_queued = and_(
+        is_in_progress,
+        WhatsAppMessageLogModel.status_updated_at >= stale_cutoff,
+    )
+    is_sent = log_status.in_(WHATSAPP_ACCEPTED_STATUSES)
+    is_uncertain = or_(
+        log_status.in_({"delivery_unknown", "stalled"}),
+        is_stale,
+    )
+    terminal_failure_statuses = ~log_status.in_(
+        WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_ACCEPTED_STATUSES | {"delivery_unknown", "stalled"}
+    )
+    return (
+        select(
+            func.count(WhatsAppMessageLogModel.id).label("total"),
+            func.count(WhatsAppMessageLogModel.id).filter(is_queued).label("queued"),
+            func.count(WhatsAppMessageLogModel.id).filter(is_sent).label("sent"),
+            func.count(WhatsAppMessageLogModel.id)
+            .filter(terminal_failure_statuses)
+            .label("failed"),
+            func.count(WhatsAppMessageLogModel.id).filter(is_uncertain).label("delivery_unknown"),
+        )
+        .select_from(WhatsAppMessageLogModel)
+        .join(
+            WhatsAppBroadcastGroupModel,
+            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
+        )
+        .where(
+            WhatsAppMessageLogModel.batch_id == batch_id,
+            *_agency_filter(current_user),
+        )
+    )
+
+
+@router.get(
+    "/batches/{batch_id}/summary",
+    response_model=WhatsAppBatchSummaryResponse,
+)
+async def get_broadcast_batch_summary(
+    batch_id: uuid.UUID,
+    current_user: User = Depends(require_role(WHATSAPP_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> WhatsAppBatchSummaryResponse:
+    """Return O(1)-sized progress data for a broadcast batch."""
+
+    result = await session.execute(
+        _broadcast_batch_summary_statement(
+            batch_id=batch_id,
+            current_user=current_user,
+            stale_cutoff=datetime.now(tz=UTC) - WHATSAPP_STALE_CLAIM_AGE,
+        )
+    )
+    summary = result.one()
+    if int(summary.total) == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="WhatsApp broadcast batch not found",
+        )
+    return WhatsAppBatchSummaryResponse(
+        batch_id=batch_id,
+        queued=int(summary.queued),
+        sent=int(summary.sent),
+        failed=int(summary.failed),
+        delivery_unknown=int(summary.delivery_unknown),
     )
 
 

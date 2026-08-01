@@ -69,38 +69,42 @@ def test_rejected_contact_schema_is_non_sendable_and_cascade_scoped() -> None:
 async def test_create_group_persists_rejected_only_without_opt_in() -> None:
     session = MagicMock()
     session.flush = AsyncMock()
+    session.rollback = AsyncMock()
+    current_user = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        role=UserRole.AGENCY_ADMIN,
+    )
+    actor = SimpleNamespace(id=current_user.id, agency_id=current_user.agency_id)
 
     async def return_group(_session: object, group: object) -> object:
         return group
 
-    with patch(
-        "app.presentation.api.v1.routes.whatsapp._group_detail",
-        new=AsyncMock(side_effect=return_group),
+    with (
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._group_detail",
+            new=AsyncMock(side_effect=return_group),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
+            new=AsyncMock(return_value=actor),
+        ),
     ):
         group = await create_broadcast_group(
             name="Rejected import review",
             organizing_company_name="Global Connect",
             contacts_json="[]",
-            rejected_contacts_json=_rejected_json(
-                source_file_name=r"C:\uploads\Saigon Sheet.xlsx"
-            ),
-            support_contacts_json=json.dumps(
-                [{"name": "Support", "phone_number": "9876543210"}]
-            ),
+            rejected_contacts_json=_rejected_json(source_file_name=r"C:\uploads\Saigon Sheet.xlsx"),
+            support_contacts_json=json.dumps([{"name": "Support", "phone_number": "9876543210"}]),
             recipient_opt_in_confirmed=False,
             contacts_file=None,
-            current_user=SimpleNamespace(
-                id=uuid.uuid4(),
-                agency_id=uuid.uuid4(),
-            ),
+            current_user=current_user,
             session=session,
         )
 
     added = [call.args[0] for call in session.add.call_args_list]
     rejected = next(
-        model
-        for model in added
-        if isinstance(model, WhatsAppBroadcastRejectedContactModel)
+        model for model in added if isinstance(model, WhatsAppBroadcastRejectedContactModel)
     )
     assert group.recipient_opt_in_confirmed_at is None
     assert not any(isinstance(model, WhatsAppBroadcastRecipientModel) for model in added)
@@ -131,14 +135,30 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
     )
     existing_rejected_result.scalars.return_value.all.return_value = [existing_model]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[group_result, existing_rejected_result]
-    )
+    session.execute = AsyncMock(side_effect=[group_result, existing_rejected_result])
     session.flush = AsyncMock()
+    session.rollback = AsyncMock()
+    current_user = SimpleNamespace(
+        id=uuid.uuid4(),
+        role=UserRole.SUPER_ADMIN,
+        agency_id=None,
+    )
 
-    with patch(
-        "app.presentation.api.v1.routes.whatsapp._group_detail",
-        new=AsyncMock(return_value=group),
+    with (
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._group_detail",
+            new=AsyncMock(return_value=group),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
+            new=AsyncMock(
+                return_value=SimpleNamespace(
+                    id=current_user.id,
+                    role=UserRole.SUPER_ADMIN.value,
+                    agency_id=None,
+                )
+            ),
+        ),
     ):
         await add_broadcast_recipients(
             group_id=group.id,
@@ -146,17 +166,12 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
             rejected_contacts_json=_rejected_json(),
             recipient_opt_in_confirmed=False,
             contacts_file=None,
-            current_user=SimpleNamespace(
-                role=UserRole.SUPER_ADMIN,
-                agency_id=None,
-            ),
+            current_user=current_user,
             session=session,
         )
 
     added = [call.args[0] for call in session.add.call_args_list]
-    assert not any(
-        isinstance(model, WhatsAppBroadcastRejectedContactModel) for model in added
-    )
+    assert not any(isinstance(model, WhatsAppBroadcastRejectedContactModel) for model in added)
     assert existing_model.imported_fields == {
         "email": "rejected@example.com",
         "staff_code": "GC-14",
@@ -168,38 +183,42 @@ async def test_add_rejected_only_deduplicates_existing_fingerprint() -> None:
 async def test_create_group_persists_sendable_and_rejected_contacts_together() -> None:
     session = MagicMock()
     session.flush = AsyncMock()
+    session.rollback = AsyncMock()
+    current_user = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        role=UserRole.AGENCY_ADMIN,
+    )
+    actor = SimpleNamespace(id=current_user.id, agency_id=current_user.agency_id)
 
     async def return_group(_session: object, group: object) -> object:
         return group
 
-    with patch(
-        "app.presentation.api.v1.routes.whatsapp._group_detail",
-        new=AsyncMock(side_effect=return_group),
+    with (
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._group_detail",
+            new=AsyncMock(side_effect=return_group),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._lock_active_whatsapp_actor",
+            new=AsyncMock(return_value=actor),
+        ),
     ):
         group = await create_broadcast_group(
             name="Mixed import",
             organizing_company_name="Global Connect",
-            contacts_json=json.dumps(
-                [{"name": "Accepted Contact", "phone_number": "9876543212"}]
-            ),
+            contacts_json=json.dumps([{"name": "Accepted Contact", "phone_number": "9876543212"}]),
             rejected_contacts_json=_rejected_json(),
-            support_contacts_json=json.dumps(
-                [{"name": "Support", "phone_number": "9876543210"}]
-            ),
+            support_contacts_json=json.dumps([{"name": "Support", "phone_number": "9876543210"}]),
             recipient_opt_in_confirmed=True,
             contacts_file=None,
-            current_user=SimpleNamespace(
-                id=uuid.uuid4(),
-                agency_id=uuid.uuid4(),
-            ),
+            current_user=current_user,
             session=session,
         )
 
     added = [call.args[0] for call in session.add.call_args_list]
     assert any(isinstance(model, WhatsAppBroadcastRecipientModel) for model in added)
-    assert any(
-        isinstance(model, WhatsAppBroadcastRejectedContactModel) for model in added
-    )
+    assert any(isinstance(model, WhatsAppBroadcastRejectedContactModel) for model in added)
     assert group.recipient_opt_in_confirmed_at is not None
     assert session.flush.await_count == 2
 
@@ -230,9 +249,7 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
     items_result = MagicMock()
     items_result.scalars.return_value.all.return_value = [model]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[group_result, total_result, items_result]
-    )
+    session.execute = AsyncMock(side_effect=[group_result, total_result, items_result])
 
     response = await list_broadcast_rejected_contacts(
         group_id=group_id,
@@ -252,9 +269,7 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
     assert response.offset == 0
     assert response.items[0].row_number == 14
     assert response.items[0].reason_code == "invalid_phone"
-    assert response.items[0].imported_fields == {
-        "email": "rejected@example.com"
-    }
+    assert response.items[0].imported_fields == {"email": "rejected@example.com"}
 
 
 @pytest.mark.asyncio
@@ -334,11 +349,7 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
         )
 
     added = [call.args[0] for call in session.add.call_args_list]
-    recipient = next(
-        model
-        for model in added
-        if isinstance(model, WhatsAppBroadcastRecipientModel)
-    )
+    recipient = next(model for model in added if isinstance(model, WhatsAppBroadcastRecipientModel))
     assert response is group
     assert recipient.name == "Corrected Contact"
     assert recipient.normalized_phone_number == "+919876543211"

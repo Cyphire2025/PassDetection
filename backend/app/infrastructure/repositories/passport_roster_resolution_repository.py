@@ -57,8 +57,7 @@ async def active_replacement_phone_numbers_for_broadcast(
             and_(
                 ClientGroupWhatsAppBroadcastLinkModel.client_group_id
                 == PassportRosterResolutionModel.client_group_id,
-                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
-                == broadcast_group_id,
+                ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id == broadcast_group_id,
                 ClientGroupWhatsAppBroadcastLinkModel.agency_id == agency_id,
             ),
         )
@@ -160,10 +159,12 @@ async def suppress_active_replacement_recipients(
             == PassportRosterResolutionModel.replaced_recipient_normalized_phone,
         )
         .order_by(
-            candidate_recipient.id.asc(),
             PassportRosterResolutionModel.created_at.asc(),
             PassportRosterResolutionModel.id.asc(),
+            candidate_recipient.id.asc(),
         )
+        .with_for_update(of=(candidate_recipient, PassportRosterResolutionModel))
+        .execution_options(populate_existing=True)
     )
 
     selected_by_recipient: dict[
@@ -191,9 +192,7 @@ async def suppress_active_replacement_recipients(
             for recipient in suppressed
             if recipient.suppressed_by_roster_resolution_id == resolution.id
         ]
-        resolution.suppressed_recipient_ids = list(
-            dict.fromkeys([*existing_ids, *additions])
-        )
+        resolution.suppressed_recipient_ids = list(dict.fromkeys([*existing_ids, *additions]))
 
     await session.execute(
         update(WhatsAppMessageLogModel)
@@ -204,9 +203,7 @@ async def suppress_active_replacement_recipients(
         .values(
             status="failed",
             status_updated_at=now,
-            error_message=(
-                "Recipient replaced in linked passport group before delivery"
-            ),
+            error_message=("Recipient replaced in linked passport group before delivery"),
         )
         .execution_options(synchronize_session=False)
     )

@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import re
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
@@ -33,12 +34,14 @@ from app.domain.entities.entities import (
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.database.email_models import EmailArtifactDocumentModel
 from app.infrastructure.database.models import (
+    AgencyModel,
     ClientGroupModel,
     ClientGroupWhatsAppBroadcastLinkModel,
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
     DocumentWhatsAppDeliveryModel,
     PassportSubmissionModel,
+    UserModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
@@ -47,13 +50,26 @@ from app.infrastructure.documents.distribution_ingestion import (
     TravelDocumentFile,
     TravelDocumentIngestionService,
 )
-from app.infrastructure.documents.document_matcher import DOCUMENT_TYPES, DocumentMatcher
+from app.infrastructure.documents.document_matcher import (
+    DOCUMENT_TYPES,
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
+    DocumentMatcher,
+    DocumentParserUnavailableError,
+    PassengerIdentifier,
+    classify_documents_bounded,
+)
+from app.infrastructure.documents.storage_cleanup import (
+    persist_storage_cleanup_job,
+    process_storage_cleanup_job,
+    stage_storage_cleanup_jobs,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_submission_repository import (
     PassportSubmissionRepository,
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DeleteDistributionDocumentsRequest,
     DistributedDocumentResponse,
@@ -98,6 +114,43 @@ def _safe_filename(value: str) -> str:
     return name or "document.pdf"
 
 
+async def _cleanup_distribution_storage_keys(
+    storage_keys: list[str],
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    document_type: str,
+) -> None:
+    """Best-effort pre-commit compensation that preserves the root failure."""
+
+    if not storage_keys:
+        return
+    try:
+        await MinioStorageRepository().delete_files(storage_keys)
+    except Exception:
+        logger.warning(
+            "document_distribution_storage_cleanup_deferred",
+            group_id=str(group_id),
+            document_type=document_type,
+            object_count=len(storage_keys),
+        )
+        try:
+            await persist_storage_cleanup_job(
+                agency_id=agency_id,
+                source="document_distribution_compensation",
+                context_id=f"{group_id}:{document_type}",
+                storage_keys=storage_keys,
+            )
+        except Exception as exc:
+            logger.error(
+                "document_distribution_cleanup_tracking_failed",
+                group_id=str(group_id),
+                document_type=document_type,
+                object_count=len(storage_keys),
+                error_type=type(exc).__name__,
+            )
+
+
 DOCUMENT_DELIVERY_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = frozenset({"queued", "processing"})
@@ -110,6 +163,15 @@ class DocumentDeliveryDecision:
     resend_allowed: bool
     reason: str
     error_message: str | None = None
+
+
+@dataclass(frozen=True)
+class _LinkedDocumentMatchSource:
+    """A canonical view of every linked row that can influence assignment."""
+
+    linked_broadcasts: dict[uuid.UUID, str]
+    recipients: tuple[WhatsAppBroadcastRecipientModel, ...]
+    snapshot: tuple[tuple[str, ...], ...]
 
 
 def _document_delivery_decision(
@@ -200,12 +262,14 @@ async def _latest_document_batch(
     session: AsyncSession,
     *,
     group_id: uuid.UUID,
+    agency_id: uuid.UUID,
     document_type: str,
 ) -> DocumentDistributionBatchModel | None:
     result = await session.execute(
         select(DocumentDistributionBatchModel)
         .where(
             DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.agency_id == agency_id,
             DocumentDistributionBatchModel.document_type == document_type,
         )
         .order_by(DocumentDistributionBatchModel.created_at.desc())
@@ -240,7 +304,15 @@ async def _linked_whatsapp_recipients(
     session: AsyncSession,
     *,
     group: ClientGroupModel,
+    require_opt_in: bool = True,
 ) -> tuple[dict[uuid.UUID, str], list[WhatsAppBroadcastRecipientModel]]:
+    filters = [
+        ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+        ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+        WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
+    ]
+    if require_opt_in:
+        filters.append(WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None))
     linked_result = await session.execute(
         select(
             ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
@@ -251,12 +323,7 @@ async def _linked_whatsapp_recipients(
             WhatsAppBroadcastGroupModel.id
             == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
         )
-        .where(
-            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
-            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
-            WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
-            WhatsAppBroadcastGroupModel.recipient_opt_in_confirmed_at.is_not(None),
-        )
+        .where(*filters)
     )
     linked_broadcasts = {
         broadcast_id: broadcast_name for broadcast_id, broadcast_name in linked_result.all()
@@ -271,6 +338,345 @@ async def _linked_whatsapp_recipients(
         )
     )
     return linked_broadcasts, list(recipient_result.scalars().all())
+
+
+def _snapshot_value(value: object) -> str:
+    return value.isoformat() if hasattr(value, "isoformat") else str(value or "")
+
+
+def _linked_document_match_source_from_models(
+    *,
+    group: ClientGroupModel,
+    links: list[ClientGroupWhatsAppBroadcastLinkModel],
+    broadcasts: list[WhatsAppBroadcastGroupModel],
+    recipients: list[WhatsAppBroadcastRecipientModel],
+) -> _LinkedDocumentMatchSource:
+    """Build a deterministic, tenant-scoped snapshot from one coherent row set."""
+
+    linked_broadcasts = {
+        broadcast.id: broadcast.name
+        for broadcast in broadcasts
+        if broadcast.agency_id == group.agency_id
+    }
+    scoped_links = sorted(
+        (
+            link
+            for link in links
+            if link.agency_id == group.agency_id
+            and link.client_group_id == group.id
+            and link.broadcast_group_id in linked_broadcasts
+        ),
+        key=lambda item: str(item.id),
+    )
+    scoped_recipients = sorted(
+        (
+            recipient
+            for recipient in recipients
+            if recipient.agency_id == group.agency_id
+            and recipient.broadcast_group_id in linked_broadcasts
+            and recipient.removed_at is None
+        ),
+        key=lambda item: str(item.id),
+    )
+    snapshot: list[tuple[str, ...]] = []
+    for link in scoped_links:
+        snapshot.append(
+            (
+                "link",
+                str(link.id),
+                str(link.client_group_id),
+                str(link.broadcast_group_id),
+                str(link.agency_id),
+                str(link.created_by_user_id or ""),
+                _snapshot_value(link.created_at),
+            )
+        )
+    for broadcast in sorted(broadcasts, key=lambda item: str(item.id)):
+        if broadcast.id not in linked_broadcasts:
+            continue
+        snapshot.append(
+            (
+                "broadcast",
+                str(broadcast.id),
+                str(broadcast.agency_id),
+                str(broadcast.name or ""),
+            )
+        )
+    for recipient in scoped_recipients:
+        snapshot.append(
+            (
+                "recipient",
+                str(recipient.id),
+                str(recipient.broadcast_group_id),
+                str(recipient.agency_id),
+                str(recipient.name or ""),
+                str(recipient.normalized_phone_number or ""),
+                _snapshot_value(recipient.created_at),
+                json.dumps(
+                    dict(recipient.imported_fields or {}),
+                    sort_keys=True,
+                    default=str,
+                    separators=(",", ":"),
+                ),
+            )
+        )
+    return _LinkedDocumentMatchSource(
+        linked_broadcasts=linked_broadcasts,
+        recipients=tuple(scoped_recipients),
+        snapshot=tuple(snapshot),
+    )
+
+
+async def _read_linked_document_match_source(
+    session: AsyncSession,
+    *,
+    group: ClientGroupModel,
+    lock: bool,
+) -> _LinkedDocumentMatchSource:
+    """Read matching evidence coherently, optionally under stable write locks.
+
+    The locked path is called only after the client-group row is locked.  It
+    then follows the shared order group -> broadcasts -> links -> recipients;
+    the caller locks passengers last.  Parent locks also serialize child-row
+    inserts through their foreign keys, preventing recipient/link phantoms.
+    """
+
+    if not lock:
+        result = await session.execute(
+            select(
+                ClientGroupWhatsAppBroadcastLinkModel,
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastRecipientModel,
+            )
+            .select_from(ClientGroupWhatsAppBroadcastLinkModel)
+            .join(
+                WhatsAppBroadcastGroupModel,
+                WhatsAppBroadcastGroupModel.id
+                == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id,
+            )
+            .outerjoin(
+                WhatsAppBroadcastRecipientModel,
+                and_(
+                    WhatsAppBroadcastRecipientModel.broadcast_group_id
+                    == WhatsAppBroadcastGroupModel.id,
+                    WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+                    WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                ),
+            )
+            .where(
+                ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+                ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+                WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
+            )
+            .order_by(
+                WhatsAppBroadcastGroupModel.id,
+                ClientGroupWhatsAppBroadcastLinkModel.id,
+                WhatsAppBroadcastRecipientModel.id,
+            )
+        )
+        links_by_id: dict[uuid.UUID, ClientGroupWhatsAppBroadcastLinkModel] = {}
+        broadcasts_by_id: dict[uuid.UUID, WhatsAppBroadcastGroupModel] = {}
+        recipients_by_id: dict[uuid.UUID, WhatsAppBroadcastRecipientModel] = {}
+        for link, broadcast, recipient in result.all():
+            links_by_id[link.id] = link
+            broadcasts_by_id[broadcast.id] = broadcast
+            if recipient is not None:
+                recipients_by_id[recipient.id] = recipient
+        return _linked_document_match_source_from_models(
+            group=group,
+            links=list(links_by_id.values()),
+            broadcasts=list(broadcasts_by_id.values()),
+            recipients=list(recipients_by_id.values()),
+        )
+
+    linked_id_result = await session.execute(
+        select(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+        )
+        .order_by(ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id)
+    )
+    linked_ids = sorted(set(linked_id_result.scalars().all()), key=str)
+    broadcasts: list[WhatsAppBroadcastGroupModel] = []
+    if linked_ids:
+        broadcast_result = await session.execute(
+            select(WhatsAppBroadcastGroupModel)
+            .where(
+                WhatsAppBroadcastGroupModel.id.in_(linked_ids),
+                WhatsAppBroadcastGroupModel.agency_id == group.agency_id,
+            )
+            .order_by(WhatsAppBroadcastGroupModel.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        broadcasts = list(broadcast_result.scalars().all())
+        if {broadcast.id for broadcast in broadcasts} != set(linked_ids):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "A linked WhatsApp list changed while the PDFs were being "
+                    "processed. Review and upload them again."
+                ),
+            )
+
+    link_result = await session.execute(
+        select(ClientGroupWhatsAppBroadcastLinkModel)
+        .where(
+            ClientGroupWhatsAppBroadcastLinkModel.client_group_id == group.id,
+            ClientGroupWhatsAppBroadcastLinkModel.agency_id == group.agency_id,
+        )
+        .order_by(ClientGroupWhatsAppBroadcastLinkModel.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    links = list(link_result.scalars().all())
+    if {link.broadcast_group_id for link in links} != set(linked_ids):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "The linked WhatsApp lists changed while the PDFs were being "
+                "processed. Review and upload them again."
+            ),
+        )
+
+    recipients: list[WhatsAppBroadcastRecipientModel] = []
+    if linked_ids:
+        recipient_result = await session.execute(
+            select(WhatsAppBroadcastRecipientModel)
+            .where(
+                WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
+                WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(linked_ids),
+                WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            )
+            .order_by(WhatsAppBroadcastRecipientModel.id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        recipients = list(recipient_result.scalars().all())
+    return _linked_document_match_source_from_models(
+        group=group,
+        links=links,
+        broadcasts=broadcasts,
+        recipients=recipients,
+    )
+
+
+async def _linked_document_match_identifiers(
+    session: AsyncSession,
+    *,
+    group: ClientGroupModel,
+    passengers: list[PassportSubmission],
+    matcher: DocumentMatcher,
+    source: _LinkedDocumentMatchSource | None = None,
+) -> tuple[PassengerIdentifier, ...]:
+    """Attach linked WhatsApp-Excel codes only after an unambiguous roster match."""
+
+    if source is None:
+        linked_broadcasts, recipients = await _linked_whatsapp_recipients(
+            session,
+            group=group,
+            require_opt_in=False,
+        )
+    else:
+        linked_broadcasts = source.linked_broadcasts
+        recipients = list(source.recipients)
+    scoped_recipients = [
+        recipient
+        for recipient in recipients
+        if recipient.agency_id == group.agency_id
+        and recipient.broadcast_group_id in linked_broadcasts
+    ]
+    scoped_passengers = [
+        passenger
+        for passenger in passengers
+        if passenger.agency_id == group.agency_id and passenger.group_id == group.id
+    ]
+    if not scoped_recipients or not scoped_passengers:
+        return ()
+    comparison_recipients = [
+        RecipientForComparison(
+            id=recipient.id,
+            broadcast_id=recipient.broadcast_group_id,
+            broadcast_name=linked_broadcasts[recipient.broadcast_group_id],
+            name=recipient.name,
+            phone=recipient.normalized_phone_number,
+            updated_at=recipient.created_at,
+            imported_fields=dict(recipient.imported_fields or {}),
+        )
+        for recipient in scoped_recipients
+    ]
+    comparison_submissions = [
+        SubmissionForComparison(
+            id=passenger.id,
+            name=passenger.client_name,
+            client_phone=passenger.client_phone,
+            family_head_phone=passenger.family_head_phone,
+            updated_at=passenger.updated_at,
+            client_email=passenger.client_email,
+            family_head_email=passenger.family_head_email,
+            confirmed_fields=dict(passenger.confirmed_fields or {}),
+            extracted_fields=dict(passenger.extracted_fields or {}),
+            staff_metadata=dict(passenger.staff_metadata or {}),
+        )
+        for passenger in scoped_passengers
+    ]
+    rows, _ = await asyncio.to_thread(
+        compare_group_submissions,
+        comparison_recipients,
+        comparison_submissions,
+    )
+    identifiers: list[PassengerIdentifier] = []
+    identifiers_seen: set[tuple[uuid.UUID, str, str]] = set()
+    identifiers_per_passenger: dict[uuid.UUID, int] = {}
+    matched_rows = sorted(
+        (
+            row
+            for row in rows
+            if row.status == "submitted" and len(row.submission_ids) == 1
+        ),
+        key=lambda row: (str(row.submission_ids[0]), tuple(map(str, row.recipient_ids))),
+    )
+    for row in matched_rows:
+        if len(identifiers) >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST:
+            break
+        passenger_id = row.submission_ids[0]
+        for field_set in sorted(row.recipient_fields, key=lambda item: str(item.recipient_id)):
+            if (
+                len(identifiers) >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST
+                or identifiers_per_passenger.get(passenger_id, 0)
+                >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER
+            ):
+                break
+            aliases = sorted(
+                matcher.stored_identifier_aliases(field_set.fields),
+                key=lambda item: (item[1], item[0]),
+            )
+            for value, kind in aliases:
+                if (
+                    len(identifiers) >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST
+                    or identifiers_per_passenger.get(passenger_id, 0)
+                    >= MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER
+                ):
+                    break
+                identity = (passenger_id, kind, value)
+                if identity in identifiers_seen:
+                    continue
+                identifiers_seen.add(identity)
+                identifiers.append(
+                    PassengerIdentifier(
+                        passenger_id=passenger_id,
+                        agency_id=group.agency_id,
+                        group_id=group.id,
+                        kind=kind,
+                        value=value,
+                        source="linked WhatsApp Excel",
+                    )
+                )
+                identifiers_per_passenger[passenger_id] = (
+                    identifiers_per_passenger.get(passenger_id, 0) + 1
+                )
+    return tuple(identifiers)
 
 
 async def _build_document_delivery_preview(
@@ -323,7 +729,8 @@ async def _build_document_delivery_preview(
         )
         for submission in submission_models
     ]
-    match_rows, _ = compare_group_submissions(
+    match_rows, _ = await asyncio.to_thread(
+        compare_group_submissions,
         recipients_for_comparison,
         submissions_for_comparison,
     )
@@ -366,6 +773,9 @@ async def _build_document_delivery_preview(
             DistributedDocumentModel.agency_id == group.agency_id,
             DistributedDocumentModel.document_type == batch.document_type,
             DistributedDocumentModel.match_status != "duplicate_document",
+            DocumentDistributionBatchModel.group_id == group.id,
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
+            DocumentDistributionBatchModel.document_type == batch.document_type,
         )
         .order_by(
             DistributedDocumentModel.created_at.desc(),
@@ -390,7 +800,11 @@ async def _build_document_delivery_preview(
     if document_ids:
         delivery_result = await session.execute(
             select(DocumentWhatsAppDeliveryModel)
-            .where(DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids))
+            .where(
+                DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids),
+                DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+                DocumentWhatsAppDeliveryModel.group_id == group.id,
+            )
             .order_by(
                 DocumentWhatsAppDeliveryModel.status_updated_at.desc(),
                 DocumentWhatsAppDeliveryModel.created_at.desc(),
@@ -526,24 +940,219 @@ async def _get_authorized_group(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
         )
-    group_repo = ClientGroupRepository(session)
-    group = await group_repo.get_by_id(group_id)
-    if not group:
+    statement = select(ClientGroupModel).where(
+        ClientGroupModel.id == group_id,
+        ClientGroupModel.agency_id == current_user.agency_id,
+    )
+    statement = AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
+    result = await session.execute(statement)
+    group = result.scalar_one_or_none()
+    if group is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client group was not found",
         )
     try:
         await AuthorizationPolicy(session).require_export_data(current_user, group)
     except AuthorizationError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=exc.message)
+    return group
 
-    result = await session.execute(select(ClientGroupModel).where(ClientGroupModel.id == group_id))
-    model = result.scalar_one_or_none()
-    if not model:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Client group was not found"
+
+async def _get_visible_document_batch(
+    session: AsyncSession,
+    *,
+    batch_id: uuid.UUID,
+    current_user: User,
+) -> DocumentDistributionBatchModel | None:
+    """Resolve a batch only through the caller's tenant and group visibility."""
+
+    if not current_user.agency_id or current_user.role == UserRole.AGENCY_COORDINATOR:
+        return None
+    statement = (
+        select(DocumentDistributionBatchModel)
+        .join(
+            ClientGroupModel,
+            ClientGroupModel.id == DocumentDistributionBatchModel.group_id,
         )
-    return model
+        .where(
+            DocumentDistributionBatchModel.id == batch_id,
+            DocumentDistributionBatchModel.agency_id == current_user.agency_id,
+            ClientGroupModel.agency_id == current_user.agency_id,
+        )
+    )
+    statement = AuthorizationPolicy.apply_group_visibility_scope(statement, current_user)
+    result = await session.execute(statement)
+    return result.scalar_one_or_none()
+
+
+async def _lock_active_document_scope(
+    session: AsyncSession,
+    *,
+    current_user: User,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+) -> tuple[UserModel, ClientGroupModel]:
+    """Re-fetch and lock the active actor, agency, and group before DB writes."""
+
+    result = await session.execute(
+        select(UserModel, ClientGroupModel)
+        .select_from(UserModel)
+        .join(AgencyModel, AgencyModel.id == UserModel.agency_id)
+        .join(ClientGroupModel, ClientGroupModel.agency_id == AgencyModel.id)
+        .where(
+            UserModel.id == current_user.id,
+            UserModel.agency_id == agency_id,
+            UserModel.role == current_user.role.value,
+            UserModel.is_active.is_(True),
+            UserModel.deleted_at.is_(None),
+            AgencyModel.id == agency_id,
+            AgencyModel.is_active.is_(True),
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == agency_id,
+        )
+        .with_for_update(of=(UserModel, AgencyModel, ClientGroupModel))
+        .execution_options(populate_existing=True)
+    )
+    row = result.one_or_none()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account, agency, or group is no longer authorized for this upload.",
+        )
+    actor, group = row
+    try:
+        # Authorize with the row that was just re-read under lock, not the
+        # request-scoped principal snapshot created before PDF processing.
+        await AuthorizationPolicy(session).require_export_data(actor, group)
+    except AuthorizationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.message,
+        ) from exc
+    return actor, group
+
+
+async def _lock_document_passenger_roster(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+) -> None:
+    """Lock the complete tenant-scoped roster in a deterministic order.
+
+    The parent group is already locked by ``_lock_active_document_scope``.  Its
+    row lock serializes new roster inserts through the foreign key, while these
+    row locks serialize edits and removals of existing passengers until the
+    document-assignment transaction commits.
+    """
+
+    await session.execute(
+        select(PassportSubmissionModel.id)
+        .where(
+            PassportSubmissionModel.agency_id == agency_id,
+            PassportSubmissionModel.group_id == group_id,
+        )
+        .order_by(PassportSubmissionModel.id)
+        .with_for_update()
+    )
+
+
+def _document_match_roster_snapshot(
+    passengers: list[PassportSubmission],
+) -> tuple[tuple[str, ...], ...]:
+    """Capture every passenger field that can influence document assignment."""
+
+    snapshots: list[tuple[str, ...]] = []
+    for passenger in passengers:
+        updated_at = getattr(passenger, "updated_at", None)
+        snapshots.append(
+            (
+                str(passenger.id),
+                updated_at.isoformat() if hasattr(updated_at, "isoformat") else str(updated_at),
+                str(getattr(passenger, "client_name", "") or ""),
+                str(getattr(passenger, "client_phone", "") or ""),
+                str(getattr(passenger, "family_head_phone", "") or ""),
+                json.dumps(
+                    {
+                        "confirmed_fields": getattr(passenger, "confirmed_fields", None) or {},
+                        "extracted_fields": getattr(passenger, "extracted_fields", None) or {},
+                        "staff_metadata": getattr(passenger, "staff_metadata", None) or {},
+                        "custom_answers": getattr(passenger, "custom_answers", None) or [],
+                        "custom_detail_answers": (
+                            getattr(passenger, "custom_detail_answers", None) or []
+                        ),
+                    },
+                    sort_keys=True,
+                    default=str,
+                    separators=(",", ":"),
+                ),
+            )
+        )
+    return tuple(sorted(snapshots))
+
+
+async def _lock_and_validate_document_match_scope(
+    session: AsyncSession,
+    *,
+    current_user: User,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    matcher: DocumentMatcher,
+    expected_roster_snapshot: tuple[tuple[str, ...], ...],
+    expected_source_snapshot: tuple[tuple[str, ...], ...],
+    expected_supplemental_identifiers: tuple[PassengerIdentifier, ...] | None,
+    required_passenger_id: uuid.UUID | None = None,
+) -> tuple[UserModel, list[PassportSubmission]]:
+    """Lock and revalidate every mutable row that influenced assignment."""
+
+    actor, locked_group = await _lock_active_document_scope(
+        session,
+        current_user=current_user,
+        group_id=group_id,
+        agency_id=agency_id,
+    )
+    current_source = await _read_linked_document_match_source(
+        session,
+        group=locked_group,
+        lock=True,
+    )
+    await _lock_document_passenger_roster(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+    )
+    current_passengers = await _group_passengers(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    source_changed = current_source.snapshot != expected_source_snapshot
+    roster_changed = (
+        _document_match_roster_snapshot(current_passengers) != expected_roster_snapshot
+    )
+    required_passenger_missing = required_passenger_id is not None and all(
+        passenger.id != required_passenger_id for passenger in current_passengers
+    )
+    identifiers_changed = False
+    if not source_changed and not roster_changed and expected_supplemental_identifiers is not None:
+        current_identifiers = await _linked_document_match_identifiers(
+            session,
+            group=locked_group,
+            passengers=current_passengers,
+            matcher=matcher,
+            source=current_source,
+        )
+        identifiers_changed = current_identifiers != expected_supplemental_identifiers
+    if source_changed or roster_changed or required_passenger_missing or identifiers_changed:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "This group's passenger or linked WhatsApp details changed while "
+                "the PDFs were being processed. Review and upload them again."
+            ),
+        )
+    return actor, current_passengers
 
 
 async def _group_passengers(
@@ -658,6 +1267,7 @@ async def _batch_response(
     *,
     session: AsyncSession,
     group_id: uuid.UUID,
+    agency_id: uuid.UUID,
     document_type: str,
     passengers: list[PassportSubmission],
     batch: DocumentDistributionBatchModel | None,
@@ -669,6 +1279,7 @@ async def _batch_response(
         select(DocumentDistributionBatchModel)
         .where(
             DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.agency_id == agency_id,
             DocumentDistributionBatchModel.document_type == document_type,
         )
         .order_by(DocumentDistributionBatchModel.created_at.desc())
@@ -686,7 +1297,9 @@ async def _batch_response(
     if document_ids:
         delivery_result = await session.execute(
             select(DocumentWhatsAppDeliveryModel).where(
-                DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids)
+                DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids),
+                DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+                DocumentWhatsAppDeliveryModel.group_id == group_id,
             )
         )
         for delivery in delivery_result.scalars().all():
@@ -745,26 +1358,47 @@ async def _refresh_distribution_batches(
     session: AsyncSession,
     *,
     batch_ids: set[uuid.UUID],
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
     now: datetime,
 ) -> None:
     if not batch_ids:
         return
     batches_result = await session.execute(
         select(DocumentDistributionBatchModel)
-        .where(DocumentDistributionBatchModel.id.in_(batch_ids))
+        .where(
+            DocumentDistributionBatchModel.id.in_(batch_ids),
+            DocumentDistributionBatchModel.agency_id == agency_id,
+            DocumentDistributionBatchModel.group_id == group_id,
+        )
         .with_for_update()
     )
-    for batch in batches_result.scalars().all():
-        remaining_result = await session.execute(
-            select(DistributedDocumentModel).where(DistributedDocumentModel.batch_id == batch.id)
+    batches = list(batches_result.scalars().all())
+    if not batches:
+        return
+    remaining_result = await session.execute(
+        select(
+            DistributedDocumentModel.batch_id,
+            DistributedDocumentModel.match_status,
+        ).where(
+            DistributedDocumentModel.batch_id.in_([batch.id for batch in batches]),
+            DistributedDocumentModel.agency_id == agency_id,
+            DistributedDocumentModel.group_id == group_id,
         )
-        remaining_documents = list(remaining_result.scalars().all())
+    )
+    counts_by_batch: dict[uuid.UUID, tuple[int, int]] = {}
+    for batch_id, match_status in remaining_result.all():
+        uploaded_count, matched_count = counts_by_batch.get(batch_id, (0, 0))
+        counts_by_batch[batch_id] = (
+            uploaded_count + 1,
+            matched_count + int(match_status == "matched"),
+        )
+    for batch in batches:
+        uploaded_count, matched_count = counts_by_batch.get(batch.id, (0, 0))
         batch.status = "draft"
         batch.saved_at = None
-        batch.uploaded_count = len(remaining_documents)
-        batch.matched_count = sum(
-            1 for document in remaining_documents if document.match_status == "matched"
-        )
+        batch.uploaded_count = uploaded_count
+        batch.matched_count = matched_count
         batch.updated_at = now
 
 
@@ -812,17 +1446,27 @@ async def list_document_groups(
             for group_id, document_type, count in assigned_count_result.all()
         }
 
-    responses: list[DocumentGroupResponse] = []
-    for group in groups:
-        count_result = await session.execute(
-            select(func.count())
-            .select_from(PassportSubmissionModel)
+    passenger_counts: dict[uuid.UUID, int] = {}
+    if groups:
+        passenger_count_result = await session.execute(
+            select(
+                PassportSubmissionModel.group_id,
+                func.count(PassportSubmissionModel.id),
+            )
             .where(
-                PassportSubmissionModel.group_id == group.id,
+                PassportSubmissionModel.agency_id == current_user.agency_id,
+                PassportSubmissionModel.group_id.in_([group.id for group in groups]),
                 PassportSubmissionModel.status.in_(_submitted_statuses()),
             )
+            .group_by(PassportSubmissionModel.group_id)
         )
-        group_count = int(count_result.scalar_one() or 0)
+        passenger_counts = {
+            group_id: int(count or 0)
+            for group_id, count in passenger_count_result.all()
+        }
+
+    responses: list[DocumentGroupResponse] = []
+    for group in groups:
         responses.append(
             DocumentGroupResponse(
                 group_id=group.id,
@@ -830,7 +1474,7 @@ async def list_document_groups(
                 group_status=group.status,
                 destination=group.destination,
                 travel_date=group.travel_date.isoformat() if group.travel_date else None,
-                total_passengers=group_count,
+                total_passengers=passenger_counts.get(group.id, 0),
                 visa_assigned_count=assigned_counts.get((group.id, "visa"), 0),
                 flight_ticket_assigned_count=assigned_counts.get((group.id, "flight_ticket"), 0),
                 other_assigned_count=assigned_counts.get((group.id, "other"), 0),
@@ -860,6 +1504,7 @@ async def get_document_review(
         select(DocumentDistributionBatchModel)
         .where(
             DocumentDistributionBatchModel.group_id == group_id,
+            DocumentDistributionBatchModel.agency_id == group.agency_id,
             DocumentDistributionBatchModel.document_type == document_type,
         )
         .order_by(DocumentDistributionBatchModel.created_at.desc())
@@ -875,6 +1520,7 @@ async def get_document_review(
     return await _batch_response(
         session=session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
         passengers=passengers,
         batch=batch,
@@ -896,7 +1542,7 @@ async def verify_documents(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
-    await _get_authorized_group(group_id, current_user=current_user, session=session)
+    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
     passengers = await _group_passengers(group_id, current_user=current_user, session=session)
     if not passengers:
         raise HTTPException(
@@ -905,24 +1551,61 @@ async def verify_documents(
         )
 
     matcher = DocumentMatcher()
-    verified: list[VerifiedDocumentResponse] = []
-    for file in files:
-        content = await file.read()
-        filename = file.filename or "document.pdf"
-        classification = matcher.classify(
-            filename=filename, content=content, expected_type=document_type
+    supplemental_identifiers = await _linked_document_match_identifiers(
+        session,
+        group=group,
+        passengers=passengers,
+        matcher=matcher,
+    )
+    agency_id = group.agency_id
+    await session.rollback()
+    uploads = await read_bounded_document_uploads(files)
+    match_index = await asyncio.to_thread(
+        matcher.build_index,
+        passengers,
+        agency_id=agency_id,
+        group_id=group_id,
+        supplemental_identifiers=supplemental_identifiers,
+    )
+    passengers_by_id = {passenger.id: passenger for passenger in passengers}
+    try:
+        classifications = await asyncio.to_thread(
+            classify_documents_bounded,
+            matcher,
+            [
+                (upload.filename, upload.content, document_type)
+                for upload in uploads
+            ],
+            isolate_pdf_parsing=True,
         )
-        matches = matcher.match_all(classification, passengers) if classification.accepted else []
+    except DocumentParserUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+            headers={"Retry-After": "1"},
+        ) from exc
+    verified: list[VerifiedDocumentResponse] = []
+    for upload, classification in zip(uploads, classifications, strict=True):
+        matches = (
+            await asyncio.to_thread(
+                matcher.match_all,
+                classification,
+                passengers,
+                index=match_index,
+            )
+            if classification.accepted
+            else []
+        )
         matched_passengers = [
-            passenger
-            for passenger in passengers
-            if any(match.passenger_id == passenger.id for match in matches if match.passenger_id)
+            passengers_by_id[match.passenger_id]
+            for match in matches
+            if match.passenger_id in passengers_by_id
         ]
         primary_match = matches[0] if matches else None
         primary_passenger = matched_passengers[0] if matched_passengers else None
         verified.append(
             VerifiedDocumentResponse(
-                filename=filename,
+                filename=upload.filename,
                 detected_type=classification.detected_type,
                 accepted=classification.accepted,
                 reason=classification.reason,
@@ -971,41 +1654,107 @@ async def upload_documents(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
-    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
-    passengers = await _group_passengers(group_id, current_user=current_user, session=session)
-    if not passengers:
+    await _get_authorized_group(group_id, current_user=current_user, session=session)
+    initial_passengers = await _group_passengers(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    if not initial_passengers:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This group has no passengers to match documents against",
         )
-
+    await session.rollback()
+    uploads = await read_bounded_document_uploads(files)
     file_payloads = [
         TravelDocumentFile(
-            filename=file.filename or "document.pdf",
-            content=await file.read(),
-            content_type=file.content_type or "application/pdf",
+            filename=upload.filename,
+            content=upload.content,
+            content_type=upload.content_type,
         )
-        for file in files
+        for upload in uploads
     ]
-    ingestion = await TravelDocumentIngestionService(session).ingest(
-        agency_id=group.agency_id,
-        group_id=group.id,
-        document_type=document_type,
-        passengers=passengers,
-        files=file_payloads,
-        created_by_user_id=current_user.id,
-        actor_email=current_user.email,
+    matcher = DocumentMatcher()
+    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
+    passengers = await _group_passengers(group_id, current_user=current_user, session=session)
+    if not passengers:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This group's passenger list changed while the PDFs were being prepared",
+        )
+    linked_source = await _read_linked_document_match_source(
+        session,
+        group=group,
+        lock=False,
     )
-    await session.commit()
+    supplemental_identifiers = await _linked_document_match_identifiers(
+        session,
+        group=group,
+        passengers=passengers,
+        matcher=matcher,
+        source=linked_source,
+    )
+    agency_id = group.agency_id
+    roster_snapshot = _document_match_roster_snapshot(passengers)
+    await session.rollback()
+
+    async def reauthorize_before_persistence() -> tuple[uuid.UUID | None, str | None]:
+        actor, _ = await _lock_and_validate_document_match_scope(
+            session,
+            current_user=current_user,
+            group_id=group_id,
+            agency_id=agency_id,
+            matcher=matcher,
+            expected_roster_snapshot=roster_snapshot,
+            expected_source_snapshot=linked_source.snapshot,
+            expected_supplemental_identifiers=supplemental_identifiers,
+        )
+        return actor.id, actor.email
+
+    try:
+        ingestion = await TravelDocumentIngestionService(session, matcher=matcher).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type=document_type,
+            passengers=passengers,
+            files=file_payloads,
+            created_by_user_id=current_user.id,
+            actor_email=current_user.email,
+            supplemental_identifiers=supplemental_identifiers,
+            isolate_pdf_parsing=True,
+            before_persistence=reauthorize_before_persistence,
+        )
+    except DocumentParserUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+            headers={"Retry-After": "1"},
+        ) from exc
+    try:
+        await session.commit()
+    except Exception:
+        # COMMIT acknowledgement can be lost after PostgreSQL made the rows
+        # durable. Keep objects that those rows may reference for safe
+        # operational reconciliation; remove only proven orphaned keys.
+        await session.rollback()
+        logger.warning(
+            "document_distribution_commit_outcome_ambiguous",
+            group_id=str(group_id),
+            document_type=document_type,
+            object_count=len(ingestion.created_storage_keys),
+        )
+        raise
     documents = await _all_group_documents(
         session,
         group_id=group_id,
-        agency_id=group.agency_id,
+        agency_id=agency_id,
         document_type=document_type,
     )
     return await _batch_response(
         session=session,
         group_id=group_id,
+        agency_id=agency_id,
         document_type=document_type,
         passengers=passengers,
         batch=ingestion.batch,
@@ -1038,67 +1787,137 @@ async def reupload_passenger_document(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
-    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
-    passengers = await _group_passengers(group_id, current_user=current_user, session=session)
-    passenger = next((item for item in passengers if item.id == passenger_id), None)
-    if not passenger:
+    await _get_authorized_group(group_id, current_user=current_user, session=session)
+    initial_passengers = await _group_passengers(
+        group_id,
+        current_user=current_user,
+        session=session,
+    )
+    if all(item.id != passenger_id for item in initial_passengers):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Passenger was not found in this group"
         )
-
-    content = await file.read()
-    filename = file.filename or "document.pdf"
+    await session.rollback()
+    upload = (await read_bounded_document_uploads([file]))[0]
+    content = upload.content
+    filename = upload.filename
     matcher = DocumentMatcher()
-    classification = matcher.classify(
-        filename=filename, content=content, expected_type=document_type
-    )
+    try:
+        classification = (
+            await asyncio.to_thread(
+                classify_documents_bounded,
+                matcher,
+                [(filename, content, document_type)],
+                isolate_pdf_parsing=True,
+            )
+        )[0]
+    except DocumentParserUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+            headers={"Retry-After": "1"},
+        ) from exc
     if not classification.accepted:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"{filename}: {classification.reason}",
         )
+    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
+    passengers = await _group_passengers(group_id, current_user=current_user, session=session)
+    if all(item.id != passenger_id for item in passengers):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The selected passenger changed while the PDF was being prepared",
+        )
+    agency_id = group.agency_id
+    roster_snapshot = _document_match_roster_snapshot(passengers)
+    linked_source = await _read_linked_document_match_source(
+        session,
+        group=group,
+        lock=False,
+    )
+    await session.rollback()
 
-    ingestion = await TravelDocumentIngestionService(session).ingest(
-        agency_id=group.agency_id,
-        group_id=group.id,
-        document_type=document_type,
-        passengers=passengers,
-        files=[
-            TravelDocumentFile(
-                filename=filename,
-                content=content,
-                content_type=file.content_type or "application/pdf",
+    async def reauthorize_before_persistence() -> tuple[uuid.UUID | None, str | None]:
+        actor, _ = await _lock_and_validate_document_match_scope(
+            session,
+            current_user=current_user,
+            group_id=group_id,
+            agency_id=agency_id,
+            matcher=matcher,
+            expected_roster_snapshot=roster_snapshot,
+            expected_source_snapshot=linked_source.snapshot,
+            expected_supplemental_identifiers=None,
+            required_passenger_id=passenger_id,
+        )
+        return actor.id, actor.email
+
+    ingestion = None
+    try:
+        ingestion = await TravelDocumentIngestionService(session).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type=document_type,
+            passengers=passengers,
+            files=[
+                TravelDocumentFile(
+                    filename=filename,
+                    content=content,
+                    content_type=upload.content_type,
+                )
+            ],
+            created_by_user_id=current_user.id,
+            actor_email=current_user.email,
+            forced_passenger_id=passenger_id,
+            audit_source="dashboard_passenger_add",
+            isolate_pdf_parsing=True,
+            before_persistence=reauthorize_before_persistence,
+        )
+        await AuditLogRepository(session).record(
+            action="document_distribution_passenger_document_added",
+            entity_type="document_distribution_batch",
+            entity_id=str(ingestion.batch.id),
+            agency_id=agency_id,
+            user_id=current_user.id,
+            actor_email=current_user.email,
+            metadata={
+                "group_id": str(group_id),
+                "passenger_id": str(passenger_id),
+                "document_type": document_type,
+                "filename": filename,
+            },
+        )
+    except Exception:
+        await session.rollback()
+        if ingestion is not None:
+            await _cleanup_distribution_storage_keys(
+                list(ingestion.created_storage_keys),
+                agency_id=agency_id,
+                group_id=group_id,
+                document_type=document_type,
             )
-        ],
-        created_by_user_id=current_user.id,
-        actor_email=current_user.email,
-        forced_passenger_id=passenger_id,
-        audit_source="dashboard_passenger_add",
-    )
-    await AuditLogRepository(session).record(
-        action="document_distribution_passenger_document_added",
-        entity_type="document_distribution_batch",
-        entity_id=str(ingestion.batch.id),
-        agency_id=group.agency_id,
-        user_id=current_user.id,
-        actor_email=current_user.email,
-        metadata={
-            "group_id": str(group_id),
-            "passenger_id": str(passenger_id),
-            "document_type": document_type,
-            "filename": filename,
-        },
-    )
-    await session.commit()
+        raise
+    try:
+        await session.commit()
+    except Exception:
+        await session.rollback()
+        logger.warning(
+            "document_distribution_commit_outcome_ambiguous",
+            group_id=str(group_id),
+            document_type=document_type,
+            object_count=len(ingestion.created_storage_keys),
+        )
+        raise
     documents = await _all_group_documents(
         session,
         group_id=group_id,
-        agency_id=group.agency_id,
+        agency_id=agency_id,
         document_type=document_type,
     )
     return await _batch_response(
         session=session,
         group_id=group_id,
+        agency_id=agency_id,
         document_type=document_type,
         passengers=passengers,
         batch=ingestion.batch,
@@ -1136,6 +1955,7 @@ async def unassign_distribution_documents(
         batch = await _latest_document_batch(
             session,
             group_id=group_id,
+            agency_id=group.agency_id,
             document_type=document_type,
         )
         documents = await _all_group_documents(
@@ -1147,6 +1967,7 @@ async def unassign_distribution_documents(
         return await _batch_response(
             session=session,
             group_id=group_id,
+            agency_id=group.agency_id,
             document_type=document_type,
             passengers=passengers,
             batch=batch,
@@ -1187,6 +2008,8 @@ async def unassign_distribution_documents(
             DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
                 [document.id for document in documents_to_unassign]
             ),
+            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == group_id,
             DocumentWhatsAppDeliveryModel.status.in_(DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES),
         )
         .with_for_update()
@@ -1213,6 +2036,8 @@ async def unassign_distribution_documents(
     await _refresh_distribution_batches(
         session,
         batch_ids=affected_batch_ids,
+        agency_id=group.agency_id,
+        group_id=group_id,
         now=now,
     )
     await AuditLogRepository(session).record(
@@ -1233,6 +2058,7 @@ async def unassign_distribution_documents(
     batch = await _latest_document_batch(
         session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
     )
     remaining_documents = await _all_group_documents(
@@ -1244,6 +2070,7 @@ async def unassign_distribution_documents(
     return await _batch_response(
         session=session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
         passengers=passengers,
         batch=batch,
@@ -1272,6 +2099,7 @@ async def delete_distribution_documents(
         batch = await _latest_document_batch(
             session,
             group_id=group_id,
+            agency_id=group.agency_id,
             document_type=document_type,
         )
         documents = await _all_group_documents(
@@ -1283,6 +2111,7 @@ async def delete_distribution_documents(
         return await _batch_response(
             session=session,
             group_id=group_id,
+            agency_id=group.agency_id,
             document_type=document_type,
             passengers=passengers,
             batch=batch,
@@ -1300,12 +2129,16 @@ async def delete_distribution_documents(
         .with_for_update()
     )
     docs_result = await session.execute(
-        select(DistributedDocumentModel).where(
+        select(DistributedDocumentModel)
+        .where(
             DistributedDocumentModel.id.in_(document_ids),
             DistributedDocumentModel.group_id == group_id,
             DistributedDocumentModel.agency_id == group.agency_id,
             DistributedDocumentModel.document_type == document_type,
         )
+        .order_by(DistributedDocumentModel.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
     )
     documents_to_delete = list(docs_result.scalars().all())
     if not documents_to_delete:
@@ -1319,6 +2152,8 @@ async def delete_distribution_documents(
             DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
                 [document.id for document in documents_to_delete]
             ),
+            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == group_id,
             DocumentWhatsAppDeliveryModel.status.in_(DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES),
         )
         .with_for_update()
@@ -1345,6 +2180,13 @@ async def delete_distribution_documents(
     delete_storage_keys = [
         key for key in candidate_storage_keys if key not in still_used_storage_keys
     ]
+    cleanup_jobs = stage_storage_cleanup_jobs(
+        session,
+        agency_id=group.agency_id,
+        source="document_distribution_delete",
+        context_id=(f"{group_id}:{document_type}:" + ",".join(sorted(map(str, document_ids)))),
+        storage_keys=delete_storage_keys,
+    )
     for document in documents_to_delete:
         await session.delete(document)
     await session.flush()
@@ -1353,6 +2195,8 @@ async def delete_distribution_documents(
     await _refresh_distribution_batches(
         session,
         batch_ids=affected_batch_ids,
+        agency_id=group.agency_id,
+        group_id=group_id,
         now=now,
     )
     await AuditLogRepository(session).record(
@@ -1370,21 +2214,24 @@ async def delete_distribution_documents(
         },
     )
     await session.commit()
-    try:
-        await MinioStorageRepository().delete_files(delete_storage_keys)
-    except Exception:
-        # The database is authoritative after an explicit removal. A storage
-        # cleanup failure must not make the successful delete look reversible
-        # to the user; retain only a sanitized operational signal.
-        logger.warning(
-            "document_distribution_storage_cleanup_deferred",
-            group_id=str(group_id),
-            document_type=document_type,
-            object_count=len(delete_storage_keys),
-        )
+    for cleanup_job in cleanup_jobs:
+        try:
+            await process_storage_cleanup_job(cleanup_job.id)
+        except Exception as exc:
+            # The authoritative rows and durable cleanup job are committed.  A
+            # runner outage must not turn that successful deletion into a 500.
+            logger.warning(
+                "document_distribution_cleanup_runner_deferred",
+                cleanup_job_id=str(cleanup_job.id),
+                group_id=str(group_id),
+                document_type=document_type,
+                object_count=cleanup_job.object_count,
+                error_type=type(exc).__name__,
+            )
     batch = await _latest_document_batch(
         session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
     )
     remaining_documents = await _all_group_documents(
@@ -1396,6 +2243,7 @@ async def delete_distribution_documents(
     return await _batch_response(
         session=session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
         passengers=passengers,
         batch=batch,
@@ -1409,10 +2257,11 @@ async def save_batch(
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> SaveDocumentBatchResponse:
-    result = await session.execute(
-        select(DocumentDistributionBatchModel).where(DocumentDistributionBatchModel.id == batch_id)
+    batch = await _get_visible_document_batch(
+        session,
+        batch_id=batch_id,
+        current_user=current_user,
     )
-    batch = result.scalar_one_or_none()
     if not batch:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Document batch was not found"
@@ -1475,6 +2324,7 @@ async def preview_document_whatsapp_broadcast(
     batch = await _latest_document_batch(
         session,
         group_id=group_id,
+        agency_id=group.agency_id,
         document_type=document_type,
     )
     if not batch:
@@ -1495,6 +2345,37 @@ async def preview_document_whatsapp_broadcast(
     )
 
 
+async def _lock_retry_document_deliveries(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    delivery_document_ids: dict[uuid.UUID, uuid.UUID],
+) -> dict[uuid.UUID, DocumentWhatsAppDeliveryModel]:
+    """Batch-lock retry rows and retain only exact tenant/document ownership."""
+
+    if not delivery_document_ids:
+        return {}
+    result = await session.execute(
+        select(DocumentWhatsAppDeliveryModel)
+        .where(
+            DocumentWhatsAppDeliveryModel.id.in_(list(delivery_document_ids)),
+            DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == group_id,
+            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
+                list(set(delivery_document_ids.values()))
+            ),
+        )
+        .order_by(DocumentWhatsAppDeliveryModel.id)
+        .with_for_update()
+    )
+    return {
+        delivery.id: delivery
+        for delivery in result.scalars().all()
+        if delivery.distributed_document_id == delivery_document_ids.get(delivery.id)
+    }
+
+
 @router.post(
     "/batches/{batch_id}/whatsapp-send",
     response_model=SendDocumentBroadcastResponse,
@@ -1513,10 +2394,11 @@ async def send_document_whatsapp_broadcast(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Both editable document message sections are required",
         )
-    batch_result = await session.execute(
-        select(DocumentDistributionBatchModel).where(DocumentDistributionBatchModel.id == batch_id)
+    batch = await _get_visible_document_batch(
+        session,
+        batch_id=batch_id,
+        current_user=current_user,
     )
-    batch = batch_result.scalar_one_or_none()
     if not batch:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -1608,6 +2490,19 @@ async def send_document_whatsapp_broadcast(
     selected_documents = {
         document.id: document for document in selected_document_result.scalars().all()
     }
+    retry_delivery_document_ids = {
+        row.delivery_id: row.document_id
+        for row in eligible_rows
+        if row.delivery_id
+        and row.document_id
+        and row.document_id not in resend_ids
+    }
+    locked_retry_deliveries = await _lock_retry_document_deliveries(
+        session,
+        agency_id=batch.agency_id,
+        group_id=batch.group_id,
+        delivery_document_ids=retry_delivery_document_ids,
+    )
     queued_count = 0
     for row in eligible_rows:
         if not (
@@ -1624,12 +2519,7 @@ async def send_document_whatsapp_broadcast(
         explicit_resend = row.document_id in resend_ids
         delivery: DocumentWhatsAppDeliveryModel | None = None
         if row.delivery_id and not explicit_resend:
-            delivery_result = await session.execute(
-                select(DocumentWhatsAppDeliveryModel)
-                .where(DocumentWhatsAppDeliveryModel.id == row.delivery_id)
-                .with_for_update()
-            )
-            delivery = delivery_result.scalar_one_or_none()
+            delivery = locked_retry_deliveries.get(row.delivery_id)
         if delivery:
             if delivery.status != "failed":
                 continue
@@ -1721,6 +2611,8 @@ async def send_document_whatsapp_broadcast(
         failed_result = await session.execute(
             select(DocumentWhatsAppDeliveryModel).where(
                 DocumentWhatsAppDeliveryModel.send_batch_id == send_batch_id,
+                DocumentWhatsAppDeliveryModel.agency_id == batch.agency_id,
+                DocumentWhatsAppDeliveryModel.group_id == batch.group_id,
                 DocumentWhatsAppDeliveryModel.status == "queued",
             )
         )

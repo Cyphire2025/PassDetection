@@ -65,6 +65,13 @@ async def test_later_same_phone_row_is_attached_to_active_replacement() -> None:
         str(recipient.id),
     ]
     assert session.execute.await_count == 5
+    broadcast_lock_statement = session.execute.await_args_list[0].args[0]
+    resolution_lock_statement = session.execute.await_args_list[1].args[0]
+    assert "whatsapp_broadcast_groups" in str(broadcast_lock_statement)
+    rendered_resolution_lock = str(resolution_lock_statement)
+    assert "passport_roster_resolutions.status" in rendered_resolution_lock
+    assert "FOR UPDATE" in rendered_resolution_lock
+    assert resolution_lock_statement.get_execution_options()["populate_existing"] is True
 
 
 @pytest.mark.asyncio
