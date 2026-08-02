@@ -805,8 +805,6 @@ export const gcAppAdminApi = {
     form.append("file", upload.file);
     form.append("display_name", upload.title);
     form.append("category", upload.category);
-    if (upload.available_from) form.append("available_from", upload.available_from);
-    if (upload.available_until) form.append("available_until", upload.available_until);
     form.append("offline_available", "true");
     form.append("expected_access_revision", String(expectedAccessRevision));
     const endpoint = upload.replace_document_id

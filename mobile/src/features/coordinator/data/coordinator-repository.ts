@@ -1,4 +1,4 @@
-import { apiRequest } from '@/core/api/client';
+import { ApiError, apiRequest } from '@/core/api/client';
 import { accountNamespace } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
 import { openAccountDatabase } from '@/core/storage/database';
@@ -180,6 +180,58 @@ export async function loadRoster(tripId: string, search = '', cursor: string | n
   } catch (networkError) {
     const local = await localRoster(tripId, search, cursor);
     if (local.items.length) return local;
+    throw networkError;
+  }
+}
+
+async function localPassenger(tripId: string, passengerId: string) {
+  const account = namespace();
+  const database = await openAccountDatabase(account);
+  const passenger = await database.getFirstAsync<{
+    id: string;
+    display_name: string;
+    employee_code: string | null;
+    attendance_status: 'not_marked' | 'present' | 'missing' | 'excused';
+    room_number: string | null;
+    meal_preference: string | null;
+    has_alert: number;
+  }>(
+    `SELECT id, display_name, employee_code, attendance_status, room_number, meal_preference, has_alert
+       FROM coordinator_passengers
+      WHERE account_namespace = ? AND trip_id = ? AND id = ?
+      LIMIT 1`,
+    account,
+    tripId,
+    passengerId,
+  );
+  return passenger ? { ...passenger, has_alert: Boolean(passenger.has_alert) } : null;
+}
+
+export async function loadCoordinatorPassenger(tripId: string, passengerId: string) {
+  try {
+    const passenger = await apiRequest(
+      `/mobile/coordinator/groups/${tripId}/passengers/${passengerId}`,
+      { schema: CoordinatorPassengerSchema },
+    );
+    if (passenger.id !== passengerId) {
+      throw new Error('Coordinator passenger details were out of scope.');
+    }
+    await saveRoster(tripId, [passenger]);
+    return { passenger, offline: false };
+  } catch (networkError) {
+    if (networkError instanceof ApiError && [401, 403, 404].includes(networkError.status)) {
+      const account = namespace();
+      const database = await openAccountDatabase(account);
+      await database.runAsync(
+        'DELETE FROM coordinator_passengers WHERE account_namespace = ? AND trip_id = ? AND id = ?',
+        account,
+        tripId,
+        passengerId,
+      );
+      throw networkError;
+    }
+    const passenger = await localPassenger(tripId, passengerId);
+    if (passenger) return { passenger, offline: true };
     throw networkError;
   }
 }

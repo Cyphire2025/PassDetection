@@ -40,7 +40,7 @@ export default function OtpScreen() {
       if (result.status === 'authenticated' && result.tokens) {
         await activateSession(result.tokens);
         flow.reset();
-        router.replace('/');
+        router.replace('/(auth)/prepare');
         return;
       }
       flow.setClaims(result.claims);

@@ -1,88 +1,87 @@
-import HardDrive from 'lucide-react-native/icons/hard-drive';
 import LogOut from 'lucide-react-native/icons/log-out';
-import ShieldCheck from 'lucide-react-native/icons/shield-check';
-import { useEffect, useState } from 'react';
+import Mail from 'lucide-react-native/icons/mail';
+import MapPin from 'lucide-react-native/icons/map-pin';
+import Phone from 'lucide-react-native/icons/phone';
+import UserRound from 'lucide-react-native/icons/user-round';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { logoutSession } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
-import { accountNamespace } from '@/core/auth/types';
-import { vaultUsageBytes } from '@/core/storage/vault';
-import { GlassCard } from '@/design/components/glass-card';
-import { PageHeader } from '@/design/components/page-header';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
-import { colors, radii, spacing } from '@/design/theme';
-import { removeOfflineCache } from '@/features/content/data/content-repository';
+import { colors, spacing } from '@/design/theme';
+import { useTrips } from '@/features/trips/hooks/use-trips';
 
-function storageLabel(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.ceil(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+function initials(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || 'P';
 }
 
 export default function PassengerMoreScreen() {
   const session = useSessionStore((state) => state.session);
-  const [storage, setStorage] = useState(0);
-  const [clearing, setClearing] = useState(false);
-  const namespace = session
-    ? accountNamespace({ agencyId: session.principal.agencyId, principalId: session.principal.id })
-    : null;
-
-  useEffect(() => {
-    if (namespace) void vaultUsageBytes(namespace).then(setStorage);
-  }, [namespace]);
-
-  async function clearDocuments() {
-    setClearing(true);
-    try {
-      await removeOfflineCache();
-      setStorage(0);
-    } finally {
-      setClearing(false);
-    }
-  }
+  const trips = useTrips();
+  const name = session?.principal.displayName || 'Passenger';
 
   return (
     <Screen bottomInset={104} contentStyle={styles.screen}>
-      <PageHeader eyebrow="Account" title={session?.principal.displayName || 'Profile'} subtitle="Privacy and offline storage on this device." />
-      <GlassCard style={styles.card}>
-        <View style={styles.row}>
-          <ShieldCheck color={colors.greenDeep} size={24} />
-          <View style={styles.rowText}>
-            <Text style={styles.rowTitle}>Protected local data</Text>
-            <Text style={styles.rowDescription}>Trip metadata uses SQLCipher. Personal files use authenticated AES-256-GCM encryption.</Text>
-          </View>
+      <View style={styles.profile}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{initials(name)}</Text>
         </View>
-      </GlassCard>
-      <GlassCard style={styles.card}>
-        <View style={styles.row}>
-          <HardDrive color={colors.blueDeep} size={24} />
-          <View style={styles.rowText}>
-            <Text style={styles.rowTitle}>Offline documents</Text>
-            <Text style={styles.rowDescription}>{storageLabel(storage)} in app-private storage</Text>
-          </View>
+        <Text accessibilityRole="header" style={styles.name}>{name}</Text>
+        <View style={styles.roleRow}>
+          <UserRound color={colors.greenDeep} size={17} />
+          <Text style={styles.role}>Passenger</Text>
         </View>
-        <PrimaryButton label="Remove offline documents" tone="secondary" loading={clearing} onPress={() => void clearDocuments()} />
-      </GlassCard>
-      <GlassCard style={styles.card}>
-        <View style={styles.row}>
-          <LogOut color={colors.danger} size={24} />
-          <View style={styles.rowText}>
-            <Text style={styles.rowTitle}>Sign out</Text>
-            <Text style={styles.rowDescription}>Signing out removes this account’s encrypted trip database and offline files from the device.</Text>
-          </View>
+
+        <View style={styles.details}>
+          {session?.principal.phoneNumber ? (
+            <View style={styles.detailRow}>
+              <Phone color={colors.inkMuted} size={18} />
+              <Text style={styles.detailText}>{session.principal.phoneNumber}</Text>
+            </View>
+          ) : null}
+          {session?.principal.email ? (
+            <View style={styles.detailRow}>
+              <Mail color={colors.inkMuted} size={18} />
+              <Text style={styles.detailText}>{session.principal.email}</Text>
+            </View>
+          ) : null}
+          {trips.selectedTrip ? (
+            <View style={styles.detailRow}>
+              <MapPin color={colors.inkMuted} size={18} />
+              <Text style={styles.detailText}>
+                {[trips.selectedTrip.name, trips.selectedTrip.destination].filter(Boolean).join(' · ')}
+              </Text>
+            </View>
+          ) : null}
         </View>
-        <PrimaryButton label="Sign out and clear device" tone="danger" onPress={() => void logoutSession()} />
-      </GlassCard>
+      </View>
+
+      <View style={styles.signOut}>
+        <LogOut color={colors.danger} size={22} />
+        <Text style={styles.signOutNote}>Sign out of this passenger account</Text>
+      </View>
+      <PrimaryButton label="Sign out" tone="danger" onPress={() => void logoutSession()} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { gap: spacing.lg },
-  card: { borderRadius: radii.md, gap: spacing.lg },
-  row: { flexDirection: 'row', gap: spacing.md },
-  rowText: { flex: 1, gap: spacing.xs },
-  rowTitle: { color: colors.ink, fontSize: 16, fontWeight: '800' },
-  rowDescription: { color: colors.inkMuted, fontSize: 13, lineHeight: 19 },
+  screen: { gap: spacing.lg, alignItems: 'stretch' },
+  profile: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.xl, paddingBottom: spacing.xl },
+  avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm },
+  avatarText: { color: colors.greenDeep, fontSize: 30, fontWeight: '900', letterSpacing: 1 },
+  name: { color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: '900', textAlign: 'center' },
+  roleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  role: { color: colors.greenDeep, fontSize: 13, fontWeight: '800' },
+  details: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.lg, maxWidth: 360 },
+  detailRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: spacing.sm },
+  detailText: { flexShrink: 1, color: colors.inkMuted, fontSize: 14, lineHeight: 20, textAlign: 'center' },
+  signOut: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: spacing.sm, paddingTop: spacing.xl },
+  signOutNote: { color: colors.inkMuted, fontSize: 13 },
 });

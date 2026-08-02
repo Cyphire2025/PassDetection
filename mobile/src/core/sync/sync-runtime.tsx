@@ -5,10 +5,14 @@ import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import { installAccessDeniedPurge, purgeExpiredTripCaches, subscribeTripPurges } from './access-cache';
 import { registerBackgroundSync, unregisterBackgroundSync } from './background-sync';
-import { syncAllTrips } from './sync-service';
+import { syncAllTrips, syncTrip } from './sync-service';
+
+const FOREGROUND_SYNC_INTERVAL_MS = 15_000;
+const FULL_REFRESH_EVERY_TICKS = 4;
 
 export function SyncRuntime() {
   const demoMode = isDemoMode();
@@ -37,10 +41,18 @@ export function SyncRuntime() {
       return;
     }
     void registerBackgroundSync().catch(() => undefined);
-    const refresh = () => {
+    let isActive = AppState.currentState === 'active';
+    let isOnline = true;
+    let tick = 0;
+    const refresh = (full = true) => {
       if (running.current) return;
+      if (!isActive || !isOnline) return;
+      const selectedTripId = useSelectedTripStore.getState().tripId;
+      const synchronize = () => full || !selectedTripId
+        ? syncAllTrips()
+        : syncTrip(selectedTripId).then((result) => [result]);
       const request = purgeExpiredTripCaches()
-        .then(() => syncAllTrips())
+        .then(synchronize)
         .then(() => queryClient.invalidateQueries())
         .finally(() => {
           if (running.current === request) running.current = null;
@@ -49,14 +61,21 @@ export function SyncRuntime() {
     };
     refresh();
     const network = NetInfo.addEventListener((state) => {
-      if (state.isConnected && state.isInternetReachable !== false) refresh();
+      isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
+      if (isOnline) refresh();
     });
     const appState = AppState.addEventListener('change', (state) => {
-      if (state === 'active') refresh();
+      isActive = state === 'active';
+      if (isActive) refresh();
     });
+    const foreground = setInterval(() => {
+      tick += 1;
+      refresh(tick % FULL_REFRESH_EVERY_TICKS === 0);
+    }, FOREGROUND_SYNC_INTERVAL_MS);
     return () => {
       network();
       appState.remove();
+      clearInterval(foreground);
     };
   }, [demoMode, queryClient, session]);
 

@@ -8,7 +8,6 @@ import { ContentError, ContentLoading } from '@/design/components/content-state'
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
 import { Screen } from '@/design/components/screen';
-import { StatusPill } from '@/design/components/status-pill';
 import { colors, spacing } from '@/design/theme';
 import { useQr } from '@/features/content/hooks/use-content';
 import { useTrips } from '@/features/trips/hooks/use-trips';
@@ -19,13 +18,16 @@ export default function PassengerQrScreen() {
   ScreenCapture.usePreventScreenCapture('passenger-personal-qr');
 
   useEffect(() => {
+    let active = true;
     let previous: number | null = null;
     void Brightness.isAvailableAsync().then(async (available) => {
-      if (!available) return;
+      if (!available || !active) return;
       previous = await Brightness.getBrightnessAsync();
+      if (!active) return;
       await Brightness.setBrightnessAsync(1);
-    });
+    }).catch(() => undefined);
     return () => {
+      active = false;
       if (previous !== null) void Brightness.setBrightnessAsync(previous);
     };
   }, []);
@@ -41,7 +43,7 @@ export default function PassengerQrScreen() {
             <QRCode value={qr.data.qr.signed_payload} size={244} color="#000000" backgroundColor="#FFFFFF" ecl="H" />
           </View>
           <Text style={styles.name}>{trips.selectedTrip?.destination || trips.selectedTrip?.name}</Text>
-          <StatusPill label={qr.data.offline ? 'Offline signed QR' : 'Current signed QR'} tone="good" />
+          <Text style={styles.ready}>Ready for your checkpoint · available offline</Text>
           <Text style={styles.help}>Show this screen at your group checkpoint. It is bound to you and this trip.</Text>
         </GlassCard>
       ) : null}
@@ -55,6 +57,7 @@ const styles = StyleSheet.create({
   qrCard: { alignItems: 'center', justifyContent: 'center', gap: spacing.md, paddingVertical: spacing.xl },
   qrSurface: { backgroundColor: colors.white, padding: spacing.md, borderRadius: 18 },
   name: { color: colors.ink, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+  ready: { color: colors.greenDeep, fontSize: 13, fontWeight: '800', textAlign: 'center' },
   help: { color: colors.inkMuted, fontSize: 13, lineHeight: 19, textAlign: 'center', maxWidth: 300 },
   brightness: { color: colors.inkMuted, fontSize: 12, lineHeight: 18, textAlign: 'center' },
 });

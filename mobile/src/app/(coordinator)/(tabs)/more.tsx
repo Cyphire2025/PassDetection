@@ -1,9 +1,8 @@
-import BedDouble from 'lucide-react-native/icons/bed-double';
 import Bell from 'lucide-react-native/icons/bell';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import FileWarning from 'lucide-react-native/icons/file-exclamation-point';
-import Route from 'lucide-react-native/icons/route';
-import Soup from 'lucide-react-native/icons/soup';
+import FileText from 'lucide-react-native/icons/file-text';
+import UserRound from 'lucide-react-native/icons/user-round';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -11,22 +10,18 @@ import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
-import { ProfileScreen } from '@/features/profile/ui/profile-screen';
-import { useTrips } from '@/features/trips/hooks/use-trips';
+import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 
 const operations = [
-  { route: '/(coordinator)/operations/itinerary' as const, label: 'Itinerary', description: 'Published schedule and meeting points', icon: Route },
-  { route: '/(coordinator)/operations/rooming' as const, label: 'Rooming', description: 'Offline roster room assignments', icon: BedDouble },
-  { route: '/(coordinator)/operations/meals' as const, label: 'Meals', description: 'Passenger meal preferences', icon: Soup },
+  { route: '/(coordinator)/operations/common-documents' as const, label: 'Common Documents', description: 'Published itinerary and group documents', icon: FileText },
   { route: '/(coordinator)/operations/incidents' as const, label: 'Incidents', description: 'Report an operational incident', icon: FileWarning },
   { route: '/(coordinator)/operations/updates' as const, label: 'Updates', description: 'Announcements and emergency alerts', icon: Bell },
-  { route: '/(coordinator)/operations/profile' as const, label: 'Profile & privacy', description: 'Offline storage and secure sign out', icon: Bell },
+  { route: '/(coordinator)/operations/profile' as const, label: 'Profile', description: 'Account details and secure sign out', icon: UserRound },
 ];
 
 export default function CoordinatorMoreScreen() {
   const router = useRouter();
-  const trips = useTrips();
-  if (!trips.selectedTripId) return <ProfileScreen eyebrow="Coordinator" />;
+  const trips = useCoordinatorTrips();
   return (
     <Screen bottomInset={104} contentStyle={styles.screen}>
       <PageHeader eyebrow="Selected trip" title="More operations" subtitle={trips.selectedTrip?.name || 'Coordinator tools'} />

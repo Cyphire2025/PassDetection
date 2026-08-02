@@ -56,6 +56,7 @@ export async function resetTripCache(tripId: string, nextAccessGeneration: numbe
       'coordinator_passengers',
       'sync_cursors',
       'pending_actions',
+      'attendance_scan_receipts',
       'manager_readiness',
       'attendance_summaries',
       'operation_snapshots',

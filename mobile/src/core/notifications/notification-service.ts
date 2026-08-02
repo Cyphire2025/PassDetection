@@ -54,7 +54,11 @@ export async function registerPushDevice(provider: NotificationProvider = expoNo
 }
 
 export function notificationData(response: Notifications.NotificationResponse): NotificationData | null {
-  const parsed = NotificationDataSchema.safeParse(response.notification.request.content.data);
+  return notificationContentData(response.notification);
+}
+
+export function notificationContentData(notification: Notifications.Notification): NotificationData | null {
+  const parsed = NotificationDataSchema.safeParse(notification.request.content.data);
   return parsed.success ? parsed.data : null;
 }
 

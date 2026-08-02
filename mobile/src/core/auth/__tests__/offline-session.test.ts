@@ -8,15 +8,21 @@ const row = {
   agency_id: agencyId,
   principal_type: 'passenger' as const,
   display_name: 'Offline Passenger',
+  email: 'passenger@example.com',
+  phone_number: '+919876543210',
   session_id: '33333333-3333-4333-8333-333333333333',
   access_token_expires_at: '2026-08-02T00:10:00.000Z',
   refresh_token_expires_at: '2026-08-10T00:00:00.000Z',
   force_password_change: 0,
 };
 
-test('creates a locked-capable offline shell without an access token', () => {
+test('creates an offline shell without requiring a second device unlock', () => {
   const session = offlineSessionFromRow(namespace, row, Date.parse('2026-08-03T00:00:00.000Z'));
-  expect(session).toMatchObject({ accessToken: null, networkMode: 'offline', principal: { id: principalId } });
+  expect(session).toMatchObject({
+    accessToken: null,
+    networkMode: 'offline',
+    principal: { id: principalId, email: 'passenger@example.com', phoneNumber: '+919876543210' },
+  });
 });
 
 test('fails closed for namespace mismatch or expired refresh authority', () => {

@@ -36,7 +36,7 @@ export default function InvitationActivationScreen() {
     try {
       const tokens = await activateInvitation(activationToken, password);
       await activateSession(tokens);
-      router.replace('/');
+      router.replace('/(auth)/prepare');
     } catch (caught) {
       setError(authErrorMessage(caught));
     } finally {

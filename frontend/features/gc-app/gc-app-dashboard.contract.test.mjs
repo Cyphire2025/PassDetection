@@ -117,6 +117,11 @@ test("publishing remains inside App Controls with fixed itinerary and categorize
   assert.match(commonDocuments, /Other common documents/);
   assert.match(commonDocuments, /OTHER_DOCUMENT_CATEGORIES/);
   assert.doesNotMatch(commonDocuments, /value: "itinerary_pdf", label:/);
+  assert.doesNotMatch(commonDocuments, /label="Available from"/);
+  assert.doesNotMatch(commonDocuments, /label="Available until"/);
+  assert.doesNotMatch(api, /form\.append\("available_from"/);
+  assert.doesNotMatch(api, /form\.append\("available_until"/);
+  assert.match(commonDocuments, /absolute inset-0 h-full w-full cursor-pointer opacity-0/);
 });
 
 test("GC App dashboard does not persist sensitive state or expose personal document fields", () => {

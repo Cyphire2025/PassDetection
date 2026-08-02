@@ -20,6 +20,7 @@ import {
   type DocumentMetadata,
 } from '../api/content-contracts';
 import { collectCursorItems } from './cursor-pagination';
+import { shouldPrefetchPassengerDocument } from './passenger-document-policy';
 
 function activeNamespace(): string {
   const principal = useSessionStore.getState().session?.principal;
@@ -306,6 +307,75 @@ export async function cacheDocument(document: DocumentMetadata): Promise<void> {
     encrypted.encryptedSizeBytes,
     new Date().toISOString(),
   );
+}
+
+export type OfflinePrefetchProgress = {
+  total: number;
+  completed: number;
+  failed: number;
+  currentDocumentName: string | null;
+};
+
+async function prefetchOfflineDocuments(
+  tripId: string,
+  scopes: ReadonlySet<DocumentMetadata['scope']>,
+  onProgress?: (progress: OfflinePrefetchProgress) => void,
+): Promise<OfflinePrefetchProgress> {
+  const documents = (await localDocuments(tripId)).filter(
+    (document) =>
+      shouldPrefetchPassengerDocument(document) &&
+      scopes.has(document.scope) &&
+      (!document.offline || document.offlineVersion !== document.version),
+  );
+  const progress: OfflinePrefetchProgress = {
+    total: documents.length,
+    completed: 0,
+    failed: 0,
+    currentDocumentName: null,
+  };
+  onProgress?.({ ...progress });
+  if (!documents.length) return progress;
+
+  let nextIndex = 0;
+  const worker = async () => {
+    while (nextIndex < documents.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      const document = documents[index];
+      if (!document) continue;
+      progress.currentDocumentName = document.display_name;
+      onProgress?.({ ...progress });
+      try {
+        await cacheDocument(document);
+        progress.completed += 1;
+      } catch {
+        progress.failed += 1;
+      }
+      onProgress?.({ ...progress });
+    }
+  };
+
+  await Promise.all([worker(), worker()]);
+  progress.currentDocumentName = null;
+  onProgress?.({ ...progress });
+  return progress;
+}
+
+const PASSENGER_DOCUMENT_SCOPES = new Set<DocumentMetadata['scope']>(['personal', 'common']);
+const COMMON_DOCUMENT_SCOPE = new Set<DocumentMetadata['scope']>(['common']);
+
+export function prefetchPassengerOfflineDocuments(
+  tripId: string,
+  onProgress?: (progress: OfflinePrefetchProgress) => void,
+): Promise<OfflinePrefetchProgress> {
+  return prefetchOfflineDocuments(tripId, PASSENGER_DOCUMENT_SCOPES, onProgress);
+}
+
+export function prefetchCommonOfflineDocuments(
+  tripId: string,
+  onProgress?: (progress: OfflinePrefetchProgress) => void,
+): Promise<OfflinePrefetchProgress> {
+  return prefetchOfflineDocuments(tripId, COMMON_DOCUMENT_SCOPE, onProgress);
 }
 
 export async function removeOfflineCache(): Promise<void> {

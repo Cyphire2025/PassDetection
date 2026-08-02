@@ -7,11 +7,11 @@ import { Screen } from '@/design/components/screen';
 import { TextField } from '@/design/components/text-field';
 import { colors, radii, spacing } from '@/design/theme';
 import { drainIncidentQueue, enqueueIncident, incidentQueueCount, type IncidentInput } from '@/features/coordinator/data/operations-repository';
+import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 import { OperationHeader } from '@/features/coordinator/ui/operation-header';
-import { useTrips } from '@/features/trips/hooks/use-trips';
 
 export default function CoordinatorIncidentsScreen() {
-  const trips = useTrips();
+  const trips = useCoordinatorTrips();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [severity, setSeverity] = useState<IncidentInput['severity']>('medium');

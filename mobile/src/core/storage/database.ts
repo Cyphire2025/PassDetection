@@ -3,7 +3,7 @@ import * as SQLite from 'expo-sqlite';
 
 import { getOrCreateSecret } from './secure-store';
 
-const DATABASE_VERSION = 8;
+const DATABASE_VERSION = 10;
 
 let activeDatabase: SQLite.SQLiteDatabase | null = null;
 let activeDatabaseName: string | null = null;
@@ -33,6 +33,8 @@ async function migrate(database: SQLite.SQLiteDatabase): Promise<void> {
           agency_id TEXT NOT NULL,
           principal_type TEXT NOT NULL CHECK (principal_type IN ('passenger', 'client_manager', 'coordinator')),
           display_name TEXT NOT NULL,
+          email TEXT,
+          phone_number TEXT,
           updated_at TEXT NOT NULL,
           session_id TEXT NOT NULL,
           access_token_expires_at TEXT NOT NULL,
@@ -229,6 +231,19 @@ async function migrate(database: SQLite.SQLiteDatabase): Promise<void> {
         CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_action_dedupe
           ON pending_actions(account_namespace, trip_id, action_type, dedupe_key)
           WHERE dedupe_key IS NOT NULL;
+
+        CREATE TABLE IF NOT EXISTS attendance_scan_receipts (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          session_id TEXT NOT NULL,
+          dedupe_key TEXT NOT NULL,
+          client_event_id TEXT NOT NULL,
+          server_status TEXT NOT NULL CHECK (server_status IN ('accepted', 'already_applied')),
+          accepted_at TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, session_id, dedupe_key)
+        );
+        CREATE INDEX IF NOT EXISTS idx_attendance_scan_receipts_session
+          ON attendance_scan_receipts(account_namespace, trip_id, session_id, accepted_at);
 
         CREATE TABLE IF NOT EXISTS manager_readiness (
           account_namespace TEXT NOT NULL,
@@ -478,6 +493,36 @@ async function migrate(database: SQLite.SQLiteDatabase): Promise<void> {
         ALTER TABLE trips ADD COLUMN meals_version INTEGER NOT NULL DEFAULT 0;
         ALTER TABLE trips ADD COLUMN qr_version INTEGER NOT NULL DEFAULT 0;
         PRAGMA user_version = 8;
+      `);
+    });
+  }
+
+  if (currentVersion < 9) {
+    await database.withTransactionAsync(async () => {
+      await database.execAsync(`
+        ALTER TABLE users ADD COLUMN email TEXT;
+        ALTER TABLE users ADD COLUMN phone_number TEXT;
+        PRAGMA user_version = 9;
+      `);
+    });
+  }
+
+  if (currentVersion < 10) {
+    await database.withTransactionAsync(async () => {
+      await database.execAsync(`
+        CREATE TABLE IF NOT EXISTS attendance_scan_receipts (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          session_id TEXT NOT NULL,
+          dedupe_key TEXT NOT NULL,
+          client_event_id TEXT NOT NULL,
+          server_status TEXT NOT NULL CHECK (server_status IN ('accepted', 'already_applied')),
+          accepted_at TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, session_id, dedupe_key)
+        );
+        CREATE INDEX IF NOT EXISTS idx_attendance_scan_receipts_session
+          ON attendance_scan_receipts(account_namespace, trip_id, session_id, accepted_at);
+        PRAGMA user_version = 10;
       `);
     });
   }

@@ -1,20 +1,22 @@
+import { useRouter } from 'expo-router';
+import AlertTriangle from 'lucide-react-native/icons/triangle-alert';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import { useDeferredValue, useMemo, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
 import { Screen } from '@/design/components/screen';
-import { StatusPill } from '@/design/components/status-pill';
 import { TextField } from '@/design/components/text-field';
 import { colors, radii, spacing } from '@/design/theme';
-import { useCoordinatorRoster } from '@/features/coordinator/hooks/use-coordinator';
 import type { CoordinatorPassenger } from '@/features/coordinator/api/coordinator-contracts';
-import { useTrips } from '@/features/trips/hooks/use-trips';
-import { TripSwitcher } from '@/features/trips/ui/trip-switcher';
+import { useCoordinatorRoster } from '@/features/coordinator/hooks/use-coordinator';
+import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 
 export default function CoordinatorPassengersScreen() {
-  const trips = useTrips();
+  const router = useRouter();
+  const trips = useCoordinatorTrips();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search.trim());
   const roster = useCoordinatorRoster(trips.selectedTripId, deferredSearch);
@@ -26,17 +28,14 @@ export default function CoordinatorPassengersScreen() {
     }
     return [...byId.values()];
   }, [pages]);
-  const offline = roster.data?.pages.some((page) => page.offline) ?? false;
 
   return (
     <Screen scroll={false} bottomInset={96} contentStyle={styles.screen}>
       <PageHeader
         eyebrow="Operations"
         title="Passengers"
-        subtitle="Search the bounded, account-isolated roster."
-        accessory={offline ? <StatusPill label="Offline copy" tone="warning" /> : undefined}
+        subtitle={trips.selectedTrip?.name || 'Selected group roster'}
       />
-      <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />
       <TextField
         label="Passenger search"
         value={search}
@@ -55,6 +54,7 @@ export default function CoordinatorPassengersScreen() {
         keyboardShouldPersistTaps="handled"
         initialNumToRender={16}
         maxToRenderPerBatch={24}
+        updateCellsBatchingPeriod={35}
         windowSize={7}
         removeClippedSubviews
         contentContainerStyle={styles.list}
@@ -68,19 +68,23 @@ export default function CoordinatorPassengersScreen() {
         ) : null}
         ListFooterComponent={roster.isFetchingNextPage ? <ContentLoading label="Loading more passengers" /> : null}
         renderItem={({ item }) => (
-          <GlassCard style={styles.card}>
-            <View style={styles.passengerText}>
-              <Text style={styles.name}>{item.display_name}</Text>
-              <Text style={styles.meta}>{item.employee_code || 'No employee code'}</Text>
-              <Text style={styles.meta} numberOfLines={1}>
-                {item.room_number ? `Room ${item.room_number}` : 'Room pending'} · {item.meal_preference || 'Meal pending'}
-              </Text>
-            </View>
-            <StatusPill
-              label={item.attendance_status.replace('_', ' ')}
-              tone={item.attendance_status === 'present' ? 'good' : item.attendance_status === 'missing' ? 'warning' : 'neutral'}
-            />
-          </GlassCard>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`View details for ${item.display_name}`}
+            onPress={() => router.push({ pathname: '/(coordinator)/operations/passenger/[id]', params: { id: item.id } })}
+            style={({ pressed }) => pressed && styles.pressed}>
+            <GlassCard style={styles.card}>
+              <View style={styles.passengerText}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.name}>{item.display_name}</Text>
+                  {item.has_alert ? <AlertTriangle color={colors.warning} size={17} /> : null}
+                </View>
+                <Text style={styles.meta}>{item.employee_code || 'No employee code'}</Text>
+                <Text style={styles.viewDetails}>View details</Text>
+              </View>
+              <ChevronRight color={colors.inkMuted} size={20} />
+            </GlassCard>
+          </Pressable>
         )}
       />
     </Screen>
@@ -92,6 +96,9 @@ const styles = StyleSheet.create({
   list: { gap: spacing.sm, paddingTop: spacing.xs, paddingBottom: spacing.lg },
   card: { borderRadius: radii.md, flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
   passengerText: { flex: 1, gap: 2 },
-  name: { color: colors.ink, fontSize: 15, fontWeight: '800' },
-  meta: { color: colors.inkMuted, fontSize: 11, textTransform: 'capitalize' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  name: { flexShrink: 1, color: colors.ink, fontSize: 15, fontWeight: '800' },
+  meta: { color: colors.inkMuted, fontSize: 11 },
+  viewDetails: { color: colors.greenDeep, fontSize: 12, fontWeight: '800', marginTop: spacing.xs },
+  pressed: { opacity: 0.68 },
 });

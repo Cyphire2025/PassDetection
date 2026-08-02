@@ -20,6 +20,8 @@ export const PrincipalSchema = z
     principal_type: z.enum(['passenger', 'client_manager', 'coordinator']),
     agency_id: Uuid,
     display_name: z.string().min(1).max(255),
+    email: z.string().email().max(320).nullable().optional().default(null),
+    phone_number: z.string().min(3).max(32).nullable().optional().default(null),
     force_password_change: z.boolean().default(false),
   })
   .strict();

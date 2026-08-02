@@ -23,6 +23,7 @@ from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
     ClientOrganizationModel,
+    GCCommonDocumentModel,
     GCGroupAccessModel,
     MobileDeviceSessionModel,
     MobilePassengerIdentityModel,
@@ -303,6 +304,7 @@ async def configure_gc_group_access(
     now = datetime.now(tz=UTC)
     revoked_roles: set[str] = set()
     revoke_all_group_sessions = False
+    access_window_changed = False
     if access is None:
         if group.status != GroupStatus.ACTIVE.value:
             raise HTTPException(
@@ -381,6 +383,7 @@ async def configure_gc_group_access(
             # A session issued under a wider time window must not preserve an
             # offline entitlement after staff narrows or changes that window.
             revoke_all_group_sessions = True
+            access_window_changed = True
         access.client_organization_id = organization_id
         access.is_enabled = body.enabled
         access.passenger_access_enabled = body.passenger_access_enabled
@@ -396,6 +399,21 @@ async def configure_gc_group_access(
         access.updated_by_user_id = current_user.id
         access.updated_at = now
         action = "gc_app.group_enabled" if body.enabled else "gc_app.group_disabled"
+
+    if access_window_changed:
+        await session.execute(
+            update(GCCommonDocumentModel)
+            .where(
+                GCCommonDocumentModel.gc_group_access_id == access.id,
+                GCCommonDocumentModel.status.in_(("draft", "published")),
+            )
+            .values(
+                availability_starts_at=body.access_starts_at,
+                availability_expires_at=body.access_expires_at,
+                updated_at=now,
+            )
+        )
+        access.common_document_version += 1
 
     if revoke_all_group_sessions:
         revoked_roles = {"passenger", "client_manager", "coordinator"}

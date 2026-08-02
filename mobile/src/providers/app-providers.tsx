@@ -9,14 +9,12 @@ import { bootstrapSession } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
 import { purgeTemporaryViews } from '@/core/storage/vault';
-import { SessionLock } from '@/design/components/session-lock';
 import { NotificationRuntime } from '@/core/notifications/notification-runtime';
 import { SyncRuntime } from '@/core/sync/sync-runtime';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 export function AppProviders({ children }: PropsWithChildren) {
   const demoMode = isDemoMode();
-  const sessionStatus = useSessionStore((state) => state.status);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -59,7 +57,6 @@ export function AppProviders({ children }: PropsWithChildren) {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState !== 'active') {
         purgeTemporaryViews();
-        if (useSessionStore.getState().session) useSessionStore.getState().setLocked();
       }
     });
     return () => subscription.remove();
@@ -71,7 +68,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         <QueryClientProvider client={queryClient}>
           <SyncRuntime />
           <NotificationRuntime />
-          {sessionStatus === 'locked' && !demoMode ? <SessionLock /> : children}
+          {children}
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

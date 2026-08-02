@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { ApiError, apiRequest, registerRefreshHandler } from '@/core/api/client';
-import { TokenResponseSchema, type TokenResponse } from '@/core/api/contracts';
+import { PrincipalSchema, TokenResponseSchema, type TokenResponse } from '@/core/api/contracts';
 import { demoPrincipal, isDemoPrincipal, seedDemoAccount } from '@/core/demo/demo-data';
 import { assertDemoMode, isDemoMode } from '@/core/demo/demo-mode';
 import { deleteAccountDatabase, openAccountDatabase } from '@/core/storage/database';
@@ -31,6 +31,8 @@ function mapSession(tokens: TokenResponse): MobileSession {
       principalType: tokens.principal.principal_type,
       agencyId: tokens.principal.agency_id,
       displayName: tokens.principal.display_name,
+      email: tokens.principal.email,
+      phoneNumber: tokens.principal.phone_number,
       forcePasswordChange: tokens.principal.force_password_change,
     },
   };
@@ -40,14 +42,16 @@ async function persistSessionRow(session: MobileSession, namespace: string): Pro
   const database = await openAccountDatabase(namespace);
   await database.runAsync(
     `INSERT INTO users
-      (id, account_namespace, agency_id, principal_type, display_name, updated_at,
+      (id, account_namespace, agency_id, principal_type, display_name, email, phone_number, updated_at,
        session_id, access_token_expires_at, refresh_token_expires_at, force_password_change)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(id) DO UPDATE SET
        account_namespace = excluded.account_namespace,
        agency_id = excluded.agency_id,
        principal_type = excluded.principal_type,
        display_name = excluded.display_name,
+       email = excluded.email,
+       phone_number = excluded.phone_number,
        updated_at = excluded.updated_at,
        session_id = excluded.session_id,
        access_token_expires_at = excluded.access_token_expires_at,
@@ -58,12 +62,50 @@ async function persistSessionRow(session: MobileSession, namespace: string): Pro
     session.principal.agencyId,
     session.principal.principalType,
     session.principal.displayName,
+    session.principal.email,
+    session.principal.phoneNumber,
     new Date().toISOString(),
     session.sessionId,
     session.accessTokenExpiresAt,
     session.refreshTokenExpiresAt,
     session.principal.forcePasswordChange ? 1 : 0,
   );
+}
+
+export async function refreshSessionPrincipal(): Promise<MobileSession | null> {
+  const current = useSessionStore.getState().session;
+  if (!current || !current.accessToken) return current;
+  const principal = await apiRequest('/mobile/me', { schema: PrincipalSchema });
+  if (
+    principal.id !== current.principal.id ||
+    principal.agency_id !== current.principal.agencyId ||
+    principal.principal_type !== current.principal.principalType
+  ) {
+    throw new Error('The refreshed mobile identity did not match this session.');
+  }
+  const updated: MobileSession = {
+    ...current,
+    principal: {
+      id: principal.id,
+      principalType: principal.principal_type,
+      agencyId: principal.agency_id,
+      displayName: principal.display_name,
+      email: principal.email,
+      phoneNumber: principal.phone_number,
+      forcePasswordChange: principal.force_password_change,
+    },
+  };
+  const profileUnchanged =
+    updated.principal.displayName === current.principal.displayName &&
+    updated.principal.email === current.principal.email &&
+    updated.principal.phoneNumber === current.principal.phoneNumber &&
+    updated.principal.forcePasswordChange === current.principal.forcePasswordChange;
+  if (profileUnchanged) return current;
+
+  const namespace = accountNamespace({ agencyId: principal.agency_id, principalId: principal.id });
+  await persistSessionRow(updated, namespace);
+  useSessionStore.getState().setSession(updated);
+  return updated;
 }
 
 export async function activateSession(tokens: TokenResponse): Promise<MobileSession> {
@@ -169,7 +211,6 @@ export async function bootstrapSession(): Promise<void> {
     const offline = namespace ? await loadOfflineSession(namespace).catch(() => null) : null;
     if (offline) {
       useSessionStore.getState().setSession(offline);
-      useSessionStore.getState().setLocked();
     } else {
       useSessionStore.getState().clear();
     }
@@ -183,12 +224,14 @@ async function loadOfflineSession(namespace: string): Promise<MobileSession | nu
     agency_id: string;
     principal_type: MobileSession['principal']['principalType'];
     display_name: string;
+    email: string | null;
+    phone_number: string | null;
     session_id: string;
     access_token_expires_at: string;
     refresh_token_expires_at: string;
     force_password_change: number;
   }>(
-    `SELECT id, agency_id, principal_type, display_name, session_id,
+    `SELECT id, agency_id, principal_type, display_name, email, phone_number, session_id,
             access_token_expires_at, refresh_token_expires_at, force_password_change
        FROM users WHERE account_namespace = ? LIMIT 1`,
     namespace,

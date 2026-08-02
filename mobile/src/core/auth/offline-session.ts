@@ -5,6 +5,8 @@ export type OfflineSessionRow = {
   agency_id: string;
   principal_type: MobileSession['principal']['principalType'];
   display_name: string;
+  email: string | null;
+  phone_number: string | null;
   session_id: string;
   access_token_expires_at: string;
   refresh_token_expires_at: string;
@@ -34,6 +36,8 @@ export function offlineSessionFromRow(
       agencyId: row.agency_id,
       principalType: row.principal_type,
       displayName: row.display_name,
+      email: row.email,
+      phoneNumber: row.phone_number,
       forcePasswordChange: Boolean(row.force_password_change),
     },
   };

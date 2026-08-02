@@ -8,7 +8,7 @@ import {
 import { accountNamespace, type MobileRole } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
 import { openAccountDatabase } from '@/core/storage/database';
-import { refreshAnnouncements, refreshCommonDocuments, refreshDocuments, refreshQr, loadMeal, loadReadiness, loadRoom } from '@/features/content/data/content-repository';
+import { loadMeal, loadReadiness, loadRoom, prefetchPassengerOfflineDocuments, refreshAnnouncements, refreshCommonDocuments, refreshDocuments, refreshQr } from '@/features/content/data/content-repository';
 import { refreshItinerary } from '@/features/content/data/itinerary-repository';
 import {
   applyCoordinatorPassengerChanges,
@@ -288,6 +288,11 @@ async function performTripSync(tripId: string): Promise<SyncResult> {
       meals: flags.meals || versionChanged.meals,
       qr: flags.qr || versionChanged.qr,
     }, baseline, manifest.versions);
+    if (role === 'passenger') {
+      // Metadata synchronization stays compact; only new or replaced passenger/common files
+      // are encrypted into this account's private vault. A failed file is retried on a later sync.
+      await prefetchPassengerOfflineDocuments(tripId).catch(() => undefined);
+    }
     const syncedAt = manifest.server_time;
     await storeCursor(tripId, cursor, manifest.trip.access_generation, syncedAt);
     await apiRequest('/mobile/sync/ack', {

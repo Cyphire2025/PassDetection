@@ -5,6 +5,8 @@ export type MobilePrincipal = {
   principalType: MobileRole;
   agencyId: string;
   displayName: string;
+  email: string | null;
+  phoneNumber: string | null;
   forcePasswordChange: boolean;
 };
 

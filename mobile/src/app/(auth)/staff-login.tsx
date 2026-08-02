@@ -28,9 +28,13 @@ export default function StaffLoginScreen() {
     setLoading(true);
     setError(null);
     try {
-      if (demoMode) await activateDemoSession(demoRole);
-      else await activateSession(await credentialLogin(email.trim(), password));
-      router.replace('/');
+      if (demoMode) {
+        await activateDemoSession(demoRole);
+        router.replace('/');
+      } else {
+        await activateSession(await credentialLogin(email.trim(), password));
+        router.replace('/(auth)/prepare');
+      }
     } catch (caught) {
       setError(authErrorMessage(caught));
     } finally {

@@ -205,8 +205,6 @@ export interface CommonDocumentUpload {
   file: File;
   title: string;
   category: GcDocumentCategory;
-  available_from: string | null;
-  available_until: string | null;
   replace_document_id?: string;
 }
 

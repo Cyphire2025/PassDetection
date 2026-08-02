@@ -30,8 +30,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       NSCameraUsageDescription:
         'Coordinators use the camera to scan passenger attendance QR codes.',
-      NSFaceIDUsageDescription:
-        'Use Face ID to unlock your encrypted trip information on this device.',
       UIFileSharingEnabled: false,
       LSSupportsOpeningDocumentsInPlace: false,
       ITSAppUsesNonExemptEncryption: false,
@@ -42,11 +40,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: APP_ID,
     versionCode: 1,
     allowBackup: false,
+    blockedPermissions: [
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE',
+      'android.permission.READ_MEDIA_IMAGES',
+      'android.permission.USE_BIOMETRIC',
+      'android.permission.USE_FINGERPRINT',
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
     permissions: [
       'android.permission.CAMERA',
       'android.permission.POST_NOTIFICATIONS',
-      'android.permission.USE_BIOMETRIC',
-      'android.permission.USE_FINGERPRINT',
       'android.permission.RECEIVE_BOOT_COMPLETED',
       'android.permission.VIBRATE',
     ],
@@ -65,7 +69,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     adaptiveIcon: {
-      backgroundColor: '#006FB5',
+      backgroundColor: '#CACF42',
       foregroundImage: './assets/images/gc-app-monochrome.png',
       monochromeImage: './assets/images/gc-app-monochrome.png',
     },
@@ -80,7 +84,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-splash-screen',
       {
-        backgroundColor: '#006FB5',
+        backgroundColor: '#CACF42',
         image: './assets/images/gc-app-monochrome.png',
         imageWidth: 112,
       },
@@ -89,18 +93,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-secure-store',
       {
         configureAndroidBackup: false,
-        faceIDPermission:
-          'Use Face ID to unlock your encrypted trip information on this device.',
       },
     ],
     ['expo-sqlite', { useSQLCipher: true, enableFTS: true }],
-    [
-      'expo-local-authentication',
-      {
-        faceIDPermission:
-          'Use Face ID to unlock your encrypted trip information on this device.',
-      },
-    ],
     [
       'expo-camera',
       {

@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Eye, FileText, RefreshCw, Trash2, Upload } from "lu
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type { CommonDocumentUpload, GcCommonDocument, GcDocumentCategory } from "../types";
-import { formatGcDateTime, gcAppErrorMessage, toApiDateTime, toLocalDateTime } from "../utils";
+import { formatGcDateTime, gcAppErrorMessage } from "../utils";
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 
@@ -277,8 +277,6 @@ function DocumentUploadForm({
   const [category, setCategory] = useState<GcDocumentCategory>(
     fixedCategory ?? replaceDocument?.category ?? categories?.[0]?.value ?? "other",
   );
-  const [availableFrom, setAvailableFrom] = useState(toLocalDateTime(replaceDocument?.available_from ?? null));
-  const [availableUntil, setAvailableUntil] = useState(toLocalDateTime(replaceDocument?.available_until ?? null));
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const upload = async () => {
@@ -296,26 +294,16 @@ function DocumentUploadForm({
       onError("The PDF exceeds the 25 MB dashboard upload limit.");
       return;
     }
-    const from = toApiDateTime(availableFrom);
-    const until = toApiDateTime(availableUntil);
-    if (from && until && new Date(until) <= new Date(from)) {
-      onError("Document availability expiry must be after its start time.");
-      return;
-    }
     try {
       await onUpload({
         file,
         title: normalizedTitle,
         category: fixedCategory ?? category,
-        available_from: from,
-        available_until: until,
         replace_document_id: replaceDocument?.id,
       });
       setFile(null);
       setFileInputKey((value) => value + 1);
       if (!fixedTitle) setTitle("");
-      setAvailableFrom("");
-      setAvailableUntil("");
       onComplete();
     } catch (uploadError) {
       onError(gcAppErrorMessage(uploadError, "The common document could not be uploaded."));
@@ -350,10 +338,8 @@ function DocumentUploadForm({
             </select>
           </div>
         )}
-        <Input label="Available from" type="datetime-local" value={availableFrom} onChange={(event) => setAvailableFrom(event.target.value)} />
-        <Input label="Available until" type="datetime-local" value={availableUntil} onChange={(event) => setAvailableUntil(event.target.value)} />
       </div>
-      <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-center hover:border-blue-400 hover:bg-blue-50/40 focus-within:ring-2 focus-within:ring-blue-600">
+      <label className="relative flex min-h-24 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-center hover:border-blue-400 hover:bg-blue-50/40 focus-within:ring-2 focus-within:ring-blue-600">
         <Upload className="h-5 w-5 text-slate-400" aria-hidden="true" />
         <span className="mt-2 text-sm font-medium text-slate-700">{file ? file.name : "Choose PDF"}</span>
         <span className="mt-1 text-xs text-slate-500">PDF only, up to 25 MB</span>
@@ -361,7 +347,7 @@ function DocumentUploadForm({
           key={fileInputKey}
           type="file"
           accept="application/pdf,.pdf"
-          className="sr-only"
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
           onChange={(event) => {
             const nextFile = event.target.files?.[0] ?? null;
             setFile(nextFile);
@@ -416,7 +402,6 @@ function DocumentRows({
                 <Badge variant="default">v{document.version}</Badge>
               </div>
               <p className="mt-1 truncate text-xs text-slate-500">{document.filename} · Updated {formatGcDateTime(document.updated_at)}</p>
-              {(document.available_from || document.available_until) && <p className="mt-1 text-xs text-slate-500">Available {document.available_from ? formatGcDateTime(document.available_from) : "immediately"} - {document.available_until ? formatGcDateTime(document.available_until) : "without expiry"}</p>}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">

@@ -33,7 +33,7 @@ export default function ChangePasswordScreen() {
     setError(null);
     try {
       await activateSession(await changeForcedPassword(currentPassword, newPassword));
-      router.replace('/');
+      router.replace('/(auth)/prepare');
     } catch (caught) {
       setError(authErrorMessage(caught));
     } finally {

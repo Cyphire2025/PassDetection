@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
-import { loadAttendanceSummary, loadRoster } from '../data/coordinator-repository';
+import { loadAttendanceSummary, loadCoordinatorPassenger, loadRoster } from '../data/coordinator-repository';
 import { loadAttendanceSessionDetail, refreshAttendanceSessions } from '../data/attendance-sessions';
 
 export function useCoordinatorRoster(tripId: string | null, search: string) {
@@ -10,6 +10,16 @@ export function useCoordinatorRoster(tripId: string | null, search: string) {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.next_cursor,
     enabled: Boolean(tripId),
+  });
+}
+
+export function useCoordinatorPassenger(tripId: string | null, passengerId: string | null) {
+  return useQuery({
+    queryKey: ['coordinator-passenger', tripId, passengerId],
+    queryFn: () => loadCoordinatorPassenger(tripId!, passengerId!),
+    enabled: Boolean(tripId && passengerId),
+    staleTime: 15_000,
+    refetchOnMount: 'always',
   });
 }
 
@@ -27,6 +37,12 @@ export function useAttendanceSessions(tripId: string | null) {
     queryKey: ['coordinator-attendance-sessions', tripId],
     queryFn: () => refreshAttendanceSessions(tripId!),
     enabled: Boolean(tripId),
+    staleTime: 5_000,
+    refetchOnMount: 'always',
+    refetchInterval: (query) => (
+      query.state.data?.items.some((session) => session.status === 'active') ? 8_000 : false
+    ),
+    refetchIntervalInBackground: false,
   });
 }
 

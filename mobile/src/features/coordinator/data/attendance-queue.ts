@@ -47,6 +47,16 @@ export async function enqueueQrScan(
     Crypto.CryptoDigestAlgorithm.SHA256,
     attendanceDedupeMaterial(account, tripId, sessionId, signedQr),
   );
+  const applied = await database.getFirstAsync<{ client_event_id: string }>(
+    `SELECT client_event_id FROM attendance_scan_receipts
+      WHERE account_namespace = ? AND trip_id = ? AND session_id = ? AND dedupe_key = ?
+      LIMIT 1`,
+    account,
+    tripId,
+    sessionId,
+    dedupeKey,
+  );
+  if (applied) return { idempotencyKey: applied.client_event_id, duplicate: true };
   const existing = await database.getFirstAsync<{ idempotency_key: string }>(
     `SELECT idempotency_key FROM pending_actions
       WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
@@ -110,10 +120,11 @@ async function drainTrip(tripId: string): Promise<void> {
   while (true) {
     const row = await database.getFirstAsync<{
       idempotency_key: string;
+      dedupe_key: string;
       payload_json: string;
       attempt_count: number;
     }>(
-      `SELECT idempotency_key, payload_json, attempt_count
+      `SELECT idempotency_key, dedupe_key, payload_json, attempt_count
          FROM pending_actions
         WHERE account_namespace = ? AND trip_id = ?
           AND action_type = 'attendance.scan'
@@ -167,11 +178,26 @@ async function drainTrip(tripId: string): Promise<void> {
       });
       const result = response.results[0];
       if (result?.status === 'accepted' || result?.status === 'already_applied') {
-        await database.runAsync(
-          'DELETE FROM pending_actions WHERE idempotency_key = ? AND account_namespace = ?',
-          row.idempotency_key,
-          account,
-        );
+        const acceptedAt = new Date().toISOString();
+        await database.withTransactionAsync(async () => {
+          await database.runAsync(
+            `INSERT OR IGNORE INTO attendance_scan_receipts
+              (account_namespace, trip_id, session_id, dedupe_key, client_event_id, server_status, accepted_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            account,
+            tripId,
+            parsed.data.session_id,
+            row.dedupe_key,
+            row.idempotency_key,
+            result.status,
+            acceptedAt,
+          );
+          await database.runAsync(
+            'DELETE FROM pending_actions WHERE idempotency_key = ? AND account_namespace = ?',
+            row.idempotency_key,
+            account,
+          );
+        });
       } else {
         await database.runAsync(
           `UPDATE pending_actions SET state = 'rejected', last_error_code = ?, updated_at = ?

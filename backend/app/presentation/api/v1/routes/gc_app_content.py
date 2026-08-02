@@ -350,8 +350,6 @@ async def upload_common_document(
     file: UploadFile = File(...),
     category: CommonDocumentCategory = Form(...),
     display_name: str = Form(..., min_length=1, max_length=255),
-    available_from: datetime | None = Form(default=None),
-    available_until: datetime | None = Form(default=None),
     offline_available: bool = Form(default=True),
     expected_access_revision: int = Form(..., ge=1),
     agency_id: uuid.UUID | None = None,
@@ -363,7 +361,6 @@ async def upload_common_document(
     )
     _require_publishable_group(group)
     _require_access_revision(access, expected_access_revision)
-    _validate_window(available_from, available_until)
     return await _store_common_document_version(
         session,
         request=request,
@@ -372,8 +369,8 @@ async def upload_common_document(
         file=file,
         category=category,
         display_name=display_name,
-        available_from=available_from,
-        available_until=available_until,
+        available_from=access.access_starts_at,
+        available_until=access.access_expires_at,
         offline_available=offline_available,
         logical_document_id=uuid.uuid4(),
         version=1,
@@ -497,8 +494,6 @@ async def replace_common_document(
     file: UploadFile = File(...),
     category: CommonDocumentCategory = Form(...),
     display_name: str = Form(..., min_length=1, max_length=255),
-    available_from: datetime | None = Form(default=None),
-    available_until: datetime | None = Form(default=None),
     offline_available: bool = Form(default=True),
     expected_access_revision: int = Form(..., ge=1),
     agency_id: uuid.UUID | None = None,
@@ -510,7 +505,6 @@ async def replace_common_document(
     )
     _require_publishable_group(group)
     _require_access_revision(access, expected_access_revision)
-    _validate_window(available_from, available_until)
     previous = await _get_common_document(session, access, document_id, lock=True)
     max_version = int(
         (
@@ -530,8 +524,8 @@ async def replace_common_document(
         file=file,
         category=category,
         display_name=display_name,
-        available_from=available_from,
-        available_until=available_until,
+        available_from=access.access_starts_at,
+        available_until=access.access_expires_at,
         offline_available=offline_available,
         logical_document_id=previous.logical_document_id,
         version=max_version + 1,

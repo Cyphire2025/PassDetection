@@ -114,6 +114,8 @@ export function demoPrincipal(role: MobileRole): MobilePrincipal {
     principalType: role,
     agencyId: DEMO_AGENCY_ID,
     displayName: DEMO_DISPLAY_NAMES[role],
+    email: null,
+    phoneNumber: null,
     forcePasswordChange: false,
   };
 }
