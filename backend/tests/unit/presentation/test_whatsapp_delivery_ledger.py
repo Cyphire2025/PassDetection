@@ -1867,6 +1867,74 @@ async def test_explicit_resend_webhook_updates_log_without_loading_baseline_stat
 
 
 @pytest.mark.asyncio
+async def test_otp_webhook_records_provider_failure_without_phone_or_code(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    empty_logs = MagicMock()
+    empty_logs.scalars.return_value.all.return_value = []
+    empty_documents = MagicMock()
+    empty_documents.scalars.return_value.all.return_value = []
+    empty_qr = MagicMock()
+    empty_qr.scalars.return_value.all.return_value = []
+    challenge = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        provider="whatsapp",
+        status="pending",
+        updated_at=None,
+    )
+    otp_result = MagicMock()
+    otp_result.scalar_one_or_none.return_value = challenge
+    session = AsyncMock()
+    session.add = MagicMock()
+    session.execute.side_effect = [empty_logs, empty_documents, empty_qr, otp_result]
+    monkeypatch.setattr(
+        "app.presentation.api.v1.routes.whatsapp.get_settings",
+        lambda: SimpleNamespace(
+            whatsapp_app_secret="",
+            is_production=False,
+        ),
+    )
+    payload = {
+        "entry": [{
+            "changes": [{
+                "value": {
+                    "statuses": [{
+                        "id": "wamid.otp",
+                        "status": "failed",
+                        "timestamp": "1784419200",
+                        "errors": [{"code": 131026}],
+                    }]
+                }
+            }]
+        }]
+    }
+    request = SimpleNamespace(body=AsyncMock(return_value=json.dumps(payload).encode("utf-8")))
+
+    response = await receive_whatsapp_webhook(
+        request=request,
+        x_hub_signature_256=None,
+        session=session,
+    )
+
+    assert response.processed_statuses == 1
+    assert challenge.status == "cancelled"
+    audit = session.add.call_args.args[0]
+    assert audit.action == "mobile.otp_delivery_status"
+    assert audit.metadata_json == {
+        "provider": "whatsapp",
+        "delivery_status": "failed",
+        "provider_error": (
+            "WHATSAPP_PROVIDER_DELIVERY_FAILED: "
+            "Meta reported that this message was not delivered (131026)"
+        ),
+    }
+    assert "phone" not in audit.metadata_json
+    assert "code" not in audit.metadata_json
+    session.commit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_mark_failed_skips_baseline_ledger_for_explicit_resend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -66,6 +66,7 @@ from app.application.use_cases.whatsapp.recipient_capacity import (
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import ImageValidationError
+from app.infrastructure.database.gc_mobile_models import MobileOTPChallengeModel
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -669,6 +670,7 @@ async def receive_whatsapp_webhook(
         error_message,
         provider_status_at,
     ) in provider_statuses:
+        processed_before = processed_statuses
         result = await session.execute(
             select(WhatsAppMessageLogModel).where(
                 WhatsAppMessageLogModel.provider_message_id == provider_id
@@ -739,6 +741,35 @@ async def receive_whatsapp_webhook(
                         now=datetime.now(tz=UTC),
                     )
                     processed_statuses += 1
+        if processed_statuses == processed_before:
+            otp_result = await session.execute(
+                select(MobileOTPChallengeModel).where(
+                    MobileOTPChallengeModel.provider_reference == provider_id
+                )
+            )
+            challenge = otp_result.scalar_one_or_none()
+            if challenge is not None:
+                now = datetime.now(tz=UTC)
+                if provider_status == "failed" and challenge.status == "pending":
+                    challenge.status = "cancelled"
+                challenge.updated_at = now
+                await AuditLogRepository(session).record(
+                    action="mobile.otp_delivery_status",
+                    entity_type="mobile_otp_challenge",
+                    agency_id=challenge.agency_id,
+                    entity_id=str(challenge.id),
+                    metadata={
+                        "provider": challenge.provider,
+                        "delivery_status": provider_status,
+                        "provider_error": error_message,
+                    },
+                )
+                if provider_status == "failed":
+                    logger.warning(
+                        "mobile_otp_provider_delivery_failed",
+                        extra={"provider_error": error_message},
+                    )
+                processed_statuses += 1
     if processed_statuses:
         await session.commit()
 
