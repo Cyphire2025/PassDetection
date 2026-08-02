@@ -12,7 +12,20 @@ from app.core.config.settings import get_settings
 
 
 class OTPDeliveryError(RuntimeError):
-    """Raised when no OTP provider can safely deliver a code."""
+    """Safe delivery failure without destination, OTP, or provider response text."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "OTP_DELIVERY_FAILED",
+        transient: bool = False,
+        delivery_unknown: bool = False,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.transient = transient
+        self.delivery_unknown = delivery_unknown
 
 
 class OTPProvider(Protocol):
@@ -35,7 +48,10 @@ class DisabledOTPProvider:
         expires_in_seconds: int,
     ) -> str | None:
         del normalized_phone, code, expires_in_seconds
-        raise OTPDeliveryError("OTP delivery is not configured")
+        raise OTPDeliveryError(
+            "OTP delivery is not configured",
+            code="OTP_PROVIDER_NOT_CONFIGURED",
+        )
 
 
 class DevelopmentOTPProvider:
@@ -50,12 +66,8 @@ class DevelopmentOTPProvider:
     ) -> str | None:
         del normalized_phone, code, expires_in_seconds
         if get_settings().is_production:
-            raise OTPDeliveryError("The development OTP provider is disabled in production")
+            raise OTPDeliveryError(
+                "The development OTP provider is disabled in production",
+                code="OTP_DEVELOPMENT_PROVIDER_FORBIDDEN",
+            )
         return "development"
-
-
-def get_otp_provider() -> OTPProvider:
-    provider = get_settings().mobile.otp_provider
-    if provider == "development":
-        return DevelopmentOTPProvider()
-    return DisabledOTPProvider()

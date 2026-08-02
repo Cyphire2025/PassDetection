@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.mobile.otp_provider import OTPDeliveryError, get_otp_provider
+from app.application.mobile.otp_provider import OTPDeliveryError
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
@@ -43,6 +43,7 @@ from app.infrastructure.security.mobile_otp_rate_limiter import (
     OTPRateLimitExceeded,
     OTPRateLimitUnavailable,
 )
+from app.infrastructure.whatsapp.otp_provider import get_otp_provider
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileActivationRequest,
     MobileClaimVerifyRequest,
@@ -120,9 +121,7 @@ async def request_passenger_otp(
         return MobileOTPRequestResponse(
             challenge_id=existing.id,
             expires_in_seconds=max(1, int((existing.expires_at - now).total_seconds())),
-            resend_after_seconds=max(
-                1, int((existing.resend_available_at - now).total_seconds())
-            ),
+            resend_after_seconds=max(1, int((existing.resend_available_at - now).total_seconds())),
         )
 
     challenge_id = uuid.uuid4()
@@ -152,12 +151,13 @@ async def request_passenger_otp(
         except OTPDeliveryError as exc:
             # The response remains neutral; logs/audit contain no phone or OTP.
             provider_reference = None
-            delivery_status = "failed"
-            provider_error_code = type(exc).__name__
+            delivery_status = "unknown" if exc.delivery_unknown else "failed"
+            provider_error_code = exc.code
             logger.warning(
                 "mobile_otp_delivery_failed",
                 provider=settings.otp_provider,
                 error_code=provider_error_code,
+                delivery_unknown=exc.delivery_unknown,
             )
     challenge = MobileOTPChallengeModel(
         id=challenge_id,
@@ -219,9 +219,7 @@ async def verify_passenger_otp(
     challenge.status = "verified"
     challenge.verified_at = now
     challenge.updated_at = now
-    eligible = await _eligible_passenger_identities(
-        session, challenge.phone_lookup_hash
-    )
+    eligible = await _eligible_passenger_identities(session, challenge.phone_lookup_hash)
     if not eligible:
         await session.commit()
         raise HTTPException(
@@ -276,9 +274,7 @@ async def verify_passenger_claim(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired verification challenge",
         )
-    eligible = await _eligible_passenger_identities(
-        session, challenge.phone_lookup_hash
-    )
+    eligible = await _eligible_passenger_identities(session, challenge.phone_lookup_hash)
     matches = _matching_passenger_claims(
         eligible,
         claim_id=body.claim_id,
@@ -293,9 +289,7 @@ async def verify_passenger_claim(
             claims=[_claim_summary(identity, group) for identity, _access, group in matches],
         )
     if len(matches) != 1:
-        challenge.attempt_count = min(
-            challenge.max_attempts, challenge.attempt_count + 1
-        )
+        challenge.attempt_count = min(challenge.max_attempts, challenge.attempt_count + 1)
         if challenge.attempt_count >= challenge.max_attempts:
             challenge.status = "locked"
             challenge.verified_at = None
@@ -416,9 +410,7 @@ async def activate_client_manager(
     """Redeem one invitation exactly once and issue an unrestricted session."""
 
     _require_mobile_enabled()
-    token_hash = hash_mobile_lookup(
-        body.activation_token, purpose="manager-invitation"
-    )
+    token_hash = hash_mobile_lookup(body.activation_token, purpose="manager-invitation")
     limiter_key = f"activation:{token_hash}"
     limiter = LoginAttemptLimiter()
     client_ip = _client_ip(request)
@@ -535,15 +527,17 @@ async def refresh_mobile_session(
         )
     ).first()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
     stored, device_session = row
     if stored.consumed_at is not None:
         stored.reuse_detected_at = now
-        await _revoke_session_family(
-            session, device_session, reason="refresh_token_reuse", now=now
-        )
+        await _revoke_session_family(session, device_session, reason="refresh_token_reuse", now=now)
         await session.commit()
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
     if (
         stored.revoked_at is not None
         or stored.expires_at <= now
@@ -551,7 +545,9 @@ async def refresh_mobile_session(
         or device_session.revoked_at is not None
         or device_session.expires_at <= now
     ):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
 
     principal, display_name, password_change_required = await _refresh_principal(
         session, device_session
@@ -622,7 +618,9 @@ async def change_mobile_password(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileTokenResponse:
     if claims.principal_type not in {"client_manager", "coordinator"}:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Password login is not used by passengers")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Password login is not used by passengers"
+        )
     row = (
         await session.execute(
             select(UserModel, MobileDeviceSessionModel)
@@ -636,12 +634,16 @@ async def change_mobile_password(
         )
     ).first()
     if row is None or not verify_password(body.current_password, row[0].hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect"
+        )
     user, old_session = row
     try:
         user.hashed_password = hash_password(body.new_password)
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
+        ) from exc
     now = datetime.now(tz=UTC)
     if claims.principal_type == "client_manager":
         profile = (
@@ -779,8 +781,14 @@ async def _eligible_passenger_identities(
                 GCGroupAccessModel.passenger_access_enabled.is_(True),
                 GCGroupAccessModel.revoked_at.is_(None),
                 ClientGroupModel.status.in_((GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)),
-                (GCGroupAccessModel.access_starts_at.is_(None) | (GCGroupAccessModel.access_starts_at <= now)),
-                (GCGroupAccessModel.access_expires_at.is_(None) | (GCGroupAccessModel.access_expires_at > now)),
+                (
+                    GCGroupAccessModel.access_starts_at.is_(None)
+                    | (GCGroupAccessModel.access_starts_at <= now)
+                ),
+                (
+                    GCGroupAccessModel.access_expires_at.is_(None)
+                    | (GCGroupAccessModel.access_expires_at > now)
+                ),
                 MobilePassengerIdentityModel.agency_id == GCGroupAccessModel.agency_id,
                 MobilePassengerIdentityModel.group_id == GCGroupAccessModel.group_id,
                 ClientGroupModel.agency_id == GCGroupAccessModel.agency_id,
@@ -793,15 +801,11 @@ async def _eligible_passenger_identities(
 
 
 def _matching_passenger_claims(
-    eligible: list[
-        tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]
-    ],
+    eligible: list[tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]],
     *,
     claim_id: uuid.UUID | None,
     verification_value: str | None,
-) -> list[
-    tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]
-]:
+) -> list[tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]]:
     """Resolve OTP claims without revealing cross-group shared phone records.
 
     Reconciliation can prove uniqueness only inside one group, while OTP lookup
@@ -813,13 +817,9 @@ def _matching_passenger_claims(
 
     multiple_phone_matches = len(eligible) > 1
     candidates = (
-        [row for row in eligible if row[0].id == claim_id]
-        if claim_id is not None
-        else eligible
+        [row for row in eligible if row[0].id == claim_id] if claim_id is not None else eligible
     )
-    matches: list[
-        tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]
-    ] = []
+    matches: list[tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]] = []
     for row in candidates:
         identity = row[0]
         if not multiple_phone_matches and not identity.requires_secondary_verification:
@@ -868,9 +868,7 @@ async def _verify_challenge_code(
         )
     expected = hash_mobile_otp_code(challenge.id, code)
     if not hmac.compare_digest(expected, challenge.code_hash):
-        challenge.attempt_count = min(
-            challenge.max_attempts, challenge.attempt_count + 1
-        )
+        challenge.attempt_count = min(challenge.max_attempts, challenge.attempt_count + 1)
         if challenge.attempt_count >= challenge.max_attempts:
             challenge.status = "locked"
         challenge.updated_at = now
@@ -925,7 +923,9 @@ async def _issue_user_session(
     password_change_required: bool,
 ) -> MobileTokenResponse:
     if user.agency_id is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Mobile account has no agency")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Mobile account has no agency"
+        )
     return await _issue_session(
         session,
         principal_id=user.id,
@@ -1099,7 +1099,9 @@ async def _refresh_principal(
             )
         ).scalar_one_or_none()
         if identity is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile identity is inactive")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile identity is inactive"
+            )
         name = (
             await session.execute(
                 select(PassportSubmissionModel.client_name).where(
@@ -1127,7 +1129,9 @@ async def _refresh_principal(
         )
     ).scalar_one_or_none()
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive"
+        )
     force_change = False
     if device_session.subject_role == "client_manager":
         profile = (
@@ -1141,14 +1145,14 @@ async def _refresh_principal(
             )
         ).scalar_one_or_none()
         if profile is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive"
+            )
         force_change = profile.force_password_change
     return user, user.full_name, force_change
 
 
-async def _principal_display_name(
-    session: AsyncSession, claims: MobileAccessClaims
-) -> str:
+async def _principal_display_name(session: AsyncSession, claims: MobileAccessClaims) -> str:
     if claims.principal_type == "passenger":
         name = (
             await session.execute(
@@ -1174,7 +1178,9 @@ async def _principal_display_name(
             )
         ).scalar_one_or_none()
     if not name:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile principal is inactive")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile principal is inactive"
+        )
     return str(name)
 
 

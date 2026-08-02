@@ -147,8 +147,12 @@ export function ClientManagerFormDialog({
               {...register("company_id")}
             >
               <option value="">Select company/client</option>
-              {companies.data?.items.map((company) => (
-                <option key={company.id} value={company.id}>{company.name}</option>
+              {companies.data?.items
+                .filter((company) => company.status !== "inactive" || company.id === manager?.company.id)
+                .map((company) => (
+                <option key={company.id} value={company.id} disabled={company.status === "inactive"}>
+                  {company.name}{company.status === "inactive" ? " (inactive)" : ""}
+                </option>
               ))}
             </select>
             {companies.isError && <p role="alert" className="text-xs text-red-600">Companies could not be loaded.</p>}

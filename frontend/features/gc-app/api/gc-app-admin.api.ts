@@ -558,13 +558,13 @@ export const gcAppAdminApi = {
     search: string,
     signal?: AbortSignal,
   ): Promise<GcPage<GcCompanyReference>> => {
-    const params = { page: 1, page_size: 50, search };
-    const { data } = await apiClient.get<(GcCompanyReference & { status?: string })[]>(
+    const params = { page: 1, page_size: 200, search };
+    const { data } = await apiClient.get<GcCompanyReference[]>(
       `${ROOT}/client-organizations`,
       { params: { agency_id: agencyId ?? undefined }, signal },
     );
     const normalizedSearch = search.trim().toLocaleLowerCase();
-    const items = data.filter((company) => company.status !== "inactive" && (!normalizedSearch || company.name.toLocaleLowerCase().includes(normalizedSearch)));
+    const items = data.filter((company) => !normalizedSearch || company.name.toLocaleLowerCase().includes(normalizedSearch));
     return asPage(items.slice(0, params.page_size), params);
   },
 
@@ -578,6 +578,15 @@ export const gcAppAdminApi = {
       { params: agencyParams(agencyId) },
     );
     return data;
+  },
+
+  removeClientOrganization: async (
+    agencyId: string | null,
+    organizationId: string,
+  ): Promise<void> => {
+    await apiClient.delete(`${ROOT}/client-organizations/${organizationId}`, {
+      params: agencyParams(agencyId),
+    });
   },
 
   searchGroups: async (

@@ -105,9 +105,12 @@ that an access change succeeded.
 5. A unique claim can issue a passenger session; an ambiguous claim requires the configured secondary proof.
 6. Claim completion rechecks group access and passenger membership under lock before issuing tokens.
 
-The OTP sender is a provider protocol. Production remains disabled until a real
-provider is configured. The development provider is forbidden in production and
-must not log codes outside an explicit local-development setting.
+The OTP sender is a provider protocol. Production supports an approved Meta
+WhatsApp authentication template through the existing Cloud API transport and
+remains fail-closed until its credentials, template name, and exact language are
+configured. The development provider is forbidden in production and must not log
+codes outside an explicit local-development setting. See
+`docs/architecture/whatsapp-passenger-otp.md` for the template contract.
 
 ### Client manager and coordinator
 

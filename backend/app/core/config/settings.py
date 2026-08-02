@@ -21,6 +21,9 @@ from pydantic import Field, SecretStr, computed_field, field_validator, model_va
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _GEMINI_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+_WHATSAPP_API_VERSION_PATTERN = re.compile(r"^v[1-9][0-9]*\.0$")
+_WHATSAPP_TEMPLATE_NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,512}$")
+_WHATSAPP_LANGUAGE_PATTERN = re.compile(r"^[a-z]{2,3}(?:_[A-Z]{2})?$")
 
 
 class DatabaseSettings(BaseSettings):
@@ -98,9 +101,10 @@ class MobileSettings(BaseSettings):
     jwt_audience: str = Field(default="gc-mobile", min_length=3, max_length=120)
     access_token_expire_minutes: int = Field(default=15, ge=5, le=60)
     refresh_token_expire_days: int = Field(default=30, ge=1, le=90)
-    otp_provider: Literal["disabled", "development"] = "disabled"
+    otp_provider: Literal["disabled", "development", "whatsapp"] = "disabled"
     otp_development_code: SecretStr | None = None
     otp_ttl_seconds: int = Field(default=300, ge=60, le=900)
+    otp_delivery_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
     otp_resend_cooldown_seconds: int = Field(default=60, ge=15, le=600)
     otp_max_attempts: int = Field(default=5, ge=1, le=10)
     otp_phone_limit_per_hour: int = Field(default=6, ge=1, le=100)
@@ -242,9 +246,7 @@ class Settings(BaseSettings):
         try:
             ZoneInfo(normalized)
         except (ZoneInfoNotFoundError, ValueError) as exc:
-            raise ValueError(
-                "EMAIL_AI_DEFAULT_TIMEZONE must be a valid IANA timezone"
-            ) from exc
+            raise ValueError("EMAIL_AI_DEFAULT_TIMEZONE must be a valid IANA timezone") from exc
         return normalized
 
     @field_validator("email_oauth_frontend_return_url")
@@ -512,9 +514,71 @@ class Settings(BaseSettings):
     whatsapp_reminder_template_name: str = "reminder_v1"
     whatsapp_document_template_name: str = "documents_v1"
     whatsapp_qr_template_name: str = "qrcode_v1"
+    whatsapp_otp_template_name: str = ""
+    whatsapp_otp_template_language: str = "en_US"
     whatsapp_delivery_concurrency: int = Field(default=4, ge=1, le=16)
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
+
+    @field_validator("whatsapp_api_version")
+    @classmethod
+    def validate_whatsapp_api_version(cls, value: str) -> str:
+        normalized = value.strip()
+        if not _WHATSAPP_API_VERSION_PATTERN.fullmatch(normalized):
+            raise ValueError("WHATSAPP_API_VERSION must use the form v25.0")
+        return normalized
+
+    @field_validator("whatsapp_phone_number_id")
+    @classmethod
+    def validate_whatsapp_phone_number_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        if normalized and not normalized.isascii():
+            raise ValueError("WHATSAPP_PHONE_NUMBER_ID must contain ASCII digits")
+        if normalized and not normalized.isdigit():
+            raise ValueError("WHATSAPP_PHONE_NUMBER_ID must contain ASCII digits")
+        return normalized or None
+
+    @field_validator("whatsapp_otp_template_name")
+    @classmethod
+    def validate_whatsapp_otp_template_name(cls, value: str) -> str:
+        normalized = value.strip()
+        if normalized and not _WHATSAPP_TEMPLATE_NAME_PATTERN.fullmatch(normalized):
+            raise ValueError(
+                "WHATSAPP_OTP_TEMPLATE_NAME must contain only lowercase letters, "
+                "numbers, and underscores"
+            )
+        return normalized
+
+    @field_validator("whatsapp_otp_template_language")
+    @classmethod
+    def validate_whatsapp_otp_template_language(cls, value: str) -> str:
+        normalized = value.strip()
+        if not _WHATSAPP_LANGUAGE_PATTERN.fullmatch(normalized):
+            raise ValueError(
+                "WHATSAPP_OTP_TEMPLATE_LANGUAGE must be an approved Meta language code"
+            )
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_mobile_otp_configuration(self) -> Self:
+        mobile = self.mobile
+        if self.is_production and mobile.otp_provider == "development":
+            raise ValueError("MOBILE_OTP_PROVIDER=development is forbidden when APP_ENV=production")
+        if mobile.otp_provider != "whatsapp":
+            return self
+
+        missing: list[str] = []
+        if not (self.whatsapp_access_token or "").strip():
+            missing.append("WHATSAPP_ACCESS_TOKEN")
+        if not (self.whatsapp_phone_number_id or "").strip():
+            missing.append("WHATSAPP_PHONE_NUMBER_ID")
+        if not self.whatsapp_otp_template_name:
+            missing.append("WHATSAPP_OTP_TEMPLATE_NAME")
+        if missing:
+            raise ValueError("MOBILE_OTP_PROVIDER=whatsapp requires " + ", ".join(missing))
+        return self
 
     @model_validator(mode="after")
     def validate_email_ai_lease_duration(self) -> Self:
@@ -544,10 +608,7 @@ class Settings(BaseSettings):
 
     @property
     def email_ai_notifications_ready(self) -> bool:
-        return bool(
-            self.email_ai_runtime_ready
-            and self.email_ai_notifications_enabled
-        )
+        return bool(self.email_ai_runtime_ready and self.email_ai_notifications_enabled)
 
     @computed_field(repr=False)  # type: ignore[misc]
     @property

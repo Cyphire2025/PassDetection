@@ -20,6 +20,7 @@ export interface GcPageParams {
 export interface GcCompanyReference {
   id: string;
   name: string;
+  status?: "active" | "inactive";
 }
 
 export interface GcAgencyReference {

@@ -1,0 +1,68 @@
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+import { z } from 'zod';
+
+import { apiRequest } from '@/core/api/client';
+import { env } from '@/core/config/env';
+import { getInstallationId } from '@/core/storage/secure-store';
+
+export const NotificationDataSchema = z.object({
+  route: z.enum(['trip', 'documents', 'qr', 'updates', 'readiness', 'attendance', 'passengers']),
+  trip_id: z.string().uuid(),
+  event_id: z.string().uuid().optional(),
+}).strict();
+
+export type NotificationData = z.infer<typeof NotificationDataSchema>;
+
+export interface NotificationProvider {
+  register(): Promise<{ provider: 'expo' | 'fcm' | 'apns'; token: string } | null>;
+}
+
+export const expoNotificationProvider: NotificationProvider = {
+  async register() {
+    if (!Device.isDevice || !env.easProjectId) return null;
+    const current = await Notifications.getPermissionsAsync();
+    const permission = current.granted ? current : await Notifications.requestPermissionsAsync();
+    if (!permission.granted) return null;
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('trip-updates', {
+        name: 'Trip updates',
+        importance: Notifications.AndroidImportance.HIGH,
+        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
+        vibrationPattern: [0, 180],
+      });
+    }
+    const token = await Notifications.getExpoPushTokenAsync({ projectId: env.easProjectId });
+    return { provider: 'expo', token: token.data };
+  },
+};
+
+export async function registerPushDevice(provider: NotificationProvider = expoNotificationProvider): Promise<boolean> {
+  const registration = await provider.register();
+  if (!registration) return false;
+  await apiRequest('/mobile/push/register', {
+    method: 'POST',
+    schema: z.object({ registration_id: z.string().uuid(), registered: z.boolean() }).strict(),
+    body: {
+      provider: registration.provider,
+      push_token: registration.token,
+      installation_id: await getInstallationId(),
+    },
+  });
+  return true;
+}
+
+export function notificationData(response: Notifications.NotificationResponse): NotificationData | null {
+  const parsed = NotificationDataSchema.safeParse(response.notification.request.content.data);
+  return parsed.success ? parsed.data : null;
+}
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});

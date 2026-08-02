@@ -69,11 +69,7 @@ def _meta_error_reference(data: Any) -> tuple[str | None, str | None, str]:
     raw_code = error.get("code")
     raw_subcode = error.get("error_subcode")
     meta_code = str(raw_code).strip() if isinstance(raw_code, (int, str)) else None
-    meta_subcode = (
-        str(raw_subcode).strip()
-        if isinstance(raw_subcode, (int, str))
-        else None
-    )
+    meta_subcode = str(raw_subcode).strip() if isinstance(raw_subcode, (int, str)) else None
     parts = []
     if meta_code:
         parts.append(f"Meta code {meta_code}")
@@ -287,22 +283,13 @@ async def send_whatsapp_document_template(
         )
         if response.status_code == 429:
             code = "WHATSAPP_PROVIDER_RATE_LIMITED"
-            message = (
-                "Meta temporarily rate-limited this document message"
-                f"{meta_reference}"
-            )
+            message = f"Meta temporarily rate-limited this document message{meta_reference}"
         elif response.status_code in {401, 403}:
             code = "WHATSAPP_PROVIDER_AUTH_FAILED"
-            message = (
-                "Meta rejected the configured WhatsApp credentials"
-                f"{meta_reference}"
-            )
+            message = f"Meta rejected the configured WhatsApp credentials{meta_reference}"
         elif response.status_code >= 500:
             code = "WHATSAPP_DELIVERY_UNKNOWN"
-            message = (
-                "Meta returned a server error and delivery status is unknown"
-                f"{meta_reference}"
-            )
+            message = f"Meta returned a server error and delivery status is unknown{meta_reference}"
         else:
             code = "WHATSAPP_PROVIDER_REJECTED"
             message = (
@@ -415,16 +402,10 @@ async def send_whatsapp_qr_template(
             message = f"Meta temporarily rate-limited this QR message{meta_reference}"
         elif response.status_code in {401, 403}:
             code = "WHATSAPP_PROVIDER_AUTH_FAILED"
-            message = (
-                "Meta rejected the configured WhatsApp credentials"
-                f"{meta_reference}"
-            )
+            message = f"Meta rejected the configured WhatsApp credentials{meta_reference}"
         elif response.status_code >= 500:
             code = "WHATSAPP_DELIVERY_UNKNOWN"
-            message = (
-                "Meta returned a server error and delivery status is unknown"
-                f"{meta_reference}"
-            )
+            message = f"Meta returned a server error and delivery status is unknown{meta_reference}"
         else:
             code = "WHATSAPP_PROVIDER_REJECTED"
             message = (
@@ -452,52 +433,26 @@ async def send_whatsapp_qr_template(
     return str(provider_id)
 
 
-async def send_whatsapp_template(
+async def _send_whatsapp_template_payload(
     *,
     client: httpx.AsyncClient,
     settings: Settings,
     to_number: str,
     template_name: str,
-    message_type: WhatsAppMessageType,
-    parameters: list[str],
-    header_parameters: list[str] | None = None,
+    language_code: str,
+    components: list[dict[str, Any]],
 ) -> str:
+    """Send one prevalidated template payload through the shared Meta transport."""
+
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
         raise WhatsAppCloudApiError(
             "WhatsApp Cloud API credentials are incomplete",
             code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
         )
-    try:
-        validate_template_parameters(
-            message_type=message_type,
-            header_parameters=header_parameters or [],
-            body_parameters=parameters,
-        )
-    except ValueError as exc:
-        raise WhatsAppCloudApiError(
-            f"Invalid WhatsApp template payload: {exc}",
-            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
-        ) from exc
-
     template: dict[str, Any] = {
         "name": template_name,
-        "language": {"code": settings.whatsapp_template_language},
+        "language": {"code": language_code},
     }
-    components: list[dict[str, Any]] = []
-    if header_parameters:
-        components.append(
-            {
-                "type": "header",
-                "parameters": [_image_parameter(header_parameters[0])],
-            }
-        )
-    if parameters:
-        components.append(
-            {
-                "type": "body",
-                "parameters": [_text_parameter(parameter) for parameter in parameters],
-            }
-        )
     if components:
         template["components"] = components
 
@@ -539,22 +494,13 @@ async def send_whatsapp_template(
         provider_code, provider_subcode, meta_reference = _meta_error_reference(data)
         if response.status_code == 429:
             code = "WHATSAPP_PROVIDER_RATE_LIMITED"
-            message = (
-                "Meta temporarily rate-limited this template message"
-                f"{meta_reference}"
-            )
+            message = f"Meta temporarily rate-limited this template message{meta_reference}"
         elif response.status_code in {401, 403}:
             code = "WHATSAPP_PROVIDER_AUTH_FAILED"
-            message = (
-                "Meta rejected the configured WhatsApp credentials"
-                f"{meta_reference}"
-            )
+            message = f"Meta rejected the configured WhatsApp credentials{meta_reference}"
         elif response.status_code >= 500:
             code = "WHATSAPP_DELIVERY_UNKNOWN"
-            message = (
-                "Meta returned a server error and delivery status is unknown"
-                f"{meta_reference}"
-            )
+            message = f"Meta returned a server error and delivery status is unknown{meta_reference}"
         else:
             code = "WHATSAPP_PROVIDER_REJECTED"
             message = (
@@ -590,3 +536,97 @@ async def send_whatsapp_template(
             delivery_unknown=True,
         )
     return str(provider_id)
+
+
+async def send_whatsapp_authentication_template(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    to_number: str,
+    template_name: str,
+    language_code: str,
+    code: str,
+) -> str:
+    """Send an approved Meta authentication template with its OTP button value."""
+
+    if not template_name.strip() or not language_code.strip():
+        raise WhatsAppCloudApiError(
+            "WhatsApp authentication template configuration is incomplete",
+            code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
+        )
+    if len(code) != 6 or not code.isascii() or not code.isdigit():
+        raise WhatsAppCloudApiError(
+            "Invalid WhatsApp authentication template payload",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        )
+
+    # Meta authentication templates bind the same code to BODY {{1}} and the
+    # first OTP button. COPY_CODE, ONE_TAP, and ZERO_TAP templates use this
+    # send-time URL-button representation; approval determines the fallback UI.
+    components: list[dict[str, Any]] = [
+        {
+            "type": "body",
+            "parameters": [_text_parameter(code)],
+        },
+        {
+            "type": "button",
+            "sub_type": "url",
+            "index": "0",
+            "parameters": [_text_parameter(code)],
+        },
+    ]
+    return await _send_whatsapp_template_payload(
+        client=client,
+        settings=settings,
+        to_number=to_number,
+        template_name=template_name,
+        language_code=language_code,
+        components=components,
+    )
+
+
+async def send_whatsapp_template(
+    *,
+    client: httpx.AsyncClient,
+    settings: Settings,
+    to_number: str,
+    template_name: str,
+    message_type: WhatsAppMessageType,
+    parameters: list[str],
+    header_parameters: list[str] | None = None,
+) -> str:
+    try:
+        validate_template_parameters(
+            message_type=message_type,
+            header_parameters=header_parameters or [],
+            body_parameters=parameters,
+        )
+    except ValueError as exc:
+        raise WhatsAppCloudApiError(
+            f"Invalid WhatsApp template payload: {exc}",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        ) from exc
+
+    components: list[dict[str, Any]] = []
+    if header_parameters:
+        components.append(
+            {
+                "type": "header",
+                "parameters": [_image_parameter(header_parameters[0])],
+            }
+        )
+    if parameters:
+        components.append(
+            {
+                "type": "body",
+                "parameters": [_text_parameter(parameter) for parameter in parameters],
+            }
+        )
+    return await _send_whatsapp_template_payload(
+        client=client,
+        settings=settings,
+        to_number=to_number,
+        template_name=template_name,
+        language_code=settings.whatsapp_template_language,
+        components=components,
+    )

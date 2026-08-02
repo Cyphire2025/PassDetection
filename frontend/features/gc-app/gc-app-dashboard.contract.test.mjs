@@ -19,6 +19,7 @@ const access = read("./components/group-access-panel.tsx");
 const workspace = read("./components/app-control-group-workspace.tsx");
 const commonDocuments = read("./components/common-documents-panel.tsx");
 const dialog = read("./components/gc-dialog.tsx");
+const feedback = read("./components/gc-app-feedback.tsx");
 const types = read("./types.ts");
 const groupRoute = read("../../app/(dashboard)/gc-app/app-controls/[groupId]/page.tsx");
 
@@ -71,6 +72,14 @@ test("group discovery is bounded and GC access mutations are revision safe", () 
   assert.match(access, /does not close, archive, delete, or revoke the passport collection group/);
 });
 
+test("company/client management remains visible and guarded", () => {
+  assert.match(controls, /Saved company\/clients/);
+  assert.match(controls, /Type the exact name to confirm/);
+  assert.match(controls, /companyRemovalConfirmation\.trim\(\) !== pendingCompanyRemoval\.name/);
+  assert.match(api, /client-organizations\/\$\{organizationId\}/);
+  assert.match(hooks, /removeClientOrganization/);
+});
+
 test("publishing remains inside App Controls and includes draft/versioned content", () => {
   assert.match(workspace, /"itinerary" \| "documents" \| "announcements"/);
   assert.match(api, /itineraries\/preview/);
@@ -101,4 +110,15 @@ test("new dialogs expose accessible dialog semantics and keyboard handling", () 
   assert.match(dialog, /event\.key === "Escape"/);
   assert.match(dialog, /event\.key !== "Tab"/);
   assert.match(dialog, /motion-safe:animate-in/);
+  assert.match(dialog, /const onCloseRef = useRef\(onClose\)/);
+  assert.match(dialog, /\}, \[open\]\);/);
+});
+
+test("access switches contain their knobs and expose names and states", () => {
+  assert.match(feedback, /role="switch"/);
+  assert.match(feedback, /aria-labelledby=\{labelId\}/);
+  assert.match(feedback, /aria-describedby=\{statusId\}/);
+  assert.match(feedback, /overflow-hidden/);
+  assert.match(feedback, /left-0\.5 top-0\.5/);
+  assert.match(feedback, /checked \? "Enabled" : "Disabled"/);
 });

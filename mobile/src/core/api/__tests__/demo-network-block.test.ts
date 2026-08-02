@@ -1,0 +1,25 @@
+import { z } from 'zod';
+
+import { ApiError, apiRequest, authorizedDownloadResponse } from '../client';
+
+jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => true }));
+
+describe('demo network boundary', () => {
+  it('blocks JSON API calls before fetch', async () => {
+    const fetchSpy = jest.spyOn(globalThis, 'fetch');
+
+    await expect(apiRequest('/mobile/trips', { schema: z.unknown() })).rejects.toMatchObject<
+      Partial<ApiError>
+    >({ code: 'DEMO_LOCAL_ONLY', status: 503 });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('blocks document downloads before fetch', async () => {
+    const fetchSpy = jest.spyOn(globalThis, 'fetch');
+
+    await expect(
+      authorizedDownloadResponse('/mobile/documents/demo/content', 'a'.repeat(32)),
+    ).rejects.toMatchObject<Partial<ApiError>>({ code: 'DEMO_LOCAL_ONLY', status: 503 });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});

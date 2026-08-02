@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, LoaderCircle } from "lucide-react";
+import { useId } from "react";
 import { Button, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
 
@@ -102,28 +103,38 @@ export function AccessSwitch({
   disabled?: boolean;
   onChange: (checked: boolean) => void;
 }) {
+  const labelId = useId();
+  const statusId = useId();
+
   return (
-    <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">
-      <span>{label}</span>
+    <div className="flex min-h-14 items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <span className="min-w-0">
+        <span id={labelId} className="block text-sm font-medium text-slate-800">{label}</span>
+        <span id={statusId} className={cn("mt-0.5 block text-xs", checked ? "text-blue-700" : "text-slate-500")}>
+          {checked ? "Enabled" : "Disabled"}
+        </span>
+      </span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
-        aria-label={label}
+        aria-labelledby={labelId}
+        aria-describedby={statusId}
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-50",
+          "relative h-7 w-12 shrink-0 overflow-hidden rounded-full border border-transparent transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           checked ? "bg-blue-600" : "bg-slate-300",
         )}
       >
         <span
+          aria-hidden="true"
           className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform motion-reduce:transition-none",
-            checked ? "translate-x-5" : "translate-x-0.5",
+            "absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow-sm transition-transform motion-reduce:transition-none",
+            checked ? "translate-x-5" : "translate-x-0",
           )}
         />
       </button>
-    </label>
+    </div>
   );
 }

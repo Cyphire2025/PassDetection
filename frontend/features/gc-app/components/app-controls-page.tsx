@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, Plus, Search, Settings2, Smartphone } from "lucide-react";
+import { AlertTriangle, Building2, Plus, Search, Settings2, Smartphone, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Badge, Button, Card, CardContent, Input, buttonVariants } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -11,7 +11,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils/cn";
 import { GC_APP_DEFAULT_PAGE_SIZE } from "../api/gc-app-admin.api";
 import { useClientCompanies, useClientCompanyMutations, useGcAppGroupMutations, useGcAppGroups, useGcGroupSearch } from "../hooks/use-gc-app-admin";
-import type { GcAppGroupControl, GcAppGroupLifecycle } from "../types";
+import type { GcAppGroupControl, GcAppGroupLifecycle, GcCompanyReference } from "../types";
 import { formatGcDateTime, gcAppErrorMessage } from "../utils";
 import { AccessSwitch, GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
@@ -28,6 +28,9 @@ export function AppControlsPage() {
   const [pickerSearch, setPickerSearch] = useState("");
   const [pickerCompanyId, setPickerCompanyId] = useState("");
   const [newCompanyName, setNewCompanyName] = useState("");
+  const [pickerError, setPickerError] = useState<string | null>(null);
+  const [pendingCompanyRemoval, setPendingCompanyRemoval] = useState<GcCompanyReference | null>(null);
+  const [companyRemovalConfirmation, setCompanyRemovalConfirmation] = useState("");
   const [pendingAction, setPendingAction] = useState<PendingGroupAction>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
@@ -43,6 +46,9 @@ export function AppControlsPage() {
   const companies = useClientCompanies(agencyId);
   const companyActions = useClientCompanyMutations(agencyId);
   const actions = useGcAppGroupMutations(agencyId);
+  const companyItems = companies.data?.items ?? [];
+  const activeCompanies = companyItems.filter((company) => company.status !== "inactive");
+  const pickerBusy = actions.add.isPending || companyActions.create.isPending || companyActions.remove.isPending;
   const mutationPending = actions.add.isPending
     || actions.updateControl.isPending
     || actions.revoke.isPending
@@ -79,13 +85,41 @@ export function AppControlsPage() {
     }
   };
 
+  const openPicker = () => {
+    setPickerError(null);
+    setPendingCompanyRemoval(null);
+    setCompanyRemovalConfirmation("");
+    setPickerOpen(true);
+  };
+
+  const closePicker = () => {
+    if (pickerBusy) return;
+    setPickerOpen(false);
+    setPickerError(null);
+    setPendingCompanyRemoval(null);
+    setCompanyRemovalConfirmation("");
+  };
+
+  const removeCompany = async () => {
+    if (!pendingCompanyRemoval || companyRemovalConfirmation.trim() !== pendingCompanyRemoval.name) return;
+    setPickerError(null);
+    try {
+      await companyActions.remove.mutateAsync(pendingCompanyRemoval);
+      if (pickerCompanyId === pendingCompanyRemoval.id) setPickerCompanyId("");
+      setPendingCompanyRemoval(null);
+      setCompanyRemovalConfirmation("");
+    } catch (error) {
+      setPickerError(gcAppErrorMessage(error, "The company/client could not be removed."));
+    }
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader
         title="App Controls"
         description="Explicitly enable groups, configure role access, publish content, and revoke mobile access."
         actions={(
-          <Button type="button" leftIcon={<Plus className="h-4 w-4" />} onClick={() => setPickerOpen(true)}>
+          <Button type="button" leftIcon={<Plus className="h-4 w-4" />} onClick={openPicker}>
             Add group to GC App
           </Button>
         )}
@@ -114,7 +148,7 @@ export function AppControlsPage() {
               className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="">Select company/client before adding</option>
-              {companies.data?.items.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
+              {activeCompanies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
             </select>
             {companies.isError && <p role="alert" className="text-xs text-red-700">Companies could not be loaded.</p>}
           </div>
@@ -148,7 +182,7 @@ export function AppControlsPage() {
           icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
           title="No groups enabled in GC App"
           description={search || lifecycle !== "all" ? "Adjust the search or lifecycle filter." : "Groups remain unavailable in the mobile app until staff explicitly add them here."}
-          action={!search && lifecycle === "all" ? { label: "Add group to GC App", onClick: () => setPickerOpen(true) } : undefined}
+          action={!search && lifecycle === "all" ? { label: "Add group to GC App", onClick: openPicker } : undefined}
         />
       ) : (
         <div className="space-y-4">
@@ -181,12 +215,13 @@ export function AppControlsPage() {
         open={pickerOpen}
         title="Add group to GC App"
         description="Only active eligible groups appear here. Adding a group does not enable any user role automatically."
-        onClose={() => !actions.add.isPending && setPickerOpen(false)}
-        closeDisabled={actions.add.isPending}
+        onClose={closePicker}
+        closeDisabled={pickerBusy}
         size="lg"
       >
         <div className="space-y-4">
-          <div className="space-y-2 rounded-xl border border-slate-200 p-4">
+          {pickerError && <GcAlert message={pickerError} />}
+          <div className="space-y-4 rounded-xl border border-slate-200 p-4">
             <label htmlFor="gc-app-group-company" className="block text-sm font-medium text-slate-700">
               Assigned company/client
             </label>
@@ -197,7 +232,7 @@ export function AppControlsPage() {
               className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="">Select company/client</option>
-              {companies.data?.items.map((company) => (
+              {activeCompanies.map((company) => (
                 <option key={company.id} value={company.id}>{company.name}</option>
               ))}
             </select>
@@ -217,17 +252,100 @@ export function AppControlsPage() {
                 onClick={() => {
                   const name = newCompanyName.trim();
                   if (!name) return;
-                  setActionError(null);
+                  setPickerError(null);
                   void companyActions.create.mutateAsync(name).then((company) => {
                     setPickerCompanyId(company.id);
                     setNewCompanyName("");
                   }).catch((error: unknown) => {
-                    setActionError(gcAppErrorMessage(error, "The company/client could not be created."));
+                    setPickerError(gcAppErrorMessage(error, "The company/client could not be created."));
                   });
                 }}
               >
                 Add
               </Button>
+            </div>
+
+            <div className="border-t border-slate-200 pt-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                    <Building2 className="h-4 w-4 text-slate-500" aria-hidden="true" />
+                    Saved company/clients
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">All company/client records available in this agency workspace.</p>
+                </div>
+                <Badge variant="outline">{activeCompanies.length}</Badge>
+              </div>
+
+              <div className="mt-3 max-h-44 overflow-y-auto rounded-lg border border-slate-200">
+                {companies.isLoading ? <GcLoadingRows count={2} /> : companies.isError ? (
+                  <p role="alert" className="p-4 text-sm text-red-700">Companies could not be loaded.</p>
+                ) : activeCompanies.length === 0 ? (
+                  <p className="p-4 text-center text-sm text-slate-500">No company/client records have been added.</p>
+                ) : activeCompanies.map((company) => (
+                  <div key={company.id} className="flex items-center justify-between gap-3 border-b border-slate-100 px-3 py-2.5 last:border-0">
+                    <span className="min-w-0 truncate text-sm font-medium text-slate-800">{company.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="shrink-0 text-red-700 hover:bg-red-50 hover:text-red-800"
+                      leftIcon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
+                      disabled={pickerBusy}
+                      onClick={() => {
+                        setPickerError(null);
+                        setPendingCompanyRemoval(company);
+                        setCompanyRemovalConfirmation("");
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {pendingCompanyRemoval && (
+                <div className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-3" role="group" aria-labelledby="remove-company-heading">
+                  <div className="flex gap-2 text-sm text-amber-950">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                    <div>
+                      <p id="remove-company-heading" className="font-semibold">Remove {pendingCompanyRemoval.name}?</p>
+                      <p className="mt-1 text-xs leading-5">Removal is blocked if any enabled GC App group or Client Manager account still uses this company/client. Type the exact name to confirm.</p>
+                    </div>
+                  </div>
+                  <Input
+                    aria-label={`Type ${pendingCompanyRemoval.name} to confirm removal`}
+                    value={companyRemovalConfirmation}
+                    onChange={(event) => setCompanyRemovalConfirmation(event.target.value)}
+                    placeholder={pendingCompanyRemoval.name}
+                    autoComplete="off"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={companyActions.remove.isPending}
+                      onClick={() => {
+                        setPendingCompanyRemoval(null);
+                        setCompanyRemovalConfirmation("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      isLoading={companyActions.remove.isPending}
+                      disabled={companyRemovalConfirmation.trim() !== pendingCompanyRemoval.name}
+                      onClick={() => void removeCompany()}
+                    >
+                      Remove company/client
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <Input
@@ -254,17 +372,19 @@ export function AppControlsPage() {
                   isLoading={actions.add.isPending && actions.add.variables?.group.id === group.id}
                   disabled={actions.add.isPending || !pickerCompanyId}
                   onClick={() => {
-                    setActionError(null);
-                    const company = companies.data?.items.find((item) => item.id === pickerCompanyId);
+                    setPickerError(null);
+                    const company = activeCompanies.find((item) => item.id === pickerCompanyId);
                     if (!company) {
-                      setActionError("Select the company/client that owns this group.");
+                      setPickerError("Select the company/client that owns this group.");
                       return;
                     }
                     void actions.add.mutateAsync({ group, company }).then(() => {
                       setPickerOpen(false);
                       setPickerCompanyId("");
+                      setPendingCompanyRemoval(null);
+                      setCompanyRemovalConfirmation("");
                     }).catch((error: unknown) => {
-                      setActionError(gcAppErrorMessage(error, "The group could not be added to GC App."));
+                      setPickerError(gcAppErrorMessage(error, "The group could not be added to GC App."));
                     });
                   }}
                 >

@@ -83,12 +83,17 @@ export function useClientCompanies(agencyId: string | null, search = "") {
 
 export function useClientCompanyMutations(agencyId: string | null) {
   const queryClient = useQueryClient();
+  const invalidateCompanies = () => queryClient.invalidateQueries({
+    queryKey: [...gcAppQueryKeys.root, agencyId, "client-companies"],
+  });
   return {
     create: useMutation({
       mutationFn: (name: string) => gcAppAdminApi.createClientOrganization(agencyId, name),
-      onSuccess: () => queryClient.invalidateQueries({
-        queryKey: [...gcAppQueryKeys.root, agencyId, "client-companies"],
-      }),
+      onSuccess: invalidateCompanies,
+    }),
+    remove: useMutation({
+      mutationFn: (company: GcCompanyReference) => gcAppAdminApi.removeClientOrganization(agencyId, company.id),
+      onSuccess: invalidateCompanies,
     }),
   };
 }

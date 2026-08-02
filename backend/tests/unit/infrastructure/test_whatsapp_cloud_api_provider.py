@@ -10,6 +10,7 @@ import httpx
 
 from app.infrastructure.whatsapp.cloud_api_provider import (
     WhatsAppCloudApiError,
+    send_whatsapp_authentication_template,
     send_whatsapp_document_template,
     send_whatsapp_template,
     upload_whatsapp_image,
@@ -85,6 +86,64 @@ class WhatsAppCloudApiProviderTests(unittest.IsolatedAsyncioTestCase):
                 },
             ],
         )
+
+    async def test_authentication_template_binds_code_to_body_and_otp_button(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=200,
+            json=lambda: {"messages": [{"id": "wamid.otp-123"}]},
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        provider_id = await send_whatsapp_authentication_template(
+            client=client,
+            settings=self._settings(),
+            to_number="+919876543210",
+            template_name="verify_code_1",
+            language_code="en_US",
+            code="483920",
+        )
+
+        self.assertEqual(provider_id, "wamid.otp-123")
+        payload = client.post.await_args.kwargs["json"]
+        self.assertEqual(payload["to"], "919876543210")
+        self.assertEqual(
+            payload["template"],
+            {
+                "name": "verify_code_1",
+                "language": {"code": "en_US"},
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [{"type": "text", "text": "483920"}],
+                    },
+                    {
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": "0",
+                        "parameters": [{"type": "text", "text": "483920"}],
+                    },
+                ],
+            },
+        )
+
+    async def test_authentication_template_rejects_non_six_digit_code_before_http(
+        self,
+    ) -> None:
+        client = types.SimpleNamespace(post=AsyncMock())
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await send_whatsapp_authentication_template(
+                client=client,
+                settings=self._settings(),
+                to_number="+919876543210",
+                template_name="verify_code_1",
+                language_code="en_US",
+                code="12A456",
+            )
+
+        self.assertEqual(raised.exception.code, "WHATSAPP_TEMPLATE_PAYLOAD_INVALID")
+        self.assertNotIn("12A456", str(raised.exception))
+        client.post.assert_not_awaited()
 
     async def test_uploads_welcome_image_and_returns_meta_media_id(self) -> None:
         response = types.SimpleNamespace(
