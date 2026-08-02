@@ -200,6 +200,7 @@ export interface RoomingPriorityField {
   key: string;
   label: string;
   source: string;
+  groupable: boolean;
 }
 
 export interface RoomingPriorityFieldOptions {
@@ -207,6 +208,12 @@ export interface RoomingPriorityFieldOptions {
   fields: RoomingPriorityField[];
   max_priority_fields: number;
   gender_rule: string;
+}
+
+export interface RoomingRosterFieldValues {
+  group_id: string;
+  field: RoomingPriorityField;
+  values_by_passenger: Record<string, string | null>;
 }
 
 export interface RoomingPassenger {
@@ -448,6 +455,7 @@ export interface QrDeliveryPreview {
     already_sent: number;
     in_progress: number;
     blocked: number;
+    ambiguous_recipients?: number;
   };
   recipients: QrDeliveryPreviewRecipient[];
 }
@@ -582,6 +590,17 @@ export const operationsApi = {
   roomingPriorityFields: async (groupId: string): Promise<RoomingPriorityFieldOptions> => {
     const { data } = await apiClient.get<RoomingPriorityFieldOptions>(
       API_ENDPOINTS.rooming.priorityFields(groupId),
+    );
+    return data;
+  },
+
+  roomingRosterFieldValues: async (
+    groupId: string,
+    fieldKey: string,
+  ): Promise<RoomingRosterFieldValues> => {
+    const { data } = await apiClient.get<RoomingRosterFieldValues>(
+      API_ENDPOINTS.rooming.rosterFieldValues(groupId),
+      { params: { field_key: fieldKey } },
     );
     return data;
   },

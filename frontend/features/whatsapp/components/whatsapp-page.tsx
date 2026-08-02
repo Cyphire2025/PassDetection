@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   type Dispatch,
   type FormEvent,
@@ -108,6 +109,7 @@ type MessageTarget = {
 type PersistedBatch = {
   id: string;
   startedAt: number;
+  groupId?: string;
   skipped_already_sent?: number;
   skipped_in_progress?: number;
   skipped_delivery_unknown?: number;
@@ -476,6 +478,7 @@ function ExcelRecipientImport({
 }
 
 export function WhatsAppPage() {
+  const queryClient = useQueryClient();
   const { data: groups = [], isLoading, error } = useWhatsAppGroups();
   const createGroup = useCreateWhatsAppGroup();
   const deleteGroup = useDeleteWhatsAppGroup();
@@ -504,6 +507,7 @@ export function WhatsAppPage() {
       }
     },
   );
+  const refreshedTerminalBatchRef = useRef<string | null>(null);
   const clearMissingBatchTracking = useCallback((missingBatchId: string) => {
     setLastSend((current) =>
       current?.batch_id === missingBatchId ? null : current,
@@ -543,7 +547,27 @@ export function WhatsAppPage() {
     )
       return;
     window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
-  }, [currentBatch]);
+    if (refreshedTerminalBatchRef.current === currentBatch.batch_id) return;
+    refreshedTerminalBatchRef.current = currentBatch.batch_id;
+    const completedGroupId = persistedBatch?.groupId;
+    if (!completedGroupId) return;
+    void Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ["whatsapp", "groups"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["whatsapp", "groups", completedGroupId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: [
+          "whatsapp",
+          "groups",
+          completedGroupId,
+          "recipient-roster",
+        ],
+      }),
+    ]);
+  }, [currentBatch, persistedBatch?.groupId, queryClient]);
   const openMessagePreview = (
     group: WhatsAppBroadcastGroup,
     messageType: WhatsAppMessageType,
@@ -794,6 +818,7 @@ export function WhatsAppPage() {
               const savedBatch = {
                 id: result.batch_id,
                 startedAt: Date.now(),
+                groupId: messageTarget.group.id,
                 skipped_already_sent: result.skipped_already_sent,
                 skipped_in_progress: result.skipped_in_progress,
                 skipped_delivery_unknown: result.skipped_delivery_unknown,

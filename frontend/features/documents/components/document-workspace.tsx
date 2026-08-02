@@ -45,7 +45,6 @@ import {
   useVerifyDistributionDocuments,
 } from "../hooks/use-document-distribution";
 import {
-  createDocumentUploadSession,
   type DocumentUploadProgress,
   type DocumentUploadSession,
 } from "../services/document-upload-batching";
@@ -152,6 +151,23 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       not_sent: notSent.length,
     };
   }, [reviewRows]);
+  const assignmentIssues = useMemo(() => {
+    if (review.data?.assignment_issues) return review.data.assignment_issues;
+    return (review.data?.unmatched_documents ?? []).map((document) => ({
+      document_id: document.id,
+      original_filename: document.original_filename,
+      code: "no_unique_passenger_match",
+      reason: document.match_reason || "No unique passenger match was found.",
+      url: document.url,
+    }));
+  }, [review.data]);
+  const physicalFileCount = review.data?.physical_file_count ?? review.data?.uploaded_count ?? 0;
+  const assignedFileCount =
+    review.data?.assigned_file_count ?? Math.max(physicalFileCount - assignmentIssues.length, 0);
+  const assignedPassengerCount =
+    review.data?.assigned_passenger_count ?? reviewCounts.assigned;
+  const needsAssignmentCount =
+    review.data?.needs_assignment_count ?? assignmentIssues.length;
   const visibleReviewRows = useMemo(
     () =>
       reviewRows.filter((row) => {
@@ -173,9 +189,15 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     [reviewFilter, reviewRows],
   );
   const acceptedFiles = useMemo(() => {
-    if (!verification) return [];
-    return selectedFiles.filter((_file, index) => verification.files[index]?.accepted);
-  }, [selectedFiles, verification]);
+    if (!uploadSession) return [];
+    return uploadSession.chunks.flat();
+  }, [uploadSession]);
+  const acceptedStagingReceipts = useMemo(() => {
+    if (!verification) return undefined;
+    return verification.files
+      .filter((file) => file.accepted)
+      .map((file) => file.staging_receipt);
+  }, [verification]);
   const showRowActions = selectedType === "visa" || selectedType === "flight_ticket";
   const assignedDocumentIds = useMemo(
     () =>
@@ -314,7 +336,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       },
     }, {
       onSuccess: (data) => {
-        setVerification(data);
+        setVerification(data.verification);
+        setUploadSession(data.uploadSession);
         setProgress(100);
         setPhase("idle");
       },
@@ -332,15 +355,10 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       );
       return;
     }
-    let activeSession = uploadSession;
+    const activeSession = uploadSession;
     if (!activeSession) {
-      try {
-        activeSession = createDocumentUploadSession(acceptedFiles);
-        setUploadSession(activeSession);
-      } catch (error) {
-        setSelectionError(error instanceof Error ? error.message : "The selected PDFs are invalid");
-        return;
-      }
+      setSelectionError("Check the selected PDFs again before uploading them.");
+      return;
     }
     setSelectionError(null);
     setPhase("uploading");
@@ -348,6 +366,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     upload.mutate(
       {
         files: acceptedFiles,
+        stagingReceipts: acceptedStagingReceipts,
         session: activeSession,
         onProgress: (value) => {
           setPhase("uploading");
@@ -598,7 +617,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               <div>
                 <h2 className="text-base font-semibold text-slate-900">Review Matches</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  {reviewCounts.assigned} assigned, {reviewCounts.missing} missing, {review.data?.rejected_count ?? 0} rejected.
+                  {assignedFileCount} files assigned across {assignedPassengerCount} passengers, {needsAssignmentCount} need assignment, {review.data?.rejected_count ?? 0} rejected.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -663,6 +682,65 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 </Button>
               </div>
             </div>
+
+            {review.data && physicalFileCount > 0 && (
+              <div className={`border-b p-5 ${needsAssignmentCount > 0 ? "border-amber-200 bg-amber-50/70" : "border-emerald-100 bg-emerald-50/60"}`}>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className={`flex items-center gap-2 text-sm font-semibold ${needsAssignmentCount > 0 ? "text-amber-950" : "text-emerald-900"}`}>
+                      {needsAssignmentCount > 0 ? <FileQuestion className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                      Needs assignment ({needsAssignmentCount})
+                    </h3>
+                    <p className={`mt-1 text-sm ${needsAssignmentCount > 0 ? "text-amber-800" : "text-emerald-800"}`}>
+                      {assignedFileCount} verified files are assigned across {assignedPassengerCount} passengers.
+                      {assignedFileCount !== assignedPassengerCount
+                        ? " Multiple files can be correctly assigned to the same passenger."
+                        : ""}
+                    </p>
+                  </div>
+                  <div className="text-xs font-medium text-slate-600">
+                    {physicalFileCount} verified files stored
+                  </div>
+                </div>
+
+                {assignmentIssues.length > 0 ? (
+                  <div className="mt-3 max-h-64 space-y-2 overflow-auto">
+                    {assignmentIssues.map((issue) => (
+                      <div key={issue.document_id} className="flex items-start gap-3 rounded-lg border border-amber-200 bg-white px-3 py-2.5 text-sm">
+                        <input
+                          type="checkbox"
+                          className="mt-0.5 h-4 w-4 rounded border-amber-300"
+                          aria-label={`Select ${issue.original_filename}`}
+                          checked={activeSelectedDocumentIdSet.has(issue.document_id)}
+                          disabled={removalPending}
+                          onChange={(event) => {
+                            setSelectedDocumentIds((current) =>
+                              event.target.checked
+                                ? Array.from(new Set([...current, issue.document_id]))
+                                : current.filter((id) => id !== issue.document_id),
+                            );
+                          }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          {issue.url ? (
+                            <a href={issue.url} target="_blank" rel="noreferrer" className="break-all font-semibold text-amber-950 hover:underline">
+                              {issue.original_filename}
+                            </a>
+                          ) : (
+                            <div className="break-all font-semibold text-amber-950">{issue.original_filename}</div>
+                          )}
+                          <div className="mt-1 text-amber-800">{issue.reason}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-3 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm text-emerald-800">
+                    Every verified stored file has a passenger assignment.
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-5 py-3">
               {([
@@ -895,35 +973,6 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               </div>
             )}
 
-            {review.data && review.data.unmatched_documents.length > 0 && (
-              <div className="border-t border-slate-100 p-5">
-                <h3 className="text-sm font-semibold text-slate-900">Needs Manual Review</h3>
-                <div className="mt-3 grid gap-2">
-                  {review.data.unmatched_documents.map((document) => (
-                    <div key={document.id} className="flex items-center justify-between gap-3 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-amber-300"
-                          aria-label={`Select ${document.original_filename}`}
-                          checked={activeSelectedDocumentIdSet.has(document.id)}
-                          disabled={removalPending}
-                          onChange={(event) => {
-                            setSelectedDocumentIds((current) =>
-                              event.target.checked
-                                ? Array.from(new Set([...current, document.id]))
-                                : current.filter((id) => id !== document.id),
-                            );
-                          }}
-                        />
-                        <span className="truncate font-medium text-amber-950">{document.original_filename}</span>
-                      </div>
-                      <span className="text-right text-amber-700">{document.match_reason || document.match_status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       )}
@@ -1181,7 +1230,7 @@ function RemoveAssignmentsDialog({
           >
             <div className="font-semibold text-blue-950">Keep saved PDFs</div>
             <div className="mt-1 text-sm leading-5 text-blue-800">
-              Remove the passenger assignments and move the PDFs to Needs Manual Review so they can
+              Remove the passenger assignments and move the PDFs to Needs assignment so they can
               be assigned again later.
             </div>
           </button>

@@ -44,6 +44,10 @@ from app.infrastructure.documents.storage_cleanup import (
     process_storage_cleanup_job,
     stage_storage_cleanup_jobs,
 )
+from app.infrastructure.documents.storage_transfers import (
+    finish_cleanup_despite_cancellation,
+    run_bounded_storage_operations,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.document_chunk_uploads import (
@@ -630,7 +634,7 @@ async def analyze_and_rename_documents(
         )
     except UnsupportedDocumentBatchFormatError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=422,
             detail=str(exc),
         ) from exc
     except DocumentParserUnavailableError as exc:
@@ -639,6 +643,7 @@ async def analyze_and_rename_documents(
             detail=str(exc),
             headers={"Retry-After": "1"},
         ) from exc
+    storage_operations = []
     try:
         for upload, classification in zip(uploads, classifications, strict=True):
             supported = classification.detected_type in SUPPORTED_TRAVEL_DOCUMENT_TYPES
@@ -654,7 +659,13 @@ async def analyze_and_rename_documents(
                     f"document-rename/{batch_id}/{document_id}-{_safe_part(upload.filename)}"
                 )
                 uploaded_keys.append(storage_key)
-                await storage.upload_file(upload.content, storage_key, "application/pdf")
+                storage_operations.append(
+                    lambda payload=upload.content, key=storage_key: storage.upload_file(
+                        payload,
+                        key,
+                        "application/pdf",
+                    )
+                )
                 reason = _reason(classification.extracted_name, detected_type)
                 item_status = "renamed" if reason is None else "needs_review"
             else:
@@ -685,12 +696,15 @@ async def analyze_and_rename_documents(
                 updated_at=now,
             )
             items.append(item)
-    except Exception:
-        await _cleanup_owned_rename_storage(
-            storage,
-            uploaded_keys,
-            agency_id=agency_id,
-            batch_id=batch_id,
+        await run_bounded_storage_operations(storage_operations)
+    except BaseException:
+        await finish_cleanup_despite_cancellation(
+            _cleanup_owned_rename_storage(
+                storage,
+                uploaded_keys,
+                agency_id=agency_id,
+                batch_id=batch_id,
+            )
         )
         raise
 
@@ -841,13 +855,15 @@ async def analyze_and_rename_documents(
             },
         )
         await session.flush()
-    except Exception:
+    except BaseException:
         await session.rollback()
-        await _cleanup_owned_rename_storage(
-            storage,
-            uploaded_keys,
-            agency_id=agency_id,
-            batch_id=batch_id,
+        await finish_cleanup_despite_cancellation(
+            _cleanup_owned_rename_storage(
+                storage,
+                uploaded_keys,
+                agency_id=agency_id,
+                batch_id=batch_id,
+            )
         )
         raise
     try:
@@ -1020,7 +1036,7 @@ async def download_renamed_zip(
                     total_uncompressed_bytes += len(content)
                     if total_uncompressed_bytes > MAX_RENAME_ARCHIVE_UNCOMPRESSED_BYTES:
                         raise HTTPException(
-                            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                            status_code=413,
                             detail="The renamed ZIP exceeds the 512 MB safety limit",
                         )
                     filename = renamed_filename

@@ -26,14 +26,16 @@ import {
   MessageCircle,
   Mail,
   UtensilsCrossed,
+  Smartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useUIStore, selectSidebarCollapsed } from "@/stores/ui.store";
 import { ROUTES } from "@/constants/routes";
 import { Button } from "@/components/ui";
-import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { selectUser, selectUserRole, useAuthStore } from "@/stores/auth.store";
 import type { UserRole } from "@/types";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { canManageGcApp } from "@/lib/utils/role-access";
 
 interface NavItem {
   label: string;
@@ -41,6 +43,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
   activePrefixes?: string[];
+  requiresGcAppManagement?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -61,6 +64,13 @@ const NAV_ITEMS: NavItem[] = [
     roles: ["super_admin", "agency_admin", "agency_manager", "agency_staff"],
     activePrefixes: [ROUTES.dashboard.tourOperationsGroupAssignments, "/tour-operations/groups"],
   },
+  {
+    label: "GC App",
+    href: ROUTES.dashboard.gcAppClientManagerAccounts,
+    icon: Smartphone,
+    activePrefixes: [ROUTES.dashboard.gcAppRoot],
+    requiresGcAppManagement: true,
+  },
   { label: "Manager",      href: ROUTES.dashboard.admin,       icon: Shield, roles: ["super_admin", "agency_admin"] },
   { label: "Staff",        href: ROUTES.dashboard.staff,       icon: UserCog, roles: ["super_admin", "agency_admin", "agency_manager"] },
   { label: "Analytics",    href: ROUTES.dashboard.analytics,   icon: BarChart3, roles: ["super_admin", "agency_admin"] },
@@ -74,7 +84,11 @@ export function Sidebar() {
   const isCollapsed     = useUIStore(selectSidebarCollapsed);
   const toggleSidebar   = useUIStore((s) => s.toggleSidebar);
   const role            = useAuthStore(selectUserRole);
-  const visibleItems    = NAV_ITEMS.filter((item) => !item.roles || (role && item.roles.includes(role)));
+  const user            = useAuthStore(selectUser);
+  const visibleItems    = NAV_ITEMS.filter((item) =>
+    (!item.roles || (role && item.roles.includes(role)))
+    && (!item.requiresGcAppManagement || canManageGcApp(user)),
+  );
 
   return (
     <aside

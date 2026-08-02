@@ -165,6 +165,24 @@ test("saved rejected contacts can be corrected into unsent recipients", () => {
   assert.match(pageSource, /added to the valid recipient list as Not sent/);
 });
 
+test("batch summary polling replaces repeated full-roster refreshes", () => {
+  const rosterHookStart = hooksSource.indexOf(
+    "export function useWhatsAppRecipientRoster",
+  );
+  const rosterHookEnd = hooksSource.indexOf(
+    "export function useWhatsAppRejectedContacts",
+    rosterHookStart,
+  );
+  const rosterHook = hooksSource.slice(rosterHookStart, rosterHookEnd);
+
+  assert.doesNotMatch(rosterHook, /status\.status === "queued"/);
+  assert.doesNotMatch(rosterHook, /status\.status === "processing"/);
+  assert.match(rosterHook, /status\.latest_resend_status === "queued"/);
+  assert.match(pageSource, /groupId: messageTarget\.group\.id/);
+  assert.match(pageSource, /refreshedTerminalBatchRef/);
+  assert.match(pageSource, /"recipient-roster"/);
+});
+
 test("rejected rows retain imported fields and expose inline correction controls", () => {
   assert.match(apiSource, /interface WhatsAppRejectedContactInput[\s\S]*imported_fields\?: Record<string, string>/);
   assert.match(pageSource, /imported_fields: contact\.imported_fields/);

@@ -151,6 +151,65 @@ async def test_multiple_documents_for_one_passenger_are_all_preserved() -> None:
     assert len(result.created_storage_keys) == 2
 
 
+async def test_staged_document_skips_second_parse_and_copies_server_side(
+    monkeypatch,
+) -> None:
+    agency_id, group_id, passenger_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    passenger = SimpleNamespace(id=passenger_id)
+    classification = ClassifiedDocument(
+        original_filename="verified.pdf",
+        detected_type="visa",
+        accepted=True,
+        reason="Verified visa structure",
+        text="already extracted during verification",
+        extracted_name="Asha Mehta",
+        extracted_passport_number="P1234567",
+        extracted_reference="EV123456",
+    )
+    source_key = (
+        f"document-verification-staging/{agency_id}/{uuid.uuid4()}/{uuid.uuid4()}.pdf"
+    )
+    classify = MagicMock(side_effect=AssertionError("PDF must not be parsed twice"))
+    monkeypatch.setattr(distribution_ingestion, "classify_documents_bounded", classify)
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock()
+    storage = MagicMock()
+    storage.copy_file = AsyncMock()
+    storage.upload_file = AsyncMock()
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+
+    with patch(
+        "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+        return_value=audit_repository,
+    ):
+        result = await TravelDocumentIngestionService(
+            session,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="visa",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="verified.pdf", content=b"")],
+            created_by_user_id=None,
+            actor_email=None,
+            forced_passenger_id=passenger_id,
+            preclassified_documents=[classification],
+            staged_storage_keys=[source_key],
+        )
+
+    classify.assert_not_called()
+    storage.upload_file.assert_not_awaited()
+    storage.copy_file.assert_awaited_once()
+    assert storage.copy_file.await_args.args[0] == source_key
+    destination_key = storage.copy_file.await_args.args[1]
+    assert destination_key.startswith(f"document-distribution/{group_id}/")
+    assert destination_key != source_key
+    assert result.created_storage_keys == (destination_key,)
+
+
 async def test_new_batch_is_flushed_before_its_distributed_documents() -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()

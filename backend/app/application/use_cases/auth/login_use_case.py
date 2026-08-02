@@ -19,6 +19,7 @@ from app.application.dtos.auth_dtos import AuthResponseDTO, LoginInputDTO, UserO
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
 from app.core.security.password import verify_password
+from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -78,6 +79,13 @@ class LoginUseCase:
             logger.warning("login_failed_inactive", user_id=str(user.id))
             await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Your account has been deactivated")
+
+        # Client Managers are external mobile-only principals. Never mint a
+        # dashboard token even when their mobile password is valid.
+        if user.role == UserRole.CLIENT_MANAGER:
+            logger.warning("dashboard_login_denied_mobile_role", user_id=str(user.id))
+            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            raise AuthenticationError("Invalid email or password")
 
         await self._limiter.record_success(email=dto.email, ip_address=client_ip)
 

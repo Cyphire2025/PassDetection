@@ -127,7 +127,7 @@ def resolve_document_chunk_metadata(
         )
     if not 1 <= expected_file_count <= MAX_LOGICAL_DOCUMENT_FILES:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail=f"Upload at most {MAX_LOGICAL_DOCUMENT_FILES} PDFs at a time",
         )
     if not (
@@ -160,7 +160,7 @@ def validate_document_chunk_size(
 ) -> None:
     if not 1 <= file_count <= MAX_DOCUMENT_FILES_PER_CHUNK:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail=(
                 "Each physical upload request may contain at most "
                 f"{MAX_DOCUMENT_FILES_PER_CHUNK} PDFs"
@@ -257,12 +257,12 @@ def validate_next_document_chunk(
         )
     if not 1 <= incoming_byte_count <= MAX_DOCUMENT_BATCH_BYTES:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail="The physical PDF upload chunk is too large",
         )
     if resulting_bytes > MAX_LOGICAL_DOCUMENT_BYTES:
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail="The complete PDF selection exceeds the 2 GB safety limit",
         )
     complete = resulting_chunks == metadata.expected_chunk_count

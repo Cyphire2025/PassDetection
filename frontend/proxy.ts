@@ -16,6 +16,7 @@ const PROTECTED_PREFIXES = [
   "/passports",
   "/upload-links",
   "/email-integrations",
+  "/gc-app",
   "/settings",
 ];
 

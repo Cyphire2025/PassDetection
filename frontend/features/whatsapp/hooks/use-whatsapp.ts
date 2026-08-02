@@ -64,14 +64,10 @@ export function useWhatsAppRecipientRoster(groupId: string | null) {
           item.kind === "recipient"
           && item.recipient.message_statuses.some(
             (status) =>
-              status.status === "queued"
-              || status.status === "processing"
-              || (
-                status.resend_blocked
-                && (
-                  status.latest_resend_status === "queued"
-                  || status.latest_resend_status === "processing"
-                )
+              status.resend_blocked
+              && (
+                status.latest_resend_status === "queued"
+                || status.latest_resend_status === "processing"
               ),
           ),
       )

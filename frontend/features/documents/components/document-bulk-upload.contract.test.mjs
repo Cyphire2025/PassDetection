@@ -23,6 +23,13 @@ const distributionTypes = readFileSync(
 );
 const renamePage = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
+const distributionRoute = readFileSync(
+  new URL(
+    "../../../../backend/app/presentation/api/v1/routes/document_distribution.py",
+    import.meta.url,
+  ),
+  "utf8",
+);
 const batchingModule = await import(
   `data:text/javascript;base64,${Buffer.from(
     ts.transpileModule(batching, {
@@ -33,7 +40,12 @@ const batchingModule = await import(
     }).outputText,
   ).toString("base64")}`
 );
-const { createDocumentUploadSession } = batchingModule;
+const {
+  MAX_DOCUMENT_RECEIPT_CHUNK_BYTES,
+  canFinalizeDocumentReceiptChunk,
+  createAcceptedDocumentUploadSession,
+  createDocumentUploadSession,
+} = batchingModule;
 
 function pdfFiles(count, size = 1) {
   return Array.from({ length: count }, (_, index) => ({
@@ -78,6 +90,45 @@ test("the 24 MiB target splits a chunk before the 50-file ceiling", () => {
   );
 });
 
+test("accepted files retain their verification upload and chunk identities", () => {
+  const sourceSession = createSession(pdfFiles(101));
+  const acceptedByChunk = sourceSession.chunks.map((chunk, chunkIndex) =>
+    chunk.map((_file, fileIndex) =>
+      chunkIndex === 0 ? fileIndex === 0 || fileIndex === 49 : chunkIndex === 2,
+    ),
+  );
+
+  const acceptedSession = createAcceptedDocumentUploadSession(
+    sourceSession,
+    acceptedByChunk,
+  );
+
+  assert.equal(acceptedSession.uploadId, sourceSession.uploadId);
+  assert.deepEqual(acceptedSession.chunkIds, [
+    sourceSession.chunkIds[0],
+    sourceSession.chunkIds[2],
+  ]);
+  assert.deepEqual(acceptedSession.chunks.map((chunk) => chunk.length), [2, 1]);
+  assert.deepEqual(
+    acceptedSession.chunks.flat().map((file) => file.name),
+    ["visa-1.pdf", "visa-50.pdf", "visa-101.pdf"],
+  );
+  assert.equal(acceptedSession.totalFiles, 3);
+  assert.equal(acceptedSession.totalBytes, 3);
+  assert.equal(acceptedSession.completedChunks, 0);
+});
+
+test("receipt finalization is bounded by aggregate UTF-8 bytes", () => {
+  assert.equal(MAX_DOCUMENT_RECEIPT_CHUNK_BYTES, 8 * 1024 * 1024);
+  assert.equal(canFinalizeDocumentReceiptChunk(["receipt"], 1), true);
+  assert.equal(canFinalizeDocumentReceiptChunk([null], 1), false);
+  assert.equal(canFinalizeDocumentReceiptChunk(["receipt"], 2), false);
+
+  const exactLimit = "é".repeat(MAX_DOCUMENT_RECEIPT_CHUNK_BYTES / 2);
+  assert.equal(canFinalizeDocumentReceiptChunk([exactLimit], 1), true);
+  assert.equal(canFinalizeDocumentReceiptChunk([`${exactLimit}a`], 1), false);
+});
+
 test("rename and distribution send one immutable upload manifest", () => {
   for (const source of [renameApi, distributionApi]) {
     assert.match(source, /formData\.append\("upload_id", session\.uploadId\)/);
@@ -86,6 +137,22 @@ test("rename and distribution send one immutable upload manifest", () => {
     assert.match(source, /formData\.append\("expected_file_count"/);
     assert.match(source, /runChunkedDocumentUpload/);
   }
+});
+
+test("distribution verification binds receipts to the exact upload and chunk session", () => {
+  const verifySource = distributionApi.slice(
+    distributionApi.indexOf("verifyDocuments"),
+    distributionApi.indexOf("uploadDocuments"),
+  );
+  assert.match(verifySource, /formData\.append\("upload_id", session\.uploadId\)/);
+  assert.match(
+    verifySource,
+    /formData\.append\("chunk_id", session\.chunkIds\[chunkIndex\]\)/,
+  );
+  assert.match(verifySource, /createAcceptedDocumentUploadSession/);
+  assert.match(workspace, /setVerification\(data\.verification\)/);
+  assert.match(workspace, /setUploadSession\(data\.uploadSession\)/);
+  assert.doesNotMatch(workspace, /createDocumentUploadSession\(acceptedFiles\)/);
 });
 
 test("progress reflects committed files and contains no synthetic 88 or 92 percent timer", () => {
@@ -143,4 +210,46 @@ test("document type cannot change while type-scoped work is pending and safe swi
   assert.match(workspace, /setDeliveryDocumentIds\(null\)/);
   assert.match(workspace, /verify\.reset\(\)/);
   assert.match(workspace, /sendDocuments\.reset\(\)/);
+});
+
+test("distribution distinguishes physical files from assigned passengers and surfaces reasons first", () => {
+  assert.match(distributionTypes, /physical_file_count: number/);
+  assert.match(distributionTypes, /assigned_file_count: number/);
+  assert.match(distributionTypes, /assigned_passenger_count: number/);
+  assert.match(distributionTypes, /assignment_issues: DocumentAssignmentIssue\[\]/);
+  assert.match(workspace, /files assigned across \{assignedPassengerCount\} passengers/);
+  assert.match(workspace, /Needs assignment \(\{needsAssignmentCount\}\)/);
+  assert.match(workspace, /Multiple files can be correctly assigned to the same passenger/);
+  assert.match(workspace, /\{issue\.reason\}/);
+  assert.doesNotMatch(workspace, /<h3[^>]*>Needs Manual Review<\/h3>/);
+});
+
+test("document delivery polling follows active work and stops after webhook grace", () => {
+  assert.match(distributionTypes, /poll_after_seconds: number \| null/);
+  assert.match(distributionApi, /params: \{ limit: 6 \}/);
+  assert.match(distributionHooks, /query\.state\.data\?\.poll_after_seconds/);
+  assert.match(distributionHooks, /seconds \* 1_000 : false/);
+  assert.match(distributionHooks, /refetchIntervalInBackground: false/);
+  assert.match(distributionHooks, /gcTime: 0/);
+  assert.match(distributionRoute, /DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta\(minutes=5\)/);
+  assert.match(distributionRoute, /limit: Annotated\[int, Query\(ge=0, le=100\)\] = 100/);
+  assert.match(distributionRoute, /\.limit\(limit\)/);
+});
+
+test("distribution finalizes opaque verification receipts without retransmitting PDF bytes", () => {
+  assert.match(distributionTypes, /staging_receipt: string \| null/);
+  assert.match(distributionApi, /formData\.append\("staging_receipts", receipt\)/);
+  assert.match(distributionApi, /if \(canFinalizeStaging\)/);
+  assert.match(distributionApi, /chunk\.forEach\(\(file\) => formData\.append\("files", file\)\)/);
+  assert.match(workspace, /acceptedStagingReceipts/);
+  assert.match(workspace, /stagingReceipts: acceptedStagingReceipts/);
+  assert.doesNotMatch(workspace, /\u00e2\u20ac\u201d/);
+});
+
+test("expired or oversized receipt chunks fall back safely to raw PDF bytes", () => {
+  assert.match(distributionApi, /canFinalizeDocumentReceiptChunk/);
+  assert.match(distributionApi, /return await postChunk\(chunkReceipts\)/);
+  assert.match(distributionApi, /code !== "HTTP_410"/);
+  assert.match(distributionApi, /return postChunk\(\)/);
+  assert.doesNotMatch(distributionApi, /code !== "HTTP_409"/);
 });

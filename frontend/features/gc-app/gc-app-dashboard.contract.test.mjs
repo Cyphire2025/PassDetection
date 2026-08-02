@@ -1,0 +1,104 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+
+const read = (relativePath) => readFileSync(new URL(relativePath, import.meta.url), "utf8");
+
+const sidebar = read("../../components/layout/sidebar.tsx");
+const routes = read("../../constants/routes.ts");
+const proxy = read("../../proxy.ts");
+const roleAccess = read("../../lib/utils/role-access.ts");
+const shell = read("./components/gc-app-shell.tsx");
+const agencyScope = read("./components/gc-app-agency-scope.tsx");
+const api = read("./api/gc-app-admin.api.ts");
+const hooks = read("./hooks/use-gc-app-admin.ts");
+const managerPage = read("./components/client-manager-accounts-page.tsx");
+const managerDetails = read("./components/client-manager-details-dialog.tsx");
+const controls = read("./components/app-controls-page.tsx");
+const access = read("./components/group-access-panel.tsx");
+const workspace = read("./components/app-control-group-workspace.tsx");
+const commonDocuments = read("./components/common-documents-panel.tsx");
+const dialog = read("./components/gc-dialog.tsx");
+const types = read("./types.ts");
+const groupRoute = read("../../app/(dashboard)/gc-app/app-controls/[groupId]/page.tsx");
+
+test("GC App has one top-level sidebar entry and exactly two primary section links", () => {
+  assert.equal((sidebar.match(/label: "GC App"/g) ?? []).length, 1);
+  assert.doesNotMatch(sidebar, /label: "Client Manager Accounts"/);
+  assert.equal((shell.match(/label: "(?:Client Manager Accounts|App Controls)"/g) ?? []).length, 2);
+  assert.match(shell, /label: "Client Manager Accounts"/);
+  assert.match(shell, /label: "App Controls"/);
+});
+
+test("all GC App routes are centrally registered and protected", () => {
+  assert.match(routes, /gcAppRoot: "\/gc-app"/);
+  assert.match(routes, /gcAppClientManagerAccounts: "\/gc-app\/client-manager-accounts"/);
+  assert.match(routes, /gcAppAppControls: "\/gc-app\/app-controls"/);
+  assert.match(routes, /gcAppGroup: \(groupId: string\)/);
+  assert.match(proxy, /"\/gc-app"/);
+  assert.match(groupRoute, /params: Promise<\{ groupId: string \}>/);
+  assert.match(groupRoute, /await params/);
+});
+
+test("dashboard visibility uses the GC App management capability", () => {
+  assert.match(roleAccess, /GC_APP_MANAGE_CAPABILITY = "gc_app\.manage"/);
+  assert.match(roleAccess, /user\.capabilities\.includes\(GC_APP_MANAGE_CAPABILITY\)/);
+  assert.match(sidebar, /requiresGcAppManagement: true/);
+  assert.match(shell, /canManageGcApp\(user\)/);
+});
+
+test("Client Manager operations use isolated safe account APIs", () => {
+  assert.match(api, /\/gc-app\/admin/);
+  assert.match(api, /apiClient\.delete\(`\$\{ROOT\}\/client-managers\/\$\{managerId\}`/);
+  assert.match(api, /client-managers\/\$\{managerId\}\/revoke-sessions/);
+  assert.doesNotMatch(api, /delete_owned_data|operationsApi|API_ENDPOINTS\.admin/);
+  assert.match(managerPage, /page_size: GC_APP_DEFAULT_PAGE_SIZE/);
+  assert.match(managerPage, /groupcompanion:\/\/activate\?token=/);
+  assert.match(managerPage, /Single-use app activation link/);
+  assert.match(managerDetails, /Type DELETE to confirm/);
+  assert.match(managerDetails, /Groups, passengers, and operational history will remain intact/);
+});
+
+test("group discovery is bounded and GC access mutations are revision safe", () => {
+  assert.match(controls, /page_size: 20/);
+  assert.match(api, /expected_revision: control\.revision/);
+  assert.match(api, /apiClient\.put\(\s*`\$\{ROOT\}\/groups\/\$\{control\.id\}`/);
+  assert.match(api, /apiClient\.delete\(`\$\{ROOT\}\/groups\/\$\{groupId\}`/);
+  assert.match(agencyScope, /Agency workspace/);
+  assert.match(api, /agency_id: agencyId \?\? undefined/);
+  assert.doesNotMatch(api, /\/upload-links|passports\/upload|API_ENDPOINTS\.uploadLinks/);
+  assert.doesNotMatch(hooks, /onMutate/);
+  assert.match(access, /does not close, archive, delete, or revoke the passport collection group/);
+});
+
+test("publishing remains inside App Controls and includes draft/versioned content", () => {
+  assert.match(workspace, /"itinerary" \| "documents" \| "announcements"/);
+  assert.match(api, /itineraries\/preview/);
+  assert.match(api, /itineraries\/drafts/);
+  assert.match(api, /itineraries\/\$\{versionId\}\/publish/);
+  assert.match(api, /common-documents/);
+  assert.match(api, /common-documents\/\$\{documentId\}\/content/);
+  assert.match(api, /responseType: "blob"/);
+  assert.match(commonDocuments, /URL\.createObjectURL\(blob\)/);
+  assert.match(commonDocuments, /URL\.revokeObjectURL\(preview\.url\)/);
+  assert.match(commonDocuments, /Secure dashboard preview/);
+  assert.match(api, /announcements/);
+  assert.match(api, /const form = new FormData\(\)/);
+  assert.match(api, /form\.append\("file", upload\.file\)/);
+});
+
+test("GC App dashboard does not persist sensitive state or expose personal document fields", () => {
+  for (const source of [api, hooks, managerPage, controls, workspace, types]) {
+    assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB/);
+  }
+  assert.doesNotMatch(types, /passport_fields|passport_number|mrz|storage_url|download_url/);
+  assert.doesNotMatch(api, /document-distribution|raw_url/);
+});
+
+test("new dialogs expose accessible dialog semantics and keyboard handling", () => {
+  assert.match(dialog, /role="dialog"/);
+  assert.match(dialog, /aria-modal="true"/);
+  assert.match(dialog, /event\.key === "Escape"/);
+  assert.match(dialog, /event\.key !== "Tab"/);
+  assert.match(dialog, /motion-safe:animate-in/);
+});

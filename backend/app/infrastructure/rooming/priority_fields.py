@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 import uuid
 from dataclasses import dataclass
 
@@ -24,6 +25,8 @@ from app.infrastructure.database.models import (
 )
 
 MAX_ROOMING_PRIORITY_FIELDS = 6
+MAX_ROOMING_METADATA_FIELDS = 256
+MAX_ROOMING_FIELD_KEY_LENGTH = 180
 ROOMING_GENDER_RULE = (
     "Male passengers are paired only with male passengers; "
     "female passengers only with female passengers."
@@ -35,6 +38,18 @@ _UNAVAILABLE_PRIORITY_ALIASES = frozenset(
         "staff_code",
         "staffcode",
         "staff_id",
+        "employee_id",
+        "emp_id",
+        "national_id",
+        "government_id",
+        "govt_id",
+        "tax_id",
+        "customer_id",
+        "client_id",
+        "voter_id",
+        "ssn",
+        "tin",
+        "gstin",
         "agent_employee_code",
         "agent_employee_type",
         "agent_code",
@@ -86,6 +101,57 @@ _UNAVAILABLE_PRIORITY_ALIASES = frozenset(
         "source_row",
         "source_order",
         "row_number",
+        # Direct identity/contact, credentials, and government identifiers are
+        # intentionally unavailable through the generic grouping surface.
+        "id",
+        "record_id",
+        "user_id",
+        "phone",
+        "phone_number",
+        "mobile",
+        "mobile_number",
+        "contact",
+        "contact_no",
+        "contact_number",
+        "telephone",
+        "telephone_number",
+        "tel",
+        "cell",
+        "cell_number",
+        "whatsapp",
+        "whatsapp_number",
+        "wa",
+        "wa_no",
+        "wa_number",
+        "w_app",
+        "w_app_no",
+        "w_app_number",
+        "mob",
+        "mob_no",
+        "mob_number",
+        "ph",
+        "ph_no",
+        "ph_number",
+        "email",
+        "email_id",
+        "mail",
+        "mail_id",
+        "address",
+        "addr",
+        "residential_addr",
+        "residential_address",
+        "home_address",
+        "aadhaar",
+        "aadhaar_number",
+        "aadhar",
+        "aadhar_number",
+        "pan",
+        "pan_number",
+        "visa_number",
+        "visa_reference",
+        "token",
+        "password",
+        "secret",
     }
 )
 _UNAVAILABLE_COMPACT_PRIORITY_ALIASES = frozenset(
@@ -104,7 +170,7 @@ class RoomingPriorityContext:
 def normalize_imported_field_key(value: object) -> str:
     """Normalize external spreadsheet headers into stable API keys."""
 
-    raw_value = str(value or "")
+    raw_value = unicodedata.normalize("NFKC", str(value or ""))
     camel_case_split = re.sub(
         r"(?<=[A-Z])(?=[A-Z][a-z])|(?<=[a-z0-9])(?=[A-Z])",
         " ",
@@ -122,14 +188,74 @@ def normalize_imported_field_key(value: object) -> str:
 
 def _is_unavailable_priority(value: object) -> bool:
     normalized = normalize_imported_field_key(value)
-    tokens = set(normalized.split("_"))
-    compact = normalized.replace("_", "")
+    # Compatibility normalization keeps useful Unicode labels intact while a
+    # second accent-insensitive projection prevents visually varied identity
+    # headers (for example full-width or accented phone labels) bypassing the
+    # fail-closed grouping filter.
+    security_normalized = "".join(
+        character
+        for character in unicodedata.normalize("NFKD", normalized)
+        if not unicodedata.combining(character)
+    )
+    tokens = set(security_normalized.split("_"))
+    compact = security_normalized.replace("_", "")
     return (
-        normalized in _UNAVAILABLE_PRIORITY_ALIASES
+        not normalized
+        or normalized in _UNAVAILABLE_PRIORITY_ALIASES
         or compact in _UNAVAILABLE_COMPACT_PRIORITY_ALIASES
-        or bool(tokens & {"gender", "sex"})
+        or bool(
+            tokens
+            & {
+                "aadhaar",
+                "aadhar",
+                "address",
+                "birth",
+                "cell",
+                "contact",
+                "dob",
+                "email",
+                "gender",
+                "hash",
+                "mobile",
+                "name",
+                "pan",
+                "passport",
+                "password",
+                "phone",
+                "secret",
+                "sex",
+                "token",
+                "visa",
+                "whatsapp",
+                "tel",
+                "telephone",
+            }
+        )
         or compact.startswith("gender")
         or compact.endswith("gender")
+        or security_normalized.endswith("_addr")
+        or any(
+            sensitive_compound in compact
+            for sensitive_compound in (
+                "whatsapp",
+                "email",
+                "telephone",
+                "mobile",
+                "phone",
+                "contact",
+                "address",
+                "passport",
+                "aadhaar",
+                "aadhar",
+                "password",
+                "secret",
+                "token",
+            )
+        )
+        or (
+            normalized.startswith("source_")
+            and normalized != "source_zone"
+        )
     )
 
 
@@ -212,6 +338,62 @@ def _base_field_definitions(group: ClientGroupModel) -> list[dict[str, str]]:
     return fields
 
 
+def _humanize_imported_field_label(normalized_key: str) -> str:
+    abbreviations = {"id": "ID", "qr": "QR", "vip": "VIP"}
+    return " ".join(
+        abbreviations.get(part, part.capitalize())
+        for part in normalized_key.split("_")
+        if part
+    )
+
+
+def _metadata_field_definitions(
+    passengers: list[PassportSubmissionModel],
+) -> list[dict[str, str]]:
+    """Return a deterministic, bounded catalog of safe imported columns."""
+
+    normalized_keys: set[str] = set()
+    for passenger in passengers:
+        for raw_key in (passenger.staff_metadata or {}):
+            normalized = normalize_imported_field_key(raw_key)
+            field_key = f"metadata:{normalized}"
+            if (
+                _is_unavailable_priority(normalized)
+                or len(field_key) > MAX_ROOMING_FIELD_KEY_LENGTH
+            ):
+                continue
+            normalized_keys.add(normalized)
+    return [
+        {
+            "key": f"metadata:{normalized}",
+            "label": _humanize_imported_field_label(normalized),
+            "source": "imported_excel",
+        }
+        for normalized in sorted(normalized_keys)[:MAX_ROOMING_METADATA_FIELDS]
+    ]
+
+
+_NON_GROUPABLE_FIELD_KEYS = frozenset(
+    {
+        "field:client_phone",
+        "field:client_email",
+        "field:family_group",
+    }
+)
+
+
+def is_rooming_roster_field(field: dict[str, str]) -> bool:
+    """Return whether a priority field is safe for the generic roster UI."""
+
+    key = field.get("key", "")
+    label = field.get("label", "")
+    return (
+        bool(key)
+        and key not in _NON_GROUPABLE_FIELD_KEYS
+        and not _is_unavailable_priority(label)
+    )
+
+
 def _deduplicate_labels(fields: list[dict[str, str]]) -> list[dict[str, str]]:
     used: set[str] = set()
     result: list[dict[str, str]] = []
@@ -237,6 +419,10 @@ def _submission_field_values(
 ) -> dict[str, str | None]:
     passport_fields = passenger.confirmed_fields or passenger.extracted_fields or {}
     staff_metadata = passenger.staff_metadata or {}
+    normalized_staff_metadata = {
+        normalize_imported_field_key(raw_key): raw_value
+        for raw_key, raw_value in staff_metadata.items()
+    }
     custom_answers = {
         f"custom:{answer.get('question_id')}": _clean_value(answer.get("value"))
         for answer in passenger.custom_answers or []
@@ -284,6 +470,10 @@ def _submission_field_values(
             values[key] = custom_details.get(key)
         elif key.startswith("custom:"):
             values[key] = custom_answers.get(key)
+        elif key.startswith("metadata:"):
+            values[key] = _clean_value(
+                normalized_staff_metadata.get(key.removeprefix("metadata:"))
+            )
         elif key.startswith("field:"):
             values[key] = _clean_value(standard_values.get(key))
     return values
@@ -307,21 +497,37 @@ async def build_rooming_priority_context(
     group: ClientGroupModel,
     passengers: list[PassportSubmissionModel],
     required_fields: list[dict[str, str]] | None = None,
+    requested_keys: list[str] | None = None,
+    resolve_values: bool = True,
     lock_inputs: bool = False,
 ) -> RoomingPriorityContext:
     """Return the selectable field catalog and deterministic passenger values."""
 
     base_fields = _base_field_definitions(group)
-    value_fields_by_key = {
-        field["key"]: field for field in [*base_fields, *(required_fields or [])]
-    }
-    values_by_passenger = {
-        passenger.id: _submission_field_values(
-            passenger,
-            list(value_fields_by_key.values()),
+    metadata_fields = _metadata_field_definitions(passengers)
+    local_fields = _deduplicate_labels([*base_fields, *metadata_fields])
+    if requested_keys is not None and not any(
+        key.startswith("whatsapp:") for key in requested_keys
+    ):
+        value_fields_by_key = {
+            field["key"]: field
+            for field in [*local_fields, *(required_fields or [])]
+            if field["key"] in requested_keys
+        }
+        return RoomingPriorityContext(
+            fields=local_fields,
+            values_by_passenger=(
+                {
+                    passenger.id: _submission_field_values(
+                        passenger,
+                        list(value_fields_by_key.values()),
+                    )
+                    for passenger in passengers
+                }
+                if resolve_values
+                else {}
+            ),
         )
-        for passenger in passengers
-    }
 
     linked_statement = (
         select(
@@ -344,9 +550,24 @@ async def build_rooming_priority_context(
     linked_result = await session.execute(linked_statement)
     linked_broadcasts = dict(linked_result.all())
     if not linked_broadcasts:
+        value_fields_by_key = {
+            field["key"]: field
+            for field in [*local_fields, *(required_fields or [])]
+            if requested_keys is None or field["key"] in requested_keys
+        }
         return RoomingPriorityContext(
-            fields=_deduplicate_labels(base_fields),
-            values_by_passenger=values_by_passenger,
+            fields=local_fields,
+            values_by_passenger=(
+                {
+                    passenger.id: _submission_field_values(
+                        passenger,
+                        list(value_fields_by_key.values()),
+                    )
+                    for passenger in passengers
+                }
+                if resolve_values
+                else {}
+            ),
         )
 
     recipient_statement = select(WhatsAppBroadcastRecipientModel).where(
@@ -362,7 +583,12 @@ async def build_rooming_priority_context(
     for recipient in recipients:
         for raw_key in (recipient.imported_fields or {}):
             normalized = normalize_imported_field_key(raw_key)
-            if not normalized or _is_unavailable_priority(raw_key):
+            field_key = f"whatsapp:{normalized}"
+            if (
+                not normalized
+                or _is_unavailable_priority(raw_key)
+                or len(field_key) > MAX_ROOMING_FIELD_KEY_LENGTH
+            ):
                 continue
             imported_labels.setdefault(normalized, str(raw_key))
     whatsapp_fields = [
@@ -376,9 +602,40 @@ async def build_rooming_priority_context(
             key=lambda item: (item[1].casefold(), item[0]),
         )
     ]
-    fields = _deduplicate_labels([*base_fields, *whatsapp_fields])
-    if not recipients or not passengers:
-        return RoomingPriorityContext(fields=fields, values_by_passenger=values_by_passenger)
+    fields = _deduplicate_labels(
+        [*base_fields, *metadata_fields, *whatsapp_fields]
+    )
+    value_fields_by_key = {
+        field["key"]: field
+        for field in [*fields, *(required_fields or [])]
+        if requested_keys is None or field["key"] in requested_keys
+    }
+    values_by_passenger = (
+        {
+            passenger.id: _submission_field_values(
+                passenger,
+                list(value_fields_by_key.values()),
+            )
+            for passenger in passengers
+        }
+        if resolve_values
+        else {}
+    )
+    whatsapp_keys = [
+        field["key"].removeprefix("whatsapp:")
+        for field in value_fields_by_key.values()
+        if field["key"].startswith("whatsapp:")
+    ]
+    if (
+        not resolve_values
+        or not whatsapp_keys
+        or not recipients
+        or not passengers
+    ):
+        return RoomingPriorityContext(
+            fields=fields,
+            values_by_passenger=values_by_passenger,
+        )
 
     comparison_recipients = [
         RecipientForComparison(
@@ -408,15 +665,7 @@ async def build_rooming_priority_context(
         for passenger in passengers
     ]
     rows, _ = compare_group_submissions(comparison_recipients, comparison_submissions)
-    whatsapp_keys = list(
-        dict.fromkeys(
-            [
-                field["key"].removeprefix("whatsapp:")
-                for field in [*fields, *(required_fields or [])]
-                if field["key"].startswith("whatsapp:")
-            ]
-        )
-    )
+    whatsapp_keys = list(dict.fromkeys(whatsapp_keys))
     for row in rows:
         if row.status not in {"submitted", "multiple_submissions"}:
             continue

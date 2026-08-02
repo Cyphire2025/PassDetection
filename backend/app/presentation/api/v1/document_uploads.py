@@ -35,7 +35,7 @@ async def read_bounded_document_uploads(
             )
         if len(files) > MAX_DOCUMENT_FILES_PER_REQUEST:
             raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                status_code=413,
                 detail=f"Upload at most {MAX_DOCUMENT_FILES_PER_REQUEST} PDFs at a time",
             )
 
@@ -45,12 +45,12 @@ async def read_bounded_document_uploads(
         )
         if any(isinstance(file.size, int) and file.size > per_file_limit for file in files):
             raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                status_code=413,
                 detail=f"Each PDF must be {per_file_limit // (1024 * 1024)} MB or smaller",
             )
         if declared_total > MAX_DOCUMENT_BATCH_BYTES:
             raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                status_code=413,
                 detail="The combined PDF upload is too large",
             )
 
@@ -71,13 +71,13 @@ async def read_bounded_document_uploads(
                 )
             if len(content) > per_file_limit:
                 raise HTTPException(
-                    status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                    status_code=413,
                     detail=f"Each PDF must be {per_file_limit // (1024 * 1024)} MB or smaller",
                 )
             actual_total += len(content)
             if actual_total > MAX_DOCUMENT_BATCH_BYTES:
                 raise HTTPException(
-                    status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                    status_code=413,
                     detail="The combined PDF upload is too large",
                 )
             uploads.append(

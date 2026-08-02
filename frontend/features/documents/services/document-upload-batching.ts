@@ -4,6 +4,7 @@ export const MAX_DOCUMENT_SELECTION_FILES = 1_500;
 export const MAX_DOCUMENT_SELECTION_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_DOCUMENT_CHUNK_FILES = 50;
 export const TARGET_DOCUMENT_CHUNK_BYTES = 24 * 1024 * 1024;
+export const MAX_DOCUMENT_RECEIPT_CHUNK_BYTES = 8 * 1024 * 1024;
 
 export interface DocumentUploadSession {
   uploadId: string;
@@ -78,6 +79,64 @@ export function createDocumentUploadSession(
     totalBytes,
     completedChunks: 0,
   };
+}
+
+export function createAcceptedDocumentUploadSession(
+  sourceSession: DocumentUploadSession,
+  acceptedByChunk: readonly (readonly boolean[])[],
+): DocumentUploadSession {
+  if (
+    acceptedByChunk.length !== sourceSession.chunks.length ||
+    sourceSession.chunkIds.length !== sourceSession.chunks.length
+  ) {
+    throw new Error("The document verification response did not match the upload session");
+  }
+
+  const chunks: File[][] = [];
+  const chunkIds: string[] = [];
+  for (const [chunkIndex, sourceChunk] of sourceSession.chunks.entries()) {
+    const acceptedFiles = acceptedByChunk[chunkIndex];
+    if (acceptedFiles.length !== sourceChunk.length) {
+      throw new Error("The document verification response did not match the upload session");
+    }
+
+    const retainedChunk = sourceChunk.filter((_file, fileIndex) => acceptedFiles[fileIndex]);
+    if (retainedChunk.length === 0) continue;
+    chunks.push(retainedChunk);
+    chunkIds.push(sourceSession.chunkIds[chunkIndex]);
+  }
+
+  return {
+    uploadId: sourceSession.uploadId,
+    chunks,
+    chunkIds,
+    totalFiles: chunks.reduce((total, chunk) => total + chunk.length, 0),
+    totalBytes: chunks
+      .flat()
+      .reduce((total, file) => total + file.size, 0),
+    completedChunks: 0,
+  };
+}
+
+export function canFinalizeDocumentReceiptChunk(
+  receipts: readonly (string | null | undefined)[] | undefined,
+  expectedCount: number,
+): receipts is readonly string[] {
+  if (
+    !receipts ||
+    receipts.length !== expectedCount ||
+    !receipts.every((receipt): receipt is string => Boolean(receipt))
+  ) {
+    return false;
+  }
+
+  const encoder = new TextEncoder();
+  let encodedBytes = 0;
+  for (const receipt of receipts) {
+    encodedBytes += encoder.encode(receipt).byteLength;
+    if (encodedBytes > MAX_DOCUMENT_RECEIPT_CHUNK_BYTES) return false;
+  }
+  return true;
 }
 
 export async function runChunkedDocumentUpload<T>({

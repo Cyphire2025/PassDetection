@@ -236,6 +236,9 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                     activeHotel={activeHotel}
                     isAssigning={actions.selectHotelPassengers.isPending}
                     isUpdatingVip={actions.setPassengerVip.isPending}
+                    groupingFields={priorityFields.data?.fields ?? []}
+                    groupingFieldsLoading={priorityFields.isLoading}
+                    groupingFieldsError={Boolean(priorityFields.error)}
                     onAssign={async (passengerIds, hotelId) => {
                       await actions.selectHotelPassengers.mutateAsync({
                         hotelId,

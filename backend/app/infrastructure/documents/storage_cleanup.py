@@ -33,6 +33,7 @@ STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_distribution_compensation": ("document-distribution/",),
     "document_rename_batch_delete": ("document-rename/",),
     "document_rename_compensation": ("document-rename/",),
+    "document_verification_staging": ("document-verification-staging/",),
     "passport_submission_delete": (
         # Legacy deployments stored the four canonical submission images in
         # short top-level namespaces.  They remain ownership-bound because
@@ -196,6 +197,7 @@ def _stage_validated_storage_cleanup_job(
     keys: tuple[str, ...],
     cipher: StorageCleanupCipher,
     timestamp: datetime,
+    not_before: datetime | None = None,
 ) -> StorageCleanupJobModel:
     context_fingerprint = hashlib.sha256(f"{source}:{context_id}".encode("utf-8")).hexdigest()
     job = StorageCleanupJobModel(
@@ -208,7 +210,7 @@ def _stage_validated_storage_cleanup_job(
         object_count=len(keys),
         status="pending",
         attempts=0,
-        next_attempt_at=timestamp,
+        next_attempt_at=not_before or timestamp,
         lease_expires_at=None,
         last_error_code=None,
         created_at=timestamp,
@@ -227,6 +229,7 @@ def stage_storage_cleanup_job(
     storage_keys: Sequence[str],
     cipher: StorageCleanupCipher | None = None,
     now: datetime | None = None,
+    not_before: datetime | None = None,
 ) -> StorageCleanupJobModel | None:
     """Stage a tombstone in the same transaction as authoritative DB deletion."""
 
@@ -242,6 +245,7 @@ def stage_storage_cleanup_job(
         keys=keys,
         cipher=cipher or StorageCleanupCipher.from_settings(),
         timestamp=now or datetime.now(tz=UTC),
+        not_before=not_before,
     )
 
 
@@ -254,6 +258,7 @@ def stage_storage_cleanup_jobs(
     storage_keys: Sequence[str],
     cipher: StorageCleanupCipher | None = None,
     now: datetime | None = None,
+    not_before: datetime | None = None,
 ) -> tuple[StorageCleanupJobModel, ...]:
     """Stage deterministic, bounded tombstone chunks in the owning transaction."""
 
@@ -285,6 +290,7 @@ def stage_storage_cleanup_jobs(
                 keys=chunk,
                 cipher=active_cipher,
                 timestamp=timestamp,
+                not_before=not_before,
             )
         )
     return tuple(jobs)
@@ -298,6 +304,7 @@ async def persist_storage_cleanup_job(
     storage_keys: Sequence[str],
     session_factory: async_sessionmaker[AsyncSession] = AsyncSessionFactory,
     cipher: StorageCleanupCipher | None = None,
+    not_before: datetime | None = None,
 ) -> uuid.UUID | None:
     """Commit a compensation tombstone after the owning transaction rolled back."""
 
@@ -310,6 +317,7 @@ async def persist_storage_cleanup_job(
                 context_id=context_id,
                 storage_keys=storage_keys,
                 cipher=cipher,
+                not_before=not_before,
             )
             return job.id if job is not None else None
 

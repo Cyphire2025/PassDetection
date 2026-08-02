@@ -16,6 +16,8 @@ export interface User extends TimestampedEntity {
   agency_id: string | null;
   is_active: boolean;
   last_login_at: string | null;
+  /** Server-authoritative feature capabilities. Older sessions may omit this. */
+  capabilities?: string[];
 }
 
 export interface AuthSession {

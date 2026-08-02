@@ -15,6 +15,7 @@ from __future__ import annotations
 from app.application.dtos.auth_dtos import AuthResponseDTO, RefreshTokenInputDTO, UserOutputDTO
 from app.core.logging.logger import get_logger
 from app.core.security.jwt import create_access_token, create_refresh_token
+from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -48,6 +49,11 @@ class RefreshTokenUseCase:
         user = await self._user_repo.get_by_id(stored_token.user_id)
         if not user or not user.is_active:
             raise AuthenticationError("User account not found or deactivated")
+        if user.role == UserRole.CLIENT_MANAGER:
+            # Burn any legacy dashboard refresh token issued before this role
+            # boundary existed so it cannot be retried indefinitely.
+            await self._token_repo.revoke(dto.refresh_token)
+            raise AuthenticationError("This account cannot access the dashboard")
 
         # 3. Revoke the used refresh token (rotation)
         await self._token_repo.revoke(dto.refresh_token)

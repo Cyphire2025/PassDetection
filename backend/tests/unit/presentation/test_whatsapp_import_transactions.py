@@ -194,6 +194,10 @@ async def test_add_recipients_parses_before_tenant_group_lock() -> None:
             new=AsyncMock(),
         ),
         patch(
+            "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
+            new=AsyncMock(),
+        ),
+        patch(
             "app.presentation.api.v1.routes.whatsapp._group_detail",
             new=AsyncMock(return_value=group),
         ),

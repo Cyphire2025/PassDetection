@@ -1509,6 +1509,7 @@ def test_explicit_resend_route_is_role_gated_and_returns_send_contract() -> None
     assert route.methods == {"POST"}
     assert route.response_model.__name__ == "WhatsAppSendResponse"
     assert [dependency.call.__name__ for dependency in route.dependant.dependencies] == [
+        "require_cookie_csrf",
         "_check_role",
         "get_db_session",
     ]

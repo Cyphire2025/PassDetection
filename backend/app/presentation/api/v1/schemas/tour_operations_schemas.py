@@ -171,6 +171,7 @@ class QrDeliveryPreviewSummary(BaseModel):
     already_sent: int = 0
     in_progress: int = 0
     blocked: int = 0
+    ambiguous_recipients: int = 0
 
 
 class QrDeliveryPreviewResponse(BaseModel):

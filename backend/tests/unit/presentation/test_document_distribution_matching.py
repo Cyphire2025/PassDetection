@@ -61,6 +61,52 @@ def _passenger(
     )
 
 
+def test_document_delivery_polling_is_lifecycle_bounded() -> None:
+    now = datetime(2026, 8, 2, 12, 0, tzinfo=UTC)
+
+    assert document_distribution._document_delivery_poll_after_seconds(
+        status_counts={"processing": 1},
+        latest_status_updates={},
+        now=now,
+    ) == 5
+    assert document_distribution._document_delivery_poll_after_seconds(
+        status_counts={"submitted": 1},
+        latest_status_updates={"submitted": now},
+        now=now,
+    ) == 10
+    assert document_distribution._document_delivery_poll_after_seconds(
+        status_counts={"sent": 1},
+        latest_status_updates={"sent": now.replace(hour=11, minute=54)},
+        now=now,
+    ) is None
+    assert document_distribution._document_delivery_poll_after_seconds(
+        status_counts={"delivery_unknown": 1, "failed": 1},
+        latest_status_updates={"delivery_unknown": now},
+        now=now,
+    ) is None
+
+
+@pytest.mark.asyncio
+async def test_private_document_recipient_query_excludes_suppressed_roster_rows() -> None:
+    agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    linked_result = MagicMock()
+    linked_result.all.return_value = [(broadcast_id, "Vietnam group")]
+    recipient_result = MagicMock()
+    recipient_result.scalars.return_value.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[linked_result, recipient_result])
+
+    await document_distribution._linked_whatsapp_recipients(
+        session,
+        group=SimpleNamespace(id=group_id, agency_id=agency_id),
+    )
+
+    recipient_statement = session.execute.await_args_list[1].args[0]
+    assert "whatsapp_broadcast_recipients.suppressed_by_roster_resolution_id IS NULL" in str(
+        recipient_statement
+    )
+
+
 @pytest.mark.asyncio
 async def test_linked_excel_code_requires_unique_scoped_passenger_match(monkeypatch) -> None:
     agency_id = uuid.uuid4()
@@ -147,6 +193,86 @@ async def test_linked_excel_code_is_not_attached_to_ambiguous_passengers(
     )
 
     assert identifiers == ()
+
+
+@pytest.mark.asyncio
+async def test_private_document_preview_blocks_shared_whatsapp_destination(
+    monkeypatch,
+) -> None:
+    agency_id, group_id, broadcast_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    batch = SimpleNamespace(id=uuid.uuid4(), document_type="visa")
+    passengers = [
+        _passenger(
+            agency_id=agency_id,
+            group_id=group_id,
+            phone="9876543210",
+            name=name,
+        )
+        for name in ("Asha Mehta", "Ravi Sharma")
+    ]
+    recipient = _recipient(
+        agency_id=agency_id,
+        broadcast_id=broadcast_id,
+        phone="9876543210",
+        imported_fields={},
+    )
+    documents = [
+        SimpleNamespace(
+            id=uuid.uuid4(),
+            passenger_id=passenger.id,
+            original_filename=f"private-{index}.pdf",
+            document_type="visa",
+            match_status="matched",
+        )
+        for index, passenger in enumerate(passengers)
+    ]
+    submissions_result = MagicMock()
+    submissions_result.scalars.return_value.all.return_value = passengers
+    documents_result = MagicMock()
+    documents_result.all.return_value = [(document, "saved") for document in documents]
+    deliveries_result = MagicMock()
+    deliveries_result.scalars.return_value.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[submissions_result, documents_result, deliveries_result]
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "_linked_whatsapp_recipients",
+        AsyncMock(return_value=({broadcast_id: "Vietnam group"}, [recipient])),
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "compare_group_submissions",
+        lambda *_args, **_kwargs: (
+            [
+                SimpleNamespace(
+                    status="multiple_submissions",
+                    submission_ids=tuple(passenger.id for passenger in passengers),
+                    recipient_ids=(recipient.id,),
+                )
+            ],
+            SimpleNamespace(),
+        ),
+    )
+
+    preview = await document_distribution._build_document_delivery_preview(
+        session,
+        group=group,
+        batch=batch,
+        passengers=passengers,
+    )
+
+    assert preview.summary.blocked == 2
+    assert len(preview.recipients) == 2
+    assert all(row.delivery_status == "blocked" for row in preview.recipients)
+    assert all(row.eligible is False for row in preview.recipients)
+    assert all(row.recipient_id is None for row in preview.recipients)
+    assert all(row.phone_number is None for row in preview.recipients)
+    assert {
+        row.reason for row in preview.recipients
+    } == {document_distribution.SHARED_WHATSAPP_DESTINATION_REASON}
 
 
 @pytest.mark.asyncio

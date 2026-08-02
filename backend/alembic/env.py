@@ -16,6 +16,7 @@ from app.core.config.settings import get_settings
 from app.infrastructure.database import (
     email_ai_models,  # noqa: F401
     email_models,  # noqa: F401
+    gc_mobile_models,  # noqa: F401
     menu_models,  # noqa: F401
     passport_image_library_model,  # noqa: F401
 )

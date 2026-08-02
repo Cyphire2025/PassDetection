@@ -25,6 +25,8 @@ test("frontend uses dedicated QR preview and send contracts", () => {
   assert.match(api, /message_content/);
   assert.match(hooks, /useQrDeliveryPreview/);
   assert.match(hooks, /useSendQrBroadcast/);
-  assert.match(hooks, /refetchInterval: enabled \? 2_000 : false/);
+  assert.match(hooks, /query\.state\.data\?\.summary\.in_progress/);
+  assert.match(hooks, /\? 1_500\s*:\s*false/);
+  assert.match(hooks, /refetchIntervalInBackground: false/);
   assert.match(page, /Delivery status refreshes automatically/);
 });

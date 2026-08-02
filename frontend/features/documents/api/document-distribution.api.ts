@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api/client";
+import apiClient, { type ApiError } from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type {
   AbortDocumentUploadResult,
@@ -11,11 +11,18 @@ import type {
   SendDocumentBroadcastResult,
 } from "@/types/document-distribution.types";
 import {
+  canFinalizeDocumentReceiptChunk,
+  createAcceptedDocumentUploadSession,
   createDocumentUploadSession,
   runChunkedDocumentUpload,
   type DocumentUploadProgress,
   type DocumentUploadSession,
 } from "../services/document-upload-batching";
+
+export interface DocumentVerificationUploadPlan {
+  verification: DocumentVerificationResult;
+  uploadSession: DocumentUploadSession;
+}
 
 export const documentDistributionApi = {
   listGroups: async (): Promise<DocumentDistributionGroup[]> => {
@@ -33,14 +40,18 @@ export const documentDistributionApi = {
     documentType: DistributionDocumentType,
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
-  ): Promise<DocumentVerificationResult> => {
+  ): Promise<DocumentVerificationUploadPlan> => {
     const session = createDocumentUploadSession(files);
-    const results: DocumentVerificationResult[] = [];
+    const results: Array<DocumentVerificationResult | undefined> = Array(
+      session.chunks.length,
+    );
     await runChunkedDocumentUpload({
       session,
       onProgress,
-      uploadChunk: async (chunk, _chunkIndex, reportUpload) => {
+      uploadChunk: async (chunk, chunkIndex, reportUpload) => {
         const formData = new FormData();
+        formData.append("upload_id", session.uploadId);
+        formData.append("chunk_id", session.chunkIds[chunkIndex]);
         chunk.forEach((file) => formData.append("files", file));
         const { data } = await apiClient.post<DocumentVerificationResult>(
           API_ENDPOINTS.documents.verify(groupId, documentType),
@@ -51,17 +62,40 @@ export const documentDistributionApi = {
             onUploadProgress: (event) => reportUpload(event.loaded, event.total),
           },
         );
-        results.push(data);
+        results[chunkIndex] = data;
         return data;
       },
     });
+    const completedResults = Array.from({ length: results.length }, (_value, index) => {
+      const result = results[index];
+      if (!result) {
+        throw new Error("The document verification response was incomplete");
+      }
+      return result;
+    });
+    const uploadSession = createAcceptedDocumentUploadSession(
+      session,
+      completedResults.map((result) => result.files.map((file) => file.accepted)),
+    );
     return {
-      group_id: groupId,
-      document_type: documentType,
-      total_count: results.reduce((total, result) => total + result.total_count, 0),
-      accepted_count: results.reduce((total, result) => total + result.accepted_count, 0),
-      rejected_count: results.reduce((total, result) => total + result.rejected_count, 0),
-      files: results.flatMap((result) => result.files),
+      uploadSession,
+      verification: {
+        group_id: groupId,
+        document_type: documentType,
+        total_count: completedResults.reduce(
+          (total, result) => total + result.total_count,
+          0,
+        ),
+        accepted_count: completedResults.reduce(
+          (total, result) => total + result.accepted_count,
+          0,
+        ),
+        rejected_count: completedResults.reduce(
+          (total, result) => total + result.rejected_count,
+          0,
+        ),
+        files: completedResults.flatMap((result) => result.files),
+      },
     };
   },
 
@@ -71,29 +105,62 @@ export const documentDistributionApi = {
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
     existingSession?: DocumentUploadSession,
+    stagingReceipts?: Array<string | null>,
   ): Promise<DocumentBatchReview> => {
     const session = existingSession ?? createDocumentUploadSession(files);
+    let nextChunkOffset = 0;
+    const chunkOffsets = session.chunks.map((chunk) => {
+      const offset = nextChunkOffset;
+      nextChunkOffset += chunk.length;
+      return offset;
+    });
     return runChunkedDocumentUpload({
       session,
       onProgress,
       uploadChunk: async (chunk, chunkIndex, reportUpload) => {
-        const formData = new FormData();
-        formData.append("upload_id", session.uploadId);
-        formData.append("chunk_id", session.chunkIds[chunkIndex]);
-        formData.append("chunk_index", String(chunkIndex));
-        formData.append("expected_chunk_count", String(session.chunks.length));
-        formData.append("expected_file_count", String(session.totalFiles));
-        chunk.forEach((file) => formData.append("files", file));
-        const { data } = await apiClient.post<DocumentBatchReview>(
-          API_ENDPOINTS.documents.upload(groupId, documentType),
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            timeout: 240_000,
-            onUploadProgress: (event) => reportUpload(event.loaded, event.total),
-          },
+        const receiptOffset = chunkOffsets[chunkIndex];
+        const chunkReceipts = stagingReceipts?.slice(
+          receiptOffset,
+          receiptOffset + chunk.length,
         );
-        return data;
+        const canFinalizeStaging = canFinalizeDocumentReceiptChunk(
+          chunkReceipts,
+          chunk.length,
+        );
+        const postChunk = async (receipts?: readonly string[]) => {
+          const formData = new FormData();
+          formData.append("upload_id", session.uploadId);
+          formData.append("chunk_id", session.chunkIds[chunkIndex]);
+          formData.append("chunk_index", String(chunkIndex));
+          formData.append("expected_chunk_count", String(session.chunks.length));
+          formData.append("expected_file_count", String(session.totalFiles));
+          if (receipts) {
+            receipts.forEach((receipt) =>
+              formData.append("staging_receipts", receipt),
+            );
+          } else {
+            chunk.forEach((file) => formData.append("files", file));
+          }
+          const { data } = await apiClient.post<DocumentBatchReview>(
+            API_ENDPOINTS.documents.upload(groupId, documentType),
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+              timeout: 240_000,
+              onUploadProgress: (event) => reportUpload(event.loaded, event.total),
+            },
+          );
+          return data;
+        };
+
+        if (canFinalizeStaging) {
+          try {
+            return await postChunk(chunkReceipts);
+          } catch (error) {
+            if ((error as Partial<ApiError> | null)?.code !== "HTTP_410") throw error;
+          }
+        }
+        return postChunk();
       },
     });
   },
@@ -192,6 +259,7 @@ export const documentDistributionApi = {
   getDeliveryTracking: async (groupId: string): Promise<DocumentDeliveryTracking> => {
     const { data } = await apiClient.get<DocumentDeliveryTracking>(
       API_ENDPOINTS.documents.deliveryTracking(groupId),
+      { params: { limit: 6 } },
     );
     return data;
   },

@@ -38,6 +38,7 @@ class VerifiedDocumentResponse(BaseModel):
     match_confidence: float = 0.0
     match_status: str | None = None
     match_reason: str | None = None
+    staging_receipt: str | None = None
 
 
 class VerifyDocumentBatchResponse(BaseModel):
@@ -68,6 +69,16 @@ class DistributedDocumentResponse(BaseModel):
     url: str | None = None
 
 
+class DocumentAssignmentIssueResponse(BaseModel):
+    """One verified, stored physical PDF that still has no passenger assignment."""
+
+    document_id: uuid.UUID
+    original_filename: str
+    code: str
+    reason: str
+    url: str | None = None
+
+
 class DocumentPassengerReviewRow(BaseModel):
     passenger_id: uuid.UUID
     passenger_name: str
@@ -85,11 +96,18 @@ class DocumentBatchResponse(BaseModel):
     uploaded_count: int = 0
     rejected_count: int = 0
     matched_count: int = 0
+    # Additive, physical-file accounting. ``uploaded_count`` retains its
+    # historical assignment-row semantics for backwards compatibility.
+    physical_file_count: int = 0
+    assigned_file_count: int = 0
+    assigned_passenger_count: int = 0
+    needs_assignment_count: int = 0
     processing_upload_ids: list[uuid.UUID] = Field(default_factory=list)
     saved_at: datetime | None = None
     created_at: datetime | None = None
     review_rows: list[DocumentPassengerReviewRow] = Field(default_factory=list)
     unmatched_documents: list[DistributedDocumentResponse] = Field(default_factory=list)
+    assignment_issues: list[DocumentAssignmentIssueResponse] = Field(default_factory=list)
     rejected_documents: list[RejectedDocumentResponse] = Field(default_factory=list)
 
 
@@ -197,4 +215,5 @@ class DocumentDeliveryTrackingRow(BaseModel):
 class DocumentDeliveryTrackingResponse(BaseModel):
     group_id: uuid.UUID
     counts: DocumentDeliveryTrackingCounts
+    poll_after_seconds: int | None = None
     deliveries: list[DocumentDeliveryTrackingRow] = Field(default_factory=list)

@@ -24,7 +24,7 @@ from app.application.use_cases.auth.logout_all_use_case import LogoutAllUseCase
 from app.application.use_cases.auth.logout_use_case import LogoutUseCase
 from app.application.use_cases.auth.refresh_token_use_case import RefreshTokenUseCase
 from app.core.config.settings import get_settings
-from app.domain.entities.entities import User
+from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
@@ -117,7 +117,7 @@ async def login(
     )
     set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(
-        user=UserResponse.model_validate(result.user.__dict__),
+        user=_user_response(result.user),
         token_type=result.token_type,
         access_token_expires_at=result.access_token_expires_at,
     )
@@ -164,7 +164,7 @@ async def refresh_token(
         return error_response
     set_auth_cookies(response, access_token=result.access_token, refresh_token=result.refresh_token)
     return AuthResponse(
-        user=UserResponse.model_validate(result.user.__dict__),
+        user=_user_response(result.user),
         token_type=result.token_type,
         access_token_expires_at=result.access_token_expires_at,
     )
@@ -219,4 +219,27 @@ async def get_me(
     use_case: GetMeUseCase = Depends(_get_me_use_case),
 ) -> UserResponse:
     result = await use_case.execute(user_id=current_user.id)
-    return UserResponse.model_validate(result.__dict__)
+    return _user_response(result)
+
+
+def _user_response(user: object) -> UserResponse:
+    """Attach server-authoritative dashboard capabilities to auth responses."""
+
+    values = dict(vars(user))
+    raw_role = values.get("role")
+    role = raw_role.value if isinstance(raw_role, UserRole) else raw_role
+    is_active = values.get("is_active") is True
+    agency_id = values.get("agency_id")
+    can_manage_gc_app = is_active and (
+        role == UserRole.SUPER_ADMIN.value
+        or (
+            role
+            in {
+                UserRole.AGENCY_ADMIN.value,
+                UserRole.AGENCY_MANAGER.value,
+            }
+            and agency_id is not None
+        )
+    )
+    values["capabilities"] = ["gc_app.manage"] if can_manage_gc_app else []
+    return UserResponse.model_validate(values)

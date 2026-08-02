@@ -13,6 +13,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from functools import partial
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,6 +35,10 @@ from app.infrastructure.documents.document_matcher import (
     classify_documents_bounded,
 )
 from app.infrastructure.documents.storage_cleanup import persist_storage_cleanup_job
+from app.infrastructure.documents.storage_transfers import (
+    finish_cleanup_despite_cancellation,
+    run_bounded_storage_operations,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
@@ -97,6 +102,8 @@ class TravelDocumentIngestionService:
         isolate_pdf_parsing: bool = False,
         parser_batch_timeout_seconds: float | None = None,
         reject_common_unsupported_format: bool = False,
+        preclassified_documents: list[ClassifiedDocument] | None = None,
+        staged_storage_keys: list[str | None] | None = None,
         before_persistence: (
             Callable[[], Awaitable[tuple[uuid.UUID | None, str | None] | None]] | None
         ) = None,
@@ -109,17 +116,30 @@ class TravelDocumentIngestionService:
         ):
             raise ValueError("The confirmed passenger is not part of this group")
 
-        classifications = await asyncio.to_thread(
-            classify_documents_bounded,
-            self._matcher,
-            [(file.filename, file.content, document_type) for file in files],
-            isolate_pdf_parsing=isolate_pdf_parsing,
-            batch_timeout_seconds=parser_batch_timeout_seconds,
-            reject_common_unsupported_format=reject_common_unsupported_format,
-        )
-        accepted: list[tuple[TravelDocumentFile, ClassifiedDocument]] = []
+        if preclassified_documents is not None:
+            if len(preclassified_documents) != len(files):
+                raise ValueError("Preclassified document count does not match the files")
+            classifications = list(preclassified_documents)
+        else:
+            classifications = await asyncio.to_thread(
+                classify_documents_bounded,
+                self._matcher,
+                [(file.filename, file.content, document_type) for file in files],
+                isolate_pdf_parsing=isolate_pdf_parsing,
+                batch_timeout_seconds=parser_batch_timeout_seconds,
+                reject_common_unsupported_format=reject_common_unsupported_format,
+            )
+        if staged_storage_keys is not None and len(staged_storage_keys) != len(files):
+            raise ValueError("Staged storage key count does not match the files")
+        source_storage_keys = staged_storage_keys or [None] * len(files)
+        accepted: list[tuple[TravelDocumentFile, ClassifiedDocument, str | None]] = []
         rejected: list[RejectedTravelDocument] = []
-        for file, classification in zip(files, classifications, strict=True):
+        for file, classification, source_storage_key in zip(
+            files,
+            classifications,
+            source_storage_keys,
+            strict=True,
+        ):
             if not classification.accepted:
                 rejected.append(
                     RejectedTravelDocument(
@@ -129,7 +149,7 @@ class TravelDocumentIngestionService:
                     )
                 )
                 continue
-            accepted.append((file, classification))
+            accepted.append((file, classification, source_storage_key))
 
         now = datetime.now(tz=UTC)
         if existing_batch is not None and (
@@ -163,7 +183,7 @@ class TravelDocumentIngestionService:
             def match_with_capacity() -> list[list[MatchResult]]:
                 matches_by_document: list[list[MatchResult]] = []
                 projected_rows = batch.uploaded_count
-                for _, classification in accepted:
+                for _, classification, _ in accepted:
                     matches = self._matcher.match_all(
                         classification,
                         passengers,
@@ -203,10 +223,12 @@ class TravelDocumentIngestionService:
         )
         if storage_prefix is not None and not normalized_storage_prefix:
             raise ValueError("A non-empty storage prefix is required")
+        storage_operations: list[Callable[[], Awaitable[str]]] = []
         try:
-            for (file, classification), matches in zip(
+            for (file, classification, source_storage_key), matches in zip(
                 accepted,
                 document_matches,
+                strict=True,
             ):
                 storage_document_id = uuid.uuid4()
                 object_namespace = normalized_storage_prefix or (
@@ -217,11 +239,19 @@ class TravelDocumentIngestionService:
                 # upload reaches storage but its acknowledgement is lost, the
                 # failure path still knows which key it owns and may clean it.
                 uploaded_keys.append(key)
-                await self._storage.upload_file(
-                    file.content,
-                    key,
-                    file.content_type or "application/pdf",
-                )
+                if source_storage_key is not None:
+                    storage_operations.append(
+                        partial(self._storage.copy_file, source_storage_key, key)
+                    )
+                else:
+                    storage_operations.append(
+                        partial(
+                            self._storage.upload_file,
+                            file.content,
+                            key,
+                            file.content_type or "application/pdf",
+                        )
+                    )
                 for match in matches:
                     model = DistributedDocumentModel(
                         id=uuid.uuid4(),
@@ -250,14 +280,17 @@ class TravelDocumentIngestionService:
                         updated_at=now,
                     )
                     documents.append(model)
-        except Exception:
+            await run_bounded_storage_operations(storage_operations)
+        except BaseException:
             # Object storage and the relational transaction are not atomic.
             # Remove only objects created by this failed invocation.
-            await self._cleanup_owned_storage(
-                uploaded_keys,
-                agency_id=agency_id,
-                batch_id=batch.id,
-                durable=isolate_pdf_parsing,
+            await finish_cleanup_despite_cancellation(
+                self._cleanup_owned_storage(
+                    uploaded_keys,
+                    agency_id=agency_id,
+                    batch_id=batch.id,
+                    durable=isolate_pdf_parsing,
+                )
             )
             raise
 
@@ -302,13 +335,15 @@ class TravelDocumentIngestionService:
             # Surface relational constraint errors while object-storage
             # compensation is still in scope.
             await self._session.flush()
-        except Exception:
+        except BaseException:
             await self._session.rollback()
-            await self._cleanup_owned_storage(
-                uploaded_keys,
-                agency_id=agency_id,
-                batch_id=batch.id,
-                durable=isolate_pdf_parsing,
+            await finish_cleanup_despite_cancellation(
+                self._cleanup_owned_storage(
+                    uploaded_keys,
+                    agency_id=agency_id,
+                    batch_id=batch.id,
+                    durable=isolate_pdf_parsing,
+                )
             )
             raise
         return TravelDocumentIngestionResult(

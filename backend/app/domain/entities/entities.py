@@ -63,6 +63,10 @@ class UserRole(str, Enum):
     AGENCY_MANAGER = "agency_manager"
     AGENCY_STAFF = "agency_staff"
     AGENCY_COORDINATOR = "agency_coordinator"
+    # External client-side principal. This role intentionally has no implicit
+    # agency-wide dashboard permissions; mobile access is granted only through
+    # explicit GC App group assignments.
+    CLIENT_MANAGER = "client_manager"
 
 
 class PassportProcessingStatus(str, Enum):

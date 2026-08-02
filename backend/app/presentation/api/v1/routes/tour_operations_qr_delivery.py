@@ -46,6 +46,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     SendQrBroadcastResponse,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
@@ -59,6 +60,10 @@ ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 QR_QUEUED_STALE_AFTER = timedelta(minutes=2)
 QR_PROCESSING_STALE_AFTER = timedelta(minutes=10)
+AMBIGUOUS_PRIVATE_DESTINATION_REASON = (
+    "A WhatsApp destination is shared by multiple passengers. Correct the "
+    "recipient numbers before sending private QR codes."
+)
 
 
 def _agency_id(current_user: User) -> uuid.UUID:
@@ -193,6 +198,9 @@ async def _linked_recipients(
             WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
             WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(linked)),
             WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(
+                None
+            ),
         )
     )
     return linked, list(recipient_result.scalars().all())
@@ -203,7 +211,10 @@ def _matched_recipients(
     submissions: list[PassportSubmissionModel],
     recipients: list[WhatsAppBroadcastRecipientModel],
     linked_broadcasts: dict[uuid.UUID, str],
-) -> dict[uuid.UUID, tuple[WhatsAppBroadcastRecipientModel, str]]:
+) -> tuple[
+    dict[uuid.UUID, tuple[WhatsAppBroadcastRecipientModel, str]],
+    set[uuid.UUID],
+]:
     comparison_recipients = [
         RecipientForComparison(
             id=recipient.id,
@@ -240,8 +251,12 @@ def _matched_recipients(
         uuid.UUID,
         tuple[WhatsAppBroadcastRecipientModel, str],
     ] = {}
+    ambiguous_submission_ids: set[uuid.UUID] = set()
     for row in rows:
-        if row.status not in {"submitted", "multiple_submissions"}:
+        if row.status == "multiple_submissions":
+            ambiguous_submission_ids.update(row.submission_ids)
+            continue
+        if row.status != "submitted" or len(row.submission_ids) != 1:
             continue
         candidates = sorted(
             (
@@ -260,12 +275,11 @@ def _matched_recipients(
         if not candidates:
             continue
         selected = candidates[0]
-        for submission_id in row.submission_ids:
-            matched[submission_id] = (
-                selected,
-                linked_broadcasts[selected.broadcast_group_id],
-            )
-    return matched
+        matched[row.submission_ids[0]] = (
+            selected,
+            linked_broadcasts[selected.broadcast_group_id],
+        )
+    return matched, ambiguous_submission_ids
 
 
 async def _build_preview(
@@ -296,8 +310,8 @@ async def _build_preview(
                 PassengerQRTokenModel.created_at.desc(),
             )
         )
-        for token in token_result.scalars().all():
-            latest_token_by_passenger.setdefault(token.passenger_id, token)
+        for qr_token in token_result.scalars().all():
+            latest_token_by_passenger.setdefault(qr_token.passenger_id, qr_token)
 
     token_ids = [token.id for token in latest_token_by_passenger.values()]
     delivery_by_token: dict[uuid.UUID, PassengerQrWhatsAppDeliveryModel] = {}
@@ -315,7 +329,7 @@ async def _build_preview(
         session,
         group=group,
     )
-    recipient_by_submission = _matched_recipients(
+    recipient_by_submission, ambiguous_submission_ids = _matched_recipients(
         submissions=passengers,
         recipients=recipient_models,
         linked_broadcasts=linked_broadcasts,
@@ -339,6 +353,9 @@ async def _build_preview(
             )
         elif token and not token.qr_payload:
             reason = "The active QR image cannot be reconstructed; regenerate it first."
+        elif token and passenger.id in ambiguous_submission_ids:
+            reason = AMBIGUOUS_PRIVATE_DESTINATION_REASON
+            summary.ambiguous_recipients += 1
         elif token and not matched_recipient:
             reason = (
                 "No confirmed WhatsApp recipient could be matched to this passenger "
@@ -466,6 +483,7 @@ async def send_qr_whatsapp_broadcast(
     group_id: uuid.UUID,
     payload: SendQrBroadcastRequest,
     current_user: User = Depends(require_role(QR_DELIVERY_ROLES)),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> SendQrBroadcastResponse:
     message_content = payload.message_content.strip()

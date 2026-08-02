@@ -1,0 +1,533 @@
+"""Compact contracts for the GC mobile authentication and trip APIs."""
+
+from __future__ import annotations
+
+import uuid
+from datetime import date, datetime
+from typing import Literal
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
+
+
+class MobileDeviceInput(BaseModel):
+    installation_id: str = Field(min_length=16, max_length=128)
+    platform: Literal["android", "ios"]
+    app_version: str = Field(min_length=1, max_length=40)
+    device_name: str | None = Field(default=None, max_length=120)
+
+
+class MobileOTPRequest(BaseModel):
+    phone_number: str = Field(min_length=8, max_length=64)
+
+
+class MobileOTPRequestResponse(BaseModel):
+    """Intentionally identical whether or not an eligible identity exists."""
+
+    accepted: bool = True
+    challenge_id: uuid.UUID
+    expires_in_seconds: int
+    resend_after_seconds: int
+
+
+class MobileOTPVerifyRequest(BaseModel):
+    challenge_id: uuid.UUID
+    code: str = Field(min_length=4, max_length=12, pattern=r"^[0-9]+$")
+    device: MobileDeviceInput
+
+
+class MobileTripClaimSummary(BaseModel):
+    claim_id: uuid.UUID
+    group_id: uuid.UUID
+    group_name: str
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    requires_secondary_verification: bool = False
+
+
+class MobileClaimVerifyRequest(BaseModel):
+    challenge_id: uuid.UUID
+    claim_id: uuid.UUID | None = None
+    verification_value: str | None = Field(default=None, min_length=2, max_length=128)
+    device: MobileDeviceInput
+
+
+class MobileCredentialLoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=256)
+    device: MobileDeviceInput
+
+
+class MobileActivationRequest(BaseModel):
+    activation_token: str = Field(min_length=32, max_length=512)
+    new_password: str = Field(min_length=10, max_length=256)
+    device: MobileDeviceInput
+
+
+class MobileRefreshRequest(BaseModel):
+    refresh_token: str = Field(min_length=32, max_length=512)
+
+
+class MobileLogoutRequest(BaseModel):
+    refresh_token: str | None = Field(default=None, min_length=32, max_length=512)
+
+
+class MobilePasswordChangeRequest(BaseModel):
+    current_password: str = Field(min_length=8, max_length=256)
+    new_password: str = Field(min_length=10, max_length=256)
+    device: MobileDeviceInput
+
+
+class MobilePrincipalResponse(BaseModel):
+    id: uuid.UUID
+    principal_type: Literal["passenger", "client_manager", "coordinator"]
+    agency_id: uuid.UUID
+    display_name: str
+    force_password_change: bool = False
+
+
+class MobileTokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: Literal["bearer"] = "bearer"
+    access_token_expires_at: datetime
+    refresh_token_expires_at: datetime
+    session_id: uuid.UUID
+    principal: MobilePrincipalResponse
+
+
+class MobileOTPVerifyResponse(BaseModel):
+    status: Literal[
+        "claim_selection_required",
+        "secondary_verification_required",
+        "authenticated",
+    ]
+    claims: list[MobileTripClaimSummary] = Field(default_factory=list, max_length=50)
+    tokens: MobileTokenResponse | None = None
+
+
+class MobileTripSummaryResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    destination: str | None = None
+    travel_date: date | None = None
+    return_date: date | None = None
+    role: Literal["passenger", "client_manager", "coordinator"]
+    access_generation: int
+    itinerary_version: int
+    common_document_version: int
+    announcement_version: int
+
+
+class MobileTripsResponse(BaseModel):
+    items: list[MobileTripSummaryResponse] = Field(max_length=100)
+    next_cursor: str | None = None
+
+
+class MobileManifestResponse(BaseModel):
+    trip: MobileTripSummaryResponse
+    sync_cursor: int
+    server_time: datetime
+    access_expires_at: datetime | None = None
+    versions: "MobileManifestVersions"
+    resources: "MobileManifestResources"
+
+
+class MobileManifestVersions(BaseModel):
+    manifest: int = Field(ge=0)
+    itinerary: int = Field(ge=0)
+    common_documents: int = Field(ge=0)
+    personal_documents: int = Field(ge=0)
+    announcements: int = Field(ge=0)
+    rooming: int = Field(ge=0)
+    meals: int = Field(ge=0)
+    qr: int = Field(ge=0)
+    readiness: int = Field(ge=0)
+    roster: int = Field(ge=0)
+
+
+class MobileManifestResources(BaseModel):
+    itinerary: str
+    announcements: str
+    common_documents: str
+    personal_documents: str
+    room: str
+    meals: str
+    qr: str
+    sync_changes: str
+
+
+class MobileSyncAcknowledgementRequest(BaseModel):
+    trip_id: uuid.UUID
+    cursor: int = Field(ge=0)
+    access_generation: int = Field(ge=0)
+    versions: MobileManifestVersions
+
+
+class MobileSyncAcknowledgementResponse(BaseModel):
+    trip_id: uuid.UUID
+    cursor: int = Field(ge=0)
+    access_generation: int = Field(ge=0)
+    acknowledged_at: datetime
+
+
+class MobileSyncChangeResponse(BaseModel):
+    sequence: int
+    group_id: uuid.UUID
+    entity_type: str
+    entity_id: uuid.UUID | None = None
+    operation: Literal["upsert", "delete", "revoke"]
+    version: int
+    occurred_at: datetime
+    payload: dict[str, object] = Field(default_factory=dict)
+
+
+class MobileSyncPageResponse(BaseModel):
+    changes: list[MobileSyncChangeResponse]
+    next_cursor: int
+    has_more: bool
+
+
+class MobileItineraryItemResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    description: str | None = None
+    starts_at: datetime | None = None
+    ends_at: datetime | None = None
+    location_name: str | None = None
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    sort_order: int = Field(ge=0)
+
+
+class MobileItineraryDayResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: uuid.UUID
+    day_number: int = Field(ge=1, le=365)
+    trip_date: date | None = Field(default=None, alias="date")
+    title: str | None = None
+    sort_order: int = Field(ge=0)
+    items: list[MobileItineraryItemResponse] = Field(max_length=250)
+
+
+class MobileItineraryResponse(BaseModel):
+    trip_id: uuid.UUID
+    version: int = Field(ge=1)
+    title: str
+    published_at: datetime
+    days: list[MobileItineraryDayResponse] = Field(max_length=365)
+
+
+class MobileAnnouncementResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID
+    version: int = Field(ge=1)
+    title: str
+    message: str
+    priority: Literal["normal", "important", "emergency"]
+    published_at: datetime
+    available_until: datetime | None = None
+    is_read: bool = False
+
+
+class MobileAnnouncementPageResponse(BaseModel):
+    items: list[MobileAnnouncementResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+
+
+class MobileCommonDocumentResponse(BaseModel):
+    id: uuid.UUID
+    logical_document_id: uuid.UUID
+    trip_id: uuid.UUID
+    category: str
+    title: str
+    description: str | None = None
+    media_type: str
+    byte_size: int = Field(gt=0)
+    checksum_sha256: str = Field(pattern=r"^[0-9a-fA-F]{64}$")
+    version: int = Field(ge=1)
+    offline_available: bool
+    published_at: datetime
+    updated_at: datetime
+
+
+class MobileCommonDocumentPageResponse(BaseModel):
+    items: list[MobileCommonDocumentResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+
+
+class MobilePersonalDocumentResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID
+    passenger_id: uuid.UUID
+    scope: Literal["personal"] = "personal"
+    category: str = Field(min_length=1, max_length=80)
+    display_name: str = Field(min_length=1, max_length=255)
+    content_type: Literal[
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+    ]
+    size_bytes: int | None = Field(default=None, gt=0, le=25 * 1024 * 1024)
+    version: int = Field(ge=1)
+    checksum_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    offline_available: bool
+    metadata_state: Literal["ready", "pending"]
+    updated_at: datetime
+    revoked_at: datetime | None = None
+
+
+class MobilePersonalDocumentPageResponse(BaseModel):
+    items: list[MobilePersonalDocumentResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+
+
+class MobileDocumentAuthorizationResponse(BaseModel):
+    document_id: uuid.UUID
+    version: int = Field(ge=1)
+    content_path: str = Field(pattern=r"^/api/v1/mobile/")
+    download_token: str = Field(min_length=32, max_length=4096)
+    expires_at: datetime
+
+
+class MobileRoomResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID
+    passenger_id: uuid.UUID
+    hotel_name: str | None = None
+    room_number: str | None = None
+    roommate_summary: str | None = None
+    version: int = Field(ge=0)
+    updated_at: datetime
+
+
+class MobileMealResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID
+    passenger_id: uuid.UUID
+    preference: str | None = None
+    notes: str | None = None
+    version: int = Field(ge=0)
+    updated_at: datetime
+
+
+class MobileQRResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID
+    passenger_id: uuid.UUID
+    signed_payload: str
+    version: int = Field(ge=1)
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
+    offline_allowed: bool
+    updated_at: datetime
+
+
+class MobileManagerReadinessResponse(BaseModel):
+    trip_id: uuid.UUID
+    passenger_count: int = Field(ge=0)
+    passports_complete: int = Field(ge=0)
+    visas_available: int = Field(ge=0)
+    tickets_available: int = Field(ge=0)
+    items_needing_attention: int = Field(ge=0)
+    rooms_assigned: int = Field(ge=0)
+    meals_confirmed: int = Field(ge=0)
+    version: int = Field(ge=0)
+    updated_at: datetime
+
+
+class MobileCoordinatorPassengerResponse(BaseModel):
+    id: uuid.UUID
+    display_name: str
+    employee_code: str | None = None
+    attendance_status: Literal["not_marked", "present", "missing", "excused"]
+    room_number: str | None = None
+    meal_preference: str | None = None
+    has_alert: bool = False
+
+
+class MobileCoordinatorRosterResponse(BaseModel):
+    items: list[MobileCoordinatorPassengerResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+    total: int = Field(ge=0)
+
+
+class MobileAttendanceActionInput(BaseModel):
+    client_event_id: uuid.UUID
+    signed_qr: str = Field(
+        min_length=49,
+        max_length=49,
+        pattern=r"^pdatt:[A-Za-z0-9_-]{43}$",
+    )
+    scanned_at: datetime
+    source: Literal["qr"] = "qr"
+    session_id: uuid.UUID | None = None
+
+    @field_validator("scanned_at")
+    @classmethod
+    def require_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("scanned_at must include a timezone offset")
+        return value
+
+
+class MobileAttendanceBatchRequest(BaseModel):
+    actions: list[MobileAttendanceActionInput] = Field(min_length=1, max_length=100)
+
+    @model_validator(mode="after")
+    def require_unique_event_ids(self) -> "MobileAttendanceBatchRequest":
+        ids = [item.client_event_id for item in self.actions]
+        if len(ids) != len(set(ids)):
+            raise ValueError("client_event_id values must be unique within a batch")
+        return self
+
+
+class MobileAttendanceActionResult(BaseModel):
+    client_event_id: uuid.UUID
+    status: Literal["accepted", "already_applied", "rejected", "refresh_required"]
+    server_version: int | None = Field(default=None, ge=0)
+    reason_code: str | None = Field(default=None, max_length=100)
+
+
+class MobileAttendanceBatchResponse(BaseModel):
+    results: list[MobileAttendanceActionResult] = Field(min_length=1, max_length=100)
+
+
+class MobileAttendanceSummaryResponse(BaseModel):
+    trip_id: uuid.UUID
+    total: int = Field(ge=0)
+    present: int = Field(ge=0)
+    missing: int = Field(ge=0)
+    excused: int = Field(ge=0)
+    not_marked: int = Field(ge=0)
+    version: int = Field(ge=0)
+    updated_at: datetime
+
+
+class MobileAttendanceSessionCreateRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=160)
+
+    @field_validator("name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        normalized = " ".join(value.split())
+        if len(normalized) < 2:
+            raise ValueError("Attendance activity name is required")
+        return normalized
+
+
+class MobileAttendanceSessionResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+    status: Literal["draft", "active", "completed", "cancelled"]
+    scanned_count: int = Field(ge=0)
+    assigned_count: int = Field(ge=0)
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+
+
+class MobileAttendanceSessionPageResponse(BaseModel):
+    items: list[MobileAttendanceSessionResponse] = Field(max_length=100)
+    next_cursor: str | None = None
+
+
+class MobileAttendanceMissingPassengerResponse(BaseModel):
+    id: uuid.UUID
+    display_name: str = Field(min_length=1, max_length=255)
+
+
+class MobileAttendanceSessionDetailsResponse(BaseModel):
+    session: MobileAttendanceSessionResponse
+    missing: list[MobileAttendanceMissingPassengerResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+
+
+class MobileIncidentCreateRequest(BaseModel):
+    client_event_id: uuid.UUID
+    title: str = Field(min_length=3, max_length=160)
+    description: str = Field(min_length=3, max_length=2_000)
+    severity: Literal["low", "medium", "high", "critical"]
+    occurred_at: datetime
+
+    @field_validator("title", "description")
+    @classmethod
+    def normalize_incident_text(cls, value: str) -> str:
+        normalized = " ".join(value.split())
+        if len(normalized) < 3:
+            raise ValueError("Incident text is required")
+        return normalized
+
+    @field_validator("occurred_at")
+    @classmethod
+    def require_incident_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("occurred_at must include a timezone offset")
+        return value
+
+
+class MobileIncidentActionResponse(BaseModel):
+    client_event_id: uuid.UUID
+    status: Literal["accepted", "already_applied", "rejected"]
+    incident_id: uuid.UUID | None = None
+    reason_code: str | None = Field(default=None, max_length=100)
+
+
+class MobilePushRegistrationResponse(BaseModel):
+    registration_id: uuid.UUID
+    registered: bool = True
+
+
+class MobilePushUnregisterRequest(BaseModel):
+    installation_id: str = Field(min_length=16, max_length=128)
+    provider: Literal["expo", "fcm", "apns"] | None = None
+
+
+class MobilePushUnregisterResponse(BaseModel):
+    unregistered: bool = True
+    revoked_count: int = Field(ge=0)
+
+
+class MobileNotificationResponse(BaseModel):
+    id: uuid.UUID
+    trip_id: uuid.UUID | None = None
+    notification_type: str
+    category: str
+    priority: Literal["normal", "important", "emergency"]
+    title: str
+    body: str
+    deep_link_path: str | None = None
+    payload: dict[str, object] = Field(default_factory=dict)
+    available_at: datetime
+    expires_at: datetime | None = None
+    read_at: datetime | None = None
+
+
+class MobileNotificationPageResponse(BaseModel):
+    items: list[MobileNotificationResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+    unread_count: int = Field(ge=0)
+
+
+class MobileNotificationReadResponse(BaseModel):
+    id: uuid.UUID
+    read_at: datetime
+
+
+class MobilePushRegistrationRequest(BaseModel):
+    provider: Literal["expo", "fcm", "apns"]
+    push_token: str = Field(min_length=16, max_length=512)
+    installation_id: str = Field(min_length=16, max_length=128)
+
+    @field_validator("push_token", mode="before")
+    @classmethod
+    def normalize_push_token(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value

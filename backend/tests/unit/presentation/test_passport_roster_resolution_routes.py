@@ -502,6 +502,11 @@ async def test_linked_broadcast_cannot_be_removed_while_replacement_is_active() 
             "lock_whatsapp_broadcast_groups",
             new=lock_broadcasts,
         ),
+        patch.object(
+            client_groups,
+            "prepare_private_delivery_identity_mutation",
+            new=AsyncMock(return_value=0),
+        ),
         pytest.raises(HTTPException) as exc_info,
     ):
         await client_groups._replace_whatsapp_links(  # noqa: SLF001
@@ -556,6 +561,11 @@ async def test_newly_linked_broadcast_is_reconciled_against_active_replacements(
             client_groups,
             "lock_whatsapp_broadcast_groups",
             new=lock_broadcasts,
+        ),
+        patch.object(
+            client_groups,
+            "prepare_private_delivery_identity_mutation",
+            new=AsyncMock(return_value=0),
         ),
     ):
         summaries, previous_ids, changed = await client_groups._replace_whatsapp_links(  # noqa: SLF001

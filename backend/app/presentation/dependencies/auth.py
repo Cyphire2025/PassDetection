@@ -84,6 +84,8 @@ async def get_current_user(
     user = await user_repo.get_by_id(user_id)
     if not user:
         raise AuthenticationError("User not found")
+    if user.role == UserRole.CLIENT_MANAGER:
+        raise AuthenticationError("This account cannot access the dashboard")
 
     return user
 

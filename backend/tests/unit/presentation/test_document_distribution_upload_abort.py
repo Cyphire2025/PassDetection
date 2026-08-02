@@ -166,7 +166,9 @@ def test_bulk_and_reupload_capacity_errors_are_mapped_to_413_after_scope_lock() 
             "enforce_capacity_before_persistence"
         )
         assert "except DocumentDistributionCapacityError as exc" in source
-        assert "status.HTTP_413_CONTENT_TOO_LARGE" in source
+        # Keep this source-level ordering contract compatible with Starlette
+        # releases that expose only HTTP_413_REQUEST_ENTITY_TOO_LARGE.
+        assert "status_code=413" in source
 
 
 @pytest.mark.asyncio

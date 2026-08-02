@@ -120,6 +120,10 @@ from app.infrastructure.repositories.whatsapp_recipient_capacity_repository impo
 )
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.storage.passport_object_keys import passport_storage_keys
+from app.infrastructure.whatsapp.private_delivery_policy import (
+    PrivateDeliveryMutationBlocked,
+    prepare_private_delivery_identity_mutation,
+)
 from app.presentation.api.v1.routes.tour_operations_qr_helpers import qr_expires_at_for_group
 from app.presentation.api.v1.schemas.client_group_schemas import (
     ClientGroupResponse,
@@ -390,6 +394,21 @@ async def _replace_whatsapp_links(
     )
     changed = previous_ids != requested_ids
     if changed:
+        try:
+            await prepare_private_delivery_identity_mutation(
+                session,
+                agency_id=agency_id,
+                group_id=group_id,
+                cancel_queued=True,
+                cancellation_reason=(
+                    "WhatsApp broadcast links changed before private delivery"
+                ),
+            )
+        except PrivateDeliveryMutationBlocked as exc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(exc),
+            ) from exc
         removed_broadcast_ids = set(previous_ids) - set(requested_ids)
         if removed_broadcast_ids:
             active_replacement_result = await session.execute(
@@ -973,6 +992,7 @@ async def replace_client_group_whatsapp_links(
     link_id: uuid.UUID,
     body: ReplaceWhatsAppBroadcastLinksRequest,
     current_user: User = Depends(get_current_active_user),
+    _csrf: None = Depends(require_cookie_csrf),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupWhatsAppLinksResponse:
     _require_whatsapp_broadcast_access(current_user)

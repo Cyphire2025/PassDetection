@@ -114,6 +114,7 @@ class RoomingPriorityFieldResponse(BaseModel):
     key: str
     label: str
     source: str
+    groupable: bool = True
 
 
 class RoomingPriorityFieldOptionsResponse(BaseModel):
@@ -121,6 +122,14 @@ class RoomingPriorityFieldOptionsResponse(BaseModel):
     fields: list[RoomingPriorityFieldResponse] = Field(default_factory=list)
     max_priority_fields: int = 6
     gender_rule: str
+
+
+class RoomingRosterFieldValuesResponse(BaseModel):
+    group_id: uuid.UUID
+    field: RoomingPriorityFieldResponse
+    values_by_passenger: dict[uuid.UUID, str | None] = Field(
+        default_factory=dict
+    )
 
 
 class RoomingPassengerResponse(BaseModel):

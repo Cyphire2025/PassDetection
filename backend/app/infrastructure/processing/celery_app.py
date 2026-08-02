@@ -9,6 +9,7 @@ from kombu import Queue
 from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
+from app.infrastructure.mobile_push import MOBILE_PUSH_DISPATCH_TASK
 from app.infrastructure.visa_ai_image_jobs import (
     VISA_AI_IMAGE_QUEUE,
     VISA_AI_IMAGE_TASK,
@@ -40,6 +41,7 @@ celery_app = Celery(
         "app.infrastructure.email.tasks",
         "app.infrastructure.email.ai_tasks",
         "app.infrastructure.documents.cleanup_tasks",
+        "app.infrastructure.mobile_push.tasks",
     ],
 )
 
@@ -67,6 +69,7 @@ celery_app.conf.update(
         EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
+        MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -110,6 +113,11 @@ celery_app.conf.update(
         "reconcile-orphaned-document-storage": {
             "task": DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK,
             "schedule": 3_600.0,
+            "options": {"queue": "passport_ocr"},
+        },
+        "dispatch-mobile-push-notifications": {
+            "task": MOBILE_PUSH_DISPATCH_TASK,
+            "schedule": settings.mobile.push_dispatch_interval_seconds,
             "options": {"queue": "passport_ocr"},
         },
     },

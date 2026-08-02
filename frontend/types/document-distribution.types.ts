@@ -30,6 +30,7 @@ export interface VerifiedDistributedDocument {
   match_confidence: number;
   match_status: string | null;
   match_reason: string | null;
+  staging_receipt: string | null;
 }
 
 export interface DocumentVerificationResult {
@@ -60,6 +61,14 @@ export interface DistributedDocument {
   url: string | null;
 }
 
+export interface DocumentAssignmentIssue {
+  document_id: string;
+  original_filename: string;
+  code: "no_unique_passenger_match" | "passenger_no_longer_in_group" | "duplicate_document" | string;
+  reason: string;
+  url: string | null;
+}
+
 export interface DocumentPassengerReviewRow {
   passenger_id: string;
   passenger_name: string;
@@ -77,11 +86,16 @@ export interface DocumentBatchReview {
   uploaded_count: number;
   rejected_count: number;
   matched_count: number;
+  physical_file_count: number;
+  assigned_file_count: number;
+  assigned_passenger_count: number;
+  needs_assignment_count: number;
   processing_upload_ids: string[];
   saved_at: string | null;
   created_at: string | null;
   review_rows: DocumentPassengerReviewRow[];
   unmatched_documents: DistributedDocument[];
+  assignment_issues: DocumentAssignmentIssue[];
   rejected_documents: RejectedDistributedDocument[];
 }
 
@@ -168,6 +182,7 @@ export interface DocumentDeliveryTrackingRow {
 
 export interface DocumentDeliveryTracking {
   group_id: string;
+  poll_after_seconds: number | null;
   counts: {
     total: number;
     queued: number;

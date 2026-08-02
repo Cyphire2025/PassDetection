@@ -221,6 +221,26 @@ export function useRoomingPriorityFields(groupId: string) {
   });
 }
 
+export function useRoomingRosterFieldValues(
+  groupId: string,
+  fieldKey: string | null,
+) {
+  return useQuery({
+    queryKey: [
+      ...roomingWorkspaceKey(groupId),
+      "roster-field-values",
+      fieldKey,
+    ],
+    queryFn: () => operationsApi.roomingRosterFieldValues(
+      groupId,
+      fieldKey as string,
+    ),
+    enabled: Boolean(groupId && fieldKey),
+    staleTime: 30_000,
+    retry: false,
+  });
+}
+
 export function useRoomingActions(groupId: string) {
   const queryClient = useQueryClient();
   const refresh = () => queryClient.invalidateQueries({ queryKey: roomingWorkspaceKey(groupId) });
@@ -430,7 +450,10 @@ export function useQrDeliveryPreview(groupId: string, enabled: boolean) {
     queryKey: ["operations", "tour-operations", "groups", groupId, "qr-whatsapp-preview"],
     queryFn: () => operationsApi.qrDeliveryPreview(groupId),
     enabled,
-    refetchInterval: enabled ? 2_000 : false,
+    refetchInterval: (query) =>
+      enabled && (query.state.data?.summary.in_progress ?? 0) > 0
+        ? 1_500
+        : false,
     refetchIntervalInBackground: false,
     retry: false,
   });

@@ -87,6 +87,65 @@ class JWTSettings(BaseSettings):
     login_lockout_seconds: int = Field(default=900, ge=60, le=86_400)
 
 
+class MobileSettings(BaseSettings):
+    """GC mobile authentication, OTP, and synchronization settings."""
+
+    model_config = SettingsConfigDict(env_prefix="MOBILE_", env_file=".env", extra="ignore")
+
+    enabled: bool = False
+    jwt_secret_key: SecretStr | None = None
+    jwt_issuer: str = Field(default="passdetection", min_length=3, max_length=120)
+    jwt_audience: str = Field(default="gc-mobile", min_length=3, max_length=120)
+    access_token_expire_minutes: int = Field(default=15, ge=5, le=60)
+    refresh_token_expire_days: int = Field(default=30, ge=1, le=90)
+    otp_provider: Literal["disabled", "development"] = "disabled"
+    otp_development_code: SecretStr | None = None
+    otp_ttl_seconds: int = Field(default=300, ge=60, le=900)
+    otp_resend_cooldown_seconds: int = Field(default=60, ge=15, le=600)
+    otp_max_attempts: int = Field(default=5, ge=1, le=10)
+    otp_phone_limit_per_hour: int = Field(default=6, ge=1, le=100)
+    otp_ip_limit_per_hour: int = Field(default=30, ge=1, le=1_000)
+    otp_require_redis: bool = True
+    sync_page_size: int = Field(default=200, ge=25, le=500)
+    admin_page_size: int = Field(default=50, ge=10, le=100)
+    common_document_max_bytes: int = Field(
+        default=25 * 1024 * 1024,
+        ge=1024,
+        le=100 * 1024 * 1024,
+    )
+    personal_document_max_bytes: int = Field(
+        default=25 * 1024 * 1024,
+        ge=1024,
+        le=25 * 1024 * 1024,
+    )
+    document_grant_ttl_seconds: int = Field(default=60, ge=30, le=300)
+    push_provider: Literal["disabled", "expo"] = "disabled"
+    push_access_token: SecretStr | None = None
+    push_batch_size: int = Field(default=100, ge=1, le=100)
+    push_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
+    push_dispatch_interval_seconds: int = Field(default=5, ge=1, le=300)
+
+    @field_validator(
+        "jwt_secret_key",
+        "otp_development_code",
+        "push_access_token",
+        mode="before",
+    )
+    @classmethod
+    def normalize_optional_mobile_secrets(cls, value: object) -> object | None:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
+    @model_validator(mode="after")
+    def validate_development_otp(self) -> Self:
+        if self.otp_provider == "development" and self.otp_development_code is None:
+            raise ValueError(
+                "MOBILE_OTP_DEVELOPMENT_CODE is required for the development OTP provider"
+            )
+        return self
+
+
 class S3Settings(BaseSettings):
     """S3-compatible object storage settings."""
 
@@ -453,6 +512,7 @@ class Settings(BaseSettings):
     whatsapp_reminder_template_name: str = "reminder_v1"
     whatsapp_document_template_name: str = "documents_v1"
     whatsapp_qr_template_name: str = "qrcode_v1"
+    whatsapp_delivery_concurrency: int = Field(default=4, ge=1, le=16)
     whatsapp_webhook_verify_token: str | None = None
     whatsapp_app_secret: str | None = None
 
@@ -503,6 +563,11 @@ class Settings(BaseSettings):
     @property
     def jwt(self) -> JWTSettings:
         return JWTSettings()
+
+    @computed_field(repr=False)  # type: ignore[misc]
+    @property
+    def mobile(self) -> MobileSettings:
+        return MobileSettings()
 
     @computed_field(repr=False)  # type: ignore[misc]
     @property

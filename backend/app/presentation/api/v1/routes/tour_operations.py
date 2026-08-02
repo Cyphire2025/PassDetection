@@ -94,6 +94,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     TourOperationsPhaseResponse,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
@@ -506,6 +507,7 @@ async def get_group_passenger_qr_codes(
 
 @router.post(
     "/groups/{group_id}/passengers/{passenger_id}/qr",
+    dependencies=[Depends(require_cookie_csrf)],
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Generate a secure attendance QR token and reveal it once",
@@ -536,6 +538,7 @@ async def generate_passenger_qr(
 
 @router.post(
     "/groups/{group_id}/passengers/{passenger_id}/qr/regenerate",
+    dependencies=[Depends(require_cookie_csrf)],
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Revoke the current attendance QR and reveal a random replacement once",
@@ -566,6 +569,7 @@ async def regenerate_passenger_qr(
 
 @router.post(
     "/groups/{group_id}/passengers/{passenger_id}/qr/revoke",
+    dependencies=[Depends(require_cookie_csrf)],
     response_model=PassengerQrTokenResponse,
     status_code=status.HTTP_200_OK,
     summary="Permanently revoke a passenger attendance QR",
@@ -602,6 +606,7 @@ async def revoke_passenger_qr(
 
 @router.patch(
     "/groups/{group_id}/passengers/{passenger_id}/qr/active",
+    dependencies=[Depends(require_cookie_csrf)],
     response_model=PassengerQrTokenResponse,
     summary="Mark the latest passenger QR active or inactive",
 )
@@ -651,6 +656,7 @@ async def set_passenger_qr_active(
 
 @router.patch(
     "/groups/{group_id}/passengers/{passenger_id}/qr/expiration",
+    dependencies=[Depends(require_cookie_csrf)],
     response_model=PassengerQrTokenResponse,
     summary="Change or immediately expire the latest passenger QR",
 )

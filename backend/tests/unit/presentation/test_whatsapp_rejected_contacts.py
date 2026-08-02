@@ -332,6 +332,10 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
             "app.presentation.api.v1.routes.whatsapp.suppress_active_replacement_recipients",
             new=AsyncMock(),
         ),
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
+            new=AsyncMock(),
+        ),
     ):
         response = await resolve_broadcast_rejected_contact(
             group_id=group_id,

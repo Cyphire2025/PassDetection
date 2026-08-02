@@ -135,6 +135,28 @@ class MinioStorageRepository(IObjectStorageRepository):
                 "The stored passport image is temporarily unavailable. Please try again."
             ) from e
 
+    async def copy_file(self, source_key: str, destination_key: str) -> str:
+        """Copy a private object inside the configured bucket without downloading it."""
+
+        try:
+            await asyncio.to_thread(
+                self._client.copy_object,
+                Bucket=self.settings.bucket_name,
+                Key=destination_key,
+                CopySource={"Bucket": self.settings.bucket_name, "Key": source_key},
+            )
+            return destination_key
+        except Exception as e:
+            logger.error(
+                "s3_copy_failed",
+                source_key_hash=self._key_hash(source_key),
+                destination_key_hash=self._key_hash(destination_key),
+                error_type=type(e).__name__,
+            )
+            raise StorageError(
+                "Document storage is temporarily unavailable. Please try again."
+            ) from e
+
     async def get_presigned_url(self, key: str, expires_in_seconds: int = 3600) -> str:
         """Generates a presigned URL synchronously in a thread pool."""
         try:

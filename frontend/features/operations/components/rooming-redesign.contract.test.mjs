@@ -25,6 +25,10 @@ const priorityPolicy = readFileSync(
   new URL("./rooming-priority-field-policy.mjs", import.meta.url),
   "utf8",
 );
+const rosterGrouping = readFileSync(
+  new URL("./rooming-roster-grouping.ts", import.meta.url),
+  "utf8",
+);
 const api = readFileSync(
   new URL("../api/operations.api.ts", import.meta.url),
   "utf8",
@@ -76,13 +80,39 @@ test("passengers can be selected in bulk and moved safely between hotels", () =>
   assert.match(passengerAllocation, /First passengers/);
   assert.match(passengerAllocation, /Select first/);
   assert.match(passengerAllocation, /type="checkbox"/);
-  assert.match(passengerAllocation, /togglePassenger\(passenger\.passenger_id\)/);
+  assert.match(
+    passengerAllocation,
+    /onTogglePassenger\(passenger\.passenger_id\)/,
+  );
   assert.match(passengerAllocation, /Assign selected passengers to/);
   assert.match(passengerAllocation, /Current hotel/);
   assert.match(workspace, /mode: "add"/);
   assert.doesNotMatch(workspace, /mode: "replace"/);
   assert.match(endpoints, /passengerSelection:[\s\S]*?passenger-selection/);
   assert.match(hooks, /selectHotelPassengers:[\s\S]*?passenger_ids: passengerIds/);
+});
+
+test("imported fields group passengers in collapsible selectable sections", () => {
+  assert.match(endpoints, /rosterFieldValues:[\s\S]*?roster-field-values/);
+  assert.match(api, /roomingRosterFieldValues:[\s\S]*?field_key: fieldKey/);
+  assert.match(hooks, /useRoomingRosterFieldValues/);
+  assert.match(passengerAllocation, /Group by imported field/);
+  assert.match(passengerAllocation, /Filter grouped value/);
+  assert.match(passengerAllocation, /Passenger sort/);
+  assert.match(passengerAllocation, /<RosterGroupSection/);
+  assert.match(passengerAllocation, /<GroupSelectionCheckbox/);
+  assert.match(passengerAllocation, /Select group/);
+  assert.match(passengerAllocation, /Clear group/);
+  assert.match(passengerAllocation, /inputRef\.current\.indeterminate/);
+  assert.match(passengerAllocation, /aria-expanded=\{expanded\}/);
+  assert.match(rosterGrouping, /Not provided/);
+  assert.match(passengerAllocation, /useState<Set<string>>/);
+  assert.match(
+    passengerAllocation,
+    /if \(groupByFieldKey && !fieldValuesByPassenger\) return \[\]/,
+  );
+  assert.match(passengerAllocation, /useDeferredValue\(search\)/);
+  assert.match(passengerAllocation, /<caption className="sr-only">\{caption\}<\/caption>/);
 });
 
 test("VIP actions are hotel-scoped and visibly enforce single rooms", () => {
@@ -195,6 +225,7 @@ test("structured backend validation details are surfaced and changed UI is ASCII
     autoAllocation,
     errorMessage,
     priorityPolicy,
+    rosterGrouping,
   ].join("\n");
   assert.doesNotMatch(
     changedRoomingSource,

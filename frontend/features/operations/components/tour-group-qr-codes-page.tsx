@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import QRCode from "qrcode";
 import { ArrowLeft, Ban, Clock3, Power, Printer, QrCode, RefreshCw, Send, ShieldCheck, X } from "lucide-react";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { PageHeader } from "@/components/shared/page-header";
@@ -14,6 +13,11 @@ import {
   useSendQrBroadcast,
 } from "../hooks/use-operations";
 import type { GroupPassengerQrCode, QrDeliveryPreview } from "../api/operations.api";
+import {
+  createQrImageGenerator,
+  planQrImageGeneration,
+  type CachedQrImage,
+} from "../services/qr-image-generation";
 
 type QrImageMap = Record<string, string>;
 
@@ -28,6 +32,11 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
   const [selectedQrTokenIds, setSelectedQrTokenIds] = useState<string[] | null>(null);
   const [messageContent, setMessageContent] = useState<string | null>(null);
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
+  const [qrGenerationFailureCount, setQrGenerationFailureCount] = useState(0);
+  const [qrImageCache] = useState(
+    () => new Map<string, CachedQrImage>(),
+  );
+  const [qrImageGenerator] = useState(() => createQrImageGenerator());
   const deliveryPreview = useQrDeliveryPreview(groupId, isSendPreviewOpen);
   const sendQrBroadcast = useSendQrBroadcast(groupId);
 
@@ -44,40 +53,79 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
   );
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
+    let animationFrameId: number | null = null;
+    let pendingImages: QrImageMap = {};
+
+    const flushPendingImages = () => {
+      animationFrameId = null;
+      if (controller.signal.aborted || Object.keys(pendingImages).length === 0) {
+        pendingImages = {};
+        return;
+      }
+      const nextImages = pendingImages;
+      pendingImages = {};
+      setQrImages((current) => ({ ...current, ...nextImages }));
+    };
 
     async function generateQrImages() {
       const revealed = Object.entries(visiblePayloads);
+      const visiblePassengerIds = new Set(revealed.map(([passengerId]) => passengerId));
+      for (const [passengerId, cached] of qrImageCache) {
+        if (
+          !visiblePassengerIds.has(passengerId)
+          || visiblePayloads[passengerId] !== cached.payload
+        ) {
+          qrImageCache.delete(passengerId);
+        }
+      }
+
       if (revealed.length === 0) {
         setQrImages({});
+        setQrGenerationFailureCount(0);
         return;
       }
 
-      const entries = await Promise.all(
-        revealed.map(async ([passengerId, payload]) => [
-          passengerId,
-          await QRCode.toDataURL(payload, {
-            errorCorrectionLevel: "M",
-            margin: 2,
-            scale: 7,
-            color: {
-              dark: "#020617",
-              light: "#ffffff",
-            },
-          }),
-        ] as const),
+      const { cachedEntries, pendingEntries } = planQrImageGeneration(
+        revealed,
+        qrImageCache,
       );
+      setQrImages(Object.fromEntries(cachedEntries));
+      setQrGenerationFailureCount(0);
+      if (pendingEntries.length === 0) return;
 
-      if (!cancelled) {
-        setQrImages(Object.fromEntries(entries));
+      const result = await qrImageGenerator.generate(pendingEntries, {
+        signal: controller.signal,
+        onEntry: ([passengerId, imageUrl]) => {
+          const payload = visiblePayloads[passengerId];
+          if (!payload || controller.signal.aborted) return;
+          qrImageCache.set(passengerId, { payload, imageUrl });
+          pendingImages[passengerId] = imageUrl;
+          animationFrameId ??= window.requestAnimationFrame(flushPendingImages);
+        },
+      });
+
+      if (!controller.signal.aborted) {
+        if (animationFrameId !== null) {
+          window.cancelAnimationFrame(animationFrameId);
+          flushPendingImages();
+        }
+        setQrGenerationFailureCount(result.failedPassengerIds.length);
       }
     }
 
-    generateQrImages();
+    void generateQrImages().catch(() => {
+      if (!controller.signal.aborted) {
+        setQrGenerationFailureCount(1);
+      }
+    });
     return () => {
-      cancelled = true;
+      controller.abort();
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, [visiblePayloads]);
+  }, [qrImageCache, qrImageGenerator, visiblePayloads]);
 
   const defaultSelectedQrTokenIds = (deliveryPreview.data?.recipients ?? [])
     .filter((recipient) => recipient.eligible && recipient.qr_token_id)
@@ -186,6 +234,14 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
       {actionError && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 print:hidden">
           {actionError}
+        </div>
+      )}
+
+      {qrGenerationFailureCount > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 print:hidden">
+          {qrGenerationFailureCount} QR image
+          {qrGenerationFailureCount === 1 ? "" : "s"} could not be rendered.
+          Refresh to retry; other QR cards remain available.
         </div>
       )}
 
@@ -384,6 +440,13 @@ function QrDeliveryPreviewDialog({
                 <QrDeliverySummary label="Already sent" value={preview.summary.already_sent} />
                 <QrDeliverySummary label="In progress" value={preview.summary.in_progress} />
                 <QrDeliverySummary label="Blocked" value={preview.summary.blocked} tone="danger" />
+                {(preview.summary.ambiguous_recipients ?? 0) > 0 && (
+                  <QrDeliverySummary
+                    label="Shared number"
+                    value={preview.summary.ambiguous_recipients ?? 0}
+                    tone="danger"
+                  />
+                )}
               </div>
 
               {preview.configuration_error && (

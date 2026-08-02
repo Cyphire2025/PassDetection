@@ -6,11 +6,15 @@ import asyncio
 import json
 import re
 import uuid
+from collections.abc import Awaitable, Callable
+from contextvars import ContextVar
 from dataclasses import dataclass
-from datetime import UTC, datetime
-from typing import Annotated
+from datetime import UTC, datetime, timedelta
+from functools import wraps
+from time import perf_counter
+from typing import Annotated, ParamSpec, TypeVar
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy import and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,7 +36,7 @@ from app.domain.entities.entities import (
     User,
     UserRole,
 )
-from app.domain.exceptions.exceptions import AuthorizationError
+from app.domain.exceptions.exceptions import AuthorizationError, StorageError
 from app.infrastructure.database.email_models import EmailArtifactDocumentModel
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -61,8 +65,10 @@ from app.infrastructure.documents.document_matcher import (
     DOCUMENT_TYPES,
     MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
     MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
+    ClassifiedDocument,
     DocumentMatcher,
     DocumentParserUnavailableError,
+    MatchResult,
     PassengerIdentifier,
     UnsupportedDocumentBatchFormatError,
     classify_documents_bounded,
@@ -74,6 +80,21 @@ from app.infrastructure.documents.storage_cleanup import (
     persist_storage_cleanup_job,
     process_storage_cleanup_job,
     stage_storage_cleanup_jobs,
+)
+from app.infrastructure.documents.storage_transfers import finish_cleanup_despite_cancellation
+from app.infrastructure.documents.verification_staging import (
+    StagedDocumentReceipt,
+    VerificationReceiptBatchTooLargeError,
+    VerificationReceiptError,
+    VerificationReceiptExpiredError,
+    VerificationReceiptScopeChangedError,
+    VerificationStagingInput,
+    cleanup_staged_storage_keys,
+    decode_verification_receipts,
+    stage_verified_documents,
+    staged_document_chunk_fingerprint,
+    validate_verification_receipt_token_batch,
+    verification_scope_fingerprints,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.passport_submission_repository import (
@@ -91,11 +112,15 @@ from app.presentation.api.v1.document_chunk_uploads import (
     validate_existing_document_chunk,
     validate_next_document_chunk,
 )
-from app.presentation.api.v1.document_uploads import read_bounded_document_uploads
+from app.presentation.api.v1.document_uploads import (
+    MAX_DOCUMENT_BATCH_BYTES,
+    read_bounded_document_uploads,
+)
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     AbortDocumentUploadResponse,
     DeleteDistributionDocumentsRequest,
     DistributedDocumentResponse,
+    DocumentAssignmentIssueResponse,
     DocumentBatchResponse,
     DocumentDeliveryPreviewRecipient,
     DocumentDeliveryPreviewResponse,
@@ -183,6 +208,101 @@ async def _cleanup_distribution_storage_keys(
 DOCUMENT_DELIVERY_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = frozenset({"queued", "processing"})
+DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta(minutes=5)
+DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS = 5
+DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS = 10
+SHARED_WHATSAPP_DESTINATION_REASON = (
+    "A WhatsApp destination is shared by multiple passengers. Correct the recipient "
+    "numbers before sending private documents."
+)
+_UploadParameters = ParamSpec("_UploadParameters")
+_UploadResult = TypeVar("_UploadResult")
+_REQUEST_STAGING_CLEANUP_KEYS: ContextVar[list[str] | None] = ContextVar(
+    "document_distribution_request_staging_cleanup_keys",
+    default=None,
+)
+_RETRYABLE_STAGING_HTTP_STATUSES = frozenset(
+    {
+        status.HTTP_408_REQUEST_TIMEOUT,
+        status.HTTP_409_CONFLICT,
+        status.HTTP_425_TOO_EARLY,
+        status.HTTP_429_TOO_MANY_REQUESTS,
+    }
+)
+
+
+def _remember_request_staging_keys(storage_keys: list[str] | tuple[str, ...]) -> None:
+    remembered = _REQUEST_STAGING_CLEANUP_KEYS.get()
+    if remembered is not None:
+        remembered.extend(storage_keys)
+
+
+async def _cleanup_remembered_request_staging() -> None:
+    remembered = _REQUEST_STAGING_CLEANUP_KEYS.get()
+    if not remembered:
+        return
+    keys = list(dict.fromkeys(remembered))
+    await cleanup_staged_storage_keys(keys)
+    remembered.clear()
+
+
+def _with_staging_cleanup(
+    handler: Callable[_UploadParameters, Awaitable[_UploadResult]],
+) -> Callable[_UploadParameters, Awaitable[_UploadResult]]:
+    """Clean staged objects after commit or terminal request rejection only."""
+
+    @wraps(handler)
+    async def wrapped(
+        *args: _UploadParameters.args,
+        **kwargs: _UploadParameters.kwargs,
+    ) -> _UploadResult:
+        cleanup_keys: list[str] = []
+        context_token = _REQUEST_STAGING_CLEANUP_KEYS.set(cleanup_keys)
+        try:
+            result = await handler(*args, **kwargs)
+        except HTTPException as exc:
+            if (
+                status.HTTP_400_BAD_REQUEST
+                <= exc.status_code
+                < status.HTTP_500_INTERNAL_SERVER_ERROR
+                and exc.status_code not in _RETRYABLE_STAGING_HTTP_STATUSES
+            ):
+                await finish_cleanup_despite_cancellation(
+                    _cleanup_remembered_request_staging()
+                )
+            raise
+        else:
+            await finish_cleanup_despite_cancellation(
+                _cleanup_remembered_request_staging()
+            )
+            return result
+        finally:
+            _REQUEST_STAGING_CLEANUP_KEYS.reset(context_token)
+
+    return wrapped
+
+
+def _document_delivery_poll_after_seconds(
+    *,
+    status_counts: dict[str, int],
+    latest_status_updates: dict[str, datetime],
+    now: datetime,
+) -> int | None:
+    if any(status_counts.get(value, 0) for value in ("queued", "processing")):
+        return DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS
+    awaiting_receipt_updates = [
+        latest_status_updates[value]
+        for value in ("submitted", "sent")
+        if value in latest_status_updates
+    ]
+    if not awaiting_receipt_updates:
+        return None
+    latest_update = max(awaiting_receipt_updates)
+    if latest_update.tzinfo is None:
+        latest_update = latest_update.replace(tzinfo=UTC)
+    if latest_update + DOCUMENT_DELIVERY_WEBHOOK_GRACE > now:
+        return DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS
+    return None
 
 
 @dataclass(frozen=True)
@@ -430,6 +550,7 @@ async def _linked_whatsapp_recipients(
             WhatsAppBroadcastRecipientModel.agency_id == group.agency_id,
             WhatsAppBroadcastRecipientModel.broadcast_group_id.in_(list(linked_broadcasts)),
             WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+            WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(None),
         )
     )
     return linked_broadcasts, list(recipient_result.scalars().all())
@@ -834,8 +955,12 @@ async def _build_document_delivery_preview(
         uuid.UUID,
         tuple[WhatsAppBroadcastRecipientModel, str],
     ] = {}
+    ambiguous_submission_ids: set[uuid.UUID] = set()
     for row in match_rows:
-        if row.status not in {"submitted", "multiple_submissions"}:
+        if row.status == "multiple_submissions":
+            ambiguous_submission_ids.update(row.submission_ids)
+            continue
+        if row.status != "submitted":
             continue
         candidates = sorted(
             (
@@ -944,12 +1069,20 @@ async def _build_document_delivery_preview(
         for document in passenger_documents:
             delivery_history = deliveries_by_document.get(document.id, [])
             latest_delivery = delivery_history[0] if delivery_history else None
-            decision = _document_delivery_decision(
-                saved=document.id in saved_document_ids,
-                match_status=document.match_status,
-                recipient_available=matched_recipient is not None,
-                delivery_history=delivery_history,
-            )
+            if passenger.id in ambiguous_submission_ids:
+                decision = DocumentDeliveryDecision(
+                    status="blocked",
+                    eligible=False,
+                    resend_allowed=False,
+                    reason=SHARED_WHATSAPP_DESTINATION_REASON,
+                )
+            else:
+                decision = _document_delivery_decision(
+                    saved=document.id in saved_document_ids,
+                    match_status=document.match_status,
+                    recipient_available=matched_recipient is not None,
+                    delivery_history=delivery_history,
+                )
             if decision.status == "ready":
                 summary.ready += 1
             elif decision.status == "retryable":
@@ -1367,6 +1500,70 @@ def _passenger_review_rows(
     return rows, unmatched, matched_passenger_count
 
 
+def _physical_file_accounting(
+    *,
+    passengers: list[PassportSubmission],
+    documents: list[DistributedDocumentModel],
+    responses_by_document: dict[uuid.UUID, DistributedDocumentResponse],
+) -> tuple[int, int, int, list[DocumentAssignmentIssueResponse]]:
+    """Count stored PDFs independently from their assignment rows.
+
+    A combined PDF can intentionally create several rows that share one
+    storage key, while several PDFs can be assigned to the same passenger.
+    Grouping by the server-generated storage key keeps both cases truthful.
+    """
+
+    passenger_ids = {passenger.id for passenger in passengers}
+    physical_documents: dict[str, list[DistributedDocumentModel]] = {}
+    for document in documents:
+        storage_identity = str(getattr(document, "storage_key", "") or document.id)
+        physical_documents.setdefault(storage_identity, []).append(document)
+
+    assigned_files = 0
+    assigned_passengers: set[uuid.UUID] = set()
+    issues: list[DocumentAssignmentIssueResponse] = []
+    for grouped_documents in physical_documents.values():
+        valid_assignments = [
+            document
+            for document in grouped_documents
+            if document.match_status == "matched" and document.passenger_id in passenger_ids
+        ]
+        if valid_assignments:
+            assigned_files += 1
+            assigned_passengers.update(
+                document.passenger_id
+                for document in valid_assignments
+                if document.passenger_id is not None
+            )
+            continue
+
+        representative = grouped_documents[0]
+        response = responses_by_document[representative.id]
+        if any(
+            document.passenger_id is not None and document.passenger_id not in passenger_ids
+            for document in grouped_documents
+        ):
+            code = "passenger_no_longer_in_group"
+            reason = "The previously matched passenger is no longer in this group."
+        elif any(document.match_status == "duplicate_document" for document in grouped_documents):
+            code = "duplicate_document"
+            reason = response.match_reason or "This PDF duplicates an existing saved document."
+        else:
+            code = "no_unique_passenger_match"
+            reason = response.match_reason or "No unique passenger match was found."
+        issues.append(
+            DocumentAssignmentIssueResponse(
+                document_id=response.id,
+                original_filename=response.original_filename,
+                code=code,
+                reason=reason,
+                url=response.url,
+            )
+        )
+
+    return len(physical_documents), assigned_files, len(assigned_passengers), issues
+
+
 async def _batch_response(
     *,
     session: AsyncSession,
@@ -1495,6 +1692,13 @@ async def _batch_response(
         documents=documents,
         responses_by_document=responses_by_document,
     )
+    physical_file_count, assigned_file_count, assigned_passenger_count, assignment_issues = (
+        _physical_file_accounting(
+            passengers=passengers,
+            documents=documents,
+            responses_by_document=responses_by_document,
+        )
+    )
     visible_documents = response_documents
     return DocumentBatchResponse(
         batch_id=response_batch.id if response_batch else None,
@@ -1504,11 +1708,16 @@ async def _batch_response(
         uploaded_count=len(visible_documents),
         rejected_count=response_batch.rejected_count if response_batch else 0,
         matched_count=matched_count,
+        physical_file_count=physical_file_count,
+        assigned_file_count=assigned_file_count,
+        assigned_passenger_count=assigned_passenger_count,
+        needs_assignment_count=len(assignment_issues),
         processing_upload_ids=[item.id for item in processing_batches],
         saved_at=response_batch.saved_at if response_batch else None,
         created_at=response_batch.created_at if response_batch else None,
         review_rows=rows,
         unmatched_documents=unmatched,
+        assignment_issues=assignment_issues,
         rejected_documents=persisted_rejections or rejected_documents or [],
     )
 
@@ -1751,18 +1960,28 @@ async def get_document_review(
 
 
 @router.post(
-    "/groups/{group_id}/{document_type}/verify", response_model=VerifyDocumentBatchResponse
+    "/groups/{group_id}/{document_type}/verify",
+    response_model=VerifyDocumentBatchResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def verify_documents(
     group_id: uuid.UUID,
     document_type: str,
     files: list[UploadFile] = File(...),
+    upload_id: Annotated[uuid.UUID | None, Form()] = None,
+    chunk_id: Annotated[uuid.UUID | None, Form()] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> VerifyDocumentBatchResponse:
+    started_at = perf_counter()
     if document_type not in DOCUMENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
+        )
+    if (upload_id is None) != (chunk_id is None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document verification session metadata is incomplete",
         )
     group = await _get_authorized_group(group_id, current_user=current_user, session=session)
     passengers = await _group_passengers(group_id, current_user=current_user, session=session)
@@ -1773,11 +1992,24 @@ async def verify_documents(
         )
 
     matcher = DocumentMatcher()
+    linked_source = await _read_linked_document_match_source(
+        session,
+        group=group,
+        lock=False,
+    )
     supplemental_identifiers = await _linked_document_match_identifiers(
         session,
         group=group,
         passengers=passengers,
         matcher=matcher,
+        source=linked_source,
+    )
+    roster_fingerprint, source_fingerprint, identifiers_fingerprint = (
+        verification_scope_fingerprints(
+            roster_snapshot=_document_match_roster_snapshot(passengers),
+            source_snapshot=linked_source.snapshot,
+            identifiers=supplemental_identifiers,
+        )
     )
     agency_id = group.agency_id
     await session.rollback()
@@ -1804,7 +2036,7 @@ async def verify_documents(
         )
     except UnsupportedDocumentBatchFormatError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=422,
             detail=str(exc),
         ) from exc
     except DocumentParserUnavailableError as exc:
@@ -1813,18 +2045,62 @@ async def verify_documents(
             detail=str(exc),
             headers={"Retry-After": "1"},
         ) from exc
-    verified: list[VerifiedDocumentResponse] = []
-    for upload, classification in zip(uploads, classifications, strict=True):
-        matches = (
-            await asyncio.to_thread(
-                matcher.match_all,
-                classification,
-                passengers,
-                index=match_index,
-            )
+    def match_classifications() -> list[list[MatchResult]]:
+        return [
+            matcher.match_all(classification, passengers, index=match_index)
             if classification.accepted
             else []
-        )
+            for classification in classifications
+        ]
+
+    matches_by_classification = await asyncio.to_thread(match_classifications)
+    accepted_indexes = [
+        index for index, classification in enumerate(classifications) if classification.accepted
+    ]
+    # Older clients do not send upload-session metadata. They keep the
+    # established raw multipart finalization path and receive no unbound
+    # receipts.
+    staging_tokens: list[str] | None = (
+        [] if upload_id is not None and chunk_id is not None else None
+    )
+    if accepted_indexes and upload_id is not None and chunk_id is not None:
+        try:
+            staging_tokens = await stage_verified_documents(
+                [
+                    VerificationStagingInput(
+                        filename=uploads[index].filename,
+                        content=uploads[index].content,
+                        content_type=uploads[index].content_type,
+                        classification=classifications[index],
+                    )
+                    for index in accepted_indexes
+                ],
+                agency_id=agency_id,
+                actor_id=current_user.id,
+                group_id=group_id,
+                upload_id=upload_id,
+                chunk_id=chunk_id,
+                document_type=document_type,
+                roster_fingerprint=roster_fingerprint,
+                source_fingerprint=source_fingerprint,
+                identifiers_fingerprint=identifiers_fingerprint,
+            )
+        except StorageError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Verified PDF staging is temporarily unavailable. Please try again.",
+                headers={"Retry-After": "1"},
+            ) from exc
+    staging_token_by_index = (
+        dict(zip(accepted_indexes, staging_tokens, strict=True))
+        if staging_tokens is not None
+        else {}
+    )
+
+    verified: list[VerifiedDocumentResponse] = []
+    for index, (upload, classification, matches) in enumerate(
+        zip(uploads, classifications, matches_by_classification, strict=True)
+    ):
         matched_passengers = [
             passengers_by_id[match.passenger_id]
             for match in matches
@@ -1853,11 +2129,12 @@ async def verify_documents(
                     if primary_match
                     else None
                 ),
+                staging_receipt=staging_token_by_index.get(index),
             )
         )
 
     accepted_count = sum(1 for item in verified if item.accepted)
-    return VerifyDocumentBatchResponse(
+    response = VerifyDocumentBatchResponse(
         group_id=group_id,
         document_type=document_type,
         total_count=len(verified),
@@ -1865,6 +2142,16 @@ async def verify_documents(
         rejected_count=len(verified) - accepted_count,
         files=verified,
     )
+    logger.info(
+        "document_distribution_verify_completed",
+        document_type=document_type,
+        file_count=len(verified),
+        accepted_count=accepted_count,
+        rejected_count=len(verified) - accepted_count,
+        staging_enabled=staging_tokens is not None,
+        duration_ms=round((perf_counter() - started_at) * 1000, 1),
+    )
+    return response
 
 
 @router.post(
@@ -1873,10 +2160,12 @@ async def verify_documents(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_cookie_csrf)],
 )
+@_with_staging_cleanup
 async def upload_documents(
     group_id: uuid.UUID,
     document_type: str,
-    files: list[UploadFile] = File(...),
+    files: Annotated[list[UploadFile] | None, File()] = None,
+    staging_receipts: Annotated[list[str] | None, Form()] = None,
     upload_id: Annotated[uuid.UUID | None, Form()] = None,
     chunk_id: Annotated[uuid.UUID | None, Form()] = None,
     chunk_index: Annotated[int | None, Form()] = None,
@@ -1889,6 +2178,19 @@ async def upload_documents(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
         )
+    if (upload_id is None) != (chunk_id is None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document verification session metadata is incomplete",
+        )
+    uploaded_files = files or []
+    receipt_tokens = [token for token in (staging_receipts or []) if token]
+    if (not uploaded_files and not receipt_tokens) or (uploaded_files and receipt_tokens):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Upload PDFs or verified staging receipts, but not both",
+        )
+    incoming_file_count = len(receipt_tokens) if receipt_tokens else len(uploaded_files)
     chunk_metadata = resolve_document_chunk_metadata(
         upload_id=upload_id,
         chunk_id=chunk_id,
@@ -1896,7 +2198,22 @@ async def upload_documents(
         expected_chunk_count=expected_chunk_count,
         expected_file_count=expected_file_count,
     )
-    validate_document_chunk_size(chunk_metadata, file_count=len(files))
+    validate_document_chunk_size(chunk_metadata, file_count=incoming_file_count)
+    if receipt_tokens and chunk_metadata is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verified staging receipts require an upload session",
+        )
+    if receipt_tokens:
+        try:
+            validate_verification_receipt_token_batch(receipt_tokens)
+        except VerificationReceiptBatchTooLargeError as exc:
+            raise HTTPException(status_code=413, detail=str(exc)) from exc
+        except VerificationReceiptError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(exc),
+            ) from exc
     authorized_group = await _get_authorized_group(
         group_id,
         current_user=current_user,
@@ -1928,26 +2245,9 @@ async def upload_documents(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This group has no passengers to match documents against",
         )
-    await session.rollback()
-    uploads = await read_bounded_document_uploads(files)
-    chunk_byte_count = sum(len(upload.content) for upload in uploads)
-    fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
-    file_payloads = [
-        TravelDocumentFile(
-            filename=upload.filename,
-            content=upload.content,
-            content_type=upload.content_type,
-        )
-        for upload in uploads
-    ]
     matcher = DocumentMatcher()
-    group = await _get_authorized_group(group_id, current_user=current_user, session=session)
-    passengers = await _group_passengers(group_id, current_user=current_user, session=session)
-    if not passengers:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This group's passenger list changed while the PDFs were being prepared",
-        )
+    group = authorized_group
+    passengers = initial_passengers
     linked_source = await _read_linked_document_match_source(
         session,
         group=group,
@@ -1961,6 +2261,102 @@ async def upload_documents(
         source=linked_source,
     )
     agency_id = group.agency_id
+    roster_fingerprint, source_fingerprint, identifiers_fingerprint = (
+        verification_scope_fingerprints(
+            roster_snapshot=_document_match_roster_snapshot(passengers),
+            source_snapshot=linked_source.snapshot,
+            identifiers=supplemental_identifiers,
+        )
+    )
+    await session.rollback()
+
+    staged_receipt_models: list[StagedDocumentReceipt] = []
+    preclassified_documents: list[ClassifiedDocument] | None = None
+    staged_storage_keys: list[str | None] | None = None
+    if receipt_tokens:
+        assert chunk_metadata is not None
+        try:
+            staged_receipt_models = decode_verification_receipts(
+                receipt_tokens,
+                agency_id=agency_id,
+                actor_id=current_user.id,
+                group_id=group_id,
+                upload_id=chunk_metadata.upload_id,
+                chunk_id=chunk_metadata.chunk_id,
+                document_type=document_type,
+                roster_fingerprint=roster_fingerprint,
+                source_fingerprint=source_fingerprint,
+                identifiers_fingerprint=identifiers_fingerprint,
+            )
+        except (VerificationReceiptExpiredError, VerificationReceiptScopeChangedError) as exc:
+            _remember_request_staging_keys(exc.storage_keys)
+            await finish_cleanup_despite_cancellation(
+                _cleanup_remembered_request_staging()
+            )
+            raise HTTPException(
+                status_code=(
+                    status.HTTP_410_GONE
+                    if isinstance(exc, VerificationReceiptExpiredError)
+                    else status.HTTP_409_CONFLICT
+                ),
+                detail=str(exc),
+            ) from exc
+        except VerificationReceiptBatchTooLargeError as exc:
+            raise HTTPException(status_code=413, detail=str(exc)) from exc
+        except VerificationReceiptError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(exc),
+            ) from exc
+
+        chunk_byte_count = sum(receipt.byte_count for receipt in staged_receipt_models)
+        _remember_request_staging_keys(
+            [receipt.storage_key for receipt in staged_receipt_models]
+        )
+        per_file_limit = get_settings().upload_max_file_size_bytes
+        if (
+            chunk_byte_count > MAX_DOCUMENT_BATCH_BYTES
+            or any(receipt.byte_count > per_file_limit for receipt in staged_receipt_models)
+        ):
+            await finish_cleanup_despite_cancellation(
+                _cleanup_remembered_request_staging()
+            )
+            raise HTTPException(
+                status_code=413,
+                detail="The verified PDF upload exceeds the active size limit",
+            )
+        fingerprint = (
+            staged_document_chunk_fingerprint(staged_receipt_models)
+            if chunk_metadata
+            else None
+        )
+        file_payloads = [
+            TravelDocumentFile(
+                filename=receipt.filename,
+                content=b"",
+                content_type=receipt.content_type,
+            )
+            for receipt in staged_receipt_models
+        ]
+        preclassified_documents = [
+            receipt.classification for receipt in staged_receipt_models
+        ]
+        staged_storage_keys = [receipt.storage_key for receipt in staged_receipt_models]
+    else:
+        uploads = await read_bounded_document_uploads(uploaded_files)
+        chunk_byte_count = sum(len(upload.content) for upload in uploads)
+        fingerprint = document_chunk_fingerprint(uploads) if chunk_metadata else None
+        file_payloads = [
+            TravelDocumentFile(
+                filename=upload.filename,
+                content=upload.content,
+                content_type=upload.content_type,
+            )
+            for upload in uploads
+        ]
+
+    async def cleanup_request_staging() -> None:
+        await _cleanup_remembered_request_staging()
     existing_batch: DocumentDistributionBatchModel | None = None
     existing_receipts: list[DocumentUploadChunkModel] = []
     chunk_completes_upload = True
@@ -2001,7 +2397,7 @@ async def upload_documents(
                 group_id=group_id,
                 document_type=document_type,
                 fingerprint=fingerprint,
-                file_count=len(uploads),
+                file_count=incoming_file_count,
                 byte_count=chunk_byte_count,
             )
             if existing_batch is None:
@@ -2010,6 +2406,7 @@ async def upload_documents(
                     detail="The upload session is not available to this group",
                 )
             if existing_batch.status == "processing":
+                await finish_cleanup_despite_cancellation(cleanup_request_staging())
                 return _processing_batch_response(existing_batch)
             documents = await _all_group_documents(
                 session,
@@ -2017,7 +2414,7 @@ async def upload_documents(
                 agency_id=agency_id,
                 document_type=document_type,
             )
-            return await _batch_response(
+            replay_response = await _batch_response(
                 session=session,
                 group_id=group_id,
                 agency_id=agency_id,
@@ -2026,6 +2423,8 @@ async def upload_documents(
                 batch=existing_batch,
                 documents=documents,
             )
+            await finish_cleanup_despite_cancellation(cleanup_request_staging())
+            return replay_response
         receipts_result = await session.execute(
             select(DocumentUploadChunkModel)
             .where(
@@ -2051,7 +2450,7 @@ async def upload_documents(
         chunk_completes_upload = validate_next_document_chunk(
             existing_receipts,
             metadata=chunk_metadata,
-            incoming_file_count=len(uploads),
+            incoming_file_count=incoming_file_count,
             incoming_byte_count=chunk_byte_count,
         )
     roster_snapshot = _document_match_roster_snapshot(passengers)
@@ -2139,7 +2538,7 @@ async def upload_documents(
                 group_id=group_id,
                 document_type=document_type,
                 fingerprint=fingerprint,
-                file_count=len(uploads),
+                file_count=incoming_file_count,
                 byte_count=chunk_byte_count,
             ) is not None:
                 raise _ConcurrentDocumentChunkReplay
@@ -2156,7 +2555,7 @@ async def upload_documents(
             validate_next_document_chunk(
                 locked_receipts,
                 metadata=chunk_metadata,
-                incoming_file_count=len(uploads),
+                incoming_file_count=incoming_file_count,
                 incoming_byte_count=chunk_byte_count,
                 )
         return actor.id, actor.email
@@ -2184,20 +2583,23 @@ async def upload_documents(
             supplemental_identifiers=supplemental_identifiers,
             isolate_pdf_parsing=True,
             parser_batch_timeout_seconds=(
-                bounded_pdf_batch_timeout_seconds(len(uploads))
+                bounded_pdf_batch_timeout_seconds(incoming_file_count)
                 if chunk_metadata is not None
                 else None
             ),
             reject_common_unsupported_format=True,
+            preclassified_documents=preclassified_documents,
+            staged_storage_keys=staged_storage_keys,
             before_persistence=reauthorize_before_persistence,
             before_persistence_capacity=enforce_capacity_before_persistence,
         )
     except UnsupportedDocumentBatchFormatError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            status_code=422,
             detail=str(exc),
         ) from exc
     except _ConcurrentDocumentChunkReplay:
+        await finish_cleanup_despite_cancellation(cleanup_request_staging())
         assert chunk_metadata is not None
         replay_batch_result = await session.execute(
             select(DocumentDistributionBatchModel).where(
@@ -2237,8 +2639,9 @@ async def upload_documents(
             headers={"Retry-After": "1"},
         ) from exc
     except DocumentDistributionCapacityError as exc:
+        await finish_cleanup_despite_cancellation(cleanup_request_staging())
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail=str(exc),
         ) from exc
     if chunk_metadata is not None:
@@ -2252,9 +2655,9 @@ async def upload_documents(
                 group_id=group_id,
                 document_type=document_type,
                 fingerprint=fingerprint,
-                file_count=len(uploads),
+                file_count=incoming_file_count,
                 byte_count=chunk_byte_count,
-                accepted_count=len(uploads) - len(ingestion.rejected),
+                accepted_count=incoming_file_count - len(ingestion.rejected),
                 rejected_count=len(ingestion.rejected),
                 rejected_documents=[
                     {
@@ -2268,7 +2671,7 @@ async def upload_documents(
         )
         try:
             await session.flush()
-        except Exception:
+        except BaseException:
             await session.rollback()
             await _cleanup_distribution_storage_keys(
                 list(ingestion.created_storage_keys),
@@ -2279,7 +2682,7 @@ async def upload_documents(
             raise
     try:
         await session.commit()
-    except Exception:
+    except BaseException:
         # COMMIT acknowledgement can be lost after PostgreSQL made the rows
         # durable. Keep objects that those rows may reference for safe
         # operational reconciliation; remove only proven orphaned keys.
@@ -2291,6 +2694,7 @@ async def upload_documents(
             object_count=len(ingestion.created_storage_keys),
         )
         raise
+    await finish_cleanup_despite_cancellation(cleanup_request_staging())
     if ingestion.batch.status == "processing":
         return _processing_batch_response(ingestion.batch)
     documents = await _all_group_documents(
@@ -2692,7 +3096,7 @@ async def reupload_passenger_document(
     except DocumentDistributionCapacityError as exc:
         await session.rollback()
         raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            status_code=413,
             detail=str(exc),
         ) from exc
     except Exception:
@@ -3469,6 +3873,7 @@ async def send_document_whatsapp_broadcast(
 )
 async def get_document_delivery_tracking(
     group_id: uuid.UUID,
+    limit: Annotated[int, Query(ge=0, le=100)] = 100,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentDeliveryTrackingResponse:
@@ -3481,6 +3886,7 @@ async def get_document_delivery_tracking(
         select(
             DocumentWhatsAppDeliveryModel.status,
             func.count(DocumentWhatsAppDeliveryModel.id),
+            func.max(DocumentWhatsAppDeliveryModel.status_updated_at),
         )
         .where(
             DocumentWhatsAppDeliveryModel.group_id == group.id,
@@ -3488,17 +3894,28 @@ async def get_document_delivery_tracking(
         )
         .group_by(DocumentWhatsAppDeliveryModel.status)
     )
-    status_counts = {delivery_status: int(count) for delivery_status, count in count_result.all()}
-    result = await session.execute(
-        select(DocumentWhatsAppDeliveryModel)
-        .where(
-            DocumentWhatsAppDeliveryModel.group_id == group.id,
-            DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+    count_rows = count_result.all()
+    status_counts = {
+        delivery_status: int(count)
+        for delivery_status, count, _latest_update in count_rows
+    }
+    latest_status_updates = {
+        delivery_status: latest_update
+        for delivery_status, _count, latest_update in count_rows
+        if latest_update is not None
+    }
+    deliveries: list[DocumentWhatsAppDeliveryModel] = []
+    if limit:
+        result = await session.execute(
+            select(DocumentWhatsAppDeliveryModel)
+            .where(
+                DocumentWhatsAppDeliveryModel.group_id == group.id,
+                DocumentWhatsAppDeliveryModel.agency_id == group.agency_id,
+            )
+            .order_by(DocumentWhatsAppDeliveryModel.status_updated_at.desc())
+            .limit(limit)
         )
-        .order_by(DocumentWhatsAppDeliveryModel.status_updated_at.desc())
-        .limit(100)
-    )
-    deliveries = list(result.scalars().all())
+        deliveries = list(result.scalars().all())
     counts = DocumentDeliveryTrackingCounts(
         total=sum(status_counts.values()),
         queued=status_counts.get("queued", 0) + status_counts.get("processing", 0),
@@ -3511,6 +3928,11 @@ async def get_document_delivery_tracking(
     return DocumentDeliveryTrackingResponse(
         group_id=group.id,
         counts=counts,
+        poll_after_seconds=_document_delivery_poll_after_seconds(
+            status_counts=status_counts,
+            latest_status_updates=latest_status_updates,
+            now=datetime.now(tz=UTC),
+        ),
         deliveries=[
             DocumentDeliveryTrackingRow(
                 delivery_id=delivery.id,

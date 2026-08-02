@@ -453,6 +453,10 @@ async def test_rejected_contact_reactivation_enforces_1500_boundary(
             "app.presentation.api.v1.routes.whatsapp.suppress_active_replacement_recipients",
             new=AsyncMock(),
         ),
+        patch(
+            "app.presentation.api.v1.routes.whatsapp._prepare_private_recipient_mutation",
+            new=AsyncMock(),
+        ),
     ):
         if should_succeed:
             assert await call is group

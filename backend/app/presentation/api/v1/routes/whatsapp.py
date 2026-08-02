@@ -103,6 +103,10 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
 from app.infrastructure.whatsapp.document_delivery_runtime import (
     apply_document_provider_status,
 )
+from app.infrastructure.whatsapp.private_delivery_policy import (
+    PrivateDeliveryMutationBlocked,
+    prepare_private_delivery_identity_mutation,
+)
 from app.infrastructure.whatsapp.qr_delivery_runtime import (
     apply_qr_provider_status,
 )
@@ -110,6 +114,7 @@ from app.presentation.dependencies.auth import (
     WHATSAPP_BROADCAST_ROLES,
     require_role,
 )
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -752,6 +757,32 @@ def _agency_filter(current_user: User) -> list[Any]:
             status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
         )
     return [WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id]
+
+
+async def _prepare_private_recipient_mutation(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    broadcast_group_id: uuid.UUID,
+    recipient_id: uuid.UUID | None = None,
+    cancellation_reason: str,
+) -> None:
+    """Cancel queued private sends and block indeterminate provider states."""
+
+    try:
+        await prepare_private_delivery_identity_mutation(
+            session,
+            agency_id=agency_id,
+            broadcast_group_ids={broadcast_group_id},
+            recipient_ids={recipient_id} if recipient_id else None,
+            cancel_queued=True,
+            cancellation_reason=cancellation_reason,
+        )
+    except PrivateDeliveryMutationBlocked as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
 
 
 async def _lock_active_whatsapp_actor(
@@ -3187,6 +3218,7 @@ async def list_broadcast_rejected_contacts(
 @router.post(
     "/groups/{group_id}/rejected-contacts/{rejected_contact_id}/resolve",
     response_model=WhatsAppBroadcastGroupDetailResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def resolve_broadcast_rejected_contact(
     group_id: uuid.UUID,
@@ -3285,6 +3317,14 @@ async def resolve_broadcast_rejected_contact(
             ),
         ) from exc
 
+    await _prepare_private_recipient_mutation(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        cancellation_reason=(
+            "WhatsApp recipients changed before private document or QR delivery"
+        ),
+    )
     now = datetime.now(tz=UTC)
     imported_fields = dict(rejected_contact.imported_fields or {})
     imported_fields.setdefault("source_file", rejected_contact.source_file_name)
@@ -3341,6 +3381,7 @@ async def resolve_broadcast_rejected_contact(
 @router.post(
     "/groups/{group_id}/welcome-media",
     response_model=WhatsAppWelcomeMediaResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def upload_welcome_media(
     group_id: uuid.UUID,
@@ -3579,6 +3620,7 @@ async def preview_broadcast_message(
     "/groups",
     response_model=WhatsAppBroadcastGroupDetailResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def create_broadcast_group(
     name: str = Form(...),
@@ -3770,7 +3812,11 @@ async def create_broadcast_group(
     return await _group_detail(session, group)
 
 
-@router.patch("/groups/{group_id}", response_model=WhatsAppBroadcastGroupDetailResponse)
+@router.patch(
+    "/groups/{group_id}",
+    response_model=WhatsAppBroadcastGroupDetailResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def update_broadcast_group(
     group_id: uuid.UUID,
     name: str | None = Form(None),
@@ -3855,6 +3901,7 @@ async def update_broadcast_group(
 @router.post(
     "/groups/{group_id}/recipients",
     response_model=WhatsAppBroadcastGroupDetailResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def add_broadcast_recipients(
     group_id: uuid.UUID,
@@ -3940,6 +3987,15 @@ async def add_broadcast_recipients(
                 ),
             ) from exc
 
+    if normalized_contacts:
+        await _prepare_private_recipient_mutation(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_id=group.id,
+            cancellation_reason=(
+                "WhatsApp recipients changed before private document or QR delivery"
+            ),
+        )
     existing_rejected_by_fingerprint: dict[
         str,
         WhatsAppBroadcastRejectedContactModel,
@@ -4008,6 +4064,7 @@ async def add_broadcast_recipients(
 @router.patch(
     "/groups/{group_id}/recipients/{recipient_id}",
     response_model=WhatsAppBroadcastGroupDetailResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def update_broadcast_recipient_phone(
     group_id: uuid.UUID,
@@ -4097,6 +4154,15 @@ async def update_broadcast_recipient_phone(
     if normalized_phone == recipient.normalized_phone_number:
         return await _group_detail(session, group)
 
+    await _prepare_private_recipient_mutation(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        recipient_id=recipient.id,
+        cancellation_reason=(
+            "WhatsApp recipient details changed before private document or QR delivery"
+        ),
+    )
     now = datetime.now(tz=UTC)
     recipient.phone_number = body.phone_number.strip()
     recipient.normalized_phone_number = normalized_phone
@@ -4171,6 +4237,7 @@ async def _lock_removable_broadcast_recipient(
 @router.delete(
     "/groups/{group_id}/recipients/{recipient_id}",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def remove_broadcast_recipient(
     group_id: uuid.UUID,
@@ -4185,6 +4252,15 @@ async def remove_broadcast_recipient(
         current_user=current_user,
     )
 
+    await _prepare_private_recipient_mutation(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        recipient_id=recipient.id,
+        cancellation_reason=(
+            "WhatsApp recipient was removed before private document or QR delivery"
+        ),
+    )
     now = datetime.now(tz=UTC)
     recipient.removed_at = now
     await session.execute(
@@ -4221,6 +4297,7 @@ async def remove_broadcast_recipient(
 @router.post(
     "/groups/{group_id}/recipients/{recipient_id}/resend",
     response_model=WhatsAppSendResponse,
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def resend_recipient_message(
     group_id: uuid.UUID,
@@ -4580,7 +4657,11 @@ async def resend_recipient_message(
     )
 
 
-@router.delete("/groups/{group_id}", status_code=status.HTTP_200_OK)
+@router.delete(
+    "/groups/{group_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def delete_broadcast_group(
     group_id: uuid.UUID,
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
@@ -4647,6 +4728,14 @@ async def delete_broadcast_group(
                 "Wait for it to finish before deleting this broadcast."
             ),
         )
+    await _prepare_private_recipient_mutation(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        cancellation_reason=(
+            "WhatsApp broadcast was deleted before private document or QR delivery"
+        ),
+    )
     now = datetime.now(tz=UTC)
     await session.execute(
         update(WhatsAppMessageLogModel)
@@ -4681,7 +4770,11 @@ async def delete_broadcast_group(
     return {"deleted": True}
 
 
-@router.post("/groups/{group_id}/send", response_model=WhatsAppSendResponse)
+@router.post(
+    "/groups/{group_id}/send",
+    response_model=WhatsAppSendResponse,
+    dependencies=[Depends(require_cookie_csrf)],
+)
 async def send_broadcast_message(
     group_id: uuid.UUID,
     body: WhatsAppSendRequest,

@@ -80,6 +80,7 @@ class UserModel(Base):
             "agency_manager",
             "agency_staff",
             "agency_coordinator",
+            "client_manager",
             name="user_role_enum",
             native_enum=True,
             create_type=False,

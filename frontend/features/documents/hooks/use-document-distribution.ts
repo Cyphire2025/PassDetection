@@ -40,16 +40,18 @@ export function useUploadDistributionDocuments(groupId: string, documentType: Di
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ files, onProgress, session }: {
+    mutationFn: ({ files, onProgress, session, stagingReceipts }: {
       files: File[];
       onProgress?: (progress: DocumentUploadProgress) => void;
       session?: DocumentUploadSession;
+      stagingReceipts?: Array<string | null>;
     }) => documentDistributionApi.uploadDocuments(
       groupId,
       documentType,
       files,
       onProgress,
       session,
+      stagingReceipts,
     ),
     onSuccess: (data) => {
       queryClient.setQueryData(documentKeys.review(groupId, documentType), data);
@@ -208,8 +210,10 @@ export function useDocumentDeliveryTracking(groupId: string, enabled = true) {
     queryFn: () => documentDistributionApi.getDeliveryTracking(groupId),
     enabled: Boolean(groupId && enabled),
     refetchInterval: (query) => {
-      const counts = query.state.data?.counts;
-      return counts && counts.queued > 0 ? 5_000 : 30_000;
+      const seconds = query.state.data?.poll_after_seconds;
+      return seconds && seconds > 0 ? seconds * 1_000 : false;
     },
+    refetchIntervalInBackground: false,
+    gcTime: 0,
   });
 }

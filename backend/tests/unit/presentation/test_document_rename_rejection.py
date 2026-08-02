@@ -488,6 +488,72 @@ async def test_rename_ambiguous_upload_failure_cleans_preclaimed_key() -> None:
     session.add.assert_not_called()
 
 
+async def test_rename_drains_parallel_uploads_before_failure_cleanup() -> None:
+    user = _user()
+    session = MagicMock()
+    session.add = MagicMock()
+    session.rollback = AsyncMock()
+    classifications = [
+        ClassifiedDocument(
+            original_filename=f"{name}.pdf",
+            detected_type="visa",
+            accepted=True,
+            reason="Accepted",
+            text="Electronic visa",
+            extracted_name=name,
+            extracted_passport_number=f"P123456{index}",
+            extracted_reference=None,
+        )
+        for index, name in enumerate(("Asha Mehta", "Ravi Sharma"))
+    ]
+    second_started = asyncio.Event()
+    events: list[str] = []
+
+    async def upload(payload: bytes, *_args) -> None:
+        if payload == b"first":
+            await asyncio.wait_for(second_started.wait(), timeout=1)
+            events.append("first-failed")
+            raise RuntimeError("first upload acknowledgement lost")
+        second_started.set()
+        await asyncio.sleep(0.01)
+        events.append("second-finished")
+
+    async def delete(keys: list[str]) -> int:
+        events.append("cleanup")
+        assert len(keys) == 2
+        return len(keys)
+
+    storage = MagicMock()
+    storage.upload_file = AsyncMock(side_effect=upload)
+    storage.delete_files = AsyncMock(side_effect=delete)
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.document_rename.classify_documents_bounded",
+            return_value=classifications,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.document_rename.MinioStorageRepository",
+            return_value=storage,
+        ),
+        pytest.raises(RuntimeError, match="acknowledgement lost"),
+    ):
+        await analyze_and_rename_documents(
+            files=[
+                UploadFile(file=BytesIO(payload), filename=f"{index}.pdf", size=len(payload))
+                for index, payload in enumerate((b"first", b"second"))
+            ],
+            title="Parallel failure batch",
+            current_user=user,
+            session=session,
+        )
+
+    assert storage.upload_file.await_count == 2
+    storage.delete_files.assert_awaited_once()
+    assert events == ["first-failed", "second-finished", "cleanup"]
+    session.add.assert_not_called()
+
+
 async def test_rename_actor_reauthorization_locks_active_user_and_agency() -> None:
     user = _user()
     result = MagicMock()

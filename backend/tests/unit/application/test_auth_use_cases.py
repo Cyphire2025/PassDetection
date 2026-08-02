@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -85,6 +86,20 @@ class TestLoginUseCase:
                 LoginInputDTO(email="test@agency.com", password="SecurePass1!")
             )
 
+    @pytest.mark.asyncio
+    async def test_client_manager_cannot_receive_dashboard_tokens(self) -> None:
+        user = _make_user()
+        user.role = UserRole.CLIENT_MANAGER
+        use_case, user_repo, token_repo = self._make_use_case(user)
+
+        with pytest.raises(AuthenticationError, match="Invalid email or password"):
+            await use_case.execute(
+                LoginInputDTO(email=user.email, password="SecurePass1!")
+            )
+
+        user_repo.update.assert_not_called()
+        token_repo.save.assert_not_called()
+
 
 class TestLogoutUseCase:
     @pytest.mark.asyncio
@@ -108,3 +123,19 @@ class TestRefreshTokenUseCase:
 
         with pytest.raises(TokenExpiredError):
             await use_case.execute(RefreshTokenInputDTO(refresh_token="bad-token"))
+
+    @pytest.mark.asyncio
+    async def test_client_manager_legacy_dashboard_refresh_is_revoked(self) -> None:
+        user = _make_user()
+        user.role = UserRole.CLIENT_MANAGER
+        user_repo = AsyncMock()
+        user_repo.get_by_id.return_value = user
+        token_repo = AsyncMock()
+        token_repo.get_valid_token.return_value = SimpleNamespace(user_id=user.id)
+        use_case = RefreshTokenUseCase(user_repo, token_repo)
+
+        with pytest.raises(AuthenticationError, match="cannot access the dashboard"):
+            await use_case.execute(RefreshTokenInputDTO(refresh_token="legacy-token"))
+
+        token_repo.revoke.assert_awaited_once_with("legacy-token")
+        token_repo.save.assert_not_called()

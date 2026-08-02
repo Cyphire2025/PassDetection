@@ -292,6 +292,7 @@ export const API_ENDPOINTS = {
   rooming: {
     group: (groupId: string) => `/api/v1/rooming/groups/${groupId}`,
     priorityFields: (groupId: string) => `/api/v1/rooming/groups/${groupId}/priority-fields`,
+    rosterFieldValues: (groupId: string) => `/api/v1/rooming/groups/${groupId}/roster-field-values`,
     hotels: (groupId: string) => `/api/v1/rooming/groups/${groupId}/hotels`,
     hotel: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}`,
     passengerSelection: (hotelId: string) => `/api/v1/rooming/hotels/${hotelId}/passenger-selection`,
