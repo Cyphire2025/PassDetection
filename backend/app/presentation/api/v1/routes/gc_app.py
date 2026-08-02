@@ -657,6 +657,7 @@ async def create_client_organization(
             select(ClientOrganizationModel.id).where(
                 ClientOrganizationModel.agency_id == tenant_id,
                 ClientOrganizationModel.normalized_name == normalized_name,
+                ClientOrganizationModel.status != "deleted",
             )
         )
     ).scalar_one_or_none()

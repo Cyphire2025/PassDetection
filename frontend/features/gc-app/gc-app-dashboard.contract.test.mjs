@@ -63,6 +63,9 @@ test("Client Manager operations use isolated safe account APIs", () => {
 test("group discovery is bounded and GC access mutations are revision safe", () => {
   assert.match(controls, /page_size: 20/);
   assert.match(api, /expected_revision: control\.revision/);
+  assert.match(api, /gc_revision: group\.access\?\.revision/);
+  assert.match(api, /expected_revision: group\.gc_revision \?\? null/);
+  assert.match(hooks, /agencyId, "group-search"/);
   assert.match(api, /apiClient\.put\(\s*`\$\{ROOT\}\/groups\/\$\{control\.id\}`/);
   assert.match(api, /apiClient\.delete\(`\$\{ROOT\}\/groups\/\$\{groupId\}`/);
   assert.match(agencyScope, /Agency workspace/);

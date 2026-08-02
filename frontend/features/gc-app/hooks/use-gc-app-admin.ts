@@ -200,9 +200,14 @@ export function useGcAppGroupAudit(agencyId: string | null, groupId: string) {
 
 export function useGcAppGroupMutations(agencyId: string | null, groupId?: string, accessRevision?: number) {
   const queryClient = useQueryClient();
-  const invalidateGroupLists = () => queryClient.invalidateQueries({
-    queryKey: [...gcAppQueryKeys.root, agencyId, "groups"],
-  });
+  const invalidateGroupLists = () => Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: [...gcAppQueryKeys.root, agencyId, "groups"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...gcAppQueryKeys.root, agencyId, "group-search"],
+    }),
+  ]);
   const invalidateControl = (id: string) => Promise.all([
     invalidateGroupLists(),
     queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.groupControl(agencyId, id) }),

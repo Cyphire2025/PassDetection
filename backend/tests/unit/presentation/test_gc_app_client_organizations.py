@@ -12,9 +12,11 @@ from starlette.requests import Request
 
 from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes.gc_app import (
+    create_client_organization,
     delete_client_organization,
     list_client_organizations,
 )
+from app.presentation.api.v1.schemas.gc_app_schemas import ClientOrganizationCreateRequest
 
 
 class _Result:
@@ -81,6 +83,38 @@ async def test_client_organization_directory_excludes_removed_records() -> None:
     )
     assert str(agency_id) in sql
     assert "client_organizations.status = 'active'" in sql
+
+
+@pytest.mark.asyncio
+async def test_removed_organization_name_can_be_created_again() -> None:
+    agency_id = uuid.uuid4()
+    session = SimpleNamespace(
+        execute=AsyncMock(return_value=_Result(None)),
+        add=lambda _item: None,
+        flush=AsyncMock(),
+    )
+
+    with patch(
+        "app.presentation.api.v1.routes.gc_app._audit",
+        new=AsyncMock(),
+    ):
+        response = await create_client_organization(
+            body=ClientOrganizationCreateRequest(name="BLUECHIP"),
+            request=_request(),
+            current_user=_current_user(agency_id),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert response.name == "BLUECHIP"
+    duplicate_lookup = session.execute.await_args.args[0]
+    sql = str(
+        duplicate_lookup.compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+    assert "client_organizations.normalized_name = 'bluechip'" in sql
+    assert "client_organizations.status != 'deleted'" in sql
 
 
 @pytest.mark.asyncio

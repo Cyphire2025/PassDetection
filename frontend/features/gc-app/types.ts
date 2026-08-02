@@ -39,6 +39,7 @@ export interface GcGroupReference {
   end_date: string | null;
   company: GcCompanyReference | null;
   gc_enabled?: boolean;
+  gc_revision?: number;
 }
 
 export interface ClientManagerAccount {

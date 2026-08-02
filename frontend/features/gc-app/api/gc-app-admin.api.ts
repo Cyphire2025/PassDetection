@@ -206,6 +206,7 @@ function normalizeGroup(group: RawGroup): GcGroupReference {
       name: group.client_organization_name,
     } : null,
     gc_enabled: group.gc_enabled,
+    gc_revision: group.access?.revision,
   };
 }
 
@@ -664,7 +665,7 @@ export const gcAppAdminApi = {
       coordinator_access_enabled: false,
       access_starts_at: null,
       access_expires_at: null,
-      expected_revision: null,
+      expected_revision: group.gc_revision ?? null,
     }, { params: agencyParams(agencyId) });
     const normalized = normalizeControl(data, {
       id: group.id,
