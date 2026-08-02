@@ -16,7 +16,10 @@ from app.presentation.api.v1.routes.gc_app import (
     delete_client_organization,
     list_client_organizations,
 )
-from app.presentation.api.v1.schemas.gc_app_schemas import ClientOrganizationCreateRequest
+from app.presentation.api.v1.schemas.gc_app_schemas import (
+    ClientOrganizationCreateRequest,
+    GCGroupAccessUpdateRequest,
+)
 
 
 class _Result:
@@ -61,6 +64,31 @@ def _organization(agency_id: uuid.UUID) -> SimpleNamespace:
         updated_by_user_id=None,
         updated_at=now,
     )
+
+
+def test_new_gc_group_access_enables_all_mobile_roles_by_default() -> None:
+    request = GCGroupAccessUpdateRequest(
+        client_organization_id=uuid.uuid4(),
+        enabled=True,
+    )
+
+    assert request.passenger_access_enabled is True
+    assert request.client_manager_access_enabled is True
+    assert request.coordinator_access_enabled is True
+
+
+def test_gc_group_access_can_still_explicitly_disable_roles() -> None:
+    request = GCGroupAccessUpdateRequest(
+        client_organization_id=uuid.uuid4(),
+        enabled=True,
+        passenger_access_enabled=False,
+        client_manager_access_enabled=False,
+        coordinator_access_enabled=False,
+    )
+
+    assert request.passenger_access_enabled is False
+    assert request.client_manager_access_enabled is False
+    assert request.coordinator_access_enabled is False
 
 
 @pytest.mark.asyncio

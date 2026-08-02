@@ -322,7 +322,10 @@ async def list_common_documents(
         (
             await session.execute(
                 select(GCCommonDocumentModel)
-                .where(GCCommonDocumentModel.gc_group_access_id == access.id)
+                .where(
+                    GCCommonDocumentModel.gc_group_access_id == access.id,
+                    GCCommonDocumentModel.status.in_(("draft", "published")),
+                )
                 .order_by(
                     GCCommonDocumentModel.sort_order.asc(),
                     GCCommonDocumentModel.logical_document_id.asc(),

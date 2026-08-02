@@ -180,11 +180,11 @@ export function useGcAppGroupControl(agencyId: string | null, groupId: string) {
   });
 }
 
-export function useGcAppGroupContent(agencyId: string | null, groupId: string) {
+export function useGcAppGroupContent(agencyId: string | null, groupId: string, enabled = true) {
   return useQuery({
     queryKey: gcAppQueryKeys.groupContent(agencyId, groupId),
     queryFn: ({ signal }) => gcAppAdminApi.getGroupContent(agencyId, groupId, signal),
-    enabled: Boolean(groupId && agencyId),
+    enabled: Boolean(groupId && agencyId && enabled),
     staleTime: 15_000,
   });
 }

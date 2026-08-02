@@ -18,9 +18,10 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import case, func, or_, select
+from sqlalchemy import case, exists, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.application.security.mobile_access_policy import (
     AuthorizedMobileTrip,
@@ -62,6 +63,7 @@ from app.infrastructure.database.models import (
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
     DistributedDocumentModel,
+    DocumentWhatsAppDeliveryModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
     RoomingAssignmentModel,
@@ -70,6 +72,7 @@ from app.infrastructure.database.models import (
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.qr.approved_passenger_qr_issuer import ensure_mobile_passenger_qr
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.schemas.mobile_schemas import (
@@ -111,6 +114,7 @@ _MAX_DOCUMENT_PAGE = 200
 _MAX_SYNC_PAGE = 500
 _MAX_PERSONAL_DOCUMENTS = 200
 _MAX_LEGACY_METADATA_BACKFILLS = 2
+_MOBILE_RELEASED_DOCUMENT_DELIVERY_STATUSES = ("submitted", "sent", "delivered", "read")
 _ROOM_NAMESPACE = uuid.UUID("d41f0d72-5c68-4182-b4b7-fc8d6ae87386")
 _MEAL_NAMESPACE = uuid.UUID("14e1d943-dd99-4309-adf3-242bcc49324a")
 _PASSPORT_FRONT_NAMESPACE = uuid.UUID("5e9d0cef-b0f0-4e32-809f-941a443ec85d")
@@ -148,9 +152,13 @@ async def get_mobile_me(
     """Top-level alias retained independently of the authentication namespace."""
 
     if claims.principal_type == "passenger":
-        display_name = (
+        principal = (
             await session.execute(
-                select(PassportSubmissionModel.client_name)
+                select(
+                    PassportSubmissionModel.client_name,
+                    PassportSubmissionModel.client_email,
+                    MobilePassengerIdentityModel.normalized_phone_number,
+                )
                 .join(
                     MobilePassengerIdentityModel,
                     MobilePassengerIdentityModel.passenger_submission_id
@@ -163,25 +171,42 @@ async def get_mobile_me(
                 )
                 .limit(1)
             )
-        ).scalar_one_or_none()
+        ).first()
     else:
-        display_name = (
+        user = (
             await session.execute(
-                select(UserModel.full_name).where(
+                select(UserModel.full_name, UserModel.email).where(
                     UserModel.id == claims.principal_id,
                     UserModel.agency_id == claims.agency_id,
                     UserModel.is_active.is_(True),
                     UserModel.deleted_at.is_(None),
                 )
             )
-        ).scalar_one_or_none()
-    if not display_name:
+        ).first()
+        if user is None:
+            principal = None
+        else:
+            phone_number = None
+            if claims.principal_type == "client_manager":
+                phone_number = (
+                    await session.execute(
+                        select(ClientManagerProfileModel.phone_number).where(
+                            ClientManagerProfileModel.user_id == claims.principal_id,
+                            ClientManagerProfileModel.agency_id == claims.agency_id,
+                            ClientManagerProfileModel.deleted_at.is_(None),
+                        )
+                    )
+                ).scalar_one_or_none()
+            principal = (user[0], user[1], phone_number)
+    if principal is None or not principal[0]:
         raise AuthenticationError("Mobile account is inactive")
     return MobilePrincipalResponse(
         id=claims.principal_id,
         principal_type=claims.principal_type,
         agency_id=claims.agency_id,
-        display_name=display_name,
+        display_name=str(principal[0]),
+        email=str(principal[1]) if principal[1] else None,
+        phone_number=str(principal[2]) if principal[2] else None,
         force_password_change=claims.password_change_required,
     )
 
@@ -1074,7 +1099,14 @@ async def get_mobile_qr(
         )
     ).scalar_one_or_none()
     if token is None or token.qr_payload is None:
-        raise EntityNotFoundError("Active passenger QR", identity.passenger_submission_id)
+        token = await ensure_mobile_passenger_qr(
+            session,
+            agency_id=claims.agency_id,
+            group_id=group_id,
+            passenger_id=identity.passenger_submission_id,
+        )
+    if token is None or token.qr_payload is None:
+        raise EntityNotFoundError("Passenger QR", identity.passenger_submission_id)
     qr_revision = await _passenger_qr_revision(session, claims, trip)
     valid_until = token.expires_at
     if (
@@ -1446,14 +1478,28 @@ async def _mobile_manifest_versions(
         distributed = (
             await session.execute(
                 select(
-                    func.count(DistributedDocumentModel.id),
+                    func.count(func.distinct(DistributedDocumentModel.id)),
                     func.max(DistributedDocumentModel.updated_at),
-                ).where(
+                    func.max(DocumentWhatsAppDeliveryModel.status_updated_at),
+                )
+                .join(
+                    DocumentWhatsAppDeliveryModel,
+                    DocumentWhatsAppDeliveryModel.distributed_document_id
+                    == DistributedDocumentModel.id,
+                )
+                .where(
                     DistributedDocumentModel.agency_id == claims.agency_id,
                     DistributedDocumentModel.group_id == trip.group.id,
                     DistributedDocumentModel.passenger_id
                     == identity.passenger_submission_id,
                     DistributedDocumentModel.match_status == "matched",
+                    DocumentWhatsAppDeliveryModel.agency_id == claims.agency_id,
+                    DocumentWhatsAppDeliveryModel.group_id == trip.group.id,
+                    DocumentWhatsAppDeliveryModel.passenger_id
+                    == identity.passenger_submission_id,
+                    DocumentWhatsAppDeliveryModel.status.in_(
+                        _MOBILE_RELEASED_DOCUMENT_DELIVERY_STATUSES
+                    ),
                 )
             )
         ).one()
@@ -1474,6 +1520,7 @@ async def _mobile_manifest_versions(
                 submission.passport_back_s3_key if submission else None,
                 distributed[0],
                 distributed[1],
+                distributed[2],
             )
 
         rooming = await _passenger_rooming_revision(session, claims, trip)
@@ -1530,6 +1577,25 @@ def _state_revision(*parts: object) -> int:
     return revision or 1
 
 
+def _distributed_document_is_released_to_passenger() -> ColumnElement[bool]:
+    """Gate distributed files on the existing passenger WhatsApp release flow."""
+
+    return exists(
+        select(1).where(
+            DocumentWhatsAppDeliveryModel.distributed_document_id
+            == DistributedDocumentModel.id,
+            DocumentWhatsAppDeliveryModel.agency_id
+            == DistributedDocumentModel.agency_id,
+            DocumentWhatsAppDeliveryModel.group_id == DistributedDocumentModel.group_id,
+            DocumentWhatsAppDeliveryModel.passenger_id
+            == DistributedDocumentModel.passenger_id,
+            DocumentWhatsAppDeliveryModel.status.in_(
+                _MOBILE_RELEASED_DOCUMENT_DELIVERY_STATUSES
+            ),
+        )
+    )
+
+
 async def _personal_document_sources(
     session: AsyncSession,
     claims: MobileAccessClaims,
@@ -1556,6 +1622,7 @@ async def _personal_document_sources(
         DistributedDocumentModel.passenger_id == submission.id,
         DistributedDocumentModel.match_status == "matched",
         DistributedDocumentModel.content_type.in_(_ALLOWED_DOCUMENT_TYPES),
+        _distributed_document_is_released_to_passenger(),
     )
     if cursor is not None:
         statement = statement.where(DistributedDocumentModel.id > cursor)
@@ -1694,6 +1761,7 @@ async def _personal_document_source_by_id(
                 DistributedDocumentModel.passenger_id == submission.id,
                 DistributedDocumentModel.match_status == "matched",
                 DistributedDocumentModel.content_type.in_(_ALLOWED_DOCUMENT_TYPES),
+                _distributed_document_is_released_to_passenger(),
             )
         )
     ).scalar_one_or_none()

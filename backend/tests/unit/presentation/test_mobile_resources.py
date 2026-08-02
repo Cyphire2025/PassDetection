@@ -186,9 +186,9 @@ async def test_passenger_manifest_is_cache_independent_and_uses_resource_revisio
     session.execute = AsyncMock(
         side_effect=[
             first_result(submission),
-            one_result((2, now)),
+            one_result((2, now, now)),
             first_result(submission),
-            one_result((2, now)),
+            one_result((2, now, now)),
         ]
     )
     with (
@@ -546,6 +546,9 @@ async def test_personal_document_pages_reach_owned_documents_beyond_legacy_cap()
     assert "distributed_documents.agency_id" in second_page_sql
     assert "distributed_documents.group_id" in second_page_sql
     assert "distributed_documents.passenger_id" in second_page_sql
+    assert "document_whatsapp_deliveries" in first_page_sql
+    assert "document_whatsapp_deliveries.status IN" in first_page_sql
+    assert "'submitted', 'sent', 'delivered', 'read'" in first_page_sql
 
 
 @pytest.mark.asyncio
@@ -599,6 +602,8 @@ async def test_personal_document_exact_lookup_is_owned_and_not_page_limited() ->
     assert "distributed_documents.agency_id" in sql
     assert "distributed_documents.group_id" in sql
     assert "distributed_documents.passenger_id" in sql
+    assert "document_whatsapp_deliveries" in sql
+    assert "document_whatsapp_deliveries.status IN" in sql
     assert "LIMIT" not in sql
 
 

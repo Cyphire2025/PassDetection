@@ -174,7 +174,7 @@ async def reconcile_passenger_identities(
     session: AsyncSession,
     *,
     access: GCGroupAccessModel,
-    actor_user_id: uuid.UUID,
+    actor_user_id: uuid.UUID | None,
 ) -> PassengerIdentityReconciliationResult:
     """Apply a tenant/group-scoped identity plan and revoke stale sessions."""
 

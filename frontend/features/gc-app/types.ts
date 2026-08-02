@@ -197,7 +197,6 @@ export interface GcAnnouncement {
 }
 
 export interface GcAppGroupContent {
-  itinerary: StructuredItinerary;
   common_documents: GcCommonDocument[];
   announcements: GcAnnouncement[];
 }

@@ -205,9 +205,9 @@ class GCGroupSearchPageResponse(BaseModel):
 class GCGroupAccessUpdateRequest(BaseModel):
     client_organization_id: uuid.UUID | None = None
     enabled: bool
-    passenger_access_enabled: bool = False
-    client_manager_access_enabled: bool = False
-    coordinator_access_enabled: bool = False
+    passenger_access_enabled: bool = True
+    client_manager_access_enabled: bool = True
+    coordinator_access_enabled: bool = True
     access_starts_at: datetime | None = None
     access_expires_at: datetime | None = None
     expected_revision: int | None = Field(default=None, ge=1)

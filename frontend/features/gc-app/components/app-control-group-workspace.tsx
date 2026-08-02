@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Cloud, FileText, Megaphone, Route, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Cloud, FileText, Megaphone, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Badge, Card, CardContent, Skeleton, buttonVariants } from "@/components/ui";
 import { PageHeader } from "@/components/shared/page-header";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils/cn";
 import {
-  useGcAppGroupAudit,
   useGcAppGroupContent,
   useGcAppGroupControl,
   useGcAppGroupMutations,
@@ -16,29 +15,24 @@ import {
 import type { AnnouncementInput, GcAppControlPatch } from "../types";
 import { formatGcDateTime } from "../utils";
 import { AnnouncementsPanel } from "./announcements-panel";
-import { AuditTimeline } from "./audit-timeline";
 import { CommonDocumentsPanel } from "./common-documents-panel";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcAlert, GcLoadingRows } from "./gc-app-feedback";
 import { GroupAccessPanel } from "./group-access-panel";
-import { ItineraryEditor } from "./itinerary-editor";
 
-type WorkspaceTab = "access" | "itinerary" | "documents" | "announcements" | "audit";
+type WorkspaceTab = "access" | "documents" | "announcements";
 
 const WORKSPACE_TABS: { value: WorkspaceTab; label: string }[] = [
   { value: "access", label: "Access & status" },
-  { value: "itinerary", label: "Itinerary" },
   { value: "documents", label: "Common documents" },
   { value: "announcements", label: "Announcements" },
-  { value: "audit", label: "Audit" },
 ];
 
 export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
   const { agencyId } = useGcAppAgencyScope();
   const [tab, setTab] = useState<WorkspaceTab>("access");
   const control = useGcAppGroupControl(agencyId, groupId);
-  const content = useGcAppGroupContent(agencyId, groupId);
-  const audit = useGcAppGroupAudit(agencyId, groupId);
+  const content = useGcAppGroupContent(agencyId, groupId, tab !== "access");
   const actions = useGcAppGroupMutations(agencyId, groupId, control.data?.revision);
 
   if (control.isLoading) return <Card><GcLoadingRows count={4} /></Card>;
@@ -66,11 +60,10 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
         )}
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <SummaryMetric icon={<ShieldCheck className="h-4 w-4" />} label="Lifecycle" value={capitalize(control.data.lifecycle)} />
         <SummaryMetric icon={<Cloud className="h-4 w-4" />} label="Active users" value={String(control.data.active_mobile_users)} />
         <SummaryMetric icon={<Cloud className="h-4 w-4" />} label="Synced devices" value={String(control.data.synced_device_count)} />
-        <SummaryMetric icon={<Route className="h-4 w-4" />} label="Itinerary" value={`v${control.data.versions.itinerary_version}`} />
         <SummaryMetric icon={<FileText className="h-4 w-4" />} label="Documents" value={`v${control.data.versions.common_document_version}`} />
         <SummaryMetric icon={<Megaphone className="h-4 w-4" />} label="Announcements" value={`v${control.data.versions.announcement_version}`} />
       </div>
@@ -113,26 +106,11 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
         </div>
       )}
 
-      {(tab === "itinerary" || tab === "documents" || tab === "announcements") && content.isLoading && (
+      {(tab === "documents" || tab === "announcements") && content.isLoading && (
         <Card><CardContent className="p-5"><Skeleton className="h-72 w-full" /></CardContent></Card>
       )}
-      {(tab === "itinerary" || tab === "documents" || tab === "announcements") && content.isError && (
+      {(tab === "documents" || tab === "announcements") && content.isError && (
         <GcAlert message="Published content and drafts could not be loaded. No content was changed." />
-      )}
-
-      {tab === "itinerary" && content.data && (
-        <div role="tabpanel">
-          <ItineraryEditor
-            key={content.data.itinerary.draft_revision}
-            itinerary={content.data.itinerary}
-            isSaving={actions.saveItinerary.isPending}
-            isPublishing={actions.publishItinerary.isPending}
-            isUnpublishing={actions.unpublishItinerary.isPending}
-            onSave={async (itinerary) => { await actions.saveItinerary.mutateAsync(itinerary); }}
-            onPublish={async (revision) => { await actions.publishItinerary.mutateAsync(revision); }}
-            onUnpublish={async (versionId) => { await actions.unpublishItinerary.mutateAsync(versionId); }}
-          />
-        </div>
       )}
 
       {tab === "documents" && content.data && (
@@ -162,12 +140,6 @@ export function AppControlGroupWorkspace({ groupId }: { groupId: string }) {
             onSetPublished={async (announcementId, published) => { await actions.setAnnouncementPublished.mutateAsync({ announcementId, published }); }}
             onDelete={async (announcementId) => { await actions.deleteAnnouncement.mutateAsync(announcementId); }}
           />
-        </div>
-      )}
-
-      {tab === "audit" && (
-        <div role="tabpanel">
-          {audit.isLoading ? <Card><GcLoadingRows count={4} /></Card> : audit.isError ? <GcAlert message="GC App audit history could not be loaded." /> : <AuditTimeline events={audit.data?.items ?? []} />}
         </div>
       )}
     </div>

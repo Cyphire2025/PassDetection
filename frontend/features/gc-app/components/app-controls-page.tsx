@@ -13,7 +13,7 @@ import { GC_APP_DEFAULT_PAGE_SIZE } from "../api/gc-app-admin.api";
 import { useClientCompanies, useClientCompanyMutations, useGcAppGroupMutations, useGcAppGroups, useGcGroupSearch } from "../hooks/use-gc-app-admin";
 import type { GcAppGroupControl, GcAppGroupLifecycle, GcCompanyReference } from "../types";
 import { formatGcDateTime, gcAppErrorMessage } from "../utils";
-import { AccessSwitch, GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
+import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcDialog } from "./gc-dialog";
 
@@ -50,25 +50,8 @@ export function AppControlsPage() {
   const activeCompanies = companyItems.filter((company) => company.status !== "inactive");
   const pickerBusy = actions.add.isPending || companyActions.create.isPending || companyActions.remove.isPending;
   const mutationPending = actions.add.isPending
-    || actions.updateControl.isPending
     || actions.revoke.isPending
     || actions.remove.isPending;
-
-  const updateAccess = async (
-    group: GcAppGroupControl,
-    field: "passenger_access_enabled" | "client_manager_access_enabled" | "coordinator_access_enabled",
-    enabled: boolean,
-  ) => {
-    setActionError(null);
-    try {
-      await actions.updateControl.mutateAsync({
-        control: group,
-        patch: { [field]: enabled },
-      });
-    } catch (error) {
-      setActionError(gcAppErrorMessage(error, "Access was not changed. Refresh and try again."));
-    }
-  };
 
   const confirmGroupAction = async () => {
     if (!pendingAction) return;
@@ -191,7 +174,6 @@ export function AppControlsPage() {
               key={group.id}
               group={group}
               disabled={mutationPending}
-              onAccessChange={(field, enabled) => void updateAccess(group, field, enabled)}
               onRevoke={() => setPendingAction({ type: "revoke", group })}
               onRemove={() => setPendingAction({ type: "remove", group })}
             />
@@ -214,7 +196,7 @@ export function AppControlsPage() {
       <GcDialog
         open={pickerOpen}
         title="Add group to GC App"
-        description="Only active eligible groups appear here. Adding a group does not enable any user role automatically."
+        description="Only active eligible groups appear here. Passenger, Client Manager, and Coordinator access are enabled by default and can be changed in Manage & publish."
         onClose={closePicker}
         closeDisabled={pickerBusy}
         size="lg"
@@ -424,20 +406,14 @@ export function AppControlsPage() {
 function GroupControlCard({
   group,
   disabled,
-  onAccessChange,
   onRevoke,
   onRemove,
 }: {
   group: GcAppGroupControl;
   disabled: boolean;
-  onAccessChange: (
-    field: "passenger_access_enabled" | "client_manager_access_enabled" | "coordinator_access_enabled",
-    enabled: boolean,
-  ) => void;
   onRevoke: () => void;
   onRemove: () => void;
 }) {
-  const lifecycleBlocked = group.lifecycle === "archived" || group.lifecycle === "deleted";
   return (
     <Card className={group.access_revoked_at ? "border-red-200" : undefined}>
       <CardContent className="space-y-5 p-5">
@@ -469,13 +445,6 @@ function GroupControlCard({
             </Button>
           </div>
         </div>
-
-        <div className="grid gap-3 md:grid-cols-3">
-          <AccessSwitch label="Passenger access" checked={group.passenger_access_enabled} disabled={disabled || lifecycleBlocked || Boolean(group.access_revoked_at)} onChange={(enabled) => onAccessChange("passenger_access_enabled", enabled)} />
-          <AccessSwitch label="Client Manager access" checked={group.client_manager_access_enabled} disabled={disabled || lifecycleBlocked || Boolean(group.access_revoked_at)} onChange={(enabled) => onAccessChange("client_manager_access_enabled", enabled)} />
-          <AccessSwitch label="Coordinator access" checked={group.coordinator_access_enabled} disabled={disabled || lifecycleBlocked || Boolean(group.access_revoked_at)} onChange={(enabled) => onAccessChange("coordinator_access_enabled", enabled)} />
-        </div>
-
         <dl className="grid gap-3 border-t border-slate-100 pt-4 text-sm sm:grid-cols-2 lg:grid-cols-6">
           <Metric label="Active mobile users" value={group.active_mobile_users} />
           <Metric label="Synced devices" value={group.synced_device_count} />

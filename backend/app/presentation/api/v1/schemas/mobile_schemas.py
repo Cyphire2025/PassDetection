@@ -90,6 +90,8 @@ class MobilePrincipalResponse(BaseModel):
     principal_type: Literal["passenger", "client_manager", "coordinator"]
     agency_id: uuid.UUID
     display_name: str
+    email: str | None = None
+    phone_number: str | None = None
     force_password_change: bool = False
 
 

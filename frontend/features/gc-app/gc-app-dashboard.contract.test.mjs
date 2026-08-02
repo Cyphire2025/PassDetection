@@ -75,6 +75,17 @@ test("group discovery is bounded and GC access mutations are revision safe", () 
   assert.match(access, /does not close, archive, delete, or revoke the passport collection group/);
 });
 
+test("new groups enable every mobile role while list cards keep role switches in Manage and publish", () => {
+  assert.match(api, /passenger_access_enabled: true/);
+  assert.match(api, /client_manager_access_enabled: true/);
+  assert.match(api, /coordinator_access_enabled: true/);
+  assert.doesNotMatch(controls, /<AccessSwitch/);
+  assert.match(controls, /can be changed in Manage & publish/);
+  assert.match(access, /<AccessSwitch label="Passenger access"/);
+  assert.match(access, /<AccessSwitch label="Client Manager access"/);
+  assert.match(access, /<AccessSwitch label="Coordinator access"/);
+});
+
 test("company/client management remains visible and guarded", () => {
   assert.match(controls, /Saved company\/clients/);
   assert.match(controls, /Type the exact name to confirm/);
@@ -83,9 +94,13 @@ test("company/client management remains visible and guarded", () => {
   assert.match(hooks, /removeClientOrganization/);
 });
 
-test("publishing remains inside App Controls and includes draft/versioned content", () => {
-  assert.match(workspace, /"itinerary" \| "documents" \| "announcements"/);
-  assert.match(api, /itineraries\/preview/);
+test("publishing remains inside App Controls with fixed itinerary and categorized common documents", () => {
+  assert.match(workspace, /type WorkspaceTab = "access" \| "documents" \| "announcements"/);
+  assert.doesNotMatch(workspace, /value: "itinerary"/);
+  assert.doesNotMatch(workspace, /value: "audit"/);
+  assert.doesNotMatch(workspace, /useGcAppGroupAudit|ItineraryEditor|AuditTimeline/);
+  assert.match(workspace, /tab !== "access"/);
+  assert.doesNotMatch(api, /itineraries\/preview/);
   assert.match(api, /itineraries\/drafts/);
   assert.match(api, /itineraries\/\$\{versionId\}\/publish/);
   assert.match(api, /common-documents/);
@@ -97,6 +112,11 @@ test("publishing remains inside App Controls and includes draft/versioned conten
   assert.match(api, /announcements/);
   assert.match(api, /const form = new FormData\(\)/);
   assert.match(api, /form\.append\("file", upload\.file\)/);
+  assert.match(api, /headers: \{ "Content-Type": "multipart\/form-data" \}/);
+  assert.match(commonDocuments, /fixed document appears under the Itinerary heading/);
+  assert.match(commonDocuments, /Other common documents/);
+  assert.match(commonDocuments, /OTHER_DOCUMENT_CATEGORIES/);
+  assert.doesNotMatch(commonDocuments, /value: "itinerary_pdf", label:/);
 });
 
 test("GC App dashboard does not persist sensitive state or expose personal document fields", () => {

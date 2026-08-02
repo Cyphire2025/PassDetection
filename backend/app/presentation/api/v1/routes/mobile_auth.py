@@ -12,6 +12,9 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.otp_provider import OTPDeliveryError
+from app.application.mobile.passenger_identity_reconciliation import (
+    reconcile_passenger_identities,
+)
 from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
@@ -34,7 +37,13 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePassengerIdentityModel,
     MobileRefreshTokenModel,
 )
-from app.infrastructure.database.models import ClientGroupModel, PassportSubmissionModel, UserModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    ClientGroupWhatsAppBroadcastLinkModel,
+    PassportSubmissionModel,
+    UserModel,
+    WhatsAppBroadcastRecipientModel,
+)
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.security.login_attempt_limiter import LoginAttemptLimiter
@@ -131,11 +140,15 @@ async def request_passenger_otp(
         if configured_code is not None and settings.otp_provider == "development"
         else f"{secrets.randbelow(1_000_000):06d}"
     )
-    eligible = (
-        await _eligible_passenger_identities(session, phone_lookup_hash)
-        if normalized_phone is not None
-        else []
-    )
+    if normalized_phone is not None:
+        await _reconcile_phone_candidate_groups(
+            session,
+            normalized_phone=normalized_phone,
+            phone_lookup_hash=phone_lookup_hash,
+        )
+        eligible = await _eligible_passenger_identities(session, phone_lookup_hash)
+    else:
+        eligible = []
     agencies = {identity.agency_id for identity, _access, _group in eligible}
     provider_reference: str | None = None
     delivery_status = "not_attempted"
@@ -600,12 +613,14 @@ async def mobile_me(
     claims: MobileAccessClaims = Depends(get_current_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
 ) -> MobilePrincipalResponse:
-    display_name = await _principal_display_name(session, claims)
+    display_name, email, phone_number = await _principal_profile(session, claims)
     return MobilePrincipalResponse(
         id=claims.principal_id,
         principal_type=claims.principal_type,
         agency_id=claims.agency_id,
         display_name=display_name,
+        email=email,
+        phone_number=phone_number,
         force_password_change=claims.password_change_required,
     )
 
@@ -798,6 +813,101 @@ async def _eligible_passenger_identities(
         )
     ).all()
     return list(rows)
+
+
+async def _reconcile_phone_candidate_groups(
+    session: AsyncSession,
+    *,
+    normalized_phone: str,
+    phone_lookup_hash: str,
+) -> None:
+    """Reconcile only newly relevant GC groups during neutral OTP discovery.
+
+    Passenger/WhatsApp records can be added after a group is enabled for the
+    mobile app.  The dashboard used to require an access toggle (or remove and
+    re-add) before that passenger could request an OTP.  Resolve the gap from
+    the indexed WhatsApp phone evidence, but avoid rebuilding an already-known
+    group roster on every OTP request.
+
+    The bounded query and neutral public response preserve abuse resistance and
+    do not disclose whether a phone exists in another tenant or group.
+    """
+
+    candidate_accesses = list(
+        (
+            await session.execute(
+                select(GCGroupAccessModel)
+                .join(
+                    ClientGroupWhatsAppBroadcastLinkModel,
+                    (
+                        ClientGroupWhatsAppBroadcastLinkModel.client_group_id
+                        == GCGroupAccessModel.group_id
+                    )
+                    & (
+                        ClientGroupWhatsAppBroadcastLinkModel.agency_id
+                        == GCGroupAccessModel.agency_id
+                    ),
+                )
+                .join(
+                    WhatsAppBroadcastRecipientModel,
+                    (
+                        WhatsAppBroadcastRecipientModel.broadcast_group_id
+                        == ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
+                    )
+                    & (
+                        WhatsAppBroadcastRecipientModel.agency_id
+                        == GCGroupAccessModel.agency_id
+                    ),
+                )
+                .join(
+                    ClientGroupModel,
+                    (ClientGroupModel.id == GCGroupAccessModel.group_id)
+                    & (ClientGroupModel.agency_id == GCGroupAccessModel.agency_id),
+                )
+                .where(
+                    WhatsAppBroadcastRecipientModel.normalized_phone_number
+                    == normalized_phone,
+                    WhatsAppBroadcastRecipientModel.removed_at.is_(None),
+                    WhatsAppBroadcastRecipientModel.suppressed_by_roster_resolution_id.is_(
+                        None
+                    ),
+                    GCGroupAccessModel.is_enabled.is_(True),
+                    GCGroupAccessModel.passenger_access_enabled.is_(True),
+                    GCGroupAccessModel.revoked_at.is_(None),
+                    ClientGroupModel.status.in_(
+                        (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
+                    ),
+                )
+                .order_by(GCGroupAccessModel.id)
+                .limit(20)
+                .with_for_update(of=GCGroupAccessModel)
+            )
+        ).scalars().unique()
+    )
+    if not candidate_accesses:
+        return
+
+    access_ids = [access.id for access in candidate_accesses]
+    existing_access_ids = set(
+        (
+            await session.execute(
+                select(MobilePassengerIdentityModel.gc_group_access_id).where(
+                    MobilePassengerIdentityModel.gc_group_access_id.in_(access_ids),
+                    MobilePassengerIdentityModel.phone_lookup_hash == phone_lookup_hash,
+                    MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
+                    MobilePassengerIdentityModel.revoked_at.is_(None),
+                )
+            )
+        ).scalars()
+    )
+    for access in candidate_accesses:
+        if access.id in existing_access_ids:
+            continue
+        await reconcile_passenger_identities(
+            session,
+            access=access,
+            actor_user_id=access.updated_by_user_id or access.created_by_user_id,
+        )
 
 
 def _matching_passenger_claims(
@@ -1153,10 +1263,22 @@ async def _refresh_principal(
 
 
 async def _principal_display_name(session: AsyncSession, claims: MobileAccessClaims) -> str:
+    name, _email, _phone_number = await _principal_profile(session, claims)
+    return name
+
+
+async def _principal_profile(
+    session: AsyncSession,
+    claims: MobileAccessClaims,
+) -> tuple[str, str | None, str | None]:
     if claims.principal_type == "passenger":
-        name = (
+        row = (
             await session.execute(
-                select(PassportSubmissionModel.client_name)
+                select(
+                    PassportSubmissionModel.client_name,
+                    PassportSubmissionModel.client_email,
+                    MobilePassengerIdentityModel.normalized_phone_number,
+                )
                 .join(
                     MobilePassengerIdentityModel,
                     MobilePassengerIdentityModel.passenger_submission_id
@@ -1167,21 +1289,36 @@ async def _principal_display_name(session: AsyncSession, claims: MobileAccessCla
                     MobilePassengerIdentityModel.agency_id == claims.agency_id,
                 )
             )
-        ).scalar_one_or_none()
+        ).first()
     else:
-        name = (
+        user = (
             await session.execute(
-                select(UserModel.full_name).where(
+                select(UserModel.full_name, UserModel.email).where(
                     UserModel.id == claims.principal_id,
                     UserModel.agency_id == claims.agency_id,
                 )
             )
-        ).scalar_one_or_none()
-    if not name:
+        ).first()
+        if user is None:
+            row = None
+        else:
+            phone_number = None
+            if claims.principal_type == "client_manager":
+                phone_number = (
+                    await session.execute(
+                        select(ClientManagerProfileModel.phone_number).where(
+                            ClientManagerProfileModel.user_id == claims.principal_id,
+                            ClientManagerProfileModel.agency_id == claims.agency_id,
+                            ClientManagerProfileModel.deleted_at.is_(None),
+                        )
+                    )
+                ).scalar_one_or_none()
+            row = (user[0], user[1], phone_number)
+    if row is None or not row[0]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile principal is inactive"
         )
-    return str(name)
+    return str(row[0]), str(row[1]) if row[1] else None, str(row[2]) if row[2] else None
 
 
 def _claim_summary(

@@ -1,4 +1,4 @@
-import apiClient, { type ApiError } from "@/lib/api/client";
+import apiClient from "@/lib/api/client";
 import type {
   AnnouncementInput,
   ClientManagerAccount,
@@ -370,10 +370,6 @@ function normalizeAnnouncement(raw: RawAnnouncement): GcAnnouncement {
   };
 }
 
-function isNotFound(error: unknown): error is ApiError {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "HTTP_404";
-}
-
 async function mapBounded<T, R>(items: T[], limit: number, mapper: (item: T) => Promise<R>): Promise<R[]> {
   const output = new Array<R>(items.length);
   let cursor = 0;
@@ -660,9 +656,9 @@ export const gcAppAdminApi = {
     const { data } = await apiClient.put<RawGroupAccess>(`${ROOT}/groups/${group.id}`, {
       client_organization_id: company.id,
       enabled: true,
-      passenger_access_enabled: false,
-      client_manager_access_enabled: false,
-      coordinator_access_enabled: false,
+      passenger_access_enabled: true,
+      client_manager_access_enabled: true,
+      coordinator_access_enabled: true,
       access_starts_at: null,
       access_expires_at: null,
       expected_revision: group.gc_revision ?? null,
@@ -725,18 +721,7 @@ export const gcAppAdminApi = {
     groupId: string,
     signal?: AbortSignal,
   ): Promise<GcAppGroupContent> => {
-    const itineraryRequest = apiClient
-      .get<RawItineraryVersion>(`${ROOT}/groups/${groupId}/itineraries/preview`, {
-        params: agencyParams(agencyId),
-        signal,
-      })
-      .then((response) => response.data)
-      .catch((error: unknown) => {
-        if (isNotFound(error)) return null;
-        throw error;
-      });
-    const [itinerary, documents, announcements] = await Promise.all([
-      itineraryRequest,
+    const [documents, announcements] = await Promise.all([
       apiClient.get<RawCommonDocument[]>(`${ROOT}/groups/${groupId}/common-documents`, {
         params: agencyParams(agencyId),
         signal,
@@ -747,7 +732,6 @@ export const gcAppAdminApi = {
       }),
     ]);
     return {
-      itinerary: normalizeItinerary(itinerary),
       common_documents: documents.data.map(normalizeDocument),
       announcements: announcements.data.map(normalizeAnnouncement),
     };
@@ -833,6 +817,7 @@ export const gcAppAdminApi = {
       form,
       {
         params: agencyParams(agencyId),
+        headers: { "Content-Type": "multipart/form-data" },
         timeout: 120_000,
       },
     );

@@ -4,16 +4,84 @@ from __future__ import annotations
 
 import unittest
 import uuid
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
 from app.infrastructure.qr.approved_passenger_qr_issuer import (
     ensure_approved_passenger_qr,
     ensure_approved_passenger_qrs,
+    ensure_mobile_passenger_qr,
 )
 
 
 class ApprovedPassengerQrIssuerTests(unittest.IsolatedAsyncioTestCase):
+    async def test_mobile_issuer_creates_qr_without_dashboard_render_step(self) -> None:
+        agency_id = uuid.uuid4()
+        group_id = uuid.uuid4()
+        passenger = SimpleNamespace(id=uuid.uuid4(), agency_id=agency_id, status="submitted")
+        group = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            return_date=None,
+            created_by_user_id=uuid.uuid4(),
+        )
+        row_result = Mock()
+        row_result.first.return_value = (passenger, group)
+        token_result = Mock()
+        token_result.scalar_one_or_none.return_value = None
+        session = AsyncMock()
+        session.add = Mock()
+        session.execute.side_effect = [row_result, token_result]
+
+        token = await ensure_mobile_passenger_qr(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            passenger_id=passenger.id,
+        )
+
+        self.assertIsNotNone(token)
+        self.assertTrue(token.qr_payload.startswith("pdatt:"))
+        session.add.assert_called_once_with(token)
+        session.flush.assert_awaited_once()
+
+    async def test_mobile_issuer_reuses_current_usable_qr(self) -> None:
+        agency_id = uuid.uuid4()
+        group_id = uuid.uuid4()
+        passenger = SimpleNamespace(id=uuid.uuid4(), agency_id=agency_id, status="submitted")
+        group = SimpleNamespace(
+            id=group_id,
+            agency_id=agency_id,
+            return_date=None,
+            created_by_user_id=uuid.uuid4(),
+        )
+        existing = SimpleNamespace(
+            qr_payload="pdatt:opaque",
+            is_active=True,
+            revoked_at=None,
+            expires_at=datetime.now(tz=UTC) + timedelta(days=1),
+            token_version=3,
+        )
+        row_result = Mock()
+        row_result.first.return_value = (passenger, group)
+        token_result = Mock()
+        token_result.scalar_one_or_none.return_value = existing
+        session = AsyncMock()
+        session.add = Mock()
+        session.execute.side_effect = [row_result, token_result]
+
+        token = await ensure_mobile_passenger_qr(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            passenger_id=passenger.id,
+        )
+
+        self.assertIs(token, existing)
+        session.add.assert_not_called()
+        session.flush.assert_not_awaited()
+
     async def test_bulk_issuer_reuses_existing_and_creates_missing_tokens(self) -> None:
         group = SimpleNamespace(return_date=None, created_by_user_id=uuid.uuid4())
         existing_passenger = SimpleNamespace(
