@@ -37,6 +37,7 @@ from app.presentation.api.v1.schemas.auth_schemas import (
 )
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_cookies
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 
@@ -110,7 +111,7 @@ async def login(
     Accepts standard OAuth2 form data (username = email, password).
     The frontend sends `application/x-www-form-urlencoded`.
     """
-    client_ip = request.client.host if request.client else None
+    client_ip = trusted_client_ip(request)
     result = await use_case.execute(
         dto=LoginInputDTO(email=form_data.username, password=form_data.password),
         client_ip=client_ip,
@@ -135,7 +136,7 @@ async def refresh_token(
     body: RefreshTokenRequest | None = None,
     use_case: RefreshTokenUseCase = Depends(_get_refresh_use_case),
 ) -> AuthResponse | Response:
-    client_ip = request.client.host if request.client else None
+    client_ip = trusted_client_ip(request)
     refresh_cookie = request.cookies.get(get_settings().jwt.refresh_cookie_name)
     refresh_value = body.refresh_token if body and body.refresh_token else refresh_cookie
     if not refresh_value:

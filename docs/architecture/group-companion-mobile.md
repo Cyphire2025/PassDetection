@@ -19,9 +19,12 @@ parity validation.
 ## Technology decision
 
 The mobile application uses Expo SDK 57 with TypeScript and Expo Router in the
-prebuild workflow. The generated Android and iOS projects are committed so that
-native security configuration and release builds are reviewable. It is not an
-Expo Go application and does not contain a WebView-based product surface.
+prebuild workflow. The generated Android project is committed so native
+security configuration and release builds are reviewable. The iOS project is
+generated from the same reviewed Expo configuration on macOS before CocoaPods,
+Xcode signing and archive validation; `mobile/ios` is not committed in this
+Windows checkout. It is not an Expo Go application and does not contain a
+WebView-based product surface.
 
 Native responsibilities are split as follows:
 
@@ -35,11 +38,14 @@ Native responsibilities are split as follows:
 | Synchronization | Cursor journal, entity versions, tombstones, and access generations |
 | Background work | Foreground/reconnect sync plus opportunistic OS background tasks and push-triggered refresh |
 | Notifications | Provider abstraction supporting Expo, FCM, and APNs registrations |
-| Sensitive screens | Local device unlock, screen-capture controls where supported, and redacted app-switcher state |
+| Sensitive screens | Screen-capture controls where supported and redacted app-switcher state; no repeated biometric/device-lock prompt in this product revision |
 
 The access token is held in memory. The refresh token and the key-wrapping
-material are stored in platform secure storage. Biometric authentication unlocks
-local state; it does not replace server authentication.
+material are stored in platform secure storage. This product revision does not
+prompt for biometric or device-lock re-entry after an ordinary app resume;
+server authentication, session expiry/revocation and account-scoped encrypted
+storage remain authoritative. That deliberate usability choice leaves
+possession of an already-unlocked device as a documented residual risk.
 
 ## Trust and authorization model
 
@@ -223,17 +229,28 @@ or checksum changes.
 The download flow is:
 
 1. request passenger-bound or role-bound short-lived authorization;
-2. stream into an app-private temporary file with a byte ceiling;
-3. validate response type, safe display name, expected length, and checksum;
-4. encrypt with a fresh AES-256-GCM nonce using an account-scoped key protected by Keystore/Keychain;
-5. atomically commit the ciphertext and local metadata; and
-6. remove temporary and obsolete versions.
+2. stream the response through bounded 256 KiB plaintext windows, accepting
+   chunked responses without `Content-Length` while enforcing the signed byte
+   ceiling and exact resume ranges;
+3. encrypt every window independently with AES-256-GCM and authenticated
+   account/trip/document/version/checksum/chunk metadata, persisting only the
+   authenticated ciphertext frame;
+4. validate response type, expected length where declared, final byte count,
+   and incremental SHA-256 checksum;
+5. atomically promote the immutable ciphertext and register local metadata; and
+6. remove superseded, revoked, stale or unauthenticated staging versions.
 
 There is no shared personal-document cache. The file path includes an opaque
 account namespace and cannot be supplied by the server. Download concurrency is
-bounded. Interrupted temporary files have no plaintext retention and are cleaned
-on startup. Revocation, expiry, logout, account change, a fresh-install marker
-mismatch, and "Remove offline documents" delete the affected encrypted vault.
+bounded. A transfer interrupted by network loss or process restart resumes from
+the last authenticated encrypted frame with exponential delay and strict
+`Content-Range` validation. Partial plaintext is never written to disk. A kill
+inside one partially written filesystem frame causes that staging file to be
+discarded and restarted rather than trusting truncated ciphertext. Revocation,
+expiry, logout, account change, and a fresh-install marker
+mismatch delete or durably schedule deletion of the affected encrypted vault.
+There is intentionally no end-user action that bypasses retention policy by
+selectively removing required offline files.
 
 The app never writes passports, visas, or tickets to public Downloads or Gallery
 locations automatically. Analytics, logs, crash reports, and notification text
@@ -251,6 +268,13 @@ Every row is namespaced by account and tenant, then by trip and passenger where
 applicable. The active account is not accepted as an implicit query filter:
 repositories require the namespace as an input and tests cover account switching.
 The database and vault are closed before any active-account pointer changes.
+Writes run on one explicitly keyed, serialized transaction connection. Rollback
+is attempted only after a successful `BEGIN IMMEDIATE`; an indeterminate failed
+rollback causes that native connection to be replaced before another job runs.
+A SecureStore health marker stays dirty until both keyed connections confirm a
+clean close. Clean current-schema databases skip repeated integrity scans for
+up to seven days, while migrations, crashes, failed closes and any ambiguous
+marker force `PRAGMA quick_check(1)` before use.
 
 ## QR and attendance
 

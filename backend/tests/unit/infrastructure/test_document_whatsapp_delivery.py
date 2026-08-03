@@ -19,6 +19,7 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     upload_whatsapp_document,
 )
 from app.infrastructure.whatsapp.document_delivery_runtime import (
+    _propagate_first_released_document_batch,
     apply_document_provider_status,
 )
 from app.presentation.api.v1.routes.whatsapp import receive_whatsapp_webhook
@@ -210,6 +211,139 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertEqual(response.processed_statuses, 1)
         self.assertEqual(delivery.status, "delivered")
+        session.commit.assert_awaited_once()
+
+    async def test_worker_collapses_first_release_batch_and_skips_prior_release(self) -> None:
+        agency_id = uuid.uuid4()
+        group_id = uuid.uuid4()
+        batch_id = uuid.uuid4()
+        first_document_id = uuid.uuid4()
+        resent_document_id = uuid.uuid4()
+        first_passenger_id = uuid.uuid4()
+        resent_passenger_id = uuid.uuid4()
+        current = MagicMock()
+        current.all.return_value = [
+            types.SimpleNamespace(
+                distributed_document_id=first_document_id,
+                passenger_id=first_passenger_id,
+            ),
+            # Multiple files for one passenger still produce one mobile event.
+            types.SimpleNamespace(
+                distributed_document_id=uuid.uuid4(),
+                passenger_id=first_passenger_id,
+            ),
+            types.SimpleNamespace(
+                distributed_document_id=resent_document_id,
+                passenger_id=resent_passenger_id,
+            ),
+        ]
+        prior = MagicMock()
+        prior.scalars.return_value = [resent_document_id]
+        session = AsyncMock()
+        session.execute.side_effect = [current, prior]
+
+        propagation = AsyncMock(return_value=types.SimpleNamespace(sync_changes=3))
+        with patch(
+            "app.infrastructure.whatsapp.document_delivery_runtime."
+            "propagate_mobile_passenger_change",
+            propagation,
+        ):
+            count = await _propagate_first_released_document_batch(
+                session,
+                send_batch_id=batch_id,
+                agency_id=agency_id,
+                group_id=group_id,
+            )
+
+        self.assertEqual(count, 3)
+        propagation.assert_awaited_once()
+        kwargs = propagation.await_args.kwargs
+        self.assertEqual(kwargs["passenger_submission_ids"], {first_passenger_id})
+        self.assertEqual(
+            kwargs["propagation_key"], f"document-delivery-batch:{batch_id}"
+        )
+        self.assertFalse(kwargs["reconcile_identities"])
+
+    async def test_webhook_recovery_release_triggers_mobile_invalidation(self) -> None:
+        now = datetime.now(tz=UTC)
+        delivery = DocumentWhatsAppDeliveryModel(
+            id=uuid.uuid4(),
+            agency_id=uuid.uuid4(),
+            group_id=uuid.uuid4(),
+            passenger_id=uuid.uuid4(),
+            send_batch_id=uuid.uuid4(),
+            document_type="flight_ticket",
+            document_filename="ticket.pdf",
+            passenger_name="Passenger",
+            phone_number="+919876543210",
+            normalized_phone_number="+919876543210",
+            template_name="global_connect_document_v1",
+            status="delivery_unknown",
+            attempt_count=1,
+            provider_message_id="wamid.document-recovered",
+            status_updated_at=now,
+            created_at=now,
+            updated_at=now,
+        )
+        empty_logs = MagicMock()
+        empty_logs.scalars.return_value.all.return_value = []
+        document_rows = MagicMock()
+        document_rows.scalars.return_value.all.return_value = [delivery]
+        session = AsyncMock()
+        session.execute.side_effect = [empty_logs, document_rows]
+        request = types.SimpleNamespace(
+            body=AsyncMock(
+                return_value=json.dumps(
+                    {
+                        "entry": [
+                            {
+                                "changes": [
+                                    {
+                                        "value": {
+                                            "statuses": [
+                                                {
+                                                    "id": "wamid.document-recovered",
+                                                    "status": "delivered",
+                                                    "timestamp": "1784419200",
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ).encode("utf-8")
+            )
+        )
+        propagation = AsyncMock(return_value=types.SimpleNamespace(sync_changes=1))
+        with (
+            patch(
+                "app.presentation.api.v1.routes.whatsapp.get_settings",
+                return_value=types.SimpleNamespace(
+                    whatsapp_app_secret="",
+                    is_production=False,
+                ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.whatsapp."
+                "propagate_mobile_passenger_change",
+                propagation,
+            ),
+        ):
+            response = await receive_whatsapp_webhook(
+                request=request,
+                x_hub_signature_256=None,
+                session=session,
+            )
+
+        self.assertEqual(response.processed_statuses, 1)
+        self.assertEqual(delivery.status, "delivered")
+        propagation.assert_awaited_once()
+        self.assertEqual(
+            propagation.await_args.kwargs["passenger_submission_ids"],
+            {delivery.passenger_id},
+        )
         session.commit.assert_awaited_once()
 
 

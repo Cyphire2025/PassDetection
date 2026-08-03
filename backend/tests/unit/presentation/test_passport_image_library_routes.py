@@ -31,6 +31,7 @@ def _submission() -> SimpleNamespace:
     return SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=uuid.uuid4(),
+        group_id=uuid.uuid4(),
         image_s3_key="original/front.jpg",
         passport_photo_s3_key="original/visa.jpg",
         passport_back_s3_key="original/back.jpg",
@@ -269,6 +270,11 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
             "app.presentation.api.v1.routes.passport_image_library.get_settings",
             return_value=SimpleNamespace(api_v1_prefix="/api/v1"),
         ),
+        patch(
+            "app.presentation.api.v1.routes.passport_image_library."
+            "propagate_mobile_passenger_change",
+            new=AsyncMock(),
+        ) as propagate_mobile_change,
     ):
         response = await upload_passport_image_library_item(
             submission_id=submission.id,
@@ -296,6 +302,7 @@ async def test_manual_upload_is_saved_to_library_and_immediately_made_current() 
     submission_repository.update.assert_awaited_once_with(submission)
     reextract_use_case.execute.assert_awaited_once_with(submission.id)
     dispatch_processing_job.assert_awaited_once()
+    propagate_mobile_change.assert_awaited_once()
     assert response.source == "manual"
     assert response.is_current is True
     session.commit.assert_awaited_once()
@@ -507,6 +514,11 @@ async def test_selecting_passport_front_makes_it_authoritative_and_reextracts() 
             "app.presentation.api.v1.routes.passport_image_library._crop_response",
             return_value=expected_response,
         ),
+        patch(
+            "app.presentation.api.v1.routes.passport_image_library."
+            "propagate_mobile_passenger_change",
+            new=AsyncMock(),
+        ) as propagate_mobile_change,
     ):
         response = await use_passport_image_library_item(
             submission_id=submission.id,
@@ -534,6 +546,7 @@ async def test_selecting_passport_front_makes_it_authoritative_and_reextracts() 
     submission_repository.update.assert_awaited_once_with(submission)
     reextract_use_case.execute.assert_awaited_once_with(submission.id)
     dispatch_processing_job.assert_awaited_once()
+    propagate_mobile_change.assert_awaited_once()
     assert response is expected_response
     session.commit.assert_awaited_once()
 

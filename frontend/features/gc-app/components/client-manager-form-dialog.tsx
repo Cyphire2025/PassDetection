@@ -58,9 +58,12 @@ export function ClientManagerFormDialog({
   const [selectedGroups, setSelectedGroups] = useState<GcGroupReference[]>(manager?.assigned_groups ?? []);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [newCompanyName, setNewCompanyName] = useState("");
+  const [companySearch, setCompanySearch] = useState("");
+  const [createdCompany, setCreatedCompany] = useState<ClientManagerAccount["company"] | null>(null);
   const [companyError, setCompanyError] = useState<string | null>(null);
   const debouncedGroupSearch = useDebounce(groupSearch, 300);
-  const companies = useClientCompanies(agencyId);
+  const debouncedCompanySearch = useDebounce(companySearch, 300);
+  const companies = useClientCompanies(agencyId, debouncedCompanySearch, 1, 50);
   const companyMutations = useClientCompanyMutations(agencyId);
   const groups = useGcGroupSearch(
     agencyId,
@@ -89,6 +92,22 @@ export function ClientManagerFormDialog({
   const activationMethod = useWatch({ control, name: "activation_method" });
 
   const selectedIds = useMemo(() => new Set(selectedGroups.map((group) => group.id)), [selectedGroups]);
+  const managerCompanyId = manager?.company.id;
+  const managerCompanyName = manager?.company.name;
+  const managerCompanyStatus = manager?.company.status;
+  const companyOptions = useMemo(() => {
+    const options = [...(companies.data?.items ?? [])];
+    const extras = [
+      createdCompany,
+      managerCompanyId && managerCompanyName
+        ? { id: managerCompanyId, name: managerCompanyName, status: managerCompanyStatus }
+        : null,
+    ];
+    for (const company of extras) {
+      if (company && !options.some((option) => option.id === company.id)) options.unshift(company);
+    }
+    return options;
+  }, [companies.data?.items, createdCompany, managerCompanyId, managerCompanyName, managerCompanyStatus]);
   const availableGroups = (groups.data?.items ?? []).filter(
     (group) => group.lifecycle !== "archived" && group.lifecycle !== "deleted" && !selectedIds.has(group.id),
   );
@@ -140,6 +159,13 @@ export function ClientManagerFormDialog({
             <label htmlFor="client-manager-company" className="text-sm font-medium text-slate-700">
               Assigned company/client <span className="text-red-500" aria-hidden="true">*</span>
             </label>
+            <Input
+              aria-label="Search company or client"
+              value={companySearch}
+              onChange={(event) => setCompanySearch(event.target.value)}
+              placeholder="Search company/client"
+              leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+            />
             <select
               id="client-manager-company"
               className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
@@ -147,7 +173,7 @@ export function ClientManagerFormDialog({
               {...register("company_id")}
             >
               <option value="">Select company/client</option>
-              {companies.data?.items
+              {companyOptions
                 .filter((company) => company.status !== "inactive" || company.id === manager?.company.id)
                 .map((company) => (
                 <option key={company.id} value={company.id} disabled={company.status === "inactive"}>
@@ -156,6 +182,9 @@ export function ClientManagerFormDialog({
               ))}
             </select>
             {companies.isError && <p role="alert" className="text-xs text-red-600">Companies could not be loaded.</p>}
+            {companies.data?.has_next && (
+              <p className="text-xs text-slate-500">More matches are available. Refine the company/client search.</p>
+            )}
             {errors.company_id && <p role="alert" className="text-xs text-red-600">{errors.company_id.message}</p>}
             <div className="mt-2 flex gap-2">
               <Input
@@ -175,6 +204,7 @@ export function ClientManagerFormDialog({
                   if (!name) return;
                   setCompanyError(null);
                   void companyMutations.create.mutateAsync(name).then((company) => {
+                    setCreatedCompany(company);
                     setValue("company_id", company.id, { shouldDirty: true, shouldValidate: true });
                     setNewCompanyName("");
                   }).catch((error: unknown) => {

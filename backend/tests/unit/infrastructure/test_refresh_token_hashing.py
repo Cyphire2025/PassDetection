@@ -6,14 +6,14 @@ import unittest
 os.environ.setdefault("APP_SECRET_KEY", "unit-test-secret")
 
 try:
-    import jose  # noqa: F401
+    import jwt  # noqa: F401
 
-    HAS_JOSE = True
+    HAS_JWT = True
 except ModuleNotFoundError:
-    HAS_JOSE = False
+    HAS_JWT = False
 
 
-@unittest.skipUnless(HAS_JOSE, "python-jose is not installed in this Python environment")
+@unittest.skipUnless(HAS_JWT, "PyJWT is not installed in this Python environment")
 class RefreshTokenHashingTests(unittest.TestCase):
     def test_hash_refresh_token_is_deterministic_and_non_plaintext(self) -> None:
         from app.core.security.jwt import hash_refresh_token

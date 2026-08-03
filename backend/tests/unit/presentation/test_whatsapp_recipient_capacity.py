@@ -29,6 +29,7 @@ from app.infrastructure.whatsapp.worker_runtime import (
     _heartbeat_queued_batch_claims,
 )
 from app.presentation.api.v1.routes import client_groups
+from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     MAX_WHATSAPP_RECIPIENTS,
     WhatsAppRejectedContactResolveRequest,
@@ -40,6 +41,20 @@ from app.presentation.api.v1.routes.whatsapp import (
     resolve_broadcast_rejected_contact,
     send_broadcast_message,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        whatsapp_routes,
+        "reconcile_mobile_passenger_access_for_broadcast",
+        AsyncMock(),
+    )
+    monkeypatch.setattr(
+        client_groups,
+        "reconcile_mobile_passenger_access_for_group",
+        AsyncMock(),
+    )
 
 
 def _manual_contacts(count: int) -> list[dict[str, str]]:
@@ -441,7 +456,11 @@ async def test_rejected_contact_reactivation_enforces_1500_boundary(
             phone_number="9876543210",
             recipient_opt_in_confirmed=True,
         ),
-        current_user=SimpleNamespace(role=UserRole.SUPER_ADMIN, agency_id=None),
+        current_user=SimpleNamespace(
+            id=uuid.uuid4(),
+            role=UserRole.SUPER_ADMIN,
+            agency_id=None,
+        ),
         session=session,
     )
     with (

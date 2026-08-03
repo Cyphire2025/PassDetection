@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from contextlib import nullcontext
 from time import perf_counter
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -234,6 +235,14 @@ async def test_batch_runtimes_use_bounded_hard_capped_fanout(
     bounded_runner = AsyncMock()
     source_snapshot = SimpleNamespace()
     source_locker = AsyncMock(return_value=source_snapshot)
+    propagation_patch = (
+        patch(
+            f"{module_path}._propagate_first_released_document_batch",
+            new=AsyncMock(),
+        )
+        if "document_delivery_runtime" in module_path
+        else nullcontext()
+    )
 
     with (
         patch(f"{module_path}.AsyncSessionFactory", return_value=session_context),
@@ -246,6 +255,7 @@ async def test_batch_runtimes_use_bounded_hard_capped_fanout(
             f"{module_path}.lock_private_delivery_group_source_snapshot",
             source_locker,
         ),
+        propagation_patch,
     ):
         await runner(send_batch_id=str(uuid.uuid4()))
 
@@ -311,6 +321,14 @@ async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
     peak = 0
     completed: list[uuid.UUID] = []
     shared_clients: set[int] = set()
+    propagation_patch = (
+        patch(
+            f"{module_path}._propagate_first_released_document_batch",
+            new=AsyncMock(),
+        )
+        if "document_delivery_runtime" in module_path
+        else nullcontext()
+    )
 
     async def synthetic_child_provider(
         *,
@@ -340,6 +358,7 @@ async def test_batch_source_fence_allows_four_child_provider_windows_to_overlap(
             new=AsyncMock(return_value=snapshot),
         ),
         patch(f"{module_path}.{runner_name}", side_effect=synthetic_child_provider),
+        propagation_patch,
     ):
         await runner(send_batch_id=str(uuid.uuid4()))
 

@@ -16,11 +16,32 @@ from app.infrastructure.database.gc_mobile_models import (
     ClientManagerProfileModel,
     MobileDeviceSessionModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
 )
 from app.infrastructure.database.models import UserModel
 from app.infrastructure.database.session import get_db_session
 
 _mobile_bearer = HTTPBearer(auto_error=False)
+
+
+def client_manager_profile_allows_password_session(
+    profile: ClientManagerProfileModel,
+) -> bool:
+    """Keep invitation redemption separate from temporary-password login.
+
+    Invitation accounts carry a one-time activation token and must use the
+    activation endpoint. Legacy/temporary-password accounts can also be in the
+    ``invited`` state, but are distinguishable because they have no invitation
+    token pair and must enter the restricted password-change flow.
+    """
+
+    if profile.status == "active":
+        return True
+    return (
+        profile.status == "invited"
+        and profile.invitation_token_hash is None
+        and profile.invitation_expires_at is None
+    )
 
 
 async def get_current_mobile_claims(
@@ -47,15 +68,37 @@ async def get_current_mobile_claims(
     device_session = result.scalar_one_or_none()
     if device_session is None:
         raise AuthenticationError("Mobile session is no longer active")
+    if device_session.account_id != claims.account_id:
+        raise AuthenticationError("Mobile session account mismatch")
 
     if claims.principal_type == "passenger":
         if device_session.passenger_identity_id != claims.principal_id:
             raise AuthenticationError("Mobile session subject mismatch")
         identity = (
             await session.execute(
-                select(MobilePassengerIdentityModel.id).where(
+                select(MobilePassengerIdentityModel.id)
+                .join(
+                    MobilePassengerSessionIdentityModel,
+                    MobilePassengerSessionIdentityModel.passenger_identity_id
+                    == MobilePassengerIdentityModel.id,
+                )
+                .where(
+                    MobilePassengerSessionIdentityModel.session_id == claims.session_id,
+                    MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
+                    MobilePassengerSessionIdentityModel.passenger_identity_id
+                    == claims.principal_id,
+                    MobilePassengerSessionIdentityModel.gc_group_access_id
+                    == device_session.selected_gc_group_access_id,
+                    MobilePassengerSessionIdentityModel.group_id
+                    == device_session.selected_group_id,
                     MobilePassengerIdentityModel.id == claims.principal_id,
                     MobilePassengerIdentityModel.agency_id == claims.agency_id,
+                    MobilePassengerIdentityModel.gc_group_access_id
+                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    MobilePassengerIdentityModel.group_id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                    MobilePassengerIdentityModel.claim_generation
+                    == MobilePassengerSessionIdentityModel.identity_claim_generation,
                     MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
                     MobilePassengerIdentityModel.revoked_at.is_(None),
                 )
@@ -85,18 +128,19 @@ async def get_current_mobile_claims(
         if user is None:
             raise AuthenticationError("Mobile account is inactive")
         if claims.principal_type == "client_manager":
-            force_change = (
+            profile = (
                 await session.execute(
-                    select(ClientManagerProfileModel.force_password_change).where(
+                    select(ClientManagerProfileModel).where(
                         ClientManagerProfileModel.user_id == claims.principal_id,
                         ClientManagerProfileModel.agency_id == claims.agency_id,
+                        ClientManagerProfileModel.status.in_(("invited", "active")),
                         ClientManagerProfileModel.deleted_at.is_(None),
                     )
                 )
             ).scalar_one_or_none()
-            if force_change is None:
+            if profile is None or not client_manager_profile_allows_password_session(profile):
                 raise AuthenticationError("Client Manager profile is inactive")
-            if force_change and not claims.password_change_required:
+            if profile.force_password_change and not claims.password_change_required:
                 raise AuthenticationError("Password change is required")
 
     # Bound write amplification: refresh activity at most once every five minutes.

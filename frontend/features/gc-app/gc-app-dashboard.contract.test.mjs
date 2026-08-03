@@ -62,6 +62,10 @@ test("Client Manager operations use isolated safe account APIs", () => {
 
 test("group discovery is bounded and GC access mutations are revision safe", () => {
   assert.match(controls, /page_size: 20/);
+  assert.match(controls, /page: pickerPage, page_size: 20/);
+  assert.match(controls, /onPageChange=\{setPickerPage\}/);
+  assert.match(api, /eligible_only: params\.eligible_only \|\| undefined/);
+  assert.doesNotMatch(api, /filter\(\(group\) => !params\.eligible_only/);
   assert.match(api, /expected_revision: control\.revision/);
   assert.match(api, /gc_revision: group\.access\?\.revision/);
   assert.match(api, /expected_revision: group\.gc_revision \?\? null/);
@@ -91,7 +95,18 @@ test("company/client management remains visible and guarded", () => {
   assert.match(controls, /Type the exact name to confirm/);
   assert.match(controls, /companyRemovalConfirmation\.trim\(\) !== pendingCompanyRemoval\.name/);
   assert.match(api, /client-organizations\/\$\{organizationId\}/);
+  assert.match(api, /client-organizations\/search/);
+  assert.match(api, /\.\.\.toOffsetParams\(params\)/);
+  assert.match(controls, /Search saved company or client/);
+  assert.match(controls, /onPageChange=\{setCompanyPage\}/);
   assert.match(hooks, /removeClientOrganization/);
+});
+
+test("group metrics and workspace control loads avoid per-card request fan-out", () => {
+  assert.match(api, /active_mobile_users: access\.active_mobile_users \?\? 0/);
+  assert.match(api, /synced_device_count: access\.synced_device_count \?\? 0/);
+  assert.doesNotMatch(api, /getGroupControl:[\s\S]{0,900}Promise\.all/);
+  assert.doesNotMatch(api, /getGroupControl:[\s\S]{0,900}groupPage/);
 });
 
 test("publishing remains inside App Controls with fixed itinerary and categorized common documents", () => {
@@ -112,7 +127,8 @@ test("publishing remains inside App Controls with fixed itinerary and categorize
   assert.match(api, /announcements/);
   assert.match(api, /const form = new FormData\(\)/);
   assert.match(api, /form\.append\("file", upload\.file\)/);
-  assert.match(api, /headers: \{ "Content-Type": "multipart\/form-data" \}/);
+  assert.match(api, /headers:\s*\{\s*["']Content-Type["']:\s*null\s*\}/);
+  assert.match(api, /timeout:\s*120_000/);
   assert.match(commonDocuments, /fixed document appears under the Itinerary heading/);
   assert.match(commonDocuments, /Other common documents/);
   assert.match(commonDocuments, /OTHER_DOCUMENT_CATEGORIES/);
@@ -122,6 +138,11 @@ test("publishing remains inside App Controls with fixed itinerary and categorize
   assert.doesNotMatch(api, /form\.append\("available_from"/);
   assert.doesNotMatch(api, /form\.append\("available_until"/);
   assert.match(commonDocuments, /absolute inset-0 h-full w-full cursor-pointer opacity-0/);
+  assert.match(hooks, /setQueryData<GcAppGroupContent>/);
+  assert.match(hooks, /common_documents: \[uploadedDocument, \.\.\.retainedDocuments\]/);
+  assert.match(hooks, /void invalidateContent\(groupId!\)\.catch/);
+  assert.doesNotMatch(hooks, /uploadDocument:[\s\S]{0,240}onSuccess: \(\) => invalidateContent/);
+  assert.doesNotMatch(api, /headers:\s*\{\s*["']Content-Type["']:\s*["']multipart\/form-data["']/);
 });
 
 test("GC App dashboard does not persist sensitive state or expose personal document fields", () => {

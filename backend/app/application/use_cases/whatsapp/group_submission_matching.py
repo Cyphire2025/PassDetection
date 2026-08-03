@@ -152,6 +152,33 @@ class _IdentityProfile:
 
 
 @dataclass(frozen=True)
+class IdentityEvidenceValues:
+    """Normalized values that can connect one member of a matching cluster.
+
+    The public projection deliberately mirrors the exact comparison
+    normalizers.  Targeted mobile reconciliation uses it to discover the
+    complete connected component before running the authoritative matcher;
+    it does not implement a second matching policy.
+    """
+
+    phones: frozenset[str] = frozenset()
+    emails: frozenset[str] = frozenset()
+    passport_numbers: frozenset[str] = frozenset()
+    staff_codes: frozenset[str] = frozenset()
+    names: frozenset[str] = frozenset()
+
+    @property
+    def all_values(self) -> frozenset[str]:
+        return (
+            self.phones
+            | self.emails
+            | self.passport_numbers
+            | self.staff_codes
+            | self.names
+        )
+
+
+@dataclass(frozen=True)
 class _LogicalRecipient:
     recipients: tuple[RecipientForComparison, ...]
     profile: _IdentityProfile
@@ -311,6 +338,37 @@ def _submission_profile(
         names=entered_names | passport_names,
         entered_names=entered_names,
         passport_names=passport_names,
+    )
+
+
+def recipient_identity_evidence(
+    recipients: Iterable[RecipientForComparison],
+) -> IdentityEvidenceValues:
+    """Return evidence normalized by the authoritative recipient matcher."""
+
+    ordered = tuple(sorted(recipients, key=_recipient_sort_key))
+    profile = _recipient_profile(ordered)
+    return IdentityEvidenceValues(
+        phones=profile.phones,
+        emails=profile.emails,
+        passport_numbers=profile.passport_numbers,
+        staff_codes=profile.staff_codes,
+        names=profile.names,
+    )
+
+
+def submission_identity_evidence(
+    submission: SubmissionForComparison,
+) -> IdentityEvidenceValues:
+    """Return evidence normalized by the authoritative submission matcher."""
+
+    profile = _submission_profile(submission)
+    return IdentityEvidenceValues(
+        phones=profile.phones,
+        emails=profile.emails,
+        passport_numbers=profile.passport_numbers,
+        staff_codes=profile.staff_codes,
+        names=profile.names,
     )
 
 

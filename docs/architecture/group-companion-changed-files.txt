@@ -1,0 +1,293 @@
+# Group Companion changed-file manifest
+
+Snapshot date: 2026-08-03.
+
+Baseline Git HEAD: `090e6ae`.
+
+This is the complete 281-path source/documentation working-tree inventory for the enterprise hardening implementation. Generated Android build outputs are intentionally excluded by Git ignore rules.
+
+Legend: `M` = tracked file modified; `??` = untracked file added.
+
+```text
+ M .env.example
+ M .gitignore
+ M backend/app/application/mobile/notification_service.py
+ M backend/app/application/mobile/passenger_identity_reconciliation.py
+ M backend/app/application/mobile/push_provider.py
+ M backend/app/application/mobile/sync_journal.py
+ M backend/app/application/use_cases/whatsapp/group_submission_matching.py
+ M backend/app/core/config/settings.py
+ M backend/app/core/security/jwt.py
+ M backend/app/core/security/mobile_jwt.py
+ M backend/app/domain/exceptions/exceptions.py
+ M backend/app/infrastructure/database/gc_mobile_models.py
+ M backend/app/infrastructure/database/models.py
+ M backend/app/infrastructure/mobile_push/__init__.py
+ M backend/app/infrastructure/mobile_push/tasks.py
+ M backend/app/infrastructure/observability/__init__.py
+ M backend/app/infrastructure/observability/operational_events.py
+ M backend/app/infrastructure/processing/celery_app.py
+ M backend/app/infrastructure/repositories/passport_whatsapp_matching_repository.py
+ M backend/app/infrastructure/security/login_attempt_limiter.py
+ M backend/app/infrastructure/security/mobile_otp_rate_limiter.py
+ M backend/app/infrastructure/storage/minio_repository.py
+ M backend/app/infrastructure/whatsapp/document_delivery_runtime.py
+ M backend/app/main.py
+ M backend/app/presentation/api/v1/routes/admin_accounts.py
+ M backend/app/presentation/api/v1/routes/auth.py
+ M backend/app/presentation/api/v1/routes/client_groups.py
+ M backend/app/presentation/api/v1/routes/document_distribution.py
+ M backend/app/presentation/api/v1/routes/gc_app.py
+ M backend/app/presentation/api/v1/routes/gc_app_content.py
+ M backend/app/presentation/api/v1/routes/menu.py
+ M backend/app/presentation/api/v1/routes/mobile_auth.py
+ M backend/app/presentation/api/v1/routes/mobile_ops.py
+ M backend/app/presentation/api/v1/routes/mobile_resources.py
+ M backend/app/presentation/api/v1/routes/passport_image_library.py
+ M backend/app/presentation/api/v1/routes/passports.py
+ M backend/app/presentation/api/v1/routes/rooming.py
+ M backend/app/presentation/api/v1/routes/tour_operations.py
+ M backend/app/presentation/api/v1/routes/tour_operations_qr_helpers.py
+ M backend/app/presentation/api/v1/routes/whatsapp.py
+ M backend/app/presentation/api/v1/schemas/gc_app_schemas.py
+ M backend/app/presentation/api/v1/schemas/mobile_schemas.py
+ M backend/app/presentation/dependencies/mobile_auth.py
+ M backend/app/presentation/middleware/error_handler.py
+ M backend/app/presentation/middleware/rate_limit.py
+ M backend/pyproject.toml
+ M backend/requirements.txt
+ M backend/tests/conftest.py
+ M backend/tests/unit/application/test_mobile_notification_service.py
+ M backend/tests/unit/application/test_mobile_passenger_identity_reconciliation.py
+ M backend/tests/unit/application/test_mobile_push_provider.py
+ M backend/tests/unit/core/test_mobile_jwt.py
+ M backend/tests/unit/core/test_security_settings.py
+ M backend/tests/unit/infrastructure/test_bounded_delivery.py
+ M backend/tests/unit/infrastructure/test_document_whatsapp_delivery.py
+ M backend/tests/unit/infrastructure/test_gc_mobile_foundation_migration.py
+ M backend/tests/unit/infrastructure/test_mobile_otp_rate_limiter.py
+ M backend/tests/unit/infrastructure/test_refresh_token_hashing.py
+ M backend/tests/unit/presentation/test_admin_accounts.py
+ M backend/tests/unit/presentation/test_gc_app_client_organizations.py
+ M backend/tests/unit/presentation/test_gc_app_content_compensation.py
+ M backend/tests/unit/presentation/test_group_whatsapp_links.py
+ M backend/tests/unit/presentation/test_mobile_ops.py
+ M backend/tests/unit/presentation/test_mobile_resources.py
+ M backend/tests/unit/presentation/test_passport_bulk_delete_route.py
+ M backend/tests/unit/presentation/test_passport_image_library_routes.py
+ M backend/tests/unit/presentation/test_passport_roster_resolution_routes.py
+ M backend/tests/unit/presentation/test_rate_limit_middleware.py
+ M backend/tests/unit/presentation/test_whatsapp_import_transactions.py
+ M backend/tests/unit/presentation/test_whatsapp_recipient_capacity.py
+ M backend/tests/unit/presentation/test_whatsapp_rejected_contacts.py
+ M docker-compose.prod.yml
+ M docs/architecture/group-companion-mobile.md
+ M frontend/features/gc-app/api/gc-app-admin.api.ts
+ M frontend/features/gc-app/components/app-controls-page.tsx
+ M frontend/features/gc-app/components/client-manager-form-dialog.tsx
+ M frontend/features/gc-app/gc-app-dashboard.contract.test.mjs
+ M frontend/features/gc-app/hooks/use-gc-app-admin.ts
+ M mobile/.env.example
+ M mobile/README.md
+ M mobile/app.config.ts
+ M mobile/eas.json
+ M mobile/jest.setup.ts
+ M mobile/package-lock.json
+ M mobile/package.json
+ M mobile/src/app/(auth)/_layout.tsx
+ M mobile/src/app/(auth)/prepare.tsx
+ M mobile/src/app/(auth)/welcome.tsx
+ M mobile/src/app/(coordinator)/(tabs)/attendance.tsx
+ M mobile/src/app/(coordinator)/(tabs)/groups.tsx
+ M mobile/src/app/(coordinator)/(tabs)/passengers.tsx
+ M mobile/src/app/(coordinator)/(tabs)/scan.tsx
+ M mobile/src/app/(coordinator)/_layout.tsx
+ M mobile/src/app/(coordinator)/operations/common-documents.tsx
+ M mobile/src/app/(coordinator)/operations/passenger/[id].tsx
+ M mobile/src/app/(coordinator)/operations/profile.tsx
+ M mobile/src/app/(coordinator)/operations/updates.tsx
+ M mobile/src/app/(manager)/(tabs)/groups.tsx
+ M mobile/src/app/(manager)/(tabs)/itinerary.tsx
+ M mobile/src/app/(manager)/(tabs)/readiness.tsx
+ M mobile/src/app/(passenger)/(tabs)/documents.tsx
+ M mobile/src/app/(passenger)/(tabs)/more.tsx
+ M mobile/src/app/(passenger)/(tabs)/qr.tsx
+ M mobile/src/app/(passenger)/(tabs)/trip.tsx
+ M mobile/src/app/(passenger)/(tabs)/updates.tsx
+ M mobile/src/app/(passenger)/_layout.tsx
+ M mobile/src/app/(passenger)/document/[id].tsx
+ M mobile/src/app/_layout.tsx
+ M mobile/src/core/api/client.ts
+ M mobile/src/core/api/contracts.ts
+ M mobile/src/core/auth/__tests__/offline-session.test.ts
+ M mobile/src/core/auth/offline-session.ts
+ M mobile/src/core/auth/session-service.ts
+ M mobile/src/core/auth/session-store.ts
+ M mobile/src/core/auth/types.ts
+ M mobile/src/core/demo/demo-data.ts
+ M mobile/src/core/notifications/notification-runtime.tsx
+ M mobile/src/core/storage/__tests__/vault-policy.test.ts
+ M mobile/src/core/storage/database.ts
+ M mobile/src/core/storage/secure-store.ts
+ M mobile/src/core/storage/vault-policy.ts
+ M mobile/src/core/storage/vault.ts
+ M mobile/src/core/sync/__tests__/required-preload-policy.test.ts
+ M mobile/src/core/sync/__tests__/sync-policy.test.ts
+ M mobile/src/core/sync/access-cache.ts
+ M mobile/src/core/sync/background-sync.ts
+ M mobile/src/core/sync/required-preload.ts
+ M mobile/src/core/sync/sync-policy.ts
+ M mobile/src/core/sync/sync-runtime.tsx
+ M mobile/src/core/sync/sync-service.ts
+ M mobile/src/design/components/required-download-screen.tsx
+ M mobile/src/features/auth/ui/auth-error.tsx
+ M mobile/src/features/content/data/__tests__/passenger-document-policy.test.ts
+ M mobile/src/features/content/data/content-repository.ts
+ M mobile/src/features/content/data/itinerary-repository.ts
+ M mobile/src/features/content/data/manager-preload.ts
+ M mobile/src/features/content/data/passenger-document-policy.ts
+ M mobile/src/features/content/data/passenger-preload.ts
+ M mobile/src/features/content/hooks/use-content.ts
+ M mobile/src/features/content/hooks/use-itinerary.ts
+ M mobile/src/features/coordinator/api/coordinator-contracts.ts
+ M mobile/src/features/coordinator/data/attendance-queue.ts
+ M mobile/src/features/coordinator/data/attendance-sessions.ts
+ M mobile/src/features/coordinator/data/coordinator-preload.ts
+ M mobile/src/features/coordinator/data/coordinator-repository.ts
+ M mobile/src/features/coordinator/data/operations-repository.ts
+ M mobile/src/features/coordinator/hooks/use-coordinator-trips.ts
+ M mobile/src/features/coordinator/hooks/use-coordinator.ts
+ M mobile/src/features/coordinator/state/coordinator-trip-store.ts
+ M mobile/src/features/notifications/data/notification-repository.ts
+ M mobile/src/features/notifications/hooks/use-notifications.ts
+ M mobile/src/features/profile/ui/profile-screen.tsx
+ M mobile/src/features/trips/data/trip-repository.ts
+ M mobile/src/features/trips/hooks/use-trips.ts
+ M mobile/src/features/trips/ui/trip-switcher.tsx
+ M mobile/src/providers/app-providers.tsx
+ M nginx/conf.d/default.conf
+ M nginx/nginx.conf
+ M scripts/benchmark_gc_mobile_payloads.py
+?? .github/workflows/mobile-ci.yml
+?? backend/alembic/versions/0070_gc_mobile_operational_indexes.py
+?? backend/alembic/versions/0071_gc_mobile_passenger_scope_constraints.py
+?? backend/alembic/versions/0072_gc_mobile_passenger_session_identities.py
+?? backend/alembic/versions/0073_mobile_otp_single_pending_challenge.py
+?? backend/alembic/versions/0074_mobile_device_sync_ack.py
+?? backend/alembic/versions/0075_mobile_group_session_metrics_index.py
+?? backend/alembic/versions/0076_mobile_push_receipts.py
+?? backend/app/application/mobile/coordinator_roster_revision.py
+?? backend/app/application/mobile/passenger_change_propagation.py
+?? backend/app/infrastructure/observability/sentry.py
+?? backend/app/infrastructure/security/redis_atomic_counter.py
+?? backend/app/presentation/security/client_ip.py
+?? backend/tests/unit/application/test_mobile_passenger_change_propagation.py
+?? backend/tests/unit/application/test_mobile_sync_journal.py
+?? backend/tests/unit/infrastructure/test_gc_mobile_operational_indexes_migration.py
+?? backend/tests/unit/infrastructure/test_gc_mobile_passenger_session_identities_migration.py
+?? backend/tests/unit/infrastructure/test_gc_mobile_scope_constraints_migration.py
+?? backend/tests/unit/infrastructure/test_login_attempt_limiter.py
+?? backend/tests/unit/infrastructure/test_minio_streaming.py
+?? backend/tests/unit/infrastructure/test_mobile_device_sync_ack_migration.py
+?? backend/tests/unit/infrastructure/test_mobile_otp_single_pending_migration.py
+?? backend/tests/unit/infrastructure/test_mobile_push_receipts_migration.py
+?? backend/tests/unit/infrastructure/test_mobile_push_task_routing.py
+?? backend/tests/unit/infrastructure/test_passport_whatsapp_matching_repository.py
+?? backend/tests/unit/infrastructure/test_sentry_privacy.py
+?? backend/tests/unit/presentation/test_mobile_otp_auth.py
+?? backend/tests/unit/presentation/test_trusted_client_ip.py
+?? docs/architecture/group-companion-changed-files.txt
+?? docs/architecture/group-companion-enterprise-hardening.md
+?? mobile/.nvmrc
+?? mobile/scripts/production-public-env.d.ts
+?? mobile/scripts/production-public-env.js
+?? mobile/src/app/(auth)/__tests__/prepare.test.tsx
+?? mobile/src/app/(coordinator)/(tabs)/__tests__/scan-refresh.test.tsx
+?? mobile/src/app/(passenger)/(tabs)/__tests__/documents.test.tsx
+?? mobile/src/app/(passenger)/document/__tests__/secure-document.test.tsx
+?? mobile/src/app/(passenger)/select-trip.tsx
+?? mobile/src/core/api/__tests__/auth-refresh-boundary.test.ts
+?? mobile/src/core/api/__tests__/download-range.test.ts
+?? mobile/src/core/api/__tests__/payload-boundary.test.ts
+?? mobile/src/core/async/__tests__/abortable-semaphore.test.ts
+?? mobile/src/core/async/abortable-semaphore.ts
+?? mobile/src/core/auth/__tests__/application-bootstrap.test.ts
+?? mobile/src/core/auth/__tests__/session-refresh-race.test.ts
+?? mobile/src/core/auth/__tests__/use-safe-sign-out.test.tsx
+?? mobile/src/core/auth/application-bootstrap.ts
+?? mobile/src/core/auth/use-safe-sign-out.ts
+?? mobile/src/core/config/__tests__/production-public-env.test.ts
+?? mobile/src/core/config/__tests__/release-config-contract.test.ts
+?? mobile/src/core/errors/__tests__/application-diagnostics.test.ts
+?? mobile/src/core/errors/__tests__/application-error-boundary.test.tsx
+?? mobile/src/core/errors/__tests__/user-facing-error.test.ts
+?? mobile/src/core/errors/application-diagnostics.ts
+?? mobile/src/core/errors/application-error-boundary.tsx
+?? mobile/src/core/errors/user-facing-error.ts
+?? mobile/src/core/notifications/__tests__/notification-routing.test.ts
+?? mobile/src/core/notifications/notification-routing.ts
+?? mobile/src/core/query/__tests__/query-client.test.ts
+?? mobile/src/core/query/__tests__/react-native-query-runtime.test.ts
+?? mobile/src/core/query/__tests__/use-manual-refresh.test.tsx
+?? mobile/src/core/query/__tests__/use-persistent-query-hydration.test.tsx
+?? mobile/src/core/query/query-client.ts
+?? mobile/src/core/query/react-native-query-runtime.tsx
+?? mobile/src/core/query/use-manual-refresh.ts
+?? mobile/src/core/query/use-persistent-query-hydration.ts
+?? mobile/src/core/storage/__tests__/database-lifecycle.test.ts
+?? mobile/src/core/storage/__tests__/installation-guard.test.ts
+?? mobile/src/core/storage/__tests__/ios-backup.test.ts
+?? mobile/src/core/storage/__tests__/managed-database-artifacts.test.ts
+?? mobile/src/core/storage/__tests__/render-cache-policy.test.ts
+?? mobile/src/core/storage/__tests__/secure-store.test.ts
+?? mobile/src/core/storage/__tests__/vault-chunk-container.test.ts
+?? mobile/src/core/storage/__tests__/vault-download-stream.test.ts
+?? mobile/src/core/storage/__tests__/vault-write-coordinator.test.ts
+?? mobile/src/core/storage/installation-guard.ts
+?? mobile/src/core/storage/ios-backup.ts
+?? mobile/src/core/storage/managed-database-artifacts.ts
+?? mobile/src/core/storage/render-cache-policy.ts
+?? mobile/src/core/storage/vault-chunk-container.ts
+?? mobile/src/core/storage/vault-write-coordinator.ts
+?? mobile/src/core/sync/__tests__/access-cache-purge.test.ts
+?? mobile/src/core/sync/__tests__/access-expiry-policy.test.ts
+?? mobile/src/core/sync/__tests__/background-sync.test.ts
+?? mobile/src/core/sync/__tests__/required-preload.test.ts
+?? mobile/src/core/sync/__tests__/required-preparation-lease.test.ts
+?? mobile/src/core/sync/__tests__/sync-context.test.ts
+?? mobile/src/core/sync/__tests__/sync-runtime-policy.test.ts
+?? mobile/src/core/sync/__tests__/sync-service-version-state.test.ts
+?? mobile/src/core/sync/access-expiry-policy.ts
+?? mobile/src/core/sync/required-preparation-lease.ts
+?? mobile/src/core/sync/sync-context.ts
+?? mobile/src/core/sync/sync-runtime-policy.ts
+?? mobile/src/design/accessibility/__tests__/motion-policy.test.ts
+?? mobile/src/design/accessibility/use-reduced-motion.ts
+?? mobile/src/features/content/data/__tests__/content-repository-account-isolation.test.ts
+?? mobile/src/features/content/data/__tests__/document-retry-policy.test.ts
+?? mobile/src/features/content/data/__tests__/itinerary-repository.test.ts
+?? mobile/src/features/content/data/__tests__/manager-preload.test.ts
+?? mobile/src/features/content/data/__tests__/passenger-preload.test.ts
+?? mobile/src/features/content/data/__tests__/preload-status.test.ts
+?? mobile/src/features/content/data/document-retry-policy.ts
+?? mobile/src/features/content/data/preload-status.ts
+?? mobile/src/features/coordinator/api/__tests__/coordinator-contracts.test.ts
+?? mobile/src/features/coordinator/data/__tests__/attendance-queue.test.ts
+?? mobile/src/features/coordinator/data/__tests__/coordinator-document-cache.test.ts
+?? mobile/src/features/coordinator/data/__tests__/coordinator-passenger-delta.test.ts
+?? mobile/src/features/coordinator/data/__tests__/coordinator-preload.test.ts
+?? mobile/src/features/coordinator/data/__tests__/roster-write-batching.test.ts
+?? mobile/src/features/coordinator/data/__tests__/scan-policy.test.ts
+?? mobile/src/features/coordinator/data/coordinator-document-cache.ts
+?? mobile/src/features/coordinator/data/roster-write-batching.ts
+?? mobile/src/features/coordinator/data/scan-policy.ts
+?? mobile/src/features/notifications/data/__tests__/notification-repository.test.ts
+?? mobile/src/features/profile/ui/safe-sign-out-button.tsx
+?? mobile/src/features/trips/data/__tests__/passenger-trip-gate.test.ts
+?? mobile/src/features/trips/data/__tests__/passenger-trip-selection.test.ts
+?? mobile/src/features/trips/data/__tests__/passenger-trip-switch.test.ts
+?? mobile/src/features/trips/data/__tests__/trip-repository-account-isolation.test.ts
+?? mobile/src/features/trips/data/passenger-trip-gate.ts
+?? mobile/src/features/trips/data/passenger-trip-selection.ts
+?? mobile/src/features/trips/data/passenger-trip-switch.ts
+```

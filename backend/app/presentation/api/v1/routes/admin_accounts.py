@@ -32,6 +32,8 @@ from app.presentation.api.v1.schemas.operations_schemas import (
     SetManagedAccountStatusRequest,
 )
 from app.presentation.dependencies.auth import require_role
+from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 ACCOUNT_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
@@ -107,6 +109,7 @@ async def list_staff_accounts(
     response_model=ManagedAccountResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a staff account",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def create_staff_account(
     body: CreateStaffRequest,
@@ -151,6 +154,7 @@ async def create_staff_account(
     "/{account_id}/reset-password",
     response_model=ManagedAccountResponse,
     summary="Set a new password and revoke every existing session",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def reset_managed_account_password(
     account_id: uuid.UUID,
@@ -173,6 +177,7 @@ async def reset_managed_account_password(
     status_code=status.HTTP_204_NO_CONTENT,
     response_class=Response,
     summary="Force an account to sign out on every device",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def revoke_managed_account_sessions(
     account_id: uuid.UUID,
@@ -190,6 +195,7 @@ async def revoke_managed_account_sessions(
     "/{account_id}/status",
     response_model=ManagedAccountResponse,
     summary="Activate or deactivate a managed account",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def set_managed_account_status(
     account_id: uuid.UUID,
@@ -219,6 +225,7 @@ async def set_managed_account_status(
     "/{account_id}",
     response_model=DeleteManagedAccountResponse,
     summary="Remove a staff or coordinator account while preserving required history",
+    dependencies=[Depends(require_cookie_csrf)],
 )
 async def delete_managed_account(
     account_id: uuid.UUID,
@@ -405,7 +412,7 @@ async def _audit_account_action(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=str(account.id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata={"target_role": account.role, "target_email": account.email, **(metadata or {})},
     )
 

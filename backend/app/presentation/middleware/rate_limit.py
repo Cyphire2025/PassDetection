@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import ipaddress
 import math
 import re
 import time
@@ -29,6 +28,7 @@ from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
 )
+from app.presentation.security.client_ip import trusted_client_ip
 
 logger = get_logger(__name__)
 
@@ -499,16 +499,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     @staticmethod
     def _trusted_client_ip(request: Request) -> str:
-        candidates = (
-            request.headers.get("x-real-ip", "").strip(),
-            request.client.host if request.client else "",
-        )
-        for candidate in candidates:
-            try:
-                return ipaddress.ip_address(candidate).compressed
-            except ValueError:
-                continue
-        return "unknown"
+        return trusted_client_ip(request) or "unknown"
 
     @staticmethod
     def _upload_session_id(

@@ -39,6 +39,9 @@ from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
     passport_submission_output_from_entity,
 )
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.passports.client_submit_passport_use_case import (
     ClientSubmitPassportUseCase,
@@ -2567,6 +2570,15 @@ async def upload_passport(
             upload_idempotency_key=upload_idempotency_key,
             qualifier_selection_token=qualifier_selection_token,
         )
+        if not result.idempotent_replay:
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=result.agency_id,
+                group_id=result.group_id,
+                passenger_submission_ids=[result.id],
+                actor_user_id=None,
+                change_kind="documents",
+            )
         try:
             await _dispatch_processing_job(
                 result,
@@ -3314,6 +3326,15 @@ async def bulk_delete_passport_submissions(
             ),
         )
 
+    await propagate_mobile_passenger_change(
+        session,
+        agency_id=group.agency_id,
+        group_id=group_id,
+        passenger_submission_ids=submission_ids,
+        actor_user_id=current_user.id,
+        operation="delete",
+        change_kind="documents",
+    )
     await AuditLogRepository(session).record(
         action="passport_submissions_bulk_deleted",
         entity_type="client_group",
@@ -4918,6 +4939,20 @@ async def import_passports_by_group(
     if models:
         session.add_all(models)
     if models or updated_count:
+        changed_submission_ids = [model.id for model in models]
+        changed_submission_ids.extend(
+            existing.id
+            for _row, existing in resolved_rows
+            if existing is not None
+        )
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=group.agency_id,
+            group_id=group.id,
+            passenger_submission_ids=changed_submission_ids,
+            actor_user_id=current_user.id,
+            change_kind="profile",
+        )
         await AuditLogRepository(session).record(
             action="passport_group_imported",
             entity_type="client_group",
@@ -5531,6 +5566,16 @@ async def save_passport_documents_by_group(
                     replaced_crop_keys.append(old_edit_key)
             if old_key and not old_key.startswith("excel-imports/") and old_key != key:
                 replaced_keys.append(old_key)
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=group.agency_id,
+            group_id=group_id,
+            passenger_submission_ids={
+                by_staff_code[item.staff_code].id for item in matched
+            },
+            actor_user_id=current_user.id,
+            change_kind="documents",
+        )
         await AuditLogRepository(session).record(
             action="passport_documents_bulk_imported",
             entity_type="client_group",
@@ -5715,6 +5760,14 @@ async def _save_loose_passport_documents_by_group(
                     replaced_keys.append(old_key)
 
         if accepted_documents:
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=group.agency_id,
+                group_id=group_id,
+                passenger_submission_ids=touched_submissions,
+                actor_user_id=current_user.id,
+                change_kind="documents",
+            )
             await AuditLogRepository(session).record(
                 action="passport_documents_bulk_imported",
                 entity_type="client_group",
@@ -7756,6 +7809,14 @@ async def client_submit_passport(
             verification_revision=result.post_submission_verification_revision,
         )
         if not result.idempotent_replay:
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=result.agency_id,
+                group_id=result.group_id,
+                passenger_submission_ids=[result.id],
+                actor_user_id=None,
+                change_kind="documents",
+            )
             await AuditLogRepository(session).record(
                 action="client_passport_submitted",
                 entity_type="passport_submission",

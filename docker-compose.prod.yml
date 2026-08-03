@@ -26,6 +26,7 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
       PROCESSING_BACKEND: celery
+      LOGIN_LOCKOUT_REQUIRE_REDIS: "true"
       PUBLIC_UPLOAD_RATE_LIMIT_REQUIRE_REDIS: "true"
     healthcheck:
       test:

@@ -84,5 +84,13 @@ Visa and Tickets Original/
 combined visa ticket/
 T03_ZonewiseFinalMaster_UPDATED.xlsx
 
+# Private local operational exports; never publish passenger/staff workbooks.
+GCT staff  Mobile Number detail.xlsx
+Saigon Sheet.xlsx
+app - Shortcut.lnk
+globalconnect-logo.png
+globalconnectteam.png
+tmp/
+
 # Standalone local desktop utility; maintained outside this production repository.
 Smart COPY-PASTE/

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, date, datetime
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi import HTTPException
@@ -20,6 +21,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
+from app.presentation.api.v1.routes import client_groups as client_group_routes
 from app.presentation.api.v1.routes.client_groups import (
     _replace_whatsapp_links,
     _validate_broadcast_ids,
@@ -38,6 +40,15 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 )
 
 NOW = datetime(2026, 7, 20, 12, tzinfo=UTC)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        client_group_routes,
+        "reconcile_mobile_passenger_access_for_group",
+        AsyncMock(),
+    )
 
 
 def _domain_user(

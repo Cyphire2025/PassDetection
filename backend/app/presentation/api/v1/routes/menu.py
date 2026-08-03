@@ -50,6 +50,7 @@ from app.presentation.api.v1.schemas.menu_schemas import (
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 
@@ -1024,6 +1025,6 @@ async def _audit(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=str(entity_id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata=metadata,
     )

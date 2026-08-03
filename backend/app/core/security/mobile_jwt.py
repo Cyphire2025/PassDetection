@@ -15,7 +15,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal
 
-from jose import JWTError, jwt
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 
 from app.core.config.settings import get_settings
 from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
@@ -28,6 +29,7 @@ MobilePrincipalType = Literal["passenger", "client_manager", "coordinator"]
 @dataclass(frozen=True, slots=True)
 class MobileAccessClaims:
     principal_id: uuid.UUID
+    account_id: uuid.UUID
     principal_type: MobilePrincipalType
     agency_id: uuid.UUID
     session_id: uuid.UUID
@@ -70,6 +72,7 @@ def _mobile_secret(*, purpose: str) -> bytes:
 def create_mobile_access_token(
     *,
     principal_id: uuid.UUID,
+    account_id: uuid.UUID | None = None,
     principal_type: MobilePrincipalType,
     agency_id: uuid.UUID,
     session_id: uuid.UUID,
@@ -83,6 +86,9 @@ def create_mobile_access_token(
     expires_at = now + timedelta(minutes=settings.access_token_expire_minutes)
     payload: dict[str, Any] = {
         "sub": str(principal_id),
+        # `sub` remains the selected authorization identity. `aid` is the
+        # stable account/cache namespace and does not rotate on trip switch.
+        "aid": str(account_id or principal_id),
         "principal_type": principal_type,
         "agency_id": str(agency_id),
         "session_id": str(session_id),
@@ -110,7 +116,7 @@ def decode_mobile_access_token(token: str) -> MobileAccessClaims:
             algorithms=["HS256"],
             audience=settings.jwt_audience,
             issuer=settings.jwt_issuer,
-            options={"require_exp": True, "require_iat": True, "require_sub": True},
+            options={"require": ["exp", "iat", "sub"]},
         )
         if payload.get("type") != MOBILE_ACCESS_TOKEN_TYPE:
             raise AuthenticationError("Invalid mobile token type")
@@ -123,6 +129,9 @@ def decode_mobile_access_token(token: str) -> MobileAccessClaims:
         exp = datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
         return MobileAccessClaims(
             principal_id=uuid.UUID(str(payload["sub"])),
+            # Tokens issued before account namespaces were introduced remain
+            # valid and retain their former principal-based namespace.
+            account_id=uuid.UUID(str(payload.get("aid", payload["sub"]))),
             principal_type=principal_type,
             agency_id=uuid.UUID(str(payload["agency_id"])),
             session_id=uuid.UUID(str(payload["session_id"])),
@@ -134,9 +143,9 @@ def decode_mobile_access_token(token: str) -> MobileAccessClaims:
         raise
     except AuthenticationError:
         raise
-    except JWTError as exc:
-        if "expired" in str(exc).lower():
-            raise TokenExpiredError() from exc
+    except ExpiredSignatureError as exc:
+        raise TokenExpiredError() from exc
+    except InvalidTokenError as exc:
         raise AuthenticationError("Invalid mobile access token") from exc
     except (KeyError, TypeError, ValueError) as exc:
         raise AuthenticationError("Invalid mobile access token payload") from exc
@@ -206,7 +215,7 @@ def decode_mobile_document_grant(token: str) -> MobileDocumentGrantClaims:
             algorithms=["HS256"],
             audience=f"{settings.jwt_audience}:document",
             issuer=settings.jwt_issuer,
-            options={"require_exp": True, "require_iat": True, "require_sub": True},
+            options={"require": ["exp", "iat", "sub"]},
         )
         if payload.get("type") != MOBILE_DOCUMENT_GRANT_TYPE:
             raise AuthenticationError("Invalid document grant type")
@@ -248,9 +257,9 @@ def decode_mobile_document_grant(token: str) -> MobileDocumentGrantClaims:
         raise
     except AuthenticationError:
         raise
-    except JWTError as exc:
-        if "expired" in str(exc).lower():
-            raise TokenExpiredError() from exc
+    except ExpiredSignatureError as exc:
+        raise TokenExpiredError() from exc
+    except InvalidTokenError as exc:
         raise AuthenticationError("Invalid document download grant") from exc
     except (KeyError, TypeError, ValueError) as exc:
         raise AuthenticationError("Invalid document download grant payload") from exc

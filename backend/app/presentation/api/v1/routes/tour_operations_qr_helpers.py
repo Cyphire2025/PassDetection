@@ -31,6 +31,7 @@ from app.presentation.api.v1.schemas.tour_operations_schemas import (
     GroupPassengerQrCodesResponse,
     PassengerQrTokenResponse,
 )
+from app.presentation.security.client_ip import trusted_client_ip
 
 __all__ = [
     "qr_expires_at_for_group",
@@ -252,6 +253,6 @@ async def record_qr_audit(
         user_id=current_user.id,
         actor_email=current_user.email,
         entity_id=str(passenger_id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata=metadata,
     )

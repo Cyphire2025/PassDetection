@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -652,6 +653,50 @@ class PublicUploadRateLimitTests(unittest.IsolatedAsyncioTestCase):
 
 
 class PublicUploadProxyContractTests(unittest.TestCase):
+    def test_gc_common_document_router_and_edge_pattern_stay_aligned(self) -> None:
+        from app.presentation.api.v1.router import api_v1_router
+
+        registered = {
+            (route.path, method)
+            for route in api_v1_router.routes
+            for method in getattr(route, "methods", set())
+        }
+        self.assertIn(
+            ("/gc-app/admin/groups/{group_id}/common-documents", "POST"),
+            registered,
+        )
+        self.assertIn(
+            (
+                "/gc-app/admin/groups/{group_id}/common-documents/"
+                "{document_id}/replace",
+                "POST",
+            ),
+            registered,
+        )
+
+        upload_edge = re.compile(
+            r"^/api/v1/gc-app/admin/groups/[^/]+/common-documents"
+            r"(?:/[^/]+/replace)?/?$"
+        )
+        self.assertIsNotNone(
+            upload_edge.fullmatch(
+                "/api/v1/gc-app/admin/groups/group-id/common-documents"
+            )
+        )
+        self.assertIsNotNone(
+            upload_edge.fullmatch(
+                "/api/v1/gc-app/admin/groups/group-id/common-documents/"
+                "document-id/replace"
+            )
+        )
+        for excluded_path in (
+            "/api/v1/gc-app/admin/groups/group-id/common-documents/reorder",
+            "/api/v1/gc-app/admin/groups/group-id/common-documents/document-id/content",
+            "/api/v1/gc-app/admin/groups/group-id/common-documents/document-id/publish",
+            "/api/v1/passports/upload/public-token",
+        ):
+            self.assertIsNone(upload_edge.fullmatch(excluded_path))
+
     def test_nginx_and_browser_client_keep_the_two_tier_contract(self) -> None:
         repo_root = Path(__file__).resolve().parents[4]
         nginx_main = (repo_root / "nginx" / "nginx.conf").read_text(encoding="utf-8")
@@ -692,6 +737,7 @@ class PublicUploadProxyContractTests(unittest.TestCase):
         self.assertIn("error_log /dev/null crit", nginx_site)
         self.assertEqual(nginx_site.count("client_max_body_size 512M"), 1)
         self.assertEqual(nginx_site.count("client_max_body_size 72M"), 1)
+        self.assertEqual(nginx_site.count("client_max_body_size 26M"), 1)
         self.assertIn("client_max_body_size 16M", nginx_site)
         self.assertIn("client_max_body_size 64K", nginx_site)
         self.assertGreaterEqual(
@@ -733,6 +779,31 @@ class PublicUploadProxyContractTests(unittest.TestCase):
             nginx_site,
         )
         self.assertIn("limit_req zone=dashboard_api burst=600 delay=150", nginx_site)
+        gc_upload_location = (
+            "location ~ ^/api/v1/gc-app/admin/groups/[^/]+/common-documents"
+            "(?:/[^/]+/replace)?/?$"
+        )
+        self.assertIn(gc_upload_location, nginx_site)
+        self.assertLess(
+            nginx_site.index(gc_upload_location),
+            nginx_site.index("gc-app(?:/|$)"),
+        )
+        gc_upload_block = nginx_site[
+            nginx_site.index(gc_upload_location) : nginx_site.index(
+                "# Verified dashboard traffic",
+                nginx_site.index(gc_upload_location),
+            )
+        ]
+        self.assertIn("client_max_body_size 26M", gc_upload_block)
+        self.assertIn("client_body_timeout 120s", gc_upload_block)
+        self.assertIn("proxy_request_buffering on", gc_upload_block)
+        self.assertIn("proxy_read_timeout 120s", gc_upload_block)
+        self.assertIn("proxy_send_timeout 120s", gc_upload_block)
+        self.assertIn(
+            "limit_req zone=dashboard_api burst=600 delay=150",
+            gc_upload_block,
+        )
+        self.assertIn("gc-app(?:/|$)", nginx_site)
         self.assertIn("upload-links(?:$|/(?!token(?:/|$)))", nginx_site)
         self.assertIn(
             "passports(?:$|/(?!upload(?:/|$)|[^/]+/client-submit/?$))",

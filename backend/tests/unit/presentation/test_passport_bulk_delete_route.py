@@ -17,12 +17,22 @@ from app.infrastructure.repositories.client_group_repository import (
 from app.infrastructure.repositories.passport_image_crop_repository import (
     PassportImageCropRepository,
 )
+from app.presentation.api.v1.routes import passports as passport_routes
 from app.presentation.api.v1.routes.passports import (
     bulk_delete_passport_submissions,
 )
 from app.presentation.api.v1.schemas.passport_schemas import (
     BulkDeletePassportSubmissionsRequest,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_propagation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        passport_routes,
+        "propagate_mobile_passenger_change",
+        AsyncMock(),
+    )
 
 
 class _Result:

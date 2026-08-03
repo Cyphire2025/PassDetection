@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
 from cryptography.fernet import InvalidToken
 from sqlalchemy import Select, and_, or_, select, update
@@ -21,9 +24,14 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobileNotificationModel,
     MobilePassengerIdentityModel,
+    MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
 from app.infrastructure.database.models import CoordinatorGroupAssignmentModel, UserModel
+from app.infrastructure.observability.operational_events import (
+    OperationalEvent,
+    record_operational_event,
+)
 
 _RECIPIENT_PAGE_SIZE = 250
 _NOTIFICATION_TYPE = "group_announcement"
@@ -35,6 +43,19 @@ _ALLOWED_PUSH_ROUTES = frozenset(
 
 @dataclass(frozen=True, slots=True)
 class AnnouncementNotificationCounts:
+    passengers: int = 0
+    client_managers: int = 0
+    coordinators: int = 0
+
+    @property
+    def total(self) -> int:
+        return self.passengers + self.client_managers + self.coordinators
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentChangeNotificationCounts:
+    """Role-scoped, PII-free notification counts for a document mutation."""
+
     passengers: int = 0
     client_managers: int = 0
     coordinators: int = 0
@@ -158,6 +179,116 @@ async def enqueue_announcement_notifications(
     )
 
 
+async def enqueue_personal_document_change_notifications(
+    session: AsyncSession,
+    *,
+    access: GCGroupAccessModel,
+    passenger_identity_ids: Sequence[uuid.UUID],
+    operation: Literal["upsert", "delete"],
+    dedupe_token: str,
+    now: datetime | None = None,
+) -> DocumentChangeNotificationCounts:
+    """Queue generic refresh triggers without leaking passenger/document details.
+
+    Passengers are targeted only by their exact mobile identity. Client managers
+    and coordinators receive summary-level refresh prompts only when the matching
+    role is enabled and they hold an explicit assignment to this group.
+    """
+
+    current = now or datetime.now(tz=UTC)
+    if not access.is_enabled or access.revoked_at is not None:
+        return DocumentChangeNotificationCounts()
+    available_at = max(
+        value for value in (current, access.access_starts_at) if value is not None
+    )
+    expires_at = access.access_expires_at
+    if expires_at is not None and expires_at <= available_at:
+        return DocumentChangeNotificationCounts()
+
+    identities = tuple(sorted(set(passenger_identity_ids), key=str))
+    passengers = 0
+    managers = 0
+    coordinators = 0
+    if access.passenger_access_enabled and identities:
+        passengers = await _enqueue_document_change_ids(
+            session,
+            recipient_ids=identities,
+            recipient_type="passenger",
+            access=access,
+            operation=operation,
+            dedupe_token=dedupe_token,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    if access.client_manager_access_enabled:
+        managers = await _enqueue_document_change_user_pages(
+            session,
+            statement=(
+                select(UserModel.id)
+                .join(
+                    ClientManagerProfileModel,
+                    ClientManagerProfileModel.user_id == UserModel.id,
+                )
+                .join(
+                    ClientManagerGroupAssignmentModel,
+                    ClientManagerGroupAssignmentModel.profile_id
+                    == ClientManagerProfileModel.id,
+                )
+                .where(
+                    UserModel.agency_id == access.agency_id,
+                    UserModel.role == "client_manager",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    ClientManagerProfileModel.agency_id == access.agency_id,
+                    ClientManagerProfileModel.status == "active",
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                    ClientManagerGroupAssignmentModel.agency_id == access.agency_id,
+                    ClientManagerGroupAssignmentModel.gc_group_access_id == access.id,
+                    ClientManagerGroupAssignmentModel.group_id == access.group_id,
+                    ClientManagerGroupAssignmentModel.is_active.is_(True),
+                    ClientManagerGroupAssignmentModel.revoked_at.is_(None),
+                )
+            ),
+            recipient_type="client_manager",
+            access=access,
+            operation=operation,
+            dedupe_token=dedupe_token,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    if access.coordinator_access_enabled:
+        coordinators = await _enqueue_document_change_user_pages(
+            session,
+            statement=(
+                select(UserModel.id)
+                .join(
+                    CoordinatorGroupAssignmentModel,
+                    CoordinatorGroupAssignmentModel.coordinator_user_id == UserModel.id,
+                )
+                .where(
+                    UserModel.agency_id == access.agency_id,
+                    UserModel.role == "agency_coordinator",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    CoordinatorGroupAssignmentModel.agency_id == access.agency_id,
+                    CoordinatorGroupAssignmentModel.group_id == access.group_id,
+                    CoordinatorGroupAssignmentModel.active.is_(True),
+                )
+            ),
+            recipient_type="coordinator",
+            access=access,
+            operation=operation,
+            dedupe_token=dedupe_token,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    return DocumentChangeNotificationCounts(
+        passengers=passengers,
+        client_managers=managers,
+        coordinators=coordinators,
+    )
+
+
 async def cancel_announcement_notifications(
     session: AsyncSession,
     *,
@@ -174,10 +305,38 @@ async def cancel_announcement_notifications(
             MobileNotificationModel.gc_group_access_id == access.id,
             MobileNotificationModel.dedupe_key == _announcement_dedupe_key(announcement_id),
             MobileNotificationModel.status == "queued",
+            MobileNotificationModel.id.not_in(
+                select(MobilePushDeliveryModel.notification_id).where(
+                    MobilePushDeliveryModel.status.in_(
+                        ("receipt_pending", "delivered")
+                    )
+                )
+            ),
         )
         .values(
             status="cancelled",
             failure_code="announcement_unpublished",
+            updated_at=now or datetime.now(tz=UTC),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    await session.execute(
+        update(MobilePushDeliveryModel)
+        .where(
+            MobilePushDeliveryModel.notification_id.in_(
+                select(MobileNotificationModel.id).where(
+                    MobileNotificationModel.agency_id == access.agency_id,
+                    MobileNotificationModel.gc_group_access_id == access.id,
+                    MobileNotificationModel.dedupe_key
+                    == _announcement_dedupe_key(announcement_id),
+                    MobileNotificationModel.status == "cancelled",
+                )
+            ),
+            MobilePushDeliveryModel.status.in_(("submitting", "retry")),
+        )
+        .values(
+            status="cancelled",
+            last_error_code="announcement_unpublished",
             updated_at=now or datetime.now(tz=UTC),
         )
         .execution_options(synchronize_session=False)
@@ -191,13 +350,20 @@ async def dispatch_mobile_push_batch(
     provider: MobilePushProvider,
     limit: int,
     now: datetime | None = None,
+    max_send_attempts: int = 5,
+    retry_base_seconds: int = 5,
+    receipt_initial_delay_seconds: int = 900,
 ) -> int:
-    """Deliver a bounded locked batch; a disabled provider changes no state."""
+    """Submit a bounded batch and durably retain every provider ticket."""
 
     if not provider.enabled:
         return 0
     if limit < 1 or limit > 100:
         raise ValueError("Mobile push batch limit must be between 1 and 100")
+    if max_send_attempts < 1:
+        raise ValueError("Mobile push send attempts must be positive")
+    if retry_base_seconds < 1 or receipt_initial_delay_seconds < 1:
+        raise ValueError("Mobile push retry delays must be positive")
     current = now or datetime.now(tz=UTC)
     notifications = list(
         (
@@ -223,6 +389,20 @@ async def dispatch_mobile_push_batch(
     if not notifications:
         return 0
 
+    notification_ids = [item.id for item in notifications]
+    deliveries = list(
+        (
+            await session.execute(
+                select(MobilePushDeliveryModel).where(
+                    MobilePushDeliveryModel.notification_id.in_(notification_ids)
+                )
+            )
+        ).scalars()
+    )
+    delivery_by_target = {
+        (item.notification_id, item.registration_id): item for item in deliveries
+    }
+
     registrations = await _load_recipient_registrations(
         session,
         notifications=notifications,
@@ -232,11 +412,31 @@ async def dispatch_mobile_push_batch(
     messages: list[MobilePushMessage] = []
     registration_by_id: dict[str, MobilePushRegistrationModel] = {}
     notification_by_id = {str(item.id): item for item in notifications}
+    delivery_by_message: dict[tuple[str, str], MobilePushDeliveryModel] = {}
     for notification in notifications:
         key = _notification_recipient_key(notification)
         for registration in registrations.get(key, []):
             if len(messages) >= limit:
                 break
+            delivery = delivery_by_target.get((notification.id, registration.id))
+            if delivery is not None:
+                if (
+                    delivery.agency_id != notification.agency_id
+                    or delivery.agency_id != registration.agency_id
+                    or delivery.provider != provider.name
+                ):
+                    _fail_delivery(delivery, current, "tenant_scope_mismatch")
+                    continue
+                next_attempt_at = _aware_utc(delivery.next_attempt_at)
+                if (
+                    delivery.status != "retry"
+                    or next_attempt_at is None
+                    or next_attempt_at > current
+                ):
+                    continue
+                if delivery.send_attempts >= max_send_attempts:
+                    _fail_delivery(delivery, current, "send_attempts_exhausted")
+                    continue
             try:
                 token = mobile_push_fernet().decrypt(registration.token_ciphertext).decode(
                     "utf-8"
@@ -249,10 +449,29 @@ async def dispatch_mobile_push_batch(
                 registration.updated_at = current
                 continue
             except ValueError:
+                notification.status = "failed"
                 notification.failure_code = "invalid_public_payload"
-                notification.available_at = current + timedelta(days=1)
                 notification.updated_at = current
                 continue
+            if delivery is None:
+                delivery = MobilePushDeliveryModel(
+                    id=uuid.uuid4(),
+                    agency_id=notification.agency_id,
+                    notification_id=notification.id,
+                    registration_id=registration.id,
+                    provider=provider.name,
+                    status="submitting",
+                    send_attempts=0,
+                    receipt_attempts=0,
+                    next_attempt_at=current,
+                )
+                session.add(delivery)
+                deliveries.append(delivery)
+                delivery_by_target[(notification.id, registration.id)] = delivery
+            delivery.status = "submitting"
+            delivery.send_attempts += 1
+            delivery.last_error_code = None
+            delivery.updated_at = current
             message = MobilePushMessage(
                 registration_id=str(registration.id),
                 notification_id=str(notification.id),
@@ -268,66 +487,407 @@ async def dispatch_mobile_push_batch(
             )
             messages.append(message)
             registration_by_id[str(registration.id)] = registration
+            delivery_by_message[(str(notification.id), str(registration.id))] = delivery
         if len(messages) >= limit:
             break
 
     if not messages:
+        await session.flush()
+        await _refresh_notification_delivery_states(
+            session,
+            notifications=notifications,
+            now=current,
+        )
         for notification in notifications:
-            if notification.failure_code is None:
+            if notification.status == "queued" and not any(
+                item.notification_id == notification.id for item in deliveries
+            ):
                 notification.failure_code = "no_active_registration"
                 notification.available_at = current + timedelta(minutes=5)
                 notification.updated_at = current
         return 0
 
+    await session.flush()
     tickets = await provider.send(messages)
-    accepted_notifications: set[str] = set()
-    retryable_notifications: set[str] = set()
-    attempted_notifications: set[str] = set()
-    permanent_error_by_notification: dict[str, str] = {}
+    submitted_notifications: set[str] = set()
+    returned_targets: set[tuple[str, str]] = set()
     for ticket in tickets:
         ticket_notification = notification_by_id.get(ticket.notification_id)
         ticket_registration = registration_by_id.get(ticket.registration_id)
-        if ticket_notification is None or ticket_registration is None:
+        delivery = delivery_by_message.get(
+            (ticket.notification_id, ticket.registration_id)
+        )
+        if (
+            ticket_notification is None
+            or ticket_registration is None
+            or delivery is None
+        ):
             continue
-        attempted_notifications.add(ticket.notification_id)
-        if ticket.accepted:
-            accepted_notifications.add(ticket.notification_id)
-            ticket_registration.last_success_at = current
-            ticket_registration.last_failure_code = None
+        returned_targets.add((ticket.notification_id, ticket.registration_id))
+        if ticket.accepted and ticket.provider_ticket_id is not None:
+            submitted_notifications.add(ticket.notification_id)
+            delivery.provider_ticket_id = ticket.provider_ticket_id
+            delivery.status = "receipt_pending"
+            delivery.submitted_at = current
+            delivery.next_attempt_at = current + timedelta(
+                seconds=receipt_initial_delay_seconds
+            )
+            delivery.last_error_code = None
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "ticket_accepted")
         else:
             code = ticket.error_code or "provider_ticket_error"
             ticket_registration.last_failure_at = current
             ticket_registration.last_failure_code = code
-            permanent_error_by_notification[ticket.notification_id] = code
             if code == "DeviceNotRegistered":
-                ticket_registration.status = "revoked"
-                ticket_registration.notifications_authorized = False
-                ticket_registration.revoked_at = current
-            elif ticket.retryable:
-                retryable_notifications.add(ticket.notification_id)
+                _revoke_registration(ticket_registration, current, code)
+                _fail_delivery(delivery, current, code)
+                record_operational_event(OperationalEvent.MOBILE_PUSH, "device_revoked")
+            elif ticket.retryable and delivery.send_attempts < max_send_attempts:
+                _retry_delivery(
+                    delivery,
+                    current,
+                    code,
+                    delay_seconds=_bounded_backoff_seconds(
+                        retry_base_seconds,
+                        delivery.send_attempts,
+                    ),
+                )
+                record_operational_event(
+                    OperationalEvent.MOBILE_PUSH,
+                    "send_retry_scheduled",
+                )
+            else:
+                _fail_delivery(delivery, current, code)
+                record_operational_event(OperationalEvent.MOBILE_PUSH, "send_failed")
         ticket_registration.updated_at = current
 
-    for notification_id in attempted_notifications:
-        notification = notification_by_id[notification_id]
-        if notification_id in accepted_notifications:
-            notification.status = "sent"
-            notification.sent_at = current
-            notification.failure_code = None
-        elif notification_id in retryable_notifications:
-            notification.status = "queued"
-            notification.available_at = current + timedelta(minutes=1)
-            notification.failure_code = permanent_error_by_notification.get(
-                notification_id,
-                "provider_unavailable",
+    for target, delivery in delivery_by_message.items():
+        if target in returned_targets:
+            continue
+        if delivery.send_attempts < max_send_attempts:
+            _retry_delivery(
+                delivery,
+                current,
+                "provider_missing_ticket",
+                delay_seconds=_bounded_backoff_seconds(
+                    retry_base_seconds,
+                    delivery.send_attempts,
+                ),
+            )
+            record_operational_event(
+                OperationalEvent.MOBILE_PUSH,
+                "send_retry_scheduled",
             )
         else:
-            notification.status = "failed"
-            notification.failure_code = permanent_error_by_notification.get(
-                notification_id,
-                "provider_rejected",
+            _fail_delivery(delivery, current, "provider_missing_ticket")
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "send_failed")
+
+    await session.flush()
+    await _refresh_notification_delivery_states(
+        session,
+        notifications=notifications,
+        now=current,
+    )
+    return len(submitted_notifications)
+
+
+async def reconcile_mobile_push_receipts(
+    session: AsyncSession,
+    *,
+    provider: MobilePushProvider,
+    limit: int,
+    now: datetime | None = None,
+    max_attempts: int = 8,
+    max_age: timedelta = timedelta(hours=23),
+    retry_base_seconds: int = 60,
+) -> int:
+    """Poll due provider receipts and apply monotonic delivery transitions."""
+
+    if not provider.enabled:
+        return 0
+    if limit < 1 or limit > 1_000:
+        raise ValueError("Mobile push receipt batch limit must be between 1 and 1,000")
+    if max_attempts < 1 or max_age <= timedelta(0) or retry_base_seconds < 1:
+        raise ValueError("Mobile push receipt retry policy was invalid")
+    current = now or datetime.now(tz=UTC)
+    deliveries = list(
+        (
+            await session.execute(
+                select(MobilePushDeliveryModel)
+                .where(
+                    MobilePushDeliveryModel.provider == provider.name,
+                    MobilePushDeliveryModel.status == "receipt_pending",
+                    MobilePushDeliveryModel.next_attempt_at <= current,
+                    MobilePushDeliveryModel.provider_ticket_id.is_not(None),
+                )
+                .order_by(
+                    MobilePushDeliveryModel.next_attempt_at.asc(),
+                    MobilePushDeliveryModel.id.asc(),
+                )
+                .limit(limit)
+                .with_for_update(skip_locked=True)
             )
-        notification.updated_at = current
-    return len(accepted_notifications)
+        ).scalars()
+    )
+    if not deliveries:
+        return 0
+
+    notification_ids = {item.notification_id for item in deliveries}
+    registration_ids = {item.registration_id for item in deliveries}
+    notifications = {
+        item.id: item
+        for item in (
+            (
+                await session.execute(
+                    select(MobileNotificationModel).where(
+                        MobileNotificationModel.id.in_(notification_ids)
+                    )
+                )
+            ).scalars()
+        )
+    }
+    registrations = {
+        item.id: item
+        for item in (
+            (
+                await session.execute(
+                    select(MobilePushRegistrationModel).where(
+                        MobilePushRegistrationModel.id.in_(registration_ids)
+                    )
+                )
+            ).scalars()
+        )
+    }
+
+    eligible: list[MobilePushDeliveryModel] = []
+    for delivery in deliveries:
+        notification = notifications.get(delivery.notification_id)
+        registration = registrations.get(delivery.registration_id)
+        if (
+            notification is None
+            or registration is None
+            or notification.agency_id != delivery.agency_id
+            or registration.agency_id != delivery.agency_id
+        ):
+            _fail_delivery(delivery, current, "tenant_scope_mismatch")
+            continue
+        submitted_at = _aware_utc(delivery.submitted_at)
+        if submitted_at is None or current - submitted_at >= max_age:
+            _fail_delivery(delivery, current, "receipt_expired")
+            registration.last_failure_at = current
+            registration.last_failure_code = "receipt_expired"
+            registration.updated_at = current
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "receipt_failed")
+            continue
+        eligible.append(delivery)
+
+    if not eligible:
+        await session.flush()
+        await _refresh_notification_delivery_states(
+            session,
+            notifications=list(notifications.values()),
+            now=current,
+        )
+        return 0
+
+    ticket_ids = [
+        item.provider_ticket_id
+        for item in eligible
+        if item.provider_ticket_id is not None
+    ]
+    receipt_by_ticket = {
+        item.provider_ticket_id: item
+        for item in await provider.get_receipts(ticket_ids)
+    }
+    delivered_notifications: set[uuid.UUID] = set()
+    for delivery in eligible:
+        ticket_id = delivery.provider_ticket_id
+        if ticket_id is None:
+            _fail_delivery(delivery, current, "provider_ticket_missing")
+            continue
+        registration = registrations[delivery.registration_id]
+        receipt = receipt_by_ticket.get(ticket_id)
+        delivery.receipt_attempts += 1
+        if receipt is not None and receipt.delivered:
+            delivery.status = "delivered"
+            delivery.delivered_at = current
+            delivery.failed_at = None
+            delivery.last_error_code = None
+            delivery.updated_at = current
+            registration.last_success_at = current
+            registration.last_failure_code = None
+            registration.updated_at = current
+            delivered_notifications.add(delivery.notification_id)
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "receipt_delivered")
+            continue
+
+        code = (
+            receipt.error_code
+            if receipt is not None and receipt.error_code is not None
+            else "provider_missing_receipt_response"
+        )
+        registration.last_failure_at = current
+        registration.last_failure_code = code
+        registration.updated_at = current
+        if code == "DeviceNotRegistered":
+            _revoke_registration(registration, current, code)
+            _fail_delivery(delivery, current, code)
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "device_revoked")
+            continue
+        retryable = receipt is None or receipt.retryable
+        if retryable and delivery.receipt_attempts < max_attempts:
+            delivery.next_attempt_at = current + timedelta(
+                seconds=_bounded_backoff_seconds(
+                    retry_base_seconds,
+                    delivery.receipt_attempts,
+                    maximum=3_600,
+                )
+            )
+            delivery.last_error_code = code
+            delivery.updated_at = current
+            record_operational_event(
+                OperationalEvent.MOBILE_PUSH,
+                "receipt_retry_scheduled",
+            )
+        else:
+            _fail_delivery(delivery, current, code)
+            record_operational_event(OperationalEvent.MOBILE_PUSH, "receipt_failed")
+
+    await session.flush()
+    await _refresh_notification_delivery_states(
+        session,
+        notifications=list(notifications.values()),
+        now=current,
+    )
+    return len(delivered_notifications)
+
+
+def _retry_delivery(
+    delivery: MobilePushDeliveryModel,
+    now: datetime,
+    code: str,
+    *,
+    delay_seconds: int,
+) -> None:
+    if delivery.status in {"delivered", "failed", "cancelled"}:
+        return
+    delivery.status = "retry"
+    delivery.provider_ticket_id = None
+    delivery.submitted_at = None
+    delivery.delivered_at = None
+    delivery.failed_at = None
+    delivery.next_attempt_at = now + timedelta(seconds=delay_seconds)
+    delivery.last_error_code = code
+    delivery.updated_at = now
+
+
+def _fail_delivery(
+    delivery: MobilePushDeliveryModel,
+    now: datetime,
+    code: str,
+) -> None:
+    if delivery.status in {"delivered", "cancelled"}:
+        return
+    delivery.status = "failed"
+    delivery.delivered_at = None
+    delivery.failed_at = delivery.failed_at or now
+    delivery.last_error_code = code
+    delivery.updated_at = now
+
+
+def _revoke_registration(
+    registration: MobilePushRegistrationModel,
+    now: datetime,
+    code: str,
+) -> None:
+    if registration.status != "revoked":
+        registration.status = "revoked"
+        registration.notifications_authorized = False
+        registration.revoked_at = now
+    registration.last_failure_at = now
+    registration.last_failure_code = code
+    registration.updated_at = now
+
+
+async def _refresh_notification_delivery_states(
+    session: AsyncSession,
+    *,
+    notifications: list[MobileNotificationModel],
+    now: datetime,
+) -> None:
+    if not notifications:
+        return
+    notification_ids = [item.id for item in notifications]
+    deliveries = list(
+        (
+            await session.execute(
+                select(MobilePushDeliveryModel).where(
+                    MobilePushDeliveryModel.notification_id.in_(notification_ids)
+                )
+            )
+        ).scalars()
+    )
+    grouped: dict[uuid.UUID, list[MobilePushDeliveryModel]] = {}
+    for delivery in deliveries:
+        grouped.setdefault(delivery.notification_id, []).append(delivery)
+
+    for notification in notifications:
+        if notification.status == "cancelled":
+            continue
+        rows = grouped.get(notification.id, [])
+        if not rows:
+            continue
+        if any(item.status == "delivered" for item in rows):
+            notification.status = "sent"
+            notification.sent_at = notification.sent_at or now
+            notification.failure_code = None
+            notification.updated_at = now
+            continue
+        if notification.status == "sent":
+            continue
+        pending = [
+            item
+            for item in rows
+            if item.status in {"submitting", "retry", "receipt_pending"}
+        ]
+        if pending:
+            notification.status = "queued"
+            retry_errors = [
+                item.last_error_code
+                for item in pending
+                if item.status == "retry" and item.last_error_code is not None
+            ]
+            notification.failure_code = retry_errors[0] if retry_errors else None
+            notification.updated_at = now
+            continue
+        notification.status = "failed"
+        notification.failure_code = next(
+            (
+                item.last_error_code
+                for item in rows
+                if item.last_error_code is not None
+            ),
+            "provider_rejected",
+        )
+        notification.updated_at = now
+
+
+def _bounded_backoff_seconds(
+    base_seconds: int,
+    attempt: int,
+    *,
+    maximum: int = 900,
+) -> int:
+    exponent = max(0, min(attempt - 1, 10))
+    return min(maximum, base_seconds * (2**exponent))
+
+
+def _aware_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 async def _enqueue_recipient_pages(
@@ -375,6 +935,144 @@ async def _enqueue_recipient_pages(
         if len(ids) < _RECIPIENT_PAGE_SIZE:
             break
     return inserted
+
+
+async def _enqueue_document_change_user_pages(
+    session: AsyncSession,
+    *,
+    statement: Select[tuple[uuid.UUID]],
+    recipient_type: Literal["client_manager", "coordinator"],
+    access: GCGroupAccessModel,
+    operation: Literal["upsert", "delete"],
+    dedupe_token: str,
+    available_at: datetime,
+    expires_at: datetime | None,
+) -> int:
+    cursor: uuid.UUID | None = None
+    inserted = 0
+    while True:
+        page_statement = statement
+        if cursor is not None:
+            page_statement = page_statement.where(UserModel.id > cursor)
+        ids = list(
+            (
+                await session.execute(
+                    page_statement.order_by(UserModel.id.asc()).limit(
+                        _RECIPIENT_PAGE_SIZE
+                    )
+                )
+            ).scalars()
+        )
+        if not ids:
+            break
+        inserted += await _enqueue_document_change_ids(
+            session,
+            recipient_ids=ids,
+            recipient_type=recipient_type,
+            access=access,
+            operation=operation,
+            dedupe_token=dedupe_token,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+        cursor = ids[-1]
+        if len(ids) < _RECIPIENT_PAGE_SIZE:
+            break
+    return inserted
+
+
+async def _enqueue_document_change_ids(
+    session: AsyncSession,
+    *,
+    recipient_ids: Sequence[uuid.UUID],
+    recipient_type: Literal["passenger", "client_manager", "coordinator"],
+    access: GCGroupAccessModel,
+    operation: Literal["upsert", "delete"],
+    dedupe_token: str,
+    available_at: datetime,
+    expires_at: datetime | None,
+) -> int:
+    for recipient_id in recipient_ids:
+        session.add(
+            _personal_document_change_notification(
+                recipient_id=recipient_id,
+                recipient_type=recipient_type,
+                access=access,
+                operation=operation,
+                dedupe_token=dedupe_token,
+                available_at=available_at,
+                expires_at=expires_at,
+            )
+        )
+    if recipient_ids:
+        await session.flush()
+    return len(recipient_ids)
+
+
+def _personal_document_change_notification(
+    *,
+    recipient_id: uuid.UUID,
+    recipient_type: Literal["passenger", "client_manager", "coordinator"],
+    access: GCGroupAccessModel,
+    operation: Literal["upsert", "delete"],
+    dedupe_token: str,
+    available_at: datetime,
+    expires_at: datetime | None,
+) -> MobileNotificationModel:
+    route_by_role = {
+        "passenger": "documents",
+        "client_manager": "readiness",
+        "coordinator": "passengers",
+    }
+    title_by_role = {
+        "passenger": "Travel documents updated",
+        "client_manager": "Group readiness updated",
+        "coordinator": "Passenger information updated",
+    }
+    body_by_role = {
+        "passenger": "Open Group Companion to refresh your travel documents.",
+        "client_manager": "Open Group Companion to refresh the group readiness summary.",
+        "coordinator": "Open Group Companion to refresh passenger information.",
+    }
+    route = route_by_role[recipient_type]
+    is_passenger = recipient_type == "passenger"
+    return MobileNotificationModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        gc_group_access_id=access.id,
+        recipient_type=recipient_type,
+        recipient_user_id=None if is_passenger else recipient_id,
+        recipient_passenger_identity_id=recipient_id if is_passenger else None,
+        notification_type="personal_document_changed",
+        category="document",
+        priority="normal",
+        title=title_by_role[recipient_type],
+        body=body_by_role[recipient_type],
+        lock_screen_title=_LOCK_SCREEN_TITLE,
+        lock_screen_body=None,
+        contains_sensitive_content=True,
+        deep_link_path=f"/{route}?trip_id={access.group_id}",
+        dedupe_key=_document_change_dedupe_key(
+            dedupe_token=dedupe_token,
+            recipient_type=recipient_type,
+            operation=operation,
+        ),
+        public_payload={"route": route, "trip_id": str(access.group_id)},
+        status="queued",
+        available_at=available_at,
+        expires_at=expires_at,
+    )
+
+
+def _document_change_dedupe_key(
+    *,
+    dedupe_token: str,
+    recipient_type: str,
+    operation: str,
+) -> str:
+    digest = hashlib.sha256(dedupe_token.encode("utf-8")).hexdigest()
+    return f"personal-document:{operation}:{recipient_type}:{digest}"
 
 
 def _announcement_notification(
@@ -529,7 +1227,10 @@ def _announcement_dedupe_key(announcement_id: uuid.UUID) -> str:
 
 __all__ = [
     "AnnouncementNotificationCounts",
+    "DocumentChangeNotificationCounts",
     "cancel_announcement_notifications",
     "dispatch_mobile_push_batch",
     "enqueue_announcement_notifications",
+    "enqueue_personal_document_change_notifications",
+    "reconcile_mobile_push_receipts",
 ]

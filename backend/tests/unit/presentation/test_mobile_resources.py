@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import uuid
 from datetime import UTC, date, datetime, timedelta
 from types import SimpleNamespace
@@ -10,18 +11,23 @@ from fastapi import HTTPException, Response
 
 from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.exceptions.exceptions import AuthorizationError
+from app.infrastructure.storage.minio_repository import ObjectIntegrityMetadata
 from app.presentation.api.v1.routes.mobile_resources import (
     _coordinator_roster_revision,
     _mobile_announcement_priority,
+    _mobile_document_range_start,
     _mobile_manifest_versions,
     _mobile_meal_preference,
     _MobileDocumentSource,
     _passenger_identity,
     _personal_document_source_by_id,
+    _personal_document_source_integrity,
     _safe_mobile_filename,
     _safe_sync_payload,
     _validate_document_signature,
     acknowledge_mobile_sync,
+    authorize_mobile_document_download,
+    download_mobile_document_content,
     list_mobile_personal_documents,
     list_mobile_sync_changes,
     list_mobile_trips,
@@ -36,8 +42,10 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
 
 
 def _claims(role: str = "passenger") -> MobileAccessClaims:
+    principal_id = uuid.uuid4()
     return MobileAccessClaims(
-        principal_id=uuid.uuid4(),
+        principal_id=principal_id,
+        account_id=principal_id,
         principal_type=role,  # type: ignore[arg-type]
         agency_id=uuid.uuid4(),
         session_id=uuid.uuid4(),
@@ -86,6 +94,329 @@ def test_mobile_document_signature_validation_fails_closed() -> None:
     assert caught.value.status_code == 503
 
 
+def test_mobile_document_resume_range_is_strict_and_bounded() -> None:
+    assert _mobile_document_range_start(None, 4096) is None
+    assert _mobile_document_range_start("bytes=0-", 4096) == 0
+    assert _mobile_document_range_start("bytes=2048-", 4096) == 2048
+
+    for invalid in ("bytes=-100", "bytes=0-10", "bytes=0-,20-", "items=1-"):
+        with pytest.raises(HTTPException) as caught:
+            _mobile_document_range_start(invalid, 4096)
+        assert caught.value.status_code == 416
+
+    with pytest.raises(HTTPException) as outside:
+        _mobile_document_range_start("bytes=4096-", 4096)
+    assert outside.value.status_code == 416
+    assert outside.value.headers == {"Content-Range": "bytes */4096"}
+
+
+@pytest.mark.asyncio
+async def test_document_authorization_returns_materialized_integrity_contract() -> None:
+    claims = _claims()
+    group_id = uuid.uuid4()
+    document_id = uuid.uuid4()
+    identity_id = claims.principal_id
+    now = datetime.now(tz=UTC)
+    source = _MobileDocumentSource(
+        document_id=document_id,
+        scope="personal",
+        category="passport",
+        display_name="Passport",
+        safe_filename="passport.jpg",
+        content_type="image/jpeg",
+        storage_key="private/passport.jpg",
+        source_kind="passport_front",
+        source_id=uuid.uuid4(),
+        source_updated_at=now,
+        passenger_identity_id=identity_id,
+        passenger_submission_id=uuid.uuid4(),
+    )
+    trip = SimpleNamespace(
+        access=SimpleNamespace(id=uuid.uuid4(), access_generation=3),
+    )
+    expires_at = now + timedelta(minutes=2)
+    request = MagicMock(client=None)
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+            new=AsyncMock(return_value=trip),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+            new=AsyncMock(return_value=(source, 7)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._document_integrity_metadata",
+            new=AsyncMock(return_value=(4096, "a" * 64)),
+        ) as integrity,
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.create_mobile_document_grant",
+            return_value=("t" * 64, expires_at),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._audit_document_access",
+            new=AsyncMock(),
+        ),
+    ):
+        response = await authorize_mobile_document_download(
+            group_id=group_id,
+            document_id=document_id,
+            request=request,
+            version=7,
+            claims=claims,
+            session=MagicMock(),
+        )
+
+    assert response.size_bytes == 4096
+    assert response.checksum_sha256 == "a" * 64
+    assert response.content_type == "image/jpeg"
+    assert response.content_path.startswith("/api/v1/mobile/")
+    assert "private/passport.jpg" not in response.model_dump_json()
+    integrity.assert_awaited_once()
+
+
+class _FakeDocumentStreamStorage:
+    def __init__(self) -> None:
+        self.get_file_range = AsyncMock(return_value=b"%PDF-1.7\n")
+        self.started = 0
+        self.closed = 0
+
+    def stream_file(self, *_args, **_kwargs):  # type: ignore[no-untyped-def]
+        async def stream():  # type: ignore[no-untyped-def]
+            self.started += 1
+            try:
+                yield b"document-bytes"
+            finally:
+                self.closed += 1
+
+        return stream()
+
+
+def _download_stream_fixture(claims: MobileAccessClaims):
+    group_id = uuid.uuid4()
+    document_id = uuid.uuid4()
+    source = _MobileDocumentSource(
+        document_id=document_id,
+        scope="common",
+        category="itinerary_pdf",
+        display_name="Itinerary",
+        safe_filename="itinerary.pdf",
+        content_type="application/pdf",
+        storage_key="gc-app/private/itinerary.pdf",
+        source_kind="common",
+        source_id=document_id,
+        source_updated_at=datetime.now(tz=UTC),
+        passenger_identity_id=None,
+        passenger_submission_id=None,
+    )
+    trip = SimpleNamespace(
+        access=SimpleNamespace(id=uuid.uuid4(), access_generation=3),
+    )
+    return group_id, document_id, source, trip
+
+
+@pytest.mark.asyncio
+async def test_queued_document_streams_release_every_request_session_before_waiting() -> None:
+    claims = _claims()
+    group_id, document_id, source, trip = _download_stream_fixture(claims)
+    storage = _FakeDocumentStreamStorage()
+    stream_slots = asyncio.Semaphore(0)
+    sessions = []
+    for _ in range(12):
+        session = MagicMock()
+        session.commit = AsyncMock()
+        session.close = AsyncMock()
+        sessions.append(session)
+    audit = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+            new=AsyncMock(return_value=trip),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+            new=AsyncMock(return_value=(source, 7)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._document_integrity_metadata",
+            new=AsyncMock(return_value=(4096, "a" * 64)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.decode_mobile_document_grant",
+            return_value=SimpleNamespace(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.validate_mobile_document_grant"
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._audit_document_access",
+            new=audit,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._MOBILE_DOCUMENT_STREAM_SLOTS",
+            stream_slots,
+        ),
+    ):
+        responses = await asyncio.gather(
+            *(
+                download_mobile_document_content(
+                    group_id=group_id,
+                    document_id=document_id,
+                    request=MagicMock(client=None),
+                    version=7,
+                    download_token="signed-grant",
+                    range_header=None,
+                    claims=claims,
+                    session=session,
+                )
+                for session in sessions
+            )
+        )
+
+        for session in sessions:
+            session.commit.assert_awaited_once()
+            session.close.assert_awaited_once()
+        assert audit.await_count == len(sessions)
+
+        pending_chunks = [
+            asyncio.create_task(response.body_iterator.__anext__())
+            for response in responses
+        ]
+        await asyncio.sleep(0)
+        assert storage.started == 0
+        assert all(not task.done() for task in pending_chunks)
+
+        for _ in pending_chunks:
+            stream_slots.release()
+        assert await asyncio.gather(*pending_chunks) == [
+            b"document-bytes"
+        ] * len(pending_chunks)
+        for response in responses:
+            await response.body_iterator.aclose()
+
+    assert storage.closed == len(sessions)
+
+
+@pytest.mark.asyncio
+async def test_document_stream_cancellation_closes_storage_and_releases_slot() -> None:
+    claims = _claims()
+    group_id, document_id, source, trip = _download_stream_fixture(claims)
+    storage = _FakeDocumentStreamStorage()
+    stream_slots = asyncio.Semaphore(1)
+    session = MagicMock()
+    session.commit = AsyncMock()
+    session.close = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+            new=AsyncMock(return_value=trip),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+            new=AsyncMock(return_value=(source, 7)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._document_integrity_metadata",
+            new=AsyncMock(return_value=(4096, "a" * 64)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.decode_mobile_document_grant",
+            return_value=SimpleNamespace(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.validate_mobile_document_grant"
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._audit_document_access",
+            new=AsyncMock(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+            return_value=storage,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._MOBILE_DOCUMENT_STREAM_SLOTS",
+            stream_slots,
+        ),
+    ):
+        response = await download_mobile_document_content(
+            group_id=group_id,
+            document_id=document_id,
+            request=MagicMock(client=None),
+            version=7,
+            download_token="signed-grant",
+            range_header="bytes=1024-",
+            claims=claims,
+            session=session,
+        )
+        assert await response.body_iterator.__anext__() == b"document-bytes"
+        await response.body_iterator.aclose()
+
+        await asyncio.wait_for(stream_slots.acquire(), timeout=0.1)
+        stream_slots.release()
+
+    assert storage.closed == 1
+    assert response.status_code == 206
+    assert response.headers["content-range"] == "bytes 1024-4095/4096"
+    session.commit.assert_awaited_once()
+    session.close.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_invalid_document_grant_fails_before_audit_or_session_release() -> None:
+    claims = _claims()
+    group_id, document_id, source, trip = _download_stream_fixture(claims)
+    session = MagicMock()
+    session.commit = AsyncMock()
+    session.close = AsyncMock()
+    audit = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+            new=AsyncMock(return_value=trip),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._resolve_mobile_document",
+            new=AsyncMock(return_value=(source, 7)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.decode_mobile_document_grant",
+            return_value=SimpleNamespace(),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.validate_mobile_document_grant",
+            side_effect=AuthorizationError("Document download grant is invalid"),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._audit_document_access",
+            new=audit,
+        ),
+    ):
+        with pytest.raises(AuthorizationError, match="grant is invalid"):
+            await download_mobile_document_content(
+                group_id=group_id,
+                document_id=document_id,
+                request=MagicMock(client=None),
+                version=7,
+                download_token="invalid-grant",
+                range_header=None,
+                claims=claims,
+                session=session,
+            )
+
+    audit.assert_not_awaited()
+    session.commit.assert_not_awaited()
+    session.close.assert_not_awaited()
+
+
 def test_itinerary_date_alias_matches_native_contract() -> None:
     item = MobileItineraryItemResponse(
         id=uuid.uuid4(),
@@ -116,6 +447,12 @@ def test_sync_payload_never_echoes_unreviewed_fields() -> None:
         }
     )
     assert set(payload) == {"resource_path", "itinerary_version_id"}
+
+
+def test_sync_payload_allows_only_javascript_safe_roster_revision_proof() -> None:
+    assert _safe_sync_payload({"roster_revision": 42}) == {"roster_revision": 42}
+    assert _safe_sync_payload({"roster_revision": True}) == {}
+    assert _safe_sync_payload({"roster_revision": 1 << 53}) == {}
 
 
 def test_announcement_priority_is_mapped_to_native_contract() -> None:
@@ -275,8 +612,13 @@ async def test_sync_ack_updates_only_live_session_after_version_validation() -> 
         access_generation=11,
         last_successful_sync_at=None,
     )
-    trip = SimpleNamespace(access=access)
-    device = SimpleNamespace(last_seen_at=None)
+    trip = SimpleNamespace(access=access, group=SimpleNamespace(id=group_id))
+    device = SimpleNamespace(
+        selected_gc_group_access_id=None,
+        selected_group_id=None,
+        last_seen_at=None,
+        last_sync_acknowledged_at=None,
+    )
     high_water_result = MagicMock()
     high_water_result.scalar_one.return_value = 42
     device_result = MagicMock()
@@ -308,7 +650,10 @@ async def test_sync_ack_updates_only_live_session_after_version_validation() -> 
 
     assert response.cursor == 42
     assert response.acknowledged_at == access.last_successful_sync_at
+    assert device.selected_gc_group_access_id == access.id
+    assert device.selected_group_id == group_id
     assert response.acknowledged_at == device.last_seen_at
+    assert response.acknowledged_at == device.last_sync_acknowledged_at
     session.flush.assert_awaited_once()
     device_statement = session.execute.await_args_list[1].args[0]
     device_sql = str(device_statement.compile(compile_kwargs={"literal_binds": True}))
@@ -354,23 +699,7 @@ async def test_pending_personal_documents_remain_visible_until_metadata_is_ready
         )
         for index in range(1, 5)
     ]
-    cache_by_source: dict[tuple[str, uuid.UUID], SimpleNamespace] = {}
-
-    async def cached_rows(*_args, **_kwargs):  # type: ignore[no-untyped-def]
-        return dict(cache_by_source)
-
-    async def materialize(*_args, source, **_kwargs):  # type: ignore[no-untyped-def]
-        cache = SimpleNamespace(
-            group_id=group_id,
-            byte_size=1024,
-            version=1,
-            checksum_sha256="a" * 64,
-            updated_at=now,
-        )
-        cache_by_source[(source.source_kind, source.source_id)] = cache
-        return cache
-
-    materialize_mock = AsyncMock(side_effect=materialize)
+    materialize_mock = AsyncMock()
     with (
         patch(
             "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
@@ -382,7 +711,7 @@ async def test_pending_personal_documents_remain_visible_until_metadata_is_ready
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_resources._document_cache_by_source",
-            new=AsyncMock(side_effect=cached_rows),
+            new=AsyncMock(return_value={}),
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_resources._materialize_personal_document_metadata",
@@ -414,22 +743,118 @@ async def test_pending_personal_documents_remain_visible_until_metadata_is_ready
 
     expected_ids = [uuid.UUID(int=index) for index in range(1, 5)]
     assert [item.id for item in first.items] == expected_ids
-    assert [item.metadata_state for item in first.items] == [
-        "ready",
-        "ready",
-        "pending",
-        "pending",
-    ]
-    assert all(not item.offline_available for item in first.items[2:])
-    assert first_headers.headers["x-gc-metadata-pending"] == "2"
+    assert all(item.metadata_state == "pending" for item in first.items)
+    assert all(not item.offline_available for item in first.items)
+    assert first_headers.headers["x-gc-metadata-pending"] == "4"
     assert first.next_cursor is None
 
     assert [item.id for item in second.items] == expected_ids
-    assert all(item.metadata_state == "ready" for item in second.items)
-    assert all(item.offline_available for item in second.items)
-    assert second_headers.headers["x-gc-metadata-pending"] == "0"
+    assert all(item.metadata_state == "pending" for item in second.items)
+    assert all(not item.offline_available for item in second.items)
+    assert second_headers.headers["x-gc-metadata-pending"] == "4"
     assert second.next_cursor is None
-    assert materialize_mock.await_count == 4
+    materialize_mock.assert_not_awaited()
+
+
+def _personal_pdf_source(*, size_seed: int = 1) -> _MobileDocumentSource:
+    return _MobileDocumentSource(
+        document_id=uuid.UUID(int=size_seed),
+        scope="personal",
+        category="visa",
+        display_name="Visa",
+        safe_filename="visa.pdf",
+        content_type="application/pdf",
+        storage_key=f"private/visa-{size_seed}.pdf",
+        source_kind="distributed",
+        source_id=uuid.UUID(int=size_seed),
+        source_updated_at=datetime.now(tz=UTC),
+        passenger_identity_id=uuid.uuid4(),
+        passenger_submission_id=uuid.uuid4(),
+    )
+
+
+@pytest.mark.asyncio
+async def test_personal_integrity_stored_checksum_avoids_full_body_hash() -> None:
+    source = _personal_pdf_source()
+    storage = MagicMock()
+    storage.stat_file = AsyncMock(
+        return_value=ObjectIntegrityMetadata(
+            size_bytes=4096,
+            checksum_sha256="a" * 64,
+            content_type="application/pdf",
+        )
+    )
+    storage.get_file_range = AsyncMock(return_value=b"%PDF-1.7\nheader")
+    storage.calculate_file_sha256 = AsyncMock()
+    storage.get_file = AsyncMock()
+
+    with patch(
+        "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+        return_value=storage,
+    ):
+        size, checksum = await _personal_document_source_integrity(source)
+
+    assert size == 4096
+    assert checksum == "a" * 64
+    storage.stat_file.assert_awaited_once_with(source.storage_key)
+    storage.get_file_range.assert_awaited_once_with(source.storage_key, start=0, end=15)
+    storage.calculate_file_sha256.assert_not_awaited()
+    storage.get_file.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_personal_integrity_legacy_source_uses_bounded_hash_primitive() -> None:
+    source = _personal_pdf_source(size_seed=2)
+    storage = MagicMock()
+    storage.stat_file = AsyncMock(
+        return_value=ObjectIntegrityMetadata(
+            size_bytes=8192,
+            checksum_sha256=None,
+            content_type="application/pdf",
+        )
+    )
+    storage.get_file_range = AsyncMock(return_value=b"%PDF-1.7\nheader")
+    storage.calculate_file_sha256 = AsyncMock(return_value="b" * 64)
+
+    with patch(
+        "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+        return_value=storage,
+    ):
+        size, checksum = await _personal_document_source_integrity(source)
+
+    assert (size, checksum) == (8192, "b" * 64)
+    storage.calculate_file_sha256.assert_awaited_once_with(
+        source.storage_key,
+        expected_bytes=8192,
+    )
+
+
+@pytest.mark.asyncio
+async def test_personal_integrity_rejects_oversize_before_body_read() -> None:
+    source = _personal_pdf_source(size_seed=3)
+    storage = MagicMock()
+    storage.stat_file = AsyncMock(
+        return_value=ObjectIntegrityMetadata(
+            size_bytes=10**12,
+            checksum_sha256="c" * 64,
+            content_type="application/pdf",
+        )
+    )
+    storage.get_file_range = AsyncMock()
+    storage.calculate_file_sha256 = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MinioStorageRepository",
+            return_value=storage,
+        ),
+        pytest.raises(HTTPException) as caught,
+    ):
+        await _personal_document_source_integrity(source)
+
+    assert caught.value.status_code == 413
+    storage.get_file_range.assert_not_awaited()
+    storage.calculate_file_sha256.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -679,7 +1104,56 @@ async def test_passenger_trip_list_query_contains_all_fail_closed_gates() -> Non
     assert "gc_group_access.is_enabled IS true" in sql
     assert "gc_group_access.passenger_access_enabled IS true" in sql
     assert "mobile_passenger_identities.id" in sql
-    assert claims.principal_id.hex in sql
+    assert "mobile_passenger_session_identities.session_id" in sql
+    assert claims.session_id.hex in sql
+    assert "mobile_passenger_session_identities.agency_id" in sql
+    assert "mobile_passenger_identities.claim_generation = " in sql
+    assert "mobile_passenger_session_identities.identity_claim_generation" in sql
     assert "mobile_passenger_identities.revoked_at IS NULL" in sql
     assert "gc_group_access.access_starts_at" in sql
     assert "gc_group_access.access_expires_at" in sql
+
+
+@pytest.mark.asyncio
+async def test_passenger_trip_list_returns_every_live_identity_authorized_for_session() -> None:
+    claims = _claims()
+
+    def access() -> SimpleNamespace:
+        return SimpleNamespace(
+            access_generation=2,
+            itinerary_version=3,
+            common_document_version=4,
+            announcement_version=5,
+        )
+
+    first_group = SimpleNamespace(
+        id=uuid.uuid4(),
+        name="First trip",
+        destination="Vietnam",
+        travel_date=date(2026, 8, 10),
+        return_date=date(2026, 8, 15),
+    )
+    second_group = SimpleNamespace(
+        id=uuid.uuid4(),
+        name="Second trip",
+        destination="Thailand",
+        travel_date=date(2026, 9, 10),
+        return_date=date(2026, 9, 15),
+    )
+    result = MagicMock()
+    result.all.return_value = [
+        (access(), first_group, uuid.uuid4()),
+        (access(), second_group, uuid.uuid4()),
+    ]
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=result)
+
+    response = await list_mobile_trips(
+        cursor=None,
+        limit=25,
+        claims=claims,
+        session=session,
+    )
+
+    assert [item.id for item in response.items] == [first_group.id, second_group.id]
+    assert all(item.role == "passenger" for item in response.items)

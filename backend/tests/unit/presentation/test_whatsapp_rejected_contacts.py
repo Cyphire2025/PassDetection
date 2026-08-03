@@ -14,6 +14,7 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastRecipientModel,
     WhatsAppBroadcastRejectedContactModel,
 )
+from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     _WHATSAPP_CONTACT_REJECTION_REASONS,
     WhatsAppRejectedContactResolveRequest,
@@ -24,6 +25,15 @@ from app.presentation.api.v1.routes.whatsapp import (
     list_broadcast_rejected_contacts,
     resolve_broadcast_rejected_contact,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        whatsapp_routes,
+        "reconcile_mobile_passenger_access_for_broadcast",
+        AsyncMock(),
+    )
 
 
 def _rejected_json(*, source_file_name: str = "Saigon Sheet.xlsx") -> str:
@@ -256,6 +266,7 @@ async def test_rejected_contact_list_is_paginated_and_agency_scoped() -> None:
         limit=25,
         offset=0,
         current_user=SimpleNamespace(
+            id=uuid.uuid4(),
             role=UserRole.AGENCY_ADMIN,
             agency_id=agency_id,
         ),
@@ -346,6 +357,7 @@ async def test_corrected_rejected_contact_becomes_unsent_valid_recipient() -> No
                 recipient_opt_in_confirmed=True,
             ),
             current_user=SimpleNamespace(
+                id=uuid.uuid4(),
                 role=UserRole.SUPER_ADMIN,
                 agency_id=None,
             ),

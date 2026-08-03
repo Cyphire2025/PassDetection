@@ -59,6 +59,12 @@ class MobileClaimVerifyRequest(BaseModel):
     device: MobileDeviceInput
 
 
+class MobilePassengerTripSwitchRequest(BaseModel):
+    """Select one group from the identities proven for the live session."""
+
+    group_id: uuid.UUID
+
+
 class MobileCredentialLoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=256)
@@ -87,8 +93,14 @@ class MobilePasswordChangeRequest(BaseModel):
 
 class MobilePrincipalResponse(BaseModel):
     id: uuid.UUID
+    account_id: uuid.UUID
     principal_type: Literal["passenger", "client_manager", "coordinator"]
     agency_id: uuid.UUID
+    # The authoritative travel/passenger record selected by this mobile
+    # identity.  This is intentionally distinct from ``id``: passenger
+    # principals are mobile identity records, while personal resources are
+    # owned by the underlying passenger submission.
+    passenger_id: uuid.UUID | None = None
     display_name: str
     email: str | None = None
     phone_number: str | None = None
@@ -296,6 +308,14 @@ class MobilePersonalDocumentPageResponse(BaseModel):
 class MobileDocumentAuthorizationResponse(BaseModel):
     document_id: uuid.UUID
     version: int = Field(ge=1)
+    size_bytes: int = Field(gt=0, le=25 * 1024 * 1024)
+    checksum_sha256: str = Field(pattern=r"^[0-9a-fA-F]{64}$")
+    content_type: Literal[
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+    ]
     content_path: str = Field(pattern=r"^/api/v1/mobile/")
     download_token: str = Field(min_length=32, max_length=4096)
     expires_at: datetime
@@ -355,6 +375,76 @@ class MobileCoordinatorPassengerResponse(BaseModel):
     room_number: str | None = None
     meal_preference: str | None = None
     has_alert: bool = False
+
+
+class MobileCoordinatorOperationalDetail(BaseModel):
+    """One bounded, display-safe imported or configured passenger attribute."""
+
+    key: str = Field(min_length=1, max_length=160)
+    label: str = Field(min_length=1, max_length=120)
+    value: str = Field(min_length=1, max_length=2048)
+    source: Literal["imported", "custom_question", "custom_detail"]
+
+
+class MobileCoordinatorPassengerDetailResponse(BaseModel):
+    """Permission-minimized operational projection for one assigned passenger.
+
+    This deliberately excludes passport numbers, MRZ data, document storage
+    locations, extraction confidence, and internal dashboard notes.  Mobile
+    clients must never receive an unreviewed ORM/JSON projection.
+    """
+
+    id: uuid.UUID
+    display_name: str = Field(min_length=1, max_length=255)
+    employee_code: str | None = Field(default=None, max_length=120)
+    employee_type: str | None = Field(default=None, max_length=120)
+    staff_code: str | None = Field(default=None, max_length=120)
+    base_city: str | None = Field(default=None, max_length=120)
+    agency_dealership_name: str | None = Field(default=None, max_length=200)
+    zone_name: str | None = Field(default=None, max_length=120)
+    attendance_status: Literal["not_marked", "present", "missing", "excused"]
+    has_alert: bool = False
+    phone_number: str | None = Field(default=None, max_length=32)
+    email: str | None = Field(default=None, max_length=255)
+    departure_city: str | None = Field(default=None, max_length=120)
+    nearest_domestic_airport: str | None = Field(default=None, max_length=120)
+    designation: str | None = Field(default=None, max_length=160)
+    department: str | None = Field(default=None, max_length=160)
+    gender: str | None = Field(default=None, max_length=40)
+    date_of_birth: date | None = None
+    nationality: str | None = Field(default=None, max_length=80)
+    passport_surname: str | None = Field(default=None, max_length=160)
+    passport_given_names: str | None = Field(default=None, max_length=255)
+    passport_place_of_issue: str | None = Field(default=None, max_length=160)
+    passport_issuing_country: str | None = Field(default=None, max_length=120)
+    passport_date_of_issue: date | None = None
+    passport_date_of_expiry: date | None = None
+    hotel_name: str | None = Field(default=None, max_length=255)
+    room_number: str | None = Field(default=None, max_length=80)
+    roommate_summary: str | None = Field(default=None, max_length=500)
+    meal_preference: str | None = Field(default=None, max_length=255)
+    family_relation: str | None = Field(default=None, max_length=80)
+    family_head_name: str | None = Field(default=None, max_length=255)
+    family_head_phone: str | None = Field(default=None, max_length=32)
+    family_head_email: str | None = Field(default=None, max_length=255)
+    qualifier_relation: str | None = Field(default=None, max_length=80)
+    emergency_contact_name: str | None = Field(default=None, max_length=255)
+    emergency_contact_phone: str | None = Field(default=None, max_length=64)
+    emergency_contact_relation: str | None = Field(default=None, max_length=120)
+    operational_remarks: str | None = Field(default=None, max_length=2048)
+    submission_mode: Literal["single", "family"]
+    submission_status: str = Field(min_length=1, max_length=40)
+    passport_status: Literal["available", "not_available"]
+    visa_status: Literal["available", "not_available"]
+    flight_ticket_status: Literal["available", "not_available"]
+    insurance_status: Literal["available", "not_available"]
+    hotel_voucher_status: Literal["available", "not_available"]
+    other_document_status: Literal["available", "not_available"]
+    additional_details: list[MobileCoordinatorOperationalDetail] = Field(
+        default_factory=list,
+        max_length=300,
+    )
+    updated_at: datetime
 
 
 class MobileCoordinatorRosterResponse(BaseModel):

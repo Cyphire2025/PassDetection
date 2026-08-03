@@ -1,14 +1,20 @@
-"""Login lockout using Redis with a local development fallback."""
+"""Login lockout using Redis with an explicit non-production fallback."""
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import time
 from collections import defaultdict
 
 from redis.asyncio import Redis
 
 from app.core.config.settings import get_settings
-from app.domain.exceptions.exceptions import AuthenticationError
+from app.core.logging.logger import get_logger
+from app.domain.exceptions.exceptions import AuthenticationError, DependencyUnavailableError
+from app.infrastructure.security.redis_atomic_counter import increment_with_ttl_atomic
+
+logger = get_logger(__name__)
 
 
 class LoginAttemptLimiter:
@@ -18,11 +24,14 @@ class LoginAttemptLimiter:
     def __init__(self) -> None:
         self._settings = get_settings()
         self._jwt = self._settings.jwt
+        self._key_secret = self._settings.app_secret_key.encode("utf-8")
         self._redis: Redis | None = None
         try:
-            self._redis = Redis.from_url(self._settings.redis.url, encoding="utf-8", decode_responses=True)
-        except Exception:
-            self._redis = None
+            self._redis = Redis.from_url(
+                self._settings.redis.url, encoding="utf-8", decode_responses=True
+            )
+        except Exception as exc:
+            self._handle_redis_failure("configure", exc)
 
     async def check_allowed(self, *, email: str, ip_address: str | None) -> None:
         key = self._key(email, ip_address)
@@ -33,8 +42,8 @@ class LoginAttemptLimiter:
                 return
             except AuthenticationError:
                 raise
-            except Exception:
-                self._redis = None
+            except Exception as exc:
+                self._handle_redis_failure("check", exc)
 
         if self._local_locks.get(key, 0) > time.time():
             raise AuthenticationError("Too many failed login attempts. Try again later.")
@@ -43,14 +52,16 @@ class LoginAttemptLimiter:
         key = self._key(email, ip_address)
         if self._redis is not None:
             try:
-                count = await self._redis.incr(f"{key}:count")
-                if count == 1:
-                    await self._redis.expire(f"{key}:count", self._jwt.login_lockout_window_seconds)
+                count = await increment_with_ttl_atomic(
+                    self._redis,
+                    key=f"{key}:count",
+                    ttl_seconds=self._jwt.login_lockout_window_seconds,
+                )
                 if int(count) >= self._jwt.login_lockout_max_attempts:
                     await self._redis.setex(f"{key}:locked", self._jwt.login_lockout_seconds, "1")
                 return
-            except Exception:
-                self._redis = None
+            except Exception as exc:
+                self._handle_redis_failure("record_failure", exc)
 
         now = time.time()
         count, expires_at = self._local_counts[key]
@@ -68,13 +79,29 @@ class LoginAttemptLimiter:
             try:
                 await self._redis.delete(f"{key}:count", f"{key}:locked")
                 return
-            except Exception:
-                self._redis = None
+            except Exception as exc:
+                self._handle_redis_failure("record_success", exc)
         self._local_counts.pop(key, None)
         self._local_locks.pop(key, None)
 
-    @staticmethod
-    def _key(email: str, ip_address: str | None) -> str:
+    def _handle_redis_failure(self, operation: str, exc: Exception) -> None:
+        self._redis = None
+        logger.warning(
+            "login_lockout_redis_unavailable",
+            operation=operation,
+            error_type=type(exc).__name__,
+        )
+        if self._settings.login_lockout_require_redis:
+            raise DependencyUnavailableError(
+                "Authentication is temporarily unavailable. Please try again shortly."
+            ) from exc
+
+    def _key(self, email: str, ip_address: str | None) -> str:
         normalized_email = email.lower().strip()
         ip = ip_address or "unknown"
-        return f"login-attempt:{normalized_email}:{ip}"
+        digest = hmac.new(
+            self._key_secret,
+            f"login-lockout\0{normalized_email}\0{ip}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return f"login-attempt:v2:{digest}"

@@ -11,10 +11,13 @@ from app.application.mobile.notification_service import (
     _announcement_notification,
     dispatch_mobile_push_batch,
     enqueue_announcement_notifications,
+    enqueue_personal_document_change_notifications,
+    reconcile_mobile_push_receipts,
 )
 from app.application.mobile.push_provider import (
     DisabledMobilePushProvider,
     MobilePushMessage,
+    MobilePushReceipt,
     MobilePushTicket,
 )
 from app.core.security.mobile_push_crypto import mobile_push_fernet
@@ -26,6 +29,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobileNotificationModel,
     MobilePassengerIdentityModel,
+    MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
 from app.infrastructure.database.models import CoordinatorGroupAssignmentModel, UserModel
@@ -63,6 +67,76 @@ def _announcement(access: GCGroupAccessModel) -> GCAnnouncementModel:
         client_manager_visible=True,
         coordinator_visible=True,
     )
+
+
+async def _persist_push_target(
+    db_session: AsyncSession,
+    *,
+    now: datetime,
+) -> tuple[
+    MobilePushRegistrationModel,
+    MobileNotificationModel,
+]:
+    access = _access()
+    announcement = _announcement(access)
+    passenger = MobilePassengerIdentityModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        gc_group_access_id=access.id,
+        passenger_submission_id=uuid.uuid4(),
+        normalized_phone_number="+919999999984",
+        phone_lookup_hash=uuid.uuid4().hex * 2,
+        status="claimed",
+        claimed_at=now,
+    )
+    device_session = MobileDeviceSessionModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        subject_role="passenger",
+        user_id=None,
+        account_id=passenger.id,
+        passenger_identity_id=passenger.id,
+        passenger_subject_hash=uuid.uuid4().hex * 2,
+        selected_gc_group_access_id=access.id,
+        selected_group_id=access.group_id,
+        device_identifier_hash=uuid.uuid4().hex * 2,
+        platform="android",
+        app_version="1.0.0",
+        status="active",
+        session_generation=0,
+        refresh_family_id=uuid.uuid4(),
+        expires_at=now + timedelta(days=1),
+    )
+    registration = MobilePushRegistrationModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        session_id=device_session.id,
+        provider="expo",
+        platform="android",
+        environment="development",
+        app_bundle_id="com.globalconnects.groupcompanion",
+        token_ciphertext=mobile_push_fernet().encrypt(
+            b"ExponentPushToken[receipt-test-token]"
+        ),
+        token_lookup_hash=uuid.uuid4().hex * 2,
+        token_key_version=1,
+        status="active",
+        notifications_authorized=True,
+    )
+    notification = _announcement_notification(
+        recipient_id=passenger.id,
+        recipient_type="passenger",
+        access=access,
+        announcement=announcement,
+        available_at=now,
+        expires_at=None,
+    )
+    db_session.add_all(
+        [access, announcement, passenger, device_session, registration, notification]
+    )
+    await db_session.flush()
+    return registration, notification
 
 
 def test_announcement_notification_keeps_content_off_lock_screen() -> None:
@@ -228,6 +302,37 @@ async def test_announcement_producer_targets_only_explicit_role_grants(
         row.recipient_passenger_identity_id for row in rows
     }
 
+    document_counts = await enqueue_personal_document_change_notifications(
+        db_session,
+        access=access,
+        passenger_identity_ids=[passenger.id],
+        operation="upsert",
+        dedupe_token="document-worker-batch:1",
+    )
+    document_rows = list(
+        (
+            await db_session.execute(
+                select(MobileNotificationModel).where(
+                    MobileNotificationModel.notification_type
+                    == "personal_document_changed"
+                )
+            )
+        ).scalars()
+    )
+
+    assert document_counts.passengers == 1
+    assert document_counts.client_managers == 1
+    assert document_counts.coordinators == 1
+    assert {
+        row.recipient_type: row.public_payload["route"] for row in document_rows
+    } == {
+        "passenger": "documents",
+        "client_manager": "readiness",
+        "coordinator": "passengers",
+    }
+    assert all(row.lock_screen_body is None for row in document_rows)
+    assert all(row.contains_sensitive_content is True for row in document_rows)
+
 
 @pytest.mark.asyncio
 async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
@@ -252,6 +357,7 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
         agency_id=access.agency_id,
         subject_role="passenger",
         user_id=None,
+        account_id=passenger.id,
         passenger_identity_id=passenger.id,
         passenger_subject_hash="5" * 64,
         selected_gc_group_access_id=access.id,
@@ -307,6 +413,7 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
                     notification_id=message.notification_id,
                     accepted=True,
                     retryable=False,
+                    provider_ticket_id=f"ticket-{message.notification_id}",
                 )
                 for message in messages
             ]
@@ -324,9 +431,393 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
     assert provider.messages[0].token == push_token
     assert provider.messages[0].body is None
     assert set(provider.messages[0].data) == {"route", "trip_id", "event_id"}
+    assert notification.status == "queued"
+    assert notification.sent_at is None
+    assert notification.available_at == now
+    assert registration.last_success_at is None
+    delivery = (
+        await db_session.execute(select(MobilePushDeliveryModel))
+    ).scalar_one()
+    assert delivery.status == "receipt_pending"
+    assert delivery.provider_ticket_id == f"ticket-{notification.id}"
+    assert delivery.send_attempts == 1
+
+
+@pytest.mark.asyncio
+async def test_receipt_confirmation_marks_notification_sent_once(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    registration, notification = await _persist_push_target(db_session, now=now)
+    delivery = MobilePushDeliveryModel(
+        id=uuid.uuid4(),
+        agency_id=notification.agency_id,
+        notification_id=notification.id,
+        registration_id=registration.id,
+        provider="expo",
+        provider_ticket_id="ticket-confirmed",
+        status="receipt_pending",
+        send_attempts=1,
+        receipt_attempts=0,
+        next_attempt_at=now,
+        submitted_at=now - timedelta(minutes=15),
+    )
+    db_session.add(delivery)
+    await db_session.flush()
+
+    class ReceiptProvider:
+        name = "expo"
+        enabled = True
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            raise AssertionError(messages)
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            return [
+                MobilePushReceipt(
+                    provider_ticket_id=item,
+                    delivered=True,
+                    retryable=False,
+                )
+                for item in provider_ticket_ids
+            ]
+
+    provider = ReceiptProvider()
+    confirmed = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now,
+    )
+    confirmed_again = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now + timedelta(minutes=1),
+    )
+
+    assert confirmed == 1
+    assert confirmed_again == 0
+    assert delivery.status == "delivered"
+    assert delivery.delivered_at == now
     assert notification.status == "sent"
-    assert notification.sent_at is not None
-    assert registration.last_success_at is not None
+    assert notification.sent_at == now
+    assert registration.last_success_at == now
+
+
+@pytest.mark.asyncio
+async def test_send_retry_reuses_one_delivery_row_and_respects_due_time(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    _registration, notification = await _persist_push_target(db_session, now=now)
+
+    class RetryThenAcceptProvider:
+        name = "expo"
+        enabled = True
+
+        def __init__(self) -> None:
+            self.send_calls = 0
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            self.send_calls += 1
+            if self.send_calls == 1:
+                return [
+                    MobilePushTicket(
+                        registration_id=item.registration_id,
+                        notification_id=item.notification_id,
+                        accepted=False,
+                        retryable=True,
+                        error_code="provider_unavailable",
+                    )
+                    for item in messages
+                ]
+            return [
+                MobilePushTicket(
+                    registration_id=item.registration_id,
+                    notification_id=item.notification_id,
+                    accepted=True,
+                    retryable=False,
+                    provider_ticket_id="ticket-after-retry",
+                )
+                for item in messages
+            ]
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            raise AssertionError(provider_ticket_ids)
+
+    provider = RetryThenAcceptProvider()
+    first = await dispatch_mobile_push_batch(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now,
+        retry_base_seconds=5,
+    )
+    too_early = await dispatch_mobile_push_batch(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now + timedelta(seconds=1),
+        retry_base_seconds=5,
+    )
+    second = await dispatch_mobile_push_batch(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now + timedelta(seconds=5),
+        retry_base_seconds=5,
+    )
+    deliveries = list(
+        (await db_session.execute(select(MobilePushDeliveryModel))).scalars()
+    )
+
+    assert first == 0
+    assert too_early == 0
+    assert second == 1
+    assert provider.send_calls == 2
+    assert len(deliveries) == 1
+    assert deliveries[0].send_attempts == 2
+    assert deliveries[0].status == "receipt_pending"
+    assert deliveries[0].provider_ticket_id == "ticket-after-retry"
+    assert notification.status == "queued"
+
+
+@pytest.mark.asyncio
+async def test_receipt_device_not_registered_revokes_registration(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    registration, notification = await _persist_push_target(db_session, now=now)
+    delivery = MobilePushDeliveryModel(
+        id=uuid.uuid4(),
+        agency_id=notification.agency_id,
+        notification_id=notification.id,
+        registration_id=registration.id,
+        provider="expo",
+        provider_ticket_id="ticket-revoked",
+        status="receipt_pending",
+        send_attempts=1,
+        receipt_attempts=0,
+        next_attempt_at=now,
+        submitted_at=now - timedelta(minutes=15),
+    )
+    db_session.add(delivery)
+    await db_session.flush()
+
+    class RevokedProvider:
+        name = "expo"
+        enabled = True
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            raise AssertionError(messages)
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            return [
+                MobilePushReceipt(
+                    provider_ticket_id=item,
+                    delivered=False,
+                    retryable=False,
+                    error_code="DeviceNotRegistered",
+                )
+                for item in provider_ticket_ids
+            ]
+
+    confirmed = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=RevokedProvider(),
+        limit=100,
+        now=now,
+    )
+
+    assert confirmed == 0
+    assert delivery.status == "failed"
+    assert delivery.last_error_code == "DeviceNotRegistered"
+    assert notification.status == "failed"
+    assert registration.status == "revoked"
+    assert registration.notifications_authorized is False
+    assert registration.revoked_at == now
+
+
+@pytest.mark.asyncio
+async def test_receipt_reconciliation_fails_closed_on_tenant_scope_mismatch(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    registration, notification = await _persist_push_target(db_session, now=now)
+    delivery = MobilePushDeliveryModel(
+        id=uuid.uuid4(),
+        agency_id=uuid.uuid4(),
+        notification_id=notification.id,
+        registration_id=registration.id,
+        provider="expo",
+        provider_ticket_id="ticket-wrong-tenant",
+        status="receipt_pending",
+        send_attempts=1,
+        receipt_attempts=0,
+        next_attempt_at=now,
+        submitted_at=now - timedelta(minutes=15),
+    )
+    db_session.add(delivery)
+    await db_session.flush()
+
+    class NeverCalledProvider:
+        name = "expo"
+        enabled = True
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            raise AssertionError(messages)
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            raise AssertionError(provider_ticket_ids)
+
+    confirmed = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=NeverCalledProvider(),
+        limit=100,
+        now=now,
+    )
+
+    assert confirmed == 0
+    assert delivery.status == "failed"
+    assert delivery.last_error_code == "tenant_scope_mismatch"
+    assert notification.status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_missing_receipt_retries_with_backoff_then_fails_bounded(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    registration, notification = await _persist_push_target(db_session, now=now)
+    delivery = MobilePushDeliveryModel(
+        id=uuid.uuid4(),
+        agency_id=notification.agency_id,
+        notification_id=notification.id,
+        registration_id=registration.id,
+        provider="expo",
+        provider_ticket_id="ticket-late",
+        status="receipt_pending",
+        send_attempts=1,
+        receipt_attempts=0,
+        next_attempt_at=now,
+        submitted_at=now - timedelta(minutes=15),
+    )
+    db_session.add(delivery)
+    await db_session.flush()
+
+    class MissingReceiptProvider:
+        name = "expo"
+        enabled = True
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            raise AssertionError(messages)
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            del provider_ticket_ids
+            return []
+
+    provider = MissingReceiptProvider()
+    first = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now,
+        max_attempts=2,
+        retry_base_seconds=60,
+    )
+
+    assert first == 0
+    assert delivery.status == "receipt_pending"
+    assert delivery.receipt_attempts == 1
+    assert delivery.next_attempt_at == now + timedelta(seconds=60)
+    assert notification.status == "queued"
+
+    second = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now + timedelta(seconds=60),
+        max_attempts=2,
+        retry_base_seconds=60,
+    )
+
+    assert second == 0
+    assert delivery.status == "failed"
+    assert delivery.receipt_attempts == 2
+    assert delivery.last_error_code == "provider_missing_receipt_response"
+    assert notification.status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_receipt_is_not_polled_after_provider_retention_window(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    registration, notification = await _persist_push_target(db_session, now=now)
+    delivery = MobilePushDeliveryModel(
+        id=uuid.uuid4(),
+        agency_id=notification.agency_id,
+        notification_id=notification.id,
+        registration_id=registration.id,
+        provider="expo",
+        provider_ticket_id="ticket-expired",
+        status="receipt_pending",
+        send_attempts=1,
+        receipt_attempts=0,
+        next_attempt_at=now,
+        submitted_at=now - timedelta(hours=23),
+    )
+    db_session.add(delivery)
+    await db_session.flush()
+
+    class NeverCalledProvider:
+        name = "expo"
+        enabled = True
+
+        async def send(
+            self, messages: list[MobilePushMessage]
+        ) -> list[MobilePushTicket]:
+            raise AssertionError(messages)
+
+        async def get_receipts(
+            self, provider_ticket_ids: list[str]
+        ) -> list[MobilePushReceipt]:
+            raise AssertionError(provider_ticket_ids)
+
+    confirmed = await reconcile_mobile_push_receipts(
+        db_session,
+        provider=NeverCalledProvider(),
+        limit=100,
+        now=now,
+        max_age=timedelta(hours=23),
+    )
+
+    assert confirmed == 0
+    assert delivery.status == "failed"
+    assert delivery.last_error_code == "receipt_expired"
+    assert notification.status == "failed"
+    assert registration.last_failure_code == "receipt_expired"
 
 
 @pytest.mark.asyncio

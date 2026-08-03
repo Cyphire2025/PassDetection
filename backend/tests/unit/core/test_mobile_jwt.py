@@ -4,11 +4,23 @@ import uuid
 from dataclasses import replace
 from types import SimpleNamespace
 
+import jwt
 import pytest
-from jose import jwt
 
 from app.core.security import mobile_jwt
 from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
+
+
+def _unverified_claims(token: str) -> dict[str, object]:
+    return jwt.decode(
+        token,
+        options={
+            "verify_signature": False,
+            "verify_exp": False,
+            "verify_aud": False,
+            "verify_iss": False,
+        },
+    )
 
 
 def _settings() -> SimpleNamespace:
@@ -31,11 +43,13 @@ def test_mobile_access_token_has_separate_type_and_restriction(monkeypatch: pyte
     settings = _settings()
     monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
     principal_id = uuid.uuid4()
+    account_id = uuid.uuid4()
     agency_id = uuid.uuid4()
     session_id = uuid.uuid4()
 
     token, expires_at = mobile_jwt.create_mobile_access_token(
         principal_id=principal_id,
+        account_id=account_id,
         principal_type="client_manager",
         agency_id=agency_id,
         session_id=session_id,
@@ -45,12 +59,13 @@ def test_mobile_access_token_has_separate_type_and_restriction(monkeypatch: pyte
 
     claims = mobile_jwt.decode_mobile_access_token(token)
     assert claims.principal_id == principal_id
+    assert claims.account_id == account_id
     assert claims.agency_id == agency_id
     assert claims.session_id == session_id
     assert claims.session_generation == 3
     assert claims.password_change_required is True
     assert claims.expires_at == expires_at
-    unverified = jwt.get_unverified_claims(token)
+    unverified = _unverified_claims(token)
     assert unverified["type"] == "mobile_access"
     assert unverified["aud"] == "gc-mobile-test"
 
@@ -71,6 +86,32 @@ def test_mobile_decoder_rejects_wrong_audience(monkeypatch: pytest.MonkeyPatch) 
         mobile_jwt.decode_mobile_access_token(token)
 
 
+def test_mobile_decoder_preserves_pre_account_namespace_tokens(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = _settings()
+    monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
+    principal_id = uuid.uuid4()
+    token, _ = mobile_jwt.create_mobile_access_token(
+        principal_id=principal_id,
+        principal_type="passenger",
+        agency_id=uuid.uuid4(),
+        session_id=uuid.uuid4(),
+        session_generation=1,
+    )
+    payload = _unverified_claims(token)
+    payload.pop("aid")
+    legacy_token = jwt.encode(
+        payload,
+        mobile_jwt._mobile_secret(purpose="access"),
+        algorithm="HS256",
+    )
+
+    claims = mobile_jwt.decode_mobile_access_token(legacy_token)
+
+    assert claims.account_id == principal_id
+
+
 def test_refresh_token_is_opaque_and_only_hash_is_stable(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = _settings()
     monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
@@ -89,6 +130,7 @@ def test_document_grant_is_short_lived_and_bound_to_live_context(
     monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
     claims = mobile_jwt.MobileAccessClaims(
         principal_id=uuid.uuid4(),
+        account_id=uuid.uuid4(),
         principal_type="passenger",
         agency_id=uuid.uuid4(),
         session_id=uuid.uuid4(),
@@ -144,6 +186,7 @@ def test_document_grant_rejects_context_swapping(
     monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
     claims = mobile_jwt.MobileAccessClaims(
         principal_id=uuid.uuid4(),
+        account_id=uuid.uuid4(),
         principal_type="passenger",
         agency_id=uuid.uuid4(),
         session_id=uuid.uuid4(),
@@ -181,6 +224,7 @@ def test_expired_document_grant_is_rejected(monkeypatch: pytest.MonkeyPatch) -> 
     monkeypatch.setattr(mobile_jwt, "get_settings", lambda: settings)
     claims = mobile_jwt.MobileAccessClaims(
         principal_id=uuid.uuid4(),
+        account_id=uuid.uuid4(),
         principal_type="passenger",
         agency_id=uuid.uuid4(),
         session_id=uuid.uuid4(),
@@ -198,7 +242,7 @@ def test_expired_document_grant_is_rejected(monkeypatch: pytest.MonkeyPatch) -> 
         document_scope="personal",
         passenger_identity_id=claims.principal_id,
     )
-    payload = jwt.get_unverified_claims(token)
+    payload = _unverified_claims(token)
     payload["exp"] = 1
     expired = jwt.encode(
         payload,

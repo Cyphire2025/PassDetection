@@ -89,6 +89,84 @@ def _constraint_signature(constraint: sa.Constraint) -> tuple[object, ...]:
     raise AssertionError(f"Unexpected constraint: {type(constraint).__name__}")
 
 
+def _foundation_constraint_signatures(
+    table_name: str,
+    model_constraints: set[tuple[object, ...]],
+) -> set[tuple[object, ...]]:
+    """Project the current ORM back to the 0069 foundation boundary.
+
+    Migration 0071 intentionally strengthens passenger ownership constraints;
+    this test still verifies the immutable 0069 migration while the dedicated
+    0071 contract test verifies the final model.
+    """
+
+    projected = set(model_constraints)
+    if table_name == "mobile_passenger_identities":
+        projected.discard((
+            "unique",
+            "uq_mobile_passenger_identity_document_scope",
+            ("id", "gc_group_access_id", "agency_id", "group_id", "passenger_submission_id"),
+        ))
+        projected.discard((
+            "foreign_key",
+            "fk_mobile_passenger_identity_submission_scope",
+            ("passenger_submission_id", "agency_id", "group_id"),
+            (
+                "passport_submissions.id",
+                "passport_submissions.agency_id",
+                "passport_submissions.group_id",
+            ),
+            "CASCADE",
+        ))
+        projected.add((
+            "foreign_key",
+            None,
+            ("passenger_submission_id",),
+            ("passport_submissions.id",),
+            "CASCADE",
+        ))
+    if table_name == "mobile_document_metadata_cache":
+        projected.discard((
+            "foreign_key",
+            "fk_mobile_document_cache_identity",
+            (
+                "passenger_identity_id",
+                "gc_group_access_id",
+                "agency_id",
+                "group_id",
+                "passenger_submission_id",
+            ),
+            (
+                "mobile_passenger_identities.id",
+                "mobile_passenger_identities.gc_group_access_id",
+                "mobile_passenger_identities.agency_id",
+                "mobile_passenger_identities.group_id",
+                "mobile_passenger_identities.passenger_submission_id",
+            ),
+            "CASCADE",
+        ))
+        projected.add((
+            "foreign_key",
+            "fk_mobile_document_cache_identity",
+            ("passenger_identity_id", "gc_group_access_id", "agency_id", "group_id"),
+            (
+                "mobile_passenger_identities.id",
+                "mobile_passenger_identities.gc_group_access_id",
+                "mobile_passenger_identities.agency_id",
+                "mobile_passenger_identities.group_id",
+            ),
+            "CASCADE",
+        ))
+        projected.add((
+            "foreign_key",
+            None,
+            ("passenger_submission_id",),
+            ("passport_submissions.id",),
+            "CASCADE",
+        ))
+    return projected
+
+
 def test_gc_mobile_models_register_the_complete_schema() -> None:
     assert all(table_name in Base.metadata.tables for table_name in _TABLES)
 
@@ -140,7 +218,13 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
         migration_columns = {
             item.name: item for item in table_call.args[1:] if isinstance(item, sa.Column)
         }
-        assert set(migration_columns) == set(model_table.c.keys())
+        model_column_names = set(model_table.c.keys())
+        if table_name == "mobile_device_sessions":
+            # Added by later migrations; the immutable foundation migration must
+            # not be rewritten after production databases have applied it.
+            model_column_names.discard("account_id")
+            model_column_names.discard("last_sync_acknowledged_at")
+        assert set(migration_columns) == model_column_names
         for column_name, migration_column in migration_columns.items():
             model_column = model_table.c[column_name]
             assert _compiled_type(migration_column) == _compiled_type(model_column)
@@ -152,7 +236,10 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
             for item in table_call.args[1:]
             if isinstance(item, sa.Constraint)
         }
-        model_constraints = {_constraint_signature(item) for item in model_table.constraints}
+        model_constraints = _foundation_constraint_signatures(
+            table_name,
+            {_constraint_signature(item) for item in model_table.constraints},
+        )
         assert migration_constraints == model_constraints
 
     migration_indexes = {
@@ -168,6 +255,12 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
     model_indexes: dict[str, tuple[object, ...]] = {}
     for table_name in _TABLES:
         for index in Base.metadata.tables[table_name].indexes:
+            if index.name in {
+                "ix_mobile_session_account",
+                "ix_mobile_session_group_status_expiry",
+                "uq_mobile_otp_pending_phone",
+            }:
+                continue
             postgres_where = index.dialect_options["postgresql"].get("where")
             sqlite_where = index.dialect_options["sqlite"].get("where")
             assert index.name is not None

@@ -26,6 +26,7 @@ class OperationalEvent(str, Enum):
     VISA_PHOTO_REJECTION = "visa_photo_rejection"
     PASSPORT_SCANNER_REJECTION = "passport_scanner_rejection"
     PUBLIC_FLOW = "public_flow"
+    MOBILE_PUSH = "mobile_push"
 
 
 _ALLOWED_REASONS: dict[OperationalEvent, frozenset[str]] = {
@@ -135,6 +136,17 @@ _ALLOWED_REASONS: dict[OperationalEvent, frozenset[str]] = {
             "recovery_started",
             "recovery_succeeded",
             "recovery_missed",
+        }
+    ),
+    OperationalEvent.MOBILE_PUSH: frozenset(
+        {
+            "ticket_accepted",
+            "send_retry_scheduled",
+            "send_failed",
+            "receipt_delivered",
+            "receipt_retry_scheduled",
+            "receipt_failed",
+            "device_revoked",
         }
     ),
 }

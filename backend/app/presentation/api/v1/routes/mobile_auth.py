@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
 import hmac
 import secrets
+import time
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from sqlalchemy import select, update
+from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.otp_provider import OTPDeliveryError
@@ -35,6 +39,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobileOTPChallengeModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
     MobileRefreshTokenModel,
 )
 from app.infrastructure.database.models import (
@@ -63,13 +68,18 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileOTPRequestResponse,
     MobileOTPVerifyRequest,
     MobileOTPVerifyResponse,
+    MobilePassengerTripSwitchRequest,
     MobilePasswordChangeRequest,
     MobilePrincipalResponse,
     MobileRefreshRequest,
     MobileTokenResponse,
     MobileTripClaimSummary,
 )
-from app.presentation.dependencies.mobile_auth import get_current_mobile_claims
+from app.presentation.dependencies.mobile_auth import (
+    client_manager_profile_allows_password_session,
+    get_current_mobile_claims,
+)
+from app.presentation.security.client_ip import trusted_client_ip
 
 
 def _set_mobile_auth_no_store(response: Response) -> None:
@@ -79,6 +89,21 @@ def _set_mobile_auth_no_store(response: Response) -> None:
 
 router = APIRouter(dependencies=[Depends(_set_mobile_auth_no_store)])
 logger = get_logger(__name__)
+_OTP_NEUTRAL_RESPONSE_MIN_SECONDS = 0.65
+_OTP_NEUTRAL_RESPONSE_JITTER_MS = 150
+
+
+async def _complete_neutral_otp_timing(
+    started_at: float,
+    *,
+    jitter_ms: int,
+) -> None:
+    """Apply the same bounded response floor to eligible and neutral requests."""
+
+    target_seconds = _OTP_NEUTRAL_RESPONSE_MIN_SECONDS + (jitter_ms / 1000)
+    remaining = target_seconds - (time.monotonic() - started_at)
+    if remaining > 0:
+        await asyncio.sleep(remaining)
 
 
 @router.post(
@@ -91,6 +116,8 @@ async def request_passenger_otp(
     request: Request,
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileOTPRequestResponse:
+    started_at = time.monotonic()
+    timing_jitter_ms = secrets.randbelow(_OTP_NEUTRAL_RESPONSE_JITTER_MS + 1)
     _require_mobile_enabled()
     settings = get_settings().mobile
     normalized_phone = normalize_whatsapp_phone(body.phone_number)
@@ -119,19 +146,30 @@ async def request_passenger_otp(
             .where(
                 MobileOTPChallengeModel.phone_lookup_hash == phone_lookup_hash,
                 MobileOTPChallengeModel.status == "pending",
-                MobileOTPChallengeModel.expires_at > now,
-                MobileOTPChallengeModel.resend_available_at > now,
             )
             .order_by(MobileOTPChallengeModel.created_at.desc())
             .limit(1)
+            .with_for_update()
         )
     ).scalar_one_or_none()
-    if existing is not None:
+    if (
+        existing is not None
+        and existing.expires_at > now
+        and existing.resend_available_at > now
+    ):
+        await session.commit()
+        await _complete_neutral_otp_timing(
+            started_at,
+            jitter_ms=timing_jitter_ms,
+        )
         return MobileOTPRequestResponse(
             challenge_id=existing.id,
             expires_in_seconds=max(1, int((existing.expires_at - now).total_seconds())),
             resend_after_seconds=max(1, int((existing.resend_available_at - now).total_seconds())),
         )
+    if existing is not None:
+        existing.status = "expired" if existing.expires_at <= now else "cancelled"
+        existing.updated_at = now
 
     challenge_id = uuid.uuid4()
     configured_code = settings.otp_development_code
@@ -150,6 +188,76 @@ async def request_passenger_otp(
     else:
         eligible = []
     agencies = {identity.agency_id for identity, _access, _group in eligible}
+    challenge = MobileOTPChallengeModel(
+        id=challenge_id,
+        agency_id=next(iter(agencies)) if len(agencies) == 1 else None,
+        passenger_identity_id=eligible[0][0].id if len(eligible) == 1 else None,
+        subject_type="passenger",
+        purpose="login",
+        phone_lookup_hash=phone_lookup_hash,
+        challenge_token_hash=hash_mobile_lookup(
+            secrets.token_urlsafe(32), purpose="otp-challenge-token"
+        ),
+        code_hash=hash_mobile_otp_code(challenge_id, code),
+        provider=settings.otp_provider,
+        provider_reference=None,
+        status="pending",
+        attempt_count=0,
+        max_attempts=settings.otp_max_attempts,
+        resend_count=0,
+        max_resends=3,
+        resend_available_at=now + timedelta(seconds=settings.otp_resend_cooldown_seconds),
+        expires_at=now + timedelta(seconds=settings.otp_ttl_seconds),
+        request_ip_hash=_request_digest(request, "ip"),
+        user_agent_hash=_request_digest(request, "user-agent"),
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(challenge)
+    try:
+        await session.flush()
+        # The challenge and any just-in-time identity reconciliation are
+        # durable before an external provider can observe the send request.
+        await session.commit()
+    except IntegrityError:
+        # The partial unique index serializes concurrent requests even when
+        # both transactions initially observed no pending row.
+        await session.rollback()
+        winner = (
+            await session.execute(
+                select(MobileOTPChallengeModel)
+                .where(
+                    MobileOTPChallengeModel.phone_lookup_hash == phone_lookup_hash,
+                )
+                .order_by(MobileOTPChallengeModel.created_at.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if winner is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="OTP verification is temporarily unavailable",
+            )
+        await session.commit()
+        await _complete_neutral_otp_timing(
+            started_at,
+            jitter_ms=timing_jitter_ms,
+        )
+        return MobileOTPRequestResponse(
+            challenge_id=winner.id,
+            expires_in_seconds=max(
+                1, int((winner.expires_at - datetime.now(tz=UTC)).total_seconds())
+            ),
+            resend_after_seconds=max(
+                1,
+                int(
+                    (
+                        winner.resend_available_at - datetime.now(tz=UTC)
+                    ).total_seconds()
+                ),
+            ),
+        )
+
     provider_reference: str | None = None
     delivery_status = "not_attempted"
     provider_error_code: str | None = None
@@ -163,7 +271,6 @@ async def request_passenger_otp(
             delivery_status = "delivered"
         except OTPDeliveryError as exc:
             # The response remains neutral; logs/audit contain no phone or OTP.
-            provider_reference = None
             delivery_status = "unknown" if exc.delivery_unknown else "failed"
             provider_error_code = exc.code
             logger.warning(
@@ -172,45 +279,54 @@ async def request_passenger_otp(
                 error_code=provider_error_code,
                 delivery_unknown=exc.delivery_unknown,
             )
-    challenge = MobileOTPChallengeModel(
-        id=challenge_id,
-        agency_id=next(iter(agencies)) if len(agencies) == 1 else None,
-        passenger_identity_id=eligible[0][0].id if len(eligible) == 1 else None,
-        subject_type="passenger",
-        purpose="login",
-        phone_lookup_hash=phone_lookup_hash,
-        challenge_token_hash=hash_mobile_lookup(
-            secrets.token_urlsafe(32), purpose="otp-challenge-token"
-        ),
-        code_hash=hash_mobile_otp_code(challenge_id, code),
-        provider=settings.otp_provider,
-        provider_reference=provider_reference,
-        status="cancelled" if delivery_status == "failed" else "pending",
-        attempt_count=0,
-        max_attempts=settings.otp_max_attempts,
-        resend_count=0,
-        max_resends=3,
-        resend_available_at=now + timedelta(seconds=settings.otp_resend_cooldown_seconds),
-        expires_at=now + timedelta(seconds=settings.otp_ttl_seconds),
-        request_ip_hash=_request_digest(request, "ip"),
-        user_agent_hash=_request_digest(request, "user-agent"),
-        created_at=now,
-        updated_at=now,
-    )
-    session.add(challenge)
-    await session.flush()
-    await AuditLogRepository(session).record(
-        action="mobile.otp_requested",
-        entity_type="mobile_otp_challenge",
-        agency_id=challenge.agency_id,
-        entity_id=str(challenge.id),
-        ip_address=_client_ip(request),
-        metadata={
-            "provider": settings.otp_provider,
-            "delivery_status": delivery_status,
-            "provider_error_code": provider_error_code,
-            "eligible_identity_count": len(eligible),
-        },
+        except Exception as exc:
+            delivery_status = "unknown"
+            provider_error_code = "OTP_PROVIDER_UNEXPECTED"
+            logger.error(
+                "mobile_otp_delivery_failed",
+                provider=settings.otp_provider,
+                error_code=provider_error_code,
+                delivery_unknown=True,
+                error_type=type(exc).__name__,
+            )
+
+    challenge.provider_reference = provider_reference
+    if delivery_status == "failed":
+        challenge.status = "cancelled"
+    elif delivery_status == "unknown":
+        # An uncertain provider result may still arrive. Suppress resends for
+        # the full code lifetime so two usable codes are never in flight.
+        challenge.resend_available_at = challenge.expires_at
+    challenge.updated_at = datetime.now(tz=UTC)
+    try:
+        await AuditLogRepository(session).record(
+            action="mobile.otp_requested",
+            entity_type="mobile_otp_challenge",
+            agency_id=challenge.agency_id,
+            entity_id=str(challenge.id),
+            ip_address=_client_ip(request),
+            metadata={
+                "provider": settings.otp_provider,
+                "delivery_status": delivery_status,
+                "provider_error_code": provider_error_code,
+                "eligible_identity_count": len(eligible),
+            },
+        )
+        await session.commit()
+    except Exception:
+        # The committed challenge remains authoritative even if recording the
+        # provider outcome fails. Never turn that persistence issue into an
+        # account-enumeration signal or log phone/code material.
+        await session.rollback()
+        logger.error(
+            "mobile_otp_delivery_state_persistence_failed",
+            provider=settings.otp_provider,
+            challenge_id=str(challenge.id),
+        )
+
+    await _complete_neutral_otp_timing(
+        started_at,
+        jitter_ms=timing_jitter_ms,
     )
     return MobileOTPRequestResponse(
         challenge_id=challenge.id,
@@ -239,8 +355,9 @@ async def verify_passenger_otp(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired verification code",
         )
-    if len(eligible) == 1 and not eligible[0][0].requires_secondary_verification:
-        identity, access, _group = eligible[0]
+    directly_authorized = _direct_passenger_otp_rows(eligible)
+    if directly_authorized:
+        identity, access, _group = directly_authorized[0]
         challenge.status = "consumed"
         challenge.consumed_at = now
         challenge.passenger_identity_id = identity.id
@@ -248,6 +365,7 @@ async def verify_passenger_otp(
             session,
             identity=identity,
             access=access,
+            authorized_identities=[row[0] for row in directly_authorized],
             device=body.device,
             request=request,
         )
@@ -288,20 +406,28 @@ async def verify_passenger_claim(
             detail="Invalid or expired verification challenge",
         )
     eligible = await _eligible_passenger_identities(session, challenge.phone_lookup_hash)
-    matches = _matching_passenger_claims(
+    proven_matches = _matching_passenger_claims(
         eligible,
-        claim_id=body.claim_id,
+        claim_id=None,
         verification_value=body.verification_value,
     )
 
-    if len(matches) > 1 and body.claim_id is None:
+    if len(proven_matches) > 1 and body.claim_id is None:
         # Secondary proof succeeded. It is now safe to show only the matching
         # trip claims; selecting one repeats the same proof with claim_id.
         return MobileOTPVerifyResponse(
             status="claim_selection_required",
-            claims=[_claim_summary(identity, group) for identity, _access, group in matches],
+            claims=[
+                _claim_summary(identity, group)
+                for identity, _access, group in proven_matches
+            ],
         )
-    if len(matches) != 1:
+    selected_matches = (
+        [row for row in proven_matches if row[0].id == body.claim_id]
+        if body.claim_id is not None
+        else proven_matches
+    )
+    if len(selected_matches) != 1:
         challenge.attempt_count = min(challenge.max_attempts, challenge.attempt_count + 1)
         if challenge.attempt_count >= challenge.max_attempts:
             challenge.status = "locked"
@@ -313,7 +439,7 @@ async def verify_passenger_claim(
             detail="Passenger verification could not be completed",
         )
 
-    identity, access, _group = matches[0]
+    identity, access, _group = selected_matches[0]
     challenge.status = "consumed"
     challenge.consumed_at = now
     challenge.passenger_identity_id = identity.id
@@ -322,6 +448,11 @@ async def verify_passenger_claim(
         session,
         identity=identity,
         access=access,
+        authorized_identities=[
+            row[0]
+            for row in proven_matches
+            if row[0].agency_id == identity.agency_id
+        ],
         device=body.device,
         request=request,
     )
@@ -382,7 +513,7 @@ async def mobile_credential_login(
                 )
             )
         ).scalar_one_or_none()
-        if profile is None:
+        if profile is None or not client_manager_profile_allows_password_session(profile):
             await limiter.record_failure(email=email, ip_address=client_ip)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -528,22 +659,32 @@ async def refresh_mobile_session(
     _require_mobile_enabled()
     now = datetime.now(tz=UTC)
     token_hash = hash_mobile_refresh_token(body.refresh_token)
-    row = (
+    stored = (
         await session.execute(
-            select(MobileRefreshTokenModel, MobileDeviceSessionModel)
-            .join(
-                MobileDeviceSessionModel,
-                MobileDeviceSessionModel.id == MobileRefreshTokenModel.session_id,
-            )
+            select(MobileRefreshTokenModel)
             .where(MobileRefreshTokenModel.token_hash == token_hash)
-            .with_for_update(of=(MobileRefreshTokenModel, MobileDeviceSessionModel))
+            .with_for_update()
         )
-    ).first()
-    if row is None:
+    ).scalar_one_or_none()
+    if stored is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
-    stored, device_session = row
+    device_session = (
+        await session.execute(
+            select(MobileDeviceSessionModel)
+            .where(
+                MobileDeviceSessionModel.id == stored.session_id,
+                MobileDeviceSessionModel.agency_id == stored.agency_id,
+                MobileDeviceSessionModel.refresh_family_id == stored.family_id,
+            )
+            .with_for_update()
+        )
+    ).scalar_one_or_none()
+    if device_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
     if stored.consumed_at is not None:
         stored.reuse_detected_at = now
         await _revoke_session_family(session, device_session, reason="refresh_token_reuse", now=now)
@@ -586,6 +727,7 @@ async def refresh_mobile_session(
     device_session.updated_at = now
     access_token, access_expires = create_mobile_access_token(
         principal_id=principal.id,
+        account_id=device_session.account_id,
         principal_type=device_session.subject_role,
         agency_id=device_session.agency_id,
         session_id=device_session.id,
@@ -600,8 +742,15 @@ async def refresh_mobile_session(
         session_id=device_session.id,
         principal=MobilePrincipalResponse(
             id=principal.id,
+            account_id=device_session.account_id,
             principal_type=device_session.subject_role,
             agency_id=device_session.agency_id,
+            passenger_id=(
+                principal.passenger_submission_id
+                if device_session.subject_role == "passenger"
+                and isinstance(principal, MobilePassengerIdentityModel)
+                else None
+            ),
             display_name=display_name,
             force_password_change=password_change_required,
         ),
@@ -613,15 +762,256 @@ async def mobile_me(
     claims: MobileAccessClaims = Depends(get_current_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
 ) -> MobilePrincipalResponse:
-    display_name, email, phone_number = await _principal_profile(session, claims)
+    display_name, email, phone_number, passenger_id = await _principal_profile(session, claims)
     return MobilePrincipalResponse(
         id=claims.principal_id,
+        account_id=claims.account_id,
         principal_type=claims.principal_type,
         agency_id=claims.agency_id,
+        passenger_id=passenger_id,
         display_name=display_name,
         email=email,
         phone_number=phone_number,
         force_password_change=claims.password_change_required,
+    )
+
+
+@router.post("/passenger/trip/switch", response_model=MobileTokenResponse)
+async def switch_passenger_trip(
+    body: MobilePassengerTripSwitchRequest,
+    request: Request,
+    claims: MobileAccessClaims = Depends(get_current_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileTokenResponse:
+    """Rotate the live session to one previously proven passenger identity.
+
+    The caller supplies only a group identifier. The identity itself is
+    resolved exclusively from the server-side authorization set established
+    by OTP and any required secondary factor. Old access and refresh tokens
+    are invalidated before the replacement pair is returned.
+    """
+
+    if claims.principal_type != "passenger":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Passenger trip switching is not available",
+        )
+    now = datetime.now(tz=UTC)
+    # Refresh rotation locks the current refresh row before its device session.
+    # Use the same order here so a simultaneous refresh/switch cannot deadlock.
+    active_refresh_token_ids = (
+        await session.execute(
+            select(MobileRefreshTokenModel.id)
+            .where(
+                MobileRefreshTokenModel.session_id == claims.session_id,
+                MobileRefreshTokenModel.agency_id == claims.agency_id,
+                MobileRefreshTokenModel.consumed_at.is_(None),
+                MobileRefreshTokenModel.revoked_at.is_(None),
+                MobileRefreshTokenModel.expires_at > now,
+            )
+            .order_by(MobileRefreshTokenModel.token_generation)
+            .with_for_update()
+        )
+    ).scalars().all()
+    # A bearer token must never resurrect a session whose refresh family has
+    # already been exhausted or explicitly revoked.
+    if not active_refresh_token_ids:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Mobile session is no longer active",
+        )
+    device_session = (
+        await session.execute(
+            select(MobileDeviceSessionModel)
+            .where(
+                MobileDeviceSessionModel.id == claims.session_id,
+                MobileDeviceSessionModel.agency_id == claims.agency_id,
+                MobileDeviceSessionModel.subject_role == "passenger",
+                MobileDeviceSessionModel.passenger_identity_id == claims.principal_id,
+                MobileDeviceSessionModel.status == "active",
+                MobileDeviceSessionModel.session_generation == claims.session_generation,
+                MobileDeviceSessionModel.revoked_at.is_(None),
+                MobileDeviceSessionModel.expires_at > now,
+            )
+            .with_for_update()
+        )
+    ).scalar_one_or_none()
+    if device_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Mobile session is no longer active",
+        )
+
+    target_rows = (
+        await session.execute(
+            select(
+                MobilePassengerSessionIdentityModel,
+                MobilePassengerIdentityModel,
+                GCGroupAccessModel,
+                ClientGroupModel,
+            )
+            .join(
+                MobilePassengerIdentityModel,
+                and_(
+                    MobilePassengerIdentityModel.id
+                    == MobilePassengerSessionIdentityModel.passenger_identity_id,
+                    MobilePassengerIdentityModel.gc_group_access_id
+                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    MobilePassengerIdentityModel.agency_id
+                    == MobilePassengerSessionIdentityModel.agency_id,
+                    MobilePassengerIdentityModel.group_id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                ),
+            )
+            .join(
+                GCGroupAccessModel,
+                and_(
+                    GCGroupAccessModel.id
+                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    GCGroupAccessModel.agency_id
+                    == MobilePassengerSessionIdentityModel.agency_id,
+                    GCGroupAccessModel.group_id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                ),
+            )
+            .join(
+                ClientGroupModel,
+                and_(
+                    ClientGroupModel.id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                    ClientGroupModel.agency_id
+                    == MobilePassengerSessionIdentityModel.agency_id,
+                ),
+            )
+            .where(
+                MobilePassengerSessionIdentityModel.session_id == claims.session_id,
+                MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
+                MobilePassengerSessionIdentityModel.group_id == body.group_id,
+                MobilePassengerIdentityModel.claim_generation
+                == MobilePassengerSessionIdentityModel.identity_claim_generation,
+                MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
+                MobilePassengerIdentityModel.revoked_at.is_(None),
+                GCGroupAccessModel.is_enabled.is_(True),
+                GCGroupAccessModel.passenger_access_enabled.is_(True),
+                GCGroupAccessModel.revoked_at.is_(None),
+                or_(
+                    GCGroupAccessModel.access_starts_at.is_(None),
+                    GCGroupAccessModel.access_starts_at <= now,
+                ),
+                or_(
+                    GCGroupAccessModel.access_expires_at.is_(None),
+                    GCGroupAccessModel.access_expires_at > now,
+                ),
+                ClientGroupModel.status.in_(
+                    (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
+                ),
+                ClientGroupModel.deleted_at.is_(None),
+            )
+            .limit(2)
+            .with_for_update()
+        )
+    ).all()
+    # Ambiguity is denied: a group identifier must resolve to exactly one
+    # identity in this exact session-scoped proof set.
+    if len(target_rows) != 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Passenger trip is not authorized",
+        )
+    _authorization, identity, access, _group = target_rows[0]
+
+    token_generation = int(
+        (
+            await session.execute(
+                select(func.coalesce(func.max(MobileRefreshTokenModel.token_generation), 0))
+                .where(
+                    MobileRefreshTokenModel.session_id == device_session.id,
+                    MobileRefreshTokenModel.agency_id == device_session.agency_id,
+                    MobileRefreshTokenModel.family_id == device_session.refresh_family_id,
+                )
+            )
+        ).scalar_one()
+    ) + 1
+    await session.execute(
+        update(MobileRefreshTokenModel)
+        .where(
+            MobileRefreshTokenModel.session_id == device_session.id,
+            MobileRefreshTokenModel.agency_id == device_session.agency_id,
+            MobileRefreshTokenModel.family_id == device_session.refresh_family_id,
+            MobileRefreshTokenModel.revoked_at.is_(None),
+        )
+        .values(revoked_at=now, revoke_reason="passenger_trip_switched")
+    )
+
+    raw_refresh, refresh_expires = create_mobile_refresh_token()
+    session.add(
+        MobileRefreshTokenModel(
+            id=uuid.uuid4(),
+            agency_id=device_session.agency_id,
+            session_id=device_session.id,
+            family_id=device_session.refresh_family_id,
+            token_hash=hash_mobile_refresh_token(raw_refresh),
+            token_generation=token_generation,
+            issued_at=now,
+            expires_at=refresh_expires,
+        )
+    )
+    identity.status = "claimed"
+    identity.claimed_at = identity.claimed_at or now
+    identity.last_verified_at = now
+    identity.updated_at = now
+    device_session.passenger_identity_id = identity.id
+    device_session.selected_gc_group_access_id = access.id
+    device_session.selected_group_id = access.group_id
+    # Acknowledgement belongs to the previously selected trip.  The new trip
+    # is counted as synchronized only after its own complete manifest commit.
+    device_session.last_sync_acknowledged_at = None
+    device_session.session_generation += 1
+    device_session.last_seen_at = now
+    device_session.last_ip_hash = _request_digest(request, "ip")
+    device_session.expires_at = refresh_expires
+    device_session.updated_at = now
+    await session.flush()
+
+    display_name = (
+        await session.execute(
+            select(PassportSubmissionModel.client_name).where(
+                PassportSubmissionModel.id == identity.passenger_submission_id,
+                PassportSubmissionModel.agency_id == identity.agency_id,
+                PassportSubmissionModel.group_id == identity.group_id,
+            )
+        )
+    ).scalar_one()
+    access_token, access_expires = create_mobile_access_token(
+        principal_id=identity.id,
+        account_id=device_session.account_id,
+        principal_type="passenger",
+        agency_id=identity.agency_id,
+        session_id=device_session.id,
+        session_generation=device_session.session_generation,
+        password_change_required=False,
+    )
+    await _audit_mobile_auth(
+        session,
+        request,
+        agency_id=identity.agency_id,
+        action="mobile.passenger_trip_switched",
+        entity_id=access.group_id,
+    )
+    return MobileTokenResponse(
+        access_token=access_token,
+        refresh_token=raw_refresh,
+        access_token_expires_at=access_expires,
+        refresh_token_expires_at=refresh_expires,
+        session_id=device_session.id,
+        principal=MobilePrincipalResponse(
+            id=identity.id,
+            account_id=device_session.account_id,
+            principal_type="passenger",
+            agency_id=identity.agency_id,
+            passenger_id=identity.passenger_submission_id,
+            display_name=display_name,
+        ),
     )
 
 
@@ -746,7 +1136,17 @@ async def logout_all_mobile_sessions(
 ) -> Response:
     now = datetime.now(tz=UTC)
     if claims.principal_type == "passenger":
-        predicate = MobileDeviceSessionModel.passenger_identity_id == claims.principal_id
+        authorized_session_ids = select(
+            MobilePassengerSessionIdentityModel.session_id
+        ).where(
+            MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
+            MobilePassengerSessionIdentityModel.passenger_identity_id
+            == claims.principal_id,
+        )
+        predicate = or_(
+            MobileDeviceSessionModel.passenger_identity_id == claims.principal_id,
+            MobileDeviceSessionModel.id.in_(authorized_session_ids),
+        )
     else:
         predicate = MobileDeviceSessionModel.user_id == claims.principal_id
     sessions = list(
@@ -796,6 +1196,7 @@ async def _eligible_passenger_identities(
                 GCGroupAccessModel.passenger_access_enabled.is_(True),
                 GCGroupAccessModel.revoked_at.is_(None),
                 ClientGroupModel.status.in_((GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)),
+                ClientGroupModel.deleted_at.is_(None),
                 (
                     GCGroupAccessModel.access_starts_at.is_(None)
                     | (GCGroupAccessModel.access_starts_at <= now)
@@ -812,7 +1213,16 @@ async def _eligible_passenger_identities(
             .limit(50)
         )
     ).all()
-    return list(rows)
+    return cast(
+        list[
+            tuple[
+                MobilePassengerIdentityModel,
+                GCGroupAccessModel,
+                ClientGroupModel,
+            ]
+        ],
+        list(rows),
+    )
 
 
 async def _reconcile_phone_candidate_groups(
@@ -918,11 +1328,10 @@ def _matching_passenger_claims(
 ) -> list[tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]]:
     """Resolve OTP claims without revealing cross-group shared phone records.
 
-    Reconciliation can prove uniqueness only inside one group, while OTP lookup
-    spans all eligible groups.  Therefore any multi-row phone lookup requires a
-    retained secondary factor, even when each individual row was unambiguous in
-    its own group.  A row without such a factor is deliberately unreachable in
-    that multi-match state.
+    This path is reached only after direct tenant-local, unshared multi-trip
+    authorization has been ruled out. Any remaining multi-row phone lookup is
+    ambiguous and therefore requires a retained secondary factor. A row without
+    that factor is deliberately unreachable in this state.
     """
 
     multiple_phone_matches = len(eligible) > 1
@@ -941,6 +1350,34 @@ def _matching_passenger_claims(
         if hmac.compare_digest(candidate, identity.secondary_factor_hash):
             matches.append(row)
     return matches
+
+
+def _direct_passenger_otp_rows(
+    eligible: list[
+        tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]
+    ],
+) -> list[tuple[MobilePassengerIdentityModel, GCGroupAccessModel, ClientGroupModel]]:
+    """Return an exact tenant-local proof set when OTP possession is enough.
+
+    OTP possession directly proves exactly one passenger identity.  More than
+    one eligible row is ambiguous even when each row was unshared inside its
+    own group: two unrelated passengers can legitimately reuse a phone across
+    different groups.  Those rows must prove the same retained secondary
+    factor before the server can link their trips into one mobile account.
+    """
+
+    if len(eligible) != 1:
+        return []
+    first_identity = eligible[0][0]
+    if any(
+        identity.agency_id != first_identity.agency_id
+        or identity.phone_lookup_hash != first_identity.phone_lookup_hash
+        or identity.is_shared_number
+        or identity.requires_secondary_verification
+        for identity, _access, _group in eligible
+    ):
+        return []
+    return eligible
 
 
 async def _locked_challenge(
@@ -989,14 +1426,51 @@ async def _verify_challenge_code(
         )
 
 
+def _validate_passenger_session_identities(
+    *,
+    selected_identity: MobilePassengerIdentityModel,
+    authorized_identities: list[MobilePassengerIdentityModel],
+) -> None:
+    """Reject any internally inconsistent proof set before it reaches storage."""
+
+    identity_ids = [item.id for item in authorized_identities]
+    valid = (
+        1 <= len(authorized_identities) <= 50
+        and len(identity_ids) == len(set(identity_ids))
+        and selected_identity.id in identity_ids
+        and all(
+            item.agency_id == selected_identity.agency_id
+            and item.phone_lookup_hash == selected_identity.phone_lookup_hash
+            and item.status in {"eligible", "claimed"}
+            and item.revoked_at is None
+            for item in authorized_identities
+        )
+    )
+    if not valid:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Passenger verification could not be completed",
+        )
+
+
 async def _issue_passenger_session(
     session: AsyncSession,
     *,
     identity: MobilePassengerIdentityModel,
     access: GCGroupAccessModel,
+    authorized_identities: list[MobilePassengerIdentityModel] | None = None,
     device: MobileDeviceInput,
     request: Request,
 ) -> MobileTokenResponse:
+    if (
+        identity.gc_group_access_id != access.id
+        or identity.group_id != access.group_id
+        or identity.agency_id != access.agency_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Passenger verification could not be completed",
+        )
     passenger_name = (
         await session.execute(
             select(PassportSubmissionModel.client_name).where(
@@ -1006,9 +1480,16 @@ async def _issue_passenger_session(
             )
         )
     ).scalar_one()
-    identity.status = "claimed"
-    identity.claimed_at = identity.claimed_at or datetime.now(tz=UTC)
-    identity.last_verified_at = datetime.now(tz=UTC)
+    now = datetime.now(tz=UTC)
+    proven_identities = authorized_identities or [identity]
+    _validate_passenger_session_identities(
+        selected_identity=identity,
+        authorized_identities=proven_identities,
+    )
+    for proven_identity in proven_identities:
+        proven_identity.status = "claimed"
+        proven_identity.claimed_at = proven_identity.claimed_at or now
+        proven_identity.last_verified_at = now
     return await _issue_session(
         session,
         principal_id=identity.id,
@@ -1018,6 +1499,7 @@ async def _issue_passenger_session(
         device=device,
         request=request,
         passenger_identity=identity,
+        passenger_authorized_identities=proven_identities,
         access=access,
         password_change_required=False,
     )
@@ -1061,15 +1543,25 @@ async def _issue_session(
     password_change_required: bool,
     user: UserModel | None = None,
     passenger_identity: MobilePassengerIdentityModel | None = None,
+    passenger_authorized_identities: list[MobilePassengerIdentityModel] | None = None,
     access: GCGroupAccessModel | None = None,
 ) -> MobileTokenResponse:
     now = datetime.now(tz=UTC)
     device_hash = hash_mobile_lookup(device.installation_id, purpose="device-installation")
+    authorized_identities = passenger_authorized_identities or (
+        [passenger_identity] if passenger_identity is not None else []
+    )
+    if passenger_identity is not None:
+        _validate_passenger_session_identities(
+            selected_identity=passenger_identity,
+            authorized_identities=authorized_identities,
+        )
     await _revoke_same_device_session(
         session,
         agency_id=agency_id,
         user_id=user.id if user else None,
         passenger_identity_id=passenger_identity.id if passenger_identity else None,
+        passenger_authorized_identity_ids=[item.id for item in authorized_identities],
         device_hash=device_hash,
         now=now,
     )
@@ -1080,9 +1572,13 @@ async def _issue_session(
         agency_id=agency_id,
         subject_role=principal_type,
         user_id=user.id if user else None,
+        account_id=principal_id,
         passenger_identity_id=passenger_identity.id if passenger_identity else None,
         passenger_subject_hash=(
-            hash_mobile_lookup(str(passenger_identity.id), purpose="passenger-subject")
+            hash_mobile_lookup(
+                f"{agency_id}:{passenger_identity.phone_lookup_hash}",
+                purpose="passenger-subject",
+            )
             if passenger_identity
             else None
         ),
@@ -1112,10 +1608,23 @@ async def _issue_session(
         issued_at=now,
         expires_at=refresh_expires,
     )
-    session.add_all([device_session, refresh_model])
+    session_identities = [
+        MobilePassengerSessionIdentityModel(
+            session_id=device_session.id,
+            passenger_identity_id=item.id,
+            agency_id=item.agency_id,
+            group_id=item.group_id,
+            gc_group_access_id=item.gc_group_access_id,
+            identity_claim_generation=item.claim_generation,
+            authorized_at=now,
+        )
+        for item in authorized_identities
+    ]
+    session.add_all([device_session, refresh_model, *session_identities])
     await session.flush()
     access_token, access_expires = create_mobile_access_token(
         principal_id=principal_id,
+        account_id=device_session.account_id,
         principal_type=principal_type,
         agency_id=agency_id,
         session_id=device_session.id,
@@ -1130,8 +1639,14 @@ async def _issue_session(
         session_id=device_session.id,
         principal=MobilePrincipalResponse(
             id=principal_id,
+            account_id=device_session.account_id,
             principal_type=principal_type,
             agency_id=agency_id,
+            passenger_id=(
+                passenger_identity.passenger_submission_id
+                if passenger_identity is not None
+                else None
+            ),
             display_name=display_name,
             force_password_change=password_change_required,
         ),
@@ -1144,14 +1659,26 @@ async def _revoke_same_device_session(
     agency_id: uuid.UUID,
     user_id: uuid.UUID | None,
     passenger_identity_id: uuid.UUID | None,
+    passenger_authorized_identity_ids: list[uuid.UUID] | None,
     device_hash: str,
     now: datetime,
 ) -> None:
-    predicate = (
-        MobileDeviceSessionModel.user_id == user_id
-        if user_id is not None
-        else MobileDeviceSessionModel.passenger_identity_id == passenger_identity_id
-    )
+    if user_id is not None:
+        predicate = MobileDeviceSessionModel.user_id == user_id
+    else:
+        authorized_ids = list(dict.fromkeys(passenger_authorized_identity_ids or []))
+        if passenger_identity_id is not None and passenger_identity_id not in authorized_ids:
+            authorized_ids.append(passenger_identity_id)
+        authorized_session_ids = select(
+            MobilePassengerSessionIdentityModel.session_id
+        ).where(
+            MobilePassengerSessionIdentityModel.agency_id == agency_id,
+            MobilePassengerSessionIdentityModel.passenger_identity_id.in_(authorized_ids),
+        )
+        predicate = or_(
+            MobileDeviceSessionModel.passenger_identity_id.in_(authorized_ids),
+            MobileDeviceSessionModel.id.in_(authorized_session_ids),
+        )
     existing = list(
         (
             await session.execute(
@@ -1200,9 +1727,31 @@ async def _refresh_principal(
     if device_session.subject_role == "passenger":
         identity = (
             await session.execute(
-                select(MobilePassengerIdentityModel).where(
-                    MobilePassengerIdentityModel.id == device_session.passenger_identity_id,
+                select(MobilePassengerIdentityModel)
+                .join(
+                    MobilePassengerSessionIdentityModel,
+                    MobilePassengerSessionIdentityModel.passenger_identity_id
+                    == MobilePassengerIdentityModel.id,
+                )
+                .where(
+                    MobilePassengerSessionIdentityModel.session_id == device_session.id,
+                    MobilePassengerSessionIdentityModel.agency_id
+                    == device_session.agency_id,
+                    MobilePassengerSessionIdentityModel.passenger_identity_id
+                    == device_session.passenger_identity_id,
+                    MobilePassengerSessionIdentityModel.gc_group_access_id
+                    == device_session.selected_gc_group_access_id,
+                    MobilePassengerSessionIdentityModel.group_id
+                    == device_session.selected_group_id,
+                    MobilePassengerIdentityModel.id
+                    == device_session.passenger_identity_id,
                     MobilePassengerIdentityModel.agency_id == device_session.agency_id,
+                    MobilePassengerIdentityModel.gc_group_access_id
+                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    MobilePassengerIdentityModel.group_id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                    MobilePassengerIdentityModel.claim_generation
+                    == MobilePassengerSessionIdentityModel.identity_claim_generation,
                     MobilePassengerIdentityModel.status == "claimed",
                     MobilePassengerIdentityModel.revoked_at.is_(None),
                 )
@@ -1254,7 +1803,7 @@ async def _refresh_principal(
                 )
             )
         ).scalar_one_or_none()
-        if profile is None:
+        if profile is None or not client_manager_profile_allows_password_session(profile):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive"
             )
@@ -1263,14 +1812,14 @@ async def _refresh_principal(
 
 
 async def _principal_display_name(session: AsyncSession, claims: MobileAccessClaims) -> str:
-    name, _email, _phone_number = await _principal_profile(session, claims)
+    name, _email, _phone_number, _passenger_id = await _principal_profile(session, claims)
     return name
 
 
 async def _principal_profile(
     session: AsyncSession,
     claims: MobileAccessClaims,
-) -> tuple[str, str | None, str | None]:
+) -> tuple[str, str | None, str | None, uuid.UUID | None]:
     if claims.principal_type == "passenger":
         row = (
             await session.execute(
@@ -1278,6 +1827,7 @@ async def _principal_profile(
                     PassportSubmissionModel.client_name,
                     PassportSubmissionModel.client_email,
                     MobilePassengerIdentityModel.normalized_phone_number,
+                    MobilePassengerIdentityModel.passenger_submission_id,
                 )
                 .join(
                     MobilePassengerIdentityModel,
@@ -1313,12 +1863,17 @@ async def _principal_profile(
                         )
                     )
                 ).scalar_one_or_none()
-            row = (user[0], user[1], phone_number)
+            row = (user[0], user[1], phone_number, None)
     if row is None or not row[0]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile principal is inactive"
         )
-    return str(row[0]), str(row[1]) if row[1] else None, str(row[2]) if row[2] else None
+    return (
+        str(row[0]),
+        str(row[1]) if row[1] else None,
+        str(row[2]) if row[2] else None,
+        row[3],
+    )
 
 
 def _claim_summary(
@@ -1345,7 +1900,7 @@ def _require_mobile_enabled() -> None:
 
 
 def _client_ip(request: Request) -> str | None:
-    return request.client.host if request.client else None
+    return trusted_client_ip(request)
 
 
 def _request_digest(request: Request, field: str) -> str | None:

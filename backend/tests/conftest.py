@@ -30,6 +30,7 @@ def test_settings() -> Settings:
         app_env="development",
         app_secret_key="test-secret-key-not-for-production",
         app_debug=True,
+        login_lockout_require_redis=False,
         dashboard_rate_limit_require_redis=False,
         public_upload_rate_limit_require_redis=False,
         _env_file=None,  # Do not load .env in tests

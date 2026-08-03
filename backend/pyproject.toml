@@ -45,6 +45,9 @@ ignore = []
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["ANN", "S"]
+# Applied migrations are immutable release artifacts. Preserve their original
+# import/blank-line formatting while continuing to run correctness rules.
+"alembic/versions/**" = ["I001", "E303"]
 
 [tool.ruff.format]
 quote-style = "double"

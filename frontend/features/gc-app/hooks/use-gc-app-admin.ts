@@ -10,6 +10,7 @@ import type {
   CommonDocumentUpload,
   GcAppAccountStatus,
   GcAppControlPatch,
+  GcAppGroupContent,
   GcAppGroupFilters,
   GcAppGroupControl,
   GcCompanyReference,
@@ -26,8 +27,8 @@ export const gcAppQueryKeys = {
     [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "sessions"] as const,
   clientManagerAudit: (agencyId: string | null, managerId: string) =>
     [...gcAppQueryKeys.root, agencyId, "client-managers", managerId, "audit"] as const,
-  companies: (agencyId: string | null, search: string) =>
-    [...gcAppQueryKeys.root, agencyId, "client-companies", search] as const,
+  companies: (agencyId: string | null, params: GcPageParams) =>
+    [...gcAppQueryKeys.root, agencyId, "client-companies", params] as const,
   groupSearch: (agencyId: string | null, params: GcPageParams, eligibleOnly: boolean) =>
     [...gcAppQueryKeys.root, agencyId, "group-search", params, eligibleOnly] as const,
   groups: (agencyId: string | null, filters: GcAppGroupFilters) =>
@@ -73,10 +74,17 @@ export function useClientManagerAudit(agencyId: string | null, managerId: string
   });
 }
 
-export function useClientCompanies(agencyId: string | null, search = "") {
+export function useClientCompanies(
+  agencyId: string | null,
+  search = "",
+  page = 1,
+  pageSize = 50,
+) {
+  const params = { page, page_size: pageSize, search };
   return useQuery({
-    queryKey: gcAppQueryKeys.companies(agencyId, search),
-    queryFn: ({ signal }) => gcAppAdminApi.searchCompanies(agencyId, search, signal),
+    queryKey: gcAppQueryKeys.companies(agencyId, params),
+    queryFn: ({ signal }) => gcAppAdminApi.searchCompanies(agencyId, params, signal),
+    placeholderData: keepPreviousData,
     staleTime: 60_000,
   });
 }
@@ -253,7 +261,26 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     }),
     uploadDocument: useMutation({
       mutationFn: (upload: CommonDocumentUpload) => gcAppAdminApi.uploadCommonDocument(agencyId, groupId!, upload, requireAccessRevision(accessRevision)),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: (uploadedDocument, upload) => {
+        // The upload command has already succeeded at this point. Do not keep
+        // the button in a pending state while unrelated group/audit queries
+        // refetch. Surface the returned draft immediately, then reconcile all
+        // version counters and access revisions in the background.
+        queryClient.setQueryData<GcAppGroupContent>(
+          gcAppQueryKeys.groupContent(agencyId, groupId!),
+          (current) => {
+            if (!current) return current;
+            const retainedDocuments = current.common_documents.filter(
+              (document) => document.id !== upload.replace_document_id && document.id !== uploadedDocument.id,
+            );
+            return {
+              ...current,
+              common_documents: [uploadedDocument, ...retainedDocuments],
+            };
+          },
+        );
+        void invalidateContent(groupId!).catch(() => undefined);
+      },
     }),
     setDocumentPublished: useMutation({
       mutationFn: ({ documentId, published }: { documentId: string; published: boolean }) =>

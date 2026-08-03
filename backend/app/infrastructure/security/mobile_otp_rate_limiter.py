@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import time
 from collections import defaultdict
 
 from redis.asyncio import Redis
 
 from app.core.config.settings import get_settings
+from app.infrastructure.security.redis_atomic_counter import increment_with_ttl_atomic
 
 
 class OTPRateLimitExceeded(RuntimeError):
@@ -25,6 +27,7 @@ class MobileOTPRateLimiter:
     def __init__(self) -> None:
         self._settings = get_settings()
         self._mobile = self._settings.mobile
+        self._key_secret = self._settings.app_secret_key.encode("utf-8")
         try:
             self._redis: Redis | None = Redis.from_url(
                 self._settings.redis.url,
@@ -44,9 +47,11 @@ class MobileOTPRateLimiter:
         if self._redis is not None:
             try:
                 for key, limit in limits:
-                    count = int(await self._redis.incr(key))
-                    if count == 1:
-                        await self._redis.expire(key, 3600)
+                    count = await increment_with_ttl_atomic(
+                        self._redis,
+                        key=key,
+                        ttl_seconds=3600,
+                    )
                     if count > limit:
                         raise OTPRateLimitExceeded()
                 return
@@ -69,7 +74,10 @@ class MobileOTPRateLimiter:
             if count > limit:
                 raise OTPRateLimitExceeded()
 
-    @staticmethod
-    def _key(scope: str, value: str) -> str:
-        digest = hashlib.sha256(value.encode("utf-8")).hexdigest()
-        return f"mobile-otp:v1:{scope}:{digest}"
+    def _key(self, scope: str, value: str) -> str:
+        digest = hmac.new(
+            self._key_secret,
+            f"mobile-otp-rate-limit\0{scope}\0{value}".encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+        return f"mobile-otp:v2:{scope}:{digest}"

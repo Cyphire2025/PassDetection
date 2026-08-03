@@ -6,6 +6,8 @@ import asyncio
 import hashlib
 import json
 import uuid
+from contextlib import aclosing
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from urllib.parse import quote
 
@@ -59,10 +61,36 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 GC_CONTENT_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
 logger = get_logger(__name__)
+_GC_PREVIEW_STREAM_SLOTS = asyncio.Semaphore(8)
+
+
+@dataclass(frozen=True, slots=True)
+class _StagedCommonDocument:
+    """Validated object stored before the short relational write transaction."""
+
+    document_id: uuid.UUID
+    logical_document_id: uuid.UUID
+    storage_key: str
+    safe_filename: str
+    media_type: str
+    byte_size: int
+    checksum_sha256: str
+    storage: MinioStorageRepository = field(repr=False)
+
+
+@dataclass(frozen=True, slots=True)
+class _CommonDocumentPreviewPlan:
+    """Immutable values retained after the request database session closes."""
+
+    storage_key: str
+    safe_filename: str
+    media_type: str
+    byte_size: int
 
 
 @router.get(
@@ -356,24 +384,17 @@ async def upload_common_document(
     current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> CommonDocumentResponse:
-    access, group = await _admin_access_context(
-        session, current_user, group_id, agency_id=agency_id, lock=True
-    )
-    _require_publishable_group(group)
-    _require_access_revision(access, expected_access_revision)
     return await _store_common_document_version(
         session,
         request=request,
         current_user=current_user,
-        access=access,
+        group_id=group_id,
+        agency_id=agency_id,
+        expected_access_revision=expected_access_revision,
         file=file,
         category=category,
         display_name=display_name,
-        available_from=access.access_starts_at,
-        available_until=access.access_expires_at,
         offline_available=offline_available,
-        logical_document_id=uuid.uuid4(),
-        version=1,
     )
 
 
@@ -462,20 +483,58 @@ async def preview_common_document_content(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Common document not found",
         )
-    payload = await MinioStorageRepository().get_file(document.storage_key)
+    expected_size = int(document.byte_size)
+    maximum_size = get_settings().mobile.common_document_max_bytes
+    if expected_size < 1 or expected_size > maximum_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Document is outside the configured preview limit",
+        )
+    storage = MinioStorageRepository()
+    signature = await storage.get_file_range(
+        document.storage_key,
+        start=0,
+        end=min(expected_size, 16) - 1,
+    )
+    if not signature.startswith(b"%PDF-"):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Document content did not match its declared type",
+        )
+    # Copy only immutable, already-authorized values into the stream plan.
+    # Release the request's database connection before this response can wait
+    # for a preview slot or a slow client. The dependency finalizer can safely
+    # close/commit the reset session again; no ORM state is used below.
+    stream_plan = _CommonDocumentPreviewPlan(
+        storage_key=document.storage_key,
+        safe_filename=document.safe_filename,
+        media_type=document.media_type,
+        byte_size=expected_size,
+    )
+    await session.commit()
+    await session.close()
 
     async def chunks():  # type: ignore[no-untyped-def]
-        for offset in range(0, len(payload), 64 * 1024):
-            yield payload[offset : offset + 64 * 1024]
+        async with _GC_PREVIEW_STREAM_SLOTS:
+            # Explicit closure releases the S3 response body when the browser
+            # closes the preview, cancels navigation, or the ASGI task stops.
+            async with aclosing(
+                storage.stream_file(
+                    stream_plan.storage_key,
+                    expected_bytes=stream_plan.byte_size,
+                )
+            ) as object_stream:
+                async for chunk in object_stream:
+                    yield chunk
 
-    safe_name = quote(document.safe_filename, safe="")
+    safe_name = quote(stream_plan.safe_filename, safe="")
     return StreamingResponse(
         chunks(),
-        media_type=document.media_type,
+        media_type=stream_plan.media_type,
         headers={
             "Cache-Control": "private, no-store, max-age=0",
             "Content-Disposition": f"inline; filename*=UTF-8''{safe_name}",
-            "Content-Length": str(len(payload)),
+            "Content-Length": str(stream_plan.byte_size),
             "X-Content-Type-Options": "nosniff",
         },
     )
@@ -500,36 +559,18 @@ async def replace_common_document(
     current_user: User = Depends(require_role(GC_CONTENT_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> CommonDocumentResponse:
-    access, group = await _admin_access_context(
-        session, current_user, group_id, agency_id=agency_id, lock=True
-    )
-    _require_publishable_group(group)
-    _require_access_revision(access, expected_access_revision)
-    previous = await _get_common_document(session, access, document_id, lock=True)
-    max_version = int(
-        (
-            await session.execute(
-                select(func.max(GCCommonDocumentModel.version)).where(
-                    GCCommonDocumentModel.gc_group_access_id == access.id,
-                    GCCommonDocumentModel.logical_document_id == previous.logical_document_id,
-                )
-            )
-        ).scalar_one()
-    )
     return await _store_common_document_version(
         session,
         request=request,
         current_user=current_user,
-        access=access,
+        group_id=group_id,
+        agency_id=agency_id,
+        expected_access_revision=expected_access_revision,
         file=file,
         category=category,
         display_name=display_name,
-        available_from=access.access_starts_at,
-        available_until=access.access_expires_at,
         offline_available=offline_available,
-        logical_document_id=previous.logical_document_id,
-        version=max_version + 1,
-        sort_order=previous.sort_order,
+        replace_document_id=document_id,
     )
 
 
@@ -678,10 +719,10 @@ async def delete_common_document(
     document = await _get_common_document(session, access, document_id, lock=True)
     now = datetime.now(tz=UTC)
     storage_key = document.storage_key
-    if document.status == "draft":
+    delete_storage_after_commit = document.status == "draft"
+    if delete_storage_after_commit:
         await session.delete(document)
         await session.flush()
-        await MinioStorageRepository().delete_files([storage_key])
     else:
         document.status = "revoked"
         document.revoked_at = now
@@ -710,6 +751,22 @@ async def delete_common_document(
         entity_type="gc_common_document",
         entity_id=document_id,
     )
+    if delete_storage_after_commit:
+        # Relational state is authoritative. Commit the deletion and its audit
+        # before removing the object so a failed commit can never leave a live
+        # draft row pointing at missing bytes. A later object-delete failure is
+        # an orphan-cleanup concern and must not resurrect the database record.
+        await session.commit()
+        try:
+            await MinioStorageRepository().delete_files([storage_key])
+        except Exception as exc:
+            logger.warning(
+                "gc_common_document_orphan_cleanup_failed",
+                agency_id=str(access.agency_id),
+                group_id=str(group_id),
+                document_id=str(document_id),
+                error_type=type(exc).__name__,
+            )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -1073,52 +1130,120 @@ async def _store_common_document_version(
     *,
     request: Request,
     current_user: User,
-    access: GCGroupAccessModel,
+    group_id: uuid.UUID,
+    agency_id: uuid.UUID | None,
+    expected_access_revision: int,
     file: UploadFile,
     category: str,
     display_name: str,
-    available_from: datetime | None,
-    available_until: datetime | None,
     offline_available: bool,
-    logical_document_id: uuid.UUID,
-    version: int,
-    sort_order: int = 0,
+    replace_document_id: uuid.UUID | None = None,
 ) -> CommonDocumentResponse:
-    validated = await _validated_common_pdf(file)
-    document_id = uuid.uuid4()
-    storage_key = (
-        f"gc-app/{access.agency_id}/{access.group_id}/common/"
-        f"{logical_document_id}/{version}-{document_id}.pdf"
+    # The first lookup is deliberately non-locking. It authorizes the tenant,
+    # rejects obviously stale requests before object storage work, and captures
+    # only immutable scope identifiers. End this read-only transaction before
+    # reading/scanning the PDF or calling object storage so no database
+    # transaction remains open during the slow, externally controlled work.
+    initial_access, initial_group = await _admin_access_context(
+        session,
+        current_user,
+        group_id,
+        agency_id=agency_id,
+        lock=False,
     )
-    storage = MinioStorageRepository()
-    await storage.upload_file(
-        validated.content,
-        storage_key,
-        validated.content_type,
+    _require_publishable_group(initial_group)
+    _require_access_revision(initial_access, expected_access_revision)
+    initial_access_id = initial_access.id
+    initial_agency_id = initial_access.agency_id
+    initial_group_id = initial_access.group_id
+    if replace_document_id is None:
+        logical_document_id = uuid.uuid4()
+    else:
+        initial_previous = await _get_common_document(
+            session,
+            initial_access,
+            replace_document_id,
+            lock=False,
+        )
+        logical_document_id = initial_previous.logical_document_id
+
+    await session.rollback()
+    staged = await _stage_common_document(
+        file,
+        agency_id=initial_agency_id,
+        group_id=initial_group_id,
+        logical_document_id=logical_document_id,
     )
+
     try:
+        # Re-authorize and revalidate under the short row lock. The access row
+        # serializes revision checks and replacement version allocation without
+        # holding a lock during validation or object storage.
+        access, group = await _admin_access_context(
+            session,
+            current_user,
+            group_id,
+            agency_id=agency_id,
+            lock=True,
+        )
+        if access.id != initial_access_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="GC App content changed; refresh and retry",
+            )
+        _require_publishable_group(group)
+        _require_access_revision(access, expected_access_revision)
+
+        if replace_document_id is None:
+            version = 1
+            sort_order = 0
+        else:
+            previous = await _get_common_document(
+                session,
+                access,
+                replace_document_id,
+                lock=True,
+            )
+            if previous.logical_document_id != staged.logical_document_id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="GC App content changed; refresh and retry",
+                )
+            version = int(
+                (
+                    await session.execute(
+                        select(func.coalesce(func.max(GCCommonDocumentModel.version), 0)).where(
+                            GCCommonDocumentModel.gc_group_access_id == access.id,
+                            GCCommonDocumentModel.logical_document_id
+                            == previous.logical_document_id,
+                        )
+                    )
+                ).scalar_one()
+            ) + 1
+            sort_order = previous.sort_order
+
         now = datetime.now(tz=UTC)
         document = GCCommonDocumentModel(
-            id=document_id,
+            id=staged.document_id,
             agency_id=access.agency_id,
             group_id=access.group_id,
             gc_group_access_id=access.id,
-            logical_document_id=logical_document_id,
+            logical_document_id=staged.logical_document_id,
             version=version,
             category=category,
             title=" ".join(display_name.split()),
-            storage_key=storage_key,
-            safe_filename=validated.filename,
-            media_type=validated.content_type,
-            byte_size=len(validated.content),
-            checksum_sha256=validated.sha256_hex,
+            storage_key=staged.storage_key,
+            safe_filename=staged.safe_filename,
+            media_type=staged.media_type,
+            byte_size=staged.byte_size,
+            checksum_sha256=staged.checksum_sha256,
             status="draft",
             passenger_visible=False,
             client_manager_visible=False,
             coordinator_visible=False,
             offline_available=offline_available,
-            availability_starts_at=available_from,
-            availability_expires_at=available_until,
+            availability_starts_at=access.access_starts_at,
+            availability_expires_at=access.access_expires_at,
             sort_order=sort_order,
             created_by_user_id=current_user.id,
             created_at=now,
@@ -1138,22 +1263,71 @@ async def _store_common_document_version(
             entity_type="gc_common_document",
             entity_id=document.id,
         )
-        # Commit inside the compensation boundary. The request dependency's
-        # final commit is then a no-op, while a real commit failure can still
-        # remove the just-uploaded object.
+        response = _common_document_response(document)
+        # Commit while compensation still owns the staged object. The request
+        # dependency's final commit is then a no-op, while a real commit
+        # failure removes the unreferenced object.
         await session.commit()
-        return _common_document_response(document)
+        return response
     except BaseException:
         await session.rollback()
-        try:
-            await asyncio.shield(storage.delete_files([storage_key]))
-        except BaseException as cleanup_error:
-            logger.error(
-                "gc_common_document_compensation_failed",
-                storage_key_hash=hashlib.sha256(storage_key.encode()).hexdigest()[:12],
-                error_type=type(cleanup_error).__name__,
-            )
+        await _discard_staged_common_document(staged)
         raise
+
+
+async def _stage_common_document(
+    file: UploadFile,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    logical_document_id: uuid.UUID,
+) -> _StagedCommonDocument:
+    """Validate and store a unique object without holding a database lock."""
+
+    validated = await _validated_common_pdf(file)
+    document_id = uuid.uuid4()
+    # The immutable document UUID, rather than a version allocated later under
+    # lock, makes this key globally unique while keeping all storage I/O outside
+    # the critical section.
+    storage_key = (
+        f"gc-app/{agency_id}/{group_id}/common/"
+        f"{logical_document_id}/{document_id}.pdf"
+    )
+    storage = MinioStorageRepository()
+    staged = _StagedCommonDocument(
+        document_id=document_id,
+        logical_document_id=logical_document_id,
+        storage_key=storage_key,
+        safe_filename=validated.filename,
+        media_type=validated.content_type,
+        byte_size=len(validated.content),
+        checksum_sha256=validated.sha256_hex,
+        storage=storage,
+    )
+    try:
+        await storage.upload_file(
+            validated.content,
+            storage_key,
+            validated.content_type,
+        )
+    except BaseException:
+        # A provider can accept an object and still fail the client response.
+        # The random key is owned exclusively by this attempt, so best-effort
+        # deletion is always safe.
+        await _discard_staged_common_document(staged)
+        raise
+    return staged
+
+
+async def _discard_staged_common_document(staged: _StagedCommonDocument) -> None:
+    try:
+        await asyncio.shield(staged.storage.delete_files([staged.storage_key]))
+    except BaseException as cleanup_error:
+        logger.error(
+            "gc_common_document_compensation_failed",
+            storage_key_hash=hashlib.sha256(staged.storage_key.encode()).hexdigest()[:12],
+            error_type=type(cleanup_error).__name__,
+        )
 
 
 async def _create_announcement_version(
@@ -1493,6 +1667,6 @@ async def _content_audit(
         user_id=actor.id,
         actor_email=actor.email,
         entity_id=str(entity_id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata={"group_id": str(access.group_id)},
     )

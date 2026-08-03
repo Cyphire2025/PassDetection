@@ -6,15 +6,21 @@ import hashlib
 import hmac
 import json
 import uuid
-from datetime import UTC, datetime, timedelta
+from collections.abc import Sequence
+from dataclasses import dataclass
+from datetime import UTC, date, datetime, timedelta
+from typing import Any, Literal
 
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import case, func, or_, select
+from sqlalchemy import case, func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from app.application.mobile.coordinator_roster_revision import (
+    coordinator_roster_revision,
+)
 from app.application.mobile.sync_journal import append_mobile_sync_change
 from app.application.security.mobile_access_policy import MobileAccessPolicy
 from app.core.config.settings import get_settings
@@ -35,26 +41,31 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileNotificationModel,
     MobilePassengerIdentityModel,
     MobilePushRegistrationModel,
+    MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
+    DistributedDocumentModel,
+    PassengerQRTokenModel,
     PassportSubmissionModel,
     RoomingAssignmentModel,
     RoomingHotelModel,
     RoomingRoomModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.rooming.priority_fields import normalize_imported_field_key
 from app.presentation.api.v1.routes.tour_operations import (
     SCANNABLE_ATTENDANCE_STATUSES,
     _insert_canonical_attendance_record,
-    _resolve_scannable_passenger,
     normalize_attendance_activity_name,
 )
 from app.presentation.api.v1.schemas.mobile_schemas import (
+    MobileAttendanceActionInput,
     MobileAttendanceActionResult,
     MobileAttendanceBatchRequest,
     MobileAttendanceBatchResponse,
@@ -64,6 +75,8 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceSessionPageResponse,
     MobileAttendanceSessionResponse,
     MobileAttendanceSummaryResponse,
+    MobileCoordinatorOperationalDetail,
+    MobileCoordinatorPassengerDetailResponse,
     MobileCoordinatorPassengerResponse,
     MobileCoordinatorRosterResponse,
     MobileIncidentActionResponse,
@@ -77,6 +90,7 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobilePushUnregisterResponse,
 )
 from app.presentation.dependencies.mobile_auth import require_unrestricted_mobile_claims
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 
@@ -87,6 +101,191 @@ _MAX_ATTENDANCE_SESSION_PAGE = 100
 _MAX_MISSING_PASSENGER_PAGE = 200
 _MAX_SCAN_CLOCK_SKEW = timedelta(minutes=15)
 _IDEMPOTENCY_RECEIPT_TTL = timedelta(days=30)
+_MAX_COORDINATOR_OPERATIONAL_DETAILS = 300
+_COORDINATOR_PROJECTED_METADATA_KEYS = frozenset(
+    {
+        "agency_dealership_name",
+        "base_city",
+        "birth_date",
+        "birthdate",
+        "client_email",
+        "client_name",
+        "client_phone",
+        "contact",
+        "contact_no",
+        "contact_number",
+        "date_of_birth",
+        "date_of_expiration",
+        "date_of_expiry",
+        "date_of_issue",
+        "date_of_issuance",
+        "department",
+        "departure_city",
+        "departure_hub",
+        "designation",
+        "dob",
+        "doe",
+        "doi",
+        "domestic_airport",
+        "e_mail",
+        "email",
+        "email_address",
+        "emergency_contact_name",
+        "emergency_contact_number",
+        "emergency_contact_person",
+        "emergency_contact_phone",
+        "emergency_contact_relation",
+        "emergency_mobile",
+        "emergency_name",
+        "emergency_person",
+        "emergency_phone",
+        "emergency_relation",
+        "employee_code",
+        "employee_id",
+        "employee_type",
+        "expiration",
+        "expiration_date",
+        "expiry",
+        "expiry_date",
+        "family_name",
+        "first_name",
+        "forename",
+        "forenames",
+        "full_name",
+        "gender",
+        "given_name",
+        "given_names",
+        "guest_name",
+        "hub",
+        "international_airport",
+        "issue_country",
+        "issue_date",
+        "issue_place",
+        "issuing_country",
+        "last_name",
+        "meal_preference",
+        "mobile",
+        "mobile_no",
+        "mobile_number",
+        "name",
+        "nationality",
+        "nearest_airport_domestic",
+        "nearest_domestic_airport",
+        "passenger",
+        "passenger_email",
+        "passenger_name",
+        "phone",
+        "phone_no",
+        "phone_number",
+        "place_of_issue",
+        "place_of_issuance",
+        "recipient_name",
+        "remark",
+        "remarks",
+        "sex",
+        "source_zone",
+        "staff_code",
+        "staff_id",
+        "staff_name",
+        "staffname",
+        "sur_name",
+        "surname",
+        "telephone",
+        "traveler_name",
+        "traveller_name",
+        "valid_till",
+        "valid_until",
+        "whatsapp",
+        "whatsapp_no",
+        "whatsapp_number",
+        "zone",
+        "zone_name",
+        "zonename",
+    }
+)
+_COORDINATOR_SENSITIVE_METADATA_TOKENS = frozenset(
+    {
+        "aadhaar",
+        "aadhar",
+        "address",
+        "admin",
+        "ai",
+        "booking",
+        "bucket",
+        "confidence",
+        "credential",
+        "document",
+        "error",
+        "extraction",
+        "file",
+        "filename",
+        "hash",
+        "image",
+        "internal",
+        "mrz",
+        "note",
+        "notes",
+        "object",
+        "ocr",
+        "pan",
+        "passport",
+        "password",
+        "path",
+        "photo",
+        "private",
+        "pnr",
+        "prompt",
+        "reference",
+        "reservation",
+        "raw",
+        "s3",
+        "scan",
+        "score",
+        "secret",
+        "selfie",
+        "signature",
+        "storage",
+        "ticket",
+        "token",
+        "uri",
+        "url",
+        "visa",
+    }
+)
+_COORDINATOR_SENSITIVE_METADATA_COMPOUNDS = (
+    "bookingcode",
+    "internalcomment",
+    "internalnote",
+    "passportno",
+    "passportnum",
+    "passportnumber",
+    "postsubmissionverification",
+    "staffcomment",
+    "staffnote",
+)
+_COORDINATOR_DOCUMENT_CATEGORY_ALIASES = {
+    "flight_ticket": "flight_ticket",
+    "ticket": "flight_ticket",
+    "visa": "visa",
+    "insurance": "insurance",
+    "travel_insurance": "insurance",
+    "hotel_voucher": "hotel_voucher",
+    "voucher": "hotel_voucher",
+    "other": "other",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class _PreparedAttendanceAction:
+    action: MobileAttendanceActionInput
+    attendance_session: AttendanceSessionModel
+    passenger: PassportSubmissionModel
+
+
+@dataclass(slots=True)
+class _AttendanceReplaySnapshot:
+    passengers: set[tuple[uuid.UUID, uuid.UUID]]
+    event_passengers: dict[tuple[uuid.UUID, str], set[uuid.UUID]]
 
 
 @router.get(
@@ -135,9 +334,7 @@ async def list_mobile_coordinator_passengers(
     if normalized_search:
         filters.append(
             or_(
-                PassportSubmissionModel.client_name.icontains(
-                    normalized_search, autoescape=True
-                ),
+                PassportSubmissionModel.client_name.icontains(normalized_search, autoescape=True),
                 employee_code.icontains(normalized_search, autoescape=True),
             )
         )
@@ -205,15 +402,15 @@ async def list_mobile_coordinator_passengers(
 
 @router.get(
     "/coordinator/groups/{group_id}/passengers/{passenger_id}",
-    response_model=MobileCoordinatorPassengerResponse,
+    response_model=MobileCoordinatorPassengerDetailResponse,
 )
 async def get_mobile_coordinator_passenger(
     group_id: uuid.UUID,
     passenger_id: uuid.UUID,
     claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
-) -> MobileCoordinatorPassengerResponse:
-    """Return one compact roster projection for incremental reconciliation."""
+) -> MobileCoordinatorPassengerDetailResponse:
+    """Return one explicit, permission-minimized operational passenger profile."""
 
     await _require_coordinator_trip(session, claims, group_id)
     employee_code = func.coalesce(
@@ -225,39 +422,207 @@ async def get_mobile_coordinator_passenger(
         PassportSubmissionModel.confirmed_fields["meal_preference"].as_string(),
         PassportSubmissionModel.staff_metadata["meal_preference"].as_string(),
     )
-    room_number = (
-        select(RoomingRoomModel.room_number)
-        .join(RoomingAssignmentModel, RoomingAssignmentModel.room_id == RoomingRoomModel.id)
-        .join(RoomingHotelModel, RoomingHotelModel.id == RoomingAssignmentModel.hotel_id)
-        .where(
-            RoomingAssignmentModel.passenger_id == PassportSubmissionModel.id,
-            RoomingHotelModel.agency_id == claims.agency_id,
-            RoomingHotelModel.group_id == group_id,
-        )
-        .order_by(RoomingHotelModel.check_in_date.desc(), RoomingHotelModel.id.desc())
-        .limit(1)
-        .scalar_subquery()
+    employee_type = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["agent_employee_type"].as_string(),
+        PassportSubmissionModel.staff_metadata["agent_employee_type"].as_string(),
+        PassportSubmissionModel.staff_metadata["employee_type"].as_string(),
     )
+    designation = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["designation"].as_string(),
+        PassportSubmissionModel.staff_metadata["designation"].as_string(),
+    )
+    department = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["department"].as_string(),
+        PassportSubmissionModel.staff_metadata["department"].as_string(),
+    )
+    gender = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["sex"].as_string(),
+        PassportSubmissionModel.confirmed_fields["gender"].as_string(),
+        PassportSubmissionModel.staff_metadata["gender"].as_string(),
+        PassportSubmissionModel.family_gender,
+    )
+    date_of_birth = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["date_of_birth"].as_string(),
+        PassportSubmissionModel.staff_metadata["date_of_birth"].as_string(),
+    )
+    nationality = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["nationality"].as_string(),
+        PassportSubmissionModel.extracted_fields["nationality"].as_string(),
+        PassportSubmissionModel.staff_metadata["nationality"].as_string(),
+    )
+    staff_code = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["staff_code"].as_string(),
+        PassportSubmissionModel.staff_metadata["staff_code"].as_string(),
+    )
+    base_city = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["base_city"].as_string(),
+        PassportSubmissionModel.staff_metadata["base_city"].as_string(),
+    )
+    agency_dealership_name = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["agency_dealership_name"].as_string(),
+        PassportSubmissionModel.staff_metadata["agency_dealership_name"].as_string(),
+    )
+    zone_name = func.coalesce(
+        PassportSubmissionModel.staff_metadata["zone_name"].as_string(),
+        PassportSubmissionModel.staff_metadata["source_zone"].as_string(),
+    )
+    passport_surname = _coordinator_reviewed_passport_field("surname")
+    passport_given_names = _coordinator_reviewed_passport_field("given_names")
+    passport_place_of_issue = _coordinator_reviewed_passport_field("place_of_issue")
+    passport_issuing_country = _coordinator_reviewed_passport_field("issuing_country")
+    passport_date_of_issue = _coordinator_reviewed_passport_field("date_of_issue")
+    passport_date_of_expiry = _coordinator_reviewed_passport_field("date_of_expiry")
     row = (
         await session.execute(
             select(
                 PassportSubmissionModel.id,
                 PassportSubmissionModel.client_name,
+                PassportSubmissionModel.client_phone,
+                PassportSubmissionModel.client_email,
+                PassportSubmissionModel.departure_city,
+                PassportSubmissionModel.nearest_domestic_airport,
+                PassportSubmissionModel.family_relation,
+                PassportSubmissionModel.family_head_name,
+                PassportSubmissionModel.family_head_phone,
+                PassportSubmissionModel.family_head_email,
+                PassportSubmissionModel.submission_mode,
+                PassportSubmissionModel.qualifier_relation_label,
+                PassportSubmissionModel.status,
+                PassportSubmissionModel.staff_metadata,
+                PassportSubmissionModel.custom_answers,
+                PassportSubmissionModel.custom_detail_answers,
+                PassportSubmissionModel.image_s3_key,
+                PassportSubmissionModel.updated_at,
                 employee_code.label("employee_code"),
+                employee_type.label("employee_type"),
+                staff_code.label("staff_code"),
+                base_city.label("base_city"),
+                agency_dealership_name.label("agency_dealership_name"),
+                zone_name.label("zone_name"),
                 meal_preference.label("meal_preference"),
-                room_number.label("room_number"),
+                designation.label("designation"),
+                department.label("department"),
+                gender.label("gender"),
+                date_of_birth.label("date_of_birth"),
+                nationality.label("nationality"),
+                passport_surname.label("passport_surname"),
+                passport_given_names.label("passport_given_names"),
+                passport_place_of_issue.label("passport_place_of_issue"),
+                passport_issuing_country.label("passport_issuing_country"),
+                passport_date_of_issue.label("passport_date_of_issue"),
+                passport_date_of_expiry.label("passport_date_of_expiry"),
             ).where(
                 PassportSubmissionModel.id == passenger_id,
                 PassportSubmissionModel.agency_id == claims.agency_id,
                 PassportSubmissionModel.group_id == group_id,
-                PassportSubmissionModel.status.in_(
-                    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-                ),
+                PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
             )
         )
     ).one_or_none()
     if row is None:
         raise EntityNotFoundError("Coordinator passenger", passenger_id)
+
+    staff_metadata = row.staff_metadata if isinstance(row.staff_metadata, dict) else {}
+    emergency_contact_name = _coordinator_metadata_value(
+        staff_metadata,
+        (
+            "emergency_contact_name",
+            "emergency_name",
+            "emergency_contact_person",
+            "emergency_person",
+        ),
+        max_length=255,
+    )
+    emergency_contact_phone = _coordinator_metadata_value(
+        staff_metadata,
+        (
+            "emergency_contact_phone",
+            "emergency_phone",
+            "emergency_contact_number",
+            "emergency_mobile",
+        ),
+        max_length=64,
+    )
+    emergency_contact_relation = _coordinator_metadata_value(
+        staff_metadata,
+        ("emergency_contact_relation", "emergency_relation"),
+        max_length=120,
+    )
+    operational_remarks = _coordinator_metadata_value(
+        staff_metadata,
+        ("remarks", "remark"),
+        max_length=2048,
+    )
+    additional_details = _coordinator_operational_details(
+        staff_metadata=staff_metadata,
+        custom_answers=row.custom_answers,
+        custom_detail_answers=row.custom_detail_answers,
+    )
+
+    room = (
+        await session.execute(
+            select(
+                RoomingRoomModel.id.label("room_id"),
+                RoomingRoomModel.room_number,
+                RoomingHotelModel.hotel_name,
+            )
+            .join(
+                RoomingAssignmentModel,
+                RoomingAssignmentModel.room_id == RoomingRoomModel.id,
+            )
+            .join(RoomingHotelModel, RoomingHotelModel.id == RoomingAssignmentModel.hotel_id)
+            .where(
+                RoomingAssignmentModel.passenger_id == passenger_id,
+                RoomingHotelModel.agency_id == claims.agency_id,
+                RoomingHotelModel.group_id == group_id,
+            )
+            .order_by(RoomingHotelModel.check_in_date.desc(), RoomingHotelModel.id.desc())
+            .limit(1)
+        )
+    ).first()
+    roommate_summary: str | None = None
+    if room is not None:
+        roommate_names = list(
+            (
+                await session.execute(
+                    select(PassportSubmissionModel.client_name)
+                    .join(
+                        RoomingAssignmentModel,
+                        RoomingAssignmentModel.passenger_id == PassportSubmissionModel.id,
+                    )
+                    .where(
+                        PassportSubmissionModel.agency_id == claims.agency_id,
+                        PassportSubmissionModel.group_id == group_id,
+                        PassportSubmissionModel.id != passenger_id,
+                        PassportSubmissionModel.status.in_(
+                            OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+                        ),
+                        RoomingAssignmentModel.room_id == room.room_id,
+                    )
+                    .order_by(RoomingAssignmentModel.position, PassportSubmissionModel.id)
+                    .limit(12)
+                )
+            ).scalars()
+        )
+        roommate_summary = _bounded_optional_text(", ".join(roommate_names), 500)
+
+    document_types = {
+        _coordinator_document_category(value)
+        for value in (
+            await session.execute(
+                select(DistributedDocumentModel.document_type)
+                .where(
+                    DistributedDocumentModel.agency_id == claims.agency_id,
+                    DistributedDocumentModel.group_id == group_id,
+                    DistributedDocumentModel.passenger_id == passenger_id,
+                    DistributedDocumentModel.match_status == "matched",
+                )
+                .distinct()
+                .order_by(DistributedDocumentModel.document_type)
+                .limit(64)
+            )
+        ).scalars()
+    }
 
     attendance_session = await _latest_attendance_session(session, claims, group_id)
     is_present = False
@@ -274,15 +639,64 @@ async def get_mobile_coordinator_passenger(
             ).scalar_one()
         )
     session_completed = attendance_session is not None and attendance_session.status == "completed"
-    return MobileCoordinatorPassengerResponse(
+    return MobileCoordinatorPassengerDetailResponse(
         id=row.id,
         display_name=row.client_name,
         employee_code=_bounded_optional_text(row.employee_code, 120),
+        employee_type=_bounded_optional_text(row.employee_type, 120),
+        staff_code=_bounded_optional_text(row.staff_code, 120),
+        base_city=_bounded_optional_text(row.base_city, 120),
+        agency_dealership_name=_bounded_optional_text(row.agency_dealership_name, 200),
+        zone_name=_bounded_optional_text(row.zone_name, 120),
         attendance_status=(
             "present" if is_present else "missing" if session_completed else "not_marked"
         ),
-        room_number=_bounded_optional_text(row.room_number, 80),
+        phone_number=_bounded_optional_text(row.client_phone, 32),
+        email=_bounded_optional_text(row.client_email, 255),
+        departure_city=_bounded_optional_text(row.departure_city, 120),
+        nearest_domestic_airport=_bounded_optional_text(row.nearest_domestic_airport, 120),
+        designation=_bounded_optional_text(row.designation, 160),
+        department=_bounded_optional_text(row.department, 160),
+        gender=_bounded_optional_text(row.gender, 40),
+        date_of_birth=_safe_optional_date(row.date_of_birth),
+        nationality=_bounded_optional_text(row.nationality, 80),
+        passport_surname=_bounded_optional_text(row.passport_surname, 160),
+        passport_given_names=_bounded_optional_text(row.passport_given_names, 255),
+        passport_place_of_issue=_bounded_optional_text(row.passport_place_of_issue, 160),
+        passport_issuing_country=_bounded_optional_text(row.passport_issuing_country, 120),
+        passport_date_of_issue=_safe_optional_date(row.passport_date_of_issue),
+        passport_date_of_expiry=_safe_optional_date(row.passport_date_of_expiry),
+        hotel_name=(_bounded_optional_text(room.hotel_name, 255) if room is not None else None),
+        room_number=(_bounded_optional_text(room.room_number, 80) if room is not None else None),
+        roommate_summary=roommate_summary,
         meal_preference=_bounded_optional_text(row.meal_preference, 255),
+        family_relation=_bounded_optional_text(row.family_relation, 80),
+        family_head_name=_bounded_optional_text(row.family_head_name, 255),
+        family_head_phone=_bounded_optional_text(row.family_head_phone, 32),
+        family_head_email=_bounded_optional_text(row.family_head_email, 255),
+        qualifier_relation=_bounded_optional_text(row.qualifier_relation_label, 80),
+        emergency_contact_name=emergency_contact_name,
+        emergency_contact_phone=emergency_contact_phone,
+        emergency_contact_relation=emergency_contact_relation,
+        operational_remarks=operational_remarks,
+        submission_mode=("family" if row.submission_mode == "family" else "single"),
+        submission_status=_bounded_optional_text(row.status, 40) or "unavailable",
+        passport_status=(
+            "available"
+            if row.image_s3_key and not row.image_s3_key.endswith(".placeholder")
+            else "not_available"
+        ),
+        visa_status="available" if "visa" in document_types else "not_available",
+        flight_ticket_status=(
+            "available" if "flight_ticket" in document_types else "not_available"
+        ),
+        insurance_status=("available" if "insurance" in document_types else "not_available"),
+        hotel_voucher_status=(
+            "available" if "hotel_voucher" in document_types else "not_available"
+        ),
+        other_document_status=("available" if "other" in document_types else "not_available"),
+        additional_details=additional_details,
+        updated_at=row.updated_at,
         has_alert=False,
     )
 
@@ -373,10 +787,7 @@ async def create_mobile_attendance_session(
                     & (AttendanceSessionModel.group_id == group_id)
                     & (AttendanceSessionModel.normalized_name == normalized_name)
                     & AttendanceSessionModel.status.in_(("draft", "active"))
-                    & (
-                        AttendanceSessionModel.id
-                        == AttendanceSessionModel.canonical_session_id
-                    )
+                    & (AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id)
                 )
             )
         )
@@ -465,9 +876,7 @@ async def get_mobile_attendance_session_details(
             )
             for row in missing_rows
         ],
-        next_cursor=(
-            str(missing_rows[-1].id) if has_more and missing_rows else None
-        ),
+        next_cursor=(str(missing_rows[-1].id) if has_more and missing_rows else None),
     )
 
 
@@ -517,69 +926,121 @@ async def apply_mobile_attendance_actions(
 ) -> MobileAttendanceBatchResponse:
     trip = await _require_coordinator_trip(session, claims, group_id)
     now = datetime.now(tz=UTC)
-    results: list[MobileAttendanceActionResult] = []
-    for action in body.actions:
+    resolved_results: dict[int, MobileAttendanceActionResult] = {}
+    session_candidates: list[tuple[int, MobileAttendanceActionInput]] = []
+    for index, action in enumerate(body.actions):
         if action.scanned_at > now + _MAX_SCAN_CLOCK_SKEW:
-            results.append(
-                MobileAttendanceActionResult(
-                    client_event_id=action.client_event_id,
-                    status="rejected",
-                    reason_code="SCANNED_AT_IN_FUTURE",
-                )
+            resolved_results[index] = MobileAttendanceActionResult(
+                client_event_id=action.client_event_id,
+                status="rejected",
+                reason_code="SCANNED_AT_IN_FUTURE",
             )
-            continue
-        attendance_session = await _attendance_session_for_action(
-            session,
-            claims,
-            group_id,
-            requested_session_id=action.session_id,
-        )
+        else:
+            session_candidates.append((index, action))
+
+    attendance_sessions = await _attendance_sessions_for_actions(
+        session,
+        claims,
+        group_id,
+        actions=[action for _, action in session_candidates],
+    )
+    qr_candidates: list[
+        tuple[int, MobileAttendanceActionInput, AttendanceSessionModel]
+    ] = []
+    for index, action in session_candidates:
+        attendance_session = attendance_sessions.get(action.session_id)
         if attendance_session is None:
-            results.append(
-                MobileAttendanceActionResult(
-                    client_event_id=action.client_event_id,
-                    status="refresh_required",
-                    reason_code="ATTENDANCE_SESSION_SELECTION_REQUIRED",
-                )
+            resolved_results[index] = MobileAttendanceActionResult(
+                client_event_id=action.client_event_id,
+                status="refresh_required",
+                reason_code="ATTENDANCE_SESSION_SELECTION_REQUIRED",
             )
             continue
         if (
             attendance_session.started_at is not None
-            and action.scanned_at
-            < attendance_session.started_at - _MAX_SCAN_CLOCK_SKEW
+            and action.scanned_at < attendance_session.started_at - _MAX_SCAN_CLOCK_SKEW
         ) or (
             attendance_session.completed_at is not None
-            and action.scanned_at
-            > attendance_session.completed_at + _MAX_SCAN_CLOCK_SKEW
+            and action.scanned_at > attendance_session.completed_at + _MAX_SCAN_CLOCK_SKEW
         ):
-            results.append(
-                MobileAttendanceActionResult(
-                    client_event_id=action.client_event_id,
-                    status="rejected",
-                    reason_code="SCANNED_OUTSIDE_SESSION_WINDOW",
-                )
+            resolved_results[index] = MobileAttendanceActionResult(
+                client_event_id=action.client_event_id,
+                status="rejected",
+                reason_code="SCANNED_OUTSIDE_SESSION_WINDOW",
             )
             continue
-        passenger, _token, rejection_reason = await _resolve_scannable_passenger(
-            session=session,
-            agency_id=claims.agency_id,
+        qr_candidates.append((index, action, attendance_session))
+
+    qr_snapshot = await _scannable_passenger_snapshot(
+        session,
+        claims=claims,
+        actions=[action for _, action, _ in qr_candidates],
+    )
+    prepared_by_index: dict[int, _PreparedAttendanceAction] = {}
+    for index, action, attendance_session in qr_candidates:
+        passenger, rejection_reason = _resolve_scannable_passenger_from_snapshot(
+            qr_snapshot,
             group_id=group_id,
             qr_payload=action.signed_qr,
         )
         if passenger is None:
+            resolved_results[index] = MobileAttendanceActionResult(
+                client_event_id=action.client_event_id,
+                status="rejected",
+                reason_code=_attendance_rejection_code(rejection_reason),
+            )
+            continue
+        prepared_by_index[index] = _PreparedAttendanceAction(
+            action=action,
+            attendance_session=attendance_session,
+            passenger=passenger,
+        )
+
+    replay_snapshot = await _attendance_replay_snapshot(
+        session,
+        claims=claims,
+        prepared=list(prepared_by_index.values()),
+    )
+    results: list[MobileAttendanceActionResult] = []
+    accepted_roster_changes: list[
+        tuple[PassportSubmissionModel, datetime]
+    ] = []
+    for index, action in enumerate(body.actions):
+        resolved_result = resolved_results.get(index)
+        if resolved_result is not None:
+            results.append(resolved_result)
+            continue
+        prepared = prepared_by_index[index]
+        replay_state = _attendance_replay_state_from_snapshot(
+            replay_snapshot,
+            attendance_session=prepared.attendance_session,
+            passenger_id=prepared.passenger.id,
+            client_event_id=str(action.client_event_id),
+        )
+        if replay_state == "event_reused":
             results.append(
                 MobileAttendanceActionResult(
                     client_event_id=action.client_event_id,
                     status="rejected",
-                    reason_code=_attendance_rejection_code(rejection_reason),
+                    reason_code="IDEMPOTENCY_KEY_REUSED",
+                )
+            )
+            continue
+        if replay_state == "already_applied":
+            results.append(
+                MobileAttendanceActionResult(
+                    client_event_id=action.client_event_id,
+                    status="already_applied",
+                    server_version=None,
+                    reason_code=None,
                 )
             )
             continue
         inserted_id = await _insert_canonical_attendance_record(
             session=session,
             agency_id=claims.agency_id,
-            attendance_session=attendance_session,
-            passenger_id=passenger.id,
+            attendance_session=prepared.attendance_session,
+            passenger_id=prepared.passenger.id,
             coordinator_user_id=claims.principal_id,
             scanned_at=action.scanned_at.astimezone(UTC),
             sync_source="offline",
@@ -590,8 +1051,8 @@ async def apply_mobile_attendance_actions(
             replay_state = await _attendance_replay_state(
                 session,
                 claims=claims,
-                attendance_session=attendance_session,
-                passenger_id=passenger.id,
+                attendance_session=prepared.attendance_session,
+                passenger_id=prepared.passenger.id,
                 client_event_id=str(action.client_event_id),
             )
             if replay_state == "event_reused":
@@ -612,9 +1073,34 @@ async def apply_mobile_attendance_actions(
                     )
                 )
                 continue
+            _record_attendance_replay(
+                replay_snapshot,
+                attendance_session=prepared.attendance_session,
+                passenger_id=prepared.passenger.id,
+                client_event_id=str(action.client_event_id),
+            )
         else:
             changed_at = datetime.now(tz=UTC)
-            attendance_session.updated_at = changed_at
+            prepared.attendance_session.updated_at = changed_at
+            accepted_roster_changes.append((prepared.passenger, changed_at))
+            _record_attendance_replay(
+                replay_snapshot,
+                attendance_session=prepared.attendance_session,
+                passenger_id=prepared.passenger.id,
+                client_event_id=str(action.client_event_id),
+            )
+        results.append(
+            MobileAttendanceActionResult(
+                client_event_id=action.client_event_id,
+                status="accepted" if inserted_id is not None else "already_applied",
+                server_version=None,
+                reason_code=None,
+            )
+        )
+
+    targeted_roster_changes: list[MobileSyncChangeModel] = []
+    for passenger, changed_at in accepted_roster_changes:
+        targeted_roster_changes.append(
             await append_mobile_sync_change(
                 session,
                 access=trip.access,
@@ -626,19 +1112,25 @@ async def apply_mobile_attendance_actions(
                 changed_by_user_id=claims.principal_id,
                 payload={
                     "resource_path": (
-                        f"/api/v1/mobile/coordinator/groups/{group_id}/passengers/"
-                        f"{passenger.id}"
+                        f"/api/v1/mobile/coordinator/groups/{group_id}/"
+                        f"passengers/{passenger.id}"
                     )
                 },
-            )
-        results.append(
-            MobileAttendanceActionResult(
-                client_event_id=action.client_event_id,
-                status="accepted" if inserted_id is not None else "already_applied",
-                server_version=None,
-                reason_code=None,
+                flush=False,
             )
         )
+    if targeted_roster_changes:
+        # Flush the bounded journal batch once before deriving its proof. The
+        # conflict-safe attendance inserts above remain ordered one by one.
+        await session.flush()
+        roster_revision = await coordinator_roster_revision(
+            session,
+            agency_id=claims.agency_id,
+            group_id=group_id,
+        )
+        for change in targeted_roster_changes:
+            change.payload = {**change.payload, "roster_revision": roster_revision}
+        await session.flush()
     return MobileAttendanceBatchResponse(results=results)
 
 
@@ -680,13 +1172,210 @@ async def _attendance_replay_state(
         ).all()
     )
     if any(
-        row.client_event_id == client_event_id and row.passenger_id != passenger_id
-        for row in rows
+        row.client_event_id == client_event_id and row.passenger_id != passenger_id for row in rows
     ):
         return "event_reused"
     if rows:
         return "already_applied"
     return "unknown"
+
+
+async def _attendance_sessions_for_actions(
+    session: AsyncSession,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+    *,
+    actions: Sequence[MobileAttendanceActionInput],
+) -> dict[uuid.UUID | None, AttendanceSessionModel | None]:
+    """Resolve a bounded attendance batch with at most two scoped reads."""
+
+    if not actions:
+        return {}
+    statement = select(AttendanceSessionModel).where(
+        AttendanceSessionModel.agency_id == claims.agency_id,
+        AttendanceSessionModel.group_id == group_id,
+        AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+        AttendanceSessionModel.status.in_(SCANNABLE_ATTENDANCE_STATUSES),
+    )
+    resolved: dict[uuid.UUID | None, AttendanceSessionModel | None] = {}
+    requested_ids = {action.session_id for action in actions if action.session_id is not None}
+    if requested_ids:
+        rows = list(
+            (
+                await session.execute(
+                    statement.where(AttendanceSessionModel.id.in_(requested_ids))
+                )
+            ).scalars()
+        )
+        resolved.update({requested_id: None for requested_id in requested_ids})
+        resolved.update({item.id: item for item in rows})
+    if any(action.session_id is None for action in actions):
+        candidates = list(
+            (
+                await session.execute(
+                    statement.order_by(AttendanceSessionModel.updated_at.desc()).limit(2)
+                )
+            ).scalars()
+        )
+        resolved[None] = candidates[0] if len(candidates) == 1 else None
+    return resolved
+
+
+async def _scannable_passenger_snapshot(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    actions: Sequence[MobileAttendanceActionInput],
+) -> dict[str, tuple[PassportSubmissionModel, PassengerQRTokenModel]]:
+    """Load all QR targets for one validated, schema-bounded batch."""
+
+    token_hashes = {qr_hash(action.signed_qr.strip()) for action in actions}
+    if not token_hashes:
+        return {}
+    rows = list(
+        (
+            await session.execute(
+                select(PassportSubmissionModel, PassengerQRTokenModel)
+                .join(
+                    PassengerQRTokenModel,
+                    PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id,
+                )
+                .where(
+                    PassengerQRTokenModel.agency_id == claims.agency_id,
+                    PassportSubmissionModel.agency_id == claims.agency_id,
+                    PassengerQRTokenModel.token_hash.in_(token_hashes),
+                    PassportSubmissionModel.status.in_(
+                        OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+                    ),
+                )
+            )
+        ).all()
+    )
+    return {token.token_hash: (passenger, token) for passenger, token in rows}
+
+
+def _resolve_scannable_passenger_from_snapshot(
+    snapshot: dict[str, tuple[PassportSubmissionModel, PassengerQRTokenModel]],
+    *,
+    group_id: uuid.UUID,
+    qr_payload: str,
+) -> tuple[PassportSubmissionModel | None, str | None]:
+    """Apply the existing fail-closed QR rejection precedence in memory."""
+
+    resolved = snapshot.get(qr_hash(qr_payload.strip()))
+    if resolved is None:
+        return None, "unknown_token"
+    passenger, token = resolved
+    if token.revoked_at is not None:
+        return None, "revoked"
+    if token.expires_at <= datetime.now(tz=UTC):
+        return None, "expired"
+    if not token.is_active:
+        return None, "inactive"
+    if passenger.group_id != group_id:
+        return None, "wrong_group"
+    return passenger, None
+
+
+async def _attendance_replay_snapshot(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    prepared: Sequence[_PreparedAttendanceAction],
+) -> _AttendanceReplaySnapshot:
+    """Preload known canonical-family retries without weakening insert races."""
+
+    snapshot = _AttendanceReplaySnapshot(passengers=set(), event_passengers={})
+    if not prepared:
+        return snapshot
+    passenger_pairs = sorted(
+        {
+            (item.attendance_session.id, item.passenger.id)
+            for item in prepared
+        },
+        key=lambda pair: (str(pair[0]), str(pair[1])),
+    )
+    event_pairs = sorted(
+        {
+            (item.attendance_session.id, str(item.action.client_event_id))
+            for item in prepared
+        },
+        key=lambda pair: (str(pair[0]), pair[1]),
+    )
+    family_session = aliased(
+        AttendanceSessionModel,
+        name="mobile_attendance_batch_session_family",
+    )
+    rows = list(
+        (
+            await session.execute(
+                select(
+                    family_session.canonical_session_id.label("canonical_session_id"),
+                    AttendanceRecordModel.passenger_id,
+                    AttendanceRecordModel.client_event_id,
+                )
+                .join(
+                    family_session,
+                    family_session.id == AttendanceRecordModel.session_id,
+                )
+                .where(
+                    AttendanceRecordModel.agency_id == claims.agency_id,
+                    family_session.agency_id == claims.agency_id,
+                    or_(
+                        tuple_(
+                            family_session.canonical_session_id,
+                            AttendanceRecordModel.passenger_id,
+                        ).in_(passenger_pairs),
+                        tuple_(
+                            family_session.canonical_session_id,
+                            AttendanceRecordModel.client_event_id,
+                        ).in_(event_pairs),
+                    ),
+                )
+            )
+        ).all()
+    )
+    for row in rows:
+        session_id = row.canonical_session_id
+        snapshot.passengers.add((session_id, row.passenger_id))
+        snapshot.event_passengers.setdefault(
+            (session_id, row.client_event_id),
+            set(),
+        ).add(row.passenger_id)
+    return snapshot
+
+
+def _attendance_replay_state_from_snapshot(
+    snapshot: _AttendanceReplaySnapshot,
+    *,
+    attendance_session: AttendanceSessionModel,
+    passenger_id: uuid.UUID,
+    client_event_id: str,
+) -> str:
+    event_passengers = snapshot.event_passengers.get(
+        (attendance_session.id, client_event_id),
+        set(),
+    )
+    if any(value != passenger_id for value in event_passengers):
+        return "event_reused"
+    if (
+        attendance_session.id,
+        passenger_id,
+    ) in snapshot.passengers or passenger_id in event_passengers:
+        return "already_applied"
+    return "unknown"
+
+
+def _record_attendance_replay(
+    snapshot: _AttendanceReplaySnapshot,
+    *,
+    attendance_session: AttendanceSessionModel,
+    passenger_id: uuid.UUID,
+    client_event_id: str,
+) -> None:
+    key = (attendance_session.id, client_event_id)
+    snapshot.passengers.add((attendance_session.id, passenger_id))
+    snapshot.event_passengers.setdefault(key, set()).add(passenger_id)
 
 
 @router.get(
@@ -705,9 +1394,7 @@ async def get_mobile_attendance_summary(
             select(func.count(PassportSubmissionModel.id)).where(
                 PassportSubmissionModel.agency_id == claims.agency_id,
                 PassportSubmissionModel.group_id == group_id,
-                PassportSubmissionModel.status.in_(
-                    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-                ),
+                PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
             )
         )
     ).scalar_one()
@@ -789,9 +1476,7 @@ async def create_mobile_incident(
                 created_at=now,
                 expires_at=now + _IDEMPOTENCY_RECEIPT_TTL,
             )
-            .on_conflict_do_nothing(
-                index_elements=["session_id", "idempotency_key"]
-            )
+            .on_conflict_do_nothing(index_elements=["session_id", "idempotency_key"])
             .returning(MobileIdempotencyReceiptModel.id)
         )
     ).scalar_one_or_none()
@@ -806,9 +1491,7 @@ async def create_mobile_incident(
             MobileIdempotencyReceiptModel.session_id == claims.session_id,
             MobileIdempotencyReceiptModel.idempotency_key == idempotency_key,
         )
-    receipt = (
-        await session.execute(receipt_lookup.with_for_update())
-    ).scalar_one_or_none()
+    receipt = (await session.execute(receipt_lookup.with_for_update())).scalar_one_or_none()
     if receipt is None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -857,9 +1540,7 @@ async def create_mobile_incident(
             location_text=None,
             is_confidential=True,
             occurred_at=occurred_at,
-            created_offline_at=(
-                occurred_at if occurred_at < now - timedelta(minutes=1) else None
-            ),
+            created_offline_at=(occurred_at if occurred_at < now - timedelta(minutes=1) else None),
             acknowledged_at=None,
             resolved_at=None,
             resolved_by_user_id=None,
@@ -878,9 +1559,7 @@ async def create_mobile_incident(
             operation="upsert",
             version=trip.access.manifest_version,
             changed_by_user_id=claims.principal_id,
-            payload={
-                "resource_path": f"/api/v1/mobile/coordinator/groups/{group_id}/incidents"
-            },
+            payload={"resource_path": f"/api/v1/mobile/coordinator/groups/{group_id}/incidents"},
         )
         await AuditLogRepository(session).record(
             action="mobile.incident_created",
@@ -888,7 +1567,7 @@ async def create_mobile_incident(
             agency_id=claims.agency_id,
             user_id=claims.principal_id,
             entity_id=str(incident.id),
-            ip_address=request.client.host if request.client else None,
+            ip_address=trusted_client_ip(request),
             metadata={
                 "group_id": str(group_id),
                 "severity": body.severity,
@@ -906,9 +1585,7 @@ async def create_mobile_incident(
     receipt.response_status_code = status.HTTP_200_OK
     receipt.response_payload = response_payload
     receipt.response_hash = hashlib.sha256(
-        json.dumps(response_payload, sort_keys=True, separators=(",", ":")).encode(
-            "utf-8"
-        )
+        json.dumps(response_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
     receipt.resource_type = "mobile_incident"
     receipt.resource_id = incident.id
@@ -928,9 +1605,7 @@ async def register_mobile_push_token(
 ) -> MobilePushRegistrationResponse:
     now = datetime.now(tz=UTC)
     device_session = await _current_device_session(session, claims)
-    expected_device_hash = hash_mobile_lookup(
-        body.installation_id, purpose="device-installation"
-    )
+    expected_device_hash = hash_mobile_lookup(body.installation_id, purpose="device-installation")
     if not hmac.compare_digest(expected_device_hash, device_session.device_identifier_hash):
         raise AuthorizationError("Push registration is not available")
     if (body.provider == "fcm" and device_session.platform != "android") or (
@@ -986,9 +1661,7 @@ async def register_mobile_push_token(
         registration.agency_id = claims.agency_id
         registration.session_id = claims.session_id
         registration.platform = device_session.platform
-        registration.environment = (
-            "production" if get_settings().is_production else "development"
-        )
+        registration.environment = "production" if get_settings().is_production else "development"
         registration.app_bundle_id = _APP_BUNDLE_ID
         registration.token_ciphertext = ciphertext
         registration.token_key_version = 1
@@ -1028,9 +1701,7 @@ async def unregister_mobile_push_token(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobilePushUnregisterResponse:
     device_session = await _current_device_session(session, claims)
-    expected_device_hash = hash_mobile_lookup(
-        body.installation_id, purpose="device-installation"
-    )
+    expected_device_hash = hash_mobile_lookup(body.installation_id, purpose="device-installation")
     if not hmac.compare_digest(expected_device_hash, device_session.device_identifier_hash):
         raise AuthorizationError("Push registration is not available")
     statement = select(MobilePushRegistrationModel).where(
@@ -1357,8 +2028,7 @@ def _accessible_group_ids(claims: MobileAccessClaims, now: datetime):
             )
             .join(
                 ClientManagerProfileModel,
-                ClientManagerProfileModel.id
-                == ClientManagerGroupAssignmentModel.profile_id,
+                ClientManagerProfileModel.id == ClientManagerGroupAssignmentModel.profile_id,
             )
             .where(
                 GCGroupAccessModel.client_manager_access_enabled.is_(True),
@@ -1429,8 +2099,186 @@ def _attendance_rejection_code(value: str | None) -> str:
     return mapping.get(value or "", "QR_INVALID")
 
 
+def _coordinator_reviewed_passport_field(field: str) -> Any:
+    """Resolve reviewed passport data before extraction fallback.
+
+    The raw JSON documents never leave the server; callers select only one
+    named operational field at a time.
+    """
+
+    return func.coalesce(
+        PassportSubmissionModel.confirmed_fields[field].as_string(),
+        PassportSubmissionModel.extracted_fields[field].as_string(),
+    )
+
+
+def _coordinator_document_category(value: object) -> str:
+    """Map only recognized document categories; unknown values stay generic."""
+
+    normalized = normalize_imported_field_key(value)
+    return _COORDINATOR_DOCUMENT_CATEGORY_ALIASES.get(normalized, "other")
+
+
+def _coordinator_metadata_value(
+    metadata: dict[object, object],
+    keys: tuple[str, ...],
+    *,
+    max_length: int,
+) -> str | None:
+    normalized = {
+        normalize_imported_field_key(raw_key): raw_value for raw_key, raw_value in metadata.items()
+    }
+    for key in keys:
+        value = _bounded_optional_text(normalized.get(key), max_length)
+        if value is not None:
+            return value
+    return None
+
+
+def _coordinator_operational_details(
+    *,
+    staff_metadata: dict[object, object],
+    custom_answers: object,
+    custom_detail_answers: object,
+) -> list[MobileCoordinatorOperationalDetail]:
+    """Build a bounded, fail-closed projection of extra passenger attributes.
+
+    Imported spreadsheets intentionally retain their source columns for office
+    workflows. Mobile coordinators receive only display-safe operational
+    values. Known first-class fields are de-duplicated, while storage details,
+    government identifiers, document secrets, extraction/AI data, and internal
+    notes are rejected by normalized key and label.
+    """
+
+    details: list[MobileCoordinatorOperationalDetail] = []
+    seen: set[str] = set()
+
+    def append_detail(
+        *,
+        raw_key: object,
+        raw_label: object,
+        raw_value: object,
+        source: Literal["imported", "custom_question", "custom_detail"],
+    ) -> None:
+        if len(details) >= _MAX_COORDINATOR_OPERATIONAL_DETAILS:
+            return
+        key = normalize_imported_field_key(raw_key)
+        label_key = normalize_imported_field_key(raw_label)
+        if not key or not label_key:
+            return
+        if source == "imported" and key in _COORDINATOR_PROJECTED_METADATA_KEYS:
+            return
+        if not _coordinator_metadata_field_is_safe(key, label_key):
+            return
+        value = _bounded_operational_value(raw_value, 2048)
+        label = _bounded_optional_text(raw_label, 120)
+        if value is None or label is None:
+            return
+        stable_key = f"{source}:{key}"[:160]
+        if stable_key in seen:
+            return
+        seen.add(stable_key)
+        details.append(
+            MobileCoordinatorOperationalDetail(
+                key=stable_key,
+                label=label,
+                value=value,
+                source=source,
+            )
+        )
+
+    def append_custom_details(
+        values: object,
+        *,
+        source: Literal["custom_question", "custom_detail"],
+        id_key: Literal["question_id", "detail_id"],
+    ) -> None:
+        if not isinstance(values, list):
+            return
+        for item in values:
+            if not isinstance(item, dict):
+                continue
+            label = item.get("label")
+            append_detail(
+                raw_key=item.get(id_key) or label,
+                raw_label=label,
+                raw_value=item.get("value"),
+                source=source,
+            )
+
+    for raw_key, raw_value in staff_metadata.items():
+        key = normalize_imported_field_key(raw_key)
+        append_detail(
+            raw_key=key,
+            raw_label=_coordinator_metadata_label(key),
+            raw_value=raw_value,
+            source="imported",
+        )
+    append_custom_details(
+        custom_answers,
+        source="custom_question",
+        id_key="question_id",
+    )
+    append_custom_details(
+        custom_detail_answers,
+        source="custom_detail",
+        id_key="detail_id",
+    )
+    return details
+
+
+def _coordinator_metadata_field_is_safe(key: str, label_key: str) -> bool:
+    normalized = f"{key}_{label_key}"
+    tokens = set(normalized.split("_"))
+    compact = normalized.replace("_", "")
+    return not (
+        key.startswith("source_")
+        or bool(tokens & _COORDINATOR_SENSITIVE_METADATA_TOKENS)
+        or any(value in compact for value in _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS)
+    )
+
+
+def _coordinator_metadata_label(key: str) -> str:
+    acronyms = {"dob": "DOB", "id": "ID", "pnr": "PNR"}
+    return " ".join(acronyms.get(part, part.capitalize()) for part in key.split("_") if part)
+
+
+def _bounded_operational_value(value: object, max_length: int) -> str | None:
+    """Render only bounded scalar spreadsheet values for coordinator display."""
+
+    if isinstance(value, bool):
+        return "Yes" if value else "No"
+    if isinstance(value, (int, float)):
+        return str(value)[:max_length]
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()[:max_length]
+    return _bounded_optional_text(value, max_length)
+
+
 def _bounded_optional_text(value: object, max_length: int) -> str | None:
     if not isinstance(value, str):
         return None
     cleaned = " ".join(value.split())
     return cleaned[:max_length] or None
+
+
+def _safe_optional_date(value: object) -> date | None:
+    """Parse only known imported date formats without leaking malformed data."""
+
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    cleaned = _bounded_optional_text(value, 32)
+    if cleaned is None:
+        return None
+    for parser in (
+        date.fromisoformat,
+        lambda item: datetime.strptime(item, "%d/%m/%Y").date(),
+        lambda item: datetime.strptime(item, "%d-%m-%Y").date(),
+    ):
+        try:
+            return parser(cleaned)
+        except ValueError:
+            continue
+    return None

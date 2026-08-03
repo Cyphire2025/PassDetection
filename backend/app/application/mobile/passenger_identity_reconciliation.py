@@ -11,7 +11,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.sync_journal import append_mobile_sync_change
@@ -29,10 +29,13 @@ from app.infrastructure.database.gc_mobile_models import (
     GCGroupAccessModel,
     MobileDeviceSessionModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
     MobileRefreshTokenModel,
 )
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
+    TARGETED_MATCH_CLUSTER_LIMIT,
+    load_targeted_unresolved_passport_whatsapp_match_context,
     load_unresolved_passport_whatsapp_match_context,
 )
 
@@ -54,6 +57,8 @@ _SECONDARY_FIELDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ),
     ("date_of_birth", ("date_of_birth", "dob")),
 )
+_TARGETED_RECONCILIATION_INPUT_LIMIT = 8
+_TARGETED_RECONCILIATION_MAX_ROUNDS = 4
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,6 +143,8 @@ def plan_passenger_identities(
     skipped_without_secondary = 0
     for submission_id, phone, factor in provisional:
         is_shared = phone_counts[phone] > 1
+        factor_type: str | None = None
+        factor_value: str | None = None
         if is_shared:
             if factor is None:
                 skipped_without_secondary += 1
@@ -146,12 +153,12 @@ def plan_passenger_identities(
             if factor_counts[(phone, factor_type, _normalize_factor(factor_value))] != 1:
                 skipped_without_secondary += 1
                 continue
-        else:
+        elif factor is not None:
             # Preserve a strong, user-knowable factor even for a currently
             # unambiguous group binding.  OTP lookup is agency-wide: the same
             # phone may later resolve to another trip, at which point both
             # identities must prove a factor before either claim is revealed.
-            factor_type, factor_value = factor if factor is not None else (None, None)
+            factor_type, factor_value = factor
         candidates.append(
             PassengerIdentityCandidate(
                 passenger_submission_id=submission_id,
@@ -191,7 +198,6 @@ async def reconcile_passenger_identities(
         agency_id=access.agency_id,
         group_id=access.group_id,
     )
-    desired = {item.passenger_submission_id: item for item in plan.candidates}
     existing = list(
         (
             await session.execute(
@@ -205,6 +211,173 @@ async def reconcile_passenger_identities(
             )
         ).scalars()
     )
+    return await _apply_passenger_identity_plan(
+        session,
+        access=access,
+        actor_user_id=actor_user_id,
+        plan=plan,
+        existing=existing,
+    )
+
+
+async def reconcile_passenger_identities_for_changes(
+    session: AsyncSession,
+    *,
+    access: GCGroupAccessModel,
+    actor_user_id: uuid.UUID | None,
+    passenger_submission_ids: tuple[uuid.UUID, ...],
+) -> PassengerIdentityReconciliationResult:
+    """Use a bounded component for explicit edits, then fail closed to full."""
+
+    seed_ids = tuple(sorted(set(passenger_submission_ids), key=str))
+    if 0 < len(seed_ids) <= _TARGETED_RECONCILIATION_INPUT_LIMIT:
+        targeted = await _reconcile_passenger_identities_targeted(
+            session,
+            access=access,
+            actor_user_id=actor_user_id,
+            passenger_submission_ids=seed_ids,
+        )
+        if targeted is not None:
+            return targeted
+    return await reconcile_passenger_identities(
+        session,
+        access=access,
+        actor_user_id=actor_user_id,
+    )
+
+
+async def _reconcile_passenger_identities_targeted(
+    session: AsyncSession,
+    *,
+    access: GCGroupAccessModel,
+    actor_user_id: uuid.UUID | None,
+    passenger_submission_ids: tuple[uuid.UUID, ...],
+) -> PassengerIdentityReconciliationResult | None:
+    """Reconcile only a proven-complete identity/evidence connected component."""
+
+    seed_ids = frozenset(passenger_submission_ids)
+    seed_phones: frozenset[str] = frozenset()
+    context = None
+    related_identities: list[MobilePassengerIdentityModel] = []
+
+    for _round in range(_TARGETED_RECONCILIATION_MAX_ROUNDS):
+        identity_conditions = [
+            MobilePassengerIdentityModel.passenger_submission_id.in_(tuple(seed_ids))
+        ]
+        if seed_phones:
+            identity_conditions.append(
+                MobilePassengerIdentityModel.normalized_phone_number.in_(
+                    tuple(seed_phones)
+                )
+            )
+        related_identities = list(
+            (
+                await session.execute(
+                    select(MobilePassengerIdentityModel)
+                    .where(
+                        MobilePassengerIdentityModel.agency_id == access.agency_id,
+                        MobilePassengerIdentityModel.group_id == access.group_id,
+                        MobilePassengerIdentityModel.gc_group_access_id == access.id,
+                        or_(*identity_conditions),
+                    )
+                    .limit(TARGETED_MATCH_CLUSTER_LIMIT + 1)
+                )
+            ).scalars()
+        )
+        if len(related_identities) > TARGETED_MATCH_CLUSTER_LIMIT:
+            return None
+        expanded_ids = seed_ids | frozenset(
+            identity.passenger_submission_id for identity in related_identities
+        )
+        expanded_phones = seed_phones | frozenset(
+            identity.normalized_phone_number for identity in related_identities
+        )
+        context = await load_targeted_unresolved_passport_whatsapp_match_context(
+            session,
+            group_id=access.group_id,
+            agency_id=access.agency_id,
+            seed_submission_ids=tuple(sorted(expanded_ids, key=str)),
+            seed_phone_numbers=expanded_phones,
+        )
+        if context is None:
+            return None
+        next_ids = expanded_ids | context.affected_submission_ids
+        next_phones = expanded_phones | context.affected_phone_numbers
+        if next_ids == seed_ids and next_phones == seed_phones:
+            break
+        if len(next_ids) > TARGETED_MATCH_CLUSTER_LIMIT:
+            return None
+        seed_ids = next_ids
+        seed_phones = next_phones
+    else:
+        return None
+
+    if context is None:
+        return None
+    locked_conditions = [
+        MobilePassengerIdentityModel.passenger_submission_id.in_(
+            tuple(context.affected_submission_ids)
+        )
+    ]
+    if context.affected_phone_numbers:
+        locked_conditions.append(
+            MobilePassengerIdentityModel.normalized_phone_number.in_(
+                tuple(context.affected_phone_numbers)
+            )
+        )
+    locked_existing = list(
+        (
+            await session.execute(
+                select(MobilePassengerIdentityModel)
+                .where(
+                    MobilePassengerIdentityModel.agency_id == access.agency_id,
+                    MobilePassengerIdentityModel.group_id == access.group_id,
+                    MobilePassengerIdentityModel.gc_group_access_id == access.id,
+                    or_(*locked_conditions),
+                )
+                .limit(TARGETED_MATCH_CLUSTER_LIMIT + 1)
+                .with_for_update()
+            )
+        ).scalars()
+    )
+    if len(locked_existing) > TARGETED_MATCH_CLUSTER_LIMIT:
+        return None
+    # Any previously unseen old binding means the graph changed while it was
+    # prepared.  Do not apply a partial plan; the full reconciler will retry
+    # under the established group lock.
+    if any(
+        identity.passenger_submission_id not in context.affected_submission_ids
+        or identity.normalized_phone_number not in context.affected_phone_numbers
+        for identity in locked_existing
+    ):
+        return None
+
+    plan = plan_passenger_identities(
+        list(context.rows),
+        list(context.submissions),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+    )
+    return await _apply_passenger_identity_plan(
+        session,
+        access=access,
+        actor_user_id=actor_user_id,
+        plan=plan,
+        existing=locked_existing,
+    )
+
+
+async def _apply_passenger_identity_plan(
+    session: AsyncSession,
+    *,
+    access: GCGroupAccessModel,
+    actor_user_id: uuid.UUID | None,
+    plan: PassengerIdentityPlan,
+    existing: list[MobilePassengerIdentityModel],
+) -> PassengerIdentityReconciliationResult:
+    """Apply a complete full-group or bounded-component plan identically."""
+
+    desired = {item.passenger_submission_id: item for item in plan.candidates}
     by_passenger = {item.passenger_submission_id: item for item in existing}
     now = datetime.now(tz=UTC)
     created = updated_count = unchanged = revoked = 0
@@ -375,9 +548,18 @@ async def _revoke_passenger_identity_sessions(
     reason: str,
 ) -> None:
     now = datetime.now(tz=UTC)
+    authorized_session_ids = select(
+        MobilePassengerSessionIdentityModel.session_id
+    ).where(
+        MobilePassengerSessionIdentityModel.agency_id == agency_id,
+        MobilePassengerSessionIdentityModel.passenger_identity_id == identity_id,
+    )
     session_ids = select(MobileDeviceSessionModel.id).where(
         MobileDeviceSessionModel.agency_id == agency_id,
-        MobileDeviceSessionModel.passenger_identity_id == identity_id,
+        or_(
+            MobileDeviceSessionModel.passenger_identity_id == identity_id,
+            MobileDeviceSessionModel.id.in_(authorized_session_ids),
+        ),
         MobileDeviceSessionModel.status == "active",
     )
     await session.execute(

@@ -19,7 +19,8 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from jose import JWTError, jwt
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 
 from app.core.config.settings import get_settings
 from app.domain.exceptions.exceptions import AuthenticationError, TokenExpiredError
@@ -107,9 +108,9 @@ def decode_access_token(token: str) -> dict[str, Any]:
             _settings.app_secret_key,
             algorithms=[_settings.jwt.algorithm],
         )
-    except JWTError as exc:
-        if "expired" in str(exc).lower():
-            raise TokenExpiredError() from exc
+    except ExpiredSignatureError as exc:
+        raise TokenExpiredError() from exc
+    except InvalidTokenError as exc:
         raise AuthenticationError("Invalid access token") from exc
 
     if payload.get("type") != TOKEN_TYPE_ACCESS:

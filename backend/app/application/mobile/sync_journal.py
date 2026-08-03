@@ -20,6 +20,7 @@ async def append_mobile_sync_change(
     session: AsyncSession,
     *,
     access: GCGroupAccessModel,
+    change_id: uuid.UUID | None = None,
     entity_type: str,
     entity_id: uuid.UUID | None,
     operation: SyncOperation,
@@ -28,11 +29,17 @@ async def append_mobile_sync_change(
     audience: Literal["all", "passenger", "client_manager", "coordinator"] = "all",
     passenger_identity_id: uuid.UUID | None = None,
     payload: dict[str, object] | None = None,
+    flush: bool = True,
 ) -> MobileSyncChangeModel:
-    """Append a tenant/group-bound change in the caller's DB transaction."""
+    """Append a tenant/group-bound change in the caller's DB transaction.
+
+    ``flush=False`` is reserved for callers that build a bounded batch and
+    explicitly flush it before returning. The default preserves the existing
+    immediate-write behavior for every other workflow.
+    """
 
     change = MobileSyncChangeModel(
-        id=uuid.uuid4(),
+        id=change_id or uuid.uuid4(),
         agency_id=access.agency_id,
         group_id=access.group_id,
         gc_group_access_id=access.id,
@@ -48,5 +55,6 @@ async def append_mobile_sync_change(
         occurred_at=datetime.now(tz=UTC),
     )
     session.add(change)
-    await session.flush()
+    if flush:
+        await session.flush()
     return change

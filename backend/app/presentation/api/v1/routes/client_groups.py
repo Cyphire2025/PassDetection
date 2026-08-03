@@ -27,6 +27,9 @@ from app.application.dtos.client_group_dtos import (
     CreateClientGroupInputDTO,
     client_group_output_from_entity,
 )
+from app.application.mobile.passenger_change_propagation import (
+    reconcile_mobile_passenger_access_for_group,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.client_groups.create_client_group_use_case import (
     CreateClientGroupUseCase,
@@ -467,6 +470,13 @@ async def _replace_whatsapp_links(
             session,
             agency_id=agency_id,
             broadcast_ids=requested_ids,
+        )
+    if changed:
+        await reconcile_mobile_passenger_access_for_group(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            actor_user_id=created_by_user_id,
         )
     return summaries, previous_ids, changed
 
@@ -1653,6 +1663,12 @@ async def resolve_unidentified_as_replacement(
             ),
         )
 
+    await reconcile_mobile_passenger_access_for_group(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await AuditLogRepository(session).record(
         action="passport_unidentified_marked_replacement",
         entity_type="passport_roster_resolution",
@@ -1777,6 +1793,12 @@ async def reject_unidentified_upload(
             status_code=status.HTTP_409_CONFLICT,
             detail="This upload was resolved by another request. Refresh the page.",
         )
+    await reconcile_mobile_passenger_access_for_group(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await AuditLogRepository(session).record(
         action="passport_unidentified_rejected",
         entity_type="passport_roster_resolution",
@@ -1929,6 +1951,12 @@ async def restore_roster_resolution(
             now=now,
         )
         await session.flush()
+    await reconcile_mobile_passenger_access_for_group(
+        session,
+        agency_id=group.agency_id,
+        group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     await AuditLogRepository(session).record(
         action="passport_roster_resolution_restored",
         entity_type="passport_roster_resolution",

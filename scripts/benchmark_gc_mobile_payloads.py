@@ -2,7 +2,8 @@
 
 This does not claim physical-device or production API latency. It compares a
 representative full 1,500-passenger operational projection with the compact
-manager-readiness and incremental room-change contracts used by the mobile API.
+manager-readiness, room-change, and verified single-passenger coordinator
+contracts used by the mobile API.
 """
 
 from __future__ import annotations
@@ -67,12 +68,12 @@ def _measurement(name: str, factory: Callable[[], object], iterations: int) -> d
 def run(passenger_count: int, iterations: int) -> dict[str, object]:
     roster = [_passenger(index) for index in range(1, passenger_count + 1)]
 
-    full_roster = lambda: {  # noqa: E731 - factories keep timed work explicit
+    full_roster = lambda: {
         "trip_id": "10000000-0000-4000-8000-000000000001",
         "version": 42,
         "passengers": roster,
     }
-    readiness = lambda: {  # noqa: E731
+    readiness = lambda: {
         "trip_id": "10000000-0000-4000-8000-000000000001",
         "passenger_count": passenger_count,
         "passports_complete": passenger_count - (passenger_count // 47),
@@ -84,7 +85,7 @@ def run(passenger_count: int, iterations: int) -> dict[str, object]:
         "version": 42,
         "updated_at": "2026-08-02T12:00:00+00:00",
     }
-    room_change = lambda: {  # noqa: E731
+    room_change = lambda: {
         "changes": [
             {
                 "sequence": 418,
@@ -100,13 +101,61 @@ def run(passenger_count: int, iterations: int) -> dict[str, object]:
         "next_cursor": 418,
         "has_more": False,
     }
+    passenger_change = lambda: {
+        "changes": [
+            {
+                "sequence": 419,
+                "group_id": "10000000-0000-4000-8000-000000000001",
+                "entity_type": "coordinator_passenger",
+                "entity_id": "00000000-0000-4000-8000-000000000402",
+                "operation": "upsert",
+                "version": 44,
+                "occurred_at": "2026-08-02T12:00:01+00:00",
+                "payload": {
+                    "resource_path": (
+                        "/api/v1/mobile/coordinator/groups/"
+                        "10000000-0000-4000-8000-000000000001/passengers/"
+                        "00000000-0000-4000-8000-000000000402"
+                    ),
+                    "roster_revision": 8_127_345_678_901,
+                },
+            }
+        ],
+        "passenger": {
+            **_passenger(402),
+            "attendance_status": "present",
+            "phone_number": "+919999999999",
+            "email": "traveller402@example.test",
+            "department": "Sales",
+            "designation": "Manager",
+            "nationality": "Indian",
+            "hotel_name": "Example Hotel",
+            "roommate_summary": "Traveller 0403",
+            "additional_details": [],
+            "updated_at": "2026-08-02T12:00:01+00:00",
+        },
+        "next_cursor": 419,
+        "has_more": False,
+    }
 
     reference = _measurement("reference_full_roster", full_roster, iterations)
     compact = _measurement("gc_compact_readiness", readiness, iterations)
     incremental = _measurement("gc_incremental_room_change", room_change, iterations)
+    passenger_incremental = _measurement(
+        "gc_incremental_coordinator_passenger_change",
+        passenger_change,
+        iterations,
+    )
     readiness_reduction = 1 - compact["json_bytes"] / reference["json_bytes"]
     incremental_reduction = 1 - incremental["json_bytes"] / reference["json_bytes"]
-    if readiness_reduction < 0.95 or incremental_reduction < 0.95:
+    passenger_incremental_reduction = (
+        1 - passenger_incremental["json_bytes"] / reference["json_bytes"]
+    )
+    if (
+        readiness_reduction < 0.95
+        or incremental_reduction < 0.95
+        or passenger_incremental_reduction < 0.95
+    ):
         raise RuntimeError("Compact mobile contracts regressed below the 95% payload-reduction guard")
 
     return {
@@ -114,10 +163,14 @@ def run(passenger_count: int, iterations: int) -> dict[str, object]:
         "synthetic": True,
         "passenger_count": passenger_count,
         "iterations": iterations,
-        "measurements": [reference, compact, incremental],
+        "measurements": [reference, compact, incremental, passenger_incremental],
         "comparison": {
             "readiness_json_reduction_percent": round(readiness_reduction * 100, 3),
             "room_change_json_reduction_percent": round(incremental_reduction * 100, 3),
+            "coordinator_passenger_change_json_reduction_percent": round(
+                passenger_incremental_reduction * 100,
+                3,
+            ),
         },
         "limitations": [
             "Payload and local JSON serialization comparison only",

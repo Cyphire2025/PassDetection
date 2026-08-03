@@ -99,8 +99,8 @@ interface RawGroupAccess {
   announcement_version: number;
   revision: number;
   last_successful_sync_at: string | null;
-  active_mobile_users: number;
-  synced_device_count: number;
+  active_mobile_users?: number;
+  synced_device_count?: number;
 }
 
 interface RawItineraryItem {
@@ -264,8 +264,8 @@ function normalizeControl(access: RawGroupAccess, group?: RawGroup): GcAppGroupC
     access_revoked_at: access.revoked_at,
     revision: access.revision,
     organization_id: organizationId,
-    active_mobile_users: access.active_mobile_users,
-    synced_device_count: access.synced_device_count,
+    active_mobile_users: access.active_mobile_users ?? 0,
+    synced_device_count: access.synced_device_count ?? 0,
     last_successful_sync_at: access.last_successful_sync_at,
     versions: {
       itinerary_version: access.itinerary_version,
@@ -552,17 +552,20 @@ export const gcAppAdminApi = {
 
   searchCompanies: async (
     agencyId: string | null,
-    search: string,
+    params: GcPageParams,
     signal?: AbortSignal,
   ): Promise<GcPage<GcCompanyReference>> => {
-    const params = { page: 1, page_size: 200, search };
-    const { data } = await apiClient.get<GcCompanyReference[]>(
-      `${ROOT}/client-organizations`,
-      { params: { agency_id: agencyId ?? undefined }, signal },
+    const { data } = await apiClient.get<PageEnvelope<GcCompanyReference>>(
+      `${ROOT}/client-organizations/search`,
+      {
+        params: {
+          ...toOffsetParams(params),
+          agency_id: agencyId ?? undefined,
+        },
+        signal,
+      },
     );
-    const normalizedSearch = search.trim().toLocaleLowerCase();
-    const items = data.filter((company) => !normalizedSearch || company.name.toLocaleLowerCase().includes(normalizedSearch));
-    return asPage(items.slice(0, params.page_size), params);
+    return asPage(data, params);
   },
 
   createClientOrganization: async (
@@ -593,13 +596,17 @@ export const gcAppAdminApi = {
   ): Promise<GcPage<GcGroupReference>> => {
     const { data } = await apiClient.get<PageEnvelope<RawGroup>>(
       `${ROOT}/groups`,
-      { params: { ...toOffsetParams(params), agency_id: agencyId ?? undefined }, signal },
+      {
+        params: {
+          ...toOffsetParams(params),
+          agency_id: agencyId ?? undefined,
+          eligible_only: params.eligible_only || undefined,
+        },
+        signal,
+      },
     );
     const page = asPage(data, params);
-    const items = page.items
-      .filter((group) => !params.eligible_only || (group.lifecycle_status === "active" && !group.gc_enabled))
-      .map(normalizeGroup);
-    return { ...page, items, total: params.eligible_only ? items.length : page.total, has_next: params.eligible_only ? false : page.has_next };
+    return { ...page, items: page.items.map(normalizeGroup) };
   },
 
   listGroups: async (
@@ -634,18 +641,11 @@ export const gcAppAdminApi = {
     groupId: string,
     signal?: AbortSignal,
   ): Promise<GcAppGroupControl> => {
-    const [{ data }, groupPage] = await Promise.all([
-      apiClient.get<RawGroupAccess>(`${ROOT}/groups/${groupId}`, {
-        params: agencyParams(agencyId),
-        signal,
-      }),
-      apiClient.get<PageEnvelope<RawGroup>>(`${ROOT}/groups`, {
-        params: agencyParams(agencyId, { group_id: groupId, offset: 0, limit: 100 }),
-        signal,
-      }),
-    ]);
-    const group = asPage(groupPage.data, { page: 1, page_size: 100 }).items.find((item) => item.id === groupId);
-    return normalizeControl(data, group);
+    const { data } = await apiClient.get<RawGroupAccess>(`${ROOT}/groups/${groupId}`, {
+      params: agencyParams(agencyId),
+      signal,
+    });
+    return normalizeControl(data);
   },
 
   addGroup: async (
@@ -815,7 +815,12 @@ export const gcAppAdminApi = {
       form,
       {
         params: agencyParams(agencyId),
-        headers: { "Content-Type": "multipart/form-data" },
+        // Let the browser generate the multipart boundary. Supplying a bare
+        // multipart Content-Type can produce an unparseable or indefinitely
+        // pending upload because the boundary is part of that header. The
+        // shared API client defaults to JSON, so explicitly clear that default
+        // for this FormData request.
+        headers: { "Content-Type": null },
         timeout: 120_000,
       },
     );

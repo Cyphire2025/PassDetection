@@ -25,6 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
 from app.infrastructure.ai_priority.identity import gemini_runtime_identity
+from app.infrastructure.observability.sentry import sentry_init_options
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
     post_submission_verification_recovery_loop,
@@ -93,6 +94,7 @@ def create_application(
                 traces_sample_rate=0.1,
                 environment=settings.app_env,
                 release=settings.app_version,
+                **sentry_init_options(),
             )
             logger.info("sentry_initialized", dsn_configured=True)
 

@@ -12,7 +12,31 @@ from app.presentation.api.v1.routes.admin_accounts import (
     _get_manageable_account,
     delete_managed_account,
 )
+from app.presentation.api.v1.routes.admin_accounts import (
+    router as admin_accounts_router,
+)
 from app.presentation.api.v1.routes.tour_operations import list_coordinators
+
+
+def test_account_administration_mutations_require_cookie_csrf() -> None:
+    expected = {
+        ("/staff", "POST"),
+        ("/{account_id}/reset-password", "POST"),
+        ("/{account_id}/revoke-sessions", "POST"),
+        ("/{account_id}/status", "PATCH"),
+        ("/{account_id}", "DELETE"),
+    }
+
+    for path, method in expected:
+        route = next(
+            route
+            for route in admin_accounts_router.routes
+            if route.path == path and method in route.methods
+        )
+        dependencies = {
+            dependency.call.__name__ for dependency in route.dependant.dependencies
+        }
+        assert "require_cookie_csrf" in dependencies, (path, method)
 
 
 class _AccountResult:

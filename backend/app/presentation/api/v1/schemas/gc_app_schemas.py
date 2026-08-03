@@ -30,6 +30,13 @@ class ClientOrganizationResponse(BaseModel):
     updated_at: datetime
 
 
+class ClientOrganizationPageResponse(BaseModel):
+    items: list[ClientOrganizationResponse]
+    total: int
+    offset: int
+    limit: int
+
+
 class ClientManagerCreateRequest(BaseModel):
     full_name: str = Field(min_length=1, max_length=255)
     email: EmailStr
@@ -178,6 +185,8 @@ class GCGroupSearchAccess(BaseModel):
     announcement_version: int
     revision: int
     last_successful_sync_at: datetime | None
+    active_mobile_users: int = 0
+    synced_device_count: int = 0
     updated_at: datetime
 
 

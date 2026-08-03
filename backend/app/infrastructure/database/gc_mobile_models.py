@@ -976,10 +976,24 @@ class MobilePassengerIdentityModel(Base):
             "group_id",
             name="uq_mobile_passenger_identity_scope",
         ),
+        UniqueConstraint(
+            "id",
+            "gc_group_access_id",
+            "agency_id",
+            "group_id",
+            "passenger_submission_id",
+            name="uq_mobile_passenger_identity_document_scope",
+        ),
         ForeignKeyConstraint(
             ["gc_group_access_id", "agency_id", "group_id"],
             ["gc_group_access.id", "gc_group_access.agency_id", "gc_group_access.group_id"],
             name="fk_mobile_passenger_identity_access",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["passenger_submission_id", "agency_id", "group_id"],
+            ["passport_submissions.id", "passport_submissions.agency_id", "passport_submissions.group_id"],
+            name="fk_mobile_passenger_identity_submission_scope",
             ondelete="CASCADE",
         ),
         CheckConstraint(
@@ -1043,7 +1057,6 @@ class MobilePassengerIdentityModel(Base):
     gc_group_access_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     passenger_submission_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
         nullable=False,
     )
     normalized_phone_number: Mapped[str] = mapped_column(String(16), nullable=False)
@@ -1108,12 +1121,19 @@ class MobileDocumentMetadataCacheModel(Base):
             ondelete="CASCADE",
         ),
         ForeignKeyConstraint(
-            ["passenger_identity_id", "gc_group_access_id", "agency_id", "group_id"],
+            [
+                "passenger_identity_id",
+                "gc_group_access_id",
+                "agency_id",
+                "group_id",
+                "passenger_submission_id",
+            ],
             [
                 "mobile_passenger_identities.id",
                 "mobile_passenger_identities.gc_group_access_id",
                 "mobile_passenger_identities.agency_id",
                 "mobile_passenger_identities.group_id",
+                "mobile_passenger_identities.passenger_submission_id",
             ],
             name="fk_mobile_document_cache_identity",
             ondelete="CASCADE",
@@ -1154,7 +1174,6 @@ class MobileDocumentMetadataCacheModel(Base):
     passenger_identity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     passenger_submission_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("passport_submissions.id", ondelete="CASCADE"),
         nullable=False,
     )
     source_kind: Mapped[str] = mapped_column(String(24), nullable=False)
@@ -1228,6 +1247,13 @@ class MobileOTPChallengeModel(Base):
         ),
         Index("ix_mobile_otp_phone_created", "phone_lookup_hash", "created_at"),
         Index("ix_mobile_otp_expiry_status", "status", "expires_at"),
+        Index(
+            "uq_mobile_otp_pending_phone",
+            "phone_lookup_hash",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+            sqlite_where=text("status = 'pending'"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -1371,6 +1397,14 @@ class MobileDeviceSessionModel(Base):
         ),
         Index("ix_mobile_session_expiry", "status", "expires_at"),
         Index("ix_mobile_session_agency_seen", "agency_id", "last_seen_at"),
+        Index("ix_mobile_session_account", "agency_id", "account_id"),
+        Index(
+            "ix_mobile_session_group_status_expiry",
+            "agency_id",
+            "selected_gc_group_access_id",
+            "status",
+            "expires_at",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -1381,6 +1415,11 @@ class MobileDeviceSessionModel(Base):
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
+    # Stable client-side cache/account namespace. Passenger identity_id changes
+    # when the same verified account switches trips; account_id deliberately
+    # does not. For newly issued single-trip and staff sessions it equals the
+    # initial principal id, preserving existing device cache namespaces.
+    account_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     passenger_identity_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), nullable=True
     )
@@ -1411,6 +1450,13 @@ class MobileDeviceSessionModel(Base):
         server_default=text("CURRENT_TIMESTAMP"),
     )
     last_refresh_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Set only after the device commits a complete, version-matched trip sync
+    # and acknowledges it through /mobile/sync/ack.  Keeping this distinct
+    # from last_seen_at prevents ordinary authentication/refresh traffic from
+    # being reported as a successfully synchronized device.
+    last_sync_acknowledged_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     revoke_reason: Mapped[str | None] = mapped_column(String(80), nullable=True)
@@ -1425,6 +1471,73 @@ class MobileDeviceSessionModel(Base):
         nullable=False,
         default=_utcnow,
         onupdate=_utcnow,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+
+class MobilePassengerSessionIdentityModel(Base):
+    """An exact passenger identity proven for one revocable device session.
+
+    A passenger access token still names exactly one selected identity.  These
+    rows only retain the bounded set that the same OTP/secondary-factor proof
+    authorized, allowing a later trip switch without repeating OTP while
+    preserving tenant, group, and identity ownership at the database layer.
+    """
+
+    __tablename__ = "mobile_passenger_session_identities"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["session_id", "agency_id"],
+            ["mobile_device_sessions.id", "mobile_device_sessions.agency_id"],
+            name="fk_mobile_passenger_session_identity_session",
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            [
+                "passenger_identity_id",
+                "gc_group_access_id",
+                "agency_id",
+                "group_id",
+            ],
+            [
+                "mobile_passenger_identities.id",
+                "mobile_passenger_identities.gc_group_access_id",
+                "mobile_passenger_identities.agency_id",
+                "mobile_passenger_identities.group_id",
+            ],
+            name="fk_mobile_passenger_session_identity_scope",
+            ondelete="CASCADE",
+        ),
+        CheckConstraint(
+            "identity_claim_generation >= 0",
+            name="ck_mobile_passenger_session_identity_generation",
+        ),
+        Index(
+            "ix_mobile_passenger_session_identity_group",
+            "session_id",
+            "group_id",
+        ),
+        Index(
+            "ix_mobile_passenger_session_identity_identity",
+            "passenger_identity_id",
+            "session_id",
+        ),
+    )
+
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    passenger_identity_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    group_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    gc_group_access_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    identity_claim_generation: Mapped[int] = mapped_column(Integer, nullable=False)
+    authorized_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
         server_default=text("CURRENT_TIMESTAMP"),
     )
 
@@ -1582,6 +1695,125 @@ class MobilePushRegistrationModel(Base):
     last_failure_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_failure_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        onupdate=_utcnow,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+
+class MobilePushDeliveryModel(Base):
+    """Durable provider ticket and receipt state for one device delivery."""
+
+    __tablename__ = "mobile_push_deliveries"
+    __table_args__ = (
+        UniqueConstraint(
+            "notification_id",
+            "registration_id",
+            name="uq_mobile_push_delivery_target",
+        ),
+        CheckConstraint(
+            "provider IN ('expo', 'fcm', 'apns')",
+            name="ck_mobile_push_delivery_provider",
+        ),
+        CheckConstraint(
+            "status IN ('submitting', 'retry', 'receipt_pending', 'delivered', "
+            "'failed', 'cancelled')",
+            name="ck_mobile_push_delivery_status",
+        ),
+        CheckConstraint(
+            "send_attempts >= 0 AND receipt_attempts >= 0",
+            name="ck_mobile_push_delivery_attempts",
+        ),
+        CheckConstraint(
+            "(provider_ticket_id IS NULL AND submitted_at IS NULL) OR "
+            "(provider_ticket_id IS NOT NULL AND submitted_at IS NOT NULL)",
+            name="ck_mobile_push_delivery_ticket_shape",
+        ),
+        CheckConstraint(
+            "status NOT IN ('receipt_pending', 'delivered') OR "
+            "provider_ticket_id IS NOT NULL",
+            name="ck_mobile_push_delivery_receipt_shape",
+        ),
+        CheckConstraint(
+            "(status = 'delivered' AND delivered_at IS NOT NULL) OR "
+            "(status != 'delivered' AND delivered_at IS NULL)",
+            name="ck_mobile_push_delivery_delivered_shape",
+        ),
+        CheckConstraint(
+            "(status = 'failed' AND failed_at IS NOT NULL) OR "
+            "(status != 'failed' AND failed_at IS NULL)",
+            name="ck_mobile_push_delivery_failed_shape",
+        ),
+        Index(
+            "uq_mobile_push_delivery_provider_ticket",
+            "provider",
+            "provider_ticket_id",
+            unique=True,
+            postgresql_where=text("provider_ticket_id IS NOT NULL"),
+            sqlite_where=text("provider_ticket_id IS NOT NULL"),
+        ),
+        Index(
+            "ix_mobile_push_delivery_due",
+            "provider",
+            "status",
+            "next_attempt_at",
+        ),
+        Index("ix_mobile_push_delivery_notification", "notification_id", "status"),
+        Index("ix_mobile_push_delivery_registration", "registration_id", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    agency_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("agencies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    notification_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("mobile_notifications.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    registration_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("mobile_push_registrations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    provider: Mapped[str] = mapped_column(String(16), nullable=False)
+    provider_ticket_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(24), nullable=False, default="submitting", server_default="submitting"
+    )
+    send_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    receipt_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    next_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+    submitted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    delivered_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -2128,6 +2360,8 @@ __all__ = [
     "MobileNotificationModel",
     "MobileOTPChallengeModel",
     "MobilePassengerIdentityModel",
+    "MobilePassengerSessionIdentityModel",
+    "MobilePushDeliveryModel",
     "MobilePushRegistrationModel",
     "MobileRefreshTokenModel",
     "MobileSyncChangeModel",

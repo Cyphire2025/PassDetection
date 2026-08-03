@@ -10,6 +10,7 @@ Uses pydantic-settings for:
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import re
 from functools import lru_cache
@@ -107,7 +108,7 @@ class MobileSettings(BaseSettings):
     otp_delivery_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
     otp_resend_cooldown_seconds: int = Field(default=60, ge=15, le=600)
     otp_max_attempts: int = Field(default=5, ge=1, le=10)
-    otp_phone_limit_per_hour: int = Field(default=6, ge=1, le=100)
+    otp_phone_limit_per_hour: int = Field(default=10, ge=1, le=100)
     otp_ip_limit_per_hour: int = Field(default=30, ge=1, le=1_000)
     otp_require_redis: bool = True
     sync_page_size: int = Field(default=200, ge=25, le=500)
@@ -128,6 +129,13 @@ class MobileSettings(BaseSettings):
     push_batch_size: int = Field(default=100, ge=1, le=100)
     push_timeout_seconds: float = Field(default=10.0, ge=1.0, le=30.0)
     push_dispatch_interval_seconds: int = Field(default=5, ge=1, le=300)
+    push_max_send_attempts: int = Field(default=5, ge=1, le=10)
+    push_retry_base_seconds: int = Field(default=5, ge=1, le=300)
+    push_receipt_batch_size: int = Field(default=1_000, ge=1, le=1_000)
+    push_receipt_initial_delay_seconds: int = Field(default=900, ge=60, le=3_600)
+    push_receipt_poll_interval_seconds: int = Field(default=60, ge=15, le=900)
+    push_receipt_max_attempts: int = Field(default=8, ge=1, le=24)
+    push_receipt_max_age_hours: int = Field(default=23, ge=1, le=24)
 
     @field_validator(
         "jwt_secret_key",
@@ -146,6 +154,18 @@ class MobileSettings(BaseSettings):
         if self.otp_provider == "development" and self.otp_development_code is None:
             raise ValueError(
                 "MOBILE_OTP_DEVELOPMENT_CODE is required for the development OTP provider"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_push_receipt_window(self) -> Self:
+        if (
+            self.push_receipt_initial_delay_seconds
+            >= self.push_receipt_max_age_hours * 3_600
+        ):
+            raise ValueError(
+                "MOBILE_PUSH_RECEIPT_INITIAL_DELAY_SECONDS must be shorter than "
+                "MOBILE_PUSH_RECEIPT_MAX_AGE_HOURS"
             )
         return self
 
@@ -196,6 +216,10 @@ class Settings(BaseSettings):
     backend_port: int = 8000
 
     allowed_origins: list[str] = ["http://localhost:3000"]
+    # Only these direct peers may supply X-Real-IP. The production backend is
+    # private to the Compose network and receives requests from Nginx on the
+    # 172.16/12 bridge range. Loopback supports local reverse-proxy testing.
+    trusted_proxy_networks: list[str] = ["127.0.0.0/8", "::1/128", "172.16.0.0/12"]
 
     @field_validator("allowed_origins", mode="before")
     @classmethod
@@ -216,6 +240,17 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in normalized.split(",") if origin.strip()]
 
         return value
+
+    @field_validator("trusted_proxy_networks")
+    @classmethod
+    def validate_trusted_proxy_networks(cls, value: list[str]) -> list[str]:
+        normalized: list[str] = []
+        for item in value:
+            network = ipaddress.ip_network(str(item).strip(), strict=False)
+            normalized.append(network.with_prefixlen)
+        if not normalized:
+            raise ValueError("TRUSTED_PROXY_NETWORKS must contain at least one CIDR")
+        return normalized
 
     @field_validator(
         "gemini_image_edit_model",
@@ -328,6 +363,11 @@ class Settings(BaseSettings):
         ge=1024 * 1024,
         le=512 * 1024 * 1024,
     )
+    # Credential lockouts must remain global across every API worker in
+    # production.  Development and isolated tests can opt into the bounded
+    # in-process fallback explicitly, but a Redis outage must never silently
+    # weaken the production authentication boundary.
+    login_lockout_require_redis: bool = True
     dashboard_rate_limit_require_redis: bool = True
     public_upload_bootstrap_session_rate_limit_per_minute: int = Field(
         default=30,
@@ -578,6 +618,22 @@ class Settings(BaseSettings):
             missing.append("WHATSAPP_OTP_TEMPLATE_NAME")
         if missing:
             raise ValueError("MOBILE_OTP_PROVIDER=whatsapp requires " + ", ".join(missing))
+        return self
+
+    @model_validator(mode="after")
+    def validate_mobile_production_signing_secret(self) -> Self:
+        """Fail startup before a weak production mobile signing key can be used."""
+
+        mobile = self.mobile
+        if not (self.is_production and mobile.enabled):
+            return self
+        configured = mobile.jwt_secret_key
+        secret = configured.get_secret_value() if configured is not None else ""
+        if len(secret.encode("utf-8")) < 32:
+            raise ValueError(
+                "MOBILE_JWT_SECRET_KEY must contain at least 32 bytes when the mobile API "
+                "is enabled in production"
+            )
         return self
 
     @model_validator(mode="after")

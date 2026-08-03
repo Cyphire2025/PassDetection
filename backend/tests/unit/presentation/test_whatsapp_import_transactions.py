@@ -9,12 +9,22 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.entities.entities import UserRole
+from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
 from app.presentation.api.v1.routes.whatsapp import (
     WhatsAppRecipientInput,
     _lock_active_whatsapp_actor,
     add_broadcast_recipients,
     create_broadcast_group,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        whatsapp_routes,
+        "reconcile_mobile_passenger_access_for_broadcast",
+        AsyncMock(),
+    )
 
 
 def _scalar_result(value: object) -> MagicMock:

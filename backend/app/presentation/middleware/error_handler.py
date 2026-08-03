@@ -21,6 +21,7 @@ from app.domain.exceptions.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ClientGroupUsedError,
+    DependencyUnavailableError,
     DuplicateEntityError,
     EntityNotFoundError,
     GroupClosedError,
@@ -92,6 +93,13 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(RateLimitExceededError)
     async def rate_limit_handler(request: Request, exc: RateLimitExceededError) -> JSONResponse:
         return _error_response(exc.code, exc.message, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    @app.exception_handler(DependencyUnavailableError)
+    async def dependency_unavailable_handler(
+        request: Request, exc: DependencyUnavailableError
+    ) -> JSONResponse:
+        logger.error("required_dependency_unavailable", code=exc.code)
+        return _error_response(exc.code, exc.message, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     @app.exception_handler(OCREngineError)
     async def ocr_engine_handler(request: Request, exc: OCREngineError) -> JSONResponse:

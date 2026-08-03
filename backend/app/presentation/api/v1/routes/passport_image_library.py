@@ -21,6 +21,9 @@ from fastapi import (
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+)
 from app.application.use_cases.passports.reextract_passport_submission_use_case import (
     ReextractPassportSubmissionUseCase,
 )
@@ -373,6 +376,16 @@ async def upload_passport_image_library_item(
                 ),
             },
         )
+        if image_type is PassportImageType.PASSPORT_FRONT:
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=submission.agency_id,
+                group_id=submission.group_id,
+                passenger_submission_ids=[submission.id],
+                actor_user_id=current_user.id,
+                change_kind="documents",
+                reconcile_identities=False,
+            )
         if reextract_result is not None:
             await _dispatch_processing_job(
                 reextract_result,
@@ -574,6 +587,16 @@ async def use_passport_image_library_item(
                 ),
             },
         )
+        if image_type is PassportImageType.PASSPORT_FRONT:
+            await propagate_mobile_passenger_change(
+                session,
+                agency_id=submission.agency_id,
+                group_id=submission.group_id,
+                passenger_submission_ids=[submission.id],
+                actor_user_id=current_user.id,
+                change_kind="documents",
+                reconcile_identities=False,
+            )
         if reextract_result is not None:
             await _dispatch_processing_job(
                 reextract_result,

@@ -18,6 +18,9 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from sqlalchemy import and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+)
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.application.use_cases.whatsapp.document_templates import (
     default_document_message_content,
@@ -208,6 +211,41 @@ async def _cleanup_distribution_storage_keys(
 DOCUMENT_DELIVERY_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
 DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = frozenset({"queued", "processing"})
+
+
+async def _released_document_passenger_ids(
+    session: AsyncSession,
+    *,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+    document_ids: list[uuid.UUID],
+) -> tuple[uuid.UUID, ...]:
+    """Return passengers whose selected documents are currently mobile-visible."""
+
+    if not document_ids:
+        return ()
+    return tuple(
+        sorted(
+            set(
+                (
+                    await session.execute(
+                        select(DocumentWhatsAppDeliveryModel.passenger_id).where(
+                            DocumentWhatsAppDeliveryModel.distributed_document_id.in_(
+                                document_ids
+                            ),
+                            DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+                            DocumentWhatsAppDeliveryModel.group_id == group_id,
+                            DocumentWhatsAppDeliveryModel.passenger_id.is_not(None),
+                            DocumentWhatsAppDeliveryModel.status.in_(
+                                DOCUMENT_DELIVERY_ACCEPTED_STATUSES
+                            ),
+                        )
+                    )
+                ).scalars()
+            ),
+            key=str,
+        )
+    )
 DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta(minutes=5)
 DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS = 5
 DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS = 10
@@ -3214,6 +3252,12 @@ async def unassign_distribution_documents(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No assigned documents were found",
         )
+    released_passenger_ids = await _released_document_passenger_ids(
+        session,
+        agency_id=group.agency_id,
+        group_id=group_id,
+        document_ids=[document.id for document in documents_to_unassign],
+    )
 
     active_delivery_result = await session.execute(
         select(DocumentWhatsAppDeliveryModel.id)
@@ -3253,6 +3297,17 @@ async def unassign_distribution_documents(
         group_id=group_id,
         now=now,
     )
+    if released_passenger_ids:
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=group.agency_id,
+            group_id=group_id,
+            passenger_submission_ids=released_passenger_ids,
+            actor_user_id=current_user.id,
+            operation="delete",
+            change_kind="documents",
+            reconcile_identities=False,
+        )
     await AuditLogRepository(session).record(
         action="document_distribution_unassigned",
         entity_type="document_distribution_batch",
@@ -3360,6 +3415,12 @@ async def delete_distribution_documents(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No matching documents were found"
         )
+    released_passenger_ids = await _released_document_passenger_ids(
+        session,
+        agency_id=group.agency_id,
+        group_id=group_id,
+        document_ids=[document.id for document in documents_to_delete],
+    )
 
     active_delivery_result = await session.execute(
         select(DocumentWhatsAppDeliveryModel.id)
@@ -3414,6 +3475,17 @@ async def delete_distribution_documents(
         group_id=group_id,
         now=now,
     )
+    if released_passenger_ids:
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=group.agency_id,
+            group_id=group_id,
+            passenger_submission_ids=released_passenger_ids,
+            actor_user_id=current_user.id,
+            operation="delete",
+            change_kind="documents",
+            reconcile_identities=False,
+        )
     await AuditLogRepository(session).record(
         action="document_distribution_deleted",
         entity_type="document_distribution_batch",

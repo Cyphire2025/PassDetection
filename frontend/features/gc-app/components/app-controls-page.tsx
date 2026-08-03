@@ -26,7 +26,11 @@ export function AppControlsPage() {
   const [page, setPage] = useState(1);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState("");
+  const [pickerPage, setPickerPage] = useState(1);
+  const [companySearch, setCompanySearch] = useState("");
+  const [companyPage, setCompanyPage] = useState(1);
   const [pickerCompanyId, setPickerCompanyId] = useState("");
+  const [pickerCompany, setPickerCompany] = useState<GcCompanyReference | null>(null);
   const [newCompanyName, setNewCompanyName] = useState("");
   const [pickerError, setPickerError] = useState<string | null>(null);
   const [pendingCompanyRemoval, setPendingCompanyRemoval] = useState<GcCompanyReference | null>(null);
@@ -35,19 +39,23 @@ export function AppControlsPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
   const debouncedPickerSearch = useDebounce(pickerSearch, 300);
+  const debouncedCompanySearch = useDebounce(companySearch, 300);
   const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, lifecycle } as const;
   const groups = useGcAppGroups(agencyId, filters);
   const candidates = useGcGroupSearch(
     agencyId,
-    { page: 1, page_size: 20, search: debouncedPickerSearch },
+    { page: pickerPage, page_size: 20, search: debouncedPickerSearch },
     true,
     pickerOpen,
   );
-  const companies = useClientCompanies(agencyId);
+  const companies = useClientCompanies(agencyId, debouncedCompanySearch, companyPage, 20);
   const companyActions = useClientCompanyMutations(agencyId);
   const actions = useGcAppGroupMutations(agencyId);
   const companyItems = companies.data?.items ?? [];
   const activeCompanies = companyItems.filter((company) => company.status !== "inactive");
+  const selectableCompanies = pickerCompany && !activeCompanies.some((company) => company.id === pickerCompany.id)
+    ? [pickerCompany, ...activeCompanies]
+    : activeCompanies;
   const pickerBusy = actions.add.isPending || companyActions.create.isPending || companyActions.remove.isPending;
   const mutationPending = actions.add.isPending
     || actions.revoke.isPending
@@ -72,6 +80,7 @@ export function AppControlsPage() {
     setPickerError(null);
     setPendingCompanyRemoval(null);
     setCompanyRemovalConfirmation("");
+    setPickerPage(1);
     setPickerOpen(true);
   };
 
@@ -88,7 +97,10 @@ export function AppControlsPage() {
     setPickerError(null);
     try {
       await companyActions.remove.mutateAsync(pendingCompanyRemoval);
-      if (pickerCompanyId === pendingCompanyRemoval.id) setPickerCompanyId("");
+      if (pickerCompanyId === pendingCompanyRemoval.id) {
+        setPickerCompanyId("");
+        setPickerCompany(null);
+      }
       setPendingCompanyRemoval(null);
       setCompanyRemovalConfirmation("");
     } catch (error) {
@@ -127,11 +139,15 @@ export function AppControlsPage() {
             <select
               id="gc-group-company"
               value={pickerCompanyId}
-              onChange={(event) => setPickerCompanyId(event.target.value)}
+              onChange={(event) => {
+                const id = event.target.value;
+                setPickerCompanyId(id);
+                setPickerCompany(selectableCompanies.find((company) => company.id === id) ?? null);
+              }}
               className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="">Select company/client before adding</option>
-              {activeCompanies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
+              {selectableCompanies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
             </select>
             {companies.isError && <p role="alert" className="text-xs text-red-700">Companies could not be loaded.</p>}
           </div>
@@ -207,14 +223,28 @@ export function AppControlsPage() {
             <label htmlFor="gc-app-group-company" className="block text-sm font-medium text-slate-700">
               Assigned company/client
             </label>
+            <Input
+              aria-label="Search saved company or client"
+              value={companySearch}
+              onChange={(event) => {
+                setCompanySearch(event.target.value);
+                setCompanyPage(1);
+              }}
+              placeholder="Search company/client"
+              leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+            />
             <select
               id="gc-app-group-company"
               value={pickerCompanyId}
-              onChange={(event) => setPickerCompanyId(event.target.value)}
+              onChange={(event) => {
+                const id = event.target.value;
+                setPickerCompanyId(id);
+                setPickerCompany(selectableCompanies.find((company) => company.id === id) ?? null);
+              }}
               className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
             >
               <option value="">Select company/client</option>
-              {activeCompanies.map((company) => (
+              {selectableCompanies.map((company) => (
                 <option key={company.id} value={company.id}>{company.name}</option>
               ))}
             </select>
@@ -237,6 +267,7 @@ export function AppControlsPage() {
                   setPickerError(null);
                   void companyActions.create.mutateAsync(name).then((company) => {
                     setPickerCompanyId(company.id);
+                    setPickerCompany(company);
                     setNewCompanyName("");
                   }).catch((error: unknown) => {
                     setPickerError(gcAppErrorMessage(error, "The company/client could not be created."));
@@ -254,11 +285,10 @@ export function AppControlsPage() {
                     <Building2 className="h-4 w-4 text-slate-500" aria-hidden="true" />
                     Saved company/clients
                   </h3>
-                  <p className="mt-1 text-xs text-slate-500">All company/client records available in this agency workspace.</p>
+                  <p className="mt-1 text-xs text-slate-500">Search and page through company/client records in this agency workspace.</p>
                 </div>
-                <Badge variant="outline">{activeCompanies.length}</Badge>
+                <Badge variant="outline">{companies.data?.total ?? 0}</Badge>
               </div>
-
               <div className="mt-3 max-h-44 overflow-y-auto rounded-lg border border-slate-200">
                 {companies.isLoading ? <GcLoadingRows count={2} /> : companies.isError ? (
                   <p role="alert" className="p-4 text-sm text-red-700">Companies could not be loaded.</p>
@@ -285,6 +315,16 @@ export function AppControlsPage() {
                   </div>
                 ))}
               </div>
+              {companies.data && companies.data.total > companies.data.page_size && (
+                <GcPagination
+                  page={companies.data.page}
+                  total={companies.data.total}
+                  pageSize={companies.data.page_size}
+                  hasNext={companies.data.has_next}
+                  disabled={companies.isFetching}
+                  onPageChange={setCompanyPage}
+                />
+              )}
 
               {pendingCompanyRemoval && (
                 <div className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-3" role="group" aria-labelledby="remove-company-heading">
@@ -333,7 +373,10 @@ export function AppControlsPage() {
           <Input
             label="Search dashboard groups"
             value={pickerSearch}
-            onChange={(event) => setPickerSearch(event.target.value)}
+            onChange={(event) => {
+              setPickerSearch(event.target.value);
+              setPickerPage(1);
+            }}
             placeholder="Group name or destination"
             leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
           />
@@ -355,7 +398,9 @@ export function AppControlsPage() {
                   disabled={actions.add.isPending || !pickerCompanyId}
                   onClick={() => {
                     setPickerError(null);
-                    const company = activeCompanies.find((item) => item.id === pickerCompanyId);
+                    const company = pickerCompany?.id === pickerCompanyId
+                      ? pickerCompany
+                      : activeCompanies.find((item) => item.id === pickerCompanyId);
                     if (!company) {
                       setPickerError("Select the company/client that owns this group.");
                       return;
@@ -363,6 +408,7 @@ export function AppControlsPage() {
                     void actions.add.mutateAsync({ group, company }).then(() => {
                       setPickerOpen(false);
                       setPickerCompanyId("");
+                      setPickerCompany(null);
                       setPendingCompanyRemoval(null);
                       setCompanyRemovalConfirmation("");
                     }).catch((error: unknown) => {
@@ -375,6 +421,16 @@ export function AppControlsPage() {
               </div>
             ))}
           </div>
+          {candidates.data && candidates.data.total > candidates.data.page_size && (
+            <GcPagination
+              page={candidates.data.page}
+              total={candidates.data.total}
+              pageSize={candidates.data.page_size}
+              hasNext={candidates.data.has_next}
+              disabled={candidates.isFetching}
+              onPageChange={setPickerPage}
+            />
+          )}
         </div>
       </GcDialog>
 

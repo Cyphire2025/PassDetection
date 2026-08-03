@@ -10,7 +10,11 @@ from datetime import UTC, datetime
 
 import httpx
 from sqlalchemy import Select, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+)
 from app.application.use_cases.whatsapp.document_templates import (
     document_template_parameters,
     legacy_document_template_parameters,
@@ -44,6 +48,69 @@ MAX_PROVIDER_ATTEMPTS = 3
 ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 ACCEPTED_STATUS_RANK = {"submitted": 0, "sent": 1, "delivered": 2, "read": 3}
 logger = logging.getLogger(__name__)
+
+
+async def _propagate_first_released_document_batch(
+    session: AsyncSession,
+    *,
+    send_batch_id: uuid.UUID,
+    agency_id: uuid.UUID,
+    group_id: uuid.UUID,
+) -> int:
+    """Collapse a worker batch into one idempotent mobile invalidation."""
+
+    current_rows = list(
+        (
+            await session.execute(
+                select(
+                    DocumentWhatsAppDeliveryModel.distributed_document_id,
+                    DocumentWhatsAppDeliveryModel.passenger_id,
+                ).where(
+                    DocumentWhatsAppDeliveryModel.send_batch_id == send_batch_id,
+                    DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+                    DocumentWhatsAppDeliveryModel.group_id == group_id,
+                    DocumentWhatsAppDeliveryModel.distributed_document_id.is_not(None),
+                    DocumentWhatsAppDeliveryModel.passenger_id.is_not(None),
+                    DocumentWhatsAppDeliveryModel.status.in_(ACCEPTED_STATUSES),
+                )
+            )
+        ).all()
+    )
+    if not current_rows:
+        return 0
+    document_ids = {row.distributed_document_id for row in current_rows}
+    previously_released = set(
+        (
+            await session.execute(
+                select(DocumentWhatsAppDeliveryModel.distributed_document_id).where(
+                    DocumentWhatsAppDeliveryModel.distributed_document_id.in_(document_ids),
+                    DocumentWhatsAppDeliveryModel.agency_id == agency_id,
+                    DocumentWhatsAppDeliveryModel.group_id == group_id,
+                    DocumentWhatsAppDeliveryModel.send_batch_id != send_batch_id,
+                    DocumentWhatsAppDeliveryModel.status.in_(ACCEPTED_STATUSES),
+                )
+            )
+        ).scalars()
+    )
+    passenger_ids = {
+        row.passenger_id
+        for row in current_rows
+        if row.distributed_document_id not in previously_released
+        and row.passenger_id is not None
+    }
+    if not passenger_ids:
+        return 0
+    result = await propagate_mobile_passenger_change(
+        session,
+        agency_id=agency_id,
+        group_id=group_id,
+        passenger_submission_ids=passenger_ids,
+        actor_user_id=None,
+        change_kind="documents",
+        reconcile_identities=False,
+        propagation_key=f"document-delivery-batch:{send_batch_id}",
+    )
+    return result.sync_changes
 
 
 def _document_media_source_statement(
@@ -295,6 +362,13 @@ async def run_document_whatsapp_broadcast(
                     ),
                     concurrency=concurrency,
                 )
+            await _propagate_first_released_document_batch(
+                session,
+                send_batch_id=parsed_batch_id,
+                agency_id=agency_id,
+                group_id=group_id,
+            )
+            await session.commit()
         return
 
     delivery_ids = [_delivery_id]

@@ -20,6 +20,55 @@ def test_mobile_settings_accept_whatsapp_without_development_code() -> None:
     assert settings.otp_development_code is None
 
 
+def test_mobile_push_receipt_polling_must_start_before_receipt_retention_expires() -> None:
+    with pytest.raises(
+        PydanticValidationError,
+        match="MOBILE_PUSH_RECEIPT_INITIAL_DELAY_SECONDS",
+    ):
+        MobileSettings(
+            push_receipt_initial_delay_seconds=3_600,
+            push_receipt_max_age_hours=1,
+            _env_file=None,
+        )
+
+
+@pytest.mark.parametrize("secret", [None, "short-mobile-secret"])
+def test_production_mobile_api_rejects_missing_or_weak_signing_secret(
+    monkeypatch: pytest.MonkeyPatch,
+    secret: str | None,
+) -> None:
+    monkeypatch.setenv("MOBILE_ENABLED", "true")
+    if secret is None:
+        monkeypatch.delenv("MOBILE_JWT_SECRET_KEY", raising=False)
+    else:
+        monkeypatch.setenv("MOBILE_JWT_SECRET_KEY", secret)
+
+    with pytest.raises(PydanticValidationError, match="at least 32 bytes"):
+        Settings(
+            app_env="production",
+            app_secret_key="unit-test-secret",
+            _env_file=None,
+        )
+
+
+def test_production_mobile_api_accepts_independent_high_entropy_signing_secret(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MOBILE_ENABLED", "true")
+    monkeypatch.setenv(
+        "MOBILE_JWT_SECRET_KEY",
+        "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+",
+    )
+
+    settings = Settings(
+        app_env="production",
+        app_secret_key="unit-test-secret",
+        _env_file=None,
+    )
+
+    assert settings.mobile.jwt_secret_key is not None
+
+
 def test_development_otp_provider_is_rejected_at_production_startup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

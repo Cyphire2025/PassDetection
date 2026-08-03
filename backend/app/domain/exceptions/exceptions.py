@@ -184,3 +184,10 @@ class RateLimitExceededError(PassDetectionError):
 
     def __init__(self) -> None:
         super().__init__("Rate limit exceeded. Please try again later.", code="RATE_LIMIT_EXCEEDED")
+
+
+class DependencyUnavailableError(PassDetectionError):
+    """Raised when a required security or infrastructure dependency is down."""
+
+    def __init__(self, message: str = "A required service is temporarily unavailable") -> None:
+        super().__init__(message, code="DEPENDENCY_UNAVAILABLE")

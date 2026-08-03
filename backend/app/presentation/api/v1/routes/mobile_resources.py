@@ -7,10 +7,12 @@ URLs, passport fields, internal notes, and staff-only workflow metadata.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import re
 import uuid
+from contextlib import aclosing
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import PurePosixPath
@@ -18,11 +20,14 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import case, exists, func, or_, select
+from sqlalchemy import and_, case, exists, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.mobile.coordinator_roster_revision import (
+    coordinator_roster_revision,
+)
 from app.application.security.mobile_access_policy import (
     AuthorizedMobileTrip,
     MobileAccessPolicy,
@@ -56,10 +61,10 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileDeviceSessionModel,
     MobileDocumentMetadataCacheModel,
     MobilePassengerIdentityModel,
+    MobilePassengerSessionIdentityModel,
     MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import (
-    AttendanceRecordModel,
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
     DistributedDocumentModel,
@@ -105,6 +110,7 @@ from app.presentation.dependencies.mobile_auth import (
     get_current_mobile_claims,
     require_unrestricted_mobile_claims,
 )
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 
@@ -113,7 +119,7 @@ _MAX_ANNOUNCEMENT_PAGE = 200
 _MAX_DOCUMENT_PAGE = 200
 _MAX_SYNC_PAGE = 500
 _MAX_PERSONAL_DOCUMENTS = 200
-_MAX_LEGACY_METADATA_BACKFILLS = 2
+_MOBILE_DOCUMENT_STREAM_SLOTS = asyncio.Semaphore(8)
 _MOBILE_RELEASED_DOCUMENT_DELIVERY_STATUSES = ("submitted", "sent", "delivered", "read")
 _ROOM_NAMESPACE = uuid.UUID("d41f0d72-5c68-4182-b4b7-fc8d6ae87386")
 _MEAL_NAMESPACE = uuid.UUID("14e1d943-dd99-4309-adf3-242bcc49324a")
@@ -144,6 +150,24 @@ class _MobileDocumentSource:
     common_document: GCCommonDocumentModel | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class _MobileDocumentStreamPlan:
+    """Immutable, fully authorized object stream contract.
+
+    The plan contains no ORM instances and is created before the request
+    session is released. Streaming can therefore wait for admission or run for
+    a slow client without retaining a database transaction or connection.
+    """
+
+    storage_key: str
+    safe_filename: str
+    content_type: str
+    expected_size: int
+    expected_checksum: str
+    response_start: int
+    is_partial: bool
+
+
 @router.get("/me", response_model=MobilePrincipalResponse)
 async def get_mobile_me(
     claims: MobileAccessClaims = Depends(get_current_mobile_claims),
@@ -158,6 +182,7 @@ async def get_mobile_me(
                     PassportSubmissionModel.client_name,
                     PassportSubmissionModel.client_email,
                     MobilePassengerIdentityModel.normalized_phone_number,
+                    MobilePassengerIdentityModel.passenger_submission_id,
                 )
                 .join(
                     MobilePassengerIdentityModel,
@@ -197,13 +222,15 @@ async def get_mobile_me(
                         )
                     )
                 ).scalar_one_or_none()
-            principal = (user[0], user[1], phone_number)
+            principal = (user[0], user[1], phone_number, None)
     if principal is None or not principal[0]:
         raise AuthenticationError("Mobile account is inactive")
     return MobilePrincipalResponse(
         id=claims.principal_id,
+        account_id=claims.account_id,
         principal_type=claims.principal_type,
         agency_id=claims.agency_id,
+        passenger_id=principal[3],
         display_name=str(principal[0]),
         email=str(principal[1]) if principal[1] else None,
         phone_number=str(principal[2]) if principal[2] else None,
@@ -243,16 +270,43 @@ async def list_mobile_trips(
     )
 
     if claims.principal_type == "passenger":
-        statement = statement.join(
-            MobilePassengerIdentityModel,
-            MobilePassengerIdentityModel.gc_group_access_id == GCGroupAccessModel.id,
-        ).where(
-            GCGroupAccessModel.passenger_access_enabled.is_(True),
-            MobilePassengerIdentityModel.id == claims.principal_id,
-            MobilePassengerIdentityModel.agency_id == claims.agency_id,
-            MobilePassengerIdentityModel.group_id == ClientGroupModel.id,
-            MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
-            MobilePassengerIdentityModel.revoked_at.is_(None),
+        statement = (
+            statement.add_columns(
+                MobilePassengerSessionIdentityModel.passenger_identity_id
+            )
+            .join(
+                MobilePassengerSessionIdentityModel,
+                and_(
+                    MobilePassengerSessionIdentityModel.gc_group_access_id
+                    == GCGroupAccessModel.id,
+                    MobilePassengerSessionIdentityModel.agency_id
+                    == GCGroupAccessModel.agency_id,
+                    MobilePassengerSessionIdentityModel.group_id
+                    == GCGroupAccessModel.group_id,
+                ),
+            )
+            .join(
+                MobilePassengerIdentityModel,
+                and_(
+                    MobilePassengerIdentityModel.id
+                    == MobilePassengerSessionIdentityModel.passenger_identity_id,
+                    MobilePassengerIdentityModel.gc_group_access_id
+                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    MobilePassengerIdentityModel.agency_id
+                    == MobilePassengerSessionIdentityModel.agency_id,
+                    MobilePassengerIdentityModel.group_id
+                    == MobilePassengerSessionIdentityModel.group_id,
+                ),
+            )
+            .where(
+                GCGroupAccessModel.passenger_access_enabled.is_(True),
+                MobilePassengerSessionIdentityModel.session_id == claims.session_id,
+                MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
+                MobilePassengerIdentityModel.claim_generation
+                == MobilePassengerSessionIdentityModel.identity_claim_generation,
+                MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
+                MobilePassengerIdentityModel.revoked_at.is_(None),
+            )
         )
     elif claims.principal_type == "client_manager":
         statement = (
@@ -298,7 +352,10 @@ async def list_mobile_trips(
     rows = list(result.all())
     has_more = len(rows) > limit
     rows = rows[:limit]
-    items = [_trip_summary(group, access, claims.principal_type) for access, group in rows]
+    items = [
+        _trip_summary(row[1], row[0], claims.principal_type)
+        for row in rows
+    ]
     return MobileTripsResponse(
         items=items,
         next_cursor=str(rows[-1][1].id) if has_more and rows else None,
@@ -493,7 +550,10 @@ async def acknowledge_mobile_sync(
     if device_session is None:
         raise AuthenticationError("Mobile session is no longer active")
     acknowledged_at = datetime.now(tz=UTC)
+    device_session.selected_gc_group_access_id = trip.access.id
+    device_session.selected_group_id = trip.group.id
     device_session.last_seen_at = acknowledged_at
+    device_session.last_sync_acknowledged_at = acknowledged_at
     trip.access.last_successful_sync_at = acknowledged_at
     await session.flush()
     return MobileSyncAcknowledgementResponse(
@@ -758,7 +818,6 @@ async def list_mobile_personal_documents(
     """Return only passenger-owned metadata; never return storage locations."""
 
     trip = await MobileAccessPolicy(session).require_trip_access(claims, group_id)
-    identity = _passenger_identity(trip)
     page_sources = await _personal_document_sources(
         session,
         claims,
@@ -774,28 +833,14 @@ async def list_mobile_personal_documents(
         agency_id=claims.agency_id,
         sources=page_sources,
     )
-    missing = [
-        item
-        for item in page_sources
-        if not _cache_matches_source(cache_by_source.get(_source_key(item)), item)
-    ]
-    for source in missing[:_MAX_LEGACY_METADATA_BACKFILLS]:
-        cache = await _materialize_personal_document_metadata(
-            session,
-            trip=trip,
-            identity=identity,
-            source=source,
-        )
-        cache_by_source[_source_key(source)] = cache
-
     items: list[MobilePersonalDocumentResponse] = []
     pending_count = 0
     for source in page_sources:
         cache = cache_by_source.get(_source_key(source))
         if not _cache_matches_source(cache, source):
-            # Legacy objects without a persisted SHA-256 are not advertised as
-            # offline-ready. Repeated bounded syncs reconcile at most two per
-            # request instead of reading an unbounded document set from S3.
+            # Keep list requests metadata-only. The native client authorizes
+            # pending Passport/Visa/Ticket entries, and that owned, single-file
+            # request performs any one-time legacy checksum repair before download.
             pending_count += 1
             items.append(_pending_personal_document_response(source, trip))
         else:
@@ -837,6 +882,17 @@ async def authorize_mobile_document_download(
             status_code=status.HTTP_409_CONFLICT,
             detail="Document metadata changed; synchronize and retry",
         )
+    # Resolving a legacy/passport source materializes authoritative integrity
+    # metadata when needed. Returning it with the short-lived grant lets a
+    # first-login client safely download a document that was still reported as
+    # `pending` by the metadata-first list, without weakening byte/checksum
+    # validation or requiring repeated polling.
+    expected_size, expected_checksum = await _document_integrity_metadata(
+        session,
+        claims=claims,
+        trip=trip,
+        source=source,
+    )
     token, expires_at = create_mobile_document_grant(
         claims=claims,
         gc_group_access_id=trip.access.id,
@@ -859,6 +915,9 @@ async def authorize_mobile_document_download(
     return MobileDocumentAuthorizationResponse(
         document_id=document_id,
         version=resolved_version,
+        size_bytes=expected_size,
+        checksum_sha256=expected_checksum,
+        content_type=source.content_type,
         content_path=(
             f"/api/v1/mobile/trips/{group_id}/documents/{document_id}/content"
             f"?version={resolved_version}"
@@ -888,6 +947,7 @@ async def download_mobile_document_content(
     request: Request,
     version: int = Query(..., ge=1),
     download_token: str = Header(..., alias="X-GC-Download-Token"),
+    range_header: str | None = Header(default=None, alias="Range"),
     claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
 ) -> StreamingResponse:
@@ -921,15 +981,25 @@ async def download_mobile_document_content(
         trip=trip,
         source=source,
     )
-    payload = await MinioStorageRepository().get_file(source.storage_key)
-    if len(payload) != expected_size or not hmac.compare_digest(
-        hashlib.sha256(payload).hexdigest(), expected_checksum
-    ):
+    maximum_size = (
+        get_settings().mobile.personal_document_max_bytes
+        if source.scope == "personal"
+        else get_settings().mobile.common_document_max_bytes
+    )
+    if expected_size < 1 or expected_size > maximum_size:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Document integrity validation failed",
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Document is outside the mobile offline-storage limit",
         )
-    _validate_document_signature(payload, source.content_type)
+    storage = MinioStorageRepository()
+    signature = await storage.get_file_range(
+        source.storage_key,
+        start=0,
+        end=min(expected_size, 16) - 1,
+    )
+    _validate_document_signature(signature, source.content_type)
+    range_start = _mobile_document_range_start(range_header, expected_size)
+    response_start = range_start or 0
     await _audit_document_access(
         session,
         request,
@@ -940,24 +1010,66 @@ async def download_mobile_document_content(
         action="mobile.document_downloaded",
     )
 
-    async def chunks():  # type: ignore[no-untyped-def]
-        for offset in range(0, len(payload), 64 * 1024):
-            yield payload[offset : offset + 64 * 1024]
+    # Copy only immutable, already-authorized values into the stream plan.
+    # Committing persists the audit (and any bounded legacy metadata repair),
+    # while close immediately returns the checked-out connection to the pool.
+    # FastAPI's dependency finalizer can safely close/commit the reset session
+    # again; no ORM state or database operation is used after this boundary.
+    stream_plan = _MobileDocumentStreamPlan(
+        storage_key=source.storage_key,
+        safe_filename=source.safe_filename,
+        content_type=source.content_type,
+        expected_size=expected_size,
+        expected_checksum=expected_checksum,
+        response_start=response_start,
+        is_partial=range_start is not None,
+    )
+    await session.commit()
+    await session.close()
 
-    encoded_name = quote(source.safe_filename, safe="")
+    async def chunks():  # type: ignore[no-untyped-def]
+        async with _MOBILE_DOCUMENT_STREAM_SLOTS:
+            # Explicitly close the S3 response body when the client cancels,
+            # the ASGI task is cancelled, or validation fails mid-stream.
+            async with aclosing(
+                storage.stream_file(
+                    stream_plan.storage_key,
+                    start=stream_plan.response_start,
+                    expected_bytes=(
+                        stream_plan.expected_size - stream_plan.response_start
+                    ),
+                )
+            ) as object_stream:
+                async for chunk in object_stream:
+                    yield chunk
+
+    encoded_name = quote(stream_plan.safe_filename, safe="")
+    response_headers = {
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "private, no-store, max-age=0",
+        "Pragma": "no-cache",
+        "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_name}",
+        "Content-Length": str(
+            stream_plan.expected_size - stream_plan.response_start
+        ),
+        "Content-Security-Policy": "sandbox",
+        "ETag": f'"sha256-{stream_plan.expected_checksum}"',
+        "X-Content-Type-Options": "nosniff",
+    }
+    if stream_plan.is_partial:
+        response_headers["Content-Range"] = (
+            f"bytes {stream_plan.response_start}-{stream_plan.expected_size - 1}/"
+            f"{stream_plan.expected_size}"
+        )
     return StreamingResponse(
         chunks(),
-        media_type=source.content_type,
-        headers={
-            "Accept-Ranges": "none",
-            "Cache-Control": "private, no-store, max-age=0",
-            "Pragma": "no-cache",
-            "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_name}",
-            "Content-Length": str(len(payload)),
-            "Content-Security-Policy": "sandbox",
-            "ETag": f'"sha256-{expected_checksum}"',
-            "X-Content-Type-Options": "nosniff",
-        },
+        media_type=stream_plan.content_type,
+        status_code=(
+            status.HTTP_206_PARTIAL_CONTENT
+            if stream_plan.is_partial
+            else status.HTTP_200_OK
+        ),
+        headers=response_headers,
     )
 
 
@@ -1386,57 +1498,11 @@ async def _coordinator_roster_revision(
     claims: MobileAccessClaims,
     trip: AuthorizedMobileTrip,
 ) -> int:
-    passenger_state = (
-        await session.execute(
-            select(
-                func.count(PassportSubmissionModel.id),
-                func.max(PassportSubmissionModel.updated_at),
-            ).where(
-                PassportSubmissionModel.agency_id == claims.agency_id,
-                PassportSubmissionModel.group_id == trip.group.id,
-            )
-        )
-    ).one()
-    room_state = (
-        await session.execute(
-            select(
-                func.count(RoomingAssignmentModel.id),
-                func.max(RoomingAssignmentModel.assigned_at),
-                func.max(RoomingRoomModel.updated_at),
-                func.max(RoomingHotelModel.updated_at),
-            )
-            .join(
-                RoomingHotelModel,
-                RoomingHotelModel.id == RoomingAssignmentModel.hotel_id,
-            )
-            .join(
-                RoomingRoomModel,
-                RoomingRoomModel.id == RoomingAssignmentModel.room_id,
-            )
-            .where(
-                RoomingHotelModel.agency_id == claims.agency_id,
-                RoomingHotelModel.group_id == trip.group.id,
-            )
-        )
-    ).one()
-    attendance_state = (
-        await session.execute(
-            select(
-                func.count(AttendanceRecordModel.id),
-                func.max(AttendanceRecordModel.created_at),
-            )
-            .join(
-                PassportSubmissionModel,
-                PassportSubmissionModel.id == AttendanceRecordModel.passenger_id,
-            )
-            .where(
-                AttendanceRecordModel.agency_id == claims.agency_id,
-                PassportSubmissionModel.agency_id == claims.agency_id,
-                PassportSubmissionModel.group_id == trip.group.id,
-            )
-        )
-    ).one()
-    return _state_revision(*passenger_state, *room_state, *attendance_state)
+    return await coordinator_roster_revision(
+        session,
+        agency_id=claims.agency_id,
+        group_id=trip.group.id,
+    )
 
 
 async def _mobile_manifest_versions(
@@ -1825,15 +1891,7 @@ async def _materialize_personal_document_metadata(
 ) -> MobileDocumentMetadataCacheModel:
     if source.scope != "personal" or source.passenger_identity_id != identity.id:
         raise AuthorizationError("Passenger document access is not available")
-    payload = await MinioStorageRepository().get_file(source.storage_key)
-    maximum = get_settings().mobile.personal_document_max_bytes
-    if not payload or len(payload) > maximum:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail="Personal document is outside the mobile offline-storage limit",
-        )
-    _validate_document_signature(payload, source.content_type)
-    checksum = hashlib.sha256(payload).hexdigest()
+    byte_size, checksum = await _personal_document_source_integrity(source)
     key_hash = hash_mobile_lookup(
         source.storage_key,
         purpose="document-storage-key",
@@ -1863,7 +1921,7 @@ async def _materialize_personal_document_metadata(
             storage_key_hash=key_hash,
             safe_filename=source.safe_filename,
             content_type=source.content_type,
-            byte_size=len(payload),
+            byte_size=byte_size,
             checksum_sha256=checksum,
             version=1,
             source_updated_at=source.source_updated_at,
@@ -1895,7 +1953,7 @@ async def _materialize_personal_document_metadata(
     changed_content = (
         row.storage_key_hash != key_hash
         or row.checksum_sha256 != checksum
-        or row.byte_size != len(payload)
+        or row.byte_size != byte_size
         or row.content_type != source.content_type
     )
     if changed_content:
@@ -1908,12 +1966,47 @@ async def _materialize_personal_document_metadata(
     row.storage_key_hash = key_hash
     row.safe_filename = source.safe_filename
     row.content_type = source.content_type
-    row.byte_size = len(payload)
+    row.byte_size = byte_size
     row.checksum_sha256 = checksum
     row.source_updated_at = source.source_updated_at
     row.updated_at = now
     await session.flush()
     return row
+
+
+async def _personal_document_source_integrity(
+    source: _MobileDocumentSource,
+) -> tuple[int, str]:
+    """Inspect one owned source without full-body materialization.
+
+    New uploads take the stored-checksum fast path plus one bounded signature
+    read. Legacy objects are hashed once as a bounded async stream; the caller
+    then persists that digest in the account/group/passenger-scoped cache.
+    """
+
+    if source.scope != "personal":
+        raise AuthorizationError("Passenger document access is not available")
+    storage = MinioStorageRepository()
+    object_metadata = await storage.stat_file(source.storage_key)
+    maximum = get_settings().mobile.personal_document_max_bytes
+    if object_metadata.size_bytes < 1 or object_metadata.size_bytes > maximum:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Personal document is outside the mobile offline-storage limit",
+        )
+    signature = await storage.get_file_range(
+        source.storage_key,
+        start=0,
+        end=min(object_metadata.size_bytes, 16) - 1,
+    )
+    _validate_document_signature(signature, source.content_type)
+    checksum = object_metadata.checksum_sha256
+    if checksum is None:
+        checksum = await storage.calculate_file_sha256(
+            source.storage_key,
+            expected_bytes=object_metadata.size_bytes,
+        )
+    return object_metadata.size_bytes, checksum
 
 
 async def _resolve_mobile_document(
@@ -2089,7 +2182,7 @@ async def _audit_document_access(
         agency_id=claims.agency_id,
         user_id=(claims.principal_id if claims.principal_type != "passenger" else None),
         entity_id=str(document_id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata={
             "group_id": str(group_id),
             "scope": scope,
@@ -2138,6 +2231,34 @@ def _validate_document_signature(payload: bytes, content_type: str) -> None:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Document content did not match its declared type",
         )
+
+
+def _mobile_document_range_start(value: str | None, total_size: int) -> int | None:
+    """Accept only the single open-ended byte range used by the encrypted client.
+
+    Metadata carries the authoritative size/checksum and the encrypted client verifies
+    the complete assembled payload before commit. The backend validates a bounded file
+    signature then streams the requested range directly from object storage. Multiple
+    and suffix ranges remain rejected to keep response behavior deterministic.
+    """
+
+    if value is None:
+        return None
+    matched = re.fullmatch(r"bytes=(0|[1-9][0-9]*)-", value.strip())
+    if matched is None:
+        raise HTTPException(
+            status_code=status.HTTP_416_RANGE_NOT_SATISFIABLE,
+            detail="Requested document range is not supported",
+            headers={"Content-Range": f"bytes */{total_size}"},
+        )
+    start = int(matched.group(1))
+    if start >= total_size:
+        raise HTTPException(
+            status_code=status.HTTP_416_RANGE_NOT_SATISFIABLE,
+            detail="Requested document range is outside the file",
+            headers={"Content-Range": f"bytes */{total_size}"},
+        )
+    return start
 
 
 def _mobile_document_category(value: str) -> str:
@@ -2200,6 +2321,13 @@ def _safe_sync_payload(payload: object) -> dict[str, object]:
         value = payload.get(key)
         if isinstance(value, str) and len(value) <= 512:
             safe[key] = value
+    roster_revision = payload.get("roster_revision")
+    if (
+        isinstance(roster_revision, int)
+        and not isinstance(roster_revision, bool)
+        and 0 <= roster_revision <= (1 << 53) - 1
+    ):
+        safe["roster_revision"] = roster_revision
     return safe
 
 

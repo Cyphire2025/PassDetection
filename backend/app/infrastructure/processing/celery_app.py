@@ -9,7 +9,10 @@ from kombu import Queue
 from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
-from app.infrastructure.mobile_push import MOBILE_PUSH_DISPATCH_TASK
+from app.infrastructure.mobile_push import (
+    MOBILE_PUSH_DISPATCH_TASK,
+    MOBILE_PUSH_RECEIPT_TASK,
+)
 from app.infrastructure.visa_ai_image_jobs import (
     VISA_AI_IMAGE_QUEUE,
     VISA_AI_IMAGE_TASK,
@@ -70,6 +73,7 @@ celery_app.conf.update(
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
+        MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
     },
     task_acks_late=True,
     task_reject_on_worker_lost=True,
@@ -118,6 +122,11 @@ celery_app.conf.update(
         "dispatch-mobile-push-notifications": {
             "task": MOBILE_PUSH_DISPATCH_TASK,
             "schedule": settings.mobile.push_dispatch_interval_seconds,
+            "options": {"queue": "passport_ocr"},
+        },
+        "reconcile-mobile-push-receipts": {
+            "task": MOBILE_PUSH_RECEIPT_TASK,
+            "schedule": settings.mobile.push_receipt_poll_interval_seconds,
             "options": {"queue": "passport_ocr"},
         },
     },

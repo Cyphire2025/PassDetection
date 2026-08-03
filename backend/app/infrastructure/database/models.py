@@ -662,6 +662,19 @@ class PassportSubmissionModel(Base):
     __tablename__ = "passport_submissions"
     __table_args__ = (
         UniqueConstraint(
+            "id",
+            "agency_id",
+            "group_id",
+            name="uq_passport_submissions_mobile_scope",
+        ),
+        Index(
+            "ix_passport_submissions_mobile_roster",
+            "agency_id",
+            "group_id",
+            "status",
+            "id",
+        ),
+        UniqueConstraint(
             "group_id",
             "upload_idempotency_key",
             name="uq_passport_submissions_group_upload_key",
@@ -1466,6 +1479,14 @@ class DistributedDocumentModel(Base):
     __table_args__ = (
         Index("ix_distributed_documents_batch_passenger", "batch_id", "passenger_id"),
         Index("ix_distributed_documents_group_type", "group_id", "document_type"),
+        Index(
+            "ix_distributed_documents_mobile_passenger",
+            "agency_id",
+            "group_id",
+            "passenger_id",
+            "match_status",
+            "document_type",
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

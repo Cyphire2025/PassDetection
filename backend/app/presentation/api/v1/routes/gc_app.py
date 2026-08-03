@@ -50,6 +50,7 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientManagerStatusRequest,
     ClientManagerUpdateRequest,
     ClientOrganizationCreateRequest,
+    ClientOrganizationPageResponse,
     ClientOrganizationResponse,
     GCAgencyPageResponse,
     GCAgencyResponse,
@@ -63,6 +64,7 @@ from app.presentation.api.v1.schemas.gc_app_schemas import (
 )
 from app.presentation.dependencies.auth import require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 GC_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
@@ -131,6 +133,7 @@ async def search_gc_groups(
     agency_id: uuid.UUID | None = None,
     group_id: uuid.UUID | None = None,
     gc_enabled: bool | None = None,
+    eligible_only: bool = False,
     lifecycle_status: str | None = Query(default=None, max_length=16),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
@@ -149,12 +152,28 @@ async def search_gc_groups(
             )
         filters.append(ClientGroupModel.status == lifecycle_status)
     if q and (normalized := " ".join(q.split())):
-        filters.append(ClientGroupModel.name.contains(normalized, autoescape=True))
+        filters.append(
+            or_(
+                ClientGroupModel.name.icontains(normalized, autoescape=True),
+                ClientGroupModel.destination.icontains(normalized, autoescape=True),
+            )
+        )
     access_join = (
         (GCGroupAccessModel.group_id == ClientGroupModel.id)
         & (GCGroupAccessModel.agency_id == ClientGroupModel.agency_id)
     )
-    if gc_enabled is True:
+    if eligible_only:
+        filters.extend(
+            [
+                ClientGroupModel.status == GroupStatus.ACTIVE.value,
+                or_(
+                    GCGroupAccessModel.id.is_(None),
+                    GCGroupAccessModel.is_enabled.is_(False),
+                    GCGroupAccessModel.revoked_at.is_not(None),
+                ),
+            ]
+        )
+    elif gc_enabled is True:
         filters.extend(
             [
                 GCGroupAccessModel.is_enabled.is_(True),
@@ -179,9 +198,55 @@ async def search_gc_groups(
             )
         ).scalar_one()
     )
-    rows = (
-        await session.execute(
-            select(ClientGroupModel, GCGroupAccessModel, ClientOrganizationModel)
+    # Enabled-group pages need usage metrics, but candidate searches do not.
+    # Aggregate once for the whole page instead of issuing two count queries
+    # per group.  The account count and acknowledged-device count deliberately
+    # have different semantics and therefore must not reuse one session count.
+    include_metrics = gc_enabled is True or group_id is not None
+    usage_metrics = None
+    if include_metrics:
+        now = datetime.now(tz=UTC)
+        usage_metrics = (
+            select(
+                MobileDeviceSessionModel.selected_gc_group_access_id.label(
+                    "gc_group_access_id"
+                ),
+                func.count(func.distinct(MobileDeviceSessionModel.account_id)).label(
+                    "active_mobile_users"
+                ),
+                func.count(
+                    func.distinct(MobileDeviceSessionModel.device_identifier_hash)
+                )
+                .filter(
+                    MobileDeviceSessionModel.last_sync_acknowledged_at.is_not(None)
+                )
+                .label("synced_device_count"),
+            )
+            .where(
+                MobileDeviceSessionModel.agency_id == tenant_id,
+                MobileDeviceSessionModel.selected_gc_group_access_id.is_not(None),
+                MobileDeviceSessionModel.status == "active",
+                MobileDeviceSessionModel.revoked_at.is_(None),
+                MobileDeviceSessionModel.expires_at > now,
+            )
+            .group_by(MobileDeviceSessionModel.selected_gc_group_access_id)
+            .subquery()
+        )
+
+    result_columns = [
+        ClientGroupModel,
+        GCGroupAccessModel,
+        ClientOrganizationModel,
+    ]
+    if usage_metrics is not None:
+        result_columns.extend(
+            [
+                usage_metrics.c.active_mobile_users,
+                usage_metrics.c.synced_device_count,
+            ]
+        )
+    statement = (
+        select(*result_columns)
             .outerjoin(
                 GCGroupAccessModel,
                 access_join,
@@ -195,10 +260,20 @@ async def search_gc_groups(
             .order_by(ClientGroupModel.created_at.desc(), ClientGroupModel.id.desc())
             .offset(offset)
             .limit(limit)
+    )
+    if usage_metrics is not None:
+        statement = statement.outerjoin(
+            usage_metrics,
+            usage_metrics.c.gc_group_access_id == GCGroupAccessModel.id,
         )
-    ).all()
-    return GCGroupSearchPageResponse(
-        items=[
+    rows = (await session.execute(statement)).all()
+
+    items: list[GCGroupSearchItem] = []
+    for row in rows:
+        group, access, organization = row[0], row[1], row[2]
+        active_mobile_users = int(row[3] or 0) if usage_metrics is not None else 0
+        synced_device_count = int(row[4] or 0) if usage_metrics is not None else 0
+        items.append(
             GCGroupSearchItem(
                 id=group.id,
                 agency_id=group.agency_id,
@@ -207,7 +282,9 @@ async def search_gc_groups(
                 travel_date=group.travel_date,
                 return_date=group.return_date,
                 lifecycle_status=group.status,
-                gc_enabled=bool(access and access.is_enabled and access.revoked_at is None),
+                gc_enabled=bool(
+                    access and access.is_enabled and access.revoked_at is None
+                ),
                 client_organization_id=(
                     access.client_organization_id if access is not None else None
                 ),
@@ -231,14 +308,18 @@ async def search_gc_groups(
                         announcement_version=access.announcement_version,
                         revision=access.revision,
                         last_successful_sync_at=access.last_successful_sync_at,
+                        active_mobile_users=active_mobile_users,
+                        synced_device_count=synced_device_count,
                         updated_at=access.updated_at,
                     )
                     if access is not None and organization is not None
                     else None
                 ),
             )
-            for group, access, organization in rows
-        ],
+        )
+
+    return GCGroupSearchPageResponse(
+        items=items,
         total=total,
         offset=offset,
         limit=limit,
@@ -653,6 +734,60 @@ async def list_client_organizations(
         ).scalars()
     )
     return [_organization_response(item) for item in organizations]
+
+
+@router.get(
+    "/client-organizations/search",
+    response_model=ClientOrganizationPageResponse,
+)
+async def search_client_organizations(
+    q: str | None = Query(default=None, max_length=120),
+    agency_id: uuid.UUID | None = None,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
+    current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
+    session: AsyncSession = Depends(get_db_session),
+) -> ClientOrganizationPageResponse:
+    """Return a bounded, tenant-scoped company/client directory page."""
+
+    tenant_id = _tenant_id(current_user, agency_id)
+    filters = [
+        ClientOrganizationModel.agency_id == tenant_id,
+        ClientOrganizationModel.status == "active",
+    ]
+    if q and (normalized := " ".join(q.split())):
+        filters.append(
+            ClientOrganizationModel.name.icontains(normalized, autoescape=True)
+        )
+    total = int(
+        (
+            await session.execute(
+                select(func.count())
+                .select_from(ClientOrganizationModel)
+                .where(*filters)
+            )
+        ).scalar_one()
+    )
+    organizations = list(
+        (
+            await session.execute(
+                select(ClientOrganizationModel)
+                .where(*filters)
+                .order_by(
+                    ClientOrganizationModel.name.asc(),
+                    ClientOrganizationModel.id.asc(),
+                )
+                .offset(offset)
+                .limit(limit)
+            )
+        ).scalars()
+    )
+    return ClientOrganizationPageResponse(
+        items=[_organization_response(item) for item in organizations],
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.post(
@@ -1801,20 +1936,27 @@ async def _group_access_response(
 ) -> GCGroupAccessResponse:
     # Active counts are scoped to devices that selected this trip; no PII is
     # exposed and accounts with several trips are not double-counted here.
-    active_sessions = int(
-        (
-            await session.execute(
-                select(func.count())
-                .select_from(MobileDeviceSessionModel)
-                .where(
-                    MobileDeviceSessionModel.agency_id == access.agency_id,
-                    MobileDeviceSessionModel.selected_gc_group_access_id == access.id,
-                    MobileDeviceSessionModel.status == "active",
-                    MobileDeviceSessionModel.revoked_at.is_(None),
-                )
+    now = datetime.now(tz=UTC)
+    usage = (
+        await session.execute(
+            select(
+                func.count(func.distinct(MobileDeviceSessionModel.account_id)),
+                func.count(
+                    func.distinct(MobileDeviceSessionModel.device_identifier_hash)
+                ).filter(
+                    MobileDeviceSessionModel.last_sync_acknowledged_at.is_not(None)
+                ),
+            ).where(
+                MobileDeviceSessionModel.agency_id == access.agency_id,
+                MobileDeviceSessionModel.selected_gc_group_access_id == access.id,
+                MobileDeviceSessionModel.status == "active",
+                MobileDeviceSessionModel.revoked_at.is_(None),
+                MobileDeviceSessionModel.expires_at > now,
             )
-        ).scalar_one()
-    )
+        )
+    ).one()
+    active_mobile_users = int(usage[0] or 0)
+    synced_device_count = int(usage[1] or 0)
     context = (
         await session.execute(
             select(ClientGroupModel, ClientOrganizationModel)
@@ -1859,8 +2001,8 @@ async def _group_access_response(
         announcement_version=access.announcement_version,
         revision=access.revision,
         last_successful_sync_at=access.last_successful_sync_at,
-        active_mobile_users=active_sessions,
-        synced_device_count=active_sessions,
+        active_mobile_users=active_mobile_users,
+        synced_device_count=synced_device_count,
         updated_at=access.updated_at,
     )
 
@@ -1928,6 +2070,6 @@ async def _audit(
         user_id=actor.id,
         actor_email=actor.email,
         entity_id=str(entity_id),
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata=metadata,
     )

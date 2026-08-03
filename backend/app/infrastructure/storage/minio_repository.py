@@ -5,6 +5,8 @@ MinIO / S3 Storage Repository
 
 import asyncio
 import hashlib
+from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from typing import Any
@@ -19,6 +21,18 @@ from app.domain.exceptions.exceptions import StorageError
 from app.domain.repositories.interfaces import IObjectStorageRepository
 
 logger = get_logger(__name__)
+
+_SHA256_METADATA_KEY = "sha256"
+_SHA256_HEX_LENGTH = 64
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectIntegrityMetadata:
+    """Bounded object metadata used by mobile integrity authorization."""
+
+    size_bytes: int
+    checksum_sha256: str | None
+    content_type: str | None
 
 
 @lru_cache(maxsize=1)
@@ -94,12 +108,14 @@ class MinioStorageRepository(IObjectStorageRepository):
     async def upload_file(self, file_content: bytes, file_name: str, content_type: str) -> str:
         """Uploads file synchronously in a thread pool to avoid blocking the event loop."""
         try:
+            checksum_sha256 = hashlib.sha256(file_content).hexdigest()
             await asyncio.to_thread(
                 self._client.put_object,
                 Bucket=self.settings.bucket_name,
                 Key=file_name,
                 Body=file_content,
                 ContentType=content_type,
+                Metadata={_SHA256_METADATA_KEY: checksum_sha256},
             )
             return file_name
         except Exception as e:
@@ -134,6 +150,172 @@ class MinioStorageRepository(IObjectStorageRepository):
             raise StorageError(
                 "The stored passport image is temporarily unavailable. Please try again."
             ) from e
+
+    async def stat_file(self, key: str) -> ObjectIntegrityMetadata:
+        """Read size and optional trusted upload checksum without downloading the body."""
+
+        try:
+            response = await asyncio.to_thread(
+                self._client.head_object,
+                Bucket=self.settings.bucket_name,
+                Key=key,
+            )
+            raw_size = response.get("ContentLength")
+            if isinstance(raw_size, bool) or not isinstance(raw_size, int) or raw_size < 0:
+                raise StorageError("The stored document did not provide a safe content length.")
+
+            raw_metadata = response.get("Metadata")
+            raw_checksum = (
+                raw_metadata.get(_SHA256_METADATA_KEY)
+                if isinstance(raw_metadata, dict)
+                else None
+            )
+            checksum: str | None = None
+            if raw_checksum is not None:
+                if not isinstance(raw_checksum, str):
+                    raise StorageError("The stored document integrity metadata is invalid.")
+                checksum = raw_checksum.strip().casefold()
+                if (
+                    len(checksum) != _SHA256_HEX_LENGTH
+                    or any(character not in "0123456789abcdef" for character in checksum)
+                ):
+                    raise StorageError("The stored document integrity metadata is invalid.")
+
+            raw_content_type = response.get("ContentType")
+            content_type = (
+                raw_content_type.strip().casefold()
+                if isinstance(raw_content_type, str) and raw_content_type.strip()
+                else None
+            )
+            return ObjectIntegrityMetadata(
+                size_bytes=raw_size,
+                checksum_sha256=checksum,
+                content_type=content_type,
+            )
+        except StorageError:
+            raise
+        except Exception as e:
+            logger.error(
+                "s3_stat_failed",
+                object_key_hash=self._key_hash(key),
+                error_type=type(e).__name__,
+            )
+            raise StorageError(
+                "The stored document is temporarily unavailable. Please try again."
+            ) from e
+
+    async def calculate_file_sha256(
+        self,
+        key: str,
+        *,
+        expected_bytes: int,
+        chunk_size: int = 64 * 1024,
+    ) -> str:
+        """Hash one exact object body with bounded memory for legacy metadata repair."""
+
+        if expected_bytes < 1 or chunk_size < 1024:
+            raise ValueError("Invalid object hash bounds")
+        digest = hashlib.sha256()
+        consumed = 0
+        async for chunk in self.stream_file(
+            key,
+            start=0,
+            expected_bytes=expected_bytes,
+            chunk_size=chunk_size,
+        ):
+            consumed += len(chunk)
+            digest.update(chunk)
+        if consumed != expected_bytes:
+            # stream_file already fails on short/long streams. Keep this guard so
+            # future implementations cannot accidentally cache a partial digest.
+            raise StorageError("The stored document stream ended unexpectedly.")
+        return digest.hexdigest()
+
+    async def get_file_range(self, key: str, *, start: int, end: int) -> bytes:
+        """Read one bounded inclusive range without materializing the full object."""
+
+        if start < 0 or end < start:
+            raise ValueError("Invalid object byte range")
+        expected = end - start + 1
+        body: Any | None = None
+        try:
+            response = await asyncio.to_thread(
+                self._client.get_object,
+                Bucket=self.settings.bucket_name,
+                Key=key,
+                Range=f"bytes={start}-{end}",
+            )
+            body = response["Body"]
+            payload = await asyncio.to_thread(body.read, expected + 1)
+            if len(payload) != expected:
+                raise StorageError("The stored document range was incomplete.")
+            return bytes(payload)
+        except StorageError:
+            raise
+        except Exception as e:
+            logger.error(
+                "s3_range_download_failed",
+                object_key_hash=self._key_hash(key),
+                error_type=type(e).__name__,
+            )
+            raise StorageError(
+                "The stored document is temporarily unavailable. Please try again."
+            ) from e
+        finally:
+            if body is not None:
+                await asyncio.to_thread(body.close)
+
+    async def stream_file(
+        self,
+        key: str,
+        *,
+        start: int,
+        expected_bytes: int,
+        chunk_size: int = 64 * 1024,
+    ) -> AsyncIterator[bytes]:
+        """Stream an exact bounded range while keeping worker memory constant."""
+
+        if start < 0 or expected_bytes < 1 or chunk_size < 1024:
+            raise ValueError("Invalid object stream bounds")
+        body: Any | None = None
+        try:
+            response = await asyncio.to_thread(
+                self._client.get_object,
+                Bucket=self.settings.bucket_name,
+                Key=key,
+                Range=f"bytes={start}-",
+            )
+            body = response["Body"]
+            content_length = response.get("ContentLength")
+            if content_length is not None and int(content_length) != expected_bytes:
+                raise StorageError("The stored document size changed during download.")
+            remaining = expected_bytes
+            while remaining:
+                chunk = await asyncio.to_thread(body.read, min(chunk_size, remaining))
+                if not chunk:
+                    raise StorageError("The stored document stream ended unexpectedly.")
+                if len(chunk) > remaining:
+                    raise StorageError("The stored document exceeded its authorized size.")
+                remaining -= len(chunk)
+                yield bytes(chunk)
+            if content_length is None:
+                extra = await asyncio.to_thread(body.read, 1)
+                if extra:
+                    raise StorageError("The stored document exceeded its authorized size.")
+        except StorageError:
+            raise
+        except Exception as e:
+            logger.error(
+                "s3_stream_download_failed",
+                object_key_hash=self._key_hash(key),
+                error_type=type(e).__name__,
+            )
+            raise StorageError(
+                "The stored document is temporarily unavailable. Please try again."
+            ) from e
+        finally:
+            if body is not None:
+                await asyncio.to_thread(body.close)
 
     async def copy_file(self, source_key: str, destination_key: str) -> str:
         """Copy a private object inside the configured bucket without downloading it."""

@@ -18,6 +18,15 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        client_groups,
+        "reconcile_mobile_passenger_access_for_group",
+        AsyncMock(),
+    )
+
+
 def _scalar_result(value: object) -> MagicMock:
     result = MagicMock()
     result.scalar_one_or_none.return_value = value

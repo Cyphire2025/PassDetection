@@ -40,6 +40,11 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.passenger_change_propagation import (
+    propagate_mobile_passenger_change,
+    reconcile_mobile_passenger_access_for_broadcast,
+    reconcile_mobile_passenger_access_for_group,
+)
 from app.application.use_cases.whatsapp.contact_normalization import (
     clean_whatsapp_name,
     normalize_whatsapp_phone,
@@ -102,6 +107,9 @@ from app.infrastructure.whatsapp.cloud_api_provider import (
     upload_whatsapp_image,
 )
 from app.infrastructure.whatsapp.document_delivery_runtime import (
+    ACCEPTED_STATUSES as DOCUMENT_DELIVERY_ACCEPTED_STATUSES,
+)
+from app.infrastructure.whatsapp.document_delivery_runtime import (
     apply_document_provider_status,
 )
 from app.infrastructure.whatsapp.private_delivery_policy import (
@@ -116,6 +124,7 @@ from app.presentation.dependencies.auth import (
     require_role,
 )
 from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.security.client_ip import trusted_client_ip
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -663,6 +672,9 @@ async def receive_whatsapp_webhook(
             received_messages += len(messages)
 
     processed_statuses = 0
+    released_document_changes: dict[
+        tuple[uuid.UUID, uuid.UUID], tuple[set[uuid.UUID], set[str]]
+    ] = {}
     provider_statuses.sort(key=lambda item: item[3] or datetime.min.replace(tzinfo=UTC))
     for (
         provider_id,
@@ -710,12 +722,13 @@ async def receive_whatsapp_webhook(
             document_result = await session.execute(
                 select(DocumentWhatsAppDeliveryModel).where(
                     DocumentWhatsAppDeliveryModel.provider_message_id == provider_id
-                )
+                ).with_for_update()
             )
             document_deliveries = document_result.scalars().all()
             for delivery in document_deliveries:
                 if not isinstance(delivery, DocumentWhatsAppDeliveryModel):
                     continue
+                was_released = delivery.status in DOCUMENT_DELIVERY_ACCEPTED_STATUSES
                 apply_document_provider_status(
                     delivery,
                     provider_status=provider_status,
@@ -723,6 +736,16 @@ async def receive_whatsapp_webhook(
                     provider_status_at=provider_status_at,
                     now=datetime.now(tz=UTC),
                 )
+                if (
+                    not was_released
+                    and delivery.status in DOCUMENT_DELIVERY_ACCEPTED_STATUSES
+                    and delivery.passenger_id is not None
+                ):
+                    passenger_ids, provider_ids = released_document_changes.setdefault(
+                        (delivery.agency_id, delivery.group_id), (set(), set())
+                    )
+                    passenger_ids.add(delivery.passenger_id)
+                    provider_ids.add(provider_id)
                 processed_statuses += 1
             if not document_deliveries:
                 qr_result = await session.execute(
@@ -770,6 +793,26 @@ async def receive_whatsapp_webhook(
                         extra={"provider_error": error_message},
                     )
                 processed_statuses += 1
+    for (agency_id, group_id), (
+        passenger_ids,
+        provider_ids,
+    ) in sorted(
+        released_document_changes.items(),
+        key=lambda item: (str(item[0][0]), str(item[0][1])),
+    ):
+        receipt_digest = hashlib.sha256(
+            "|".join(sorted(provider_ids)).encode("utf-8")
+        ).hexdigest()
+        await propagate_mobile_passenger_change(
+            session,
+            agency_id=agency_id,
+            group_id=group_id,
+            passenger_submission_ids=passenger_ids,
+            actor_user_id=None,
+            change_kind="documents",
+            reconcile_identities=False,
+            propagation_key=f"document-delivery-receipt:{receipt_digest}",
+        )
     if processed_statuses:
         await session.commit()
 
@@ -3406,6 +3449,12 @@ async def resolve_broadcast_rejected_contact(
         now=now,
     )
     await session.flush()
+    await reconcile_mobile_passenger_access_for_broadcast(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     return await _group_detail(session, group)
 
 
@@ -4089,6 +4138,12 @@ async def add_broadcast_recipients(
             now=now,
         )
         await session.flush()
+        await reconcile_mobile_passenger_access_for_broadcast(
+            session,
+            agency_id=group.agency_id,
+            broadcast_group_id=group.id,
+            actor_user_id=current_user.id,
+        )
     return await _group_detail(session, group)
 
 
@@ -4219,6 +4274,12 @@ async def update_broadcast_recipient_phone(
         now=now,
     )
     await session.flush()
+    await reconcile_mobile_passenger_access_for_broadcast(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     return await _group_detail(session, group)
 
 
@@ -4322,6 +4383,12 @@ async def remove_broadcast_recipient(
         .execution_options(synchronize_session=False)
     )
     group.updated_at = now
+    await reconcile_mobile_passenger_access_for_broadcast(
+        session,
+        agency_id=group.agency_id,
+        broadcast_group_id=group.id,
+        actor_user_id=current_user.id,
+    )
     return {"deleted": True}
 
 
@@ -4621,7 +4688,7 @@ async def resend_recipient_message(
         agency_id=group.agency_id,
         user_id=current_user.id,
         actor_email=current_user.email,
-        ip_address=request.client.host if request.client else None,
+        ip_address=trusted_client_ip(request),
         metadata={
             "broadcast_group_id": str(group.id),
             "message_type": message_type,
@@ -4795,9 +4862,36 @@ async def delete_broadcast_group(
         )
         .execution_options(synchronize_session=False)
     )
+    linked_client_group_ids = tuple(
+        sorted(
+            set(
+                (
+                    await session.execute(
+                        select(
+                            ClientGroupWhatsAppBroadcastLinkModel.client_group_id
+                        ).where(
+                            ClientGroupWhatsAppBroadcastLinkModel.agency_id
+                            == group.agency_id,
+                            ClientGroupWhatsAppBroadcastLinkModel.broadcast_group_id
+                            == group.id,
+                        )
+                    )
+                ).scalars()
+            ),
+            key=str,
+        )
+    )
     await session.execute(
         delete(WhatsAppBroadcastGroupModel).where(WhatsAppBroadcastGroupModel.id == group.id)
     )
+    await session.flush()
+    for linked_client_group_id in linked_client_group_ids:
+        await reconcile_mobile_passenger_access_for_group(
+            session,
+            agency_id=group.agency_id,
+            group_id=linked_client_group_id,
+            actor_user_id=current_user.id,
+        )
     return {"deleted": True}
 
 
