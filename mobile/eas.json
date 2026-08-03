@@ -17,10 +17,18 @@
       }
     },
     "production": {
+      "environment": "production",
       "autoIncrement": true,
       "channel": "production",
       "android": {
         "buildType": "app-bundle"
+      }
+    },
+    "production-apk": {
+      "extends": "production",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
       }
     }
   },

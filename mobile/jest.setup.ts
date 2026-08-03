@@ -4,3 +4,12 @@ jest.mock('expo-secure-store', () => ({
   setItemAsync: jest.fn(async () => undefined),
   deleteItemAsync: jest.fn(async () => undefined),
 }));
+
+jest.mock('react-native-blob-util', () => ({
+  __esModule: true,
+  default: {
+    ios: {
+      excludeFromBackupKey: jest.fn(async () => undefined),
+    },
+  },
+}));

@@ -1243,7 +1243,7 @@ async def _reconcile_phone_candidate_groups(
     do not disclose whether a phone exists in another tenant or group.
     """
 
-    candidate_accesses = list(
+    broadcast_candidate_accesses = list(
         (
             await session.execute(
                 select(GCGroupAccessModel)
@@ -1294,6 +1294,60 @@ async def _reconcile_phone_candidate_groups(
             )
         ).scalars().unique()
     )
+    normalized_digits = normalized_phone.removeprefix("+")
+    accepted_phone_digits = {normalized_digits}
+    if normalized_phone.startswith("+91") and len(normalized_digits) == 12:
+        accepted_phone_digits.add(normalized_digits[2:])
+    passport_phone_digits = func.regexp_replace(
+        func.coalesce(PassportSubmissionModel.client_phone, ""),
+        r"\D",
+        "",
+    )
+    submission_candidate_accesses = list(
+        (
+            await session.execute(
+                select(GCGroupAccessModel)
+                .join(
+                    PassportSubmissionModel,
+                    (
+                        PassportSubmissionModel.group_id
+                        == GCGroupAccessModel.group_id
+                    )
+                    & (
+                        PassportSubmissionModel.agency_id
+                        == GCGroupAccessModel.agency_id
+                    ),
+                )
+                .join(
+                    ClientGroupModel,
+                    (ClientGroupModel.id == GCGroupAccessModel.group_id)
+                    & (ClientGroupModel.agency_id == GCGroupAccessModel.agency_id),
+                )
+                .where(
+                    passport_phone_digits.in_(sorted(accepted_phone_digits)),
+                    GCGroupAccessModel.is_enabled.is_(True),
+                    GCGroupAccessModel.passenger_access_enabled.is_(True),
+                    GCGroupAccessModel.revoked_at.is_(None),
+                    ClientGroupModel.status.in_(
+                        (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
+                    ),
+                    ClientGroupModel.deleted_at.is_(None),
+                )
+                .order_by(GCGroupAccessModel.id)
+                .limit(20)
+                .with_for_update(of=GCGroupAccessModel)
+            )
+        ).scalars().unique()
+    )
+    candidate_accesses = list(
+        {
+            access.id: access
+            for access in [
+                *broadcast_candidate_accesses,
+                *submission_candidate_accesses,
+            ]
+        }.values()
+    )[:20]
     if not candidate_accesses:
         return
 

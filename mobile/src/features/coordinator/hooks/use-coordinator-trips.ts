@@ -1,49 +1,83 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
-import { refreshTrips } from '@/features/trips/data/trip-repository';
+import { accountNamespace } from '@/core/auth/types';
+import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
+import { localTrips, refreshTrips } from '@/features/trips/data/trip-repository';
+import type { Trip } from '@/features/trips/model/trip';
+import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import { useCoordinatorTripStore } from '../state/coordinator-trip-store';
 
+const EMPTY_TRIPS: Trip[] = [];
+
 export function useCoordinatorTrips() {
-  const principal = useSessionStore((state) => state.session?.principal ?? null);
-  const principalId = principal?.principalType === 'coordinator' ? principal.id : null;
-  const storedPrincipalId = useCoordinatorTripStore((state) => state.principalId);
+  const agencyId = useSessionStore((state) => state.session?.principal.agencyId ?? null);
+  const accountId = useSessionStore((state) => state.session?.principal.principalType === 'coordinator'
+    ? state.session.principal.accountId
+    : null);
+  const accountKey = agencyId && accountId ? accountNamespace({ agencyId, accountId }) : null;
+  const storedAccountKey = useCoordinatorTripStore((state) => state.accountKey);
   const storedTripId = useCoordinatorTripStore((state) => state.tripId);
-  const activatePrincipal = useCoordinatorTripStore((state) => state.activatePrincipal);
+  const activateAccount = useCoordinatorTripStore((state) => state.activateAccount);
   const selectStoredTrip = useCoordinatorTripStore((state) => state.selectTrip);
   const clearStoredSelection = useCoordinatorTripStore((state) => state.clearSelection);
 
-  const query = useQuery({
-    queryKey: ['mobile-trips', principalId],
-    queryFn: refreshTrips,
-    enabled: Boolean(principalId),
-    staleTime: 15_000,
-    refetchOnMount: 'always',
+  const queryKey = useMemo(() => ['mobile-trips', accountKey] as const, [accountKey]);
+  const loadCachedTrips = useCallback(async () => {
+    const trips = await localTrips();
+    return trips.length ? { trips, offline: true as const } : null;
+  }, []);
+  const cacheHydrated = usePersistentQueryHydration({
+    accountKey,
+    hydrationKey: 'mobile-trips',
+    queryKey,
+    load: loadCachedTrips,
   });
-  const selectedTripId = storedPrincipalId === principalId ? storedTripId : null;
+  const query = useQuery({
+    queryKey,
+    queryFn: refreshTrips,
+    enabled: Boolean(accountKey && cacheHydrated),
+    staleTime: 15_000,
+  });
+  const storedSelectedTripId = storedAccountKey === accountKey ? storedTripId : null;
+  const selectedTripId = query.data && storedSelectedTripId
+    && !query.data.trips.some((trip) => trip.id === storedSelectedTripId)
+    ? null
+    : storedSelectedTripId;
 
   useEffect(() => {
-    activatePrincipal(principalId);
-  }, [activatePrincipal, principalId]);
+    activateAccount(accountKey);
+  }, [accountKey, activateAccount]);
 
   useEffect(() => {
-    if (!principalId || !selectedTripId || !query.data) return;
-    if (!query.data.trips.some((trip) => trip.id === selectedTripId)) {
-      clearStoredSelection(principalId);
+    if (!accountKey || !storedSelectedTripId || !query.data) return;
+    if (!query.data.trips.some((trip) => trip.id === storedSelectedTripId)) {
+      clearStoredSelection(accountKey);
     }
-  }, [clearStoredSelection, principalId, query.data, selectedTripId]);
+  }, [accountKey, clearStoredSelection, query.data, storedSelectedTripId]);
+
+  // The coordinator selector is account scoped, while the shared selector tells the sync
+  // runtime which single trip to refresh. Keep them aligned only after authorization succeeds.
+  useEffect(() => {
+    const shared = useSelectedTripStore.getState();
+    if (!accountKey || !selectedTripId) {
+      if (shared.tripId) shared.clear();
+      return;
+    }
+    if (shared.tripId !== selectedTripId) shared.selectTrip(selectedTripId);
+  }, [accountKey, selectedTripId]);
 
   const selectTrip = useCallback((tripId: string) => {
-    if (principalId) selectStoredTrip(principalId, tripId);
-  }, [principalId, selectStoredTrip]);
+    if (accountKey) selectStoredTrip(accountKey, tripId);
+  }, [accountKey, selectStoredTrip]);
 
   const clearSelection = useCallback(() => {
-    if (principalId) clearStoredSelection(principalId);
-  }, [clearStoredSelection, principalId]);
+    if (accountKey) clearStoredSelection(accountKey);
+  }, [accountKey, clearStoredSelection]);
 
-  const trips = query.data?.trips ?? [];
+  const trips = query.data?.trips ?? EMPTY_TRIPS;
   return {
     ...query,
     trips,

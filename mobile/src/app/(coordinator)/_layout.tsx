@@ -1,13 +1,15 @@
 import { Stack } from 'expo-router';
 
+import { navigationAnimation, useReducedMotion } from '@/design/accessibility/use-reduced-motion';
 import { RoleGate } from '@/design/navigation/role-gate';
 import { CoordinatorTripGuard } from '@/features/coordinator/ui/coordinator-trip-guard';
 
 export default function CoordinatorLayout() {
+  const reduceMotion = useReducedMotion();
   return (
     <RoleGate role="coordinator">
       <CoordinatorTripGuard>
-        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack screenOptions={{ headerShown: false, animation: navigationAnimation(reduceMotion, 'slide_from_right') }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="operations/common-documents" />
           <Stack.Screen name="operations/incidents" />

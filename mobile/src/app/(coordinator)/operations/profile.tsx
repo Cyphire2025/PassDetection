@@ -3,13 +3,12 @@ import Phone from 'lucide-react-native/icons/phone';
 import UserRound from 'lucide-react-native/icons/user-round';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { logoutSession } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
 import { GlassCard } from '@/design/components/glass-card';
-import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
 import { OperationHeader } from '@/features/coordinator/ui/operation-header';
+import { SafeSignOutButton } from '@/features/profile/ui/safe-sign-out-button';
 
 export default function CoordinatorProfileScreen() {
   const principal = useSessionStore((state) => state.session?.principal ?? null);
@@ -44,7 +43,7 @@ export default function CoordinatorProfileScreen() {
           <Text style={styles.unavailable}>No additional contact details are available for this account.</Text>
         ) : null}
       </GlassCard>
-      <PrimaryButton label="Sign out" tone="danger" onPress={() => void logoutSession()} />
+      <SafeSignOutButton />
     </Screen>
   );
 }

@@ -2,19 +2,22 @@ import AlertTriangle from 'lucide-react-native/icons/triangle-alert';
 import Bell from 'lucide-react-native/icons/bell';
 import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import { useCallback, useMemo } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View, type SectionListRenderItemInfo } from 'react-native';
+import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View, type SectionListRenderItemInfo } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
+import {
+  useCoordinatorAnnouncements,
+  useCoordinatorNotifications,
+} from '@/features/coordinator/hooks/use-coordinator';
 import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
 import { OperationHeader } from '@/features/coordinator/ui/operation-header';
 import type { Announcement } from '@/features/content/api/content-contracts';
-import { useAnnouncements } from '@/features/content/hooks/use-content';
 import type { MobileNotification } from '@/features/notifications/api/notification-contracts';
-import { useNotifications } from '@/features/notifications/hooks/use-notifications';
 
 type Row =
   | { kind: 'notification'; value: MobileNotification }
@@ -22,9 +25,10 @@ type Row =
 type UpdatesSection = { title: 'Updates' | 'Group announcements'; data: Row[] };
 
 export default function CoordinatorUpdatesScreen() {
+  const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
-  const notifications = useNotifications(trips.selectedTripId);
-  const announcements = useAnnouncements(trips.selectedTripId);
+  const notifications = useCoordinatorNotifications(trips.selectedTripId);
+  const announcements = useCoordinatorAnnouncements(trips.selectedTripId);
   const notificationItems = useMemo(() => {
     const unique = new Map<string, MobileNotification>();
     for (const item of notifications.data?.pages.flatMap((page) => page.items) ?? []) {
@@ -106,6 +110,14 @@ export default function CoordinatorUpdatesScreen() {
         onEndReached={loadMore}
         onEndReachedThreshold={0.6}
         contentContainerStyle={styles.list}
+        refreshControl={(
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(
+              () => Promise.all([notifications.refetch(), announcements.refetch()]),
+            )}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListHeaderComponent={
           <View style={styles.header}>

@@ -2,13 +2,13 @@ import LogOut from 'lucide-react-native/icons/log-out';
 import ShieldCheck from 'lucide-react-native/icons/shield-check';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { logoutSession } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
-import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
+
+import { SafeSignOutButton } from './safe-sign-out-button';
 
 export function ProfileScreen({ eyebrow }: { eyebrow: string }) {
   const session = useSessionStore((state) => state.session);
@@ -41,7 +41,7 @@ export function ProfileScreen({ eyebrow }: { eyebrow: string }) {
             </Text>
           </View>
         </View>
-        <PrimaryButton label="Sign out and clear device" tone="danger" onPress={() => void logoutSession()} />
+        <SafeSignOutButton label="Sign out and clear device" />
       </GlassCard>
     </Screen>
   );

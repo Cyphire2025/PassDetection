@@ -15,6 +15,8 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -35,32 +37,49 @@ type AttendanceSection = { title: 'Started and completed' | 'Missing passengers'
 
 export default function CoordinatorAttendanceScreen() {
   const router = useRouter();
+  const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
   const sessions = useAttendanceSessions(trips.selectedTripId);
   const visibleSessions = useMemo(
     () => visibleAttendanceSessions(sessions.data?.items ?? []),
     [sessions.data?.items],
   );
-  const [viewSessionId, setViewSessionId] = useState<string | null>(null);
+  const [viewedSession, setViewedSession] = useState<{ tripId: string; sessionId: string } | null>(null);
+  const viewSessionId = viewedSession?.tripId === trips.selectedTripId
+    ? viewedSession.sessionId
+    : null;
   const effectiveSessionId = viewSessionId
     ?? visibleSessions.find((session) => session.id === sessions.data?.selectedSessionId)?.id
     ?? visibleSessions[0]?.id
     ?? null;
   const detail = useAttendanceSessionDetail(trips.selectedTripId, effectiveSessionId);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [operationError, setOperationError] = useState<{ tripId: string; message: string } | null>(null);
+  const error = operationError?.tripId === trips.selectedTripId ? operationError.message : null;
+  const refetchSessions = sessions.refetch;
+  const refetchDetail = detail.refetch;
+
+  const refreshAttendance = useCallback(async () => {
+    await refetchSessions();
+    if (effectiveSessionId) await refetchDetail();
+  }, [effectiveSessionId, refetchDetail, refetchSessions]);
 
   const chooseSession = useCallback(async (session: AttendanceSession) => {
-    setViewSessionId(session.id);
-    if (!trips.selectedTripId || session.status !== 'active') return;
-    setError(null);
+    const tripId = trips.selectedTripId;
+    if (!tripId) return;
+    setViewedSession({ tripId, sessionId: session.id });
+    if (session.status !== 'active') return;
+    setOperationError(null);
     try {
-      await selectAttendanceSession(trips.selectedTripId, session.id);
-      await sessions.refetch();
+      await selectAttendanceSession(tripId, session.id);
+      await refetchSessions();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'The attendance activity could not be opened.');
+      setOperationError({
+        tripId,
+        message: userFacingErrorMessage(caught, 'The attendance activity could not be opened.'),
+      });
     }
-  }, [sessions, trips.selectedTripId]);
+  }, [refetchSessions, trips.selectedTripId]);
 
   const completeSelected = useCallback(() => {
     const tripId = trips.selectedTripId;
@@ -76,18 +95,21 @@ export default function CoordinatorAttendanceScreen() {
           style: 'destructive',
           onPress: () => {
             setBusy(true);
-            setError(null);
+            setOperationError(null);
             void completeAttendanceSession(tripId, selected.id)
-              .then(() => Promise.all([sessions.refetch(), detail.refetch()]))
+              .then(() => Promise.all([refetchSessions(), refetchDetail()]))
               .catch((caught: unknown) => {
-                setError(caught instanceof Error ? caught.message : 'The activity could not be completed.');
+                setOperationError({
+                  tripId,
+                  message: userFacingErrorMessage(caught, 'The activity could not be completed.'),
+                });
               })
               .finally(() => setBusy(false));
           },
         },
       ],
     );
-  }, [detail, effectiveSessionId, sessions, trips.selectedTripId, visibleSessions]);
+  }, [effectiveSessionId, refetchDetail, refetchSessions, trips.selectedTripId, visibleSessions]);
 
   const sections = useMemo<AttendanceSection[]>(() => [
     {
@@ -163,8 +185,8 @@ export default function CoordinatorAttendanceScreen() {
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
-            refreshing={sessions.isRefetching || detail.isRefetching}
-            onRefresh={() => void Promise.all([sessions.refetch(), detail.refetch()])}
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(refreshAttendance)}
           />
         }
         ListHeaderComponent={

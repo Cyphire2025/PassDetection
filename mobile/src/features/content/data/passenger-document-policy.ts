@@ -100,9 +100,13 @@ export function commonDocumentHeading(category: string): string {
 }
 
 export function shouldPrefetchPassengerDocument(document: DocumentMetadata): boolean {
+  if (document.revoked_at || (document.scope !== 'personal' && document.scope !== 'common')) return false;
+  if (document.metadata_state === 'pending') {
+    // Legacy passport/visa/ticket rows can be materialized atomically by the signed download
+    // authorization endpoint. Other pending categories stay metadata-only until published.
+    return document.scope === 'personal' && passengerDocumentSlotId(document.category) !== null;
+  }
   return (
-    !document.revoked_at &&
-    (document.scope === 'personal' || document.scope === 'common') &&
     document.metadata_state === 'ready' &&
     document.offline_available &&
     Boolean(document.size_bytes) &&

@@ -1,9 +1,10 @@
 import * as Brightness from 'expo-brightness';
 import * as ScreenCapture from 'expo-screen-capture';
-import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect } from 'react';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -15,6 +16,11 @@ import { useTrips } from '@/features/trips/hooks/use-trips';
 export default function PassengerQrScreen() {
   const trips = useTrips();
   const qr = useQr(trips.selectedTripId);
+  const refetchQr = qr.refetch;
+  const manualRefreshTask = useCallback(async () => {
+    await refetchQr();
+  }, [refetchQr]);
+  const manualRefresh = useManualRefresh();
   ScreenCapture.usePreventScreenCapture('passenger-personal-qr');
 
   useEffect(() => {
@@ -33,7 +39,17 @@ export default function PassengerQrScreen() {
   }, []);
 
   return (
-    <Screen scroll={false} bottomInset={104} contentStyle={styles.screen}>
+    <Screen
+      bottomInset={104}
+      contentStyle={styles.screen}
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(manualRefreshTask)}
+          />
+        ),
+      }}>
       <PageHeader eyebrow="Attendance" title="My QR" subtitle={trips.selectedTrip?.name || 'Passenger-specific trip QR'} />
       {qr.isPending ? <ContentLoading label="Preparing your QR" /> : null}
       {qr.isError ? <ContentError message="Your QR is not available offline yet." onRetry={() => void qr.refetch()} /> : null}
@@ -43,7 +59,7 @@ export default function PassengerQrScreen() {
             <QRCode value={qr.data.qr.signed_payload} size={244} color="#000000" backgroundColor="#FFFFFF" ecl="H" />
           </View>
           <Text style={styles.name}>{trips.selectedTrip?.destination || trips.selectedTrip?.name}</Text>
-          <Text style={styles.ready}>Ready for your checkpoint · available offline</Text>
+          <Text style={styles.ready}>Ready for your checkpoint - available offline</Text>
           <Text style={styles.help}>Show this screen at your group checkpoint. It is bound to you and this trip.</Text>
         </GlassCard>
       ) : null}

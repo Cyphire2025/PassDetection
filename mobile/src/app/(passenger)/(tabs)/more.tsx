@@ -1,16 +1,20 @@
+import { router } from 'expo-router';
 import LogOut from 'lucide-react-native/icons/log-out';
 import Mail from 'lucide-react-native/icons/mail';
 import MapPin from 'lucide-react-native/icons/map-pin';
 import Phone from 'lucide-react-native/icons/phone';
 import UserRound from 'lucide-react-native/icons/user-round';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import { logoutSession } from '@/core/auth/session-service';
+import { refreshSessionPrincipal } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, spacing } from '@/design/theme';
 import { useTrips } from '@/features/trips/hooks/use-trips';
+import { SafeSignOutButton } from '@/features/profile/ui/safe-sign-out-button';
 
 function initials(value: string): string {
   return value
@@ -25,9 +29,24 @@ export default function PassengerMoreScreen() {
   const session = useSessionStore((state) => state.session);
   const trips = useTrips();
   const name = session?.principal.displayName || 'Passenger';
+  const refreshTrips = trips.refetch;
+  const manualRefreshTask = useCallback(async () => {
+    await Promise.all([refreshSessionPrincipal(), refreshTrips()]);
+  }, [refreshTrips]);
+  const manualRefresh = useManualRefresh();
 
   return (
-    <Screen bottomInset={104} contentStyle={styles.screen}>
+    <Screen
+      bottomInset={104}
+      contentStyle={styles.screen}
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(manualRefreshTask)}
+          />
+        ),
+      }}>
       <View style={styles.profile}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials(name)}</Text>
@@ -55,18 +74,26 @@ export default function PassengerMoreScreen() {
             <View style={styles.detailRow}>
               <MapPin color={colors.inkMuted} size={18} />
               <Text style={styles.detailText}>
-                {[trips.selectedTrip.name, trips.selectedTrip.destination].filter(Boolean).join(' · ')}
+                {[trips.selectedTrip.name, trips.selectedTrip.destination].filter(Boolean).join(' - ')}
               </Text>
             </View>
           ) : null}
         </View>
       </View>
 
+      {trips.trips.length > 1 ? (
+        <PrimaryButton
+          label="Change trip"
+          tone="secondary"
+          onPress={() => router.push('/(passenger)/select-trip')}
+        />
+      ) : null}
+
       <View style={styles.signOut}>
         <LogOut color={colors.danger} size={22} />
         <Text style={styles.signOutNote}>Sign out of this passenger account</Text>
       </View>
-      <PrimaryButton label="Sign out" tone="danger" onPress={() => void logoutSession()} />
+      <SafeSignOutButton />
     </Screen>
   );
 }

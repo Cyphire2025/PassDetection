@@ -1,24 +1,39 @@
 import * as Crypto from 'expo-crypto';
 
-import { apiRequest } from '@/core/api/client';
+import { ApiError, apiRequest } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
-import { accountNamespace } from '@/core/auth/types';
-import { openAccountDatabase } from '@/core/storage/database';
+import { principalAccountNamespace } from '@/core/auth/types';
+import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
 import { MobileNotificationPageSchema, MobileNotificationReadSchema, type MobileNotification } from '../api/notification-contracts';
+
+type PendingNotificationRead = {
+  idempotency_key: string;
+  dedupe_key: string;
+  attempt_count: number;
+};
+
+const readDrainInFlight = new Map<string, Promise<void>>();
+const READ_CLAIM_STALE_MS = 2 * 60_000;
+
+function readRetryDelay(attempt: number): number {
+  const capped = Math.min(Math.max(attempt, 1), 8);
+  const base = Math.min(5 * 60_000, 1_000 * 2 ** capped);
+  return Math.round(base * (0.75 + Math.random() * 0.5));
+}
 
 function namespace(): string {
   const principal = useSessionStore.getState().session?.principal;
   if (!principal) throw new Error('Authentication is required.');
-  return accountNamespace({ agencyId: principal.agencyId, principalId: principal.id });
+  return principalAccountNamespace(principal);
 }
 
 async function saveNotifications(items: MobileNotification[]): Promise<void> {
   const account = namespace();
   const database = await openAccountDatabase(account);
-  await database.withTransactionAsync(async () => {
+  await withAccountTransaction(database, async (transaction) => {
     for (const item of items) {
-      await database.runAsync(
+      await transaction.runAsync(
         `INSERT INTO mobile_notifications
           (id, account_namespace, trip_id, notification_type, category, priority, title, body,
            deep_link_path, available_at, expires_at, read_at, updated_at)
@@ -72,12 +87,14 @@ export async function markNotificationRead(notificationId: string, tripId: strin
   const account = namespace();
   const database = await openAccountDatabase(account);
   const now = new Date().toISOString();
-  await database.withTransactionAsync(async () => {
-    await database.runAsync(
-      'UPDATE mobile_notifications SET read_at = COALESCE(read_at, ?), updated_at = ? WHERE account_namespace = ? AND id = ?',
-      now, now, account, notificationId,
+  await withAccountTransaction(database, async (transaction) => {
+    await transaction.runAsync(
+      `UPDATE mobile_notifications
+          SET read_at = COALESCE(read_at, ?), updated_at = ?
+        WHERE account_namespace = ? AND id = ? AND (trip_id = ? OR trip_id IS NULL)`,
+      now, now, account, notificationId, tripId,
     );
-    await database.runAsync(
+    await transaction.runAsync(
       `INSERT OR IGNORE INTO pending_actions
         (idempotency_key, account_namespace, trip_id, action_type, dedupe_key, payload_json,
          base_version, state, attempt_count, next_attempt_at, last_error_code, created_at, updated_at)
@@ -89,21 +106,73 @@ export async function markNotificationRead(notificationId: string, tripId: strin
   await drainNotificationReads(tripId).catch(() => undefined);
 }
 
-export async function drainNotificationReads(tripId: string): Promise<void> {
-  const account = namespace();
-  const database = await openAccountDatabase(account);
-  while (true) {
-    const row = await database.getFirstAsync<{ idempotency_key: string; dedupe_key: string }>(
-      `SELECT idempotency_key, dedupe_key FROM pending_actions
+async function claimNotificationRead(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  tripId: string,
+): Promise<PendingNotificationRead | null> {
+  let claimed: PendingNotificationRead | null = null;
+  await withAccountTransaction(database, async (transaction) => {
+    const now = new Date().toISOString();
+    const row = await transaction.getFirstAsync<PendingNotificationRead>(
+      `SELECT idempotency_key, dedupe_key, attempt_count
+         FROM pending_actions
         WHERE account_namespace = ? AND trip_id = ? AND action_type = 'notification.read'
-          AND state IN ('pending', 'retryable') ORDER BY created_at LIMIT 1`,
-      account, tripId,
+          AND state IN ('pending', 'retryable')
+          AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
+        ORDER BY created_at, idempotency_key LIMIT 1`,
+      account,
+      tripId,
+      now,
     );
+    if (!row) return;
+    const result = await transaction.runAsync(
+      `UPDATE pending_actions
+          SET state = 'sending', attempt_count = attempt_count + 1,
+              next_attempt_at = NULL, last_error_code = NULL, updated_at = ?
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'notification.read'
+          AND idempotency_key = ? AND state IN ('pending', 'retryable')`,
+      now,
+      account,
+      tripId,
+      row.idempotency_key,
+    );
+    if (result.changes !== 1) {
+      throw new Error('The notification read could not be claimed atomically.');
+    }
+    claimed = row;
+  });
+  return claimed;
+}
+
+async function drainNotificationReadsForAccount(
+  account: string,
+  tripId: string,
+): Promise<void> {
+  const database = await openAccountDatabase(account);
+  const recoveredAt = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - READ_CLAIM_STALE_MS).toISOString();
+  await database.runAsync(
+    `UPDATE pending_actions
+        SET state = 'retryable', next_attempt_at = NULL,
+            last_error_code = 'INTERRUPTED_RETRY', updated_at = ?
+      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'notification.read'
+        AND state = 'sending' AND updated_at < ?`,
+    recoveredAt,
+    account,
+    tripId,
+    staleBefore,
+  );
+
+  while (true) {
+    const row = await claimNotificationRead(database, account, tripId);
     if (!row) return;
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.dedupe_key)) {
       await database.runAsync(
-        `UPDATE pending_actions SET state = 'rejected', last_error_code = 'INVALID_NOTIFICATION_ID', updated_at = ?
-          WHERE account_namespace = ? AND idempotency_key = ?`,
+        `UPDATE pending_actions
+            SET state = 'rejected', next_attempt_at = NULL,
+                last_error_code = 'INVALID_NOTIFICATION_ID', updated_at = ?
+          WHERE account_namespace = ? AND idempotency_key = ? AND state = 'sending'`,
         new Date().toISOString(), account, row.idempotency_key,
       );
       continue;
@@ -112,21 +181,53 @@ export async function drainNotificationReads(tripId: string): Promise<void> {
       const result = await apiRequest(`/mobile/notifications/${row.dedupe_key}/read`, {
         method: 'POST', schema: MobileNotificationReadSchema, body: {},
       });
-      await database.withTransactionAsync(async () => {
-        await database.runAsync(
-          'UPDATE mobile_notifications SET read_at = ?, updated_at = ? WHERE account_namespace = ? AND id = ?',
-          result.read_at, result.read_at, account, result.id,
+      await withAccountTransaction(database, async (transaction) => {
+        await transaction.runAsync(
+          `UPDATE mobile_notifications
+              SET read_at = ?, updated_at = ?
+            WHERE account_namespace = ? AND id = ? AND (trip_id = ? OR trip_id IS NULL)`,
+          result.read_at, result.read_at, account, result.id, tripId,
         );
-        await database.runAsync('DELETE FROM pending_actions WHERE account_namespace = ? AND idempotency_key = ?', account, row.idempotency_key);
+        await transaction.runAsync(
+          `DELETE FROM pending_actions
+            WHERE account_namespace = ? AND idempotency_key = ? AND state = 'sending'`,
+          account,
+          row.idempotency_key,
+        );
       });
-    } catch {
+    } catch (error) {
+      const permanent = error instanceof ApiError
+        && error.status >= 400
+        && error.status < 500
+        && error.status !== 408
+        && error.status !== 429;
+      const updatedAt = new Date().toISOString();
       await database.runAsync(
-        `UPDATE pending_actions SET state = 'retryable', attempt_count = attempt_count + 1,
-          next_attempt_at = ?, last_error_code = 'READ_SYNC_FAILED', updated_at = ?
-          WHERE account_namespace = ? AND idempotency_key = ?`,
-        new Date(Date.now() + 30_000).toISOString(), new Date().toISOString(), account, row.idempotency_key,
+        `UPDATE pending_actions
+            SET state = ?, next_attempt_at = ?, last_error_code = ?, updated_at = ?
+          WHERE account_namespace = ? AND idempotency_key = ? AND state = 'sending'`,
+        permanent ? 'rejected' : 'retryable',
+        permanent
+          ? null
+          : new Date(Date.now() + readRetryDelay(row.attempt_count + 1)).toISOString(),
+        error instanceof ApiError ? error.code : 'READ_SYNC_FAILED',
+        updatedAt,
+        account,
+        row.idempotency_key,
       );
-      return;
+      if (!permanent) return;
     }
   }
+}
+
+export function drainNotificationReads(tripId: string): Promise<void> {
+  const account = namespace();
+  const key = `${account}:${tripId}`;
+  const active = readDrainInFlight.get(key);
+  if (active) return active;
+  const request = drainNotificationReadsForAccount(account, tripId).finally(() => {
+    if (readDrainInFlight.get(key) === request) readDrainInFlight.delete(key);
+  });
+  readDrainInFlight.set(key, request);
+  return request;
 }

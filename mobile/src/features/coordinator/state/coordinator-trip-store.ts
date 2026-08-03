@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 
 type CoordinatorTripState = {
-  principalId: string | null;
+  accountKey: string | null;
   tripId: string | null;
-  activatePrincipal: (principalId: string | null) => void;
-  selectTrip: (principalId: string, tripId: string) => void;
-  clearSelection: (principalId: string) => void;
+  activateAccount: (accountKey: string | null) => void;
+  selectTrip: (accountKey: string, tripId: string) => void;
+  clearSelection: (accountKey: string) => void;
 };
 
 /**
@@ -13,19 +13,19 @@ type CoordinatorTripState = {
  * previous account is never returned while the new account is being initialized.
  */
 export const useCoordinatorTripStore = create<CoordinatorTripState>((set) => ({
-  principalId: null,
+  accountKey: null,
   tripId: null,
-  activatePrincipal: (principalId) =>
+  activateAccount: (accountKey) =>
     set((state) => (
-      state.principalId === principalId
+      state.accountKey === accountKey
         ? state
-        : { principalId, tripId: null }
+        : { accountKey, tripId: null }
     )),
-  selectTrip: (principalId, tripId) => set({ principalId, tripId }),
-  clearSelection: (principalId) =>
+  selectTrip: (accountKey, tripId) => set({ accountKey, tripId }),
+  clearSelection: (accountKey) =>
     set((state) => (
-      state.principalId === principalId
-        ? { principalId, tripId: null }
+      state.accountKey === accountKey
+        ? { accountKey, tripId: null }
         : state
     )),
 }));

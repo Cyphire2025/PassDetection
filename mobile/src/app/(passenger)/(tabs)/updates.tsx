@@ -4,6 +4,7 @@ import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import { useCallback, useMemo } from 'react';
 import {
   Pressable,
+  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -11,6 +12,7 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -85,7 +87,7 @@ export default function PassengerUpdatesScreen() {
             </View>
             <View style={styles.headingText}>
               <Text style={styles.title}>{notification.title}</Text>
-              <Text style={styles.date}>{notification.category} · {new Date(notification.available_at).toLocaleString()}</Text>
+              <Text style={styles.date}>{notification.category} - {new Date(notification.available_at).toLocaleString()}</Text>
             </View>
             {!notification.read_at ? <View accessibilityLabel="Unread" style={styles.unreadDot} /> : null}
           </View>
@@ -98,6 +100,13 @@ export default function PassengerUpdatesScreen() {
   const loadMore = useCallback(() => {
     if (notifications.hasNextPage && !notifications.isFetchingNextPage) void notifications.fetchNextPage();
   }, [notifications]);
+  const refreshTrips = trips.refetch;
+  const refreshNotifications = notifications.refetch;
+  const refreshAnnouncements = announcements.refetch;
+  const manualRefreshTask = useCallback(async () => {
+    await Promise.all([refreshTrips(), refreshNotifications(), refreshAnnouncements()]);
+  }, [refreshAnnouncements, refreshNotifications, refreshTrips]);
+  const manualRefresh = useManualRefresh();
 
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
@@ -115,6 +124,12 @@ export default function PassengerUpdatesScreen() {
         onEndReached={loadMore}
         onEndReachedThreshold={0.6}
         contentContainerStyle={styles.list}
+        refreshControl={(
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(manualRefreshTask)}
+          />
+        )}
         ItemSeparatorComponent={ListSeparator}
         ListHeaderComponent={
           <View style={styles.header}>

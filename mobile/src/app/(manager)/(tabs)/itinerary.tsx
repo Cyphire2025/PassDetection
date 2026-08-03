@@ -4,6 +4,7 @@ import MapPin from 'lucide-react-native/icons/map-pin';
 import { useCallback, useMemo, useState } from 'react';
 import {
   Pressable,
+  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -11,6 +12,7 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -18,7 +20,7 @@ import { Screen } from '@/design/components/screen';
 import { StatusPill } from '@/design/components/status-pill';
 import { colors, radii, spacing } from '@/design/theme';
 import type { Itinerary } from '@/features/content/api/content-contracts';
-import { cacheDocument, type DocumentWithOfflineState } from '@/features/content/data/content-repository';
+import type { DocumentWithOfflineState } from '@/features/content/data/content-repository';
 import { useCommonDocuments } from '@/features/content/hooks/use-content';
 import { useItinerary } from '@/features/content/hooks/use-itinerary';
 import { useTrips } from '@/features/trips/hooks/use-trips';
@@ -35,9 +37,9 @@ type Section =
 
 export default function ManagerItineraryScreen() {
   const trips = useTrips();
+  const manualRefresh = useManualRefresh();
   const itinerary = useItinerary(trips.selectedTripId);
   const documents = useCommonDocuments(trips.selectedTripId);
-  const [opening, setOpening] = useState<string | null>(null);
   const [documentError, setDocumentError] = useState<string | null>(null);
   const commonDocuments = useMemo(
     () => documents.data?.items.filter((item) => item.scope === 'common') ?? [],
@@ -55,20 +57,14 @@ export default function ManagerItineraryScreen() {
     ];
   }, [commonDocuments, itinerary.data]);
 
-  const openDocument = useCallback(async (document: DocumentWithOfflineState) => {
+  const openDocument = useCallback((document: DocumentWithOfflineState) => {
     if (!document.offline_available || document.metadata_state !== 'ready') return;
-    setOpening(document.id);
     setDocumentError(null);
-    try {
-      if (!document.offline || document.offlineVersion !== document.version) await cacheDocument(document);
-      await documents.refetch();
-      router.push({ pathname: '/document/[id]', params: { id: document.id } });
-    } catch (caught) {
-      setDocumentError(caught instanceof Error ? caught.message : 'The document could not be opened securely.');
-    } finally {
-      setOpening(null);
-    }
-  }, [documents]);
+    router.push({
+      pathname: '/document/[id]',
+      params: { id: document.id, tripId: document.trip_id },
+    });
+  }, []);
 
   const renderItem = useCallback(
     ({ item }: SectionListRenderItemInfo<Row, Section>) => {
@@ -79,15 +75,15 @@ export default function ManagerItineraryScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${canOpen ? 'Open' : 'Unavailable offline'} ${document.display_name}`}
-          disabled={!canOpen || opening === document.id}
-          onPress={() => void openDocument(document)}
+          disabled={!canOpen}
+          onPress={() => openDocument(document)}
           style={({ pressed }) => pressed && styles.pressed}>
           <GlassCard style={styles.document}>
             <FileText color={colors.blueDeep} size={22} />
             <View style={styles.documentText}>
               <Text style={styles.itemTitle}>{document.display_name}</Text>
               <Text style={styles.meta}>
-                {document.category} · {opening === document.id ? 'securing' : canOpen ? `version ${document.version}` : 'online only'}
+                {document.category} · {document.offline ? 'ready offline' : canOpen ? `version ${document.version}` : 'online only'}
               </Text>
             </View>
             {document.offline ? <StatusPill label="Offline" tone="good" /> : null}
@@ -95,7 +91,7 @@ export default function ManagerItineraryScreen() {
         </Pressable>
       );
     },
-    [openDocument, opening],
+    [openDocument],
   );
 
   return (
@@ -109,6 +105,14 @@ export default function ManagerItineraryScreen() {
         initialNumToRender={10}
         maxToRenderPerBatch={12}
         windowSize={7}
+        refreshControl={(
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(
+              () => Promise.all([trips.refetch(), itinerary.refetch(), documents.refetch()]),
+            )}
+          />
+        )}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.header}>

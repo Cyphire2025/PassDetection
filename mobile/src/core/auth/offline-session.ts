@@ -2,8 +2,10 @@ import { accountNamespace, type MobileSession } from './types';
 
 export type OfflineSessionRow = {
   id: string;
+  account_id: string;
   agency_id: string;
   principal_type: MobileSession['principal']['principalType'];
+  passenger_id?: string | null;
   display_name: string;
   email: string | null;
   phone_number: string | null;
@@ -22,7 +24,8 @@ export function offlineSessionFromRow(
   row: OfflineSessionRow | null,
   nowMs: number,
 ): MobileSession | null {
-  if (!row || accountNamespace({ agencyId: row.agency_id, principalId: row.id }) !== namespace) return null;
+  if (!row || accountNamespace({ agencyId: row.agency_id, accountId: row.account_id }) !== namespace) return null;
+  if (row.principal_type === 'passenger' && !row.passenger_id) return null;
   const refreshExpiry = Date.parse(row.refresh_token_expires_at);
   if (!Number.isFinite(refreshExpiry) || refreshExpiry <= nowMs) return null;
   return {
@@ -33,8 +36,10 @@ export function offlineSessionFromRow(
     networkMode: 'offline',
     principal: {
       id: row.id,
+      accountId: row.account_id,
       agencyId: row.agency_id,
       principalType: row.principal_type,
+      passengerId: row.passenger_id ?? null,
       displayName: row.display_name,
       email: row.email,
       phoneNumber: row.phone_number,

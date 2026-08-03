@@ -24,14 +24,19 @@ async def test_phone_candidate_reconciliation_is_bounded_and_gc_scoped() -> None
         phone_lookup_hash=hash_mobile_lookup(phone, purpose="passenger-phone"),
     )
 
-    statement = session.execute.await_args.args[0]
-    sql = str(statement.compile(compile_kwargs={"literal_binds": True}))
+    statements = [
+        str(call.args[0].compile(compile_kwargs={"literal_binds": True}))
+        for call in session.execute.await_args_list
+    ]
+    sql = "\n".join(statements)
     assert "whatsapp_broadcast_recipients" in sql
     assert "client_group_whatsapp_broadcast_links" in sql
+    assert "passport_submissions" in sql
+    assert "regexp_replace" in sql
     assert "gc_group_access" in sql
     assert "client_groups" in sql
     assert "passenger_access_enabled IS true" in sql
     assert "is_enabled IS true" in sql
     assert "LIMIT 20" in sql
     assert phone in sql
-    assert "FOR UPDATE" in sql
+    assert sql.count("FOR UPDATE") == 2

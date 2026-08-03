@@ -133,6 +133,25 @@ def plan_passenger_identities(
                 continue
             provisional.append((submission_id, phone, _secondary_factor(submission)))
 
+    # A passenger-entered phone on the authoritative submission is itself
+    # strong ownership evidence once the user proves control of that number by
+    # OTP.  Keep WhatsApp roster matches authoritative when both sources are
+    # present, and use this source only for submissions that were not already
+    # resolved by the matching engine.  This closes the gap where a newly
+    # added passenger belongs to a GC-enabled group but its broadcast link has
+    # not yet been rebuilt.
+    provisioned_submission_ids = {
+        submission_id for submission_id, _phone, _factor in provisional
+    }
+    for submission_id in sorted(by_id, key=str):
+        if submission_id in provisioned_submission_ids:
+            continue
+        submission = by_id[submission_id]
+        phone = normalize_whatsapp_phone(getattr(submission, "client_phone", None))
+        if phone is None:
+            continue
+        provisional.append((submission_id, phone, _secondary_factor(submission)))
+
     phone_counts = Counter(phone for _submission_id, phone, _factor in provisional)
     factor_counts = Counter(
         (phone, factor[0], _normalize_factor(factor[1]))

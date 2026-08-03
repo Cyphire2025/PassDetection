@@ -4,8 +4,9 @@ import CircleCheckBig from 'lucide-react-native/icons/circle-check-big';
 import Plane from 'lucide-react-native/icons/plane';
 import Soup from 'lucide-react-native/icons/soup';
 import UsersRound from 'lucide-react-native/icons/users-round';
-import { StyleSheet, Text, View, type ColorValue } from 'react-native';
+import { RefreshControl, StyleSheet, Text, View, type ColorValue } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -28,10 +29,23 @@ function Metric({ icon: Icon, label, value, color }: { icon: LucideIcon; label: 
 
 export default function ManagerReadinessScreen() {
   const trips = useTrips();
+  const manualRefresh = useManualRefresh();
   const readiness = useReadiness(trips.selectedTripId);
 
   return (
-    <Screen bottomInset={104} contentStyle={styles.screen}>
+    <Screen
+      bottomInset={104}
+      contentStyle={styles.screen}
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(
+              () => Promise.all([trips.refetch(), readiness.refetch()]),
+            )}
+          />
+        ),
+      }}>
       <PageHeader eyebrow="Group overview" title="Readiness" subtitle="Summary-first operational status without personal document access." />
       <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />
       {readiness.isPending ? <ContentLoading label="Calculating readiness" /> : null}

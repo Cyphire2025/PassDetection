@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { MobilePrincipal, MobileRole } from '@/core/auth/types';
+import { withAccountTransaction } from '@/core/storage/database';
 
 export const DEMO_AGENCY_ID = '00000000-0000-4000-8000-000000000001';
 
@@ -111,8 +112,10 @@ function demoTrips(role: MobileRole): DemoTrip[] {
 export function demoPrincipal(role: MobileRole): MobilePrincipal {
   return {
     id: DEMO_PRINCIPAL_IDS[role],
+    accountId: DEMO_PRINCIPAL_IDS[role],
     principalType: role,
     agencyId: DEMO_AGENCY_ID,
+    passengerId: role === 'passenger' ? DEMO_PRINCIPAL_IDS.passenger : null,
     displayName: DEMO_DISPLAY_NAMES[role],
     email: null,
     phoneNumber: null,
@@ -581,13 +584,13 @@ export async function seedDemoAccount(
   const now = new Date().toISOString();
   const accessExpiresAt = dateTime(60, 23, 59);
 
-  await database.withTransactionAsync(async () => {
-    await database.runAsync('DELETE FROM mobile_notifications WHERE account_namespace = ?', namespace);
-    await database.runAsync('DELETE FROM sync_cursors WHERE account_namespace = ?', namespace);
-    await database.runAsync('DELETE FROM trips WHERE account_namespace = ?', namespace);
+  await withAccountTransaction(database, async (transaction) => {
+    await transaction.runAsync('DELETE FROM mobile_notifications WHERE account_namespace = ?', namespace);
+    await transaction.runAsync('DELETE FROM sync_cursors WHERE account_namespace = ?', namespace);
+    await transaction.runAsync('DELETE FROM trips WHERE account_namespace = ?', namespace);
 
     for (const [index, trip] of trips.entries()) {
-      await database.runAsync(
+      await transaction.runAsync(
         `INSERT INTO trips
           (id, account_namespace, agency_id, role, name, destination, travel_date, return_date,
            access_generation, access_expires_at, itinerary_version, common_document_version,
@@ -611,9 +614,24 @@ export async function seedDemoAccount(
         principal.principalType === 'passenger' ? 3 : 0,
         now,
       );
-      await seedItinerary(database, namespace, trip);
-      await seedSharedTripContent(database, namespace, trip, principal.principalType, now);
-      await database.runAsync(
+      await transaction.runAsync(
+        `UPDATE trips SET
+           advertised_itinerary_version = itinerary_version,
+           advertised_common_document_version = common_document_version,
+           advertised_personal_document_version = personal_document_version,
+           advertised_announcement_version = announcement_version,
+           advertised_readiness_version = readiness_version,
+           advertised_roster_version = roster_version,
+           advertised_rooming_version = rooming_version,
+           advertised_meals_version = meals_version,
+           advertised_qr_version = qr_version
+         WHERE account_namespace = ? AND id = ?`,
+        namespace,
+        trip.id,
+      );
+      await seedItinerary(transaction, namespace, trip);
+      await seedSharedTripContent(transaction, namespace, trip, principal.principalType, now);
+      await transaction.runAsync(
         `INSERT INTO sync_cursors
           (account_namespace, trip_id, cursor, access_generation, last_synced_at, last_error_code)
          VALUES (?, ?, 12, 1, ?, NULL)`,
@@ -623,11 +641,11 @@ export async function seedDemoAccount(
       );
 
       if (principal.principalType === 'passenger') {
-        await seedPassengerContent(database, namespace, trip, principal.id, now);
+        await seedPassengerContent(transaction, namespace, trip, principal.id, now);
       } else if (principal.principalType === 'client_manager') {
-        await seedManagerContent(database, namespace, trip, now, index);
+        await seedManagerContent(transaction, namespace, trip, now, index);
       } else {
-        await seedCoordinatorContent(database, namespace, trip, now);
+        await seedCoordinatorContent(transaction, namespace, trip, now);
       }
     }
   });

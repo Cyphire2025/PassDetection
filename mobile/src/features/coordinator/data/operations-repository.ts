@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { apiRequest, ApiError } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
-import { accountNamespace } from '@/core/auth/types';
+import { principalAccountNamespace } from '@/core/auth/types';
 import { openAccountDatabase } from '@/core/storage/database';
 
 import { IncidentActionResponseSchema } from '../api/coordinator-contracts';
@@ -21,7 +21,7 @@ const drainInFlight = new Map<string, Promise<void>>();
 function namespace(): string {
   const principal = useSessionStore.getState().session?.principal;
   if (!principal || principal.principalType !== 'coordinator') throw new Error('Coordinator authentication is required.');
-  return accountNamespace({ agencyId: principal.agencyId, principalId: principal.id });
+  return principalAccountNamespace(principal);
 }
 
 export async function enqueueIncident(tripId: string, input: IncidentInput): Promise<string> {

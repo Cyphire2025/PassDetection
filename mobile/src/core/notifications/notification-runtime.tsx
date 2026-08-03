@@ -5,16 +5,26 @@ import { useEffect } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import {
+  getHandledNotificationResponse,
+  setHandledNotificationResponse,
+} from '@/core/storage/secure-store';
 import { syncTrip } from '@/core/sync/sync-service';
 import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinator-trip-store';
+import { refreshTrips } from '@/features/trips/data/trip-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import {
   notificationContentData,
   notificationData,
   registerPushDevice,
-  type NotificationData,
 } from './notification-service';
+import {
+  isAssignedNotificationTrip,
+  notificationAccountKey,
+  notificationDestination,
+  notificationResponseKey,
+} from './notification-routing';
 
 export function NotificationRuntime() {
   const demoMode = isDemoMode();
@@ -22,29 +32,91 @@ export function NotificationRuntime() {
   const queryClient = useQueryClient();
   const session = useSessionStore((state) => state.session);
   const principalId = session?.principal.id ?? null;
+  const accountId = session?.principal.accountId ?? null;
   const principalType = session?.principal.principalType ?? null;
+  const agencyId = session?.principal.agencyId ?? null;
+  const sessionId = session?.sessionId ?? null;
 
   useEffect(() => {
-    if (!session || demoMode) return;
+    if (!sessionId || demoMode) return;
     void registerPushDevice().catch(() => undefined);
-  }, [demoMode, session]);
+  }, [demoMode, sessionId]);
 
   useEffect(() => {
-    function open(data: NotificationData) {
-      switch (principalType) {
-        case 'passenger':
+    if (!sessionId || !agencyId || !accountId || !principalId || !principalType) return;
+    const expectedSessionId = sessionId;
+    const expectedRole = principalType;
+    const expectedPrincipal = {
+      agencyId,
+      accountId,
+      id: principalId,
+      principalType: expectedRole,
+    };
+    const accountKey = notificationAccountKey(expectedPrincipal);
+    const handlingResponses = new Set<string>();
+
+    const sessionStillActive = () => {
+      const current = useSessionStore.getState().session;
+      return current?.sessionId === expectedSessionId
+        && current.principal.id === expectedPrincipal.id
+        && current.principal.accountId === expectedPrincipal.accountId
+        && current.principal.agencyId === expectedPrincipal.agencyId
+        && current.principal.principalType === expectedPrincipal.principalType;
+    };
+
+    async function open(response: Notifications.NotificationResponse) {
+      const data = notificationData(response);
+      if (!data || !sessionStillActive()) return;
+      const responseKey = notificationResponseKey(
+        data,
+        response.notification.request.identifier,
+      );
+      if (!responseKey || handlingResponses.has(responseKey)) return;
+      if ((await getHandledNotificationResponse(accountKey)) === responseKey) return;
+      handlingResponses.add(responseKey);
+      try {
+        const assignments = await refreshTrips();
+        if (!sessionStillActive()) return;
+        const assigned = isAssignedNotificationTrip(assignments.trips, data.trip_id);
+
+        // Claim this response before navigation so Expo's persisted last response
+        // cannot replay it on a later render or process restart. Storage failure is
+        // non-fatal to the user journey; the in-memory claim still coalesces this run.
+        await setHandledNotificationResponse(accountKey, responseKey).catch(() => undefined);
+        if (!assigned) {
+          if (expectedRole === 'coordinator') {
+            useCoordinatorTripStore.getState().clearSelection(accountKey);
+            router.push('/(coordinator)/(tabs)/groups');
+          } else if (expectedRole === 'client_manager') {
+            useSelectedTripStore.getState().clear();
+            router.push('/(manager)/(tabs)/groups');
+          } else {
+            router.push('/(passenger)/select-trip');
+          }
+          return;
+        }
+
+        if (expectedRole === 'passenger') {
+          router.push({
+            pathname: '/(passenger)/select-trip',
+            params: { tripId: data.trip_id, next: data.route },
+          });
+          return;
+        }
+        if (expectedRole === 'client_manager') {
           useSelectedTripStore.getState().selectTrip(data.trip_id);
-          router.push(data.route === 'documents' ? '/(passenger)/(tabs)/documents' : data.route === 'qr' ? '/(passenger)/(tabs)/qr' : data.route === 'updates' ? '/(passenger)/(tabs)/updates' : '/(passenger)/(tabs)/trip');
-          break;
-        case 'client_manager':
-          useSelectedTripStore.getState().selectTrip(data.trip_id);
-          router.push(data.route === 'readiness' ? '/(manager)/(tabs)/readiness' : data.route === 'updates' ? '/(manager)/(tabs)/updates' : data.route === 'trip' ? '/(manager)/(tabs)/itinerary' : '/(manager)/(tabs)/groups');
-          break;
-        case 'coordinator':
-          if (!principalId) return;
-          useCoordinatorTripStore.getState().selectTrip(principalId, data.trip_id);
-          router.push(data.route === 'attendance' ? '/(coordinator)/(tabs)/attendance' : data.route === 'passengers' ? '/(coordinator)/(tabs)/passengers' : data.route === 'updates' ? '/(coordinator)/operations/updates' : '/(coordinator)/(tabs)/groups');
-          break;
+        } else {
+          // Coordinator selection is scoped by agency and principal. Passing only
+          // the principal id allowed a cross-agency stale selection to be cleared
+          // immediately by activateAccount(), breaking the deep link.
+          useCoordinatorTripStore.getState().selectTrip(accountKey, data.trip_id);
+        }
+        router.push(notificationDestination(expectedRole, data.route));
+      } catch {
+        // Assignment validation is fail-closed. A network/cache failure never
+        // navigates into an operational screen for an unverified trip.
+      } finally {
+        handlingResponses.delete(responseKey);
       }
     }
 
@@ -52,26 +124,30 @@ export function NotificationRuntime() {
       const data = notificationContentData(notification);
       if (!data || !principalId) return;
       void syncTrip(data.trip_id)
-        .then(() => queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey.includes(data.trip_id),
-        }))
+        .then((result) => {
+          if (!result.changed) return undefined;
+          return Promise.all([
+            queryClient.invalidateQueries({
+              predicate: (query) => query.queryKey.includes(data.trip_id),
+            }),
+            queryClient.invalidateQueries({ queryKey: ['mobile-trips'] }),
+          ]);
+        })
         .catch(() => undefined);
     });
 
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = notificationData(response);
-      if (data) open(data);
+      void open(response);
     });
     void Notifications.getLastNotificationResponseAsync().then((response) => {
       if (!response) return;
-      const data = notificationData(response);
-      if (data) open(data);
+      void open(response);
     });
     return () => {
       received.remove();
       subscription.remove();
     };
-  }, [principalId, principalType, queryClient, router]);
+  }, [accountId, agencyId, principalId, principalType, queryClient, router, sessionId]);
 
   return null;
 }

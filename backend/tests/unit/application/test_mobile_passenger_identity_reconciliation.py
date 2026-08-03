@@ -36,11 +36,13 @@ def _submission(
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
     employee_code: str | None = None,
+    client_phone: str | None = None,
 ):
     return SimpleNamespace(
         id=uuid.uuid4(),
         agency_id=agency_id,
         group_id=group_id,
+        client_phone=client_phone,
         confirmed_fields={},
         staff_metadata={"employee_code": employee_code} if employee_code else {},
     )
@@ -169,6 +171,47 @@ def test_name_only_or_ambiguous_rows_never_provision() -> None:
 
     assert plan.candidates == ()
     assert plan.skipped_ambiguous == 1
+
+
+def test_direct_submission_phone_provisions_without_a_broadcast_link() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    submission = _submission(
+        agency_id=agency_id,
+        group_id=group_id,
+        client_phone="98765 43210",
+    )
+
+    plan = plan_passenger_identities(
+        [], [submission], agency_id=agency_id, group_id=group_id
+    )
+
+    assert len(plan.candidates) == 1
+    assert plan.candidates[0].passenger_submission_id == submission.id
+    assert plan.candidates[0].normalized_phone == "+919876543210"
+    assert plan.candidates[0].requires_secondary_verification is False
+
+
+def test_shared_direct_submission_phone_still_fails_closed_without_factors() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    first = _submission(
+        agency_id=agency_id,
+        group_id=group_id,
+        client_phone="9876543210",
+    )
+    second = _submission(
+        agency_id=agency_id,
+        group_id=group_id,
+        client_phone="+91 98765 43210",
+    )
+
+    plan = plan_passenger_identities(
+        [], [first, second], agency_id=agency_id, group_id=group_id
+    )
+
+    assert plan.candidates == ()
+    assert plan.skipped_without_secondary_factor == 2
 
 
 def test_cross_tenant_submission_is_rejected_even_if_row_references_it() -> None:

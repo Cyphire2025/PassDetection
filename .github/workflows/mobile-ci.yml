@@ -1,0 +1,115 @@
+name: Group Companion Mobile CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  EXPO_PUBLIC_API_URL: https://tech.gctravels.com/api/v1
+  # Compile-verification binaries are intentionally non-distributable and do
+  # not carry an EAS project/update identity. Production profiles fail closed.
+  EXPO_PUBLIC_APP_ENV: preview
+  EXPO_PUBLIC_DEMO_MODE: "false"
+
+jobs:
+  quality:
+    name: Mobile - contracts, tests, and static checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.4"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Audit runtime dependencies
+        # Expo's native project generator currently carries moderate build-time
+        # advisories; fail immediately if a high or critical runtime advisory appears.
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test -- --runInBand
+      - run: npm run doctor
+
+  android-release:
+    name: Mobile - Android release compile verification
+    needs: quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.4"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - run: npm ci
+      - name: Generate Android project
+        run: npx expo prebuild --platform android --no-install
+      - name: Build release variants (verification signing only)
+        run: ./android/gradlew -p android --no-parallel assembleRelease bundleRelease
+      - name: Reject accidental production-artifact publication
+        run: |
+          echo "These binaries use generated verification signing and are not distribution artifacts."
+          echo "Production Android binaries must come from the EAS production profile with protected credentials."
+
+  ios-compile:
+    name: Mobile - iOS Release compile (unsigned simulator)
+    needs: quality
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.4"
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Generate iOS project
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install CocoaPods
+        run: cd ios && pod install --repo-update
+      - name: Compile Release for iOS Simulator without signing
+        shell: bash
+        run: |
+          workspace="$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+          test -n "$workspace"
+          scheme="$(xcodebuild -workspace "$workspace" -list -json | ruby -rjson -e 'puts JSON.parse(STDIN.read).dig("workspace", "schemes").first')"
+          test -n "$scheme"
+          xcodebuild \
+            -workspace "$workspace" \
+            -scheme "$scheme" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build

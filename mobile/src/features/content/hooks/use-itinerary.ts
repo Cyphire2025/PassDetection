@@ -1,11 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { loadLocalItinerary, refreshItinerary } from '../data/itinerary-repository';
+import { useCacheFirstTripQuery } from './use-content';
 
-import { refreshItinerary } from '../data/itinerary-repository';
+const cachedItinerary = async (tripId: string) => {
+  const itinerary = await loadLocalItinerary(tripId);
+  return itinerary ? { itinerary, offline: true as const } : null;
+};
 
 export function useItinerary(tripId: string | null) {
-  return useQuery({
-    queryKey: ['trip-itinerary', tripId],
-    queryFn: () => refreshItinerary(tripId!),
-    enabled: Boolean(tripId),
+  return useCacheFirstTripQuery({
+    keyPrefix: 'trip-itinerary',
+    tripId,
+    refresh: refreshItinerary,
+    cached: cachedItinerary,
   });
 }

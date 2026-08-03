@@ -44,7 +44,8 @@ test('recognizes the fixed itinerary category and humanizes common categories', 
 
 test('prefetches only ready authorized personal or common files', () => {
   expect(shouldPrefetchPassengerDocument(base)).toBe(true);
-  expect(shouldPrefetchPassengerDocument({ ...base, metadata_state: 'pending', size_bytes: null, checksum_sha256: null, offline_available: false })).toBe(false);
+  expect(shouldPrefetchPassengerDocument({ ...base, metadata_state: 'pending', size_bytes: null, checksum_sha256: null, offline_available: false })).toBe(true);
+  expect(shouldPrefetchPassengerDocument({ ...base, category: 'other', metadata_state: 'pending', size_bytes: null, checksum_sha256: null, offline_available: false })).toBe(false);
   expect(shouldPrefetchPassengerDocument({ ...base, scope: 'coordinator' })).toBe(false);
   expect(shouldPrefetchPassengerDocument({ ...base, revoked_at: '2026-08-02T10:01:00.000Z' })).toBe(false);
 });

@@ -17,8 +17,12 @@ export type MobileDeviceInput = z.infer<typeof MobileDeviceSchema>;
 export const PrincipalSchema = z
   .object({
     id: Uuid,
+    account_id: Uuid,
     principal_type: z.enum(['passenger', 'client_manager', 'coordinator']),
     agency_id: Uuid,
+    // Optional during a rolling backend/mobile deployment; passenger resource
+    // access still fails closed until the authoritative record ID is present.
+    passenger_id: Uuid.nullable().optional(),
     display_name: z.string().min(1).max(255),
     email: z.string().email().max(320).nullable().optional().default(null),
     phone_number: z.string().min(3).max(32).nullable().optional().default(null),
@@ -176,5 +180,13 @@ export const DocumentDownloadAuthorizationSchema = z
       .regex(/^\/(?!\/)[^\\\s#]+$/, 'Expected a safe root-relative content path.'),
     download_token: z.string().min(32).max(4_096).regex(/^[A-Za-z0-9._~-]+$/),
     expires_at: IsoDateTime,
+    size_bytes: z.number().int().positive().max(25 * 1024 * 1024),
+    checksum_sha256: z.string().regex(/^[0-9a-f]{64}$/i),
+    content_type: z.enum([
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+    ]),
   })
   .strict();

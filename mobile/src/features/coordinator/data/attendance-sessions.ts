@@ -1,11 +1,12 @@
 import * as Crypto from 'expo-crypto';
+import type { SQLiteDatabase } from 'expo-sqlite';
 import { z } from 'zod';
 
 import { apiRequest } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
-import { accountNamespace } from '@/core/auth/types';
+import { principalAccountNamespace } from '@/core/auth/types';
 import { isDemoMode } from '@/core/demo/demo-mode';
-import { openAccountDatabase } from '@/core/storage/database';
+import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import { collectCursorItems } from '@/features/content/data/cursor-pagination';
 
 import {
@@ -23,12 +24,16 @@ function namespace(): string {
   if (!principal || principal.principalType !== 'coordinator') {
     throw new Error('Coordinator authentication is required.');
   }
-  return accountNamespace({ agencyId: principal.agencyId, principalId: principal.id });
+  return principalAccountNamespace(principal);
 }
 
-async function upsertSession(tripId: string, session: AttendanceSession): Promise<void> {
+async function upsertSession(
+  tripId: string,
+  session: AttendanceSession,
+  transaction?: SQLiteDatabase,
+): Promise<void> {
   const account = namespace();
-  const database = await openAccountDatabase(account);
+  const database = transaction ?? await openAccountDatabase(account);
   await database.runAsync(
     `INSERT INTO attendance_sessions
       (id, account_namespace, trip_id, name, status, scanned_count, assigned_count,
@@ -54,12 +59,12 @@ async function upsertSession(tripId: string, session: AttendanceSession): Promis
 async function replaceSessions(tripId: string, sessions: AttendanceSession[]): Promise<void> {
   const account = namespace();
   const database = await openAccountDatabase(account);
-  await database.withTransactionAsync(async () => {
+  await withAccountTransaction(database, async (transaction) => {
     const identifiers = sessions.map((session) => session.id);
-    for (const session of sessions) await upsertSession(tripId, session);
+    for (const session of sessions) await upsertSession(tripId, session, transaction);
     if (identifiers.length) {
       const placeholders = identifiers.map(() => '?').join(',');
-      await database.runAsync(
+      await transaction.runAsync(
         `DELETE FROM attendance_sessions
           WHERE account_namespace = ? AND trip_id = ? AND id NOT IN (${placeholders})`,
         account,
@@ -67,13 +72,13 @@ async function replaceSessions(tripId: string, sessions: AttendanceSession[]): P
         ...identifiers,
       );
     } else {
-      await database.runAsync(
+      await transaction.runAsync(
         'DELETE FROM attendance_sessions WHERE account_namespace = ? AND trip_id = ?',
         account,
         tripId,
       );
     }
-    await database.runAsync(
+    await transaction.runAsync(
       `DELETE FROM attendance_session_selection
         WHERE account_namespace = ? AND trip_id = ?
           AND session_id NOT IN (
@@ -100,6 +105,12 @@ async function localSessions(tripId: string): Promise<AttendanceSession[]> {
     account,
     tripId,
   );
+}
+
+export async function loadCachedAttendanceSessions(tripId: string) {
+  const items = await localSessions(tripId);
+  const current = await selectedAttendanceSession(tripId);
+  return { items, selectedSessionId: current?.id ?? null, offline: true };
 }
 
 export async function selectedAttendanceSession(tripId: string): Promise<AttendanceSession | null> {
@@ -205,8 +216,8 @@ async function saveMissing(
   const account = namespace();
   const database = await openAccountDatabase(account);
   const now = new Date().toISOString();
-  await database.withTransactionAsync(async () => {
-    await database.runAsync(
+  await withAccountTransaction(database, async (transaction) => {
+    await transaction.runAsync(
       `DELETE FROM attendance_session_missing
         WHERE account_namespace = ? AND trip_id = ? AND session_id = ?`,
       account,
@@ -214,7 +225,7 @@ async function saveMissing(
       sessionId,
     );
     for (const passenger of missing) {
-      await database.runAsync(
+      await transaction.runAsync(
         `INSERT INTO attendance_session_missing
           (account_namespace, trip_id, session_id, passenger_id, display_name, updated_at)
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -240,6 +251,12 @@ async function localMissing(tripId: string, sessionId: string): Promise<MissingP
     tripId,
     sessionId,
   );
+}
+
+export async function loadCachedAttendanceSessionDetail(tripId: string, sessionId: string) {
+  const session = (await localSessions(tripId)).find((item) => item.id === sessionId) ?? null;
+  if (!session) return null;
+  return { session, missing: await localMissing(tripId, sessionId), offline: true };
 }
 
 export async function loadAttendanceSessionDetail(tripId: string, sessionId: string) {

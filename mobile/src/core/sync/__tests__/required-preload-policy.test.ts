@@ -10,6 +10,7 @@ const SESSION: MobileSession = {
   networkMode: 'online',
   principal: {
     id: '22222222-2222-4222-8222-222222222222',
+    accountId: '22222222-2222-4222-8222-222222222222',
     principalType: 'coordinator',
     agencyId: '11111111-1111-4111-8111-111111111111',
     displayName: 'Coordinator One',
@@ -38,7 +39,11 @@ test('a different device session or account starts a distinct preparation run', 
     .not.toBe(requiredPreparationRunKey(SESSION));
   expect(requiredPreparationRunKey({
     ...SESSION,
-    principal: { ...SESSION.principal, id: '55555555-5555-4555-8555-555555555555' },
+    principal: {
+      ...SESSION.principal,
+      id: '55555555-5555-4555-8555-555555555555',
+      accountId: '55555555-5555-4555-8555-555555555555',
+    },
   })).not.toBe(requiredPreparationRunKey(SESSION));
   expect(requiredPreparationRunKey(null)).toBeNull();
 });

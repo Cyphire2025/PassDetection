@@ -1,4 +1,5 @@
 import DownloadCloud from 'lucide-react-native/icons/cloud-download';
+import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing } from '@/design/theme';
@@ -12,6 +13,7 @@ type RequiredDownloadScreenProps = {
   completedLabel?: string;
   error?: string | null;
   onRetry?: () => void;
+  errorSecondaryAction?: ReactNode;
 };
 
 export function RequiredDownloadScreen({
@@ -21,6 +23,7 @@ export function RequiredDownloadScreen({
   completedLabel,
   error,
   onRetry,
+  errorSecondaryAction,
 }: RequiredDownloadScreenProps) {
   const normalizedProgress = Math.max(0, Math.min(100, Math.round(progress)));
   return (
@@ -34,9 +37,12 @@ export function RequiredDownloadScreen({
           <Text style={styles.message}>{error ?? message}</Text>
         </View>
         {error ? (
-          <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retry}>
-            <Text style={styles.retryText}>Try again</Text>
-          </Pressable>
+          <View style={styles.errorActions}>
+            <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retry}>
+              <Text style={styles.retryText}>Try again</Text>
+            </Pressable>
+            {errorSecondaryAction}
+          </View>
         ) : (
           <View style={styles.progressGroup}>
             <View
@@ -90,6 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.green,
   },
+  errorActions: { width: '100%', maxWidth: 380, gap: spacing.md },
   retryText: { color: colors.ink, fontSize: 16, fontWeight: '900' },
   note: { maxWidth: 340, color: colors.inkMuted, fontSize: 12, lineHeight: 18, textAlign: 'center' },
 });

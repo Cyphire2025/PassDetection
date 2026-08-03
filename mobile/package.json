@@ -2,9 +2,11 @@
   "name": "group-companion-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "engines": {
+    "node": "^20.19.4 || ^22.13.0 || ^24.3.0",
+    "npm": ">=10 <12"
+  },
   "dependencies": {
-    "@expo/ui": "~57.0.8",
-    "@hookform/resolvers": "^5.6.0",
     "@react-native-community/netinfo": "12.0.1",
     "@tanstack/react-query": "^5.101.4",
     "date-fns": "^4.4.0",
@@ -25,12 +27,10 @@
     "expo-image": "~57.0.1",
     "expo-linear-gradient": "~57.0.1",
     "expo-linking": "~57.0.4",
-    "expo-network": "~57.0.1",
     "expo-notifications": "~57.0.8",
     "expo-router": "~57.0.9",
     "expo-screen-capture": "~57.0.1",
     "expo-secure-store": "~57.0.1",
-    "expo-sharing": "~57.0.8",
     "expo-splash-screen": "~57.0.5",
     "expo-sqlite": "~57.0.1",
     "expo-status-bar": "~57.0.1",
@@ -38,11 +38,9 @@
     "expo-system-ui": "~57.0.2",
     "expo-task-manager": "~57.0.7",
     "expo-updates": "~57.0.11",
-    "expo-web-browser": "~57.0.2",
     "lucide-react-native": "^1.28.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-hook-form": "^7.84.0",
     "react-native": "0.86.2",
     "react-native-blob-util": "^0.24.10",
     "react-native-gesture-handler": "~2.32.0",
@@ -68,6 +66,9 @@
     "react-test-renderer": "^19.2.3",
     "typescript": "~6.0.3"
   },
+  "overrides": {
+    "uuid": "11.1.1"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -79,8 +80,11 @@
     "test:coverage": "jest --runInBand --coverage",
     "doctor": "npx expo-doctor",
     "native:sync": "expo prebuild",
-    "android:apk": "cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" assembleRelease",
-    "android:aab": "cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" bundleRelease"
+    "release:validate-env": "cross-env GC_VALIDATE_PRODUCTION_PUBLIC_ENV=true expo config --type public",
+    "release:prepare-ios": "npm run release:validate-env && expo prebuild --platform ios --no-install",
+    "release:prepare-android": "npm run release:validate-env && expo prebuild --platform android --no-install",
+    "android:apk": "npm run release:prepare-android && cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" assembleRelease",
+    "android:aab": "npm run release:prepare-android && cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" bundleRelease"
   },
   "private": true
 }

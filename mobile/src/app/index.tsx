@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { isRequiredPreparationActive } from '@/core/sync/required-preparation-lease';
 import { LoadingScreen } from '@/design/components/loading-screen';
 
 export default function Index() {
@@ -11,6 +12,9 @@ export default function Index() {
   if (!session) return <Redirect href="/(auth)/welcome" />;
   if (session.principal.forcePasswordChange) {
     return <Redirect href="/(auth)/change-password" />;
+  }
+  if (isRequiredPreparationActive(session.sessionId)) {
+    return <Redirect href="/(auth)/prepare" />;
   }
 
   switch (session.principal.principalType) {

@@ -1,6 +1,19 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+import { validateProductionPublicEnvironment } from './scripts/production-public-env';
+
 const APP_ID = 'com.globalconnects.groupcompanion';
+const PRODUCTION_EAS_PROFILES = new Set(['production', 'production-apk']);
+const updatesUrl = process.env.EXPO_PUBLIC_UPDATES_URL;
+
+const shouldValidateProductionEnvironment =
+  process.env.EXPO_PUBLIC_APP_ENV === 'production' ||
+  process.env.GC_VALIDATE_PRODUCTION_PUBLIC_ENV === 'true' ||
+  PRODUCTION_EAS_PROFILES.has(process.env.EAS_BUILD_PROFILE ?? '');
+
+if (shouldValidateProductionEnvironment) {
+  validateProductionPublicEnvironment(process.env);
+}
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -12,12 +25,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/images/gc-app-icon.png',
   scheme: 'groupcompanion',
   userInterfaceStyle: 'light',
-  runtimeVersion: { policy: 'appVersion' },
+  runtimeVersion: { policy: 'fingerprint' },
   updates: {
-    enabled: true,
+    enabled: Boolean(updatesUrl),
     checkAutomatically: 'ON_LOAD',
     fallbackToCacheTimeout: 0,
-    url: process.env.EXPO_PUBLIC_UPDATES_URL || undefined,
+    url: updatesUrl || undefined,
   },
   assetBundlePatterns: ['assets/**/*'],
   ios: {
@@ -47,6 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.USE_BIOMETRIC',
       'android.permission.USE_FINGERPRINT',
       'android.permission.SYSTEM_ALERT_WINDOW',
+      'android.permission.WRITE_SETTINGS',
     ],
     permissions: [
       'android.permission.CAMERA',
@@ -93,6 +107,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-secure-store',
       {
         configureAndroidBackup: false,
+        faceIDPermission: false,
       },
     ],
     ['expo-sqlite', { useSQLCipher: true, enableFTS: true }],
@@ -101,6 +116,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         cameraPermission:
           'Coordinators use the camera to scan passenger attendance QR codes.',
+        microphonePermission: false,
         recordAudioAndroid: false,
       },
     ],
@@ -113,7 +129,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'expo-background-task',
-    'expo-sharing',
     [
       'expo-build-properties',
       {

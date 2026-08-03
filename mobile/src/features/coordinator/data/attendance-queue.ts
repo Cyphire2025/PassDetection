@@ -2,9 +2,9 @@ import * as Crypto from 'expo-crypto';
 import { z } from 'zod';
 
 import { apiRequest, ApiError } from '@/core/api/client';
-import { accountNamespace } from '@/core/auth/types';
+import { principalAccountNamespace } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
-import { openAccountDatabase } from '@/core/storage/database';
+import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
 import { AttendanceBatchResponseSchema } from '../api/coordinator-contracts';
 import { attendanceDedupeMaterial } from './attendance-policy';
@@ -12,11 +12,24 @@ import { attendanceDedupeMaterial } from './attendance-policy';
 const AttendancePayloadSchema = z
   .object({
     session_id: z.string().uuid(),
-    signed_qr: z.string().min(16).max(4096),
+    signed_qr: z.string().length(49).regex(/^pdatt:[A-Za-z0-9_-]{43}$/),
     scanned_at: z.string().datetime({ offset: true }),
     source: z.literal('qr'),
   })
   .strict();
+
+const ATTENDANCE_BATCH_LIMIT = 100;
+
+type PendingAttendanceRow = {
+  idempotency_key: string;
+  dedupe_key: string;
+  payload_json: string;
+  attempt_count: number;
+};
+
+type PreparedAttendanceRow = PendingAttendanceRow & {
+  payload: z.infer<typeof AttendancePayloadSchema>;
+};
 
 const drainInFlight = new Map<string, Promise<void>>();
 
@@ -25,7 +38,7 @@ function namespace(): string {
   if (!principal || principal.principalType !== 'coordinator') {
     throw new Error('Coordinator authentication is required.');
   }
-  return accountNamespace({ agencyId: principal.agencyId, principalId: principal.id });
+  return principalAccountNamespace(principal);
 }
 
 export async function enqueueQrScan(
@@ -103,8 +116,181 @@ function retryDelay(attempt: number): number {
   return Math.round(base * (0.75 + Math.random() * 0.5));
 }
 
-async function drainTrip(tripId: string): Promise<void> {
-  const account = namespace();
+async function claimAttendanceBatch(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  tripId: string,
+): Promise<PendingAttendanceRow[]> {
+  const claimed: PendingAttendanceRow[] = [];
+  await withAccountTransaction(database, async (transaction) => {
+    const now = new Date().toISOString();
+    const rows = await transaction.getAllAsync<PendingAttendanceRow>(
+      `SELECT idempotency_key, dedupe_key, payload_json, attempt_count
+         FROM pending_actions
+        WHERE account_namespace = ? AND trip_id = ?
+          AND action_type = 'attendance.scan'
+          AND state IN ('pending', 'retryable')
+          AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
+        ORDER BY created_at, idempotency_key
+        LIMIT ${ATTENDANCE_BATCH_LIMIT}`,
+      account,
+      tripId,
+      now,
+    );
+    if (rows.length === 0) return;
+
+    const placeholders = rows.map(() => '?').join(', ');
+    const result = await transaction.runAsync(
+      `UPDATE pending_actions
+          SET state = 'sending', attempt_count = attempt_count + 1,
+              next_attempt_at = NULL, last_error_code = NULL, updated_at = ?
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+          AND state IN ('pending', 'retryable')
+          AND idempotency_key IN (${placeholders})`,
+      now,
+      account,
+      tripId,
+      ...rows.map((row) => row.idempotency_key),
+    );
+    if (result.changes !== rows.length) {
+      throw new Error('The attendance batch could not be claimed atomically.');
+    }
+    claimed.push(...rows);
+  });
+  return claimed;
+}
+
+async function rejectInvalidLocalRows(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  rows: PendingAttendanceRow[],
+): Promise<void> {
+  if (rows.length === 0) return;
+  await withAccountTransaction(database, async (transaction) => {
+    const now = new Date().toISOString();
+    for (const row of rows) {
+      await transaction.runAsync(
+        `UPDATE pending_actions
+            SET state = 'rejected', next_attempt_at = NULL,
+                last_error_code = 'INVALID_LOCAL_PAYLOAD', updated_at = ?
+          WHERE idempotency_key = ? AND account_namespace = ? AND state = 'sending'`,
+        now,
+        row.idempotency_key,
+        account,
+      );
+    }
+  });
+}
+
+async function reconcileAttendanceBatch(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  tripId: string,
+  rows: PreparedAttendanceRow[],
+  response: z.infer<typeof AttendanceBatchResponseSchema>,
+): Promise<void> {
+  const resultsByEvent = new Map<string, (typeof response.results)[number]>();
+  const duplicateResults = new Set<string>();
+  for (const result of response.results) {
+    if (resultsByEvent.has(result.client_event_id)) {
+      duplicateResults.add(result.client_event_id);
+    } else {
+      resultsByEvent.set(result.client_event_id, result);
+    }
+  }
+
+  await withAccountTransaction(database, async (transaction) => {
+    const reconciledAt = new Date().toISOString();
+    for (const row of rows) {
+      const result = duplicateResults.has(row.idempotency_key)
+        ? undefined
+        : resultsByEvent.get(row.idempotency_key);
+      if (result?.status === 'accepted' || result?.status === 'already_applied') {
+        await transaction.runAsync(
+          `INSERT OR IGNORE INTO attendance_scan_receipts
+            (account_namespace, trip_id, session_id, dedupe_key, client_event_id, server_status, accepted_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          account,
+          tripId,
+          row.payload.session_id,
+          row.dedupe_key,
+          row.idempotency_key,
+          result.status,
+          reconciledAt,
+        );
+        await transaction.runAsync(
+          `DELETE FROM pending_actions
+            WHERE idempotency_key = ? AND account_namespace = ? AND state = 'sending'`,
+          row.idempotency_key,
+          account,
+        );
+        continue;
+      }
+
+      if (result) {
+        await transaction.runAsync(
+          `UPDATE pending_actions
+              SET state = 'rejected', next_attempt_at = NULL,
+                  last_error_code = ?, updated_at = ?
+            WHERE idempotency_key = ? AND account_namespace = ? AND state = 'sending'`,
+          result.reason_code ?? result.status,
+          reconciledAt,
+          row.idempotency_key,
+          account,
+        );
+        continue;
+      }
+
+      const protocolError = duplicateResults.has(row.idempotency_key)
+        ? 'DUPLICATE_SERVER_RESULT'
+        : 'MISSING_SERVER_RESULT';
+      await transaction.runAsync(
+        `UPDATE pending_actions
+            SET state = 'retryable', next_attempt_at = ?, last_error_code = ?, updated_at = ?
+          WHERE idempotency_key = ? AND account_namespace = ? AND state = 'sending'`,
+        new Date(Date.now() + retryDelay(row.attempt_count + 1)).toISOString(),
+        protocolError,
+        reconciledAt,
+        row.idempotency_key,
+        account,
+      );
+    }
+  });
+}
+
+async function settleFailedBatch(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  rows: PreparedAttendanceRow[],
+  error: unknown,
+): Promise<boolean> {
+  const permanent = error instanceof ApiError
+    && error.status >= 400
+    && error.status < 500
+    && error.status !== 408
+    && error.status !== 429;
+  await withAccountTransaction(database, async (transaction) => {
+    const updatedAt = new Date().toISOString();
+    for (const row of rows) {
+      await transaction.runAsync(
+        `UPDATE pending_actions
+            SET state = ?, next_attempt_at = ?, last_error_code = ?, updated_at = ?
+          WHERE idempotency_key = ? AND account_namespace = ? AND state = 'sending'`,
+        permanent ? 'rejected' : 'retryable',
+        permanent
+          ? null
+          : new Date(Date.now() + retryDelay(row.attempt_count + 1)).toISOString(),
+        error instanceof ApiError ? error.code : 'NETWORK_ERROR',
+        updatedAt,
+        row.idempotency_key,
+        account,
+      );
+    }
+  });
+  return permanent;
+}
+
+async function drainTrip(account: string, tripId: string): Promise<void> {
   const database = await openAccountDatabase(account);
   const staleSendingBefore = new Date(Date.now() - 2 * 60_000).toISOString();
   await database.runAsync(
@@ -118,112 +304,46 @@ async function drainTrip(tripId: string): Promise<void> {
     staleSendingBefore,
   );
   while (true) {
-    const row = await database.getFirstAsync<{
-      idempotency_key: string;
-      dedupe_key: string;
-      payload_json: string;
-      attempt_count: number;
-    }>(
-      `SELECT idempotency_key, dedupe_key, payload_json, attempt_count
-         FROM pending_actions
-        WHERE account_namespace = ? AND trip_id = ?
-          AND action_type = 'attendance.scan'
-          AND state IN ('pending', 'retryable')
-          AND (next_attempt_at IS NULL OR next_attempt_at <= ?)
-        ORDER BY created_at
-        LIMIT 1`,
-      account,
-      tripId,
-      new Date().toISOString(),
-    );
-    if (!row) return;
+    const claimedRows = await claimAttendanceBatch(database, account, tripId);
+    if (claimedRows.length === 0) return;
 
-    let rawPayload: unknown;
-    try {
-      rawPayload = JSON.parse(row.payload_json) as unknown;
-    } catch {
-      rawPayload = null;
+    const preparedRows: PreparedAttendanceRow[] = [];
+    const invalidRows: PendingAttendanceRow[] = [];
+    for (const row of claimedRows) {
+      let rawPayload: unknown;
+      try {
+        rawPayload = JSON.parse(row.payload_json) as unknown;
+      } catch {
+        rawPayload = null;
+      }
+      const parsed = AttendancePayloadSchema.safeParse(rawPayload);
+      if (parsed.success) {
+        preparedRows.push({ ...row, payload: parsed.data });
+      } else {
+        invalidRows.push(row);
+      }
     }
-    const parsed = AttendancePayloadSchema.safeParse(rawPayload);
-    if (!parsed.success) {
-      await database.runAsync(
-        `UPDATE pending_actions SET state = 'rejected', last_error_code = 'INVALID_LOCAL_PAYLOAD', updated_at = ?
-          WHERE idempotency_key = ? AND account_namespace = ?`,
-        new Date().toISOString(),
-        row.idempotency_key,
-        account,
-      );
-      continue;
-    }
+    await rejectInvalidLocalRows(database, account, invalidRows);
+    if (preparedRows.length === 0) continue;
 
-    await database.runAsync(
-      `UPDATE pending_actions SET state = 'sending', attempt_count = attempt_count + 1, updated_at = ?
-        WHERE idempotency_key = ? AND account_namespace = ?`,
-      new Date().toISOString(),
-      row.idempotency_key,
-      account,
-    );
+    let response: z.infer<typeof AttendanceBatchResponseSchema>;
     try {
-      const response = await apiRequest(`/mobile/coordinator/groups/${tripId}/attendance/actions`, {
+      response = await apiRequest(`/mobile/coordinator/groups/${tripId}/attendance/actions`, {
         method: 'POST',
         schema: AttendanceBatchResponseSchema,
         body: {
-          actions: [
-            {
-              client_event_id: row.idempotency_key,
-              ...parsed.data,
-            },
-          ],
+          actions: preparedRows.map((row) => ({
+            client_event_id: row.idempotency_key,
+            ...row.payload,
+          })),
         },
       });
-      const result = response.results[0];
-      if (result?.status === 'accepted' || result?.status === 'already_applied') {
-        const acceptedAt = new Date().toISOString();
-        await database.withTransactionAsync(async () => {
-          await database.runAsync(
-            `INSERT OR IGNORE INTO attendance_scan_receipts
-              (account_namespace, trip_id, session_id, dedupe_key, client_event_id, server_status, accepted_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            account,
-            tripId,
-            parsed.data.session_id,
-            row.dedupe_key,
-            row.idempotency_key,
-            result.status,
-            acceptedAt,
-          );
-          await database.runAsync(
-            'DELETE FROM pending_actions WHERE idempotency_key = ? AND account_namespace = ?',
-            row.idempotency_key,
-            account,
-          );
-        });
-      } else {
-        await database.runAsync(
-          `UPDATE pending_actions SET state = 'rejected', last_error_code = ?, updated_at = ?
-            WHERE idempotency_key = ? AND account_namespace = ?`,
-          result?.reason_code ?? result?.status ?? 'REJECTED',
-          new Date().toISOString(),
-          row.idempotency_key,
-          account,
-        );
-      }
     } catch (error) {
-      const permanent = error instanceof ApiError && error.status >= 400 && error.status < 500 && error.status !== 408 && error.status !== 429;
-      const attempt = row.attempt_count + 1;
-      await database.runAsync(
-        `UPDATE pending_actions
-            SET state = ?, next_attempt_at = ?, last_error_code = ?, updated_at = ?
-          WHERE idempotency_key = ? AND account_namespace = ?`,
-        permanent ? 'rejected' : 'retryable',
-        permanent ? null : new Date(Date.now() + retryDelay(attempt)).toISOString(),
-        error instanceof ApiError ? error.code : 'NETWORK_ERROR',
-        new Date().toISOString(),
-        row.idempotency_key,
-        account,
-      );
+      const permanent = await settleFailedBatch(database, account, preparedRows, error);
       if (!permanent) return;
+      continue;
     }
+    await reconcileAttendanceBatch(database, account, tripId, preparedRows, response);
   }
 }
 
@@ -232,7 +352,7 @@ export function drainAttendanceQueue(tripId: string): Promise<void> {
   const key = `${account}:${tripId}`;
   const active = drainInFlight.get(key);
   if (active) return active;
-  const request = drainTrip(tripId).finally(() => {
+  const request = drainTrip(account, tripId).finally(() => {
     if (drainInFlight.get(key) === request) drainInFlight.delete(key);
   });
   drainInFlight.set(key, request);

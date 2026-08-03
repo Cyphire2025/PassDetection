@@ -4,6 +4,7 @@ import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -16,6 +17,7 @@ import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinato
 
 export default function CoordinatorPassengersScreen() {
   const router = useRouter();
+  const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search.trim());
@@ -58,7 +60,12 @@ export default function CoordinatorPassengersScreen() {
         windowSize={7}
         removeClippedSubviews
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={roster.isRefetching} onRefresh={() => void roster.refetch()} />}
+        refreshControl={(
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(roster.refreshFirstPage)}
+          />
+        )}
         onEndReachedThreshold={0.5}
         onEndReached={() => {
           if (roster.hasNextPage && !roster.isFetchingNextPage) void roster.fetchNextPage();

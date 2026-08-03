@@ -2,12 +2,14 @@ import { Redirect, router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import {
   preloadAuthenticatedWorkspace,
   type RequiredPreloadProgress,
 } from '@/core/sync/required-preload';
 import { requiredPreparationRunKey } from '@/core/sync/required-preload-policy';
 import { RequiredDownloadScreen } from '@/design/components/required-download-screen';
+import { SafeSignOutButton } from '@/features/profile/ui/safe-sign-out-button';
 
 const INITIAL_PROGRESS: RequiredPreloadProgress = {
   percent: 0,
@@ -28,12 +30,13 @@ export default function RequiredPreparationScreen() {
         if (runId.current === currentRun) setProgress(next);
       });
       if (runId.current !== currentRun) return;
-      setTimeout(() => {
-        if (runId.current === currentRun) router.replace(result.destination);
-      }, 450);
+      router.replace(result.destination);
     } catch (caught) {
       if (runId.current !== currentRun) return;
-      setError(caught instanceof Error ? caught.message : 'Required offline data could not be prepared.');
+      setError(userFacingErrorMessage(
+        caught,
+        'Required offline data could not be prepared. Try again.',
+      ));
     }
   }, []);
 
@@ -62,6 +65,7 @@ export default function RequiredPreparationScreen() {
       completedLabel={progress.completedLabel}
       error={error}
       onRetry={retry}
+      errorSecondaryAction={error ? <SafeSignOutButton label="Sign out and return to login" /> : null}
     />
   );
 }

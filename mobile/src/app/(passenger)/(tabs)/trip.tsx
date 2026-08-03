@@ -1,27 +1,35 @@
 import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { router } from 'expo-router';
-import CheckCircle2 from 'lucide-react-native/icons/circle-check-big';
 import CloudDownload from 'lucide-react-native/icons/cloud-download';
 import FileClock from 'lucide-react-native/icons/file-clock';
 import FileText from 'lucide-react-native/icons/file-text';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
+import {
+  Pressable,
+  RefreshControl,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+  type SectionListRenderItemInfo,
+} from 'react-native';
 
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
+import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
-import { cacheDocument, type DocumentWithOfflineState } from '@/features/content/data/content-repository';
+import type { DocumentWithOfflineState } from '@/features/content/data/content-repository';
 import { commonDocumentHeading, isItineraryDocument } from '@/features/content/data/passenger-document-policy';
 import { useAnnouncements, useCommonDocuments } from '@/features/content/hooks/use-content';
 import { useTrips } from '@/features/trips/hooks/use-trips';
-import { TripSwitcher } from '@/features/trips/ui/trip-switcher';
 
 type CommonDocumentSection = {
   key: string;
   title: string;
-  documents: DocumentWithOfflineState[];
+  data: DocumentWithOfflineState[];
   fixed?: boolean;
 };
 
@@ -29,8 +37,15 @@ export default function PassengerTripScreen() {
   const trips = useTrips();
   const announcements = useAnnouncements(trips.selectedTripId);
   const commonDocuments = useCommonDocuments(trips.selectedTripId);
-  const [openingId, setOpeningId] = useState<string | null>(null);
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const refreshTrips = trips.refetch;
+  const refreshAnnouncements = announcements.refetch;
+  const refreshCommonDocuments = commonDocuments.refetch;
+  const manualRefreshTask = useCallback(async () => {
+    setDocumentError(null);
+    await Promise.all([refreshTrips(), refreshAnnouncements(), refreshCommonDocuments()]);
+  }, [refreshAnnouncements, refreshCommonDocuments, refreshTrips]);
+  const manualRefresh = useManualRefresh();
 
   const sections = useMemo<CommonDocumentSection[]>(() => {
     const documents = commonDocuments.data?.items ?? [];
@@ -43,61 +58,58 @@ export default function PassengerTripScreen() {
       grouped.set(document.category, current);
     }
     return [
-      { key: 'itinerary', title: 'Itinerary', documents: itinerary, fixed: true },
+      { key: 'itinerary', title: 'Itinerary', data: itinerary, fixed: true },
       ...[...grouped.entries()].map(([category, items]) => ({
         key: category,
         title: commonDocumentHeading(category),
-        documents: items,
+        data: items,
       })),
     ];
   }, [commonDocuments.data?.items]);
 
-  const openDocument = useCallback(async (document: DocumentWithOfflineState) => {
+  const openDocument = useCallback((document: DocumentWithOfflineState) => {
     if (document.metadata_state !== 'ready' || !document.offline_available) return;
-    setOpeningId(document.id);
     setDocumentError(null);
-    try {
-      if (!document.offline || document.offlineVersion !== document.version) await cacheDocument(document);
-      router.push({ pathname: '/document/[id]', params: { id: document.id } });
-    } catch (caught) {
-      setDocumentError(caught instanceof Error ? caught.message : 'This document could not be opened.');
-    } finally {
-      setOpeningId(null);
-    }
+    router.push({
+      pathname: '/document/[id]',
+      params: { id: document.id, tripId: document.trip_id },
+    });
   }, []);
 
-  const renderSection = useCallback<ListRenderItem<CommonDocumentSection>>(({ item: section }) => (
-    <View style={styles.documentSection}>
+  const renderDocument = useCallback(({
+    item: document,
+  }: SectionListRenderItemInfo<DocumentWithOfflineState, CommonDocumentSection>) => {
+    const ready = document.metadata_state === 'ready' && document.offline_available;
+    const offlineCurrent = ready && document.offline && document.offlineVersion === document.version;
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={ready ? `Open ${document.display_name}` : `${document.display_name} is being prepared`}
+        disabled={!ready}
+        onPress={() => openDocument(document)}
+        style={styles.documentItem}>
+        <GlassCard style={[styles.documentCard, !ready && styles.pendingCard]}>
+          <View style={styles.documentIcon}>
+            {ready ? <FileText color={colors.greenDeep} size={23} /> : <FileClock color={colors.inkMuted} size={23} />}
+          </View>
+          <View style={styles.documentCopy}>
+            <Text numberOfLines={2} style={styles.documentTitle}>{document.display_name}</Text>
+            <Text style={styles.documentMeta}>
+              {ready ? `Updated ${new Date(document.updated_at).toLocaleDateString()}` : 'Being prepared'}
+            </Text>
+          </View>
+          {!offlineCurrent ? (
+            <CloudDownload accessibilityLabel="Download for offline use" color={colors.inkMuted} size={22} />
+          ) : null}
+        </GlassCard>
+      </Pressable>
+    );
+  }, [openDocument]);
+
+  const renderSectionHeader = useCallback(({ section }: { section: CommonDocumentSection }) => (
+    <View style={styles.sectionHeader}>
       <Text accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>
-      {section.documents.length ? section.documents.map((document) => {
-        const ready = document.metadata_state === 'ready' && document.offline_available;
-        const offlineCurrent = ready && document.offline && document.offlineVersion === document.version;
-        return (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={ready ? `Open ${document.display_name}` : `${document.display_name} is being prepared`}
-            disabled={!ready || openingId === document.id}
-            key={document.id}
-            onPress={() => void openDocument(document)}>
-            <GlassCard style={[styles.documentCard, !ready && styles.pendingCard]}>
-              <View style={styles.documentIcon}>
-                {ready ? <FileText color={colors.greenDeep} size={23} /> : <FileClock color={colors.inkMuted} size={23} />}
-              </View>
-              <View style={styles.documentCopy}>
-                <Text numberOfLines={2} style={styles.documentTitle}>{document.display_name}</Text>
-                <Text style={styles.documentMeta}>
-                  {ready ? `Updated ${new Date(document.updated_at).toLocaleDateString()}` : 'Being prepared'}
-                </Text>
-              </View>
-              {offlineCurrent ? (
-                <CheckCircle2 accessibilityLabel="Ready offline" color={colors.greenDeep} size={22} />
-              ) : (
-                <CloudDownload accessibilityLabel="Download for offline use" color={colors.inkMuted} size={22} />
-              )}
-            </GlassCard>
-          </Pressable>
-        );
-      }) : (
+      {section.data.length === 0 ? (
         <View style={styles.emptyDocument}>
           <Text style={styles.emptyTitle}>{section.fixed ? 'Itinerary not yet published' : 'No documents published'}</Text>
           <Text style={styles.emptyMessage}>
@@ -106,9 +118,9 @@ export default function PassengerTripScreen() {
               : 'This section will update as soon as your travel team publishes a file.'}
           </Text>
         </View>
-      )}
+      ) : null}
     </View>
-  ), [openDocument, openingId]);
+  ), []);
 
   if (trips.isPending) return <ContentLoading label="Loading your trip" />;
   if (trips.isError) {
@@ -133,18 +145,32 @@ export default function PassengerTripScreen() {
 
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
-      <FlatList
-        data={sections}
-        keyExtractor={(section) => section.key}
-        renderItem={renderSection}
+      <SectionList<DocumentWithOfflineState, CommonDocumentSection>
+        sections={sections}
+        keyExtractor={(document) => document.id}
+        renderItem={renderDocument}
+        renderSectionHeader={renderSectionHeader}
+        stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.list}
-        initialNumToRender={6}
-        maxToRenderPerBatch={8}
+        initialNumToRender={8}
+        maxToRenderPerBatch={12}
         windowSize={5}
+        refreshControl={(
+          <RefreshControl
+            refreshing={manualRefresh.isRefreshing}
+            onRefresh={() => void manualRefresh.refresh(manualRefreshTask)}
+          />
+        )}
         ListHeaderComponent={
           <View style={styles.header}>
             <PageHeader eyebrow="My trip" title={trip.destination || trip.name} subtitle={trip.name} />
-            <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />
+            {trips.trips.length > 1 ? (
+              <PrimaryButton
+                label="Switch trip"
+                tone="secondary"
+                onPress={() => router.push('/(passenger)/select-trip')}
+              />
+            ) : null}
             <View style={styles.departure}>
               <View style={styles.departureCopy}>
                 <Text style={styles.departureLabel}>Departure</Text>
@@ -187,24 +213,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.lg,
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
+    padding: spacing.lg,
+    borderWidth: 1,
     borderColor: colors.border,
+    borderRadius: radii.lg,
+    backgroundColor: colors.blueSoft,
   },
   departureCopy: { flex: 1, gap: spacing.xs },
   departureLabel: { color: colors.greenDeep, fontSize: 12, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },
   departureDate: { color: colors.ink, fontSize: 21, fontWeight: '800' },
   returnDate: { color: colors.inkMuted, fontSize: 14 },
-  countdown: { minWidth: 68, alignItems: 'center', justifyContent: 'center' },
+  countdown: {
+    minWidth: 72,
+    minHeight: 72,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceStrong,
+  },
   countdownNumber: { color: colors.greenDeep, fontSize: 27, fontWeight: '900', lineHeight: 29 },
   countdownLabel: { color: colors.inkMuted, fontSize: 11, fontWeight: '700' },
   alertCard: { borderColor: 'rgba(184,64,77,0.25)', backgroundColor: 'rgba(255,242,243,0.9)', gap: spacing.xs },
   alertEyebrow: { color: colors.danger, fontSize: 11, fontWeight: '900', textTransform: 'uppercase' },
   alertTitle: { color: colors.ink, fontSize: 18, fontWeight: '800' },
   alertMessage: { color: colors.inkMuted, lineHeight: 21 },
-  documentSection: { gap: spacing.sm, paddingTop: spacing.lg },
+  sectionHeader: { gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.sm },
   sectionTitle: { color: colors.ink, fontSize: 21, fontWeight: '900' },
+  documentItem: { paddingBottom: spacing.sm },
   documentCard: { borderRadius: radii.md, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   pendingCard: { opacity: 0.72 },
   documentIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenSoft },
