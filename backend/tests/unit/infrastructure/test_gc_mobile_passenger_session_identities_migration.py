@@ -30,8 +30,8 @@ def _load_migration():  # type: ignore[no-untyped-def]
 
 def test_session_identity_migration_follows_current_head_and_backfills_fail_closed() -> None:
     migration = _load_migration()
-    assert migration.revision == "0072_gc_mobile_passenger_session_identities"
-    assert migration.down_revision == "0071_gc_mobile_passenger_scope_constraints"
+    assert migration.revision == "0072_mobile_session_identities"
+    assert migration.down_revision == "0071_mobile_scope_constraints"
 
     operations: list[tuple[str, object]] = []
 

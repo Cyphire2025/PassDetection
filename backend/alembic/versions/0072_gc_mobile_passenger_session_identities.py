@@ -1,7 +1,7 @@
 """Persist the exact passenger identities proven for a mobile session.
 
-Revision ID: 0072_gc_mobile_passenger_session_identities
-Revises: 0071_gc_mobile_passenger_scope_constraints
+Revision ID: 0072_mobile_session_identities
+Revises: 0071_mobile_scope_constraints
 """
 
 from __future__ import annotations
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "0072_gc_mobile_passenger_session_identities"
-down_revision = "0071_gc_mobile_passenger_scope_constraints"
+revision = "0072_mobile_session_identities"
+down_revision = "0071_mobile_scope_constraints"
 branch_labels = None
 depends_on = None
 

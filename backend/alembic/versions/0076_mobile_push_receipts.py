@@ -1,7 +1,7 @@
 """Persist mobile push tickets and provider receipt lifecycle.
 
 Revision ID: 0076_mobile_push_receipts
-Revises: 0075_mobile_group_session_metrics_index
+Revises: 0075_mobile_session_metrics_idx
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "0076_mobile_push_receipts"
-down_revision = "0075_mobile_group_session_metrics_index"
+down_revision = "0075_mobile_session_metrics_idx"
 branch_labels = None
 depends_on = None
 

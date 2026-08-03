@@ -40,8 +40,8 @@ def _constraint_columns(model, constraint_type):
 
 def test_scope_migration_follows_head_and_validates_existing_rows() -> None:
     migration = _load_migration()
-    assert migration.revision == "0071_gc_mobile_passenger_scope_constraints"
-    assert migration.down_revision == "0070_gc_mobile_operational_indexes"
+    assert migration.revision == "0071_mobile_scope_constraints"
+    assert migration.down_revision == "0070_mobile_ops_indexes"
 
     operation_proxy = MagicMock()
     with patch.object(migration, "op", operation_proxy):

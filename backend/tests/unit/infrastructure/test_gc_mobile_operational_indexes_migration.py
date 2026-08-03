@@ -32,7 +32,7 @@ def _load_migration():
 
 def test_mobile_operational_indexes_follow_head_and_are_reversible() -> None:
     migration = _load_migration()
-    assert migration.revision == "0070_gc_mobile_operational_indexes"
+    assert migration.revision == "0070_mobile_ops_indexes"
     assert migration.down_revision == "0069_gc_mobile_foundation"
 
     operation_proxy = MagicMock()
@@ -43,6 +43,7 @@ def test_mobile_operational_indexes_follow_head_and_are_reversible() -> None:
             call.args[1],
             tuple(call.args[2]),
             call.kwargs.get("postgresql_concurrently"),
+            call.kwargs.get("if_not_exists"),
         )
         for call in operation_proxy.create_index.call_args_list
     }
@@ -51,10 +52,12 @@ def test_mobile_operational_indexes_follow_head_and_are_reversible() -> None:
             "passport_submissions",
             ("agency_id", "group_id", "status", "id"),
             True,
+            True,
         ),
         "ix_distributed_documents_mobile_passenger": (
             "distributed_documents",
             ("agency_id", "group_id", "passenger_id", "match_status", "document_type"),
+            True,
             True,
         ),
     }

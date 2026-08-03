@@ -40,7 +40,7 @@ def _load_metrics_index_migration():  # type: ignore[no-untyped-def]
 def test_migration_adds_nullable_device_sync_acknowledgement() -> None:
     migration = _load_migration()
     assert migration.revision == "0074_mobile_device_sync_ack"
-    assert migration.down_revision == "0073_mobile_otp_single_pending_challenge"
+    assert migration.down_revision == "0073_mobile_otp_pending"
 
     operations: list[tuple[str, object]] = []
 
@@ -64,7 +64,7 @@ def test_migration_adds_nullable_device_sync_acknowledgement() -> None:
 
 def test_followup_migration_builds_group_metrics_index_concurrently() -> None:
     migration = _load_metrics_index_migration()
-    assert migration.revision == "0075_mobile_group_session_metrics_index"
+    assert migration.revision == "0075_mobile_session_metrics_idx"
     assert migration.down_revision == "0074_mobile_device_sync_ack"
 
     operations: list[tuple[str, object]] = []

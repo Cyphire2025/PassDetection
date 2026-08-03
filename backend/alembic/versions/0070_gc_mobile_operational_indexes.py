@@ -1,6 +1,6 @@
 """Add bounded mobile roster and passenger-document lookup indexes.
 
-Revision ID: 0070_gc_mobile_operational_indexes
+Revision ID: 0070_mobile_ops_indexes
 Revises: 0069_gc_mobile_foundation
 """
 
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = "0070_gc_mobile_operational_indexes"
+revision = "0070_mobile_ops_indexes"
 down_revision = "0069_gc_mobile_foundation"
 branch_labels = None
 depends_on = None
@@ -26,6 +26,7 @@ def upgrade() -> None:
             ["agency_id", "group_id", "status", "id"],
             unique=False,
             postgresql_concurrently=True,
+            if_not_exists=True,
         )
         op.create_index(
             "ix_distributed_documents_mobile_passenger",
@@ -33,6 +34,7 @@ def upgrade() -> None:
             ["agency_id", "group_id", "passenger_id", "match_status", "document_type"],
             unique=False,
             postgresql_concurrently=True,
+            if_not_exists=True,
         )
 
 

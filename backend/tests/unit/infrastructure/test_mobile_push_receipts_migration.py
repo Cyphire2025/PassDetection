@@ -25,7 +25,7 @@ def _load_migration():  # type: ignore[no-untyped-def]
 def test_migration_creates_new_delivery_table_without_rewriting_existing_tables() -> None:
     migration = _load_migration()
     assert migration.revision == "0076_mobile_push_receipts"
-    assert migration.down_revision == "0075_mobile_group_session_metrics_index"
+    assert migration.down_revision == "0075_mobile_session_metrics_idx"
 
     operations: list[tuple[str, object]] = []
 

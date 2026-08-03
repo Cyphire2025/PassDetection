@@ -1,7 +1,7 @@
 """Serialize active mobile OTP challenges per normalized phone hash.
 
-Revision ID: 0073_mobile_otp_single_pending_challenge
-Revises: 0072_gc_mobile_passenger_session_identities
+Revision ID: 0073_mobile_otp_pending
+Revises: 0072_mobile_session_identities
 """
 
 from __future__ import annotations
@@ -9,8 +9,8 @@ from __future__ import annotations
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0073_mobile_otp_single_pending_challenge"
-down_revision = "0072_gc_mobile_passenger_session_identities"
+revision = "0073_mobile_otp_pending"
+down_revision = "0072_mobile_session_identities"
 branch_labels = None
 depends_on = None
 

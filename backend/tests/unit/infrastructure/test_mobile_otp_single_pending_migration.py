@@ -27,8 +27,8 @@ def _load_migration():  # type: ignore[no-untyped-def]
 
 def test_migration_deduplicates_before_creating_pending_challenge_guard() -> None:
     migration = _load_migration()
-    assert migration.revision == "0073_mobile_otp_single_pending_challenge"
-    assert migration.down_revision == "0072_gc_mobile_passenger_session_identities"
+    assert migration.revision == "0073_mobile_otp_pending"
+    assert migration.down_revision == "0072_mobile_session_identities"
 
     operations: list[tuple[str, object]] = []
 
