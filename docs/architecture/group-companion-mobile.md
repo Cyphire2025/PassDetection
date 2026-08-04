@@ -298,6 +298,16 @@ idempotent. Events use opaque identifiers and generic lock-screen copy such as
 then deep-links to the destination. Read state is server-backed and mirrored
 locally.
 
+Trip countdowns are a separate push-only notification type. The server
+pre-schedules the 3-day, 2-day and 1-day messages from the authoritative group
+travel date using a configured IANA timezone and local send hour. Passed
+windows are not caught up, trip-date changes cancel unsent stale rows, and
+recipient/delivery uniqueness prevents repeat sends. Countdown rows are
+deliberately excluded from the Updates feed. Immediately before any group push
+is submitted, the worker revalidates tenant, group lifecycle, access window,
+role enablement and the recipient's current passenger identity or explicit
+manager/coordinator assignment.
+
 ## Dashboard boundary
 
 The staff dashboard exposes one top-level `GC App` section with exactly two

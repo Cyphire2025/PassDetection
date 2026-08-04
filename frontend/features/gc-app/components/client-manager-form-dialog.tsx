@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search, X } from "lucide-react";
+import { KeyRound, MailCheck, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Badge, Button, Input, PasswordInput } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -14,13 +14,14 @@ import {
 } from "../hooks/use-gc-app-admin";
 import type { ClientManagerAccount, ClientManagerInput, GcGroupReference } from "../types";
 import { gcAppErrorMessage } from "../utils";
-import { GcAlert } from "./gc-app-feedback";
+import { AccessSwitch, GcAlert, GcLoadingRows } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
+import { GcSelect } from "./gc-select";
 
 const managerSchema = z.object({
   name: z.string().trim().min(2, "Enter the Client Manager's name."),
   email: z.string().trim().email("Enter a valid email address."),
-  phone_number: z.string().trim().min(7, "Enter a valid mobile number.").max(32),
+  phone_number: z.string().trim().min(8, "Enter a valid mobile number.").max(32),
   company_id: z.string().min(1, "Select the assigned company/client."),
   activation_method: z.enum(["invitation", "temporary_password"]),
   temporary_password: z.string().optional(),
@@ -76,7 +77,7 @@ export function ClientManagerFormDialog({
     handleSubmit,
     control,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ManagerFormValues>({
     resolver: zodResolver(managerSchema),
     defaultValues: {
@@ -108,6 +109,12 @@ export function ClientManagerFormDialog({
     }
     return options;
   }, [companies.data?.items, createdCompany, managerCompanyId, managerCompanyName, managerCompanyStatus]);
+  const companySelectOptions = useMemo(() => companyOptions.map((company) => ({
+    value: company.id,
+    label: company.name,
+    description: company.status === "inactive" ? "Inactive company/client" : undefined,
+    disabled: company.status === "inactive" && company.id !== manager?.company.id,
+  })), [companyOptions, manager?.company.id]);
   const availableGroups = (groups.data?.items ?? []).filter(
     (group) => group.lifecycle !== "archived" && group.lifecycle !== "deleted" && !selectedIds.has(group.id),
   );
@@ -132,19 +139,24 @@ export function ClientManagerFormDialog({
       title={manager ? "Edit Client Manager" : "Create Client Manager"}
       description="Access is limited to the explicitly assigned company and groups."
       onClose={onClose}
-      closeDisabled={isPending}
+      closeDisabled={isPending || isSubmitting}
       size="xl"
       footer={(
         <>
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>Cancel</Button>
-          <Button type="submit" form="client-manager-form" isLoading={isPending}>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isPending || isSubmitting}>Cancel</Button>
+          <Button type="submit" form="client-manager-form" isLoading={isPending || isSubmitting}>
             {manager ? "Save changes" : "Create account"}
           </Button>
         </>
       )}
     >
-      <form id="client-manager-form" className="space-y-6" onSubmit={submit} noValidate>
-        <div className="grid gap-4 md:grid-cols-2">
+      <form id="client-manager-form" className="space-y-5" onSubmit={submit} noValidate>
+        <section className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5" aria-labelledby="manager-identity-heading">
+          <div className="mb-4">
+            <h3 id="manager-identity-heading" className="text-sm font-semibold text-slate-950">Account identity</h3>
+            <p className="mt-1 text-xs leading-5 text-slate-500">These details identify the manager in the companion app and access audit.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
           <Input label="Name" required error={errors.name?.message} {...register("name")} />
           <Input label="Email" type="email" required error={errors.email?.message} {...register("email")} />
           <Input
@@ -155,43 +167,38 @@ export function ClientManagerFormDialog({
             error={errors.phone_number?.message}
             {...register("phone_number")}
           />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="client-manager-company" className="text-sm font-medium text-slate-700">
-              Assigned company/client <span className="text-red-500" aria-hidden="true">*</span>
-            </label>
-            <Input
-              aria-label="Search company or client"
-              value={companySearch}
-              onChange={(event) => setCompanySearch(event.target.value)}
-              placeholder="Search company/client"
-              leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+          <div className="space-y-3">
+            <Controller
+              name="company_id"
+              control={control}
+              render={({ field }) => (
+                <GcSelect
+                  id="client-manager-company"
+                  label="Assigned company/client *"
+                  value={field.value}
+                  options={companySelectOptions}
+                  onChange={field.onChange}
+                  placeholder="Choose a company/client"
+                  searchable
+                  searchValue={companySearch}
+                  onSearchChange={setCompanySearch}
+                  searchPlaceholder="Find company/client"
+                  loading={companies.isLoading}
+                  emptyMessage="No matching company/client"
+                  error={errors.company_id?.message}
+                />
+              )}
             />
-            <select
-              id="client-manager-company"
-              className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600"
-              aria-invalid={Boolean(errors.company_id)}
-              {...register("company_id")}
-            >
-              <option value="">Select company/client</option>
-              {companyOptions
-                .filter((company) => company.status !== "inactive" || company.id === manager?.company.id)
-                .map((company) => (
-                <option key={company.id} value={company.id} disabled={company.status === "inactive"}>
-                  {company.name}{company.status === "inactive" ? " (inactive)" : ""}
-                </option>
-              ))}
-            </select>
             {companies.isError && <p role="alert" className="text-xs text-red-600">Companies could not be loaded.</p>}
             {companies.data?.has_next && (
               <p className="text-xs text-slate-500">More matches are available. Refine the company/client search.</p>
             )}
-            {errors.company_id && <p role="alert" className="text-xs text-red-600">{errors.company_id.message}</p>}
-            <div className="mt-2 flex gap-2">
+            <div className="flex gap-2 rounded-xl border border-dashed border-slate-300 bg-white p-2">
               <Input
                 aria-label="New company or client name"
                 value={newCompanyName}
                 onChange={(event) => setNewCompanyName(event.target.value)}
-                placeholder="Create a company/client"
+                placeholder="New company/client name"
               />
               <Button
                 type="button"
@@ -212,12 +219,13 @@ export function ClientManagerFormDialog({
                   });
                 }}
               >
-                Add
+                Add company
               </Button>
             </div>
             {companyError && <p role="alert" className="text-xs text-red-600">{companyError}</p>}
           </div>
         </div>
+        </section>
 
         <fieldset className="space-y-3 rounded-xl border border-slate-200 p-4">
           <legend className="px-1 text-sm font-semibold text-slate-900">Explicit group assignments</legend>
@@ -244,9 +252,9 @@ export function ClientManagerFormDialog({
             leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
             placeholder="Search active or closed groups"
           />
-          <div className="max-h-40 overflow-y-auto rounded-lg border border-slate-200">
+          <div className="max-h-44 overflow-y-auto rounded-xl border border-slate-200 bg-white">
             {groups.isLoading ? (
-              <p className="p-3 text-sm text-slate-500">Searching groups…</p>
+              <GcLoadingRows count={2} />
             ) : groups.isError ? (
               <p role="alert" className="p-3 text-sm text-red-600">Groups could not be loaded.</p>
             ) : availableGroups.length === 0 ? (
@@ -269,15 +277,17 @@ export function ClientManagerFormDialog({
         </fieldset>
 
         {!manager && (
-          <fieldset className="space-y-4 rounded-xl border border-slate-200 p-4">
+          <fieldset className="space-y-4 rounded-2xl border border-slate-200 p-4 sm:p-5">
             <legend className="px-1 text-sm font-semibold text-slate-900">Initial account activation</legend>
-            <label className="flex min-h-11 items-start gap-3 rounded-lg border border-slate-200 p-3">
-              <input type="radio" value="invitation" className="mt-1" {...register("activation_method")} />
-              <span><span className="block text-sm font-medium text-slate-800">Invitation flow</span><span className="text-xs text-slate-500">Send a single-use activation invitation through the configured channel.</span></span>
+            <label className={`flex min-h-20 cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${activationMethod === "invitation" ? "border-blue-500 bg-blue-50/70 ring-2 ring-blue-600/10" : "border-slate-200 hover:border-slate-300"}`}>
+              <input type="radio" value="invitation" className="sr-only" {...register("activation_method")} />
+              <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><MailCheck className="h-4 w-4" aria-hidden="true" /></span>
+              <span><span className="block text-sm font-semibold text-slate-900">Single-use invitation</span><span className="mt-1 block text-xs leading-5 text-slate-500">Generate a secure activation link that is shown once after account creation.</span></span>
             </label>
-            <label className="flex min-h-11 items-start gap-3 rounded-lg border border-slate-200 p-3">
-              <input type="radio" value="temporary_password" className="mt-1" {...register("activation_method")} />
-              <span><span className="block text-sm font-medium text-slate-800">Temporary password</span><span className="text-xs text-slate-500">Create a temporary password and require a change at first login.</span></span>
+            <label className={`flex min-h-20 cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${activationMethod === "temporary_password" ? "border-blue-500 bg-blue-50/70 ring-2 ring-blue-600/10" : "border-slate-200 hover:border-slate-300"}`}>
+              <input type="radio" value="temporary_password" className="sr-only" {...register("activation_method")} />
+              <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><KeyRound className="h-4 w-4" aria-hidden="true" /></span>
+              <span><span className="block text-sm font-semibold text-slate-900">Temporary password</span><span className="mt-1 block text-xs leading-5 text-slate-500">Set an initial secret and require a password change on first sign-in.</span></span>
             </label>
             {activationMethod === "temporary_password" && (
               <PasswordInput
@@ -290,10 +300,13 @@ export function ClientManagerFormDialog({
           </fieldset>
         )}
 
-        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700">
-          <input type="checkbox" className="h-4 w-4 rounded border-slate-300" {...register("force_password_change")} />
-          Force password change at next login
-        </label>
+        <Controller
+          name="force_password_change"
+          control={control}
+          render={({ field }) => (
+            <AccessSwitch label="Force password change at next login" checked={field.value} onChange={field.onChange} />
+          )}
+        />
 
         {submitError && <GcAlert message={submitError} />}
       </form>

@@ -164,6 +164,14 @@ class ClientManagerProfileModel(Base):
             sqlite_where=text("status != 'deleted'"),
         ),
         Index("ix_client_manager_org_status", "organization_id", "status"),
+        Index(
+            "ix_client_manager_admin_list",
+            "agency_id",
+            "created_at",
+            "id",
+            postgresql_where=text("deleted_at IS NULL"),
+            sqlite_where=text("deleted_at IS NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

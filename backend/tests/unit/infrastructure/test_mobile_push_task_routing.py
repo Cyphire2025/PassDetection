@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.infrastructure.mobile_push import (
+    MOBILE_PUSH_COUNTDOWN_TASK,
     MOBILE_PUSH_DISPATCH_TASK,
     MOBILE_PUSH_RECEIPT_TASK,
 )
@@ -8,6 +9,9 @@ from app.infrastructure.processing.celery_app import celery_app, settings
 
 
 def test_mobile_push_dispatch_and_receipts_share_bounded_worker_schedule() -> None:
+    assert celery_app.conf.task_routes[MOBILE_PUSH_COUNTDOWN_TASK] == {
+        "queue": "passport_ocr"
+    }
     assert celery_app.conf.task_routes[MOBILE_PUSH_DISPATCH_TASK] == {
         "queue": "passport_ocr"
     }
@@ -19,6 +23,14 @@ def test_mobile_push_dispatch_and_receipts_share_bounded_worker_schedule() -> No
     assert dispatch["task"] == MOBILE_PUSH_DISPATCH_TASK
     assert dispatch["schedule"] == settings.mobile.push_dispatch_interval_seconds
     assert dispatch["options"] == {"queue": "passport_ocr"}
+
+    countdown = celery_app.conf.beat_schedule["schedule-mobile-trip-countdowns"]
+    assert countdown["task"] == MOBILE_PUSH_COUNTDOWN_TASK
+    assert (
+        countdown["schedule"]
+        == settings.mobile.push_countdown_scan_interval_seconds
+    )
+    assert countdown["options"] == {"queue": "passport_ocr"}
 
     receipts = celery_app.conf.beat_schedule["reconcile-mobile-push-receipts"]
     assert receipts["task"] == MOBILE_PUSH_RECEIPT_TASK

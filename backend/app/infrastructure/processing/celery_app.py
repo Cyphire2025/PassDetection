@@ -10,6 +10,7 @@ from app.core.config.settings import get_settings
 from app.infrastructure.ai_priority import EXTRACTION_QUEUE, VERIFICATION_QUEUE
 from app.infrastructure.celery_async_runtime import celery_async_runtime
 from app.infrastructure.mobile_push import (
+    MOBILE_PUSH_COUNTDOWN_TASK,
     MOBILE_PUSH_DISPATCH_TASK,
     MOBILE_PUSH_RECEIPT_TASK,
 )
@@ -72,6 +73,7 @@ celery_app.conf.update(
         EMAIL_AI_DEADLINE_SCAN_TASK: {"queue": EMAIL_INTEGRATION_QUEUE},
         DOCUMENT_STORAGE_CLEANUP_TASK: {"queue": "passport_ocr"},
         DOCUMENT_STORAGE_ORPHAN_RECONCILIATION_TASK: {"queue": "passport_ocr"},
+        MOBILE_PUSH_COUNTDOWN_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_DISPATCH_TASK: {"queue": "passport_ocr"},
         MOBILE_PUSH_RECEIPT_TASK: {"queue": "passport_ocr"},
     },
@@ -122,6 +124,11 @@ celery_app.conf.update(
         "dispatch-mobile-push-notifications": {
             "task": MOBILE_PUSH_DISPATCH_TASK,
             "schedule": settings.mobile.push_dispatch_interval_seconds,
+            "options": {"queue": "passport_ocr"},
+        },
+        "schedule-mobile-trip-countdowns": {
+            "task": MOBILE_PUSH_COUNTDOWN_TASK,
+            "schedule": settings.mobile.push_countdown_scan_interval_seconds,
             "options": {"queue": "passport_ocr"},
         },
         "reconcile-mobile-push-receipts": {

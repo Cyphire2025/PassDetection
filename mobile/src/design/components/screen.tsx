@@ -20,7 +20,11 @@ export function Screen({ children, scroll = true, contentStyle, bottomInset = 24
   };
 
   return (
-    <LinearGradient colors={['#F8FDFF', colors.greenWash]} style={styles.root}>
+    <LinearGradient colors={['#EEF8FA', '#F8FAF2', '#EEF5F6']} style={styles.root}>
+      <View pointerEvents="none" style={styles.decorations}>
+        <View style={[styles.glow, styles.blueGlow]} />
+        <View style={[styles.glow, styles.greenGlow]} />
+      </View>
       {scroll ? (
         <ScrollView
           {...scrollProps}
@@ -38,6 +42,10 @@ export function Screen({ children, scroll = true, contentStyle, bottomInset = 24
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  decorations: { position: 'absolute', inset: 0, overflow: 'hidden' },
+  glow: { position: 'absolute', borderRadius: 999, opacity: 0.32 },
+  blueGlow: { width: 240, height: 240, backgroundColor: colors.blueSoft, right: -126, top: 70 },
+  greenGlow: { width: 210, height: 210, backgroundColor: colors.greenSoft, left: -126, bottom: 54 },
   fill: { flex: 1 },
   content: { paddingHorizontal: spacing.lg },
 });

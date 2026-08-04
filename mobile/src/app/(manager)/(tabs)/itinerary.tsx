@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { managerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -61,7 +62,7 @@ export default function ManagerItineraryScreen() {
     if (!document.offline_available || document.metadata_state !== 'ready') return;
     setDocumentError(null);
     router.push({
-      pathname: '/document/[id]',
+      pathname: managerDocumentViewerRoute,
       params: { id: document.id, tripId: document.trip_id },
     });
   }, []);
@@ -116,7 +117,7 @@ export default function ManagerItineraryScreen() {
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.header}>
-            <PageHeader eyebrow="Selected group" title="Itinerary" subtitle="Published common information only." />
+            <PageHeader eyebrow="Selected group" title="Itinerary" subtitle="Published common information only." tone="manager" />
             <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />
             {itinerary.isPending ? <ContentLoading label="Loading itinerary" /> : null}
             {itinerary.isError ? (

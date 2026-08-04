@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Ban, Clock3, Power, Printer, QrCode, RefreshCw, Send, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Ban, CheckCircle2, Clock3, Power, Printer, QrCode, RefreshCw, Search, Send, ShieldCheck, UsersRound, X } from "lucide-react";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
-import { PageHeader } from "@/components/shared/page-header";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils/cn";
 import {
   useGroupQrCodes,
   usePassengerQrLifecycle,
@@ -18,8 +18,17 @@ import {
   planQrImageGeneration,
   type CachedQrImage,
 } from "../services/qr-image-generation";
+import {
+  OperationsEmptyState,
+  OperationsErrorNotice,
+  OperationsPageHeader,
+  OperationsSummaryItem,
+  OperationsSummaryStrip,
+} from "./operations-workspace-ui";
 
 type QrImageMap = Record<string, string>;
+type QrStatusFilter = "all" | "active" | "not_generated" | "attention";
+const INITIAL_QR_CARD_LIMIT = 48;
 
 export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
   const { data, isLoading, error } = useGroupQrCodes(groupId);
@@ -33,23 +42,54 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
   const [messageContent, setMessageContent] = useState<string | null>(null);
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
   const [qrGenerationFailureCount, setQrGenerationFailureCount] = useState(0);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<QrStatusFilter>("all");
+  const [renderLimit, setRenderLimit] = useState(INITIAL_QR_CARD_LIMIT);
+  const [printRequested, setPrintRequested] = useState(false);
   const [qrImageCache] = useState(
     () => new Map<string, CachedQrImage>(),
   );
   const [qrImageGenerator] = useState(() => createQrImageGenerator());
   const deliveryPreview = useQrDeliveryPreview(groupId, isSendPreviewOpen);
   const sendQrBroadcast = useSendQrBroadcast(groupId);
+  const deferredQuery = useDeferredValue(query);
+  const filteredPassengers = useMemo(() => {
+    const normalized = deferredQuery.trim().toLocaleLowerCase();
+    return (data?.passengers ?? []).filter((passenger) => {
+      if (statusFilter === "active" && passenger.qr_status !== "active") return false;
+      if (statusFilter === "not_generated" && passenger.qr_status !== "not_generated") return false;
+      if (statusFilter === "attention" && ["active", "not_generated"].includes(passenger.qr_status)) return false;
+      if (!normalized) return true;
+      return [passenger.client_name, passenger.client_email, passenger.client_phone, passenger.departure_city, passenger.coordinator_name, passenger.qr_status]
+        .some((value) => value?.toLocaleLowerCase().includes(normalized));
+    });
+  }, [data?.passengers, deferredQuery, statusFilter]);
+  const displayedPassengers = useMemo(
+    () => printRequested
+      ? (data?.passengers ?? [])
+      : filteredPassengers.slice(0, renderLimit),
+    [data?.passengers, filteredPassengers, printRequested, renderLimit],
+  );
+  const payloadScopeIds = useMemo(
+    () => new Set(
+      (printRequested || isSendPreviewOpen ? (data?.passengers ?? []) : displayedPassengers)
+        .map((passenger) => passenger.passenger_id),
+    ),
+    [data?.passengers, displayedPassengers, isSendPreviewOpen, printRequested],
+  );
 
   const visiblePayloads = useMemo(
     () => ({
       ...Object.fromEntries(
         (data?.passengers ?? [])
-          .filter((passenger) => passenger.qr_payload)
+          .filter((passenger) => payloadScopeIds.has(passenger.passenger_id) && passenger.qr_payload)
           .map((passenger) => [passenger.passenger_id, passenger.qr_payload as string]),
       ),
-      ...generatedPayloads,
+      ...Object.fromEntries(
+        Object.entries(generatedPayloads).filter(([passengerId]) => payloadScopeIds.has(passengerId)),
+      ),
     }),
-    [data?.passengers, generatedPayloads],
+    [data?.passengers, generatedPayloads, payloadScopeIds],
   );
 
   useEffect(() => {
@@ -111,12 +151,20 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
           flushPendingImages();
         }
         setQrGenerationFailureCount(result.failedPassengerIds.length);
+        if (printRequested && result.failedPassengerIds.length > 0) {
+          setPrintRequested(false);
+          setActionError("The print sheet could not be prepared because one or more QR images failed to render. Refresh and try again.");
+        }
       }
     }
 
     void generateQrImages().catch(() => {
       if (!controller.signal.aborted) {
         setQrGenerationFailureCount(1);
+        if (printRequested) {
+          setPrintRequested(false);
+          setActionError("The print sheet could not be prepared because QR images failed to render. Refresh and try again.");
+        }
       }
     });
     return () => {
@@ -125,7 +173,20 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
         window.cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [qrImageCache, qrImageGenerator, visiblePayloads]);
+  }, [printRequested, qrImageCache, qrImageGenerator, visiblePayloads]);
+
+  useEffect(() => {
+    if (!printRequested) return;
+    const payloadPassengerIds = Object.keys(visiblePayloads);
+    const allImagesReady = payloadPassengerIds.every((passengerId) => Boolean(qrImages[passengerId]));
+    if (!allImagesReady || qrGenerationFailureCount > 0) return;
+    const frame = window.requestAnimationFrame(() => {
+      window.print();
+      setPrintRequested(false);
+      setRenderLimit(INITIAL_QR_CARD_LIMIT);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [printRequested, qrGenerationFailureCount, qrImages, visiblePayloads]);
 
   const defaultSelectedQrTokenIds = (deliveryPreview.data?.recipients ?? [])
     .filter((recipient) => recipient.eligible && recipient.qr_token_id)
@@ -182,12 +243,20 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
     }
   };
 
+  const passengerCount = data?.passengers.length ?? 0;
+  const activeCount = data?.passengers.filter((passenger) => passenger.qr_status === "active").length ?? 0;
+  const notGeneratedCount = data?.passengers.filter((passenger) => passenger.qr_status === "not_generated").length ?? 0;
+  const attentionCount = Math.max(0, passengerCount - activeCount - notGeneratedCount);
+
   return (
-    <div className="space-y-6 print:space-y-4">
+    <div className="space-y-5 print:space-y-4">
       <div className="print:hidden">
-        <PageHeader
-          title={data?.group_name ? `${data.group_name} QR Codes` : "Group QR Codes"}
-          description="Print or share these passenger QR cards for coordinator attendance scanning."
+        <OperationsPageHeader
+          eyebrow="Passenger access distribution"
+          title={data?.group_name ? `${data.group_name} QR codes` : "Group QR codes"}
+          description="Generate, review, print, and distribute passenger QR access while keeping lifecycle exceptions visible and recoverable."
+          icon={QrCode}
+          context={<span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200"><ShieldCheck className="h-3.5 w-3.5 text-sky-300" aria-hidden="true" />{activeCount} active codes</span>}
           actions={
             <div className="flex flex-wrap gap-2">
               <Button
@@ -206,16 +275,21 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
               </Button>
               <Button
                 type="button"
-                variant="secondary"
+                className="bg-white text-slate-950 hover:bg-sky-50 active:bg-sky-100"
                 leftIcon={<Printer className="h-4 w-4" aria-hidden="true" />}
-                onClick={() => window.print()}
-                disabled={Object.keys(qrImages).length === 0}
+                onClick={() => {
+                  setActionError(null);
+                  setPrintRequested(true);
+                  setRenderLimit(passengerCount);
+                }}
+                isLoading={printRequested}
+                disabled={!data || passengerCount === 0}
               >
-                Print
+                {printRequested ? "Preparing print" : "Print all"}
               </Button>
               <Link
                 href={ROUTES.dashboard.tourOperationsGroupAssignments}
-                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 Groups
@@ -225,16 +299,25 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
         />
       </div>
 
+      <div className="print:hidden">
+        <OperationsSummaryStrip label="Passenger QR summary">
+          {isLoading ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-[72px] rounded-none" />) : (
+            <>
+              <OperationsSummaryItem label="Passengers" value={passengerCount.toLocaleString()} helper="submitted roster" icon={UsersRound} />
+              <OperationsSummaryItem label="Active codes" value={activeCount.toLocaleString()} helper="ready to scan" icon={CheckCircle2} tone={activeCount === passengerCount && passengerCount > 0 ? "success" : "default"} />
+              <OperationsSummaryItem label="Not generated" value={notGeneratedCount.toLocaleString()} helper="need a code" icon={QrCode} tone={notGeneratedCount > 0 ? "attention" : "success"} />
+              <OperationsSummaryItem label="Lifecycle attention" value={attentionCount.toLocaleString()} helper="inactive or expired" icon={AlertTriangle} tone={attentionCount > 0 ? "attention" : "success"} />
+            </>
+          )}
+        </OperationsSummaryStrip>
+      </div>
+
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 print:hidden">
-          QR codes could not be loaded.
-        </div>
+        <div className="print:hidden"><OperationsErrorNotice>QR codes could not be refreshed. Previously loaded card status remains visible where available.</OperationsErrorNotice></div>
       )}
 
       {actionError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 print:hidden">
-          {actionError}
-        </div>
+        <div className="print:hidden"><OperationsErrorNotice>{actionError}</OperationsErrorNotice></div>
       )}
 
       {qrGenerationFailureCount > 0 && (
@@ -251,8 +334,9 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
         </div>
       )}
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 print:hidden">
-        Generated QR cards stay visible here for office users. Use Regenerate only when the printed code must be replaced.
+      <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 print:hidden">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" aria-hidden="true" />
+        <span>Generated QR cards remain visible to authorized office users. Regenerate only when an existing printed code must stop working.</span>
       </div>
 
       <Card className="print:border-0 print:shadow-none">
@@ -278,6 +362,36 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
             )}
           </div>
 
+          <div className="border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 print:hidden sm:px-5">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div className="relative min-w-0 flex-1 xl:max-w-lg">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => { setQuery(event.target.value); setRenderLimit(INITIAL_QR_CARD_LIMIT); }}
+                  placeholder="Search passenger, phone, city, coordinator, or QR status"
+                  aria-label="Search passenger QR cards"
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-9 text-sm text-slate-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+                {query && <button type="button" onClick={() => { setQuery(""); setRenderLimit(INITIAL_QR_CARD_LIMIT); }} aria-label="Clear QR search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X className="h-4 w-4" aria-hidden="true" /></button>}
+              </div>
+              <div className="flex gap-2 overflow-x-auto" aria-label="Filter passenger QR status">
+                {([
+                  ["all", "All", passengerCount],
+                  ["active", "Active", activeCount],
+                  ["not_generated", "Not generated", notGeneratedCount],
+                  ["attention", "Attention", attentionCount],
+                ] as const).map(([value, label, count]) => (
+                  <button key={value} type="button" onClick={() => { setStatusFilter(value); setRenderLimit(INITIAL_QR_CARD_LIMIT); }} aria-pressed={statusFilter === value} className={cn("inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors", statusFilter === value ? "border-blue-700 bg-blue-700 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-blue-50")}>
+                    {label}<span className={statusFilter === value ? "text-blue-100" : "text-slate-400"}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-slate-500" aria-live="polite">Showing {Math.min(displayedPassengers.length, filteredPassengers.length)} of {filteredPassengers.length} matching passengers</p>
+          </div>
+
           {isLoading ? (
             <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -285,26 +399,33 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
               ))}
             </div>
           ) : !data || data.passengers.length === 0 ? (
-            <div className="p-5">
-              <p className="rounded-lg border border-dashed border-slate-300 px-3 py-8 text-center text-sm text-slate-500">
-                No submitted passengers found for this group.
-              </p>
-            </div>
+            <OperationsEmptyState title="No submitted passengers are available" description="QR cards appear after passengers have submitted their details for this group." />
+          ) : filteredPassengers.length === 0 ? (
+            <OperationsEmptyState filtered title="No QR cards match this view" description="Clear the search or switch the lifecycle filter to restore passenger cards." action={<button type="button" onClick={() => { setQuery(""); setStatusFilter("all"); }} className="text-sm font-semibold text-blue-700 hover:text-blue-900">Reset QR view</button>} />
           ) : (
-            <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-3 print:grid-cols-2 print:p-0">
-              {data.passengers.map((passenger) => (
-                <PassengerQrCard
-                  key={passenger.passenger_id}
-                  passenger={passenger}
-                  imageUrl={qrImages[passenger.passenger_id]}
-                  payload={visiblePayloads[passenger.passenger_id]}
-                  isPending={pendingPassengerId === passenger.passenger_id}
-                  onGenerate={() => void revealToken(passenger.passenger_id, false)}
-                  onRegenerate={() => void revealToken(passenger.passenger_id, true)}
-                  onLifecycle={(action) => void updateLifecycle(passenger.passenger_id, action)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-3 print:grid-cols-2 print:p-0">
+                {displayedPassengers.map((passenger) => (
+                  <PassengerQrCard
+                    key={passenger.passenger_id}
+                    passenger={passenger}
+                    imageUrl={qrImages[passenger.passenger_id]}
+                    payload={visiblePayloads[passenger.passenger_id]}
+                    isPending={pendingPassengerId === passenger.passenger_id}
+                    onGenerate={() => void revealToken(passenger.passenger_id, false)}
+                    onRegenerate={() => void revealToken(passenger.passenger_id, true)}
+                    onLifecycle={(action) => void updateLifecycle(passenger.passenger_id, action)}
+                  />
+                ))}
+              </div>
+              {!printRequested && displayedPassengers.length < filteredPassengers.length && (
+                <div className="flex justify-center border-t border-slate-200 bg-slate-50/70 px-5 py-4 print:hidden">
+                  <Button type="button" variant="secondary" onClick={() => setRenderLimit((current) => current + INITIAL_QR_CARD_LIMIT)}>
+                    Show next {Math.min(INITIAL_QR_CARD_LIMIT, filteredPassengers.length - displayedPassengers.length)} passengers
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -380,6 +501,36 @@ function QrDeliveryPreviewDialog({
   onClose: () => void;
   onSend: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const sendingRef = useRef(sending);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => { sendingRef.current = sending; }, [sending]);
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !sendingRef.current) {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? []);
+      if (controls.length === 0) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, []);
+
   const sampleMessage = [
     "Dear Delegates",
     "Greetings from Global Connect Travels",
@@ -400,7 +551,7 @@ function QrDeliveryPreviewDialog({
       aria-modal="true"
       aria-labelledby="qr-delivery-preview-title"
     >
-      <div className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div ref={dialogRef} className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
           <div>
             <h2 id="qr-delivery-preview-title" className="text-lg font-semibold text-slate-950">
@@ -411,6 +562,7 @@ function QrDeliveryPreviewDialog({
             </p>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             disabled={sending}
@@ -660,7 +812,7 @@ function PassengerQrCard({
 }) {
   const hasToken = passenger.qr_status !== "not_generated";
   return (
-    <article className="break-inside-avoid rounded-xl border border-slate-200 bg-white p-4 shadow-sm print:rounded-none print:border-slate-300 print:shadow-none">
+    <article className="break-inside-avoid rounded-xl border border-slate-200 bg-white p-4 shadow-sm [contain-intrinsic-size:260px] [content-visibility:auto] print:rounded-none print:border-slate-300 print:shadow-none print:[content-visibility:visible]">
       <div className="flex gap-4">
         <div className="flex h-36 w-36 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white p-2">
           {imageUrl ? (

@@ -3,10 +3,14 @@
 import {
   ArrowLeft,
   BedDouble,
+  CheckCircle2,
+  ClipboardList,
   Crown,
   Edit3,
   Hotel,
+  MapPin,
   Plus,
+  RefreshCw,
   UsersRound,
   X,
 } from "lucide-react";
@@ -18,8 +22,8 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
-import { PageHeader } from "@/components/shared/page-header";
 import { ROUTES } from "@/constants/routes";
 import { operationsApi, type RoomingHotel } from "../api/operations.api";
 import {
@@ -27,10 +31,20 @@ import {
   useRoomingPriorityFields,
   useRoomingWorkspace,
 } from "../hooks/use-operations";
-import { HotelCheckinDashboard } from "./hotel-checkin-dashboard";
 import { RoomingAutoAllocation } from "./rooming-auto-allocation";
 import { roomingErrorMessage } from "./rooming-error-message";
 import { RoomingPassengerHotelAllocation } from "./rooming-passenger-hotel-allocation";
+import {
+  OperationsErrorNotice,
+  OperationsPageHeader,
+  OperationsSummaryItem,
+  OperationsSummaryStrip,
+} from "./operations-workspace-ui";
+
+const HotelCheckinDashboard = dynamic(
+  () => import("./hotel-checkin-dashboard").then((module) => module.HotelCheckinDashboard),
+  { loading: () => <CheckinLoading /> },
+);
 
 type HotelTab = "allocation" | "checkins";
 
@@ -82,30 +96,45 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
   if (isLoading) return <RoomingLoading />;
   if (error || !data) {
     return (
-      <div
-        role="alert"
-        className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-      >
+      <OperationsErrorNotice>
         Rooming workspace could not be loaded. Refresh the page and try again.
-      </div>
+      </OperationsErrorNotice>
     );
   }
 
+  const assignedPassengerCount = data.passengers.filter(
+    (passenger) => Boolean(passenger.selected_hotel_id),
+  ).length;
+  const unassignedPassengerCount = Math.max(0, data.total_passengers - assignedPassengerCount);
+
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
+      <OperationsPageHeader
+        eyebrow="Rooming group workspace"
         title={data.group_name}
-        description={
-          data.destination
-            ? `Hotel allocation and automatic rooming - ${data.destination}`
-            : "Hotel allocation and automatic rooming"
-        }
+        description="Move from hotel membership to an auto-generated room plan, then hand the current revision to the hotel check-in desk."
+        icon={Hotel}
+        tone="blue"
+        context={(
+          <>
+            {data.destination && <HeaderContext icon={MapPin}>{data.destination}</HeaderContext>}
+            <HeaderContext icon={UsersRound}>{data.total_passengers.toLocaleString()} passengers</HeaderContext>
+            <HeaderContext icon={Hotel}>{data.hotels.length} hotel{data.hotels.length === 1 ? "" : "s"}</HeaderContext>
+          </>
+        )}
         actions={(
           <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={ROUTES.dashboard.rooming as never}
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3.5 text-sm font-semibold text-white transition hover:bg-white/15"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              All rooming lists
+            </Link>
             <Button
               type="button"
-              variant="secondary"
               onClick={() => setShowHotelDialog(true)}
+              className="bg-white text-blue-950 hover:bg-sky-50 active:bg-sky-100"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               Add hotel
@@ -114,21 +143,15 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
         )}
       />
 
-      <Link
-        href={ROUTES.dashboard.rooming as never}
-        className="inline-flex w-fit items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700"
-      >
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        All rooming lists
-      </Link>
+      <OperationsSummaryStrip label={`${data.group_name} rooming readiness`}>
+        <OperationsSummaryItem label="Group roster" value={data.total_passengers.toLocaleString()} helper="passengers" icon={UsersRound} />
+        <OperationsSummaryItem label="Hotel stays" value={data.hotels.length} helper="configured" icon={Hotel} />
+        <OperationsSummaryItem label="Placed" value={assignedPassengerCount.toLocaleString()} helper="in a hotel" icon={CheckCircle2} tone={assignedPassengerCount === data.total_passengers && data.total_passengers > 0 ? "success" : "default"} />
+        <OperationsSummaryItem label="Unassigned" value={unassignedPassengerCount.toLocaleString()} helper="need placement" icon={ClipboardList} tone={unassignedPassengerCount > 0 ? "attention" : "success"} />
+      </OperationsSummaryStrip>
 
       {actionError && (
-        <div
-          role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-        >
-          {actionError}
-        </div>
+        <OperationsErrorNotice>{actionError}</OperationsErrorNotice>
       )}
 
       {data.hotels.length === 0 ? (
@@ -140,7 +163,7 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
         <>
           <nav
             aria-label="Rooming hotels"
-            className="overflow-x-auto border-b border-slate-200 pb-3"
+            className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm"
           >
             <div className="flex min-w-max items-center gap-2">
               {data.hotels.map((hotel) => (
@@ -153,18 +176,19 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                     setActionError(null);
                   }}
                   aria-current={hotel.id === activeHotel?.id ? "page" : undefined}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`group inline-flex items-center gap-2 rounded-lg border px-3.5 py-2.5 text-sm font-semibold transition-colors ${
                     hotel.id === activeHotel?.id
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50"
+                      ? "border-blue-700 bg-blue-700 text-white shadow-sm"
+                      : "border-transparent bg-slate-50 text-slate-700 hover:border-blue-200 hover:bg-blue-50"
                   }`}
                 >
+                  <span className={`h-2 w-2 rounded-full ${hotel.allocation_is_current ? "bg-emerald-400" : hotel.selected_passenger_count > 0 ? "bg-amber-400" : "bg-slate-300"}`} aria-hidden="true" />
                   {hotel.hotel_name}
                   <span
                     className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
                       hotel.id === activeHotel?.id
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 text-slate-600"
+                        ? "bg-white/15 text-white"
+                        : "bg-white text-slate-600 ring-1 ring-slate-200"
                     }`}
                   >
                     {hotel.selected_passenger_count}
@@ -185,17 +209,17 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
               <div
                 role="tablist"
                 aria-label={`${activeHotel.hotel_name} rooming sections`}
-                className="flex gap-2 border-b border-slate-200"
+                className="inline-flex w-fit rounded-lg border border-slate-200 bg-slate-100 p-1"
               >
                 <button
                   type="button"
                   role="tab"
                   aria-selected={hotelTab === "allocation"}
                   onClick={() => setHotelTab("allocation")}
-                  className={`px-3 py-2 text-sm font-medium ${
+                  className={`rounded-md px-3.5 py-2 text-sm font-semibold transition-colors ${
                     hotelTab === "allocation"
-                      ? "border-b-2 border-blue-600 text-blue-700"
-                      : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white text-blue-800 shadow-sm"
+                      : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
                   }`}
                 >
                   Allocation
@@ -205,10 +229,10 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                   role="tab"
                   aria-selected={hotelTab === "checkins"}
                   onClick={() => setHotelTab("checkins")}
-                  className={`px-3 py-2 text-sm font-medium ${
+                  className={`rounded-md px-3.5 py-2 text-sm font-semibold transition-colors ${
                     hotelTab === "checkins"
-                      ? "border-b-2 border-blue-600 text-blue-700"
-                      : "text-slate-500 hover:text-slate-800"
+                      ? "bg-white text-blue-800 shadow-sm"
+                      : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
                   }`}
                 >
                   Hotel check-in
@@ -220,13 +244,13 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
                 && activeHotel.allocation_is_current ? (
                   <HotelCheckinDashboard hotelId={activeHotel.id} />
                 ) : (
-                  <Card>
-                    <CardContent className="p-10 text-center text-sm text-slate-500">
-                      Run auto allocation again before opening hotel check-in.
-                      Hotel membership or VIP status may have changed since the
-                      previous room plan.
-                    </CardContent>
-                  </Card>
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-8 text-center">
+                    <RefreshCw className="mx-auto h-6 w-6 text-amber-700" aria-hidden="true" />
+                    <h2 className="mt-3 font-semibold text-amber-950">Check-in needs a current room plan</h2>
+                    <p className="mx-auto mt-1 max-w-xl text-sm leading-6 text-amber-800">
+                      Run auto allocation again before opening hotel check-in. Hotel membership or VIP status may have changed since the previous plan.
+                    </p>
+                  </div>
                 )
               ) : (
                 <div className="space-y-5">
@@ -318,16 +342,19 @@ function HotelSummary({
   const vipCount = hotel.selected_passengers.filter(
     (passenger) => passenger.is_vip,
   ).length;
+  const placementPercent = passengerTotal === 0
+    ? 0
+    : Math.min(100, Math.round((hotel.selected_passenger_count / passengerTotal) * 100));
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-labelledby="active-hotel-heading">
+      <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100">
             <Hotel className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <h2 className="truncate font-semibold text-slate-900">
+            <h2 id="active-hotel-heading" className="truncate font-semibold text-slate-950">
               {hotel.hotel_name}
             </h2>
             <p className="mt-0.5 text-sm text-slate-500">
@@ -368,8 +395,16 @@ function HotelSummary({
             Edit hotel
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      <div className="flex items-center gap-3 border-t border-slate-100 bg-slate-50/70 px-4 py-2.5 sm:px-5">
+        <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-200" aria-hidden="true">
+          <div className="h-full rounded-full bg-blue-600 transition-[width]" style={{ width: `${placementPercent}%` }} />
+        </div>
+        <span className="shrink-0 text-xs font-semibold tabular-nums text-slate-600">
+          {placementPercent}% of group placed here
+        </span>
+      </div>
+    </section>
   );
 }
 
@@ -761,6 +796,21 @@ function StatPill({
   );
 }
 
+function HeaderContext({
+  icon: Icon,
+  children,
+}: {
+  icon: typeof Hotel;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200">
+      <Icon className="h-3.5 w-3.5 text-sky-300" aria-hidden="true" />
+      {children}
+    </span>
+  );
+}
+
 function EmptyRoomingState({
   passengerCount,
   onCreate,
@@ -795,10 +845,21 @@ function EmptyRoomingState({
 function RoomingLoading() {
   return (
     <div className="space-y-5" aria-label="Loading rooming workspace">
-      <Skeleton className="h-16" />
-      <Skeleton className="h-14" />
-      <Skeleton className="h-28" />
+      <Skeleton className="h-36 rounded-2xl" />
+      <Skeleton className="h-[72px] rounded-xl" />
+      <Skeleton className="h-16 rounded-xl" />
+      <Skeleton className="h-32 rounded-xl" />
       <Skeleton className="h-96" />
+    </div>
+  );
+}
+
+function CheckinLoading() {
+  return (
+    <div className="space-y-4" role="status" aria-label="Loading hotel check-in desk">
+      <Skeleton className="h-16 rounded-xl" />
+      <Skeleton className="h-24 rounded-xl" />
+      <Skeleton className="h-72 rounded-xl" />
     </div>
   );
 }

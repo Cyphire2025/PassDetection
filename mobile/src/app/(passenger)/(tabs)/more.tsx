@@ -10,6 +10,8 @@ import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { refreshSessionPrincipal } from '@/core/auth/session-service';
 import { useSessionStore } from '@/core/auth/session-store';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { GlassCard } from '@/design/components/glass-card';
+import { PageHeader } from '@/design/components/page-header';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, spacing } from '@/design/theme';
@@ -47,11 +49,16 @@ export default function PassengerMoreScreen() {
           />
         ),
       }}>
-      <View style={styles.profile}>
+      <PageHeader
+        eyebrow="Passenger profile"
+        title={name}
+        subtitle={trips.selectedTrip ? trips.selectedTrip.name : 'Your secure travel companion'}
+        tone="passenger"
+      />
+      <GlassCard style={styles.profile}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials(name)}</Text>
         </View>
-        <Text accessibilityRole="header" style={styles.name}>{name}</Text>
         <View style={styles.roleRow}>
           <UserRound color={colors.greenDeep} size={17} />
           <Text style={styles.role}>Passenger</Text>
@@ -79,7 +86,7 @@ export default function PassengerMoreScreen() {
             </View>
           ) : null}
         </View>
-      </View>
+      </GlassCard>
 
       {trips.trips.length > 1 ? (
         <PrimaryButton
@@ -101,9 +108,8 @@ export default function PassengerMoreScreen() {
 const styles = StyleSheet.create({
   screen: { gap: spacing.lg, alignItems: 'stretch' },
   profile: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.xl, paddingBottom: spacing.xl },
-  avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm },
-  avatarText: { color: colors.greenDeep, fontSize: 30, fontWeight: '900', letterSpacing: 1 },
-  name: { color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: '900', textAlign: 'center' },
+  avatar: { width: 82, height: 82, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.navy, borderWidth: 3, borderColor: colors.green, marginBottom: spacing.sm },
+  avatarText: { color: colors.green, fontSize: 28, fontWeight: '900', letterSpacing: 1 },
   roleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   role: { color: colors.greenDeep, fontSize: 13, fontWeight: '800' },
   details: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.lg, maxWidth: 360 },

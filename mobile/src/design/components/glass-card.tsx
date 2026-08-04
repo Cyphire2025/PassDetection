@@ -9,15 +9,15 @@ export function GlassCard({ children, style }: PropsWithChildren<{ style?: Style
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceStrong,
     borderColor: colors.border,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
     borderRadius: radii.lg,
     padding: spacing.lg,
     shadowColor: colors.shadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 9 },
+    elevation: 3,
   },
 });

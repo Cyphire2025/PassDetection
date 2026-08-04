@@ -46,7 +46,7 @@ export default function ManagerReadinessScreen() {
           />
         ),
       }}>
-      <PageHeader eyebrow="Group overview" title="Readiness" subtitle="Summary-first operational status without personal document access." />
+      <PageHeader eyebrow="Group overview" title="Readiness" subtitle="Summary-first operational status without personal document access." tone="manager" />
       <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />
       {readiness.isPending ? <ContentLoading label="Calculating readiness" /> : null}
       {readiness.isError ? (

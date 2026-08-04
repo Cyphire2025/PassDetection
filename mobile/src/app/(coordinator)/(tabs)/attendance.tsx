@@ -195,6 +195,7 @@ export default function CoordinatorAttendanceScreen() {
               eyebrow="Operations"
               title="Attendance"
               subtitle={trips.selectedTrip?.name || 'Selected group activities'}
+              tone="coordinator"
             />
             {sessions.isPending ? <ContentLoading label="Loading attendance activities" /> : null}
             {sessions.isError ? (

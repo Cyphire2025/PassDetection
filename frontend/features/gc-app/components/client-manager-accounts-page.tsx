@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, Search, UserPlus, Users } from "lucide-react";
+import { ChevronRight, Copy, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -15,6 +15,15 @@ import { ClientManagerFormDialog } from "./client-manager-form-dialog";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
+import { GcSelect } from "./gc-select";
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All account statuses" },
+  { value: "invited", label: "Invited", description: "Activation is still pending" },
+  { value: "active", label: "Active", description: "Can sign in to the companion app" },
+  { value: "suspended", label: "Suspended", description: "Access is temporarily blocked" },
+  { value: "deleted", label: "Deleted", description: "Retained only for audit history" },
+] as const;
 
 export function ClientManagerAccountsPage() {
   const { agencyId } = useGcAppAgencyScope();
@@ -72,11 +81,11 @@ export function ClientManagerAccountsPage() {
         )}
       />
 
-      <Card>
-        <CardContent className="space-y-4 p-5">
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+      <Card className="overflow-visible border-slate-200/80 shadow-[0_8px_30px_-24px_rgba(15,23,42,0.45)]">
+        <CardContent className="p-4 sm:p-5">
+          <div className="grid gap-3 lg:grid-cols-[minmax(18rem,1fr)_18rem_auto] lg:items-end">
             <Input
-              label="Search accounts"
+              label="Find a Client Manager"
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
@@ -85,23 +94,19 @@ export function ClientManagerAccountsPage() {
               placeholder="Name, email or mobile number"
               leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
             />
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="client-manager-status-filter" className="text-sm font-medium text-slate-700">Account status</label>
-              <select
-                id="client-manager-status-filter"
-                value={status}
-                onChange={(event) => {
-                  setStatus(event.target.value as GcAppAccountStatus | "all");
-                  setPage(1);
-                }}
-                className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-              >
-                <option value="all">All statuses</option>
-                <option value="invited">Invited</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-                <option value="deleted">Deleted</option>
-              </select>
+            <GcSelect
+              id="client-manager-status-filter"
+              label="Account status"
+              value={status}
+              options={STATUS_OPTIONS}
+              onChange={(nextStatus) => {
+                setStatus(nextStatus as GcAppAccountStatus | "all");
+                setPage(1);
+              }}
+            />
+            <div className="hidden h-10 items-center gap-2 rounded-xl bg-slate-50 px-3 text-xs font-medium text-slate-600 lg:flex">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+              Explicit access only
             </div>
           </div>
         </CardContent>
@@ -146,10 +151,17 @@ export function ClientManagerAccountsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {managers.data?.items.map((manager) => (
-                  <tr key={manager.id} className="hover:bg-slate-50/70">
+                  <tr key={manager.id} className="group transition-colors hover:bg-blue-50/35">
                     <td className="px-5 py-4">
-                      <p className="font-medium text-slate-900">{manager.name}</p>
-                      <p className="text-xs text-slate-500">{manager.email} · {manager.phone_number}</p>
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white shadow-sm" aria-hidden="true">
+                          {manager.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase()}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-semibold text-slate-900">{manager.name}</span>
+                          <span className="block text-xs text-slate-500">{manager.email} · {manager.phone_number}</span>
+                        </span>
+                      </div>
                     </td>
                     <td className="px-5 py-4 text-slate-700">{manager.company.name}</td>
                     <td className="px-5 py-4">
@@ -159,7 +171,11 @@ export function ClientManagerAccountsPage() {
                     <td className="px-5 py-4 text-slate-600">{manager.last_login_at ? formatGcDateTime(manager.last_login_at) : "Never"}</td>
                     <td className="px-5 py-4"><AccountStatusBadge status={manager.status} /></td>
                     <td className="px-5 py-4 text-right">
-                      <Button type="button" variant="secondary" size="sm" onClick={() => setSelected(manager)}>Manage</Button>
+                      {manager.status === "deleted" ? (
+                        <span className="text-xs font-medium text-slate-500">Audit record</span>
+                      ) : (
+                        <Button type="button" variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-50 hover:text-blue-800" rightIcon={<ChevronRight className="h-4 w-4" aria-hidden="true" />} onClick={() => setSelected(manager)}>Open profile</Button>
+                      )}
                     </td>
                   </tr>
                 ))}

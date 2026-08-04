@@ -5,7 +5,7 @@ release-mode APK build and emulator installation are complete for the checks
 recorded below. Store signing, physical-device and macOS/iOS validation remain
 open and are not claimed by this ledger.
 
-Snapshot date: 2026-08-03.
+Snapshot date: 2026-08-04.
 
 This ledger describes the implementation currently present in the repository.
 It deliberately separates source evidence, automated verification, synthetic
@@ -99,6 +99,7 @@ end-to-end journey.
 | Private limiter identifiers | Dashboard-login and mobile-OTP limiter keys use purpose-separated HMAC-SHA256 identifiers keyed by the existing application secret. Redis and warning logs contain no raw normalized email, phone or IP; limits, TTLs and fail-closed behavior are unchanged. | Login and mobile-OTP limiter privacy/stability/isolation tests. No new production secret is required. |
 | Reduced motion and bounded preparation | Navigation disables animation when the OS requests reduced motion. Manager and Coordinator multi-group preparation uses two bounded workers, aggregate monotonic progress and per-resource resilience instead of serially blocking every assigned group. | Accessibility policy test, root/auth/coordinator layouts and role preload modules. |
 | Durable push delivery | Push tickets and receipts are persisted with bounded retry/backoff and age caps. Receipt processing records FCM/APNs handoff, revokes `DeviceNotRegistered` tokens, deduplicates events and keeps notification bodies free of document or passport detail. | Alembic 0076, notification service/provider/tasks and focused ticket/receipt tests. Production provider/device delivery remains external. |
+| Push-only trip countdowns | The worker pre-schedules rotating 3-day, 2-day and 1-day messages from the authoritative travel date, a configured IANA timezone and local send hour. Conflict-safe inserts deduplicate recipients, passed windows are not caught up, trip-date changes cancel unsent stale rows, and countdowns are excluded from the Updates feed. Every due group push revalidates lifecycle, access window, role enablement and the recipient's current identity/assignment before provider submission. | Notification service, bounded Celery schedule, mobile notification feed filter, configuration validation and focused countdown/dispatch tests. Account-level timezone data and real provider timing remain external. |
 | Batched attendance reconciliation | Up to 100 idempotent scans are reconciled with batched session, QR and replay lookups, ordered conflict-safe inserts and atomic local queue receipts. | Coordinator mobile API and attendance tests. Modeled query boundaries are recorded separately from live latency. |
 
 ## Deterministic performance deltas
@@ -214,12 +215,13 @@ or production API p50/p95/p99 measurement.
 | --- | --- | --- |
 | Mobile TypeScript | `npm run typecheck` passed | Current mobile TypeScript contracts compile. |
 | Mobile lint | `npm run lint` passed with zero warnings | Current mobile lint policy passes. |
-| Full mobile Jest | 71 suites, 370 tests passed | Current unit/component policy suite, including keyed database lifecycle/recovery, v16 migration, durable purge and document jobs, encrypted restart resume, namespace/trip/temp-view fencing, unknown-length/ranged downloads, bounded API bodies, auth/account races, multi-group selection, strict cache-first hydration, root error recovery, batched roster persistence, deduplicated preload, renderer-cache lifecycle, Coordinator document cancellation, scan/detail, reduced motion and refresh behavior. |
+| Full mobile Jest | 71 suites, 374 tests passed | Current unit/component policy suite, including keyed database lifecycle/recovery, v16 migration, durable purge and document jobs, encrypted restart resume, namespace/trip/temp-view fencing, unknown-length/ranged downloads, bounded API bodies, auth/account races, multi-group selection, strict cache-first hydration, root error recovery, batched roster persistence, deduplicated preload, renderer-cache lifecycle, Coordinator document cancellation, scan/detail, reduced motion and refresh behavior. A separate `--detectOpenHandles` run exited normally. |
 | Manual security/regression review | Passed for the scoped mobile/backend/dashboard hardening; type-check, lint, full tests and dependency audits passed | Authentication, authorization, cache isolation, encrypted vault, logout, download, push and temporary-view boundaries were reviewed manually as requested. No Codex Security scanner was used. Residual operational limits are disclosed below. |
 | Manual refresh focused test | 2 of 2 passed | Explicit pull owns the spinner, overlapping pulls deduplicate, and failures clear it. |
 | Database/sync/scanner/detail focused selection | 5 suites, 29 tests passed | Serialized database lifecycle plus Coordinator detail, scanner and sync policies. This is included in the later full mobile result but retained as focused evidence. |
-| Backend full pytest | 1,644 passed, 4 skipped and 124 subtests passed | The full backend automated suite passed against the combined working tree, including mobile OTP, exact passenger-session authorization, streaming session release, push tickets/receipts, attendance batching and document-propagation regressions. |
+| Backend full pytest | 1,658 passed, 4 skipped and 124 subtests passed | The full backend automated suite passed against the combined working tree, including mobile OTP, exact passenger-session authorization, streaming session release, push tickets/receipts, countdown scheduling, paginated stale-countdown cleanup, dispatch-time recipient authorization, attendance batching and document-propagation regressions. |
 | Backend Ruff | Full `ruff check .` passed | The backend lint gate passed. |
+| Focused backend mypy | Notification service and mobile-push task entrypoint passed with `--follow-imports=skip` | The changed notification/scheduler code has no focused mypy errors. A broader five-entrypoint run still traversed legacy import-graph debt and is not represented as repository-wide type success. |
 | Alembic head and offline SQL render | `0076_mobile_push_receipts (head)`; offline `upgrade head --sql` exited 0 | Operational indexes, scope constraints, exact passenger-session identities, serialized OTP challenges, device sync acknowledgement, mobile session index and durable push receipts form one repository head. Revision identifiers are bounded to the production Alembic `VARCHAR(32)` contract. A live PostgreSQL rehearsal remains external because local Docker was unavailable. |
 | Backend mypy | 446 errors across 66 files (362 checked) | Repository-wide legacy type debt remains red and is not misreported as a pass. Runtime regression tests, Ruff and compile paths are green; removing this debt safely remains separate from the mobile behavior release. |
 | Dashboard/frontend contract tests | 78 test files, 538 tests passed | The full Node contract-test set passed. |
@@ -227,7 +229,7 @@ or production API p50/p95/p99 measurement.
 | Refresh source audit | No `RefreshControl` binding to `isRefetching` remained | Background React Query invalidation cannot directly display a pull-to-refresh spinner. |
 | Scoped diff check | Passed; only Windows line-ending notices | No whitespace-error finding in the audited mobile scope. |
 | Payload benchmark | Values recorded above | Deterministic local payload/serialization comparison only. |
-| Android release-mode APK (debug-key signed) | Clean native `assembleRelease` passed in 8m 41s; final source delta rebuilt incrementally in 1m 55s | The current working tree bundled with production API URL, preview release guard and demo mode disabled. This is an emulator/compile verification artifact, not a Play-distribution artifact. |
+| Android release-mode APK (historical debug-key build evidence) | A prior clean native `assembleRelease` passed in 8m 41s; its final source delta rebuilt incrementally in 1m 55s | The artifact currently at the output path does not match the hash recorded by that run, so the prior result is retained as historical build evidence rather than represented as an exact artifact-to-source attestation for this final working tree. This pass changed backend scheduling only and did not rebuild the APK. |
 | Android AAB | Deliberately not rebuilt in this pass | The requested delivery was APK-only. Any older local AAB predates the final source and must not be distributed or cited as current. |
 | Android manifest/ABI audit | package `com.globalconnects.groupcompanion`, min SDK 26, target SDK 36, version 1.0.0/1, four ABIs | The built APK contains arm64-v8a, armeabi-v7a, x86 and x86_64 native libraries. |
 | Android emulator install/launch | Streamed in-place install and launcher start passed | Exact fresh APK installed on `emulator-5554`, package process `15063`, version 1.0.0/1 and last update `2026-08-03 11:39:19 +05:30`; the app was the top resumed activity and the bounded post-launch fatal/ANR/transaction-error scan returned zero matches. Earlier timing measurements are retained only as a historical absolute baseline and are not attributed to this final APK. |
@@ -254,10 +256,13 @@ by this ledger unless a later entry adds its exact command and result.
   production profile, package identifier, deep link, notification/camera
   permissions, SQLCipher, minification, resource shrinking and cleartext
   blocking are configured.
-- A fresh universal APK was built from this working tree. It is 173,065,095
-  bytes with SHA-256
-  `C0BE8A83FE1B720D9A0B92DBDD92784B90F5ADAA3CBBE5AFBB947C554E681A90`.
-  No AAB was rebuilt; any older local bundle is stale relative to this source.
+- No fresh universal APK was built in the 2026-08-04 backend-only pass. The
+  artifact currently present is 173,067,163 bytes, was last written at
+  2026-08-03 14:10:42 +05:30 and has SHA-256
+  `39B432B409B3C2D7F53D2AF55319D7BB21AE61B14817811E61A3F28C3CA59737`.
+  It does not match the earlier recorded build hash, so its exact source
+  provenance must be re-established before distribution. No AAB was rebuilt;
+  any older local bundle must likewise not be cited as current.
 - The current artifact path is
   `mobile/android/app/build/outputs/apk/release/app-release.apk`.
 - The minified APK retains the manifest-reflected
@@ -334,6 +339,9 @@ MOBILE_PUSH_RECEIPT_INITIAL_DELAY_SECONDS=900
 MOBILE_PUSH_RECEIPT_POLL_INTERVAL_SECONDS=60
 MOBILE_PUSH_RECEIPT_MAX_ATTEMPTS=8
 MOBILE_PUSH_RECEIPT_MAX_AGE_HOURS=23
+MOBILE_PUSH_COUNTDOWN_SCAN_INTERVAL_SECONDS=900
+MOBILE_PUSH_COUNTDOWN_TIMEZONE=Asia/Kolkata
+MOBILE_PUSH_COUNTDOWN_SEND_HOUR=9
 LOGIN_LOCKOUT_REQUIRE_REDIS=true
 WHATSAPP_ACCESS_TOKEN=<existing Meta system-user token>
 WHATSAPP_PHONE_NUMBER_ID=<existing Meta phone-number id>
@@ -447,6 +455,11 @@ debug-key-signed verification APK is not a store release or rollback artifact.
     Android hardware. Authenticated completed frames resume; a kill during one
     partially written filesystem frame intentionally discards that staging file
     and restarts the transfer rather than trusting truncated ciphertext.
+14. Confirm the configured countdown timezone/send hour with product owners and
+    validate 3-day, 2-day and 1-day provider delivery, rescheduling and lock-screen
+    copy on physical Android and iOS devices. The current group/device contracts do
+    not store an account-level timezone, so `MOBILE_PUSH_COUNTDOWN_TIMEZONE` is the
+    explicit operational timezone until that product policy is introduced.
 
 ## Deliberate scope and policy boundaries
 

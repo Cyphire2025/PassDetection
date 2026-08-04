@@ -7,6 +7,13 @@ import type { AnnouncementInput, GcAnnouncement } from "../types";
 import { formatGcDateTime, gcAppErrorMessage, toApiDateTime, toLocalDateTime } from "../utils";
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
+import { GcSelect } from "./gc-select";
+
+const PRIORITY_OPTIONS = [
+  { value: "normal", label: "Normal", description: "Standard in-app announcement" },
+  { value: "important", label: "Important", description: "Raised visual prominence" },
+  { value: "emergency", label: "Emergency", description: "Reserve for urgent operational alerts" },
+] as const;
 
 const EMPTY_FORM: AnnouncementForm = {
   title: "",
@@ -86,7 +93,7 @@ export function AnnouncementsPanel({
           <div><h3 className="font-semibold text-slate-900">{editingId ? "Edit announcement" : "Create group announcement"}</h3><p className="mt-1 text-sm text-slate-500">Draft messages remain hidden. Avoid sensitive passenger or document details in notification text.</p></div>
           <div className="grid gap-4 md:grid-cols-2">
             <Input label="Title" value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} required />
-            <div className="flex flex-col gap-1.5"><label htmlFor="announcement-priority" className="text-sm font-medium text-slate-700">Priority</label><select id="announcement-priority" value={form.priority} onChange={(event) => setForm((current) => ({ ...current, priority: event.target.value as GcAnnouncement["priority"] }))} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"><option value="normal">Normal</option><option value="important">Important</option><option value="emergency">Emergency</option></select></div>
+            <GcSelect id="announcement-priority" label="Priority" value={form.priority} options={PRIORITY_OPTIONS} onChange={(priority) => setForm((current) => ({ ...current, priority: priority as GcAnnouncement["priority"] }))} />
           </div>
           <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">Message<textarea rows={5} value={form.body} onChange={(event) => setForm((current) => ({ ...current, body: event.target.value }))} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-blue-600" /></label>
           <div className="grid gap-4 md:grid-cols-2">

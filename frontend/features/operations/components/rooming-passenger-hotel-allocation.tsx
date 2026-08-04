@@ -10,6 +10,8 @@ import {
   UsersRound,
 } from "lucide-react";
 import {
+  memo,
+  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -87,15 +89,15 @@ export function RoomingPassengerHotelAllocation({
     groupByFieldKey,
   );
 
-  const passengerIds = useMemo(
-    () => new Set(workspace.passengers.map((passenger) => passenger.passenger_id)),
+  const passengersById = useMemo(
+    () => new Map(workspace.passengers.map((passenger) => [passenger.passenger_id, passenger])),
     [workspace.passengers],
   );
   const validSelectedPassengerIds = useMemo(
     () => Array.from(selectedPassengerIds).filter(
-      (passengerId) => passengerIds.has(passengerId),
+      (passengerId) => passengersById.has(passengerId),
     ),
-    [passengerIds, selectedPassengerIds],
+    [passengersById, selectedPassengerIds],
   );
 
   const selected = useMemo(
@@ -103,8 +105,10 @@ export function RoomingPassengerHotelAllocation({
     [validSelectedPassengerIds],
   );
   const selectedPassengers = useMemo(
-    () => workspace.passengers.filter((passenger) => selected.has(passenger.passenger_id)),
-    [selected, workspace.passengers],
+    () => validSelectedPassengerIds
+      .map((passengerId) => passengersById.get(passengerId))
+      .filter((passenger): passenger is RoomingPassenger => Boolean(passenger)),
+    [passengersById, validSelectedPassengerIds],
   );
   const selectedAtActiveHotel = useMemo(
     () => selectedPassengers.filter(
@@ -219,14 +223,14 @@ export function RoomingPassengerHotelAllocation({
         .map((passenger) => passenger.passenger_id),
     ));
   };
-  const togglePassenger = (passengerId: string) => {
+  const togglePassenger = useCallback((passengerId: string) => {
     setSelectedPassengerIds((current) => {
       const next = new Set(current);
       if (next.has(passengerId)) next.delete(passengerId);
       else next.add(passengerId);
       return next;
     });
-  };
+  }, []);
   const setGroupSelected = (
     groupPassengerIds: string[],
     shouldSelect: boolean,
@@ -836,7 +840,7 @@ function PassengerTable({
               activeHotelId={activeHotelId}
               checked={selected.has(passenger.passenger_id)}
               disabled={disabled}
-              onToggle={() => onTogglePassenger(passenger.passenger_id)}
+              onTogglePassenger={onTogglePassenger}
             />
           ))}
         </tbody>
@@ -845,18 +849,18 @@ function PassengerTable({
   );
 }
 
-function PassengerRow({
+const PassengerRow = memo(function PassengerRow({
   passenger,
   activeHotelId,
   checked,
   disabled,
-  onToggle,
+  onTogglePassenger,
 }: {
   passenger: RoomingPassenger;
   activeHotelId: string;
   checked: boolean;
   disabled: boolean;
-  onToggle: () => void;
+  onTogglePassenger: (passengerId: string) => void;
 }) {
   const gender = normalizeRoomingGender(
     passenger.passport_sex,
@@ -877,7 +881,7 @@ function PassengerRow({
         <input
           type="checkbox"
           checked={checked}
-          onChange={onToggle}
+          onChange={() => onTogglePassenger(passenger.passenger_id)}
           disabled={disabled}
           aria-label={`Select ${passenger.client_name}`}
           className="mt-1 h-4 w-4 rounded border-slate-300 accent-blue-600"
@@ -925,7 +929,7 @@ function PassengerRow({
       </td>
     </tr>
   );
-}
+});
 
 export function normalizeRoomingGender(
   value: string | null | undefined,

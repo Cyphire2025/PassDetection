@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronDown, UserCheck } from "lucide-react";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
@@ -74,7 +74,8 @@ export function CoordinatorMultiSelect({
   onToggle: (coordinatorId: string, checked: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useCloseOnOutsideClick(() => setOpen(false));
+  const menuId = useId();
+  const ref = useCloseOnOutsideClick(open, () => setOpen(false));
 
   return (
     <div className="relative" ref={ref}>
@@ -82,6 +83,9 @@ export function CoordinatorMultiSelect({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((value) => !value)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
         className={cn(
           "flex h-11 w-full items-center justify-between rounded-lg border px-3 text-sm font-medium shadow-sm transition disabled:opacity-60",
           selectedIds.length > 0
@@ -94,7 +98,7 @@ export function CoordinatorMultiSelect({
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 max-h-72 w-full min-w-80 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-900/5">
+        <div id={menuId} role="menu" aria-label="Coordinator coverage" className="absolute z-30 mt-2 max-h-72 w-full min-w-80 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-900/5">
           {coordinators.length === 0 ? (
             <p className="px-3 py-2 text-sm text-slate-500">Create a coordinator first.</p>
           ) : (
@@ -105,6 +109,8 @@ export function CoordinatorMultiSelect({
                   key={coordinator.id}
                   type="button"
                   onClick={() => onToggle(coordinator.id, !selected)}
+                  role="menuitemcheckbox"
+                  aria-checked={selected}
                   className={cn(
                     "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left text-sm",
                     selected ? "bg-blue-50 text-blue-800" : "text-slate-700 hover:bg-slate-50",
@@ -139,7 +145,7 @@ export function PassengerAssignMenu({
   onAssign: (coordinatorId: string | null) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useCloseOnOutsideClick(() => setOpen(false));
+  const ref = useCloseOnOutsideClick(open, () => setOpen(false));
 
   return (
     <div className="relative" ref={ref}>
@@ -312,18 +318,33 @@ function groupTourPassengers(passengers: TourPassenger[]) {
   }));
 }
 
-function useCloseOnOutsideClick(onClose: () => void) {
+function useCloseOnOutsideClick(enabled: boolean, onClose: () => void) {
   const ref = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
 
   useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!enabled) return;
     function handlePointerDown(event: PointerEvent) {
       if (!ref.current || ref.current.contains(event.target as Node)) return;
-      onClose();
+      onCloseRef.current();
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      onCloseRef.current();
     }
 
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [onClose]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [enabled]);
 
   return ref;
 }

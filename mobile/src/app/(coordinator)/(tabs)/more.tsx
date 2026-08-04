@@ -24,7 +24,7 @@ export default function CoordinatorMoreScreen() {
   const trips = useCoordinatorTrips();
   return (
     <Screen bottomInset={104} contentStyle={styles.screen}>
-      <PageHeader eyebrow="Selected trip" title="More operations" subtitle={trips.selectedTrip?.name || 'Coordinator tools'} />
+      <PageHeader eyebrow="Selected trip" title="More operations" subtitle={trips.selectedTrip?.name || 'Coordinator tools'} tone="coordinator" />
       {operations.map(({ route, label, description, icon: Icon }) => (
         <Pressable key={route} accessibilityRole="button" onPress={() => router.push(route)} style={({ pressed }) => pressed && styles.pressed}>
           <GlassCard style={styles.card}>

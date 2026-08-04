@@ -405,6 +405,7 @@ export const gcAppAdminApi = {
           ...toOffsetParams(params),
           agency_id: agencyId ?? undefined,
           status: params.status === "all" ? undefined : params.status,
+          company_id: params.company_id || undefined,
         },
         signal,
       },

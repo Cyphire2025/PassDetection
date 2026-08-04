@@ -94,6 +94,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: './assets/images/gc-app-icon.png',
   },
   plugins: [
+    './plugins/with-expo-headless-loader-proguard',
     'expo-router',
     [
       'expo-splash-screen',

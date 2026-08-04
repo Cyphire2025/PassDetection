@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Settings2, Smartphone, Users } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { ROUTES } from "@/constants/routes";
 import { canManageGcApp } from "@/lib/utils/role-access";
@@ -12,10 +13,14 @@ export const GC_APP_SECTION_LINKS = [
   {
     label: "Client Manager Accounts",
     href: ROUTES.dashboard.gcAppClientManagerAccounts,
+    description: "Accounts and scoped assignments",
+    icon: Users,
   },
   {
     label: "App Controls",
     href: ROUTES.dashboard.gcAppAppControls,
+    description: "Access, content and publishing",
+    icon: Settings2,
   },
 ] as const;
 
@@ -38,23 +43,41 @@ export function GcAppShell({ children }: { children: ReactNode }) {
   if (!hasHydrated || !canAccess || !user) return null;
 
   return (
-    <div className="space-y-6">
-      <nav aria-label="GC App" className="overflow-x-auto border-b border-slate-200">
-        <ul className="flex min-w-max gap-6" role="list">
+    <div className="space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-5 py-5 text-white shadow-[0_22px_55px_-34px_rgba(15,23,42,0.85)] sm:px-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10 shadow-inner">
+            <Smartphone className="h-5 w-5 text-blue-200" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">Group Companion</p>
+            <h1 className="mt-0.5 text-xl font-semibold tracking-tight">GC App operations</h1>
+          </div>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Manage client access and mobile publishing from one controlled agency workspace.</p>
+      </section>
+
+      <nav aria-label="GC App" className="overflow-x-auto">
+        <ul className="flex min-w-max gap-2 rounded-2xl border border-slate-200 bg-slate-100/70 p-1.5" role="list">
           {GC_APP_SECTION_LINKS.map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+            const Icon = link.icon;
             return (
               <li key={link.href}>
                 <Link
                   href={link.href as never}
                   aria-current={isActive ? "page" : undefined}
-                  className={`block border-b-2 px-1 pb-3 text-sm font-medium transition-colors motion-reduce:transition-none ${
+                  className={`flex min-h-12 items-center gap-3 rounded-xl px-4 py-2 text-sm transition-all motion-reduce:transition-none ${
                     isActive
-                      ? "border-blue-600 text-blue-700"
-                      : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                      ? "bg-white text-slate-950 shadow-sm ring-1 ring-slate-200"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                   }`}
                 >
-                  {link.label}
+                  <Icon className={`h-4 w-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} aria-hidden="true" />
+                  <span className="text-left">
+                    <span className="block font-semibold">{link.label}</span>
+                    <span className="hidden text-[11px] font-normal text-slate-500 sm:block">{link.description}</span>
+                  </span>
                 </Link>
               </li>
             );

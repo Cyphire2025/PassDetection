@@ -19,6 +19,7 @@ export function ProfileScreen({ eyebrow }: { eyebrow: string }) {
         eyebrow={eyebrow}
         title={session?.principal.displayName || 'Profile'}
         subtitle="Privacy, sessions and offline storage on this device."
+        tone={eyebrow === 'Coordinator' ? 'coordinator' : eyebrow === 'Client Manager' ? 'manager' : 'neutral'}
       />
       <GlassCard style={styles.card}>
         <View style={styles.row}>

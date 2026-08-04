@@ -13,8 +13,11 @@ const agencyScope = read("./components/gc-app-agency-scope.tsx");
 const api = read("./api/gc-app-admin.api.ts");
 const hooks = read("./hooks/use-gc-app-admin.ts");
 const managerPage = read("./components/client-manager-accounts-page.tsx");
+const managerForm = read("./components/client-manager-form-dialog.tsx");
 const managerDetails = read("./components/client-manager-details-dialog.tsx");
 const controls = read("./components/app-controls-page.tsx");
+const announcements = read("./components/announcements-panel.tsx");
+const select = read("./components/gc-select.tsx");
 const access = read("./components/group-access-panel.tsx");
 const workspace = read("./components/app-control-group-workspace.tsx");
 const commonDocuments = read("./components/common-documents-panel.tsx");
@@ -97,7 +100,8 @@ test("company/client management remains visible and guarded", () => {
   assert.match(api, /client-organizations\/\$\{organizationId\}/);
   assert.match(api, /client-organizations\/search/);
   assert.match(api, /\.\.\.toOffsetParams\(params\)/);
-  assert.match(controls, /Search saved company or client/);
+  assert.match(controls, /searchPlaceholder="Find company\/client"/);
+  assert.match(controls, /<GcSelect/);
   assert.match(controls, /onPageChange=\{setCompanyPage\}/);
   assert.match(hooks, /removeClientOrganization/);
 });
@@ -170,4 +174,17 @@ test("access switches contain their knobs and expose names and states", () => {
   assert.match(feedback, /overflow-hidden/);
   assert.match(feedback, /left-0\.5 top-0\.5/);
   assert.match(feedback, /checked \? "Enabled" : "Disabled"/);
+});
+
+test("GC App uses the custom accessible dropdown and defers picker-only company loading", () => {
+  const featureSources = [managerPage, controls, workspace, commonDocuments, announcements, managerForm, agencyScope];
+  for (const source of featureSources) {
+    assert.doesNotMatch(source, /<select|<option/);
+  }
+  assert.match(select, /role="combobox"/);
+  assert.match(select, /role="listbox"/);
+  assert.match(select, /event\.key === "ArrowDown"/);
+  assert.match(select, /event\.key === "Escape"/);
+  assert.match(controls, /useClientCompanies\([^;]+pickerOpen\)/s);
+  assert.match(hooks, /enabled = true,[\s\S]{0,300}enabled,/);
 });

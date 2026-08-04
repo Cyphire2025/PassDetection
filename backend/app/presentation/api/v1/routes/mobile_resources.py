@@ -215,7 +215,7 @@ async def get_mobile_me(
             if claims.principal_type == "client_manager":
                 phone_number = (
                     await session.execute(
-                        select(ClientManagerProfileModel.phone_number).where(
+                        select(ClientManagerProfileModel.normalized_phone_number).where(
                             ClientManagerProfileModel.user_id == claims.principal_id,
                             ClientManagerProfileModel.agency_id == claims.agency_id,
                             ClientManagerProfileModel.deleted_at.is_(None),

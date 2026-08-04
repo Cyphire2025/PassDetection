@@ -48,7 +48,7 @@ export default function ManagerGroupsScreen() {
         <GlassCard style={[styles.card, selected && styles.selected]}>
           <View style={styles.cardHeading}>
             <View style={styles.icon}>
-              <UsersRound color={colors.greenDeep} size={23} />
+              <UsersRound color={colors.white} size={23} />
             </View>
             <View style={styles.cardText}>
               <Text style={styles.title}>{item.name}</Text>
@@ -93,6 +93,7 @@ export default function ManagerGroupsScreen() {
               title="Assigned groups"
               subtitle="Only groups explicitly shared with your account appear here."
               accessory={trips.offline ? <StatusPill label="Offline copy" tone="warning" /> : undefined}
+              tone="manager"
             />
             <View style={styles.searchBox}>
               <Search color={colors.inkMuted} size={20} />
@@ -148,11 +149,11 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, minHeight: 50, color: colors.ink, fontSize: 16 },
   separator: { height: spacing.sm },
-  card: { borderRadius: radii.md, gap: spacing.md },
-  selected: { borderColor: colors.green, backgroundColor: colors.greenSoft },
+  card: { borderRadius: radii.md, gap: spacing.md, borderLeftColor: colors.blue, borderLeftWidth: 4 },
+  selected: { borderColor: colors.blue, borderWidth: 2, borderLeftWidth: 5, backgroundColor: colors.aquaSoft },
   pressed: { opacity: 0.7 },
   cardHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  icon: { width: 44, height: 44, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.greenSoft },
+  icon: { width: 44, height: 44, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blueDeep },
   cardText: { flex: 1, gap: 3 },
   title: { color: colors.ink, fontSize: 17, fontWeight: '800' },
   destination: { color: colors.inkMuted, fontSize: 13 },

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -13,6 +13,7 @@ from app.application.mobile.notification_service import (
     enqueue_announcement_notifications,
     enqueue_personal_document_change_notifications,
     reconcile_mobile_push_receipts,
+    schedule_trip_countdown_notifications,
 )
 from app.application.mobile.push_provider import (
     DisabledMobilePushProvider,
@@ -32,7 +33,11 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
-from app.infrastructure.database.models import CoordinatorGroupAssignmentModel, UserModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    CoordinatorGroupAssignmentModel,
+    UserModel,
+)
 
 
 def _access(*, enabled: bool = True) -> GCGroupAccessModel:
@@ -69,6 +74,21 @@ def _announcement(access: GCGroupAccessModel) -> GCAnnouncementModel:
     )
 
 
+def _group(
+    access: GCGroupAccessModel,
+    *,
+    travel_date: date | None = None,
+) -> ClientGroupModel:
+    return ClientGroupModel(
+        id=access.group_id,
+        agency_id=access.agency_id,
+        name="Countdown test group",
+        token=f"countdown-{uuid.uuid4().hex}",
+        status="active",
+        travel_date=travel_date,
+    )
+
+
 async def _persist_push_target(
     db_session: AsyncSession,
     *,
@@ -78,6 +98,7 @@ async def _persist_push_target(
     MobileNotificationModel,
 ]:
     access = _access()
+    group = _group(access)
     announcement = _announcement(access)
     passenger = MobilePassengerIdentityModel(
         id=uuid.uuid4(),
@@ -133,7 +154,15 @@ async def _persist_push_target(
         expires_at=None,
     )
     db_session.add_all(
-        [access, announcement, passenger, device_session, registration, notification]
+        [
+            group,
+            access,
+            announcement,
+            passenger,
+            device_session,
+            registration,
+            notification,
+        ]
     )
     await db_session.flush()
     return registration, notification
@@ -189,6 +218,131 @@ async def test_disabled_delivery_provider_never_touches_queue() -> None:
     )
 
     assert delivered == 0
+
+
+@pytest.mark.asyncio
+async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedulable(
+    db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.application.mobile.notification_service._COUNTDOWN_CLEANUP_PAGE_SIZE",
+        2,
+    )
+    now = datetime(2026, 8, 4, 2, 0, tzinfo=UTC)
+    access = _access()
+    access.client_manager_access_enabled = False
+    access.coordinator_access_enabled = False
+    group = _group(access, travel_date=date(2026, 8, 7))
+    group.destination = "Sensitive destination"
+    passenger = MobilePassengerIdentityModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        gc_group_access_id=access.id,
+        passenger_submission_id=uuid.uuid4(),
+        normalized_phone_number="+919999999980",
+        phone_lookup_hash="8" * 64,
+        status="claimed",
+        claimed_at=now,
+    )
+    db_session.add_all([group, access, passenger])
+    await db_session.flush()
+
+    first = await schedule_trip_countdown_notifications(
+        db_session,
+        timezone_name="Asia/Kolkata",
+        send_hour=9,
+        now=now,
+    )
+    duplicate = await schedule_trip_countdown_notifications(
+        db_session,
+        timezone_name="Asia/Kolkata",
+        send_hour=9,
+        now=now,
+    )
+
+    notification = (
+        await db_session.execute(
+            select(MobileNotificationModel).where(
+                MobileNotificationModel.notification_type == "trip_countdown",
+                MobileNotificationModel.dedupe_key == "trip-countdown:2026-08-07:3",
+            )
+        )
+    ).scalar_one()
+    scheduled_at = notification.available_at
+    if scheduled_at.tzinfo is None:
+        scheduled_at = scheduled_at.replace(tzinfo=UTC)
+    assert first.inserted == 3
+    assert duplicate.inserted == 0
+    assert scheduled_at == datetime(2026, 8, 4, 3, 30, tzinfo=UTC)
+    assert notification.dedupe_key == "trip-countdown:2026-08-07:3"
+    assert notification.contains_sensitive_content is False
+    assert notification.lock_screen_body
+    assert group.name not in notification.lock_screen_body
+    assert "Sensitive destination" not in (notification.lock_screen_body or "")
+    assert notification.public_payload == {
+        "route": "trip",
+        "trip_id": str(access.group_id),
+    }
+
+    group.travel_date = date(2026, 8, 8)
+    changed = await schedule_trip_countdown_notifications(
+        db_session,
+        timezone_name="Asia/Kolkata",
+        send_hour=9,
+        now=now,
+    )
+
+    assert changed.cancelled == 3
+    assert changed.inserted == 3
+    assert notification.status == "cancelled"
+
+
+@pytest.mark.asyncio
+async def test_trip_countdown_scheduler_does_not_catch_up_a_passed_window(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime(2026, 8, 4, 4, 0, tzinfo=UTC)  # 09:30 Asia/Kolkata
+    access = _access()
+    access.client_manager_access_enabled = False
+    access.coordinator_access_enabled = False
+    group = _group(access, travel_date=date(2026, 8, 7))
+    passenger = MobilePassengerIdentityModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        gc_group_access_id=access.id,
+        passenger_submission_id=uuid.uuid4(),
+        normalized_phone_number="+919999999981",
+        phone_lookup_hash="9" * 64,
+        status="claimed",
+        claimed_at=now,
+    )
+    db_session.add_all([group, access, passenger])
+    await db_session.flush()
+
+    counts = await schedule_trip_countdown_notifications(
+        db_session,
+        timezone_name="Asia/Kolkata",
+        send_hour=9,
+        now=now,
+    )
+
+    assert counts.inserted == 2
+    rows = list(
+        (
+            await db_session.execute(
+                select(MobileNotificationModel).where(
+                    MobileNotificationModel.notification_type == "trip_countdown"
+                )
+            )
+        ).scalars()
+    )
+    assert {row.dedupe_key for row in rows} == {
+        "trip-countdown:2026-08-07:2",
+        "trip-countdown:2026-08-07:1",
+    }
 
 
 @pytest.mark.asyncio
@@ -340,6 +494,7 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
 ) -> None:
     now = datetime.now(tz=UTC)
     access = _access()
+    group = _group(access)
     announcement = _announcement(access)
     passenger = MobilePassengerIdentityModel(
         id=uuid.uuid4(),
@@ -394,7 +549,15 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
         expires_at=None,
     )
     db_session.add_all(
-        [access, announcement, passenger, device_session, registration, notification]
+        [
+            group,
+            access,
+            announcement,
+            passenger,
+            device_session,
+            registration,
+            notification,
+        ]
     )
     await db_session.flush()
 
@@ -441,6 +604,46 @@ async def test_dispatch_uses_encrypted_token_and_marks_ticket_sent(
     assert delivery.status == "receipt_pending"
     assert delivery.provider_ticket_id == f"ticket-{notification.id}"
     assert delivery.send_attempts == 1
+
+
+@pytest.mark.asyncio
+async def test_dispatch_cancels_group_push_after_recipient_access_is_revoked(
+    db_session: AsyncSession,
+) -> None:
+    now = datetime.now(tz=UTC)
+    _registration, notification = await _persist_push_target(db_session, now=now)
+    passenger = await db_session.get(
+        MobilePassengerIdentityModel,
+        notification.recipient_passenger_identity_id,
+    )
+    assert passenger is not None
+    passenger.status = "revoked"
+    passenger.revoked_at = now
+    await db_session.flush()
+
+    class RecordingProvider:
+        name = "expo"
+        enabled = True
+
+        def __init__(self) -> None:
+            self.messages: list[MobilePushMessage] = []
+
+        async def send(self, messages: list[MobilePushMessage]) -> list[MobilePushTicket]:
+            self.messages = messages
+            return []
+
+    provider = RecordingProvider()
+    delivered = await dispatch_mobile_push_batch(
+        db_session,
+        provider=provider,
+        limit=100,
+        now=now + timedelta(seconds=1),
+    )
+
+    assert delivered == 0
+    assert provider.messages == []
+    assert notification.status == "cancelled"
+    assert notification.failure_code == "recipient_access_revoked"
 
 
 @pytest.mark.asyncio

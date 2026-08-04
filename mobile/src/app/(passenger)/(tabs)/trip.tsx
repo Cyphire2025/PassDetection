@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { passengerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -71,7 +72,7 @@ export default function PassengerTripScreen() {
     if (document.metadata_state !== 'ready' || !document.offline_available) return;
     setDocumentError(null);
     router.push({
-      pathname: '/document/[id]',
+      pathname: passengerDocumentViewerRoute,
       params: { id: document.id, tripId: document.trip_id },
     });
   }, []);
@@ -129,7 +130,7 @@ export default function PassengerTripScreen() {
   if (!trips.selectedTrip) {
     return (
       <Screen bottomInset={96}>
-        <PageHeader eyebrow="Passenger" title="No eligible trip" />
+        <PageHeader eyebrow="Passenger" title="No eligible trip" tone="passenger" />
         <ContentEmpty title="Nothing to show yet" message="Ask your travel team to confirm that this group is enabled for the app." />
       </Screen>
     );
@@ -163,7 +164,7 @@ export default function PassengerTripScreen() {
         )}
         ListHeaderComponent={
           <View style={styles.header}>
-            <PageHeader eyebrow="My trip" title={trip.destination || trip.name} subtitle={trip.name} />
+            <PageHeader eyebrow="My trip" title={trip.destination || trip.name} subtitle={trip.name} tone="passenger" />
             {trips.trips.length > 1 ? (
               <PrimaryButton
                 label="Switch trip"

@@ -16,6 +16,7 @@ export default function CoordinatorLayout() {
           <Stack.Screen name="operations/updates" />
           <Stack.Screen name="operations/profile" />
           <Stack.Screen name="operations/passenger/[id]" />
+          <Stack.Screen name="operations/document/[id]" />
         </Stack>
       </CoordinatorTripGuard>
     </RoleGate>

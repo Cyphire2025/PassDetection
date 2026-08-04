@@ -16,6 +16,7 @@ import {
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { passengerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -108,7 +109,7 @@ export default function PassengerDocumentsScreen() {
     if (document.metadata_state !== 'ready' || !document.offline_available) return;
     setError(null);
     router.push({
-      pathname: '/document/[id]',
+      pathname: passengerDocumentViewerRoute,
       params: { id: document.id, tripId: document.trip_id },
     });
   }, []);
@@ -195,7 +196,7 @@ export default function PassengerDocumentsScreen() {
         onRefresh={() => void manualRefresh.refresh(refresh)}
         ListHeaderComponent={
           <View style={styles.header}>
-            <PageHeader eyebrow="Private to you" title="My documents" subtitle="Passport, Visa and Flight Tickets authorized for your passenger identity." />
+            <PageHeader eyebrow="Private to you" title="My documents" subtitle="Passport, Visa and Flight Tickets authorized for your passenger identity." tone="passenger" />
             <View style={styles.securityNote}>
               <LockKeyhole color={colors.greenDeep} size={18} />
               <Text style={styles.securityText}>Encrypted copies download automatically and remain available without internet.</Text>

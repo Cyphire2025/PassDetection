@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Jest factories must load mocked host components after hoisting. */
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import PassengerDocumentsScreen from '../documents';
 
 const mockPrefetch = jest.fn();
@@ -179,4 +180,28 @@ test('pull-to-refresh performs one bounded metadata and offline preparation cycl
   await waitFor(() => expect(refetch).toHaveBeenCalledTimes(2));
   expect(mockPrefetch).toHaveBeenCalledTimes(1);
   expect(mockPrefetch).toHaveBeenCalledWith(document.trip_id);
+});
+
+test('opens a personal document inside the passenger stack so back restores Personal Documents', async () => {
+  mockPrefetch.mockResolvedValue({
+    total: 1,
+    completed: 1,
+    failed: 0,
+    currentDocumentName: null,
+  });
+  mockUseDocuments.mockReturnValue({
+    data: { items: [{ ...document, offline: true, offlineVersion: document.version }] },
+    isPending: false,
+    isError: false,
+    isRefetching: false,
+    refetch: jest.fn(async () => undefined),
+  });
+
+  const screen = await render(<PassengerDocumentsScreen />);
+  await fireEvent.press(screen.getByLabelText(`Open ${document.display_name}`));
+
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/(passenger)/document/[id]',
+    params: { id: document.id, tripId: document.trip_id },
+  });
 });

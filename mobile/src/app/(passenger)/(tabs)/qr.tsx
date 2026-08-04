@@ -50,7 +50,7 @@ export default function PassengerQrScreen() {
           />
         ),
       }}>
-      <PageHeader eyebrow="Attendance" title="My QR" subtitle={trips.selectedTrip?.name || 'Passenger-specific trip QR'} />
+      <PageHeader eyebrow="Attendance" title="My QR" subtitle={trips.selectedTrip?.name || 'Passenger-specific trip QR'} tone="passenger" />
       {qr.isPending ? <ContentLoading label="Preparing your QR" /> : null}
       {qr.isError ? <ContentError message="Your QR is not available offline yet." onRetry={() => void qr.refetch()} /> : null}
       {qr.data?.qr ? (

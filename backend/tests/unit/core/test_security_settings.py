@@ -32,6 +32,17 @@ def test_mobile_push_receipt_polling_must_start_before_receipt_retention_expires
         )
 
 
+def test_mobile_countdown_timezone_must_be_an_iana_timezone() -> None:
+    with pytest.raises(
+        PydanticValidationError,
+        match="MOBILE_PUSH_COUNTDOWN_TIMEZONE",
+    ):
+        MobileSettings(
+            push_countdown_timezone="not/a-timezone",
+            _env_file=None,
+        )
+
+
 @pytest.mark.parametrize("secret", [None, "short-mobile-secret"])
 def test_production_mobile_api_rejects_missing_or_weak_signing_secret(
     monkeypatch: pytest.MonkeyPatch,

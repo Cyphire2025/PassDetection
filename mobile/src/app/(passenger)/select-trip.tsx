@@ -186,6 +186,7 @@ export default function PassengerTripSelectionScreen(): ReactElement {
               eyebrow="Passenger access"
               title="Choose your trip"
               subtitle="Only trips assigned to this verified passenger account are shown."
+              tone="passenger"
             />
             <View style={styles.searchBox}>
               <Search color={colors.inkMuted} size={20} />

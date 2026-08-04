@@ -5,9 +5,11 @@ from __future__ import annotations
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
-from sqlalchemy import and_, func, or_, select, update
+from sqlalchemy import and_, exists, func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_identity_reconciliation import (
@@ -938,6 +940,11 @@ async def delete_client_organization(
 @router.get("/client-managers", response_model=ClientManagerPageResponse)
 async def list_client_managers(
     q: str | None = Query(default=None, max_length=120),
+    account_status: Literal["invited", "active", "suspended", "deleted"] | None = Query(
+        default=None,
+        alias="status",
+    ),
+    company_id: uuid.UUID | None = None,
     agency_id: uuid.UUID | None = None,
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
@@ -947,14 +954,26 @@ async def list_client_managers(
     tenant_id = _tenant_id(current_user, agency_id)
     filters = [
         ClientManagerProfileModel.agency_id == tenant_id,
-        ClientManagerProfileModel.deleted_at.is_(None),
         UserModel.role == UserRole.CLIENT_MANAGER.value,
     ]
+    if account_status == "deleted":
+        filters.append(ClientManagerProfileModel.deleted_at.is_not(None))
+    else:
+        filters.append(ClientManagerProfileModel.deleted_at.is_(None))
     if q and (normalized := " ".join(q.split())):
+        phone_search = "".join(character for character in normalized if character.isdigit())
         filters.append(
-            UserModel.full_name.contains(normalized, autoescape=True)
-            | UserModel.email.contains(normalized, autoescape=True)
+            UserModel.full_name.icontains(normalized, autoescape=True)
+            | UserModel.email.icontains(normalized, autoescape=True)
+            | ClientManagerProfileModel.normalized_phone_number.icontains(
+                phone_search if len(phone_search) >= 3 else normalized,
+                autoescape=True,
+            )
         )
+    if account_status is not None:
+        filters.append(ClientManagerProfileModel.status == account_status)
+    if company_id is not None:
+        filters.append(ClientManagerProfileModel.organization_id == company_id)
     total = int(
         (
             await session.execute(
@@ -974,7 +993,10 @@ async def list_client_managers(
                 ClientOrganizationModel.id == ClientManagerProfileModel.organization_id,
             )
             .where(*filters)
-            .order_by(ClientManagerProfileModel.created_at.desc())
+            .order_by(
+                ClientManagerProfileModel.created_at.desc(),
+                ClientManagerProfileModel.id.desc(),
+            )
             .offset(offset)
             .limit(limit)
         )
@@ -1016,10 +1038,25 @@ async def create_client_manager(
             detail="Phone number is not valid for WhatsApp/mobile matching",
         )
     email = str(body.email).lower().strip()
-    if (
-        await session.execute(select(UserModel.id).where(UserModel.email == email))
-    ).scalar_one_or_none() is not None:
+    email_exists, phone_exists = (
+        await session.execute(
+            select(
+                exists().where(UserModel.email == email),
+                exists().where(
+                    ClientManagerProfileModel.agency_id == tenant_id,
+                    ClientManagerProfileModel.normalized_phone_number == normalized_phone,
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                ),
+            )
+        )
+    ).one()
+    if email_exists:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email is already in use")
+    if phone_exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Mobile number is already assigned to another Client Manager",
+        )
 
     access_by_group = await _validate_manager_groups(
         session, tenant_id, organization.id, body.group_ids
@@ -1067,26 +1104,36 @@ async def create_client_manager(
         created_at=now,
         updated_at=now,
     )
-    session.add_all([user, profile])
-    await session.flush()
-    for group_id, access in access_by_group.items():
-        session.add(
-            ClientManagerGroupAssignmentModel(
-                id=uuid.uuid4(),
-                agency_id=tenant_id,
-                organization_id=organization.id,
-                group_id=group_id,
-                profile_id=profile.id,
-                gc_group_access_id=access.id,
-                is_active=True,
-                can_view_passenger_names=False,
-                personal_document_access_enabled=False,
-                assigned_by_user_id=current_user.id,
-                assigned_at=now,
-                updated_at=now,
+    try:
+        session.add_all([user, profile])
+        await session.flush()
+        for group_id, access in access_by_group.items():
+            session.add(
+                ClientManagerGroupAssignmentModel(
+                    id=uuid.uuid4(),
+                    agency_id=tenant_id,
+                    organization_id=organization.id,
+                    group_id=group_id,
+                    profile_id=profile.id,
+                    gc_group_access_id=access.id,
+                    is_active=True,
+                    can_view_passenger_names=False,
+                    personal_document_access_enabled=False,
+                    assigned_by_user_id=current_user.id,
+                    assigned_at=now,
+                    updated_at=now,
+                )
             )
-        )
-    await session.flush()
+        await session.flush()
+    except IntegrityError as exc:
+        # The explicit checks above provide precise normal-case feedback. The
+        # database constraints remain the race-safe authority when concurrent
+        # requests attempt the same email or phone number.
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A Client Manager with this email or mobile number already exists",
+        ) from exc
     await _audit(
         session,
         current_user,

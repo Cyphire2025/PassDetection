@@ -69,7 +69,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
             }}
             style={({ pressed }) => [styles.item, focused && styles.itemFocused, pressed && styles.pressed]}>
-            <Icon color={focused ? colors.greenDeep : colors.inkMuted} size={21} strokeWidth={focused ? 2.5 : 2} />
+            <Icon color={focused ? colors.navy : 'rgba(255,255,255,0.7)'} size={21} strokeWidth={focused ? 2.7 : 2} />
             <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.label, focused && styles.labelFocused]}>
               {label}
             </Text>
@@ -82,7 +82,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   return (
     <View pointerEvents="box-none" style={[styles.position, { bottom: Math.max(insets.bottom, spacing.sm) }]}>
       {allowBlur ? (
-        <BlurView intensity={45} tint="systemThinMaterialLight" blurMethod="dimezisBlurViewSdk31Plus" style={styles.bar}>
+        <BlurView intensity={52} tint="dark" blurMethod="dimezisBlurViewSdk31Plus" style={styles.bar}>
           {content}
         </BlurView>
       ) : (
@@ -98,14 +98,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: radii.lg,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.16,
+    borderColor: 'rgba(255,255,255,0.16)',
+    backgroundColor: 'rgba(8,41,54,0.92)',
+    shadowColor: colors.navy,
+    shadowOpacity: 0.28,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
-  fallback: { backgroundColor: colors.surfaceStrong },
+  fallback: { backgroundColor: colors.navy },
   items: { minHeight: 68, padding: spacing.xs, flexDirection: 'row', alignItems: 'center' },
   item: {
     flex: 1,
@@ -116,8 +117,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     gap: 3,
   },
-  itemFocused: { backgroundColor: colors.greenSoft },
+  itemFocused: { backgroundColor: colors.green },
   pressed: { opacity: 0.65 },
-  label: { color: colors.inkMuted, fontSize: 10, fontWeight: '600', maxWidth: 70 },
-  labelFocused: { color: colors.greenDeep, fontWeight: '800' },
+  label: { color: 'rgba(255,255,255,0.68)', fontSize: 10, fontWeight: '700', maxWidth: 70 },
+  labelFocused: { color: colors.navy, fontWeight: '900' },
 });

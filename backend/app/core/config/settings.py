@@ -136,6 +136,9 @@ class MobileSettings(BaseSettings):
     push_receipt_poll_interval_seconds: int = Field(default=60, ge=15, le=900)
     push_receipt_max_attempts: int = Field(default=8, ge=1, le=24)
     push_receipt_max_age_hours: int = Field(default=23, ge=1, le=24)
+    push_countdown_scan_interval_seconds: int = Field(default=900, ge=60, le=3_600)
+    push_countdown_timezone: str = "Asia/Kolkata"
+    push_countdown_send_hour: int = Field(default=9, ge=0, le=23)
 
     @field_validator(
         "jwt_secret_key",
@@ -168,6 +171,18 @@ class MobileSettings(BaseSettings):
                 "MOBILE_PUSH_RECEIPT_MAX_AGE_HOURS"
             )
         return self
+
+    @field_validator("push_countdown_timezone")
+    @classmethod
+    def validate_push_countdown_timezone(cls, value: str) -> str:
+        normalized = value.strip()
+        try:
+            ZoneInfo(normalized)
+        except (ValueError, ZoneInfoNotFoundError) as exc:
+            raise ValueError(
+                "MOBILE_PUSH_COUNTDOWN_TIMEZONE must be a valid IANA timezone"
+            ) from exc
+        return normalized
 
 
 class S3Settings(BaseSettings):

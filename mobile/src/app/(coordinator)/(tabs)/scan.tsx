@@ -272,6 +272,7 @@ export default function CoordinatorScanScreen() {
       eyebrow="Attendance"
       title="Scan QR"
       subtitle={trips.selectedTrip?.name || 'Selected group'}
+      tone="coordinator"
     />
   );
   const queryState = (

@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import type { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -19,21 +20,25 @@ export function AuthShell({
           <Text style={styles.demoText}>LOCAL EMULATOR DEMO · NO SERVER CONNECTION</Text>
         </View>
       ) : null}
-      <View style={styles.brandMark} accessibilityElementsHidden>
-        <View style={styles.brandInner} />
-      </View>
-      <Text style={styles.eyebrow}>{eyebrow}</Text>
-      <Text accessibilityRole="header" style={styles.title}>
-        {title}
-      </Text>
-      <Text style={styles.description}>{description}</Text>
+      <LinearGradient colors={[colors.navy, '#164E61', colors.blueDeep]} style={styles.hero}>
+        <View pointerEvents="none" style={styles.heroOrb} />
+        <View style={styles.brandRow}>
+          <View style={styles.brandMark} accessibilityElementsHidden>
+            <View style={styles.brandInner} />
+          </View>
+          <View style={styles.eyebrowPill}><Text style={styles.eyebrow}>{eyebrow}</Text></View>
+        </View>
+        <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
+        <View style={styles.heroAccent} />
+      </LinearGradient>
       <GlassCard style={styles.card}>{children}</GlassCard>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingTop: 72, gap: spacing.md },
+  screen: { paddingTop: 48, gap: spacing.lg },
   demoBanner: {
     alignSelf: 'flex-start',
     borderRadius: 999,
@@ -44,24 +49,51 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   demoText: { color: colors.greenDeep, fontSize: 10, fontWeight: '900', letterSpacing: 0.7 },
+  hero: {
+    minHeight: 280,
+    overflow: 'hidden',
+    borderRadius: 30,
+    padding: spacing.xl,
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+    shadowColor: colors.navy,
+    shadowOpacity: 0.24,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 8,
+  },
+  heroOrb: {
+    position: 'absolute',
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    right: -52,
+    top: -72,
+    backgroundColor: colors.green,
+    opacity: 0.18,
+  },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
   brandMark: {
-    width: 52,
-    height: 52,
-    borderRadius: 18,
-    backgroundColor: colors.blueSoft,
+    width: 50,
+    height: 50,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.md,
   },
-  brandInner: { width: 23, height: 23, borderRadius: 12, backgroundColor: colors.green },
+  brandInner: { width: 24, height: 24, borderRadius: 8, backgroundColor: colors.green, transform: [{ rotate: '12deg' }] },
+  eyebrowPill: { minHeight: 30, justifyContent: 'center', paddingHorizontal: spacing.md, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.1)' },
   eyebrow: {
-    color: colors.greenDeep,
+    color: colors.white,
     textTransform: 'uppercase',
     letterSpacing: 1.4,
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: 10,
+    fontWeight: '900',
   },
-  title: { color: colors.ink, fontSize: 35, lineHeight: 41, fontWeight: '800' },
-  description: { color: colors.inkMuted, fontSize: 16, lineHeight: 24, marginBottom: spacing.lg },
-  card: { gap: spacing.lg },
+  title: { color: colors.white, fontSize: 35, lineHeight: 40, fontWeight: '900', letterSpacing: -0.7 },
+  description: { color: 'rgba(255,255,255,0.76)', fontSize: 15, lineHeight: 23, maxWidth: 340 },
+  heroAccent: { width: 48, height: 5, borderRadius: 99, backgroundColor: colors.green },
+  card: { gap: spacing.lg, marginBottom: spacing.xl },
 });

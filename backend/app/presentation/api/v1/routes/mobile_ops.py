@@ -97,6 +97,7 @@ router = APIRouter()
 _APP_BUNDLE_ID = "com.globalconnects.groupcompanion"
 _MAX_ROSTER_PAGE = 200
 _MAX_NOTIFICATION_PAGE = 200
+_PUSH_ONLY_NOTIFICATION_TYPES = frozenset({"trip_countdown"})
 _MAX_ATTENDANCE_SESSION_PAGE = 100
 _MAX_MISSING_PASSENGER_PAGE = 200
 _MAX_SCAN_CLOCK_SKEW = timedelta(minutes=15)
@@ -1738,6 +1739,9 @@ async def list_mobile_notifications(
     filters = [
         MobileNotificationModel.agency_id == claims.agency_id,
         recipient_filter,
+        MobileNotificationModel.notification_type.not_in(
+            _PUSH_ONLY_NOTIFICATION_TYPES
+        ),
         # A provider delivery failure must not remove the durable in-app update.
         MobileNotificationModel.status.in_(("queued", "sent", "failed")),
         MobileNotificationModel.available_at <= now,

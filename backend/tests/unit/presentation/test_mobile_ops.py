@@ -14,6 +14,7 @@ from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.presentation.api.v1.routes.mobile_ops import (
+    _PUSH_ONLY_NOTIFICATION_TYPES,
     _accessible_group_ids,
     _attendance_rejection_code,
     _attendance_replay_snapshot,
@@ -516,6 +517,10 @@ def test_notification_payload_uses_a_fixed_public_allowlist() -> None:
         }
     )
     assert set(safe) == {"screen", "group_id"}
+
+
+def test_trip_countdowns_are_excluded_from_the_durable_updates_feed() -> None:
+    assert _PUSH_ONLY_NOTIFICATION_TYPES == frozenset({"trip_countdown"})
 
 
 def test_coordinator_imported_date_parser_fails_closed() -> None:

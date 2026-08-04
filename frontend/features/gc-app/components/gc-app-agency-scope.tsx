@@ -5,6 +5,7 @@ import { Fragment, createContext, useContext, useMemo, useState, type ReactNode 
 import type { User } from "@/types";
 import { gcAppAdminApi } from "../api/gc-app-admin.api";
 import { GcAlert } from "./gc-app-feedback";
+import { GcSelect } from "./gc-select";
 
 interface GcAppAgencyScopeValue {
   agencyId: string | null;
@@ -26,7 +27,7 @@ export function GcAppAgencyScopeProvider({
     queryKey: ["gc-app", "agency-scope"],
     queryFn: ({ signal }) => gcAppAdminApi.listAgencies(signal),
     enabled: isSuperAdmin,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
     retry: 1,
   });
 
@@ -54,25 +55,27 @@ export function GcAppAgencyScopeProvider({
   return (
     <GcAppAgencyScopeContext.Provider value={value}>
       {isSuperAdmin ? (
-        <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <label htmlFor="gc-app-agency-scope" className="mb-1.5 block text-sm font-medium text-slate-700">
-            Agency workspace
-          </label>
+        <div className="mb-5 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-4 shadow-[0_8px_30px_-24px_rgba(15,23,42,0.4)]">
           {agencies.isError ? (
             <GcAlert message="Agency workspaces could not be loaded. Refresh before making GC App changes." />
           ) : (
-            <select
+            <GcSelect
               id="gc-app-agency-scope"
+              label="Agency workspace"
               value={selectedAgencyId ?? ""}
               disabled={!agencies.isSuccess}
-              onChange={(event) => selectAgency(event.target.value)}
-              className="h-10 w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-60"
-            >
-              <option value="" disabled>{agencies.isLoading ? "Loading agencies…" : "Select an agency"}</option>
-              {agencies.data?.map((agency) => (
-                <option key={agency.id} value={agency.id}>{agency.name}</option>
-              ))}
-            </select>
+              onChange={selectAgency}
+              options={(agencies.data ?? []).map((agency) => ({
+                value: agency.id,
+                label: agency.name,
+                description: agency.email,
+              }))}
+              searchable
+              loading={agencies.isLoading}
+              placeholder="Select an agency"
+              searchPlaceholder="Find agency workspace"
+              className="max-w-md"
+            />
           )}
         </div>
       ) : null}

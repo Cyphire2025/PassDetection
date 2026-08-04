@@ -138,6 +138,7 @@ export default function PassengerUpdatesScreen() {
               title="Updates"
               subtitle="Trip changes, document availability and operational alerts."
               accessory={unread > 0 ? <StatusPill label={`${unread} unread`} tone="warning" /> : undefined}
+              tone="passenger"
             />
             {offline ? <StatusPill label="Last synchronized updates" tone="warning" /> : null}
             {notifications.isPending && announcements.isPending ? <ContentLoading label="Loading updates" /> : null}

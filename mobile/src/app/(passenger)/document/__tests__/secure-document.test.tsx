@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Jest factories load mocked host components after hoisting. */
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
@@ -300,6 +301,19 @@ test('aborts an active document transfer when the viewer unmounts', async () => 
     await Promise.resolve();
   });
   expect(mockedDecryptDocument).not.toHaveBeenCalled();
+});
+
+test('cleans the decrypted view and goes back to the exact previous screen when closed', async () => {
+  const openedTemporary = temporary('file:///secure/close-me.pdf');
+  mockedGetDocument.mockResolvedValueOnce({ ...DOCUMENT, offline: true, offlineVersion: 1 });
+  mockedDecryptDocument.mockResolvedValueOnce(openedTemporary);
+
+  const screen = await render(<SecureDocumentScreen />);
+  await waitFor(() => expect(screen.getByTestId('pdf-viewer')).toBeTruthy());
+  await fireEvent.press(screen.getByLabelText('Close document'));
+
+  expect(mockedRemoveTemporary).toHaveBeenCalledWith(openedTemporary);
+  expect(router.back).toHaveBeenCalledTimes(1);
 });
 
 test('removes plaintext while inactive and transparently opens a fresh view on return', async () => {

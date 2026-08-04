@@ -7,6 +7,7 @@ import type { CommonDocumentUpload, GcCommonDocument, GcDocumentCategory } from 
 import { formatGcDateTime, gcAppErrorMessage } from "../utils";
 import { GcAlert } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
+import { GcSelect } from "./gc-select";
 
 const ITINERARY_CATEGORY: GcDocumentCategory = "itinerary_pdf";
 const OTHER_DOCUMENT_CATEGORIES: { value: GcDocumentCategory; label: string }[] = [
@@ -331,12 +332,13 @@ function DocumentUploadForm({
             <span className="flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800">Itinerary PDF</span>
           </div>
         ) : (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor={`${id}-category`} className="text-sm font-medium text-slate-700">Category</label>
-            <select id={`${id}-category`} value={category} onChange={(event) => setCategory(event.target.value as GcDocumentCategory)} className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-              {categories?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </div>
+          <GcSelect
+            id={`${id}-category`}
+            label="Category"
+            value={category}
+            options={categories ?? []}
+            onChange={(nextCategory) => setCategory(nextCategory as GcDocumentCategory)}
+          />
         )}
       </div>
       <label className="relative flex min-h-24 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-center hover:border-blue-400 hover:bg-blue-50/40 focus-within:ring-2 focus-within:ring-blue-600">

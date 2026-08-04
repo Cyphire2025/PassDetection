@@ -42,7 +42,11 @@ export const gcAppQueryKeys = {
 };
 
 const SECURITY_QUERY_OPTIONS = {
-  staleTime: 0,
+  // Sensitive data stays in the authenticated in-memory query cache only.
+  // A short freshness window prevents navigation/focus request storms while
+  // still reconciling access changes promptly in the background.
+  staleTime: 30_000,
+  gcTime: 10 * 60_000,
   refetchOnWindowFocus: true,
   retry: 1,
 } as const;
@@ -79,13 +83,15 @@ export function useClientCompanies(
   search = "",
   page = 1,
   pageSize = 50,
+  enabled = true,
 ) {
   const params = { page, page_size: pageSize, search };
   return useQuery({
     queryKey: gcAppQueryKeys.companies(agencyId, params),
     queryFn: ({ signal }) => gcAppAdminApi.searchCompanies(agencyId, params, signal),
+    enabled,
     placeholderData: keepPreviousData,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -97,11 +103,11 @@ export function useClientCompanyMutations(agencyId: string | null) {
   return {
     create: useMutation({
       mutationFn: (name: string) => gcAppAdminApi.createClientOrganization(agencyId, name),
-      onSuccess: invalidateCompanies,
+      onSuccess: () => { void invalidateCompanies(); },
     }),
     remove: useMutation({
       mutationFn: (company: GcCompanyReference) => gcAppAdminApi.removeClientOrganization(agencyId, company.id),
-      onSuccess: invalidateCompanies,
+      onSuccess: () => { void invalidateCompanies(); },
     }),
   };
 }
@@ -117,7 +123,7 @@ export function useGcGroupSearch(
     queryFn: ({ signal }) => gcAppAdminApi.searchGroups(agencyId, { ...params, eligible_only: eligibleOnly }, signal),
     enabled,
     placeholderData: keepPreviousData,
-    staleTime: 30_000,
+    staleTime: 2 * 60_000,
   });
 }
 
@@ -130,7 +136,7 @@ export function useClientManagerMutations(agencyId: string | null) {
   return {
     create: useMutation({
       mutationFn: (body: ClientManagerInput) => gcAppAdminApi.createClientManager(agencyId, body),
-      onSuccess: invalidateManagers,
+      onSuccess: () => { void invalidateManagers(); },
     }),
     update: useMutation({
       mutationFn: ({ managerId, current, body }: {
@@ -141,7 +147,7 @@ export function useClientManagerMutations(agencyId: string | null) {
       // The backend intentionally uses separate revision-safe profile,
       // assignment, and password-policy mutations. Refresh even if a later
       // step fails so a successfully committed earlier step is never hidden.
-      onSettled: invalidateManagers,
+      onSettled: () => { void invalidateManagers(); },
     }),
     setStatus: useMutation({
       mutationFn: ({ managerId, status, revision }: {
@@ -149,23 +155,23 @@ export function useClientManagerMutations(agencyId: string | null) {
         status: Exclude<GcAppAccountStatus, "deleted" | "invited">;
         revision: number;
       }) => gcAppAdminApi.setClientManagerStatus(agencyId, managerId, status, revision),
-      onSuccess: invalidateManagers,
+      onSuccess: () => { void invalidateManagers(); },
     }),
     resetPassword: useMutation({
       mutationFn: ({ managerId, temporaryPassword }: { managerId: string; temporaryPassword: string }) =>
         gcAppAdminApi.resetClientManagerPassword(agencyId, managerId, temporaryPassword),
-      onSuccess: invalidateManagers,
+      onSuccess: () => { void invalidateManagers(); },
     }),
     revokeSessions: useMutation({
       mutationFn: (managerId: string) => gcAppAdminApi.revokeClientManagerSessions(agencyId, managerId),
-      onSuccess: (_data, managerId) => Promise.all([
-        invalidateManagers(),
-        queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.clientManagerSessions(agencyId, managerId) }),
-      ]),
+      onSuccess: (_data, managerId) => {
+        void invalidateManagers();
+        void queryClient.invalidateQueries({ queryKey: gcAppQueryKeys.clientManagerSessions(agencyId, managerId) });
+      },
     }),
     softDelete: useMutation({
       mutationFn: (managerId: string) => gcAppAdminApi.softDeleteClientManager(agencyId, managerId),
-      onSuccess: invalidateManagers,
+      onSuccess: () => { void invalidateManagers(); },
     }),
   };
 }
@@ -193,7 +199,7 @@ export function useGcAppGroupContent(agencyId: string | null, groupId: string, e
     queryKey: gcAppQueryKeys.groupContent(agencyId, groupId),
     queryFn: ({ signal }) => gcAppAdminApi.getGroupContent(agencyId, groupId, signal),
     enabled: Boolean(groupId && agencyId && enabled),
-    staleTime: 15_000,
+    staleTime: 30_000,
   });
 }
 
@@ -232,32 +238,32 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     add: useMutation({
       mutationFn: ({ group, company }: { group: GcGroupReference; company: GcCompanyReference }) =>
         gcAppAdminApi.addGroup(agencyId, group, company),
-      onSuccess: invalidateGroupLists,
+      onSuccess: () => { void invalidateGroupLists(); },
     }),
     remove: useMutation({
       mutationFn: (control: GcAppGroupControl) => gcAppAdminApi.removeGroup(agencyId, control),
-      onSuccess: (_data, control) => invalidateControl(control.id),
+      onSuccess: (_data, control) => { void invalidateControl(control.id); },
     }),
     updateControl: useMutation({
       mutationFn: ({ control, patch }: { control: GcAppGroupControl; patch: GcAppControlPatch }) =>
         gcAppAdminApi.updateGroupControl(agencyId, control, patch),
-      onSuccess: (_data, variables) => invalidateControl(variables.control.id),
+      onSuccess: (_data, variables) => { void invalidateControl(variables.control.id); },
     }),
     revoke: useMutation({
       mutationFn: (id: string) => gcAppAdminApi.revokeGroupAccess(agencyId, id),
-      onSuccess: (_data, id) => invalidateControl(id),
+      onSuccess: (_data, id) => { void invalidateControl(id); },
     }),
     saveItinerary: useMutation({
       mutationFn: (itinerary: StructuredItinerary) => gcAppAdminApi.saveItineraryDraft(agencyId, groupId!, itinerary, requireAccessRevision(accessRevision)),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     publishItinerary: useMutation({
       mutationFn: (versionId: string) => gcAppAdminApi.publishItinerary(agencyId, groupId!, versionId),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     unpublishItinerary: useMutation({
       mutationFn: (versionId: string) => gcAppAdminApi.unpublishItinerary(agencyId, groupId!, versionId),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     uploadDocument: useMutation({
       mutationFn: (upload: CommonDocumentUpload) => gcAppAdminApi.uploadCommonDocument(agencyId, groupId!, upload, requireAccessRevision(accessRevision)),
@@ -285,7 +291,7 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     setDocumentPublished: useMutation({
       mutationFn: ({ documentId, published }: { documentId: string; published: boolean }) =>
         gcAppAdminApi.setCommonDocumentPublished(agencyId, groupId!, documentId, published),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     previewDocument: useMutation({
       mutationFn: (documentId: string) => gcAppAdminApi.previewCommonDocument(
@@ -301,29 +307,29 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
         orderedDocumentIds,
         requireAccessRevision(accessRevision),
       ),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     deleteDocument: useMutation({
       mutationFn: (documentId: string) => gcAppAdminApi.deleteCommonDocument(agencyId, groupId!, documentId),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     createAnnouncement: useMutation({
       mutationFn: (body: AnnouncementInput) => gcAppAdminApi.createAnnouncement(agencyId, groupId!, body, requireAccessRevision(accessRevision)),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     updateAnnouncement: useMutation({
       mutationFn: ({ announcementId, body }: { announcementId: string; body: AnnouncementInput }) =>
         gcAppAdminApi.updateAnnouncement(agencyId, groupId!, announcementId, body, requireAccessRevision(accessRevision)),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     setAnnouncementPublished: useMutation({
       mutationFn: ({ announcementId, published }: { announcementId: string; published: boolean }) =>
         gcAppAdminApi.setAnnouncementPublished(agencyId, groupId!, announcementId, published),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
     deleteAnnouncement: useMutation({
       mutationFn: (announcementId: string) => gcAppAdminApi.deleteAnnouncement(agencyId, groupId!, announcementId),
-      onSuccess: () => invalidateContent(groupId!),
+      onSuccess: () => { void invalidateContent(groupId!); },
     }),
   };
 }

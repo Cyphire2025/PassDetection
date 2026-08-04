@@ -37,6 +37,7 @@ export default function CoordinatorPassengersScreen() {
         eyebrow="Operations"
         title="Passengers"
         subtitle={trips.selectedTrip?.name || 'Selected group roster'}
+        tone="coordinator"
       />
       <TextField
         label="Passenger search"

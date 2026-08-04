@@ -6,11 +6,14 @@ import hashlib
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Literal
+from zoneinfo import ZoneInfo
 
 from cryptography.fernet import InvalidToken
 from sqlalchemy import Select, and_, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, undefer
 
@@ -27,15 +30,39 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePushDeliveryModel,
     MobilePushRegistrationModel,
 )
-from app.infrastructure.database.models import CoordinatorGroupAssignmentModel, UserModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    CoordinatorGroupAssignmentModel,
+    UserModel,
+)
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
 )
 
 _RECIPIENT_PAGE_SIZE = 250
+_COUNTDOWN_CLEANUP_PAGE_SIZE = 1_000
 _NOTIFICATION_TYPE = "group_announcement"
+_COUNTDOWN_NOTIFICATION_TYPE = "trip_countdown"
 _LOCK_SCREEN_TITLE = "Group Companion update"
+_COUNTDOWN_DAYS = (3, 2, 1)
+_COUNTDOWN_TEMPLATES: dict[int, tuple[tuple[str, str], ...]] = {
+    3: (
+        ("Three days to go ✈️", "Shopping done, or is the suitcase still waiting?"),
+        ("Your trip is almost here 🌍", "Time to finish the last-minute checklist."),
+        ("Three sleeps left", "Tickets, outfits and excitement ready?"),
+    ),
+    2: (
+        ("Two days left 🧳", "Your suitcase would like some attention."),
+        ("Almost boarding time", "Pack the essentials and save space for memories."),
+        ("Two days to go ✨", "Time to turn that packing list into an actual packed bag."),
+    ),
+    1: (
+        ("Tomorrow is the day ✈️", "Keep your passport, visa and tickets close."),
+        ("One more sleep", "Check your documents and charge your phone."),
+        ("Adventure starts tomorrow 🌍", "Documents ready? Bags zipped? Let's go."),
+    ),
+}
 _ALLOWED_PUSH_ROUTES = frozenset(
     {"trip", "documents", "qr", "updates", "readiness", "attendance", "passengers"}
 )
@@ -63,6 +90,15 @@ class DocumentChangeNotificationCounts:
     @property
     def total(self) -> int:
         return self.passengers + self.client_managers + self.coordinators
+
+
+@dataclass(frozen=True, slots=True)
+class CountdownNotificationCounts:
+    """Bounded scheduler result without recipient or trip identifiers."""
+
+    inserted: int = 0
+    cancelled: int = 0
+    groups_scanned: int = 0
 
 
 async def enqueue_announcement_notifications(
@@ -289,6 +325,106 @@ async def enqueue_personal_document_change_notifications(
     )
 
 
+async def schedule_trip_countdown_notifications(
+    session: AsyncSession,
+    *,
+    timezone_name: str,
+    send_hour: int = 9,
+    now: datetime | None = None,
+) -> CountdownNotificationCounts:
+    """Reconcile future 3/2/1-day push-only trip countdowns.
+
+    The trip model currently stores an authoritative date rather than a
+    departure timestamp.  The configured IANA timezone and local send hour
+    therefore define the delivery instant.  Passed instants are never caught
+    up, which prevents a newly installed app or newly enabled group receiving
+    a burst of stale countdowns.
+    """
+
+    if send_hour < 0 or send_hour > 23:
+        raise ValueError("Countdown send hour must be between 0 and 23")
+    timezone = ZoneInfo(timezone_name)
+    current = _aware_utc(now or datetime.now(tz=UTC))
+    assert current is not None
+    local_today = current.astimezone(timezone).date()
+    first_candidate_date = local_today + timedelta(days=1)
+    last_candidate_date = local_today + timedelta(days=366)
+
+    cancelled = await _cancel_stale_countdowns(session, now=current)
+    inserted = 0
+    groups_scanned = 0
+    cursor: uuid.UUID | None = None
+    while True:
+        statement = (
+            select(GCGroupAccessModel, ClientGroupModel)
+            .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
+            .where(
+                ClientGroupModel.agency_id == GCGroupAccessModel.agency_id,
+                ClientGroupModel.status.in_(("active", "closed")),
+                ClientGroupModel.travel_date >= first_candidate_date,
+                ClientGroupModel.travel_date <= last_candidate_date,
+                GCGroupAccessModel.is_enabled.is_(True),
+                GCGroupAccessModel.revoked_at.is_(None),
+                or_(
+                    GCGroupAccessModel.passenger_access_enabled.is_(True),
+                    GCGroupAccessModel.client_manager_access_enabled.is_(True),
+                    GCGroupAccessModel.coordinator_access_enabled.is_(True),
+                ),
+            )
+            .order_by(GCGroupAccessModel.id.asc())
+            .limit(100)
+        )
+        if cursor is not None:
+            statement = statement.where(GCGroupAccessModel.id > cursor)
+        rows = list((await session.execute(statement)).all())
+        if not rows:
+            break
+        for access, group in rows:
+            groups_scanned += 1
+            if group.travel_date is None:
+                continue
+            trip_starts_at = datetime.combine(
+                group.travel_date,
+                time.min,
+                tzinfo=timezone,
+            ).astimezone(UTC)
+            access_start = _aware_utc(access.access_starts_at)
+            access_expiry = _aware_utc(access.access_expires_at)
+            for days_remaining in _COUNTDOWN_DAYS:
+                scheduled_at = datetime.combine(
+                    group.travel_date - timedelta(days=days_remaining),
+                    time(hour=send_hour),
+                    tzinfo=timezone,
+                ).astimezone(UTC)
+                if scheduled_at <= current:
+                    continue
+                if access_start is not None and access_start > scheduled_at:
+                    continue
+                expires_at = min(
+                    value
+                    for value in (access_expiry, trip_starts_at)
+                    if value is not None
+                )
+                if expires_at <= scheduled_at:
+                    continue
+                inserted += await _enqueue_countdown_recipients(
+                    session,
+                    access=access,
+                    travel_date=group.travel_date,
+                    days_remaining=days_remaining,
+                    available_at=scheduled_at,
+                    expires_at=expires_at,
+                )
+        cursor = rows[-1][0].id
+        if len(rows) < 100:
+            break
+    return CountdownNotificationCounts(
+        inserted=inserted,
+        cancelled=cancelled,
+        groups_scanned=groups_scanned,
+    )
+
+
 async def cancel_announcement_notifications(
     session: AsyncSession,
     *,
@@ -385,6 +521,13 @@ async def dispatch_mobile_push_batch(
                 .with_for_update(skip_locked=True)
             )
         ).scalars()
+    )
+    if not notifications:
+        return 0
+    notifications = await _retain_currently_authorized_notifications(
+        session,
+        notifications=notifications,
+        now=current,
     )
     if not notifications:
         return 0
@@ -879,7 +1022,7 @@ def _bounded_backoff_seconds(
     maximum: int = 900,
 ) -> int:
     exponent = max(0, min(attempt - 1, 10))
-    return min(maximum, base_seconds * (2**exponent))
+    return min(maximum, int(base_seconds * (2**exponent)))
 
 
 def _aware_utc(value: datetime | None) -> datetime | None:
@@ -888,6 +1031,512 @@ def _aware_utc(value: datetime | None) -> datetime | None:
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
     return value.astimezone(UTC)
+
+
+async def _retain_currently_authorized_notifications(
+    session: AsyncSession,
+    *,
+    notifications: list[MobileNotificationModel],
+    now: datetime,
+) -> list[MobileNotificationModel]:
+    """Cancel due group pushes whose recipient no longer has trip access."""
+
+    grouped = [
+        item
+        for item in notifications
+        if item.gc_group_access_id is not None and item.group_id is not None
+    ]
+    if not grouped:
+        return notifications
+
+    eligible: set[
+        tuple[str, uuid.UUID, uuid.UUID, uuid.UUID, uuid.UUID]
+    ] = set()
+    passenger_filters = []
+    manager_filters = []
+    coordinator_filters = []
+    for item in grouped:
+        principal_id = (
+            item.recipient_passenger_identity_id
+            if item.recipient_type == "passenger"
+            else item.recipient_user_id
+        )
+        if principal_id is None:
+            continue
+        condition = and_(
+            GCGroupAccessModel.id == item.gc_group_access_id,
+            GCGroupAccessModel.agency_id == item.agency_id,
+            GCGroupAccessModel.group_id == item.group_id,
+        )
+        if item.recipient_type == "passenger":
+            passenger_filters.append(
+                and_(condition, MobilePassengerIdentityModel.id == principal_id)
+            )
+        elif item.recipient_type == "client_manager":
+            manager_filters.append(and_(condition, UserModel.id == principal_id))
+        elif item.recipient_type == "coordinator":
+            coordinator_filters.append(and_(condition, UserModel.id == principal_id))
+
+    access_conditions = (
+        ClientGroupModel.status.in_(("active", "closed")),
+        GCGroupAccessModel.is_enabled.is_(True),
+        GCGroupAccessModel.revoked_at.is_(None),
+        or_(
+            GCGroupAccessModel.access_starts_at.is_(None),
+            GCGroupAccessModel.access_starts_at <= now,
+        ),
+        or_(
+            GCGroupAccessModel.access_expires_at.is_(None),
+            GCGroupAccessModel.access_expires_at > now,
+        ),
+    )
+    if passenger_filters:
+        passenger_rows = (
+            await session.execute(
+                select(
+                    MobilePassengerIdentityModel.agency_id,
+                    MobilePassengerIdentityModel.gc_group_access_id,
+                    MobilePassengerIdentityModel.group_id,
+                    MobilePassengerIdentityModel.id,
+                )
+                .join(
+                    GCGroupAccessModel,
+                    GCGroupAccessModel.id
+                    == MobilePassengerIdentityModel.gc_group_access_id,
+                )
+                .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
+                .where(
+                    *access_conditions,
+                    GCGroupAccessModel.passenger_access_enabled.is_(True),
+                    MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
+                    MobilePassengerIdentityModel.revoked_at.is_(None),
+                    or_(*passenger_filters),
+                )
+            )
+        ).all()
+        eligible.update(("passenger", *row) for row in passenger_rows)
+    if manager_filters:
+        manager_rows = (
+            await session.execute(
+                select(
+                    GCGroupAccessModel.agency_id,
+                    GCGroupAccessModel.id,
+                    GCGroupAccessModel.group_id,
+                    UserModel.id,
+                )
+                .join(
+                    ClientManagerProfileModel,
+                    ClientManagerProfileModel.user_id == UserModel.id,
+                )
+                .join(
+                    ClientManagerGroupAssignmentModel,
+                    ClientManagerGroupAssignmentModel.profile_id
+                    == ClientManagerProfileModel.id,
+                )
+                .join(
+                    GCGroupAccessModel,
+                    GCGroupAccessModel.id
+                    == ClientManagerGroupAssignmentModel.gc_group_access_id,
+                )
+                .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
+                .where(
+                    *access_conditions,
+                    GCGroupAccessModel.client_manager_access_enabled.is_(True),
+                    UserModel.role == "client_manager",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    ClientManagerProfileModel.status == "active",
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                    ClientManagerGroupAssignmentModel.is_active.is_(True),
+                    ClientManagerGroupAssignmentModel.revoked_at.is_(None),
+                    or_(*manager_filters),
+                )
+            )
+        ).all()
+        eligible.update(("client_manager", *row) for row in manager_rows)
+    if coordinator_filters:
+        coordinator_rows = (
+            await session.execute(
+                select(
+                    GCGroupAccessModel.agency_id,
+                    GCGroupAccessModel.id,
+                    GCGroupAccessModel.group_id,
+                    UserModel.id,
+                )
+                .join(
+                    CoordinatorGroupAssignmentModel,
+                    CoordinatorGroupAssignmentModel.coordinator_user_id
+                    == UserModel.id,
+                )
+                .join(
+                    GCGroupAccessModel,
+                    and_(
+                        GCGroupAccessModel.agency_id
+                        == CoordinatorGroupAssignmentModel.agency_id,
+                        GCGroupAccessModel.group_id
+                        == CoordinatorGroupAssignmentModel.group_id,
+                    ),
+                )
+                .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
+                .where(
+                    *access_conditions,
+                    GCGroupAccessModel.coordinator_access_enabled.is_(True),
+                    UserModel.role == "agency_coordinator",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    CoordinatorGroupAssignmentModel.active.is_(True),
+                    or_(*coordinator_filters),
+                )
+            )
+        ).all()
+        eligible.update(("coordinator", *row) for row in coordinator_rows)
+
+    retained: list[MobileNotificationModel] = []
+    cancelled_ids: list[uuid.UUID] = []
+    for item in notifications:
+        if item.gc_group_access_id is None or item.group_id is None:
+            retained.append(item)
+            continue
+        principal_id = (
+            item.recipient_passenger_identity_id
+            if item.recipient_type == "passenger"
+            else item.recipient_user_id
+        )
+        key = (
+            item.recipient_type,
+            item.agency_id,
+            item.gc_group_access_id,
+            item.group_id,
+            principal_id,
+        )
+        if principal_id is not None and key in eligible:
+            retained.append(item)
+            continue
+        item.status = "cancelled"
+        item.failure_code = "recipient_access_revoked"
+        item.updated_at = now
+        cancelled_ids.append(item.id)
+    if cancelled_ids:
+        await session.execute(
+            update(MobilePushDeliveryModel)
+            .where(
+                MobilePushDeliveryModel.notification_id.in_(cancelled_ids),
+                MobilePushDeliveryModel.status.in_(("submitting", "retry")),
+            )
+            .values(
+                status="cancelled",
+                last_error_code="recipient_access_revoked",
+                updated_at=now,
+            )
+            .execution_options(synchronize_session=False)
+        )
+    return retained
+
+
+async def _cancel_stale_countdowns(
+    session: AsyncSession,
+    *,
+    now: datetime,
+) -> int:
+    cancelled = 0
+    cursor: uuid.UUID | None = None
+    while True:
+        statement = (
+            select(
+                MobileNotificationModel,
+                GCGroupAccessModel,
+                ClientGroupModel,
+            )
+            .join(
+                GCGroupAccessModel,
+                GCGroupAccessModel.id
+                == MobileNotificationModel.gc_group_access_id,
+            )
+            .join(
+                ClientGroupModel,
+                ClientGroupModel.id == MobileNotificationModel.group_id,
+            )
+            .where(
+                MobileNotificationModel.notification_type
+                == _COUNTDOWN_NOTIFICATION_TYPE,
+                MobileNotificationModel.status == "queued",
+            )
+            .order_by(MobileNotificationModel.id.asc())
+            .limit(_COUNTDOWN_CLEANUP_PAGE_SIZE)
+        )
+        if cursor is not None:
+            statement = statement.where(MobileNotificationModel.id > cursor)
+        rows = list((await session.execute(statement)).all())
+        if not rows:
+            break
+        cancelled_ids: list[uuid.UUID] = []
+        for notification, access, group in rows:
+            role_enabled = {
+                "passenger": access.passenger_access_enabled,
+                "client_manager": access.client_manager_access_enabled,
+                "coordinator": access.coordinator_access_enabled,
+            }.get(notification.recipient_type, False)
+            scheduled_at = _aware_utc(notification.available_at)
+            expires_at = _aware_utc(notification.expires_at)
+            access_start = _aware_utc(access.access_starts_at)
+            access_expiry = _aware_utc(access.access_expires_at)
+            current_schedule = (
+                group.travel_date is not None
+                and notification.dedupe_key.startswith(
+                    f"trip-countdown:{group.travel_date.isoformat()}:"
+                )
+            )
+            invalid = (
+                group.status not in {"active", "closed"}
+                or not access.is_enabled
+                or access.revoked_at is not None
+                or not role_enabled
+                or not current_schedule
+                or scheduled_at is None
+                or (access_start is not None and access_start > scheduled_at)
+                or (access_expiry is not None and access_expiry <= scheduled_at)
+                or (expires_at is not None and expires_at <= now)
+            )
+            if not invalid:
+                continue
+            notification.status = "cancelled"
+            notification.failure_code = "countdown_schedule_changed"
+            notification.updated_at = now
+            cancelled_ids.append(notification.id)
+        if cancelled_ids:
+            await session.execute(
+                update(MobilePushDeliveryModel)
+                .where(
+                    MobilePushDeliveryModel.notification_id.in_(cancelled_ids),
+                    MobilePushDeliveryModel.status.in_(("submitting", "retry")),
+                )
+                .values(
+                    status="cancelled",
+                    last_error_code="countdown_schedule_changed",
+                    updated_at=now,
+                )
+                .execution_options(synchronize_session=False)
+            )
+            cancelled += len(cancelled_ids)
+        cursor = rows[-1][0].id
+        if len(rows) < _COUNTDOWN_CLEANUP_PAGE_SIZE:
+            break
+    return cancelled
+
+
+async def _enqueue_countdown_recipients(
+    session: AsyncSession,
+    *,
+    access: GCGroupAccessModel,
+    travel_date: date,
+    days_remaining: int,
+    available_at: datetime,
+    expires_at: datetime,
+) -> int:
+    inserted = 0
+    if access.passenger_access_enabled:
+        inserted += await _enqueue_countdown_pages(
+            session,
+            statement=select(MobilePassengerIdentityModel.id).where(
+                MobilePassengerIdentityModel.agency_id == access.agency_id,
+                MobilePassengerIdentityModel.gc_group_access_id == access.id,
+                MobilePassengerIdentityModel.group_id == access.group_id,
+                MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
+                MobilePassengerIdentityModel.revoked_at.is_(None),
+            ),
+            id_column=MobilePassengerIdentityModel.id,
+            recipient_type="passenger",
+            access=access,
+            travel_date=travel_date,
+            days_remaining=days_remaining,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    if access.client_manager_access_enabled:
+        inserted += await _enqueue_countdown_pages(
+            session,
+            statement=(
+                select(UserModel.id)
+                .join(
+                    ClientManagerProfileModel,
+                    ClientManagerProfileModel.user_id == UserModel.id,
+                )
+                .join(
+                    ClientManagerGroupAssignmentModel,
+                    ClientManagerGroupAssignmentModel.profile_id
+                    == ClientManagerProfileModel.id,
+                )
+                .where(
+                    UserModel.agency_id == access.agency_id,
+                    UserModel.role == "client_manager",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    ClientManagerProfileModel.agency_id == access.agency_id,
+                    ClientManagerProfileModel.status == "active",
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                    ClientManagerGroupAssignmentModel.agency_id == access.agency_id,
+                    ClientManagerGroupAssignmentModel.gc_group_access_id == access.id,
+                    ClientManagerGroupAssignmentModel.group_id == access.group_id,
+                    ClientManagerGroupAssignmentModel.is_active.is_(True),
+                    ClientManagerGroupAssignmentModel.revoked_at.is_(None),
+                )
+            ),
+            id_column=UserModel.id,
+            recipient_type="client_manager",
+            access=access,
+            travel_date=travel_date,
+            days_remaining=days_remaining,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    if access.coordinator_access_enabled:
+        inserted += await _enqueue_countdown_pages(
+            session,
+            statement=(
+                select(UserModel.id)
+                .join(
+                    CoordinatorGroupAssignmentModel,
+                    CoordinatorGroupAssignmentModel.coordinator_user_id
+                    == UserModel.id,
+                )
+                .where(
+                    UserModel.agency_id == access.agency_id,
+                    UserModel.role == "agency_coordinator",
+                    UserModel.is_active.is_(True),
+                    UserModel.deleted_at.is_(None),
+                    CoordinatorGroupAssignmentModel.agency_id == access.agency_id,
+                    CoordinatorGroupAssignmentModel.group_id == access.group_id,
+                    CoordinatorGroupAssignmentModel.active.is_(True),
+                )
+            ),
+            id_column=UserModel.id,
+            recipient_type="coordinator",
+            access=access,
+            travel_date=travel_date,
+            days_remaining=days_remaining,
+            available_at=available_at,
+            expires_at=expires_at,
+        )
+    return inserted
+
+
+async def _enqueue_countdown_pages(
+    session: AsyncSession,
+    *,
+    statement: Select[tuple[uuid.UUID]],
+    id_column: InstrumentedAttribute[uuid.UUID],
+    recipient_type: Literal["passenger", "client_manager", "coordinator"],
+    access: GCGroupAccessModel,
+    travel_date: date,
+    days_remaining: int,
+    available_at: datetime,
+    expires_at: datetime,
+) -> int:
+    cursor: uuid.UUID | None = None
+    inserted = 0
+    while True:
+        page_statement = statement
+        if cursor is not None:
+            page_statement = page_statement.where(id_column > cursor)
+        ids = list(
+            (
+                await session.execute(
+                    page_statement.order_by(id_column.asc()).limit(
+                        _RECIPIENT_PAGE_SIZE
+                    )
+                )
+            ).scalars()
+        )
+        if not ids:
+            break
+        rows = [
+            _countdown_notification_values(
+                recipient_id=recipient_id,
+                recipient_type=recipient_type,
+                access=access,
+                travel_date=travel_date,
+                days_remaining=days_remaining,
+                available_at=available_at,
+                expires_at=expires_at,
+            )
+            for recipient_id in ids
+        ]
+        inserted += await _insert_notifications_ignore_duplicates(session, rows=rows)
+        cursor = ids[-1]
+        if len(ids) < _RECIPIENT_PAGE_SIZE:
+            break
+    return inserted
+
+
+def _countdown_notification_values(
+    *,
+    recipient_id: uuid.UUID,
+    recipient_type: Literal["passenger", "client_manager", "coordinator"],
+    access: GCGroupAccessModel,
+    travel_date: date,
+    days_remaining: int,
+    available_at: datetime,
+    expires_at: datetime,
+) -> dict[str, object]:
+    templates = _COUNTDOWN_TEMPLATES[days_remaining]
+    seed = (
+        f"{access.group_id}:{recipient_id}:{travel_date.isoformat()}:{days_remaining}"
+    ).encode("ascii")
+    template_index = int.from_bytes(hashlib.sha256(seed).digest()[:2], "big") % len(
+        templates
+    )
+    title, body = templates[template_index]
+    is_passenger = recipient_type == "passenger"
+    return {
+        "id": uuid.uuid4(),
+        "agency_id": access.agency_id,
+        "group_id": access.group_id,
+        "gc_group_access_id": access.id,
+        "recipient_type": recipient_type,
+        "recipient_user_id": None if is_passenger else recipient_id,
+        "recipient_passenger_identity_id": recipient_id if is_passenger else None,
+        "notification_type": _COUNTDOWN_NOTIFICATION_TYPE,
+        "category": "itinerary",
+        "priority": "normal",
+        "title": title,
+        "body": body,
+        "lock_screen_title": title,
+        "lock_screen_body": body,
+        "contains_sensitive_content": False,
+        "deep_link_path": f"/trip?trip_id={access.group_id}",
+        "dedupe_key": (
+            f"trip-countdown:{travel_date.isoformat()}:{days_remaining}"
+        ),
+        "public_payload": {"route": "trip", "trip_id": str(access.group_id)},
+        "status": "queued",
+        "available_at": available_at,
+        "expires_at": expires_at,
+    }
+
+
+async def _insert_notifications_ignore_duplicates(
+    session: AsyncSession,
+    *,
+    rows: list[dict[str, object]],
+) -> int:
+    if not rows:
+        return 0
+    dialect_name = session.get_bind().dialect.name
+    if dialect_name == "postgresql":
+        result = await session.execute(
+            postgresql_insert(MobileNotificationModel)
+            .values(rows)
+            .on_conflict_do_nothing()
+        )
+    elif dialect_name == "sqlite":
+        result = await session.execute(
+            sqlite_insert(MobileNotificationModel)
+            .values(rows)
+            .on_conflict_do_nothing()
+        )
+    else:
+        raise RuntimeError("Countdown scheduling requires PostgreSQL or SQLite")
+    return max(0, int(getattr(result, "rowcount", 0) or 0))
 
 
 async def _enqueue_recipient_pages(
@@ -1227,10 +1876,12 @@ def _announcement_dedupe_key(announcement_id: uuid.UUID) -> str:
 
 __all__ = [
     "AnnouncementNotificationCounts",
+    "CountdownNotificationCounts",
     "DocumentChangeNotificationCounts",
     "cancel_announcement_notifications",
     "dispatch_mobile_push_batch",
     "enqueue_announcement_notifications",
     "enqueue_personal_document_change_notifications",
     "reconcile_mobile_push_receipts",
+    "schedule_trip_countdown_notifications",
 ]

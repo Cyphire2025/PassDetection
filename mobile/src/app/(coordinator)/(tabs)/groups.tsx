@@ -49,7 +49,7 @@ export default function CoordinatorGroupsScreen() {
         style={({ pressed }) => pressed && styles.pressed}>
         <GlassCard style={[styles.card, selected && styles.selected]}>
           <View style={styles.heading}>
-            <View style={styles.icon}><UsersRound color={colors.greenDeep} size={23} /></View>
+            <View style={styles.icon}><UsersRound color={colors.green} size={23} /></View>
             <View style={styles.headingText}>
               <Text style={styles.title}>{item.name}</Text>
               <Text style={styles.subtitle}>{item.destination || 'Destination pending'}</Text>
@@ -57,9 +57,9 @@ export default function CoordinatorGroupsScreen() {
             <ChevronRight color={colors.inkMuted} size={20} />
           </View>
           <View style={styles.metaRow}>
-            <MapPinned color={colors.greenDeep} size={16} />
+            <MapPinned color={colors.blueDeep} size={16} />
             <Text style={styles.meta}>{item.destination || 'Location pending'}</Text>
-            <CalendarDays color={colors.greenDeep} size={16} />
+            <CalendarDays color={colors.blueDeep} size={16} />
             <Text style={styles.meta}>{item.travelDate || 'Dates pending'}</Text>
           </View>
           {selected ? <StatusPill label="Selected group" tone="good" /> : null}
@@ -92,7 +92,21 @@ export default function CoordinatorGroupsScreen() {
               eyebrow="Coordinator"
               title="Assigned trips"
               subtitle="Operational access is limited to your current assignments."
+              tone="coordinator"
             />
+            <GlassCard style={styles.summaryCard}>
+              <View style={styles.summaryMetric}>
+                <Text style={styles.summaryValue}>{trips.trips.length.toLocaleString()}</Text>
+                <Text style={styles.summaryLabel}>assigned {trips.trips.length === 1 ? 'trip' : 'trips'}</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryMetric}>
+                <Text numberOfLines={1} style={styles.summaryContext}>
+                  {trips.selectedTripId ? 'Ready' : 'Choose one'}
+                </Text>
+                <Text style={styles.summaryLabel}>operational context</Text>
+              </View>
+            </GlassCard>
             {notice === 'select-group' && !trips.selectedTripId ? (
               <GlassCard style={styles.notice}>
                 <Text accessibilityRole="alert" style={styles.noticeText}>Select a group to continue.</Text>
@@ -147,16 +161,27 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surfaceStrong,
     paddingHorizontal: spacing.md,
+    shadowColor: colors.blueDeep,
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 2,
   },
   searchInput: { flex: 1, minHeight: 50, color: colors.ink, fontSize: 16 },
   separator: { height: spacing.sm },
-  card: { borderRadius: radii.md, gap: spacing.md, backgroundColor: colors.white },
-  selected: { borderColor: colors.green, borderWidth: 2, backgroundColor: colors.white },
+  card: { borderRadius: radii.md, gap: spacing.md, backgroundColor: colors.white, borderLeftColor: colors.aqua, borderLeftWidth: 4 },
+  selected: { borderColor: colors.green, borderWidth: 2, borderLeftWidth: 5, backgroundColor: colors.greenWash },
+  summaryCard: { flexDirection: 'row', alignItems: 'stretch', padding: 0, overflow: 'hidden' },
+  summaryMetric: { flex: 1, minHeight: 78, justifyContent: 'center', paddingHorizontal: spacing.lg, gap: 2 },
+  summaryDivider: { width: 1, marginVertical: spacing.md, backgroundColor: colors.border },
+  summaryValue: { color: colors.navy, fontSize: 25, fontWeight: '900' },
+  summaryContext: { color: colors.blueDeep, fontSize: 18, fontWeight: '900' },
+  summaryLabel: { color: colors.inkMuted, fontSize: 11, fontWeight: '700' },
   notice: { padding: spacing.md, borderColor: colors.green },
   noticeText: { color: colors.greenDeep, fontSize: 14, fontWeight: '800' },
   pressed: { opacity: 0.7 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  icon: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.navy, alignItems: 'center', justifyContent: 'center' },
   headingText: { flex: 1, gap: 3 },
   title: { color: colors.ink, fontSize: 17, fontWeight: '800' },
   subtitle: { color: colors.inkMuted, fontSize: 13 },

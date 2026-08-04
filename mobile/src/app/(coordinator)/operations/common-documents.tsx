@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { coordinatorDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { Screen } from '@/design/components/screen';
@@ -90,7 +91,7 @@ export default function CoordinatorCommonDocumentsScreen() {
     if (!document.offline_available || document.metadata_state !== 'ready') return;
     setError(null);
     router.push({
-      pathname: '/document/[id]',
+      pathname: coordinatorDocumentViewerRoute,
       params: { id: document.id, tripId: document.trip_id },
     });
   }, [router]);

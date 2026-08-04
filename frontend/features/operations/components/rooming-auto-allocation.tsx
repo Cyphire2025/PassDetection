@@ -9,7 +9,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Badge, Button, Card, CardContent } from "@/components/ui";
 import type {
   RoomingHotel,
@@ -434,7 +434,7 @@ function GeneratedRoomPlan({
   );
 }
 
-function ReadOnlyRoomCard({ room }: { room: RoomingRoom }) {
+const ReadOnlyRoomCard = memo(function ReadOnlyRoomCard({ room }: { room: RoomingRoom }) {
   const vip = (
     room.allocation_tag === "vip"
     || room.occupants.some((passenger) => passenger.is_vip)
@@ -447,7 +447,7 @@ function ReadOnlyRoomCard({ room }: { room: RoomingRoom }) {
 
   return (
     <article
-      className={`overflow-hidden rounded-xl border ${
+      className={`overflow-hidden rounded-xl border [contain-intrinsic-size:180px] [content-visibility:auto] ${
         vip
           ? "border-amber-300 bg-amber-50/70"
           : "border-slate-200 bg-white"
@@ -494,7 +494,7 @@ function ReadOnlyRoomCard({ room }: { room: RoomingRoom }) {
       </ul>
     </article>
   );
-}
+});
 
 function createPrioritySlots(
   fields: RoomingPriorityField[],

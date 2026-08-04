@@ -16,8 +16,17 @@ import { formatGcDateTime, gcAppErrorMessage } from "../utils";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcDialog } from "./gc-dialog";
+import { GcSelect } from "./gc-select";
 
 type PendingGroupAction = { type: "revoke" | "remove"; group: GcAppGroupControl } | null;
+
+const LIFECYCLE_OPTIONS = [
+  { value: "all", label: "All lifecycle states" },
+  { value: "active", label: "Active", description: "Travel group is currently active" },
+  { value: "closed", label: "Closed", description: "Collection is closed" },
+  { value: "archived", label: "Archived", description: "Retained for reference" },
+  { value: "deleted", label: "Deleted", description: "Soft-deleted group record" },
+] as const;
 
 export function AppControlsPage() {
   const { agencyId } = useGcAppAgencyScope();
@@ -48,7 +57,7 @@ export function AppControlsPage() {
     true,
     pickerOpen,
   );
-  const companies = useClientCompanies(agencyId, debouncedCompanySearch, companyPage, 20);
+  const companies = useClientCompanies(agencyId, debouncedCompanySearch, companyPage, 20, pickerOpen);
   const companyActions = useClientCompanyMutations(agencyId);
   const actions = useGcAppGroupMutations(agencyId);
   const companyItems = companies.data?.items ?? [];
@@ -122,8 +131,8 @@ export function AppControlsPage() {
 
       {actionError && <GcAlert message={actionError} />}
 
-      <Card>
-        <CardContent className="grid gap-3 p-5 md:grid-cols-[minmax(0,1fr)_220px]">
+      <Card className="overflow-visible border-slate-200/80 shadow-[0_8px_30px_-24px_rgba(15,23,42,0.45)]">
+        <CardContent className="grid gap-3 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_18rem] md:items-end">
           <Input
             label="Search enabled groups"
             value={search}
@@ -134,41 +143,16 @@ export function AppControlsPage() {
             placeholder="Group name or destination"
             leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
           />
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="gc-group-company" className="text-sm font-medium text-slate-700">Assigned company/client</label>
-            <select
-              id="gc-group-company"
-              value={pickerCompanyId}
-              onChange={(event) => {
-                const id = event.target.value;
-                setPickerCompanyId(id);
-                setPickerCompany(selectableCompanies.find((company) => company.id === id) ?? null);
-              }}
-              className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              <option value="">Select company/client before adding</option>
-              {selectableCompanies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
-            </select>
-            {companies.isError && <p role="alert" className="text-xs text-red-700">Companies could not be loaded.</p>}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="gc-group-lifecycle" className="text-sm font-medium text-slate-700">Group lifecycle</label>
-            <select
-              id="gc-group-lifecycle"
-              value={lifecycle}
-              onChange={(event) => {
-                setLifecycle(event.target.value as GcAppGroupLifecycle | "all");
-                setPage(1);
-              }}
-              className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              <option value="all">All lifecycle states</option>
-              <option value="active">Active</option>
-              <option value="closed">Closed</option>
-              <option value="archived">Archived</option>
-              <option value="deleted">Deleted</option>
-            </select>
-          </div>
+          <GcSelect
+            id="gc-group-lifecycle"
+            label="Group lifecycle"
+            value={lifecycle}
+            options={LIFECYCLE_OPTIONS}
+            onChange={(nextLifecycle) => {
+              setLifecycle(nextLifecycle as GcAppGroupLifecycle | "all");
+              setPage(1);
+            }}
+          />
         </CardContent>
       </Card>
 
@@ -220,35 +204,28 @@ export function AppControlsPage() {
         <div className="space-y-4">
           {pickerError && <GcAlert message={pickerError} />}
           <div className="space-y-4 rounded-xl border border-slate-200 p-4">
-            <label htmlFor="gc-app-group-company" className="block text-sm font-medium text-slate-700">
-              Assigned company/client
-            </label>
-            <Input
-              aria-label="Search saved company or client"
-              value={companySearch}
-              onChange={(event) => {
-                setCompanySearch(event.target.value);
-                setCompanyPage(1);
-              }}
-              placeholder="Search company/client"
-              leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
-            />
-            <select
+            <GcSelect
               id="gc-app-group-company"
+              label="Assigned company/client"
               value={pickerCompanyId}
-              onChange={(event) => {
-                const id = event.target.value;
+              onChange={(id) => {
                 setPickerCompanyId(id);
                 setPickerCompany(selectableCompanies.find((company) => company.id === id) ?? null);
               }}
-              className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-            >
-              <option value="">Select company/client</option>
-              {selectableCompanies.map((company) => (
-                <option key={company.id} value={company.id}>{company.name}</option>
-              ))}
-            </select>
-            <div className="flex gap-2">
+              options={selectableCompanies.map((company) => ({ value: company.id, label: company.name }))}
+              placeholder="Choose the group owner"
+              searchable
+              searchValue={companySearch}
+              onSearchChange={(nextSearch) => {
+                setCompanySearch(nextSearch);
+                setCompanyPage(1);
+              }}
+              searchPlaceholder="Find company/client"
+              loading={companies.isLoading}
+              emptyMessage="No matching company/client"
+            />
+            {companies.isError && <p role="alert" className="text-xs text-red-700">Companies could not be loaded.</p>}
+            <div className="flex gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 p-2">
               <Input
                 aria-label="New company or client name"
                 value={newCompanyName}
@@ -485,18 +462,18 @@ function GroupControlCard({
               Access window: {group.access_starts_at ? formatGcDateTime(group.access_starts_at) : "Immediate"} – {group.access_expires_at ? formatGcDateTime(group.access_expires_at) : "No expiry"}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
             <Link
               href={ROUTES.dashboard.gcAppGroup(group.id) as never}
-              className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "col-span-2 justify-center sm:col-span-1")}
             >
               <Settings2 className="h-4 w-4" aria-hidden="true" />
               Manage & publish
             </Link>
-            <Button type="button" variant="secondary" size="sm" onClick={onRevoke} disabled={disabled || Boolean(group.access_revoked_at)}>
+            <Button type="button" variant="secondary" size="sm" className="w-full sm:w-auto" onClick={onRevoke} disabled={disabled || Boolean(group.access_revoked_at)}>
               Revoke now
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="text-red-700 hover:bg-red-50 hover:text-red-800" onClick={onRemove} disabled={disabled}>
+            <Button type="button" variant="ghost" size="sm" className="w-full text-red-700 hover:bg-red-50 hover:text-red-800 sm:w-auto" onClick={onRemove} disabled={disabled}>
               Remove
             </Button>
           </div>
