@@ -18,6 +18,10 @@ import { assertSensitiveOfflineStorageAllowed } from '@/core/security/device-ris
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
 import { getOrCreateSecret } from './secure-store';
 import {
+  temporaryViewCacheEvictions,
+  type TemporaryViewCacheEntry,
+} from './temporary-view-cache-policy';
+import {
   VaultChunkContainerError,
   chunkedVaultMagic,
   consumePlaintextStreamBounded,
@@ -97,6 +101,52 @@ type VaultWriteLease = {
 
 const activeVaultWrites = new Map<string, VaultWriteLease>();
 const activeStagingUris = new Set<string>();
+type CachedTemporaryView = TemporaryViewCacheEntry & { file: File };
+const cachedTemporaryViews = new Map<string, CachedTemporaryView>();
+
+function temporaryViewCacheKey(input: VaultDocument): string {
+  return [
+    input.namespace,
+    input.tripId,
+    input.documentId,
+    input.version,
+    input.checksumSha256.toLowerCase(),
+    input.expectedSizeBytes,
+    input.contentType.toLowerCase(),
+  ].join('|');
+}
+
+function discardCachedTemporaryView(key: string): void {
+  const entry = cachedTemporaryViews.get(key);
+  cachedTemporaryViews.delete(key);
+  if (entry?.file.exists) entry.file.delete();
+}
+
+function reusableTemporaryView(input: VaultDocument): File | null {
+  const key = temporaryViewCacheKey(input);
+  const entry = cachedTemporaryViews.get(key);
+  if (!entry) return null;
+  if (!entry.file.exists || entry.file.size !== input.expectedSizeBytes) {
+    discardCachedTemporaryView(key);
+    return null;
+  }
+  entry.lastAccessedAt = Date.now();
+  return entry.file;
+}
+
+function cacheTemporaryView(input: VaultDocument, file: File): void {
+  const key = temporaryViewCacheKey(input);
+  cachedTemporaryViews.set(key, {
+    key,
+    file,
+    sizeBytes: input.expectedSizeBytes,
+    lastAccessedAt: Date.now(),
+  });
+  const entries = [...cachedTemporaryViews.values()];
+  for (const evictionKey of temporaryViewCacheEvictions(entries, key)) {
+    discardCachedTemporaryView(evictionKey);
+  }
+}
 
 async function namespaceHash(namespace: string): Promise<string> {
   return (
@@ -888,6 +938,8 @@ export async function decryptDocumentForViewing(
   try {
     releaseTemporaryWrite = temporaryViewWrites.beginWrite(TEMPORARY_VIEW_WRITE_KEY);
     await assertSensitiveOfflineStorageAllowed();
+    const reusable = reusableTemporaryView(input);
+    if (reusable) return reusable;
     assertVaultFreeSpace(Paths.availableDiskSpace, input.expectedSizeBytes);
     const root = await vaultDirectory(input.namespace, input.tripId);
     const current = offlineFile(root, input.documentId, input.version, input.checksumSha256);
@@ -960,6 +1012,7 @@ export async function decryptDocumentForViewing(
         assertDocumentOperationActive(signal);
         temporary.write(plaintext);
       }
+      cacheTemporaryView(input, temporary);
       return temporary;
     } catch (error) {
       if (temporary.exists) temporary.delete();
@@ -974,6 +1027,20 @@ export async function decryptDocumentForViewing(
 export function removeTemporaryView(file: File): void {
   const viewRoot = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
   assertManagedTemporaryViewUri(viewRoot.uri, file.uri);
+  for (const [key, entry] of cachedTemporaryViews) {
+    if (entry.file.uri === file.uri) cachedTemporaryViews.delete(key);
+  }
+  if (file.exists) file.delete();
+}
+
+export function releaseTemporaryView(file: File): void {
+  const viewRoot = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
+  assertManagedTemporaryViewUri(viewRoot.uri, file.uri);
+  const cached = [...cachedTemporaryViews.values()].find((entry) => entry.file.uri === file.uri);
+  if (cached && file.exists) {
+    cached.lastAccessedAt = Date.now();
+    return;
+  }
   if (file.exists) file.delete();
 }
 
@@ -981,6 +1048,7 @@ export async function purgeTemporaryViews(): Promise<void> {
   await temporaryViewWrites.beginPurge(TEMPORARY_VIEW_WRITE_KEY);
   let acknowledged = false;
   try {
+    cachedTemporaryViews.clear();
     const root = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
     if (root.exists) root.delete();
     acknowledged = true;

@@ -14,6 +14,7 @@ from starlette.requests import Request
 from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes.gc_app import (
     create_client_manager,
+    delete_client_manager,
     list_client_managers,
 )
 from app.presentation.api.v1.schemas.gc_app_schemas import ClientManagerCreateRequest
@@ -37,6 +38,12 @@ class _Result:
 
     def one(self):  # type: ignore[no-untyped-def]
         return self._value
+
+
+class _ConstraintError(Exception):
+    def __init__(self, constraint_name: str) -> None:
+        super().__init__(f'constraint "{constraint_name}"')
+        self.constraint_name = constraint_name
 
 
 def _request() -> Request:
@@ -201,13 +208,32 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
 
 
 @pytest.mark.asyncio
-async def test_client_manager_unique_race_rolls_back_and_returns_conflict() -> None:
+@pytest.mark.parametrize(
+    ("constraint_name", "expected_detail"),
+    [
+        ("users_email_key", "Email is already in use"),
+        (
+            "uq_client_manager_phone_live",
+            "Mobile number is already assigned to another Client Manager",
+        ),
+    ],
+)
+async def test_client_manager_unique_race_rolls_back_and_returns_precise_conflict(
+    constraint_name: str,
+    expected_detail: str,
+) -> None:
     agency_id = uuid.uuid4()
     organization = _organization(agency_id)
     session = SimpleNamespace(
         execute=AsyncMock(side_effect=[_Result(organization), _Result((False, False))]),
         add_all=lambda _items: None,
-        flush=AsyncMock(side_effect=IntegrityError("insert", {}, Exception("unique"))),
+        flush=AsyncMock(
+            side_effect=IntegrityError(
+                "insert",
+                {},
+                _ConstraintError(constraint_name),
+            )
+        ),
         rollback=AsyncMock(),
     )
 
@@ -221,5 +247,98 @@ async def test_client_manager_unique_race_rolls_back_and_returns_conflict() -> N
         )
 
     assert exc_info.value.status_code == 409
-    assert "email or mobile number" in str(exc_info.value.detail)
+    assert exc_info.value.detail == expected_detail
     session.rollback.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_client_manager_unrelated_integrity_failure_is_not_reported_as_duplicate() -> None:
+    agency_id = uuid.uuid4()
+    organization = _organization(agency_id)
+    original_error = IntegrityError(
+        "insert",
+        {},
+        _ConstraintError("ck_client_manager_profile_state_shape"),
+    )
+    session = SimpleNamespace(
+        execute=AsyncMock(side_effect=[_Result(organization), _Result((False, False))]),
+        add_all=lambda _items: None,
+        flush=AsyncMock(side_effect=original_error),
+        rollback=AsyncMock(),
+    )
+
+    with pytest.raises(IntegrityError) as exc_info:
+        await create_client_manager(
+            body=_create_body(organization.id),
+            request=_request(),
+            http_response=Response(),
+            current_user=_current_user(agency_id),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert exc_info.value is original_error
+    session.rollback.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_client_manager_delete_revokes_access_and_releases_the_email() -> None:
+    agency_id = uuid.uuid4()
+    profile_id = uuid.uuid4()
+    user_id = uuid.uuid4()
+    now = datetime.now(tz=UTC)
+    profile = SimpleNamespace(
+        id=profile_id,
+        status="active",
+        deleted_at=None,
+        access_generation=3,
+        revision=6,
+        invitation_token_hash="old-token",
+        invitation_expires_at=now,
+        updated_by_user_id=None,
+        updated_at=now,
+    )
+    user = SimpleNamespace(
+        id=user_id,
+        email="manager@example.com",
+        is_active=True,
+        hashed_password="old-hash",
+        deleted_at=None,
+        updated_at=now,
+    )
+    session = SimpleNamespace(execute=AsyncMock())
+    revoke_sessions = AsyncMock()
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.gc_app._get_client_manager",
+            new=AsyncMock(return_value=(profile, user, SimpleNamespace())),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.gc_app._revoke_mobile_sessions",
+            new=revoke_sessions,
+        ),
+        patch("app.presentation.api.v1.routes.gc_app.hash_password", return_value="revoked-hash"),
+        patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()),
+    ):
+        response = await delete_client_manager(
+            profile_id=profile_id,
+            request=_request(),
+            agency_id=None,
+            current_user=_current_user(agency_id),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert response.status_code == 204
+    assert profile.status == "deleted"
+    assert profile.access_generation == 4
+    assert profile.revision == 7
+    assert profile.invitation_token_hash is None
+    assert user.is_active is False
+    assert user.email == f"deleted-{user_id}@deleted.invalid"
+    assert user.hashed_password == "revoked-hash"
+    revoke_sessions.assert_awaited_once_with(
+        session,
+        agency_id,
+        user_id,
+        "account_deleted",
+    )

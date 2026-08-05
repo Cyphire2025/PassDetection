@@ -415,17 +415,16 @@ export const gcAppAdminApi = {
   },
 
   createClientManager: async (agencyId: string | null, body: ClientManagerInput): Promise<ClientManagerAccount> => {
-    const invitationFlow = body.activation_method === "invitation";
     const { data } = await apiClient.post<RawClientManager>(`${ROOT}/client-managers`, {
       full_name: body.name,
       email: body.email,
       phone_number: body.phone_number,
       organization_id: body.company_id,
       group_ids: body.group_ids,
-      temporary_password: invitationFlow ? undefined : body.temporary_password,
-      return_temporary_password_once: !invitationFlow,
-      invitation_flow: invitationFlow,
-      return_activation_token_once: invitationFlow,
+      temporary_password: body.temporary_password,
+      return_temporary_password_once: false,
+      invitation_flow: false,
+      return_activation_token_once: false,
       force_password_change: body.force_password_change,
     }, { params: { agency_id: agencyId ?? undefined } });
     return normalizeClientManager(data);
@@ -435,7 +434,7 @@ export const gcAppAdminApi = {
     agencyId: string | null,
     managerId: string,
     current: ClientManagerAccount,
-    body: Omit<ClientManagerInput, "activation_method" | "temporary_password">,
+    body: Omit<ClientManagerInput, "temporary_password">,
   ): Promise<ClientManagerAccount> => {
     const { data: updatedProfile } = await apiClient.patch<RawClientManager>(
       `${ROOT}/client-managers/${managerId}`,
@@ -823,6 +822,13 @@ export const gcAppAdminApi = {
         // for this FormData request.
         headers: { "Content-Type": null },
         timeout: 120_000,
+        onUploadProgress: (event) => {
+          const ratio = event.progress
+            ?? (event.total && event.total > 0 ? event.loaded / event.total : null);
+          if (ratio !== null) {
+            upload.onProgress?.(Math.min(100, Math.max(0, Math.round(ratio * 100))));
+          }
+        },
       },
     );
     return normalizeDocument(data);

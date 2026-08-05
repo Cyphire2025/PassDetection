@@ -30,6 +30,13 @@ describe('mobile release configuration', () => {
     expect(config.ios?.associatedDomains).toEqual([
       'applinks:app.globalconnecttravels.com',
     ]);
+    expect(config.icon).toBe('./assets/images/gc-app-icon.png');
+    expect(config.ios?.icon).toBe('./assets/images/gc-app-icon.png');
+    expect(config.android?.adaptiveIcon).toEqual({
+      backgroundColor: '#056BB1',
+      foregroundImage: './assets/images/gc-app-icon.png',
+      monochromeImage: './assets/images/gc-app-monochrome.png',
+    });
   });
 
   it('keeps the store bundle and installable APK on the production EAS environment', () => {

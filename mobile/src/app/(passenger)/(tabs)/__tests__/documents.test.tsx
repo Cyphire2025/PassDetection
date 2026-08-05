@@ -14,6 +14,16 @@ jest.mock('lucide-react-native/icons/circle-check-big', () => {
   const { View: MockView } = require('react-native') as typeof import('react-native');
   return { __esModule: true, default: () => React.createElement(MockView) };
 });
+jest.mock('lucide-react-native/icons/chevron-down', () => {
+  const React = require('react') as typeof import('react');
+  const { View: MockView } = require('react-native') as typeof import('react-native');
+  return { __esModule: true, default: () => React.createElement(MockView) };
+});
+jest.mock('lucide-react-native/icons/chevron-right', () => {
+  const React = require('react') as typeof import('react');
+  const { View: MockView } = require('react-native') as typeof import('react-native');
+  return { __esModule: true, default: () => React.createElement(MockView) };
+});
 jest.mock('lucide-react-native/icons/cloud-download', () => {
   const React = require('react') as typeof import('react');
   const { View: MockView } = require('react-native') as typeof import('react-native');
@@ -198,10 +208,35 @@ test('opens a personal document inside the passenger stack so back restores Pers
   });
 
   const screen = await render(<PassengerDocumentsScreen />);
+  expect(screen.queryByLabelText(`Open ${document.display_name}`)).toBeNull();
+  await fireEvent.press(screen.getByLabelText('Expand Passport documents'));
   await fireEvent.press(screen.getByLabelText(`Open ${document.display_name}`));
 
   expect(router.push).toHaveBeenCalledWith({
     pathname: '/(passenger)/document/[id]',
     params: { id: document.id, tripId: document.trip_id },
   });
+});
+
+test('keeps passport, visa, and flight-ticket groups collapsed by default', async () => {
+  mockPrefetch.mockResolvedValue({
+    total: 1,
+    completed: 1,
+    failed: 0,
+    currentDocumentName: null,
+  });
+  mockUseDocuments.mockReturnValue({
+    data: { items: [{ ...document, offline: true, offlineVersion: document.version }] },
+    isPending: false,
+    isError: false,
+    isRefetching: false,
+    refetch: jest.fn(async () => undefined),
+  });
+
+  const screen = await render(<PassengerDocumentsScreen />);
+
+  expect(screen.getByLabelText('Expand Passport documents')).toBeTruthy();
+  expect(screen.getByLabelText('Expand Visa documents')).toBeTruthy();
+  expect(screen.getByLabelText('Expand Flight tickets documents')).toBeTruthy();
+  expect(screen.queryByLabelText(`Open ${document.display_name}`)).toBeNull();
 });

@@ -24,6 +24,8 @@ export default function WelcomeScreen() {
 
   return (
     <AuthShell
+      centerContent
+      showBrandLogo
       eyebrow="Group Companion"
       title="Your trip, ready when you are."
       description="Itinerary, personal QR, travel documents and important updates in one secure place.">

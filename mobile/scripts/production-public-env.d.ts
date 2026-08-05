@@ -4,9 +4,9 @@ export interface ProductionPublicEnvironment {
   readonly apiUrl: string;
   readonly appEnv: 'production';
   readonly demoMode: false;
-  readonly easProjectId: string;
-  readonly expoOwner: string;
-  readonly updatesUrl: string;
+  readonly easProjectId: string | undefined;
+  readonly expoOwner: string | undefined;
+  readonly updatesUrl: string | undefined;
 }
 
 export function validateProductionPublicEnvironment(

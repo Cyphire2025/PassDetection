@@ -1,5 +1,4 @@
 import * as Brightness from 'expo-brightness';
-import * as ScreenCapture from 'expo-screen-capture';
 import { useCallback, useEffect } from 'react';
 import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -21,8 +20,6 @@ export default function PassengerQrScreen() {
     await refetchQr();
   }, [refetchQr]);
   const manualRefresh = useManualRefresh();
-  ScreenCapture.usePreventScreenCapture('passenger-personal-qr');
-
   useEffect(() => {
     let active = true;
     let previous: number | null = null;

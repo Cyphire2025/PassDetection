@@ -4,5 +4,13 @@ import { navigationAnimation, useReducedMotion } from '@/design/accessibility/us
 
 export default function AuthLayout() {
   const reduceMotion = useReducedMotion();
-  return <Stack screenOptions={{ headerShown: false, animation: navigationAnimation(reduceMotion, 'slide_from_right') }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: navigationAnimation(reduceMotion, 'fade_from_bottom'),
+        animationDuration: reduceMotion ? 0 : 210,
+      }}
+    />
+  );
 }

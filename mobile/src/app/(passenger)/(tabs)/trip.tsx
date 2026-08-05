@@ -1,4 +1,3 @@
-import { differenceInCalendarDays, format, parseISO } from 'date-fns';
 import { router } from 'expo-router';
 import CloudDownload from 'lucide-react-native/icons/cloud-download';
 import FileClock from 'lucide-react-native/icons/file-clock';
@@ -26,6 +25,7 @@ import type { DocumentWithOfflineState } from '@/features/content/data/content-r
 import { commonDocumentHeading, isItineraryDocument } from '@/features/content/data/passenger-document-policy';
 import { useAnnouncements, useCommonDocuments } from '@/features/content/hooks/use-content';
 import { useTrips } from '@/features/trips/hooks/use-trips';
+import { DepartureCountdownCard } from '@/features/trips/ui/departure-countdown-card';
 
 type CommonDocumentSection = {
   key: string;
@@ -137,9 +137,6 @@ export default function PassengerTripScreen() {
   }
 
   const trip = trips.selectedTrip;
-  const daysUntilDeparture = trip.travelDate
-    ? differenceInCalendarDays(parseISO(trip.travelDate), new Date())
-    : null;
   const importantAnnouncement = announcements.data?.items.find(
     (item) => item.priority === 'important' || item.priority === 'emergency',
   );
@@ -172,21 +169,7 @@ export default function PassengerTripScreen() {
                 onPress={() => router.push('/(passenger)/select-trip')}
               />
             ) : null}
-            <View style={styles.departure}>
-              <View style={styles.departureCopy}>
-                <Text style={styles.departureLabel}>Departure</Text>
-                <Text style={styles.departureDate}>
-                  {trip.travelDate ? format(parseISO(trip.travelDate), 'EEE, d MMM yyyy') : 'Dates being prepared'}
-                </Text>
-                {trip.returnDate ? <Text style={styles.returnDate}>Returns {format(parseISO(trip.returnDate), 'd MMM yyyy')}</Text> : null}
-              </View>
-              {daysUntilDeparture !== null && daysUntilDeparture >= 0 ? (
-                <View style={styles.countdown}>
-                  <Text style={styles.countdownNumber}>{daysUntilDeparture}</Text>
-                  <Text style={styles.countdownLabel}>{daysUntilDeparture === 1 ? 'day' : 'days'}</Text>
-                </View>
-              ) : null}
-            </View>
+            <DepartureCountdownCard travelDate={trip.travelDate} returnDate={trip.returnDate} />
             {importantAnnouncement ? (
               <GlassCard style={styles.alertCard}>
                 <Text style={styles.alertEyebrow}>{importantAnnouncement.priority === 'emergency' ? 'Emergency update' : 'Important update'}</Text>
@@ -210,30 +193,6 @@ const styles = StyleSheet.create({
   screen: { paddingHorizontal: 0 },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 104 },
   header: { gap: spacing.lg, paddingBottom: spacing.sm },
-  departure: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    backgroundColor: colors.blueSoft,
-  },
-  departureCopy: { flex: 1, gap: spacing.xs },
-  departureLabel: { color: colors.greenDeep, fontSize: 12, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },
-  departureDate: { color: colors.ink, fontSize: 21, fontWeight: '800' },
-  returnDate: { color: colors.inkMuted, fontSize: 14 },
-  countdown: {
-    minWidth: 72,
-    minHeight: 72,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceStrong,
-  },
-  countdownNumber: { color: colors.greenDeep, fontSize: 27, fontWeight: '900', lineHeight: 29 },
-  countdownLabel: { color: colors.inkMuted, fontSize: 11, fontWeight: '700' },
   alertCard: { borderColor: 'rgba(184,64,77,0.25)', backgroundColor: 'rgba(255,242,243,0.9)', gap: spacing.xs },
   alertEyebrow: { color: colors.danger, fontSize: 11, fontWeight: '900', textTransform: 'uppercase' },
   alertTitle: { color: colors.ink, fontSize: 18, fontWeight: '800' },

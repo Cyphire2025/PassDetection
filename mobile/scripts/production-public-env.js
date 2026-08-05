@@ -74,16 +74,20 @@ function validateProductionPublicEnvironment(source) {
   if (demoMode !== 'false') {
     errors.push('EXPO_PUBLIC_DEMO_MODE must be explicitly set to false.');
   }
-  const hasAnyEasConfiguration = Boolean(
-    easProjectId || expoOwner || source.EXPO_PUBLIC_UPDATES_URL,
-  );
-  if (hasAnyEasConfiguration && (!easProjectId || !EAS_PROJECT_ID_PATTERN.test(easProjectId))) {
-    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID must be a valid UUID when OTA updates are configured.');
+  const hasUpdatesConfiguration = Boolean(source.EXPO_PUBLIC_UPDATES_URL);
+  if (easProjectId && !EAS_PROJECT_ID_PATTERN.test(easProjectId)) {
+    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID must be a valid UUID when provided.');
   }
-  if (hasAnyEasConfiguration && (!expoOwner || /\s/.test(expoOwner))) {
+  if (expoOwner && /\s/.test(expoOwner)) {
     errors.push(
-      'EXPO_PUBLIC_EXPO_OWNER must be a non-empty Expo account name without spaces when OTA updates are configured.',
+      'EXPO_PUBLIC_EXPO_OWNER must be an Expo account name without spaces when provided.',
     );
+  }
+  if (hasUpdatesConfiguration && !easProjectId) {
+    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID is required when OTA updates are configured.');
+  }
+  if (hasUpdatesConfiguration && !expoOwner) {
+    errors.push('EXPO_PUBLIC_EXPO_OWNER is required when OTA updates are configured.');
   }
 
   const apiUrl = parseHttpsUrl(source.EXPO_PUBLIC_API_URL, 'EXPO_PUBLIC_API_URL', errors);
@@ -91,7 +95,7 @@ function validateProductionPublicEnvironment(source) {
     errors.push('EXPO_PUBLIC_API_URL must not target a loopback or emulator host.');
   }
 
-  const updatesUrl = hasAnyEasConfiguration
+  const updatesUrl = hasUpdatesConfiguration
     ? parseHttpsUrl(source.EXPO_PUBLIC_UPDATES_URL, 'EXPO_PUBLIC_UPDATES_URL', errors)
     : undefined;
   if (updatesUrl) {
@@ -110,8 +114,7 @@ function validateProductionPublicEnvironment(source) {
 
   if (
     errors.length > 0 ||
-    !apiUrl ||
-    (hasAnyEasConfiguration && (!updatesUrl || !easProjectId || !expoOwner))
+    !apiUrl
   ) {
     throw new Error(`Production public environment validation failed:\n- ${errors.join('\n- ')}`);
   }

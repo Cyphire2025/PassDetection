@@ -3,7 +3,10 @@ import type { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { AmbientHeroGlow } from '@/design/components/ambient-hero-glow';
+import { BrandLogo } from '@/design/components/brand-logo';
 import { GlassCard } from '@/design/components/glass-card';
+import { HeroParticles } from '@/design/components/hero-particles';
 import { Screen } from '@/design/components/screen';
 import { colors, spacing } from '@/design/theme';
 
@@ -12,20 +15,30 @@ export function AuthShell({
   title,
   description,
   children,
-}: PropsWithChildren<{ eyebrow: string; title: string; description: string }>) {
+  centerContent = false,
+  showBrandLogo = false,
+}: PropsWithChildren<{
+  eyebrow: string;
+  title: string;
+  description: string;
+  centerContent?: boolean;
+  showBrandLogo?: boolean;
+}>) {
   return (
-    <Screen contentStyle={styles.screen}>
+    <Screen contentStyle={[styles.screen, centerContent ? styles.centerContent : null]}>
+      {showBrandLogo ? <View style={styles.centeredLogo}><BrandLogo /></View> : null}
       {isDemoMode() ? (
         <View accessibilityRole="text" style={styles.demoBanner}>
           <Text style={styles.demoText}>LOCAL EMULATOR DEMO · NO SERVER CONNECTION</Text>
         </View>
       ) : null}
-      <LinearGradient colors={[colors.navy, '#164E61', colors.blueDeep]} style={styles.hero}>
-        <View pointerEvents="none" style={styles.heroOrb} />
+      <LinearGradient
+        colors={[colors.navy, '#164E61', colors.blueDeep]}
+        style={[styles.hero, showBrandLogo ? styles.welcomeHero : null]}
+      >
+        <AmbientHeroGlow color={colors.aqua} style={styles.heroOrb} />
+        <HeroParticles />
         <View style={styles.brandRow}>
-          <View style={styles.brandMark} accessibilityElementsHidden>
-            <View style={styles.brandInner} />
-          </View>
           <View style={styles.eyebrowPill}><Text style={styles.eyebrow}>{eyebrow}</Text></View>
         </View>
         <Text accessibilityRole="header" style={styles.title}>{title}</Text>
@@ -39,6 +52,9 @@ export function AuthShell({
 
 const styles = StyleSheet.create({
   screen: { paddingTop: 48, gap: spacing.lg },
+  centerContent: { paddingTop: 116 },
+  centeredLogo: { alignItems: 'center', justifyContent: 'center' },
+  welcomeHero: { marginTop: 14 },
   demoBanner: {
     alignSelf: 'flex-start',
     borderRadius: 999,
@@ -69,21 +85,8 @@ const styles = StyleSheet.create({
     borderRadius: 95,
     right: -52,
     top: -72,
-    backgroundColor: colors.green,
-    opacity: 0.18,
   },
-  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
-  brandMark: {
-    width: 50,
-    height: 50,
-    borderRadius: 17,
-    backgroundColor: 'rgba(255,255,255,0.13)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  brandInner: { width: 24, height: 24, borderRadius: 8, backgroundColor: colors.green, transform: [{ rotate: '12deg' }] },
+  brandRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
   eyebrowPill: { minHeight: 30, justifyContent: 'center', paddingHorizontal: spacing.md, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.1)' },
   eyebrow: {
     color: colors.white,
@@ -94,6 +97,6 @@ const styles = StyleSheet.create({
   },
   title: { color: colors.white, fontSize: 35, lineHeight: 40, fontWeight: '900', letterSpacing: -0.7 },
   description: { color: 'rgba(255,255,255,0.76)', fontSize: 15, lineHeight: 23, maxWidth: 340 },
-  heroAccent: { width: 48, height: 5, borderRadius: 99, backgroundColor: colors.green },
+  heroAccent: { width: 48, height: 5, borderRadius: 99, backgroundColor: colors.aqua },
   card: { gap: spacing.lg, marginBottom: spacing.xl },
 });

@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 import CheckCircle2 from 'lucide-react-native/icons/circle-check-big';
+import ChevronDown from 'lucide-react-native/icons/chevron-down';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import CloudDownload from 'lucide-react-native/icons/cloud-download';
 import FileClock from 'lucide-react-native/icons/file-clock';
 import FileText from 'lucide-react-native/icons/file-text';
@@ -30,6 +32,7 @@ import {
   passengerDocumentSlots,
   shouldPrefetchPassengerDocument,
   type PassengerDocumentSlot,
+  type PassengerDocumentSlotId,
 } from '@/features/content/data/passenger-document-policy';
 import { useDocuments } from '@/features/content/hooks/use-content';
 import { useTrips } from '@/features/trips/hooks/use-trips';
@@ -40,6 +43,8 @@ type PassengerDocumentRow =
 
 type PassengerDocumentUiSlot = Omit<PassengerDocumentSlot, 'documents'> & {
   data: PassengerDocumentRow[];
+  itemCount: number;
+  expanded: boolean;
 };
 
 export default function PassengerDocumentsScreen() {
@@ -47,6 +52,11 @@ export default function PassengerDocumentsScreen() {
   const documents = useDocuments(trips.selectedTripId);
   const manualRefresh = useManualRefresh();
   const [error, setError] = useState<string | null>(null);
+  const [expandedSlots, setExpandedSlots] = useState<Record<PassengerDocumentSlotId, boolean>>({
+    passport: false,
+    visa: false,
+    flight_ticket: false,
+  });
   const attemptedPrefetch = useRef<string | null>(null);
   const automaticRunId = useRef(0);
   const automaticInFlight = useRef<string | null>(null);
@@ -58,18 +68,21 @@ export default function PassengerDocumentsScreen() {
   const slots = useMemo(
     () => passengerDocumentSlots(documentItems).map((slot): PassengerDocumentUiSlot => {
       const { documents: slotDocuments, ...slotMetadata } = slot;
+      const rows: PassengerDocumentRow[] = slotDocuments.length
+        ? slotDocuments.map((document) => ({
+          kind: 'document' as const,
+          key: `${slot.id}:${document.id}`,
+          document: document as DocumentWithOfflineState,
+        }))
+        : [{ kind: 'pending' as const, key: `${slot.id}:pending`, message: slot.pendingMessage }];
       return {
         ...slotMetadata,
-        data: slotDocuments.length
-          ? slotDocuments.map((document) => ({
-            kind: 'document',
-            key: `${slot.id}:${document.id}`,
-            document: document as DocumentWithOfflineState,
-          }))
-          : [{ kind: 'pending', key: `${slot.id}:pending`, message: slot.pendingMessage }],
+        data: expandedSlots[slot.id] ? rows : [],
+        itemCount: slotDocuments.length,
+        expanded: expandedSlots[slot.id],
       };
     }),
-    [documentItems],
+    [documentItems, expandedSlots],
   );
   const staleSignature = useMemo(
     () => documentItems
@@ -131,14 +144,33 @@ export default function PassengerDocumentsScreen() {
     }
   }, [refetchDocuments, trips.selectedTripId]);
 
+  const toggleSlot = useCallback((slotId: PassengerDocumentSlotId) => {
+    setExpandedSlots((current) => ({ ...current, [slotId]: !current[slotId] }));
+  }, []);
+
   const renderSlotHeader = useCallback(({ section: slot }: { section: PassengerDocumentUiSlot }) => (
-    <GlassCard style={styles.slotHeadingCard}>
-      <View style={styles.slotHeading}>
-        <View style={styles.slotIcon}><FileText color={colors.greenDeep} size={24} /></View>
-        <Text accessibilityRole="header" style={styles.slotTitle}>{slot.title}</Text>
-      </View>
-    </GlassCard>
-  ), []);
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${slot.expanded ? 'Collapse' : 'Expand'} ${slot.title} documents`}
+      accessibilityState={{ expanded: slot.expanded }}
+      onPress={() => toggleSlot(slot.id)}
+      style={({ pressed }) => [styles.slotPressable, pressed && styles.slotPressed]}>
+      <GlassCard style={styles.slotHeadingCard}>
+        <View style={styles.slotHeading}>
+          <View style={styles.slotIcon}><FileText color={colors.blueDeep} size={24} /></View>
+          <View style={styles.slotCopy}>
+            <Text accessibilityRole="header" style={styles.slotTitle}>{slot.title}</Text>
+            <Text style={styles.slotMeta}>
+              {slot.itemCount ? `${slot.itemCount} ${slot.itemCount === 1 ? 'file' : 'files'}` : 'Awaiting documents'}
+            </Text>
+          </View>
+          {slot.expanded
+            ? <ChevronDown color={colors.blueDeep} size={22} />
+            : <ChevronRight color={colors.blueDeep} size={22} />}
+        </View>
+      </GlassCard>
+    </Pressable>
+  ), [toggleSlot]);
 
   const renderDocument = useCallback(({
     item,
@@ -172,7 +204,7 @@ export default function PassengerDocumentsScreen() {
         {offlineCurrent ? (
           <CheckCircle2 accessibilityLabel="Available offline" color={colors.greenDeep} size={22} />
         ) : (
-          <CloudDownload accessibilityLabel="Downloading encrypted copy" color={colors.inkMuted} size={22} />
+          <CloudDownload accessibilityLabel="Downloading for offline use" color={colors.inkMuted} size={22} />
         )}
       </Pressable>
     );
@@ -199,7 +231,7 @@ export default function PassengerDocumentsScreen() {
             <PageHeader eyebrow="Private to you" title="My documents" subtitle="Passport, Visa and Flight Tickets authorized for your passenger identity." tone="passenger" />
             <View style={styles.securityNote}>
               <LockKeyhole color={colors.greenDeep} size={18} />
-              <Text style={styles.securityText}>Encrypted copies download automatically and remain available without internet.</Text>
+              <Text style={styles.securityText}>Documents are prepared automatically and remain available without internet.</Text>
             </View>
             {error ? <ContentError message={error} /> : null}
             {documents.isPending ? <ContentLoading label="Checking documents" /> : null}
@@ -219,10 +251,14 @@ const styles = StyleSheet.create({
   header: { gap: spacing.lg, paddingBottom: spacing.lg },
   securityNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   securityText: { flex: 1, color: colors.inkMuted, fontSize: 13, lineHeight: 19 },
-  slotHeadingCard: { borderRadius: radii.md, padding: spacing.md, marginTop: spacing.md },
+  slotPressable: { marginTop: spacing.md, borderRadius: radii.md },
+  slotPressed: { opacity: 0.94, transform: [{ scale: 0.99 }] },
+  slotHeadingCard: { borderRadius: radii.md, padding: spacing.md },
   slotHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  slotIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.greenSoft, alignItems: 'center', justifyContent: 'center' },
+  slotIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.blueSoft, alignItems: 'center', justifyContent: 'center' },
+  slotCopy: { flex: 1, gap: 2 },
   slotTitle: { flex: 1, color: colors.ink, fontSize: 18, fontWeight: '900' },
+  slotMeta: { color: colors.inkMuted, fontSize: 11, fontWeight: '700' },
   documentRow: {
     minHeight: 66,
     flexDirection: 'row',

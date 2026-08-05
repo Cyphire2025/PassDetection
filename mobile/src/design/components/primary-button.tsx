@@ -1,5 +1,15 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+  type GestureResponderEvent,
+  type PressableProps,
+} from 'react-native';
 
+import { useReducedMotion } from '@/design/accessibility/use-reduced-motion';
 import { colors, radii, spacing } from '@/design/theme';
 
 type Props = PressableProps & {
@@ -8,39 +18,92 @@ type Props = PressableProps & {
   tone?: 'primary' | 'secondary' | 'danger';
 };
 
-export function PrimaryButton({ label, loading = false, tone = 'primary', disabled, ...props }: Props) {
+export function PrimaryButton({
+  label,
+  loading = false,
+  tone = 'primary',
+  disabled,
+  onPressIn,
+  onPressOut,
+  style,
+  ...props
+}: Props) {
   const isDisabled = disabled || loading;
   const contentColor = tone === 'danger' ? colors.white : tone === 'secondary' ? colors.greenDeep : colors.ink;
+  const reduceMotion = useReducedMotion();
+  const [scale] = useState(() => new Animated.Value(1));
+  const [shadowOpacity] = useState(() => new Animated.Value(0.16));
+
+  const animatePress = useCallback((pressed: boolean) => {
+    if (reduceMotion || isDisabled) return;
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: pressed ? 0.98 : 1,
+        damping: pressed ? 22 : 15,
+        stiffness: pressed ? 360 : 250,
+        mass: 0.65,
+        useNativeDriver: false,
+      }),
+      Animated.timing(shadowOpacity, {
+        toValue: pressed ? 0.07 : 0.16,
+        duration: pressed ? 90 : 190,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  }, [isDisabled, reduceMotion, scale, shadowOpacity]);
+
+  const handlePressIn = useCallback((event: GestureResponderEvent) => {
+    animatePress(true);
+    onPressIn?.(event);
+  }, [animatePress, onPressIn]);
+
+  const handlePressOut = useCallback((event: GestureResponderEvent) => {
+    animatePress(false);
+    onPressOut?.(event);
+  }, [animatePress, onPressOut]);
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled: isDisabled, busy: loading }}
-      disabled={isDisabled}
-      style={({ pressed }) => [
-        styles.button,
-        tone === 'secondary' && styles.secondary,
-        tone === 'danger' && styles.danger,
-        (pressed || isDisabled) && styles.muted,
-      ]}
-      {...props}>
-      {loading ? (
-        <ActivityIndicator color={contentColor} />
-      ) : (
-        <Text
-          style={[
-            styles.label,
-            tone === 'secondary' && styles.secondaryLabel,
-            tone === 'danger' && styles.dangerLabel,
-          ]}>
-          {label}
-        </Text>
-      )}
-    </Pressable>
+    <Animated.View style={[styles.shadow, { shadowOpacity, transform: [{ scale }] }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        disabled={isDisabled}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={(state) => [
+          styles.button,
+          tone === 'secondary' && styles.secondary,
+          tone === 'danger' && styles.danger,
+          state.pressed && styles.pressed,
+          isDisabled && styles.muted,
+          typeof style === 'function' ? style(state) : style,
+        ]}
+        {...props}>
+        {loading ? (
+          <ActivityIndicator color={contentColor} />
+        ) : (
+          <Text
+            style={[
+              styles.label,
+              tone === 'secondary' && styles.secondaryLabel,
+              tone === 'danger' && styles.dangerLabel,
+            ]}>
+            {label}
+          </Text>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  shadow: {
+    borderRadius: radii.pill,
+    shadowColor: colors.greenDeep,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
+  },
   button: {
     minHeight: 54,
     borderRadius: radii.pill,
@@ -50,14 +113,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
-    shadowColor: colors.greenDeep,
-    shadowOpacity: 0.16,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
   },
   secondary: { backgroundColor: colors.white, borderColor: colors.blue, borderWidth: 1, shadowOpacity: 0.08 },
   danger: { backgroundColor: colors.danger, borderColor: colors.danger },
+  pressed: { opacity: 0.94 },
   muted: { opacity: 0.58 },
   label: { color: colors.navy, fontSize: 16, fontWeight: '900' },
   secondaryLabel: { color: colors.blueDeep },

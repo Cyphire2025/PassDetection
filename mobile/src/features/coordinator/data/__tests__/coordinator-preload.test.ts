@@ -114,7 +114,7 @@ test('blocks the coordinator workspace when a required common file is missing', 
   mockCountMissingRequiredOfflineDocuments.mockResolvedValue(1);
 
   await expect(preloadCoordinatorTrip(TRIP, jest.fn())).rejects.toThrow(
-    'Required documents for Coordinator Trip could not be saved securely.',
+    'Required documents for Coordinator Trip could not be saved for offline use.',
   );
   expect(mockRefreshAttendanceSessions).not.toHaveBeenCalled();
 });

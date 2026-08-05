@@ -102,6 +102,6 @@ test('does not enter a manager workspace while a required common document is mis
   mockCountMissingRequiredOfflineDocuments.mockResolvedValue(1);
 
   await expect(preloadManagerTrips([TRIP], jest.fn())).rejects.toThrow(
-    'Required documents could not be saved securely',
+    'Required documents could not be saved for offline use',
   );
 });

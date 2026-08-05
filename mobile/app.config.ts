@@ -19,7 +19,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Group Companion',
   slug: 'group-companion',
-  owner: process.env.EXPO_PUBLIC_EXPO_OWNER || undefined,
+  ...(process.env.EXPO_PUBLIC_EXPO_OWNER
+    ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
+    : {}),
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/gc-app-icon.png',
@@ -30,7 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     enabled: Boolean(updatesUrl),
     checkAutomatically: 'ON_LOAD',
     fallbackToCacheTimeout: 0,
-    url: updatesUrl || undefined,
+    ...(updatesUrl ? { url: updatesUrl } : {}),
   },
   assetBundlePatterns: ['assets/**/*'],
   ios: {
@@ -83,8 +85,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     adaptiveIcon: {
-      backgroundColor: '#CACF42',
-      foregroundImage: './assets/images/gc-app-monochrome.png',
+      backgroundColor: '#056BB1',
+      foregroundImage: './assets/images/gc-app-icon.png',
       monochromeImage: './assets/images/gc-app-monochrome.png',
     },
     predictiveBackGestureEnabled: true,

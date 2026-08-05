@@ -30,7 +30,7 @@ EXPO_PUBLIC_UPDATES_URL=https://u.expo.dev/<Expo project UUID>
 
 Never place API, SMS, push-service, signing, or encryption secrets in an `EXPO_PUBLIC_*` variable. Non-development builds reject cleartext API origins. Android manifest configuration also disables cleartext traffic and backups.
 
-Every production build must provide the API URL, `EXPO_PUBLIC_APP_ENV=production`, and `EXPO_PUBLIC_DEMO_MODE=false`. EAS project ID, owner, and Update URL are an all-or-nothing set: provide all three for an EAS/OTA-enabled build, or omit all three for a local production APK with OTA updates disabled. The update URL must contain the same UUID as `EXPO_PUBLIC_EAS_PROJECT_ID`. The release scripts validate this contract before native generation.
+Every production build must provide the API URL, `EXPO_PUBLIC_APP_ENV=production`, and `EXPO_PUBLIC_DEMO_MODE=false`. A real EAS project ID may be supplied by itself to enable push-token registration while OTA updates remain disabled. To enable EAS Update, also provide the Expo owner and canonical Update URL containing the same project UUID. The release scripts validate this contract before native generation.
 
 The Expo project ID, owner, API URL, and update URL are public application configuration, not signing credentials. Keep Android keystores, Apple certificates, service-account keys, provider tokens, and update-signing private keys out of `.env` and `EXPO_PUBLIC_*`.
 

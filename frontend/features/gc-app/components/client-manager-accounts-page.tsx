@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Copy, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { ChevronRight, Search, ShieldCheck, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -14,7 +14,6 @@ import { AccountStatusBadge, ClientManagerDetailsDialog } from "./client-manager
 import { ClientManagerFormDialog } from "./client-manager-form-dialog";
 import { useGcAppAgencyScope } from "./gc-app-agency-scope";
 import { GcAlert, GcLoadingRows, GcPagination } from "./gc-app-feedback";
-import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
 
 const STATUS_OPTIONS = [
@@ -33,16 +32,10 @@ export function ClientManagerAccountsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<ClientManagerAccount | null>(null);
   const [selected, setSelected] = useState<ClientManagerAccount | null>(null);
-  const [activationResult, setActivationResult] = useState<ClientManagerAccount | null>(null);
-  const [activationCopied, setActivationCopied] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
   const filters = { page, page_size: GC_APP_DEFAULT_PAGE_SIZE, search: debouncedSearch, status } as const;
   const managers = useClientManagers(agencyId, filters);
   const mutations = useClientManagerMutations(agencyId);
-  const activationValue = activationResult?.activation_token
-    ? `groupcompanion://activate?token=${encodeURIComponent(activationResult.activation_token)}`
-    : activationResult?.temporary_password ?? null;
-
   const saveManager = async (body: ClientManagerInput) => {
     if (editing) {
       const update = {
@@ -55,8 +48,7 @@ export function ClientManagerAccountsPage() {
       };
       await mutations.update.mutateAsync({ managerId: editing.id, current: editing, body: update });
     } else {
-      const created = await mutations.create.mutateAsync(body);
-      if (created.activation_token || created.temporary_password) setActivationResult(created);
+      await mutations.create.mutateAsync(body);
     }
     setFormOpen(false);
     setEditing(null);
@@ -223,44 +215,6 @@ export function ClientManagerAccountsPage() {
           setFormOpen(true);
         }}
       />
-
-      <GcDialog
-        open={Boolean(activationResult)}
-        title="Secure initial activation"
-        description={activationResult ? `Copy ${activationResult.name}'s one-time activation details now. They will not be available again.` : undefined}
-        onClose={() => {
-          setActivationResult(null);
-          setActivationCopied(false);
-        }}
-        size="md"
-        footer={(
-          <Button type="button" onClick={() => {
-            setActivationResult(null);
-            setActivationCopied(false);
-          }}>I have stored it securely</Button>
-        )}
-      >
-        {activationResult && (
-          <div className="space-y-4">
-            <GcAlert tone="info" message="Share this secret only through an approved secure channel. Do not place it in audit notes or ordinary chat messages." />
-            <div className="rounded-xl border border-slate-200 bg-slate-950 p-4 text-slate-50">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{activationResult.activation_token ? "Single-use app activation link" : "Temporary password"}</p>
-              <code className="mt-2 block break-all text-sm">{activationValue}</code>
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              leftIcon={<Copy className="h-4 w-4" aria-hidden="true" />}
-              onClick={() => {
-                if (!activationValue) return;
-                void navigator.clipboard.writeText(activationValue).then(() => setActivationCopied(true));
-              }}
-            >
-              {activationCopied ? "Copied" : activationResult.activation_token ? "Copy activation link once" : "Copy password once"}
-            </Button>
-          </div>
-        )}
-      </GcDialog>
     </div>
   );
 }

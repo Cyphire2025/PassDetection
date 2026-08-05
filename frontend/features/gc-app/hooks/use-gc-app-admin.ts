@@ -142,7 +142,7 @@ export function useClientManagerMutations(agencyId: string | null) {
       mutationFn: ({ managerId, current, body }: {
         managerId: string;
         current: ClientManagerAccount;
-        body: Omit<ClientManagerInput, "activation_method" | "temporary_password">;
+        body: Omit<ClientManagerInput, "temporary_password">;
       }) => gcAppAdminApi.updateClientManager(agencyId, managerId, current, body),
       // The backend intentionally uses separate revision-safe profile,
       // assignment, and password-policy mutations. Refresh even if a later
@@ -329,7 +329,18 @@ export function useGcAppGroupMutations(agencyId: string | null, groupId?: string
     }),
     deleteAnnouncement: useMutation({
       mutationFn: (announcementId: string) => gcAppAdminApi.deleteAnnouncement(agencyId, groupId!, announcementId),
-      onSuccess: () => { void invalidateContent(groupId!); },
+      onSuccess: (_result, announcementId) => {
+        queryClient.setQueryData<GcAppGroupContent>(
+          gcAppQueryKeys.groupContent(agencyId, groupId!),
+          (current) => current ? {
+            ...current,
+            announcements: current.announcements.filter(
+              (announcement) => announcement.id !== announcementId,
+            ),
+          } : current,
+        );
+        void invalidateContent(groupId!);
+      },
     }),
   };
 }

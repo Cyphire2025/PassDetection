@@ -8,6 +8,7 @@ import type { MobileSession } from '@/core/auth/types';
 import {
   decryptDocumentForViewing,
   LocalOfflineCiphertextError,
+  releaseTemporaryView,
   removeTemporaryView,
 } from '@/core/storage/vault';
 import { cacheDocument, getDocument } from '@/features/content/data/content-repository';
@@ -22,7 +23,6 @@ jest.mock('expo-router', () => ({
     tripId: '55555555-5555-4555-8555-555555555555',
   }),
 }));
-jest.mock('expo-screen-capture', () => ({ usePreventScreenCapture: jest.fn() }));
 jest.mock('expo-image', () => {
   const React = require('react') as typeof import('react');
   const { View: MockView } = require('react-native') as typeof import('react-native');
@@ -55,6 +55,7 @@ jest.mock('@/core/storage/vault', () => ({
   LocalOfflineCiphertextError: class LocalOfflineCiphertextError extends Error {
     readonly code = 'LOCAL_OFFLINE_CIPHERTEXT_CORRUPT';
   },
+  releaseTemporaryView: jest.fn(),
   removeTemporaryView: jest.fn(),
 }));
 jest.mock('@/features/content/data/content-repository', () => ({
@@ -93,6 +94,7 @@ jest.mock('@/design/components/screen', () => {
 const mockedCacheDocument = jest.mocked(cacheDocument);
 const mockedDecryptDocument = jest.mocked(decryptDocumentForViewing);
 const mockedGetDocument = jest.mocked(getDocument);
+const mockedReleaseTemporary = jest.mocked(releaseTemporaryView);
 const mockedRemoveTemporary = jest.mocked(removeTemporaryView);
 
 const SESSION: MobileSession = {
@@ -188,12 +190,12 @@ test('cleans a failed renderer temporary file before retrying with a fresh view'
   await fireEvent(firstViewer, 'error');
 
   expect(mockedRemoveTemporary).toHaveBeenCalledWith(firstTemporary);
-  expect(screen.getByText('The PDF viewer could not render this file.')).toBeTruthy();
-  await fireEvent.press(screen.getByText('Retry'));
-
   await waitFor(() => expect(mockedDecryptDocument).toHaveBeenCalledTimes(2));
   expect(screen.getByTestId('pdf-viewer')).toBeTruthy();
   expect(mockedCacheDocument).not.toHaveBeenCalled();
+
+  await fireEvent(screen.getByTestId('pdf-viewer'), 'error');
+  expect(screen.getByText('The PDF viewer could not render this file.')).toBeTruthy();
 });
 
 test('allows a transient decrypt operation to be retried without leaving a dead end', async () => {
@@ -303,7 +305,7 @@ test('aborts an active document transfer when the viewer unmounts', async () => 
   expect(mockedDecryptDocument).not.toHaveBeenCalled();
 });
 
-test('cleans the decrypted view and goes back to the exact previous screen when closed', async () => {
+test('retains the verified foreground preview and goes back to the exact previous screen when closed', async () => {
   const openedTemporary = temporary('file:///secure/close-me.pdf');
   mockedGetDocument.mockResolvedValueOnce({ ...DOCUMENT, offline: true, offlineVersion: 1 });
   mockedDecryptDocument.mockResolvedValueOnce(openedTemporary);
@@ -312,7 +314,8 @@ test('cleans the decrypted view and goes back to the exact previous screen when 
   await waitFor(() => expect(screen.getByTestId('pdf-viewer')).toBeTruthy());
   await fireEvent.press(screen.getByLabelText('Close document'));
 
-  expect(mockedRemoveTemporary).toHaveBeenCalledWith(openedTemporary);
+  expect(mockedReleaseTemporary).toHaveBeenCalledWith(openedTemporary);
+  expect(mockedRemoveTemporary).not.toHaveBeenCalledWith(openedTemporary);
   expect(router.back).toHaveBeenCalledTimes(1);
 });
 

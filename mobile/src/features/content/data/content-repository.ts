@@ -631,7 +631,7 @@ async function cacheDocumentForNamespace(
     /^[0-9a-f]{64}$/i.test(stored.checksum_sha256)
   );
   if (!pendingPersonalDocument && !readyDocument) {
-    throw new Error('This document is still being prepared for secure offline access.');
+    throw new Error('This document is still being prepared for offline use.');
   }
 
   const current = await database.getFirstAsync<{

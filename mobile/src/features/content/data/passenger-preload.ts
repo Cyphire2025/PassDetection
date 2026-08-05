@@ -117,7 +117,7 @@ export async function preloadPassengerTrip(
   );
   if (requiredRetry.failed > 0 || missingRequiredDocuments > 0) {
     throw new Error(
-      'Required documents could not be saved securely. Check your connection and try again.',
+      'Required documents could not be saved for offline use. Check your connection and try again.',
     );
   }
   onProgress({

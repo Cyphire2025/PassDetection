@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyRound, MailCheck, Search, X } from "lucide-react";
+import { KeyRound, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Controller, useForm, useWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Badge, Button, Input, PasswordInput } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -23,12 +23,11 @@ const managerSchema = z.object({
   email: z.string().trim().email("Enter a valid email address."),
   phone_number: z.string().trim().min(8, "Enter a valid mobile number.").max(32),
   company_id: z.string().min(1, "Select the assigned company/client."),
-  activation_method: z.enum(["invitation", "temporary_password"]),
   temporary_password: z.string().optional(),
   force_password_change: z.boolean(),
 }).superRefine((data, context) => {
-  if (data.activation_method !== "temporary_password") return;
-  const password = data.temporary_password ?? "";
+  if (data.temporary_password === undefined) return;
+  const password = data.temporary_password;
   if (password.length < 10 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
     context.addIssue({
       code: "custom",
@@ -85,13 +84,10 @@ export function ClientManagerFormDialog({
       email: manager?.email ?? "",
       phone_number: manager?.phone_number ?? "",
       company_id: manager?.company.id ?? "",
-      activation_method: "invitation",
-      temporary_password: "",
+      temporary_password: manager ? undefined : "",
       force_password_change: manager?.force_password_change ?? true,
     },
   });
-  const activationMethod = useWatch({ control, name: "activation_method" });
-
   const selectedIds = useMemo(() => new Set(selectedGroups.map((group) => group.id)), [selectedGroups]);
   const managerCompanyId = manager?.company.id;
   const managerCompanyName = manager?.company.name;
@@ -124,7 +120,6 @@ export function ClientManagerFormDialog({
     try {
       await onSubmit({
         ...values,
-        activation_method: manager ? undefined : values.activation_method,
         temporary_password: manager ? undefined : values.temporary_password || undefined,
         group_ids: selectedGroups.map((group) => group.id),
       });
@@ -278,25 +273,18 @@ export function ClientManagerFormDialog({
 
         {!manager && (
           <fieldset className="space-y-4 rounded-2xl border border-slate-200 p-4 sm:p-5">
-            <legend className="px-1 text-sm font-semibold text-slate-900">Initial account activation</legend>
-            <label className={`flex min-h-20 cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${activationMethod === "invitation" ? "border-blue-500 bg-blue-50/70 ring-2 ring-blue-600/10" : "border-slate-200 hover:border-slate-300"}`}>
-              <input type="radio" value="invitation" className="sr-only" {...register("activation_method")} />
-              <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><MailCheck className="h-4 w-4" aria-hidden="true" /></span>
-              <span><span className="block text-sm font-semibold text-slate-900">Single-use invitation</span><span className="mt-1 block text-xs leading-5 text-slate-500">Generate a secure activation link that is shown once after account creation.</span></span>
-            </label>
-            <label className={`flex min-h-20 cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${activationMethod === "temporary_password" ? "border-blue-500 bg-blue-50/70 ring-2 ring-blue-600/10" : "border-slate-200 hover:border-slate-300"}`}>
-              <input type="radio" value="temporary_password" className="sr-only" {...register("activation_method")} />
+            <legend className="px-1 text-sm font-semibold text-slate-900">Initial password</legend>
+            <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
               <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><KeyRound className="h-4 w-4" aria-hidden="true" /></span>
-              <span><span className="block text-sm font-semibold text-slate-900">Temporary password</span><span className="mt-1 block text-xs leading-5 text-slate-500">Set an initial secret and require a password change on first sign-in.</span></span>
-            </label>
-            {activationMethod === "temporary_password" && (
-              <PasswordInput
-                label="Temporary password"
-                autoComplete="new-password"
-                error={errors.temporary_password?.message}
-                {...register("temporary_password")}
-              />
-            )}
+              <span><span className="block text-sm font-semibold text-slate-900">Set the first sign-in password</span><span className="mt-1 block text-xs leading-5 text-slate-600">Share it through your approved channel. The manager will be required to change it after signing in.</span></span>
+            </div>
+            <PasswordInput
+              label="Temporary password"
+              autoComplete="new-password"
+              required
+              error={errors.temporary_password?.message}
+              {...register("temporary_password")}
+            />
           </fieldset>
         )}
 

@@ -164,7 +164,7 @@ test('blocks navigation when a newly published required document is still missin
   mockCountMissingRequiredOfflineDocuments.mockResolvedValue(1);
 
   await expect(preloadPassengerTrip(jest.fn())).rejects.toThrow(
-    'Required documents could not be saved securely',
+    'Required documents could not be saved for offline use',
   );
 });
 

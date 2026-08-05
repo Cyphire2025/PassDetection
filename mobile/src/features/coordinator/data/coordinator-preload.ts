@@ -61,7 +61,7 @@ export async function preloadCoordinatorTrip(
     REQUIRED_COMMON_DOCUMENT_SCOPES,
   );
   if (requiredRetry.failed > 0 || missingRequiredDocuments > 0) {
-    throw new Error(`Required documents for ${trip.name} could not be saved securely.`);
+    throw new Error(`Required documents for ${trip.name} could not be saved for offline use.`);
   }
 
   onProgress({ progress: 0.82, label: 'Saving attendance and passenger operations' });

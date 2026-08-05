@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as ScreenCapture from 'expo-screen-capture';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -19,6 +18,7 @@ import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import {
   decryptDocumentForViewing,
   isLocalOfflineCiphertextError,
+  releaseTemporaryView,
   removeTemporaryView,
 } from '@/core/storage/vault';
 import { GlassCard } from '@/design/components/glass-card';
@@ -46,7 +46,7 @@ function viewerFailure(error: unknown): ViewerFailure {
   return {
     message: error instanceof TerminalDocumentViewerError
       ? error.message
-      : userFacingErrorMessage(error, 'The document could not be opened securely.'),
+      : userFacingErrorMessage(error, 'The document could not be opened.'),
     retryable: localCiphertextFailure
       || !(error instanceof TerminalDocumentViewerError || terminalApiFailure || terminalMessage),
   };
@@ -57,23 +57,25 @@ export default function SecureDocumentScreen() {
   const session = useSessionStore((state) => state.session);
   const [uri, setUri] = useState<string | null>(null);
   const [contentType, setContentType] = useState<string | null>(null);
-  const [title, setTitle] = useState('Secure document');
+  const [title, setTitle] = useState('Document');
   const [error, setError] = useState<ViewerFailure | null>(null);
   const [opening, setOpening] = useState(true);
+  const [rendererLoaded, setRendererLoaded] = useState(false);
   const mounted = useRef(false);
   const attempt = useRef(0);
   const temporaryView = useRef<TemporaryView | null>(null);
   const openInFlight = useRef<OpenOperation | null>(null);
   const suspendedByLifecycle = useRef(false);
+  const rendererLoadedRef = useRef(false);
+  const automaticRendererRetries = useRef(0);
 
-  ScreenCapture.usePreventScreenCapture(`document-${tripId ?? 'unknown'}-${id ?? 'unknown'}`);
-
-  const cleanupTemporaryView = useCallback(() => {
+  const finishTemporaryView = useCallback((discard: boolean) => {
     const temporary = temporaryView.current;
     temporaryView.current = null;
     if (!temporary) return;
     try {
-      removeTemporaryView(temporary);
+      if (discard) removeTemporaryView(temporary);
+      else releaseTemporaryView(temporary);
     } catch {
       // Cleanup is best-effort because a file already removed by the native
       // renderer must not trap the viewer in a second failure.
@@ -90,7 +92,9 @@ export default function SecureDocumentScreen() {
     const controller = new AbortController();
     const { signal } = controller;
     attempt.current = operationAttempt;
-    cleanupTemporaryView();
+    finishTemporaryView(false);
+    rendererLoadedRef.current = false;
+    setRendererLoaded(false);
     setUri(null);
     setError(null);
     setOpening(true);
@@ -125,7 +129,7 @@ export default function SecureDocumentScreen() {
           !document.size_bytes ||
           !document.checksum_sha256
         ) {
-          throw new Error('This document is still being prepared for secure offline access.');
+          throw new Error('This document is still being prepared for offline use.');
         }
         setTitle(document.display_name);
         setContentType(document.content_type);
@@ -153,7 +157,7 @@ export default function SecureDocumentScreen() {
           createdTemporary = await decryptDocumentForViewing(vaultInput, signal);
         }
         if (!mounted.current || attempt.current !== operationAttempt) {
-          removeTemporaryView(createdTemporary);
+          releaseTemporaryView(createdTemporary);
           createdTemporary = null;
           return;
         }
@@ -178,29 +182,60 @@ export default function SecureDocumentScreen() {
     })();
     openInFlight.current = { key: operationKey, promise: request, controller };
     return request;
-  }, [cleanupTemporaryView, id, session, tripId]);
+  }, [finishTemporaryView, id, session, tripId]);
 
-  const handleRendererFailure = useCallback((message: string) => {
+  const handleRendererFailure = useCallback((failedUri: string, message: string) => {
+    if (temporaryView.current?.uri !== failedUri) return;
     attempt.current += 1;
     openInFlight.current?.controller.abort();
     openInFlight.current = null;
-    cleanupTemporaryView();
+    finishTemporaryView(true);
+    rendererLoadedRef.current = false;
+    setRendererLoaded(false);
     setUri(null);
+    if (automaticRendererRetries.current < 1 && mounted.current) {
+      automaticRendererRetries.current += 1;
+      setError(null);
+      setOpening(true);
+      void openDocument();
+      return;
+    }
     setOpening(false);
     setError({ message, retryable: true });
-  }, [cleanupTemporaryView]);
+  }, [finishTemporaryView, openDocument]);
+
+  const markRendererLoaded = useCallback(() => {
+    rendererLoadedRef.current = true;
+    setRendererLoaded(true);
+  }, []);
+
+  const retryDocument = useCallback(() => {
+    automaticRendererRetries.current = 0;
+    void openDocument();
+  }, [openDocument]);
 
   useEffect(() => {
     mounted.current = true;
+    automaticRendererRetries.current = 0;
     void openDocument();
     return () => {
       mounted.current = false;
       attempt.current += 1;
       openInFlight.current?.controller.abort();
       openInFlight.current = null;
-      cleanupTemporaryView();
+      finishTemporaryView(false);
     };
-  }, [cleanupTemporaryView, openDocument]);
+  }, [finishTemporaryView, openDocument]);
+
+  useEffect(() => {
+    if (!uri) return;
+    const timeout = setTimeout(() => {
+      if (!rendererLoadedRef.current) {
+        handleRendererFailure(uri, 'The document viewer took too long to display this file.');
+      }
+    }, 8_000);
+    return () => clearTimeout(timeout);
+  }, [handleRendererFailure, uri]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
@@ -210,7 +245,9 @@ export default function SecureDocumentScreen() {
         attempt.current += 1;
         openInFlight.current?.controller.abort();
         openInFlight.current = null;
-        cleanupTemporaryView();
+        finishTemporaryView(true);
+        rendererLoadedRef.current = false;
+        setRendererLoaded(false);
         setUri(null);
         setError(null);
         setOpening(false);
@@ -221,15 +258,15 @@ export default function SecureDocumentScreen() {
       void openDocument();
     });
     return () => subscription.remove();
-  }, [cleanupTemporaryView, openDocument]);
+  }, [finishTemporaryView, openDocument]);
 
   const closeDocument = useCallback(() => {
     attempt.current += 1;
     openInFlight.current?.controller.abort();
     openInFlight.current = null;
-    cleanupTemporaryView();
+    finishTemporaryView(false);
     router.back();
-  }, [cleanupTemporaryView]);
+  }, [finishTemporaryView]);
 
   return (
     <Screen scroll={false} contentStyle={styles.screen} bottomInset={8}>
@@ -252,34 +289,50 @@ export default function SecureDocumentScreen() {
             <PrimaryButton
               label="Retry"
               loading={opening}
-              onPress={() => void openDocument()}
+              onPress={retryDocument}
             />
           ) : null}
         </GlassCard>
       ) : opening || !uri ? (
-        <View accessibilityRole="progressbar" accessibilityLabel="Opening encrypted document" style={styles.loading}>
+        <View accessibilityRole="progressbar" accessibilityLabel="Opening document" style={styles.loading}>
           <ActivityIndicator color={colors.greenDeep} size="large" />
-          <Text style={styles.loadingText}>Verifying and opening the encrypted copy…</Text>
+          <Text style={styles.loadingText}>Opening your document…</Text>
         </View>
       ) : contentType === 'application/pdf' ? (
-        <Pdf
-          key={uri}
-          source={{ uri, cache: false }}
-          trustAllCerts={false}
-          style={styles.viewer}
-          enablePaging={false}
-          onError={() => handleRendererFailure('The PDF viewer could not render this file.')}
-        />
+        <View style={styles.viewerContainer}>
+          <Pdf
+            key={uri}
+            source={{ uri, cache: false }}
+            trustAllCerts={false}
+            style={styles.viewer}
+            enablePaging={false}
+            onLoadComplete={markRendererLoaded}
+            onError={() => handleRendererFailure(uri, 'The PDF viewer could not render this file.')}
+          />
+          {!rendererLoaded ? (
+            <View pointerEvents="none" style={styles.rendererLoading}>
+              <ActivityIndicator color={colors.blueDeep} size="large" />
+            </View>
+          ) : null}
+        </View>
       ) : (
-        <Image
-          key={uri}
-          source={{ uri }}
-          cachePolicy="none"
-          contentFit="contain"
-          style={styles.viewer}
-          accessibilityLabel={title}
-          onError={() => handleRendererFailure('The image viewer could not render this file.')}
-        />
+        <View style={styles.viewerContainer}>
+          <Image
+            key={uri}
+            source={{ uri }}
+            cachePolicy="none"
+            contentFit="contain"
+            style={styles.viewer}
+            accessibilityLabel={title}
+            onLoad={markRendererLoaded}
+            onError={() => handleRendererFailure(uri, 'The image viewer could not render this file.')}
+          />
+          {!rendererLoaded ? (
+            <View pointerEvents="none" style={styles.rendererLoading}>
+              <ActivityIndicator color={colors.blueDeep} size="large" />
+            </View>
+          ) : null}
+        </View>
       )}
     </Screen>
   );
@@ -298,7 +351,15 @@ const styles = StyleSheet.create({
   closeText: { color: colors.greenDeep, fontSize: 16, fontWeight: '700' },
   title: { flex: 1, color: colors.ink, textAlign: 'center', fontWeight: '700' },
   headerSpacer: { width: 64 },
+  viewerContainer: { flex: 1, backgroundColor: '#EAF0F2' },
   viewer: { flex: 1, backgroundColor: '#EAF0F2' },
+  rendererLoading: {
+    position: 'absolute',
+    inset: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EAF0F2',
+  },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.lg },
   loadingText: { color: colors.inkMuted, fontSize: 15 },
   messageCard: { margin: spacing.lg, gap: spacing.sm, borderRadius: radii.md },

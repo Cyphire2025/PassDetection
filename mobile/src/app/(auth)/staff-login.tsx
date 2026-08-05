@@ -84,6 +84,7 @@ export default function StaffLoginScreen() {
       <TextField
         label="Password"
         secureTextEntry
+        showPasswordToggle
         textContentType="password"
         autoComplete="current-password"
         value={password}

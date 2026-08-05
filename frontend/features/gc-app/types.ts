@@ -1,6 +1,5 @@
 export type GcAppAccountStatus = "invited" | "active" | "suspended" | "deleted";
 export type GcAppGroupLifecycle = "active" | "closed" | "archived" | "deleted";
-export type GcAppActivationMethod = "invitation" | "temporary_password";
 export type GcAppRole = "passenger" | "client_manager" | "coordinator";
 
 export interface GcPage<T> {
@@ -71,7 +70,6 @@ export interface ClientManagerInput {
   company_id: string;
   group_ids: string[];
   force_password_change: boolean;
-  activation_method?: GcAppActivationMethod;
   temporary_password?: string;
 }
 
@@ -206,6 +204,7 @@ export interface CommonDocumentUpload {
   title: string;
   category: GcDocumentCategory;
   replace_document_id?: string;
+  onProgress?: (percentage: number) => void;
 }
 
 export interface AnnouncementInput {

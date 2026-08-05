@@ -279,6 +279,7 @@ function DocumentUploadForm({
     fixedCategory ?? replaceDocument?.category ?? categories?.[0]?.value ?? "other",
   );
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const upload = async () => {
     onError(null);
@@ -296,11 +297,13 @@ function DocumentUploadForm({
       return;
     }
     try {
+      setUploadProgress(0);
       await onUpload({
         file,
         title: normalizedTitle,
         category: fixedCategory ?? category,
         replace_document_id: replaceDocument?.id,
+        onProgress: setUploadProgress,
       });
       setFile(null);
       setFileInputKey((value) => value + 1);
@@ -308,6 +311,8 @@ function DocumentUploadForm({
       onComplete();
     } catch (uploadError) {
       onError(gcAppErrorMessage(uploadError, "The common document could not be uploaded."));
+    } finally {
+      setUploadProgress(null);
     }
   };
 
@@ -357,9 +362,32 @@ function DocumentUploadForm({
           }}
         />
       </label>
+      {isUploading && uploadProgress !== null ? (
+        <div
+          className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/70 p-3"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={uploadProgress}
+          aria-label="Document upload progress"
+        >
+          <div className="flex items-center justify-between gap-3 text-xs font-medium text-blue-900">
+            <span>{uploadProgress < 100 ? "Uploading PDF" : "Upload complete — checking and saving PDF"}</span>
+            <span>{uploadProgress}%</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-blue-100">
+            <div
+              className="h-full rounded-full bg-blue-600 transition-[width] duration-200 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
       <div className="flex justify-end">
         <Button type="button" isLoading={isUploading} onClick={() => void upload()}>
-          {replaceDocument ? "Upload replacement as draft" : "Upload as draft"}
+          {isUploading && uploadProgress !== null
+            ? uploadProgress < 100 ? `Uploading ${uploadProgress}%` : "Checking PDF"
+            : replaceDocument ? "Upload replacement as draft" : "Upload as draft"}
         </Button>
       </div>
     </div>

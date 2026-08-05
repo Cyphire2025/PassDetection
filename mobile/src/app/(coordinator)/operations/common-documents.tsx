@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import FileText from 'lucide-react-native/icons/file-text';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
@@ -10,7 +10,6 @@ import { ContentError, ContentLoading } from '@/design/components/content-state'
 import { GlassCard } from '@/design/components/glass-card';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
-import { prefetchCoordinatorCommonDocuments } from '@/features/coordinator/data/coordinator-document-cache';
 import {
   coordinatorDocumentCategoryLabel,
   coordinatorDocumentCategoryOrder,
@@ -64,28 +63,6 @@ export default function CoordinatorCommonDocumentsScreen() {
       })),
     ];
   }, [items]);
-
-  const pendingDocumentSignature = useMemo(
-    () => items
-      .filter(
-        (document) =>
-          document.offline_available &&
-          document.metadata_state === 'ready' &&
-          (!document.offline || document.offlineVersion !== document.version),
-      )
-      .map((document) => `${document.id}:${document.version}`)
-      .sort()
-      .join('|'),
-    [items],
-  );
-
-  useEffect(() => {
-    if (!trips.selectedTripId || !pendingDocumentSignature) return;
-    const controller = new AbortController();
-    void prefetchCoordinatorCommonDocuments(trips.selectedTripId, controller.signal)
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [pendingDocumentSignature, trips.selectedTripId]);
 
   const openDocument = useCallback((document: DocumentWithOfflineState) => {
     if (!document.offline_available || document.metadata_state !== 'ready') return;

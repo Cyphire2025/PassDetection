@@ -38,6 +38,22 @@ describe('validateProductionPublicEnvironment', () => {
     });
   });
 
+  it('accepts a project ID for push notifications without enabling OTA updates', () => {
+    expect(validateProductionPublicEnvironment({
+      EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
+      EXPO_PUBLIC_APP_ENV: 'production',
+      EXPO_PUBLIC_DEMO_MODE: 'false',
+      EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
+    })).toEqual({
+      apiUrl: 'https://tech.gctravels.com/api/v1',
+      appEnv: 'production',
+      demoMode: false,
+      easProjectId: projectId,
+      expoOwner: undefined,
+      updatesUrl: undefined,
+    });
+  });
+
   it.each([
     ['EXPO_PUBLIC_API_URL', undefined, 'EXPO_PUBLIC_API_URL is required'],
     ['EXPO_PUBLIC_API_URL', 'http://tech.gctravels.com/api/v1', 'must use HTTPS'],

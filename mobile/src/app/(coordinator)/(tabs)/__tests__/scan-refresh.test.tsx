@@ -71,6 +71,20 @@ jest.mock('@/design/components/content-state', () => {
   );
   return { ContentEmpty: State, ContentError: State, ContentLoading: State };
 });
+jest.mock('@/design/components/page-header', () => {
+  const React = require('react') as typeof import('react');
+  const { Text: MockText } = require('react-native') as typeof import('react-native');
+  return {
+    PageHeader: ({ title }: { title: string }) => React.createElement(MockText, null, title),
+  };
+});
+jest.mock('@/design/components/text-field', () => {
+  const React = require('react') as typeof import('react');
+  const { TextInput: MockTextInput } = require('react-native') as typeof import('react-native');
+  return {
+    TextField: (props: Record<string, unknown>) => React.createElement(MockTextInput, props),
+  };
+});
 jest.mock('@/design/components/screen', () => {
   const React = require('react') as typeof import('react');
   const { View: MockView } = require('react-native') as typeof import('react-native');

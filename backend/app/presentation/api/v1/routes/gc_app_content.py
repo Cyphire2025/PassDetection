@@ -787,7 +787,10 @@ async def list_announcements(
         (
             await session.execute(
                 select(GCAnnouncementModel)
-                .where(GCAnnouncementModel.gc_group_access_id == access.id)
+                .where(
+                    GCAnnouncementModel.gc_group_access_id == access.id,
+                    GCAnnouncementModel.status.in_(("draft", "published")),
+                )
                 .order_by(GCAnnouncementModel.created_at.desc())
                 .limit(200)
             )
@@ -1064,6 +1067,12 @@ async def delete_announcement(
             version=access.announcement_version,
             changed_by_user_id=current_user.id,
             payload={"resource_path": f"/api/v1/mobile/trips/{group_id}/announcements"},
+        )
+        await cancel_announcement_notifications(
+            session,
+            access=access,
+            announcement_id=announcement.id,
+            now=now,
         )
     await _content_audit(
         session,

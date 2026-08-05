@@ -71,6 +71,52 @@ from app.presentation.security.client_ip import trusted_client_ip
 router = APIRouter()
 GC_ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER]
 
+_CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES = {
+    "users_email_key": "Email is already in use",
+    "uq_client_manager_phone_live": (
+        "Mobile number is already assigned to another Client Manager"
+    ),
+}
+
+
+def _integrity_constraint_name(exc: IntegrityError) -> str | None:
+    """Extract a database constraint name without relying on driver internals."""
+
+    pending: list[BaseException] = [exc]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        constraint_name = getattr(current, "constraint_name", None)
+        if isinstance(constraint_name, str) and constraint_name:
+            return constraint_name
+        diagnostic = getattr(current, "diag", None)
+        diagnostic_name = getattr(diagnostic, "constraint_name", None)
+        if isinstance(diagnostic_name, str) and diagnostic_name:
+            return diagnostic_name
+        for linked in (
+            getattr(current, "orig", None),
+            current.__cause__,
+            current.__context__,
+        ):
+            if isinstance(linked, BaseException):
+                pending.append(linked)
+
+    message = str(exc)
+    for known_name in _CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES:
+        if known_name in message:
+            return known_name
+    return None
+
+
+def _client_manager_duplicate_message(exc: IntegrityError) -> str | None:
+    constraint_name = _integrity_constraint_name(exc)
+    if constraint_name is None:
+        return None
+    return _CLIENT_MANAGER_DUPLICATE_CONSTRAINT_MESSAGES.get(constraint_name)
+
 
 @router.get("/agencies", response_model=GCAgencyPageResponse)
 async def list_gc_agencies(
@@ -1104,36 +1150,45 @@ async def create_client_manager(
         created_at=now,
         updated_at=now,
     )
+    session.add_all([user, profile])
     try:
-        session.add_all([user, profile])
-        await session.flush()
-        for group_id, access in access_by_group.items():
-            session.add(
-                ClientManagerGroupAssignmentModel(
-                    id=uuid.uuid4(),
-                    agency_id=tenant_id,
-                    organization_id=organization.id,
-                    group_id=group_id,
-                    profile_id=profile.id,
-                    gc_group_access_id=access.id,
-                    is_active=True,
-                    can_view_passenger_names=False,
-                    personal_document_access_enabled=False,
-                    assigned_by_user_id=current_user.id,
-                    assigned_at=now,
-                    updated_at=now,
-                )
-            )
         await session.flush()
     except IntegrityError as exc:
         # The explicit checks above provide precise normal-case feedback. The
         # database constraints remain the race-safe authority when concurrent
         # requests attempt the same email or phone number.
         await session.rollback()
+        duplicate_message = _client_manager_duplicate_message(exc)
+        if duplicate_message is None:
+            raise
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="A Client Manager with this email or mobile number already exists",
+            detail=duplicate_message,
         ) from exc
+    for group_id, access in access_by_group.items():
+        session.add(
+            ClientManagerGroupAssignmentModel(
+                id=uuid.uuid4(),
+                agency_id=tenant_id,
+                organization_id=organization.id,
+                group_id=group_id,
+                profile_id=profile.id,
+                gc_group_access_id=access.id,
+                is_active=True,
+                can_view_passenger_names=False,
+                personal_document_access_enabled=False,
+                assigned_by_user_id=current_user.id,
+                assigned_at=now,
+                updated_at=now,
+            )
+        )
+    try:
+        await session.flush()
+    except IntegrityError:
+        # Group-assignment failures are not account-identity duplicates. Keep
+        # the operation atomic and preserve the real database error for logs.
+        await session.rollback()
+        raise
     await _audit(
         session,
         current_user,

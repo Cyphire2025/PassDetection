@@ -1,15 +1,14 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
 
 import { activateSession } from '@/core/auth/session-service';
 import { PrimaryButton } from '@/design/components/primary-button';
-import { TextField } from '@/design/components/text-field';
-import { colors } from '@/design/theme';
 import { requestOtp, verifyOtp } from '@/features/auth/api/auth-api';
 import { useAuthFlowStore } from '@/features/auth/state/auth-flow-store';
 import { AuthError, authErrorMessage } from '@/features/auth/ui/auth-error';
 import { AuthShell } from '@/features/auth/ui/auth-shell';
+import { CountdownProgress } from '@/features/auth/ui/countdown-progress';
+import { OtpCodeInput } from '@/features/auth/ui/otp-code-input';
 
 export default function OtpScreen() {
   const flow = useAuthFlowStore();
@@ -77,28 +76,22 @@ export default function OtpScreen() {
       eyebrow="Verification"
       title="Check WhatsApp."
       description="Enter the 6-digit code sent to the WhatsApp number you provided. We use the same response whether or not a trip is eligible.">
-      <TextField
-        label="Verification code"
-        placeholder="000000"
-        keyboardType="number-pad"
-        textContentType="oneTimeCode"
+      <OtpCodeInput
         value={code}
-        onChangeText={(value) => setCode(value.replace(/\D/g, ''))}
-        maxLength={6}
-        returnKeyType="done"
-        onSubmitEditing={() => void submit()}
+        disabled={loading}
+        onChange={setCode}
       />
       <AuthError message={error} />
       <PrimaryButton label="Verify" loading={loading} onPress={() => void submit()} />
+      {resendSeconds > 0 ? (
+        <CountdownProgress remaining={resendSeconds} total={Math.max(1, flow.resendAfterSeconds)} />
+      ) : null}
       <PrimaryButton
         label={resendSeconds ? `Send another code in ${resendSeconds}s` : 'Send another WhatsApp code'}
         tone="secondary"
         disabled={resendSeconds > 0}
         onPress={() => void resend()}
       />
-      <Text style={styles.hint}>Codes expire quickly and stop working after repeated failed attempts.</Text>
     </AuthShell>
   );
 }
-
-const styles = StyleSheet.create({ hint: { color: colors.inkMuted, fontSize: 13, lineHeight: 19 } });
