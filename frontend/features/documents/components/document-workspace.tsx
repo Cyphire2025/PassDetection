@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ComponentType } from "react";
-import Link from "next/link";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -19,8 +17,13 @@ import {
   UploadCloud,
   X,
   XCircle,
+  type LucideIcon,
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+} from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence } from "@/lib/utils/format";
@@ -53,7 +56,7 @@ const DOCUMENT_TYPES: Array<{
   type: DistributionDocumentType;
   title: string;
   description: string;
-  icon: ComponentType<{ className?: string }>;
+  icon: LucideIcon;
 }> = [
   { type: "visa", title: "Visa", description: "Upload visa PDFs for this group.", icon: FileCheck2 },
   { type: "flight_ticket", title: "Flight Ticket", description: "Upload e-tickets or itineraries.", icon: Plane },
@@ -422,19 +425,33 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <PageHeader
-          title={group ? `${group.group_name} Documents` : "Group Documents"}
-          description="Match uploaded documents to passengers and save the reviewed list."
-        />
-        <Link href={ROUTES.dashboard.documents as never}>
-          <Button variant="outline">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Groups
-          </Button>
-        </Link>
-      </div>
+    <div className="flex flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Group document workspace"
+        title={group ? `${group.group_name} Documents` : "Group Documents"}
+        description="Validate uploaded files, resolve passenger matching exceptions, save the reviewed roster, and control delivery from one group context."
+        icon={FileCheck2}
+        accent="cyan"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={selectedConfig.icon}>
+              {selectedConfig.title} workflow
+            </WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={CheckCircle2}>
+              {assignedPassengerCount.toLocaleString()} of {(group?.total_passengers ?? reviewCounts.all).toLocaleString()} assigned
+            </WorkspaceHeaderContext>
+          </>
+        )}
+        actions={(
+          <IntentPrefetchLink
+            href={ROUTES.dashboard.documents}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Document Hub
+          </IntentPrefetchLink>
+        )}
+      />
 
       <div className="grid gap-3 md:grid-cols-3">
         {DOCUMENT_TYPES.map((item) => {
@@ -782,9 +799,10 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
+                <caption className="sr-only">Assigned passenger documents</caption>
                 <thead>
                   <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                    <th className="px-5 py-4">
+                    <th scope="col" className="px-5 py-4">
                       <input
                         type="checkbox"
                         className="h-4 w-4 rounded border-slate-300"
@@ -803,13 +821,13 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         }}
                       />
                     </th>
-                    <th className="px-5 py-4">Passenger</th>
-                    <th className="px-5 py-4">Passport</th>
-                    <th className="px-5 py-4">Document</th>
-                    <th className="px-5 py-4">Confidence</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4">Sent</th>
-                    {showRowActions && <th className="px-5 py-4 text-right">Action</th>}
+                    <th scope="col" className="px-5 py-4">Passenger</th>
+                    <th scope="col" className="px-5 py-4">Passport</th>
+                    <th scope="col" className="px-5 py-4">Document</th>
+                    <th scope="col" className="px-5 py-4">Confidence</th>
+                    <th scope="col" className="px-5 py-4">Status</th>
+                    <th scope="col" className="px-5 py-4">Sent</th>
+                    {showRowActions && <th scope="col" className="px-5 py-4 text-right">Action</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1419,13 +1437,14 @@ function DocumentDeliveryPreviewDialog({
               <div className="overflow-hidden rounded-xl border border-slate-200">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left text-sm">
+                    <caption className="sr-only">WhatsApp document distribution preview</caption>
                     <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                       <tr>
-                        <th className="px-4 py-3">Send</th>
-                        <th className="px-4 py-3">Passenger</th>
-                        <th className="px-4 py-3">Document</th>
-                        <th className="px-4 py-3">WhatsApp recipient</th>
-                        <th className="px-4 py-3">Status</th>
+                        <th scope="col" className="px-4 py-3">Send</th>
+                        <th scope="col" className="px-4 py-3">Passenger</th>
+                        <th scope="col" className="px-4 py-3">Document</th>
+                        <th scope="col" className="px-4 py-3">WhatsApp recipient</th>
+                        <th scope="col" className="px-4 py-3">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">

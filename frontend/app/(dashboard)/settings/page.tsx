@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertTriangle, LockKeyhole, Save, Trash2, UserCog } from "lucide-react";
-import { PageHeader } from "@/components/shared";
+import { useEffect, useState, type ReactNode } from "react";
+import { AlertTriangle, Clock3, LockKeyhole, Save, ShieldCheck, Trash2, UserCog } from "lucide-react";
+import {
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+} from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from "@/components/ui";
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
@@ -145,10 +148,35 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
+    <div className="flex flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Platform governance"
         title="Settings"
-        description="Configure platform defaults, access policy, retention, and review behavior."
+        description="Control platform defaults, client-data requirements, review thresholds, retention policy, and authorised administrative actions."
+        icon={UserCog}
+        accent="violet"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={ShieldCheck}>
+              {user ? ROLE_LABELS[user.role] ?? user.role : "Loading access scope"}
+            </WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={Clock3}>
+              {settings.updated_at ? `Saved ${formatDateTime(settings.updated_at)}` : "Default policy loaded"}
+            </WorkspaceHeaderContext>
+          </>
+        )}
+        actions={(
+          <Button
+            type="button"
+            onClick={handleSave}
+            isLoading={isSaving}
+            disabled={isLoading}
+            leftIcon={<Save className="h-4 w-4" aria-hidden="true" />}
+            className="bg-white text-[#123f73] shadow-sm hover:bg-violet-50 active:bg-violet-100"
+          >
+            Save Settings
+          </Button>
+        )}
       />
 
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
@@ -187,9 +215,6 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <Button type="button" onClick={handleSave} isLoading={isSaving} leftIcon={<Save className="h-4 w-4" />}>
-                Save Settings
-              </Button>
             </div>
 
             {isLoading ? (
@@ -200,98 +225,114 @@ export default function SettingsPage() {
                 <Skeleton className="h-24 w-full rounded-lg" />
               </div>
             ) : (
-              <div className="grid gap-5 md:grid-cols-2">
-                <Input
-                  label="Platform name"
-                  value={settings.platform_name}
-                  onChange={(event) => updateSetting("platform_name", event.target.value)}
-                />
-
-                <SelectSetting
-                  label="Default new group status"
-                  value={settings.default_group_status}
-                  onChange={(value) => updateSetting("default_group_status", value as PlatformSettings["default_group_status"])}
-                  options={[
-                    ["active", "Active"],
-                    ["closed", "Closed"],
-                  ]}
-                />
-
-                <SelectSetting
-                  label="Duplicate client contact policy"
-                  value={settings.duplicate_contact_policy}
-                  onChange={(value) =>
-                    updateSetting("duplicate_contact_policy", value as PlatformSettings["duplicate_contact_policy"])
-                  }
-                  options={[
-                    ["block_same_group", "Block duplicates in same group"],
-                    ["block_all", "Block duplicates across platform"],
-                    ["allow", "Allow duplicates"],
-                  ]}
-                />
-
-                <NumberSetting
-                  label="MRZ review threshold"
-                  value={settings.mrz_review_threshold}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onChange={(value) => updateSetting("mrz_review_threshold", value)}
-                />
-
-                <NumberSetting
-                  label="Auto-archive closed groups after days"
-                  value={settings.auto_archive_closed_groups_days}
-                  min={1}
-                  max={3650}
-                  onChange={(value) => updateSetting("auto_archive_closed_groups_days", value)}
-                />
-
-                <NumberSetting
-                  label="Passport data retention days"
-                  value={settings.passport_data_retention_days}
-                  min={1}
-                  max={3650}
-                  onChange={(value) => updateSetting("passport_data_retention_days", value)}
-                />
-
-                <NumberSetting
-                  label="Audit log retention days"
-                  value={settings.audit_log_retention_days}
-                  min={1}
-                  max={3650}
-                  onChange={(value) => updateSetting("audit_log_retention_days", value)}
-                />
-
-                <div className="space-y-3 rounded-lg border border-slate-200 p-4">
-                  <ToggleSetting
-                    label="Require client email"
-                    checked={settings.require_client_email}
-                    onChange={(checked) => updateSetting("require_client_email", checked)}
+              <div className="space-y-6">
+                <SettingsSection
+                  title="Identity and intake defaults"
+                  description="Define how new groups begin and how duplicate client contact details are handled."
+                >
+                  <Input
+                    label="Platform name"
+                    value={settings.platform_name}
+                    onChange={(event) => updateSetting("platform_name", event.target.value)}
                   />
-                  <ToggleSetting
-                    label="Require client phone"
-                    checked={settings.require_client_phone}
-                    onChange={(checked) => updateSetting("require_client_phone", checked)}
+
+                  <SelectSetting
+                    label="Default new group status"
+                    value={settings.default_group_status}
+                    onChange={(value) => updateSetting("default_group_status", value as PlatformSettings["default_group_status"])}
+                    options={[
+                      ["active", "Active"],
+                      ["closed", "Closed"],
+                    ]}
                   />
-                  <ToggleSetting
-                    label="Allow managers to create groups"
-                    checked={settings.allow_manager_group_creation}
-                    onChange={(checked) => updateSetting("allow_manager_group_creation", checked)}
+
+                  <SelectSetting
+                    label="Duplicate client contact policy"
+                    value={settings.duplicate_contact_policy}
+                    onChange={(value) =>
+                      updateSetting("duplicate_contact_policy", value as PlatformSettings["duplicate_contact_policy"])
+                    }
+                    options={[
+                      ["block_same_group", "Block duplicates in same group"],
+                      ["block_all", "Block duplicates across platform"],
+                      ["allow", "Allow duplicates"],
+                    ]}
                   />
-                </div>
+                </SettingsSection>
+
+                <SettingsSection
+                  title="Review and retention"
+                  description="Set the confidence boundary for manual review and the lifecycle of operational records."
+                >
+                  <NumberSetting
+                    label="MRZ review threshold"
+                    value={settings.mrz_review_threshold}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onChange={(value) => updateSetting("mrz_review_threshold", value)}
+                  />
+
+                  <NumberSetting
+                    label="Auto-archive closed groups after days"
+                    value={settings.auto_archive_closed_groups_days}
+                    min={1}
+                    max={3650}
+                    onChange={(value) => updateSetting("auto_archive_closed_groups_days", value)}
+                  />
+
+                  <NumberSetting
+                    label="Passport data retention days"
+                    value={settings.passport_data_retention_days}
+                    min={1}
+                    max={3650}
+                    onChange={(value) => updateSetting("passport_data_retention_days", value)}
+                  />
+
+                  <NumberSetting
+                    label="Audit log retention days"
+                    value={settings.audit_log_retention_days}
+                    min={1}
+                    max={3650}
+                    onChange={(value) => updateSetting("audit_log_retention_days", value)}
+                  />
+                </SettingsSection>
+
+                <fieldset className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                  <legend className="px-1 text-sm font-semibold text-slate-950">Access requirements</legend>
+                  <p className="mb-4 mt-1 text-sm leading-6 text-slate-600">
+                    Control required client contact fields and manager-level group creation.
+                  </p>
+                  <div className="grid gap-2">
+                    <ToggleSetting
+                      label="Require client email"
+                      checked={settings.require_client_email}
+                      onChange={(checked) => updateSetting("require_client_email", checked)}
+                    />
+                    <ToggleSetting
+                      label="Require client phone"
+                      checked={settings.require_client_phone}
+                      onChange={(checked) => updateSetting("require_client_phone", checked)}
+                    />
+                    <ToggleSetting
+                      label="Allow managers to create groups"
+                      checked={settings.allow_manager_group_creation}
+                      onChange={(checked) => updateSetting("allow_manager_group_creation", checked)}
+                    />
+                  </div>
+                </fieldset>
               </div>
             )}
 
-            {saveError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
+            {saveError && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{saveError}</div>}
             {saveMessage && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{saveMessage}</div>
+              <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{saveMessage}</div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden border-red-200">
         <CardContent className="space-y-5 p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex items-start gap-3">
@@ -339,10 +380,10 @@ export default function SettingsPage() {
           )}
 
           {purgeError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{purgeError}</div>
+            <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{purgeError}</div>
           )}
           {purgeResult && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+            <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
               Deleted {purgeResult.deleted_client_groups} groups, {purgeResult.deleted_passport_submissions} passports,
               {purgeResult.deleted_processing_jobs} jobs, {purgeResult.deleted_notifications} notifications,
               {purgeResult.deleted_audit_logs} audit entries, {purgeResult.deleted_storage_objects} storage files,
@@ -367,6 +408,26 @@ export default function SettingsPage() {
         onConfirm={handlePurgePassportData}
       />
     </div>
+  );
+}
+
+function SettingsSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-slate-200 p-4" aria-label={title}>
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
+        <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+      </div>
+      <div className="grid gap-5 md:grid-cols-2">{children}</div>
+    </section>
   );
 }
 
@@ -449,14 +510,20 @@ function ToggleSetting({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-4 text-sm font-medium text-slate-700">
+    <label className="flex min-h-11 cursor-pointer items-center justify-between gap-4 rounded-lg border border-transparent bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-200">
       <span>{label}</span>
-      <input
-        type="checkbox"
-        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-      />
+      <span className="relative shrink-0">
+        <input
+          type="checkbox"
+          className="peer sr-only"
+          checked={checked}
+          onChange={(event) => onChange(event.target.checked)}
+        />
+        <span
+          className="block h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-blue-600 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:after:translate-x-5"
+          aria-hidden="true"
+        />
+      </span>
     </label>
   );
 }

@@ -14,12 +14,14 @@ from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.storage.minio_repository import ObjectIntegrityMetadata
 from app.presentation.api.v1.routes.mobile_resources import (
     _coordinator_roster_revision,
+    _materialize_personal_document_metadata,
     _mobile_announcement_priority,
     _mobile_document_range_start,
     _mobile_manifest_versions,
     _mobile_meal_preference,
     _MobileDocumentSource,
     _passenger_identity,
+    _pending_personal_document_response,
     _personal_document_source_by_id,
     _personal_document_source_integrity,
     _safe_mobile_filename,
@@ -771,6 +773,79 @@ def _personal_pdf_source(*, size_seed: int = 1) -> _MobileDocumentSource:
         passenger_identity_id=uuid.uuid4(),
         passenger_submission_id=uuid.uuid4(),
     )
+
+
+def test_pending_personal_document_advertises_the_next_cached_revision() -> None:
+    source = _personal_pdf_source()
+    trip = SimpleNamespace(group=SimpleNamespace(id=uuid.uuid4()))
+    response = _pending_personal_document_response(
+        source,
+        trip,
+        SimpleNamespace(version=7),
+    )
+
+    assert response.version == 8
+    assert response.metadata_state == "pending"
+    assert response.checksum_sha256 is None
+
+
+@pytest.mark.asyncio
+async def test_materializing_a_replaced_personal_document_uses_the_advertised_revision() -> None:
+    source = _personal_pdf_source()
+    previous_updated_at = source.source_updated_at - timedelta(minutes=1)
+    cache = SimpleNamespace(
+        id=source.document_id,
+        agency_id=uuid.uuid4(),
+        group_id=uuid.uuid4(),
+        gc_group_access_id=uuid.uuid4(),
+        passenger_identity_id=source.passenger_identity_id,
+        passenger_submission_id=source.passenger_submission_id,
+        source_kind=source.source_kind,
+        source_id=source.source_id,
+        storage_key_hash="key-hash",
+        safe_filename=source.safe_filename,
+        content_type=source.content_type,
+        byte_size=4096,
+        checksum_sha256="a" * 64,
+        version=7,
+        source_updated_at=previous_updated_at,
+        created_at=previous_updated_at,
+        updated_at=previous_updated_at,
+    )
+    result = MagicMock()
+    result.scalar_one_or_none.return_value = cache
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=result)
+    session.flush = AsyncMock()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(id=uuid.uuid4()),
+        access=SimpleNamespace(id=uuid.uuid4(), agency_id=cache.agency_id),
+    )
+    identity = SimpleNamespace(
+        id=source.passenger_identity_id,
+        passenger_submission_id=source.passenger_submission_id,
+    )
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._personal_document_source_integrity",
+            new=AsyncMock(return_value=(4096, "a" * 64)),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.hash_mobile_lookup",
+            return_value="key-hash",
+        ),
+    ):
+        materialized = await _materialize_personal_document_metadata(
+            session,
+            trip=trip,
+            identity=identity,
+            source=source,
+        )
+
+    assert materialized.version == 8
+    assert materialized.source_updated_at == source.source_updated_at
+    session.flush.assert_awaited_once()
 
 
 @pytest.mark.asyncio

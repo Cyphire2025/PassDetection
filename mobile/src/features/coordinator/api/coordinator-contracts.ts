@@ -163,3 +163,13 @@ export const AttendanceSessionDetailSchema = z
   .strict();
 
 export type MissingPassenger = z.infer<typeof MissingPassengerSchema>;
+
+export const AttendanceRosterPageSchema = z
+  .object({
+    session: AttendanceSessionSchema,
+    items: z.array(MissingPassengerSchema).max(200),
+    next_cursor: z.string().max(256).nullable(),
+  })
+  .strict();
+
+export type AttendanceRosterPassenger = z.infer<typeof MissingPassengerSchema>;

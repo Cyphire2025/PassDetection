@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import Link from "next/link";
 import {
   Archive,
   ArrowLeft,
@@ -14,7 +13,11 @@ import {
   Trash2,
   UploadCloud,
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+} from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import type { RenameDocumentBatch, RenameDocumentBatchSummary } from "@/types/document-rename.types";
@@ -107,17 +110,31 @@ export function DocumentRenamePage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
+    <div className="flex flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Document preparation pipeline"
         title="Rename Documents"
-        description="Upload raw visa and ticket PDFs, extract names, detect type, and download renamed files."
+        description="Turn mixed supplier PDFs into an identified, reviewable batch with passenger-aware filenames and a clear rejected-file exception queue."
+        icon={FileCheck2}
+        accent="cyan"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={Archive}>
+              {(batches.data?.length ?? 0).toLocaleString()} saved batches
+            </WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={FileCheck2}>
+              {selectedFiles.length.toLocaleString()} PDFs selected
+            </WorkspaceHeaderContext>
+          </>
+        )}
         actions={(
-          <Link href={ROUTES.dashboard.documents as never}>
-            <Button type="button" variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-          </Link>
+          <IntentPrefetchLink
+            href={ROUTES.dashboard.documents}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Document Hub
+          </IntentPrefetchLink>
         )}
       />
 
@@ -443,13 +460,14 @@ function RenameResults({ batch, onBack }: { batch: RenameDocumentBatch; onBack: 
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
+              <caption className="sr-only">Renamed document results</caption>
               <thead>
                 <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                  <th className="px-5 py-4">Original PDF</th>
-                  <th className="px-5 py-4">Renamed PDF</th>
-                  <th className="px-5 py-4">Detected</th>
-                  <th className="px-5 py-4">Extracted Name</th>
-                  <th className="px-5 py-4 text-right">Download</th>
+                  <th scope="col" className="px-5 py-4">Original PDF</th>
+                  <th scope="col" className="px-5 py-4">Renamed PDF</th>
+                  <th scope="col" className="px-5 py-4">Detected</th>
+                  <th scope="col" className="px-5 py-4">Extracted Name</th>
+                  <th scope="col" className="px-5 py-4 text-right">Download</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">

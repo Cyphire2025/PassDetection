@@ -19,6 +19,15 @@ export interface NotificationProvider {
   register(): Promise<{ provider: 'expo' | 'fcm' | 'apns'; token: string } | null>;
 }
 
+export class NotificationRegistrationError extends Error {
+  constructor(readonly code: 'PUSH_PROJECT_NOT_CONFIGURED' | 'PUSH_TOKEN_UNAVAILABLE') {
+    super(code === 'PUSH_PROJECT_NOT_CONFIGURED'
+      ? 'Push notifications are not configured for this app build.'
+      : 'The device push token is temporarily unavailable.');
+    this.name = 'NotificationRegistrationError';
+  }
+}
+
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!Device.isDevice) return false;
   if (Platform.OS === 'android') {
@@ -46,9 +55,19 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
 export const expoNotificationProvider: NotificationProvider = {
   async register() {
-    if (!(await requestNotificationPermission()) || !env.easProjectId) return null;
-    const token = await Notifications.getExpoPushTokenAsync({ projectId: env.easProjectId });
-    return { provider: 'expo', token: token.data };
+    if (!(await requestNotificationPermission())) return null;
+    if (!env.easProjectId) {
+      throw new NotificationRegistrationError('PUSH_PROJECT_NOT_CONFIGURED');
+    }
+    let tokenData: string;
+    try {
+      tokenData = (
+        await Notifications.getExpoPushTokenAsync({ projectId: env.easProjectId })
+      ).data;
+    } catch {
+      throw new NotificationRegistrationError('PUSH_TOKEN_UNAVAILABLE');
+    }
+    return { provider: 'expo', token: tokenData };
   },
 };
 

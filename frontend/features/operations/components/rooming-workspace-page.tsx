@@ -114,7 +114,6 @@ export function RoomingWorkspacePage({ groupId }: { groupId: string }) {
         title={data.group_name}
         description="Move from hotel membership to an auto-generated room plan, then hand the current revision to the hotel check-in desk."
         icon={Hotel}
-        tone="blue"
         context={(
           <>
             {data.destination && <HeaderContext icon={MapPin}>{data.destination}</HeaderContext>}

@@ -6,6 +6,7 @@ import {
   activateSession,
   bootstrapSession,
   logoutSession,
+  purgeLocalSession,
   switchPassengerTripSession,
 } from '../session-service';
 import {
@@ -58,8 +59,10 @@ const mockClearLocalCleanupPending = jest.fn(async (namespace: string) => {
   mockSecureState.pendingCleanups.delete(namespace);
 });
 const mockDeleteAccountDatabase = jest.fn(async (_namespace: string) => undefined);
+const mockCloseAccountDatabase = jest.fn(async () => undefined);
 const mockBeginVaultNamespacePurge = jest.fn(async (_namespace: string) => undefined);
 const mockDeleteVaultNamespace = jest.fn(async (_namespace: string) => undefined);
+const mockPurgeTemporaryViews = jest.fn(async () => undefined);
 const mockFinishVaultNamespacePurge = jest.fn(
   (_namespace: string, _acknowledged: boolean) => undefined,
 );
@@ -139,6 +142,7 @@ jest.mock('@/core/storage/database', () => ({
     runAsync: (...args: unknown[]) => mockDatabaseRun(database.__namespace, ...args),
   })),
   deleteAccountDatabase: (...args: [string]) => mockDeleteAccountDatabase(...args),
+  closeAccountDatabase: () => mockCloseAccountDatabase(),
 }));
 
 jest.mock('@/core/storage/vault', () => ({
@@ -147,6 +151,7 @@ jest.mock('@/core/storage/vault', () => ({
   finishVaultNamespacePurge: (...args: [string, boolean]) => (
     mockFinishVaultNamespacePurge(...args)
   ),
+  purgeTemporaryViews: () => mockPurgeTemporaryViews(),
 }));
 
 const agencyA = '11111111-1111-4111-8111-111111111111';
@@ -251,9 +256,11 @@ beforeEach(async () => {
   mockMarkLocalCleanupPending.mockClear();
   mockClearLocalCleanupPending.mockClear();
   mockDeleteAccountDatabase.mockClear();
+  mockCloseAccountDatabase.mockClear();
   mockBeginVaultNamespacePurge.mockClear();
   mockBeginVaultNamespacePurge.mockResolvedValue(undefined);
   mockDeleteVaultNamespace.mockClear();
+  mockPurgeTemporaryViews.mockClear();
   mockFinishVaultNamespacePurge.mockClear();
   mockDatabaseRun.mockClear();
   mockOpenAccountDatabase.mockReset();
@@ -354,7 +361,7 @@ test('a delayed refresh cannot recreate a session after logout', async () => {
   expect(mockSetRefreshToken).not.toHaveBeenCalledWith(namespaceA, rotatedA.refresh_token);
 });
 
-test('logout waits for namespace writes before deleting the database, vault and keys', async () => {
+test('explicit account purge waits for namespace writes before deleting the database, vault and keys', async () => {
   await activateSession(initialA);
   const oldWriteFinished = deferred<void>();
   const fenceStarted = deferred<void>();
@@ -363,7 +370,7 @@ test('logout waits for namespace writes before deleting the database, vault and 
     await oldWriteFinished.promise;
   });
 
-  const logout = logoutSession();
+  const logout = purgeLocalSession(namespaceA);
   await fenceStarted.promise;
   expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
   expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
@@ -384,12 +391,12 @@ test('logout waits for namespace writes before deleting the database, vault and 
   );
 });
 
-test('logout clears credentials and stays fenced when database and vault deletion fail', async () => {
+test('explicit account purge clears credentials and stays fenced when deletion fails', async () => {
   await activateSession(initialA);
   mockDeleteAccountDatabase.mockRejectedValueOnce(new Error('database delete failed'));
   mockDeleteVaultNamespace.mockRejectedValueOnce(new Error('vault delete failed'));
 
-  await expect(logoutSession()).rejects.toThrow('database delete failed');
+  await expect(purgeLocalSession(namespaceA)).rejects.toThrow('database delete failed');
 
   expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
   expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
@@ -402,11 +409,11 @@ test('logout clears credentials and stays fenced when database and vault deletio
   expect(mockFinishVaultNamespacePurge).toHaveBeenCalledWith(namespaceA, false);
 });
 
-test('a failed logout cleanup is retried durably after restart before the account can reopen', async () => {
+test('a failed explicit account purge is retried after restart before the account can reopen', async () => {
   await activateSession(initialA);
   mockDeleteAccountDatabase.mockRejectedValueOnce(new Error('database delete failed'));
 
-  await expect(logoutSession()).rejects.toThrow('database delete failed');
+  await expect(purgeLocalSession(namespaceA)).rejects.toThrow('database delete failed');
   expect(mockSecureState.activeNamespace).toBeNull();
   expect(mockSecureState.pendingCleanups.has(namespaceA)).toBe(true);
   expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
@@ -466,12 +473,15 @@ test('logout clears authentication immediately and does not depend on the active
   await expect(logout).resolves.toBeUndefined();
 
   expect(mockGetActiveNamespace).not.toHaveBeenCalled();
-  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
-  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
-  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
+  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalled();
 });
 
-test('logout remains anonymous and purges local data when refresh-token lookup fails', async () => {
+test('logout remains anonymous and retains encrypted data when refresh-token lookup fails', async () => {
   await activateSession(initialA);
   useSelectedTripStore.getState().selectTrip('55555555-5555-4555-8555-555555555555');
   mockGetRefreshToken.mockRejectedValueOnce(new Error('refresh token read failed'));
@@ -489,9 +499,12 @@ test('logout remains anonymous and purges local data when refresh-token lookup f
       headers: { Authorization: `Bearer ${initialA.access_token}` },
     }),
   );
-  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
-  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
-  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
+  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
+  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
+  expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
+  expect(mockClearNamespaceSecrets).not.toHaveBeenCalled();
 });
 
 test('a stale rejected refresh cannot purge the newly selected account', async () => {

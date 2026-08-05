@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const pageSource = readFileSync(
-  new URL("./whatsapp-page.tsx", import.meta.url),
+  new URL("./whatsapp-workspace.tsx", import.meta.url),
   "utf8",
 );
 const apiSource = readFileSync(

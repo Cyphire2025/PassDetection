@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DocumentGroupList } from "@/features/documents/components/document-group-list";
 
 export const metadata: Metadata = {
-  title: "Document Distribution | Global Connects Dashboard",
+  title: "Document Distribution",
 };
 
 export default function DocumentDistributionPage() {

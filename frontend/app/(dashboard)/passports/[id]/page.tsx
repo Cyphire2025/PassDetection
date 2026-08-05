@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { PassportDetail } from "@/features/passports/components/passport-detail";
+
+export const metadata: Metadata = {
+  title: "Passport Submission",
+};
 
 interface PassportDetailPageProps {
   params: Promise<{ id: string }>;

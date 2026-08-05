@@ -1,7 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
@@ -17,6 +18,7 @@ import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store
 import {
   notificationContentData,
   notificationData,
+  NotificationRegistrationError,
   registerPushDevice,
 } from './notification-service';
 import {
@@ -36,11 +38,34 @@ export function NotificationRuntime() {
   const principalType = session?.principal.principalType ?? null;
   const agencyId = session?.principal.agencyId ?? null;
   const sessionId = session?.sessionId ?? null;
+  const registrationInFlight = useRef<Promise<void> | null>(null);
+
+  const registerNotifications = useCallback(() => {
+    if (!sessionId || demoMode || registrationInFlight.current) return;
+    const operation = registerPushDevice()
+      .then((registered) => {
+        if (!registered) console.warn('[notifications] permission not granted');
+      })
+      .catch((error: unknown) => {
+        const code = error instanceof NotificationRegistrationError
+          ? error.code
+          : 'PUSH_REGISTRATION_FAILED';
+        console.warn('[notifications] registration deferred', { code });
+      })
+      .finally(() => {
+        if (registrationInFlight.current === operation) registrationInFlight.current = null;
+      });
+    registrationInFlight.current = operation;
+  }, [demoMode, sessionId]);
 
   useEffect(() => {
     if (!sessionId || demoMode) return;
-    void registerPushDevice().catch(() => undefined);
-  }, [demoMode, sessionId]);
+    registerNotifications();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') registerNotifications();
+    });
+    return () => subscription.remove();
+  }, [demoMode, registerNotifications, sessionId]);
 
   useEffect(() => {
     if (!sessionId || !agencyId || !accountId || !principalId || !principalType) return;

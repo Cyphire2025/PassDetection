@@ -9,7 +9,7 @@ const featureDirectory = path.resolve(currentDirectory, "..");
 const frontendDirectory = path.resolve(featureDirectory, "../..");
 
 const pageSource = fs.readFileSync(
-  path.join(currentDirectory, "whatsapp-page.tsx"),
+  path.join(currentDirectory, "whatsapp-workspace.tsx"),
   "utf8",
 );
 const apiSource = fs.readFileSync(

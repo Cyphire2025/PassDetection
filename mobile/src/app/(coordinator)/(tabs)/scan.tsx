@@ -37,6 +37,7 @@ import {
   attendanceScanTimestamp,
   isRapidRepeatScan,
   recordOptimisticAttendanceScan,
+  settleOptimisticAttendanceScans,
   visibleAttendanceCount,
   type RecentAttendanceScan,
 } from '@/features/coordinator/data/scan-policy';
@@ -122,6 +123,7 @@ export default function CoordinatorScanScreen() {
     if (drainRunning.current) return;
     drainRunning.current = true;
     const drainedTrips = new Set<string>();
+    const settledByTrip = new Map<string, Record<string, number>>();
     try {
       while (pendingDrainTrips.current.size > 0) {
         const batch = [...pendingDrainTrips.current];
@@ -131,12 +133,31 @@ export default function CoordinatorScanScreen() {
         );
         results.forEach((result, index) => {
           const tripId = batch[index];
-          if (result.status === 'fulfilled' && tripId) drainedTrips.add(tripId);
+          if (result.status !== 'fulfilled' || !tripId) return;
+          drainedTrips.add(tripId);
+          const tripSettlements = settledByTrip.get(tripId) ?? {};
+          for (const [sessionId, count] of Object.entries(result.value.settledBySession)) {
+            tripSettlements[sessionId] = (tripSettlements[sessionId] ?? 0) + count;
+          }
+          settledByTrip.set(tripId, tripSettlements);
         });
       }
       const activeTripId = selectedTripIdRef.current;
       if (activeTripId && drainedTrips.has(activeTripId)) {
-        await refetchSessionsRef.current();
+        const refreshed = await refetchSessionsRef.current();
+        const activeSession = selectedSessionRef.current;
+        const serverSession = activeSession
+          ? refreshed.data?.items.find((item) => item.id === activeSession.id)
+          : null;
+        if (activeSession) {
+          const settledCount = settledByTrip.get(activeTripId)?.[activeSession.id] ?? 0;
+          setOptimisticScans((current) => settleOptimisticAttendanceScans(
+            current,
+            activeSession.id,
+            serverSession?.scanned_count ?? activeSession.scanned_count,
+            settledCount,
+          ));
+        }
       }
     } finally {
       drainRunning.current = false;

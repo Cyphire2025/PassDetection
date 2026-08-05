@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from fastapi import HTTPException
 from pydantic import ValidationError
 
 from app.core.security.mobile_jwt import MobileAccessClaims
@@ -24,13 +25,17 @@ from app.presentation.api.v1.routes.mobile_ops import (
     _AttendanceReplaySnapshot,
     _PreparedAttendanceAction,
     _push_fernet,
+    _require_client_manager_trip,
     _resolve_scannable_passenger_from_snapshot,
     _safe_optional_date,
     _safe_public_payload,
     _scannable_passenger_snapshot,
+    _validate_manager_document_signature,
     apply_mobile_attendance_actions,
     create_mobile_incident,
     get_mobile_coordinator_passenger,
+    get_mobile_manager_passenger,
+    list_mobile_manager_passengers,
     router,
 )
 from app.presentation.api.v1.schemas.mobile_schemas import (
@@ -71,14 +76,104 @@ def test_mobile_ops_routes_match_native_client_contract() -> None:
         "/coordinator/groups/{group_id}/attendance/sessions",
         "/coordinator/groups/{group_id}/attendance/sessions/{session_id}",
         "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete",
+        "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/roster",
         "/coordinator/groups/{group_id}/attendance/actions",
         "/coordinator/groups/{group_id}/attendance/summary",
         "/coordinator/groups/{group_id}/incidents",
+        "/manager/groups/{group_id}/passengers",
+        "/manager/groups/{group_id}/passengers/{passenger_id}",
+        "/manager/groups/{group_id}/passengers/{passenger_id}/documents/{document_type}/preview",
+        "/manager/groups/{group_id}/attendance/sessions",
+        "/manager/groups/{group_id}/attendance/sessions/{session_id}/roster",
         "/push/register",
         "/push/unregister",
         "/notifications",
         "/notifications/{notification_id}/read",
     }
+
+
+@pytest.mark.asyncio
+async def test_client_manager_trip_scope_fails_closed_for_other_mobile_roles() -> None:
+    with pytest.raises(AuthorizationError, match="Client manager"):
+        await _require_client_manager_trip(MagicMock(), _claims("coordinator"), uuid.uuid4())
+
+
+@pytest.mark.asyncio
+async def test_client_manager_roster_includes_every_group_passenger_status() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    count_result = MagicMock()
+    count_result.scalar_one.return_value = 0
+    rows_result = MagicMock()
+    rows_result.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[count_result, rows_result])
+
+    with patch(
+        "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+        new=AsyncMock(return_value=SimpleNamespace()),
+    ):
+        response = await list_mobile_manager_passengers(
+            group_id=group_id,
+            search="",
+            cursor=None,
+            limit=100,
+            claims=claims,
+            session=session,
+        )
+
+    assert response.total == 0
+    sql = "\n".join(
+        str(call.args[0].compile(compile_kwargs={"literal_binds": True}))
+        for call in session.execute.await_args_list
+    )
+    assert "passport_submissions.agency_id =" in sql
+    assert "passport_submissions.group_id =" in sql
+    assert "passport_submissions.status" not in sql
+
+
+@pytest.mark.asyncio
+async def test_client_manager_detail_accepts_an_assigned_in_progress_passenger() -> None:
+    claims = _claims("client_manager")
+    group_id = uuid.uuid4()
+    passenger_id = uuid.uuid4()
+    missing = MagicMock()
+    missing.one_or_none.return_value = None
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=missing)
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_client_manager_trip",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        pytest.raises(EntityNotFoundError),
+    ):
+        await get_mobile_manager_passenger(
+            group_id=group_id,
+            passenger_id=passenger_id,
+            claims=claims,
+            session=session,
+        )
+
+    statement = session.execute.await_args.args[0]
+    sql = str(statement.compile(compile_kwargs={"literal_binds": True}))
+    where_sql = sql.split("WHERE", 1)[1]
+    assert "passport_submissions.id =" in sql
+    assert "passport_submissions.agency_id =" in sql
+    assert "passport_submissions.group_id =" in sql
+    assert "passport_submissions.status" not in where_sql
+
+
+def test_client_manager_preview_signature_validation_is_fail_closed() -> None:
+    _validate_manager_document_signature(b"%PDF-1.7\n", "application/pdf")
+    _validate_manager_document_signature(b"\xff\xd8\xff\xe0", "image/jpeg")
+    _validate_manager_document_signature(b"\x89PNG\r\n\x1a\n", "image/png")
+    _validate_manager_document_signature(b"RIFF1234WEBP", "image/webp")
+
+    with pytest.raises(HTTPException) as caught:
+        _validate_manager_document_signature(b"<html>not a pdf", "application/pdf")
+    assert caught.value.status_code == 415
 
 
 def test_attendance_batch_requires_unique_uuid_event_ids() -> None:

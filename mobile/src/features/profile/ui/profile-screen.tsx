@@ -10,7 +10,13 @@ import { colors, radii, spacing } from '@/design/theme';
 
 import { SafeSignOutButton } from './safe-sign-out-button';
 
-export function ProfileScreen({ eyebrow }: { eyebrow: string }) {
+export function ProfileScreen({
+  eyebrow,
+  showStorageCard = true,
+}: {
+  eyebrow: string;
+  showStorageCard?: boolean;
+}) {
   const session = useSessionStore((state) => state.session);
 
   return (
@@ -21,28 +27,30 @@ export function ProfileScreen({ eyebrow }: { eyebrow: string }) {
         subtitle="Privacy, sessions and offline storage on this device."
         tone={eyebrow === 'Coordinator' ? 'coordinator' : eyebrow === 'Client Manager' ? 'manager' : 'neutral'}
       />
-      <GlassCard style={styles.card}>
-        <View style={styles.row}>
-          <ShieldCheck color={colors.greenDeep} size={24} />
-          <View style={styles.rowText}>
-            <Text style={styles.rowTitle}>Account-isolated storage</Text>
-            <Text style={styles.rowDescription}>
-              This account has its own encrypted database and document vault. Switching accounts purges the previous account from this device.
-            </Text>
+      {showStorageCard ? (
+        <GlassCard style={styles.card}>
+          <View style={styles.row}>
+            <ShieldCheck color={colors.greenDeep} size={24} />
+            <View style={styles.rowText}>
+              <Text style={styles.rowTitle}>Account-isolated storage</Text>
+              <Text style={styles.rowDescription}>
+                Offline files stay encrypted and remain isolated to this account on this device.
+              </Text>
+            </View>
           </View>
-        </View>
-      </GlassCard>
+        </GlassCard>
+      ) : null}
       <GlassCard style={styles.card}>
         <View style={styles.row}>
           <LogOut color={colors.danger} size={24} />
           <View style={styles.rowText}>
             <Text style={styles.rowTitle}>Sign out</Text>
             <Text style={styles.rowDescription}>
-              Your encrypted database, queued actions and offline files are removed locally even if the server is temporarily unreachable.
+              Authentication is removed immediately. Encrypted offline documents remain available after you sign in to this account again.
             </Text>
           </View>
         </View>
-        <SafeSignOutButton label="Sign out and clear device" />
+        <SafeSignOutButton label="Sign out" />
       </GlassCard>
     </Screen>
   );

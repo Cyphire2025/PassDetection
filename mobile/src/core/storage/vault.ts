@@ -828,6 +828,7 @@ export async function downloadAndEncryptDocument(
         method: 'POST',
         body: {},
         schema: DocumentDownloadAuthorizationSchema,
+        timeoutMs: 5_000,
         ...(signal ? { signal } : {}),
       },
     );

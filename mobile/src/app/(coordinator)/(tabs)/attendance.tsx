@@ -15,8 +15,8 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
-import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -24,16 +24,30 @@ import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { StatusPill } from '@/design/components/status-pill';
 import { colors, spacing } from '@/design/theme';
-import type { AttendanceSession, MissingPassenger } from '@/features/coordinator/api/coordinator-contracts';
-import { completeAttendanceSession, selectAttendanceSession } from '@/features/coordinator/data/attendance-sessions';
+import type {
+  AttendanceRosterPassenger,
+  AttendanceSession,
+} from '@/features/coordinator/api/coordinator-contracts';
+import {
+  completeAttendanceSession,
+  selectAttendanceSession,
+} from '@/features/coordinator/data/attendance-sessions';
 import { visibleAttendanceSessions } from '@/features/coordinator/data/coordinator-view-policy';
-import { useAttendanceSessionDetail, useAttendanceSessions } from '@/features/coordinator/hooks/use-coordinator';
+import {
+  useAttendanceSessions,
+  useCoordinatorAttendanceRoster,
+} from '@/features/coordinator/hooks/use-coordinator';
 import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinator-trips';
+import {
+  AttendanceActivitySummary,
+  type ExpandedAttendanceRoster,
+} from '@/features/coordinator/ui/attendance-activity-summary';
 
 type Row =
   | { kind: 'session'; value: AttendanceSession }
-  | { kind: 'missing'; value: MissingPassenger };
-type AttendanceSection = { title: 'Started and completed' | 'Missing passengers'; data: Row[] };
+  | { kind: 'summary'; value: AttendanceSession }
+  | { kind: 'passenger'; value: AttendanceRosterPassenger; status: 'counted' | 'missing' };
+type AttendanceSection = { title: string | null; data: Row[] };
 
 export default function CoordinatorAttendanceScreen() {
   const router = useRouter();
@@ -45,46 +59,65 @@ export default function CoordinatorAttendanceScreen() {
     [sessions.data?.items],
   );
   const [viewedSession, setViewedSession] = useState<{ tripId: string; sessionId: string } | null>(null);
-  const viewSessionId = viewedSession?.tripId === trips.selectedTripId
+  const viewedSessionId = viewedSession?.tripId === trips.selectedTripId
     ? viewedSession.sessionId
     : null;
-  const effectiveSessionId = viewSessionId
+  const effectiveSessionId = viewedSessionId
     ?? visibleSessions.find((session) => session.id === sessions.data?.selectedSessionId)?.id
     ?? visibleSessions[0]?.id
     ?? null;
-  const detail = useAttendanceSessionDetail(trips.selectedTripId, effectiveSessionId);
+  const selectedActivity = visibleSessions.find((session) => session.id === effectiveSessionId) ?? null;
+  const [expanded, setExpanded] = useState<{
+    sessionId: string;
+    status: Exclude<ExpandedAttendanceRoster, null>;
+  } | null>(null);
+  const expandedStatus = expanded?.sessionId === effectiveSessionId ? expanded.status : null;
+  const roster = useCoordinatorAttendanceRoster(
+    trips.selectedTripId,
+    effectiveSessionId,
+    expandedStatus ?? 'missing',
+    expandedStatus !== null,
+  );
   const [busy, setBusy] = useState(false);
   const [operationError, setOperationError] = useState<{ tripId: string; message: string } | null>(null);
   const error = operationError?.tripId === trips.selectedTripId ? operationError.message : null;
-  const refetchSessions = sessions.refetch;
-  const refetchDetail = detail.refetch;
 
   const refreshAttendance = useCallback(async () => {
-    await refetchSessions();
-    if (effectiveSessionId) await refetchDetail();
-  }, [effectiveSessionId, refetchDetail, refetchSessions]);
+    const tasks: Promise<unknown>[] = [sessions.refetch()];
+    if (expandedStatus) tasks.push(roster.refetch());
+    await Promise.all(tasks);
+  }, [expandedStatus, roster, sessions]);
 
   const chooseSession = useCallback(async (session: AttendanceSession) => {
     const tripId = trips.selectedTripId;
     if (!tripId) return;
     setViewedSession({ tripId, sessionId: session.id });
+    setExpanded(null);
     if (session.status !== 'active') return;
     setOperationError(null);
     try {
       await selectAttendanceSession(tripId, session.id);
-      await refetchSessions();
+      await sessions.refetch();
     } catch (caught) {
       setOperationError({
         tripId,
         message: userFacingErrorMessage(caught, 'The attendance activity could not be opened.'),
       });
     }
-  }, [refetchSessions, trips.selectedTripId]);
+  }, [sessions, trips.selectedTripId]);
+
+  const toggleRoster = useCallback((status: 'counted' | 'missing') => {
+    if (!effectiveSessionId) return;
+    setExpanded((current) => (
+      current?.sessionId === effectiveSessionId && current.status === status
+        ? null
+        : { sessionId: effectiveSessionId, status }
+    ));
+  }, [effectiveSessionId]);
 
   const completeSelected = useCallback(() => {
     const tripId = trips.selectedTripId;
-    const selected = visibleSessions.find((session) => session.id === effectiveSessionId);
-    if (!tripId || !selected || selected.status !== 'active') return;
+    if (!tripId || !selectedActivity || selectedActivity.status !== 'active') return;
     Alert.alert(
       'Complete attendance activity?',
       'New scans cannot be added after completion.',
@@ -96,8 +129,8 @@ export default function CoordinatorAttendanceScreen() {
           onPress: () => {
             setBusy(true);
             setOperationError(null);
-            void completeAttendanceSession(tripId, selected.id)
-              .then(() => Promise.all([refetchSessions(), refetchDetail()]))
+            void completeAttendanceSession(tripId, selectedActivity.id)
+              .then(() => sessions.refetch())
               .catch((caught: unknown) => {
                 setOperationError({
                   tripId,
@@ -109,32 +142,55 @@ export default function CoordinatorAttendanceScreen() {
         },
       ],
     );
-  }, [effectiveSessionId, refetchDetail, refetchSessions, trips.selectedTripId, visibleSessions]);
+  }, [selectedActivity, sessions, trips.selectedTripId]);
 
-  const sections = useMemo<AttendanceSection[]>(() => [
-    {
+  const sections = useMemo<AttendanceSection[]>(() => {
+    const result: AttendanceSection[] = [{
       title: 'Started and completed',
       data: visibleSessions.map((session) => ({ kind: 'session', value: session })),
-    },
-    {
-      title: 'Missing passengers',
-      data: (detail.data?.missing ?? []).map((passenger) => ({ kind: 'missing', value: passenger })),
-    },
-  ], [detail.data?.missing, visibleSessions]);
+    }];
+    if (selectedActivity) {
+      result.push({ title: 'Activity details', data: [{ kind: 'summary', value: selectedActivity }] });
+    }
+    if (expandedStatus && roster.data) {
+      result.push({
+        title: expandedStatus === 'counted' ? 'Counted passengers' : 'Missing passengers',
+        data: roster.data.items.map((passenger) => ({
+          kind: 'passenger',
+          value: passenger,
+          status: expandedStatus,
+        })),
+      });
+    }
+    return result;
+  }, [expandedStatus, roster.data, selectedActivity, visibleSessions]);
 
-  const selectedActivity = visibleSessions.find((session) => session.id === effectiveSessionId) ?? null;
   const renderItem = useCallback(({ item }: SectionListRenderItemInfo<Row, AttendanceSection>) => {
-    if (item.kind === 'missing') {
+    if (item.kind === 'summary') {
+      return (
+        <AttendanceActivitySummary
+          session={item.value}
+          expanded={expandedStatus}
+          onToggle={toggleRoster}
+        />
+      );
+    }
+    if (item.kind === 'passenger') {
+      const Icon = item.status === 'counted' ? CheckCircle2 : AlertTriangle;
+      const iconColor = item.status === 'counted' ? colors.greenDeep : colors.warning;
       return (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`View details for ${item.value.display_name}`}
-          onPress={() => router.push({ pathname: '/(coordinator)/operations/passenger/[id]', params: { id: item.value.id } })}
+          onPress={() => router.push({
+            pathname: '/(coordinator)/operations/passenger/[id]',
+            params: { id: item.value.id },
+          })}
           style={({ pressed }) => pressed && styles.pressed}>
-          <GlassCard style={styles.missingRow}>
-            <AlertTriangle color={colors.warning} size={19} />
-            <View style={styles.missingText}>
-              <Text style={styles.missingName}>{item.value.display_name}</Text>
+          <GlassCard style={styles.passengerRow}>
+            <Icon color={iconColor} size={19} />
+            <View style={styles.passengerText}>
+              <Text style={styles.passengerName}>{item.value.display_name}</Text>
               <Text style={styles.viewDetails}>View details</Text>
             </View>
             <ChevronRight color={colors.inkMuted} size={19} />
@@ -148,7 +204,7 @@ export default function CoordinatorAttendanceScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ selected: viewed }}
-        accessibilityLabel={`${session.name}, ${session.status}, ${session.scanned_count} scanned`}
+        accessibilityLabel={`${session.name}, ${session.status}, ${session.scanned_count} counted`}
         onPress={() => void chooseSession(session)}
         style={({ pressed }) => pressed && styles.pressed}>
         <GlassCard style={[styles.sessionRow, viewed && styles.viewedSession]}>
@@ -157,7 +213,7 @@ export default function CoordinatorAttendanceScreen() {
             : <Clock3 color={colors.warning} size={21} />}
           <View style={styles.sessionText}>
             <Text style={styles.sessionName}>{session.name}</Text>
-            <Text style={styles.sessionMeta}>{session.scanned_count} of {session.assigned_count} scanned</Text>
+            <Text style={styles.sessionMeta}>{session.scanned_count} of {session.assigned_count} counted</Text>
           </View>
           <StatusPill
             label={session.status === 'active' ? 'In progress' : 'Completed'}
@@ -166,30 +222,32 @@ export default function CoordinatorAttendanceScreen() {
         </GlassCard>
       </Pressable>
     );
-  }, [chooseSession, effectiveSessionId, router]);
+  }, [chooseSession, effectiveSessionId, expandedStatus, router, toggleRoster]);
 
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
       <SectionList<Row, AttendanceSection>
         sections={sections}
         renderItem={renderItem}
-        renderSectionHeader={({ section }) => (
+        renderSectionHeader={({ section }) => section.title ? (
           <Text accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>
-        )}
-        keyExtractor={(item) => `${item.kind}:${item.value.id}`}
+        ) : null}
+        keyExtractor={(item) => item.kind === 'passenger'
+          ? `${item.kind}:${item.status}:${item.value.id}`
+          : `${item.kind}:${item.value.id}`}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={12}
-        maxToRenderPerBatch={18}
+        initialNumToRender={16}
+        maxToRenderPerBatch={24}
         updateCellsBatchingPeriod={35}
         windowSize={7}
         contentContainerStyle={styles.list}
-        refreshControl={
+        refreshControl={(
           <RefreshControl
             refreshing={manualRefresh.isRefreshing}
             onRefresh={() => void manualRefresh.refresh(refreshAttendance)}
           />
-        }
-        ListHeaderComponent={
+        )}
+        ListHeaderComponent={(
           <View style={styles.header}>
             <PageHeader
               eyebrow="Operations"
@@ -206,21 +264,26 @@ export default function CoordinatorAttendanceScreen() {
               <ContentEmpty title="No started attendance" message="Create an activity from Scan to begin attendance." />
             ) : null}
           </View>
-        }
-        ListFooterComponent={
+        )}
+        ListFooterComponent={(
           <View style={styles.footer}>
-            {detail.isPending && effectiveSessionId ? <ContentLoading label="Loading missing passengers" /> : null}
-            {detail.isError ? (
-              <ContentError message="Activity details are not available offline." onRetry={() => void detail.refetch()} />
+            {expandedStatus && roster.isPending ? <ContentLoading label={`Loading ${expandedStatus} passengers`} /> : null}
+            {expandedStatus && roster.isError ? (
+              <ContentError message="The attendance roster could not be loaded." onRetry={() => void roster.refetch()} />
             ) : null}
-            {detail.data && detail.data.missing.length === 0 ? (
-              <ContentEmpty title="No missing passengers" message="Everyone assigned to this activity has been scanned." />
+            {expandedStatus && roster.data?.items.length === 0 ? (
+              <ContentEmpty
+                title={expandedStatus === 'counted' ? 'No counted passengers' : 'No missing passengers'}
+                message={expandedStatus === 'counted'
+                  ? 'No passenger has been counted for this activity yet.'
+                  : 'Everyone assigned to this activity has been counted.'}
+              />
             ) : null}
             {selectedActivity?.status === 'active' ? (
               <PrimaryButton label="Complete selected activity" tone="danger" loading={busy} onPress={completeSelected} />
             ) : null}
           </View>
-        }
+        )}
       />
     </Screen>
   );
@@ -243,9 +306,9 @@ const styles = StyleSheet.create({
   sessionText: { flex: 1, gap: 3 },
   sessionName: { color: colors.ink, fontSize: 15, fontWeight: '800' },
   sessionMeta: { color: colors.inkMuted, fontSize: 12 },
-  missingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, marginBottom: spacing.sm },
-  missingText: { flex: 1, gap: 3 },
-  missingName: { color: colors.ink, fontSize: 14, fontWeight: '700' },
+  passengerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, marginBottom: spacing.sm },
+  passengerText: { flex: 1, gap: 3 },
+  passengerName: { color: colors.ink, fontSize: 14, fontWeight: '700' },
   viewDetails: { color: colors.greenDeep, fontSize: 12, fontWeight: '800' },
   pressed: { opacity: 0.68 },
 });

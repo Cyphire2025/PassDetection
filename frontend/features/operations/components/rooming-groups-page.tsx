@@ -57,7 +57,6 @@ export function RoomingGroupsPage() {
         title="Rooming Lists"
         description="Build hotel stays, place every passenger, apply rooming priorities, and hand the final plan to the hotel desk."
         icon={BedDouble}
-        tone="blue"
         context={(
           <>
             <HeaderContext icon={Building2}>{groups.length} active groups</HeaderContext>

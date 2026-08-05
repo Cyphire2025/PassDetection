@@ -23,16 +23,17 @@ describe('validateProductionPublicEnvironment', () => {
     });
   });
 
-  it('accepts a local production binary with OTA updates explicitly unconfigured', () => {
+  it('accepts a production binary with push configured and OTA updates unconfigured', () => {
     expect(validateProductionPublicEnvironment({
       EXPO_PUBLIC_API_URL: 'https://tech.gctravels.com/api/v1',
       EXPO_PUBLIC_APP_ENV: 'production',
       EXPO_PUBLIC_DEMO_MODE: 'false',
+      EXPO_PUBLIC_EAS_PROJECT_ID: projectId,
     })).toEqual({
       apiUrl: 'https://tech.gctravels.com/api/v1',
       appEnv: 'production',
       demoMode: false,
-      easProjectId: undefined,
+      easProjectId: projectId,
       expoOwner: undefined,
       updatesUrl: undefined,
     });
@@ -64,6 +65,7 @@ describe('validateProductionPublicEnvironment', () => {
     ['EXPO_PUBLIC_DEMO_MODE', undefined, 'must be explicitly set to false'],
     ['EXPO_PUBLIC_DEMO_MODE', 'true', 'must be explicitly set to false'],
     ['EXPO_PUBLIC_EAS_PROJECT_ID', 'not-a-uuid', 'must be a valid UUID'],
+    ['EXPO_PUBLIC_EAS_PROJECT_ID', undefined, 'is required for production push notifications'],
     ['EXPO_PUBLIC_EXPO_OWNER', 'owner with spaces', 'without spaces'],
     ['EXPO_PUBLIC_UPDATES_URL', 'https://updates.example.com/runtime', 'must be the canonical'],
     [
@@ -85,6 +87,7 @@ describe('validateProductionPublicEnvironment', () => {
       [
         'EXPO_PUBLIC_APP_ENV must equal production.',
         'EXPO_PUBLIC_DEMO_MODE must be explicitly set to false.',
+        'EXPO_PUBLIC_EAS_PROJECT_ID is required for production push notifications.',
         'EXPO_PUBLIC_API_URL is required.',
       ].join('\n- '),
     );

@@ -68,6 +68,28 @@ export function recordOptimisticAttendanceScan(
   return { ...reconciled, pendingCount: reconciled.pendingCount + 1 };
 }
 
+export function settleOptimisticAttendanceScans(
+  current: OptimisticAttendanceCount,
+  sessionId: string,
+  serverCount: number,
+  settledCount: number,
+): OptimisticAttendanceCount {
+  const boundedServerCount = Math.max(0, serverCount);
+  const boundedSettledCount = Math.max(0, Math.floor(settledCount));
+  if (current.sessionId !== sessionId) {
+    return {
+      sessionId,
+      confirmedCount: boundedServerCount,
+      pendingCount: 0,
+    };
+  }
+  return {
+    sessionId,
+    confirmedCount: Math.max(current.confirmedCount, boundedServerCount),
+    pendingCount: Math.max(0, current.pendingCount - boundedSettledCount),
+  };
+}
+
 export function visibleAttendanceCount(
   current: OptimisticAttendanceCount,
   sessionId: string,

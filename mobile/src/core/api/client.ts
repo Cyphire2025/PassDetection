@@ -56,6 +56,13 @@ export type ApiRequestOptions<T> = {
   headers?: Readonly<Record<string, string>>;
 };
 
+export type ApiResponseOptions = {
+  accept: string;
+  timeoutMs?: number;
+  signal?: AbortSignal;
+  retryAuthentication?: boolean;
+};
+
 export function registerRefreshHandler(handler: RefreshHandler): () => void {
   refreshHandler = handler;
   return () => {
@@ -293,6 +300,59 @@ export async function apiRequest<T>(
     throw new ApiError('The server response did not match the mobile contract.', 502, 'INVALID_RESPONSE', null);
   }
   return result.data;
+}
+
+/** Fetch an authenticated, same-origin non-JSON response with normal token refresh. */
+export async function apiResponse(
+  path: string,
+  options: ApiResponseOptions,
+): Promise<Response> {
+  if (isDemoMode()) {
+    throw new ApiError(
+      'This emulator demo uses local sample data and cannot contact the server.',
+      503,
+      'DEMO_LOCAL_ONLY',
+      null,
+    );
+  }
+  const authentication = captureAuthenticationSnapshot();
+  const token = currentAccessToken();
+  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
+  const timeout = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  const response = await fetch(endpointUrl(path), {
+    method: 'GET',
+    headers: {
+      Accept: options.accept,
+      Authorization: `Bearer ${token}`,
+      'Cache-Control': 'no-store',
+      'X-Request-ID': Crypto.randomUUID(),
+    },
+    credentials: 'omit',
+    redirect: 'error',
+    signal,
+  });
+
+  if (!isAuthenticationEpochCurrent(authentication.epoch)) {
+    throw authenticationContextChanged();
+  }
+  if (response.status === 401 && (options.retryAuthentication ?? true)) {
+    const latestToken = currentAccessToken();
+    if (
+      latestToken !== authentication.accessToken
+      || (await refreshAccessToken(authentication))
+    ) {
+      if (!isAuthenticationEpochCurrent(authentication.epoch)) {
+        throw authenticationContextChanged();
+      }
+      return apiResponse(path, { ...options, retryAuthentication: false });
+    }
+  }
+  if (!response.ok) {
+    await handleAccessDenied(path, response.status);
+    throw await apiError(response);
+  }
+  return response;
 }
 
 export async function authorizedDownloadResponse(

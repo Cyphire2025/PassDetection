@@ -20,7 +20,11 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
-import { PageHeader } from "@/components/shared/page-header";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+} from "@/components/shared/workspace-ui";
 import {
   Badge,
   Button,
@@ -132,18 +136,27 @@ export function GroupWhatsAppBroadcastTrackingPage({
   if (!hasHydrated || !canAccessWhatsApp) return null;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="WhatsApp submission tracking"
-        description="Compare linked broadcast recipients with passport submissions."
+    <div className="space-y-5">
+      <WorkspacePageHeader
+        eyebrow="Group communication reconciliation"
+        title="WhatsApp Submission Tracking"
+        description="Compare linked broadcast recipients with passport submissions, surface missing matches, and keep recovery actions attached to the correct group."
+        icon={MessageCircle}
+        accent="emerald"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={Users}>Recipient-to-submission matching</WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={Link2}>Linked broadcast scope</WorkspaceHeaderContext>
+          </>
+        )}
         actions={(
-          <Link
-            href={ROUTES.dashboard.passportGroup(groupId) as never}
-            className={buttonVariants({ variant: "secondary" })}
+          <IntentPrefetchLink
+            href={ROUTES.dashboard.passportGroup(groupId)}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back to group
-          </Link>
+          </IntentPrefetchLink>
         )}
       />
       <GroupWhatsAppBroadcastWorkspace groupId={groupId} mode="tracking" />
@@ -1237,15 +1250,16 @@ function BroadcastMatchTable({
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200">
       <table className="w-full min-w-[1280px] text-left text-sm">
+        <caption className="sr-only">WhatsApp recipient identity and submission comparison</caption>
         <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
-            <th className="px-4 py-3">Person / upload</th>
-            <th className="px-4 py-3">Imported details</th>
-            <th className="px-4 py-3">Broadcasts</th>
-            <th className="px-4 py-3">Identification</th>
-            <th className="px-4 py-3">Submissions</th>
-            <th className="px-4 py-3">Updated</th>
-            {canManage && <th className="px-4 py-3">Action</th>}
+            <th scope="col" className="px-4 py-3">Person / upload</th>
+            <th scope="col" className="px-4 py-3">Imported details</th>
+            <th scope="col" className="px-4 py-3">Broadcasts</th>
+            <th scope="col" className="px-4 py-3">Identification</th>
+            <th scope="col" className="px-4 py-3">Submissions</th>
+            <th scope="col" className="px-4 py-3">Updated</th>
+            {canManage && <th scope="col" className="px-4 py-3">Action</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">

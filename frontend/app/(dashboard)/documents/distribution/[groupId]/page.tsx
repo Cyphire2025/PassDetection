@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DocumentWorkspace } from "@/features/documents/components/document-workspace";
 
 export const metadata: Metadata = {
-  title: "Group Documents | Global Connects Dashboard",
+  title: "Group Documents",
 };
 
 interface DocumentGroupPageProps {

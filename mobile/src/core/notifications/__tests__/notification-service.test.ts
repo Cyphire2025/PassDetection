@@ -67,7 +67,9 @@ describe('notification registration', () => {
   });
 
   it('asks a physical-device user for permission even before an EAS project is configured', async () => {
-    await expect(expoNotificationProvider.register()).resolves.toBeNull();
+    await expect(expoNotificationProvider.register()).rejects.toMatchObject({
+      code: 'PUSH_PROJECT_NOT_CONFIGURED',
+    });
 
     expect(mockSetChannel).toHaveBeenCalledWith('trip-updates', expect.any(Object));
     expect(mockRequestPermissions).toHaveBeenCalledTimes(1);

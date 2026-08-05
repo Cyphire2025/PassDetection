@@ -453,6 +453,20 @@ class MobileCoordinatorRosterResponse(BaseModel):
     total: int = Field(ge=0)
 
 
+class MobileManagerPassengerResponse(BaseModel):
+    id: uuid.UUID
+    display_name: str = Field(min_length=1, max_length=255)
+    employee_code: str | None = Field(default=None, max_length=120)
+    visa_status: Literal["available", "not_available"]
+    flight_ticket_status: Literal["available", "not_available"]
+
+
+class MobileManagerRosterResponse(BaseModel):
+    items: list[MobileManagerPassengerResponse] = Field(max_length=200)
+    next_cursor: str | None = None
+    total: int = Field(ge=0)
+
+
 class MobileAttendanceActionInput(BaseModel):
     client_event_id: uuid.UUID
     signed_qr: str = Field(
@@ -535,6 +549,12 @@ class MobileAttendanceSessionPageResponse(BaseModel):
 class MobileAttendanceMissingPassengerResponse(BaseModel):
     id: uuid.UUID
     display_name: str = Field(min_length=1, max_length=255)
+
+
+class MobileAttendanceRosterPageResponse(BaseModel):
+    session: MobileAttendanceSessionResponse
+    items: list[MobileAttendanceMissingPassengerResponse] = Field(max_length=200)
+    next_cursor: str | None = None
 
 
 class MobileAttendanceSessionDetailsResponse(BaseModel):

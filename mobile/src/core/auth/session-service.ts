@@ -5,6 +5,7 @@ import { PrincipalSchema, TokenResponseSchema, type TokenResponse } from '@/core
 import { demoPrincipal, isDemoPrincipal, seedDemoAccount } from '@/core/demo/demo-data';
 import { assertDemoMode, isDemoMode } from '@/core/demo/demo-mode';
 import {
+  closeAccountDatabase,
   deleteAccountDatabase,
   openAccountDatabase,
   withAccountTransaction,
@@ -25,6 +26,7 @@ import {
   beginVaultNamespacePurge,
   deleteVaultNamespace,
   finishVaultNamespacePurge,
+  purgeTemporaryViews,
 } from '@/core/storage/vault';
 import {
   beginRequiredPreparation,
@@ -577,12 +579,32 @@ export async function logoutSession(): Promise<void> {
   }
   if (namespace) {
     try {
-      await purgeLocalSession(namespace);
+      await deactivateLocalSession(namespace);
     } catch (error) {
       cleanupError ??= error;
     }
   }
   if (cleanupError) throw cleanupError;
+}
+
+/**
+ * End authentication without deleting the encrypted account database or vault.
+ * The namespace remains inaccessible until the same account authenticates again;
+ * temporary plaintext views are always removed immediately.
+ */
+export async function deactivateLocalSession(namespace: string): Promise<void> {
+  let firstError: unknown;
+  const capture = async (operation: () => Promise<unknown>): Promise<void> => {
+    try {
+      await operation();
+    } catch (error) {
+      firstError ??= error;
+    }
+  };
+  await capture(() => clearNamespaceAuthentication(namespace));
+  await capture(() => purgeTemporaryViews());
+  await capture(() => closeAccountDatabase());
+  if (firstError) throw firstError;
 }
 
 export async function purgeLocalSession(namespace: string): Promise<void> {

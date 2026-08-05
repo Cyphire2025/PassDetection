@@ -1,49 +1,36 @@
 /**
- * Dashboard Overview — Light Theme
+ * Agency command centre.
  */
 
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, ArrowRight, CalendarCheck, CheckCircle, Eye, FileText, Link2 } from "lucide-react";
-import { Card, CardContent, Skeleton, Badge, Button } from "@/components/ui";
-import { PageHeader } from "@/components/shared";
+import {
+  Activity,
+  AlertCircle,
+  ArrowRight,
+  CalendarCheck,
+  CheckCircle2,
+  Eye,
+  FileText,
+  Link2,
+  ShieldCheck,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceErrorNotice,
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+  WorkspaceSummaryItem,
+  WorkspaceSummaryStrip,
+} from "@/components/shared/workspace-ui";
 import { useDashboardStats } from "../hooks/use-dashboard-stats";
 import { formatDate } from "@/lib/utils/format";
 import { PASSPORT_STATUS_LABELS, PASSPORT_STATUS_COLORS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
-
-interface MetricCardProps {
-  label: string;
-  value: number | string;
-  icon: React.ComponentType<{ className?: string }>;
-  iconBg: string;
-  iconColor: string;
-  isLoading?: boolean;
-}
-
-function MetricCard({ label, value, icon: Icon, iconBg, iconColor, isLoading }: MetricCardProps) {
-  return (
-    <Card>
-      <CardContent className="p-4 sm:pt-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-            {isLoading ? (
-              <Skeleton className="mt-2 h-7 w-16" />
-            ) : (
-              <p className="mt-1.5 text-2xl font-bold text-slate-900">{value}</p>
-            )}
-          </div>
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
-            <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function DashboardOverview() {
   const role = useAuthStore(selectUserRole);
@@ -53,153 +40,241 @@ export function DashboardOverview() {
   if (isCoordinator) {
     return (
       <div className="flex min-w-0 flex-col gap-5">
-        <PageHeader
+        <WorkspacePageHeader
+          eyebrow="Field operations"
           title="Dashboard"
-          description="Open your assigned tour groups and start attendance scanning."
+          description="Move straight into your assigned tour groups, choose an activity, and begin attendance scanning."
+          icon={CalendarCheck}
+          accent="lime"
+          context={(
+            <>
+              <WorkspaceHeaderContext icon={ShieldCheck}>Coordinator workspace</WorkspaceHeaderContext>
+              <WorkspaceHeaderContext icon={Activity}>Live tour access</WorkspaceHeaderContext>
+            </>
+          )}
+          actions={(
+            <Link
+              href={ROUTES.coordinator as never}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-sky-50 active:bg-sky-100"
+            >
+              Open My Tour
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          )}
         />
 
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                <CalendarCheck className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-base font-semibold text-slate-900">My Tour</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  View assigned groups, choose an activity, and scan passenger QR codes.
-                </p>
-              </div>
-            </div>
-
-            <Link href={ROUTES.coordinator as never} className="mt-5 block">
-              <Button className="h-12 w-full justify-center bg-blue-600 text-base font-semibold text-white hover:bg-blue-700">
-                My Tour
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-              </Button>
+        <section
+          className="grid overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm md:grid-cols-[minmax(0,1fr)_auto]"
+          aria-labelledby="coordinator-next-step"
+        >
+          <div className="p-5 sm:p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-600">
+              Next operational step
+            </p>
+            <h2 id="coordinator-next-step" className="mt-1 text-lg font-semibold text-slate-950">
+              Continue from your assigned group
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+              Your tour workspace keeps group access, activity selection, QR scanning, and attendance progress together.
+            </p>
+          </div>
+          <div className="flex items-center border-t border-slate-100 bg-slate-50/70 p-5 md:border-l md:border-t-0">
+            <Link
+              href={ROUTES.coordinator as never}
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 md:w-auto"
+            >
+              My Tour
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     );
   }
 
-  const metrics: MetricCardProps[] = [
-    {
-      label: "Total Passports",
-      value: data?.total_passports ?? 0,
-      icon: FileText,
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
-      isLoading,
-    },
-    {
-      label: "Pending Review",
-      value: data?.pending_review ?? 0,
-      icon: AlertCircle,
-      iconBg: "bg-amber-50",
-      iconColor: "text-amber-600",
-      isLoading,
-    },
-    {
-      label: "Confirmed",
-      value: data?.confirmed ?? 0,
-      icon: CheckCircle,
-      iconBg: "bg-green-50",
-      iconColor: "text-green-600",
-      isLoading,
-    },
-    {
-      label: "Active Links",
-      value: data?.active_links ?? 0,
-      icon: Link2,
-      iconBg: "bg-purple-50",
-      iconColor: "text-purple-600",
-      isLoading,
-    },
-  ];
-
   return (
-    <div className="flex min-w-0 flex-col gap-5 sm:gap-7">
-      <PageHeader
+    <div className="flex min-w-0 flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Agency command centre"
         title="Dashboard"
-        description="Overview of your passport processing activity"
+        description="See passport throughput, review pressure, confirmed records, and active collection links before moving into the work that needs attention."
+        icon={Activity}
+        accent="sky"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={ShieldCheck}>Permission-aware overview</WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={Activity}>Live processing status</WorkspaceHeaderContext>
+          </>
+        )}
+        actions={(
+          <IntentPrefetchLink
+            href={ROUTES.dashboard.passports}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-sky-50 active:bg-sky-100"
+          >
+            Open All Groups
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </IntentPrefetchLink>
+        )}
       />
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          Failed to load dashboard statistics. Please ensure backend services are running.
-        </div>
+        <WorkspaceErrorNotice>
+          Dashboard statistics could not be refreshed. Existing navigation remains available while you try again.
+        </WorkspaceErrorNotice>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((m) => (
-          <MetricCard key={m.label} {...m} />
-        ))}
-      </div>
+      <WorkspaceSummaryStrip label="Passport operations summary">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-[72px] rounded-none" />
+          ))
+        ) : (
+          <>
+            <WorkspaceSummaryItem
+              label="Passport records"
+              value={(data?.total_passports ?? 0).toLocaleString()}
+              helper="in scope"
+              icon={FileText}
+            />
+            <WorkspaceSummaryItem
+              label="Needs review"
+              value={(data?.pending_review ?? 0).toLocaleString()}
+              helper="attention queue"
+              icon={AlertCircle}
+              tone={(data?.pending_review ?? 0) > 0 ? "attention" : "success"}
+            />
+            <WorkspaceSummaryItem
+              label="Confirmed"
+              value={(data?.confirmed ?? 0).toLocaleString()}
+              helper="ready records"
+              icon={CheckCircle2}
+              tone="success"
+            />
+            <WorkspaceSummaryItem
+              label="Active links"
+              value={(data?.active_links ?? 0).toLocaleString()}
+              helper="collecting details"
+              icon={Link2}
+              tone="info"
+            />
+          </>
+        )}
+      </WorkspaceSummaryStrip>
 
-      {/* Recent Submissions */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800">Recent Activity</h3>
-            <Link href="/passports" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
-              View all
-            </Link>
+      <section
+        className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+        aria-labelledby="recent-activity-heading"
+      >
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Latest intake
+            </p>
+            <h2 id="recent-activity-heading" className="mt-0.5 font-semibold text-slate-950">
+              Recent passport activity
+            </h2>
           </div>
+          <IntentPrefetchLink
+            href={ROUTES.dashboard.passports}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 hover:text-blue-800"
+          >
+            View all groups
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </IntentPrefetchLink>
+        </div>
 
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full rounded-lg" />
+        {isLoading ? (
+          <div className="space-y-3 p-5">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="h-14 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : !data?.recent_submissions || data.recent_submissions.length === 0 ? (
+          <div className="px-5 py-12 text-center">
+            <FileText className="mx-auto h-6 w-6 text-slate-400" aria-hidden="true" />
+            <h3 className="mt-3 text-sm font-semibold text-slate-900">No recent passport intake</h3>
+            <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">
+              New client submissions will appear here as soon as a group link receives verified details.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="divide-y divide-slate-100 md:hidden">
+              {data.recent_submissions.map((submission) => (
+                <article key={submission.id} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-slate-950">
+                        {submission.client_name}
+                      </h3>
+                      <p className="mt-1 break-all text-xs text-slate-500">
+                        {submission.client_email}
+                      </p>
+                    </div>
+                    <Badge variant={PASSPORT_STATUS_COLORS[submission.status] || "default"}>
+                      {PASSPORT_STATUS_LABELS[submission.status] || submission.status}
+                    </Badge>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                    <p className="text-xs text-slate-500">
+                      Submitted {formatDate(submission.created_at)}
+                    </p>
+                    <IntentPrefetchLink
+                      href={ROUTES.dashboard.passportDetail(submission.id)}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
+                      aria-label={`Review ${submission.client_name}`}
+                    >
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                      Review
+                    </IntentPrefetchLink>
+                  </div>
+                </article>
               ))}
             </div>
-          ) : !data?.recent_submissions || data.recent_submissions.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-sm text-slate-400">No recent submissions found.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm" role="table">
-                <thead>
-                  <tr className="border-b border-slate-100 text-xs font-medium uppercase tracking-wider text-slate-400">
-                    <th className="pb-3 pr-4">Client</th>
-                    <th className="pb-3 pr-4">Status</th>
-                    <th className="pb-3 pr-4">Submitted At</th>
-                    <th className="pb-3 text-right">Action</th>
+
+            <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <caption className="sr-only">Recent passport activity</caption>
+              <thead>
+                <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  <th scope="col" className="px-5 py-3">Passenger</th>
+                  <th scope="col" className="px-5 py-3">Workflow status</th>
+                  <th scope="col" className="px-5 py-3">Submitted</th>
+                  <th scope="col" className="px-5 py-3 text-right">Review</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {data.recent_submissions.map((submission) => (
+                  <tr key={submission.id} className="group transition-colors hover:bg-slate-50/70">
+                    <td className="px-5 py-3.5">
+                      <div className="font-medium text-slate-900">{submission.client_name}</div>
+                      <div className="mt-0.5 text-xs text-slate-500">{submission.client_email}</div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <Badge variant={PASSPORT_STATUS_COLORS[submission.status] || "default"}>
+                        {PASSPORT_STATUS_LABELS[submission.status] || submission.status}
+                      </Badge>
+                    </td>
+                    <td className="px-5 py-3.5 text-slate-600">
+                      {formatDate(submission.created_at)}
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <IntentPrefetchLink
+                        href={ROUTES.dashboard.passportDetail(submission.id)}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+                        aria-label={`Review ${submission.client_name}`}
+                      >
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      </IntentPrefetchLink>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {data.recent_submissions.map((sub) => (
-                    <tr key={sub.id} className="group hover:bg-slate-50/50">
-                      <td className="py-3.5 pr-4">
-                        <div className="font-medium text-slate-800">{sub.client_name}</div>
-                        <div className="text-xs text-slate-400">{sub.client_email}</div>
-                      </td>
-                      <td className="py-3.5 pr-4">
-                        <Badge variant={PASSPORT_STATUS_COLORS[sub.status] || "default"}>
-                          {PASSPORT_STATUS_LABELS[sub.status] || sub.status}
-                        </Badge>
-                      </td>
-                      <td className="py-3.5 pr-4 text-slate-500">
-                        {formatDate(sub.created_at)}
-                      </td>
-                      <td className="py-3.5 text-right">
-                        <Link href={ROUTES.dashboard.passportDetail(sub.id) as never}>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Eye className="h-4 w-4 text-slate-400 group-hover:text-slate-600" />
-                            <span className="sr-only">View</span>
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        )}
+      </section>
     </div>
   );
 }

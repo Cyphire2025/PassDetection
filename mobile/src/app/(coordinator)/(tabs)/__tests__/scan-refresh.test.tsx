@@ -50,7 +50,7 @@ jest.mock('lucide-react-native/icons/triangle-alert', () => {
   return { __esModule: true, default: () => React.createElement(MockView) };
 });
 jest.mock('@/features/coordinator/data/attendance-queue', () => ({
-  drainAttendanceQueue: jest.fn(async () => undefined),
+  drainAttendanceQueue: jest.fn(async () => ({ settledBySession: {} })),
   enqueueQrScan: jest.fn(),
 }));
 jest.mock('@/features/coordinator/data/attendance-sessions', () => ({

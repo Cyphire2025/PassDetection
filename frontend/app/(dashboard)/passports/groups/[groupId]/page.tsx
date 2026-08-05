@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PassportGroupDetail } from "@/features/passports/components/passport-group-detail";
 
 export const metadata: Metadata = {
-  title: "Passport Group | Global Connects Dashboard",
+  title: "Passport Group",
 };
 
 interface PassportGroupPageProps {

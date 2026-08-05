@@ -81,7 +81,7 @@
     "native:sync": "expo prebuild",
     "release:validate-env": "cross-env GC_VALIDATE_PRODUCTION_PUBLIC_ENV=true expo config --type public",
     "release:prepare-ios": "npm run release:validate-env && expo prebuild --platform ios --no-install",
-    "release:prepare-android": "npm run release:validate-env && expo prebuild --platform android --no-install",
+    "release:prepare-android": "npm run release:validate-env && cross-env GC_VALIDATE_ANDROID_PUSH=true expo prebuild --platform android --no-install",
     "android:apk": "npm run release:prepare-android && cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" assembleRelease",
     "android:aab": "npm run release:prepare-android && cross-env NODE_ENV=production android/gradlew.bat -p android --no-parallel \"-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m\" bundleRelease"
   },

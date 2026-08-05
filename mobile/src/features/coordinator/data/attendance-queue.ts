@@ -31,7 +31,19 @@ type PreparedAttendanceRow = PendingAttendanceRow & {
   payload: z.infer<typeof AttendancePayloadSchema>;
 };
 
-const drainInFlight = new Map<string, Promise<void>>();
+export type AttendanceDrainResult = Readonly<{
+  settledBySession: Readonly<Record<string, number>>;
+}>;
+
+const drainInFlight = new Map<string, Promise<AttendanceDrainResult>>();
+
+function recordSettled(
+  target: Record<string, number>,
+  sessionId: string,
+  count = 1,
+): void {
+  target[sessionId] = (target[sessionId] ?? 0) + count;
+}
 
 function namespace(): string {
   const principal = useSessionStore.getState().session?.principal;
@@ -188,7 +200,7 @@ async function reconcileAttendanceBatch(
   tripId: string,
   rows: PreparedAttendanceRow[],
   response: z.infer<typeof AttendanceBatchResponseSchema>,
-): Promise<void> {
+): Promise<Record<string, number>> {
   const resultsByEvent = new Map<string, (typeof response.results)[number]>();
   const duplicateResults = new Set<string>();
   for (const result of response.results) {
@@ -199,6 +211,7 @@ async function reconcileAttendanceBatch(
     }
   }
 
+  const settledBySession: Record<string, number> = {};
   await withAccountTransaction(database, async (transaction) => {
     const reconciledAt = new Date().toISOString();
     for (const row of rows) {
@@ -206,6 +219,7 @@ async function reconcileAttendanceBatch(
         ? undefined
         : resultsByEvent.get(row.idempotency_key);
       if (result?.status === 'accepted' || result?.status === 'already_applied') {
+        recordSettled(settledBySession, row.payload.session_id);
         await transaction.runAsync(
           `INSERT OR IGNORE INTO attendance_scan_receipts
             (account_namespace, trip_id, session_id, dedupe_key, client_event_id, server_status, accepted_at)
@@ -228,6 +242,7 @@ async function reconcileAttendanceBatch(
       }
 
       if (result) {
+        recordSettled(settledBySession, row.payload.session_id);
         await transaction.runAsync(
           `UPDATE pending_actions
               SET state = 'rejected', next_attempt_at = NULL,
@@ -256,6 +271,7 @@ async function reconcileAttendanceBatch(
       );
     }
   });
+  return settledBySession;
 }
 
 async function settleFailedBatch(
@@ -290,8 +306,9 @@ async function settleFailedBatch(
   return permanent;
 }
 
-async function drainTrip(account: string, tripId: string): Promise<void> {
+async function drainTrip(account: string, tripId: string): Promise<AttendanceDrainResult> {
   const database = await openAccountDatabase(account);
+  const settledBySession: Record<string, number> = {};
   const staleSendingBefore = new Date(Date.now() - 2 * 60_000).toISOString();
   await database.runAsync(
     `UPDATE pending_actions
@@ -305,7 +322,7 @@ async function drainTrip(account: string, tripId: string): Promise<void> {
   );
   while (true) {
     const claimedRows = await claimAttendanceBatch(database, account, tripId);
-    if (claimedRows.length === 0) return;
+    if (claimedRows.length === 0) return { settledBySession };
 
     const preparedRows: PreparedAttendanceRow[] = [];
     const invalidRows: PendingAttendanceRow[] = [];
@@ -340,14 +357,24 @@ async function drainTrip(account: string, tripId: string): Promise<void> {
       });
     } catch (error) {
       const permanent = await settleFailedBatch(database, account, preparedRows, error);
-      if (!permanent) return;
+      if (!permanent) return { settledBySession };
+      for (const row of preparedRows) recordSettled(settledBySession, row.payload.session_id);
       continue;
     }
-    await reconcileAttendanceBatch(database, account, tripId, preparedRows, response);
+    const batchResult = await reconcileAttendanceBatch(
+      database,
+      account,
+      tripId,
+      preparedRows,
+      response,
+    );
+    for (const [sessionId, count] of Object.entries(batchResult)) {
+      recordSettled(settledBySession, sessionId, count);
+    }
   }
 }
 
-export function drainAttendanceQueue(tripId: string): Promise<void> {
+export function drainAttendanceQueue(tripId: string): Promise<AttendanceDrainResult> {
   const account = namespace();
   const key = `${account}:${tripId}`;
   const active = drainInFlight.get(key);

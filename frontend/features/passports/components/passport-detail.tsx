@@ -3,11 +3,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Loader2, Pencil, QrCode, RotateCcw, Save, Upload } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
+import { Activity, AlertCircle, ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, FileCheck2, Gauge, History, Loader2, Pencil, QrCode, RotateCcw, Save, Upload } from "lucide-react";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceErrorNotice,
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+  WorkspaceSummaryItem,
+  WorkspaceSummaryStrip,
+} from "@/components/shared/workspace-ui";
 import { PassportDateInput } from "@/components/shared/passport-date-input";
-import { Badge, Button, buttonVariants, Card, CardContent, Input, Skeleton } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
 import { formatConfidence, formatDateTime } from "@/lib/utils/format";
@@ -17,7 +25,6 @@ import {
 } from "@/lib/utils/passport-date";
 import { formatPassportNationality } from "@/lib/utils/passport-country";
 import { getPassportTextField } from "@/lib/utils/passport-fields";
-import { cn } from "@/lib/utils/cn";
 import type {
   ExtractedPassportFields,
   PassportExtractionConflict,
@@ -56,7 +63,6 @@ import {
   PASSPORT_LIBRARY_IMAGE_ACCEPT,
   validatePassportLibraryImage,
 } from "../utils/passport-image-library";
-import { PassportImageCropEditor } from "./passport-image-crop-editor";
 import {
   buildPassportDetailNavigationHref,
   buildPassportGroupHref,
@@ -66,6 +72,11 @@ import {
   type PassportDetailNavigationState,
   type StoredPassportNavigationContext,
 } from "../utils/passport-group-navigation";
+
+const PassportImageCropEditor = dynamic(
+  () => import("./passport-image-crop-editor").then((module) => module.PassportImageCropEditor),
+  { loading: () => null },
+);
 
 interface PassportDetailProps {
   id: string;
@@ -212,11 +223,22 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6">
-        <Skeleton className="h-14 w-80 rounded-xl" />
+      <div className="flex flex-col gap-5" aria-label="Loading passenger passport workspace">
+        <WorkspacePageHeader
+          eyebrow="Passenger passport workspace"
+          title="Passport Submission"
+          description="Loading the passenger record, document images, extraction review, and workflow status."
+          icon={FileCheck2}
+          accent="sky"
+        />
+        <WorkspaceSummaryStrip label="Loading passport record summary">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-[72px] rounded-none" />
+          ))}
+        </WorkspaceSummaryStrip>
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <Skeleton className="h-[32rem] w-full rounded-3xl" />
-          <Skeleton className="h-[32rem] w-full rounded-3xl" />
+          <Skeleton className="h-[32rem] w-full rounded-xl" />
+          <Skeleton className="h-[32rem] w-full rounded-xl" />
         </div>
       </div>
     );
@@ -224,11 +246,17 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
 
   if (error || !data) {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title="Passport Submission" description="Submission details and extracted fields" />
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
-          Failed to load this passport submission.
-        </div>
+      <div className="flex flex-col gap-5">
+        <WorkspacePageHeader
+          eyebrow="Passenger passport workspace"
+          title="Passport Submission"
+          description="Review the passenger record, extracted fields, and current workflow status."
+          icon={FileCheck2}
+          accent="sky"
+        />
+        <WorkspaceErrorNotice>
+          This passport submission could not be loaded. Return to the group and try opening it again.
+        </WorkspaceErrorNotice>
       </div>
     );
   }
@@ -316,83 +344,133 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
     }
   };
 
+  const groupHref = activeNavigation
+    ? buildPassportGroupHref(
+      data.group_id,
+      activeNavigation.viewState,
+      activeNavigation.includeDeleted,
+    )
+    : ROUTES.dashboard.passportGroup(data.group_id);
+  const passportNumber = getPassportTextField(
+    data.confirmed_fields ?? data.extracted_fields,
+    "passport_number",
+  );
+  const workflowStatus = PASSPORT_STATUS_LABELS[data.status] ?? toLabel(data.status);
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <PageHeader
-          title={data.client_name}
-          description="Submission details, extraction output, and current processing state."
-        />
-        <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Passenger passport workspace"
+        title={data.client_name}
+        description="Inspect document images, review extracted fields, resolve verification exceptions, and preserve the passenger's existing workflow state."
+        icon={FileCheck2}
+        accent="sky"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={Activity}>{workflowStatus}</WorkspaceHeaderContext>
+            {passportNumber && (
+              <WorkspaceHeaderContext icon={FileCheck2}>Passport {passportNumber}</WorkspaceHeaderContext>
+            )}
+            {activeNavigation && navigationIndex >= 0 && (
+              <WorkspaceHeaderContext icon={History}>
+                Passenger {navigationIndex + 1} of {orderedSubmissionIds.length}
+              </WorkspaceHeaderContext>
+            )}
+          </>
+        )}
+        actions={(
+          <div className="flex flex-wrap items-center gap-2">
           {activeNavigation && navigationIndex >= 0 && (
             <div
-              className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1"
+              className="flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 p-1"
               role="group"
               aria-label="Passport profile navigation"
             >
               {previousHref ? (
-                <Link
-                  href={previousHref as never}
+                <IntentPrefetchLink
+                  href={previousHref}
                   aria-label="Previous passport"
-                  className={buttonVariants({ variant: "ghost", size: "icon" })}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white transition hover:bg-white/15"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                </IntentPrefetchLink>
               ) : (
                 <Button
                   type="button"
-                  variant="ghost"
                   size="icon"
                   disabled
                   aria-label="No previous passport"
+                  className="h-8 w-8 bg-transparent text-slate-400 shadow-none"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 </Button>
               )}
-              <span className="min-w-20 px-1 text-center text-xs font-medium text-slate-600">
+              <span className="min-w-20 px-1 text-center text-xs font-medium text-slate-100">
                 {navigationIndex + 1} of {orderedSubmissionIds.length}
               </span>
               {nextHref ? (
-                <Link
-                  href={nextHref as never}
+                <IntentPrefetchLink
+                  href={nextHref}
                   aria-label="Next passport"
-                  className={buttonVariants({ variant: "ghost", size: "icon" })}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white transition hover:bg-white/15"
                 >
                   <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
+                </IntentPrefetchLink>
               ) : (
                 <Button
                   type="button"
-                  variant="ghost"
                   size="icon"
                   disabled
                   aria-label="No next passport"
+                  className="h-8 w-8 bg-transparent text-slate-400 shadow-none"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </Button>
               )}
             </div>
           )}
-          <Link
-            href={(
-              activeNavigation
-                ? buildPassportGroupHref(
-                  data.group_id,
-                  activeNavigation.viewState,
-                  activeNavigation.includeDeleted,
-                )
-                : ROUTES.dashboard.passportGroup(data.group_id)
-            ) as never}
-            className={cn(buttonVariants({ variant: "outline" }), "gap-2")}
+          <IntentPrefetchLink
+            href={groupHref}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Passports
-          </Link>
+            Back to Group
+          </IntentPrefetchLink>
         </div>
-      </div>
+        )}
+      />
+
+      <WorkspaceSummaryStrip label="Passenger passport record summary">
+        <WorkspaceSummaryItem
+          label="Workflow"
+          value={workflowStatus}
+          helper="current status"
+          icon={Activity}
+          tone={data.status === "confirmed" ? "success" : data.status === "failed" ? "attention" : "info"}
+        />
+        <WorkspaceSummaryItem
+          label="Confidence"
+          value={formatConfidence(data.verification_confidence)}
+          helper="verification"
+          icon={Gauge}
+        />
+        <WorkspaceSummaryItem
+          label="Extraction revision"
+          value={data.extraction_revision.toLocaleString()}
+          helper="current"
+          icon={History}
+        />
+        <WorkspaceSummaryItem
+          label="Attendance QR"
+          value={formatQrStatus(data.qr_status?.status ?? "not_generated")}
+          helper={data.qr_status?.token_version ? `version ${data.qr_status.token_version}` : "passenger access"}
+          icon={QrCode}
+          tone={data.qr_status?.status === "active" ? "success" : "default"}
+        />
+      </WorkspaceSummaryStrip>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="overflow-hidden rounded-3xl">
+        <Card className="overflow-hidden rounded-xl">
           <CardContent className="space-y-5 p-4">
             <PassportImagePreview
               label="Visa Photo"
@@ -440,7 +518,7 @@ export function PassportDetail({ id, navigationQuery = "" }: PassportDetailProps
         </Card>
 
         <div className="flex flex-col gap-6">
-          <Card className="rounded-3xl">
+          <Card className="rounded-xl">
             <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">

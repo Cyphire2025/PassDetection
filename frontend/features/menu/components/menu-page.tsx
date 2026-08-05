@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
+import dynamic from "next/dynamic";
 import {
   BookOpen,
   CalendarDays,
@@ -9,12 +10,25 @@ import {
   Sparkles,
   UtensilsCrossed,
 } from "lucide-react";
-import { Card, CardContent, Skeleton } from "@/components/ui";
-import { PageHeader } from "@/components/shared/page-header";
+import {
+  WorkspaceErrorNotice,
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+  WorkspaceSummaryItem,
+  WorkspaceSummaryStrip,
+} from "@/components/shared/workspace-ui";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
 import { useMenuWorkspace } from "../hooks/use-menu";
-import { MenuLibrary } from "./menu-library";
-import { MealPlanner } from "./meal-planner";
+
+const MenuLibrary = dynamic(
+  () => import("./menu-library").then((module) => module.MenuLibrary),
+  { loading: () => <MenuWorkspaceLoading /> },
+);
+const MealPlanner = dynamic(
+  () => import("./meal-planner").then((module) => module.MealPlanner),
+  { loading: () => <MenuWorkspaceLoading /> },
+);
 
 type MenuView = "library" | "planner";
 
@@ -28,218 +42,285 @@ export function MenuPage() {
 
   if (error || !data) {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader
+      <div className="flex flex-col gap-5">
+        <WorkspacePageHeader
+          eyebrow="Culinary planning workspace"
           title="Menu"
-          description="Build a dish library and create non-repeating trip meal plans."
+          description="Build the dish library and generate balanced, non-repeating meal plans for each trip."
+          icon={ChefHat}
+          accent="amber"
         />
-        <div
-          className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700"
-          role="alert"
-        >
-          Menu data could not be loaded. Please refresh the page and try again.
-        </div>
+        <WorkspaceErrorNotice>
+          Menu data could not be refreshed. Reload the workspace to continue planning.
+        </WorkspaceErrorNotice>
       </div>
     );
   }
 
+  const openView = (nextView: MenuView) => {
+    setView(nextView);
+  };
+
+  const moveTabFocus = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    nextView: MenuView,
+  ) => {
+    event.preventDefault();
+    preloadMenuView(nextView);
+    setView(nextView);
+    document.getElementById(
+      nextView === "library" ? "menu-library-tab" : "meal-planner-tab",
+    )?.focus();
+  };
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentView: MenuView,
+  ) => {
+    if (event.key === "Home") {
+      moveTabFocus(event, "library");
+      return;
+    }
+    if (event.key === "End") {
+      moveTabFocus(event, "planner");
+      return;
+    }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      moveTabFocus(event, currentView === "library" ? "planner" : "library");
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
+    <div className="flex flex-col gap-5">
+      <WorkspacePageHeader
+        eyebrow="Culinary planning workspace"
         title="Menu"
-        description="Keep your dishes in one place and turn them into balanced lunch and dinner plans."
+        description="Maintain a controlled dish library, understand repeat-free capacity, and turn approved categories into balanced lunch and dinner plans."
+        icon={ChefHat}
+        accent="amber"
+        context={(
+          <>
+            <WorkspaceHeaderContext icon={Layers3}>
+              {data.categories.length.toLocaleString()} categories
+            </WorkspaceHeaderContext>
+            <WorkspaceHeaderContext icon={BookOpen}>
+              {data.plans.length.toLocaleString()} saved plans
+            </WorkspaceHeaderContext>
+          </>
+        )}
+        actions={(
+          <button
+            type="button"
+            onClick={() => openView(view === "library" ? "planner" : "library")}
+            onMouseEnter={() => preloadMenuView(view === "library" ? "planner" : "library")}
+            onFocus={() => preloadMenuView(view === "library" ? "planner" : "library")}
+            onPointerDown={() => preloadMenuView(view === "library" ? "planner" : "library")}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-semibold text-[#123f73] shadow-sm transition hover:bg-amber-50 active:bg-amber-100"
+          >
+            {view === "library" ? (
+              <>
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                Open Meal Planner
+              </>
+            ) : (
+              <>
+                <UtensilsCrossed className="h-4 w-4" aria-hidden="true" />
+                Open Dish Library
+              </>
+            )}
+          </button>
+        )}
       />
 
-      <Card className="overflow-hidden border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
-        <CardContent className="p-5 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-200">
-                <ChefHat className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-semibold text-slate-900">
-                    Smart, repeat-free planning
-                  </h2>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-white/80 px-2 py-0.5 text-[11px] font-medium text-blue-700">
-                    <Sparkles className="h-3 w-3" aria-hidden="true" />
-                    Balanced automatically
-                  </span>
-                </div>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                  Select categories such as Chicken, Paneer, Fish, or Dal. Every
-                  lunch and dinner gets one unique dish from each selected
-                  category.
-                </p>
-              </div>
-            </div>
-            <div className="grid shrink-0 grid-cols-3 gap-2 text-center">
-              {[
-                ["1", "Add dishes"],
-                ["2", "Set days"],
-                ["3", "Get plan"],
-              ].map(([step, label]) => (
-                <div
-                  key={step}
-                  className="min-w-20 rounded-lg border border-white/80 bg-white/70 px-3 py-2 shadow-sm"
-                >
-                  <div className="text-sm font-bold text-blue-700">{step}</div>
-                  <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <MetricCard
-          icon={<Layers3 className="h-4 w-4" />}
+      <WorkspaceSummaryStrip label="Menu planning capacity">
+        <WorkspaceSummaryItem
+          icon={Layers3}
           label="Categories"
-          value={String(data.categories.length)}
-          tone="violet"
+          value={data.categories.length.toLocaleString()}
+          helper="dish groups"
         />
-        <MetricCard
-          icon={<UtensilsCrossed className="h-4 w-4" />}
+        <WorkspaceSummaryItem
+          icon={UtensilsCrossed}
           label="Active dishes"
-          value={String(data.active_dishes)}
-          detail={
-            data.total_dishes !== data.active_dishes
-              ? `${data.total_dishes} total`
-              : undefined
-          }
-          tone="emerald"
+          value={data.active_dishes.toLocaleString()}
+          helper={data.total_dishes !== data.active_dishes ? `${data.total_dishes} total` : "available now"}
+          tone="success"
         />
-        <MetricCard
-          icon={<CalendarDays className="h-4 w-4" />}
-          label="All-category capacity"
-          value={`${data.max_trip_days_without_repeats} day${
-            data.max_trip_days_without_repeats === 1 ? "" : "s"
-          }`}
-          tone="blue"
+        <WorkspaceSummaryItem
+          icon={CalendarDays}
+          label="Repeat-free capacity"
+          value={`${data.max_trip_days_without_repeats} day${data.max_trip_days_without_repeats === 1 ? "" : "s"}`}
+          helper="all categories"
+          tone="info"
         />
-        <MetricCard
-          icon={<BookOpen className="h-4 w-4" />}
+        <WorkspaceSummaryItem
+          icon={BookOpen}
           label="Saved plans"
-          value={String(data.plans.length)}
-          tone="amber"
+          value={data.plans.length.toLocaleString()}
+          helper="trip menus"
         />
-      </div>
+      </WorkspaceSummaryStrip>
 
-      <div
-        className="grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1"
-        role="tablist"
-        aria-label="Menu sections"
+      <section
+        className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+        aria-labelledby="menu-workflow-heading"
       >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "library"}
-          onClick={() => setView("library")}
-          className={cn(
-            "flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
-            view === "library"
-              ? "bg-white text-slate-900 shadow-sm"
-              : "text-slate-500 hover:text-slate-800",
-          )}
-        >
-          <UtensilsCrossed className="h-4 w-4" aria-hidden="true" />
-          Dish Library
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={view === "planner"}
-          onClick={() => setView("planner")}
-          className={cn(
-            "flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
-            view === "planner"
-              ? "bg-white text-slate-900 shadow-sm"
-              : "text-slate-500 hover:text-slate-800",
-          )}
-        >
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
-          Meal Planner
-        </button>
-      </div>
+        <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 lg:flex-row lg:items-center lg:justify-between sm:px-5">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Repeat-free workflow
+            </p>
+            <h2 id="menu-workflow-heading" className="mt-0.5 font-semibold text-slate-950">
+              Build once, plan with confidence
+            </h2>
+          </div>
+          <ol className="grid grid-cols-3 gap-2 text-center">
+            {[
+              ["1", "Add dishes"],
+              ["2", "Set trip days"],
+              ["3", "Generate plan"],
+            ].map(([step, label]) => (
+              <li
+                key={step}
+                className="min-w-20 rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm"
+              >
+                <span className="block text-sm font-bold text-amber-700">{step}</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
 
-      {view === "library" ? (
-        <MenuLibrary categories={data.categories} />
-      ) : (
-        <MealPlanner
-          categories={data.categories}
-          plans={data.plans}
-          onOpenLibrary={() => setView("library")}
-        />
-      )}
+        <div
+          className="grid grid-cols-2 border-b border-slate-200 bg-slate-100 p-1"
+          role="tablist"
+          aria-label="Menu sections"
+        >
+          <button
+            id="menu-library-tab"
+            type="button"
+            role="tab"
+            aria-selected={view === "library"}
+            aria-controls="menu-library-panel"
+            tabIndex={view === "library" ? 0 : -1}
+            onClick={() => openView("library")}
+            onKeyDown={(event) => handleTabKeyDown(event, "library")}
+            onMouseEnter={() => preloadMenuView("library")}
+            onFocus={() => preloadMenuView("library")}
+            onPointerDown={() => preloadMenuView("library")}
+            className={cn(
+              "flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
+              view === "library"
+                ? "bg-white text-slate-950 shadow-sm"
+                : "text-slate-600 hover:bg-white/60 hover:text-slate-900",
+            )}
+          >
+            <UtensilsCrossed className="h-4 w-4" aria-hidden="true" />
+            Dish Library
+          </button>
+          <button
+            id="meal-planner-tab"
+            type="button"
+            role="tab"
+            aria-selected={view === "planner"}
+            aria-controls="meal-planner-panel"
+            tabIndex={view === "planner" ? 0 : -1}
+            onClick={() => openView("planner")}
+            onKeyDown={(event) => handleTabKeyDown(event, "planner")}
+            onMouseEnter={() => preloadMenuView("planner")}
+            onFocus={() => preloadMenuView("planner")}
+            onPointerDown={() => preloadMenuView("planner")}
+            className={cn(
+              "flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition",
+              view === "planner"
+                ? "bg-white text-slate-950 shadow-sm"
+                : "text-slate-600 hover:bg-white/60 hover:text-slate-900",
+            )}
+          >
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            Meal Planner
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-5">
+          {view === "library" ? (
+            <div
+              id="menu-library-panel"
+              role="tabpanel"
+              aria-labelledby="menu-library-tab"
+              tabIndex={0}
+            >
+              <MenuLibrary categories={data.categories} />
+            </div>
+          ) : (
+            <div
+              id="meal-planner-panel"
+              role="tabpanel"
+              aria-labelledby="meal-planner-tab"
+              tabIndex={0}
+            >
+              <MealPlanner
+                categories={data.categories}
+                plans={data.plans}
+                onOpenLibrary={() => openView("library")}
+              />
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
 
-function MetricCard({
-  icon,
-  label,
-  value,
-  detail,
-  tone,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  detail?: string;
-  tone: "blue" | "emerald" | "violet" | "amber";
-}) {
-  const tones = {
-    blue: "bg-blue-50 text-blue-600 ring-blue-100",
-    emerald: "bg-emerald-50 text-emerald-600 ring-emerald-100",
-    violet: "bg-violet-50 text-violet-600 ring-violet-100",
-    amber: "bg-amber-50 text-amber-600 ring-amber-100",
-  };
+function preloadMenuView(view: MenuView) {
+  if (view === "library") {
+    void import("./menu-library");
+    return;
+  }
+  void import("./meal-planner");
+}
 
+function MenuWorkspaceLoading() {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-slate-500">{label}</p>
-            <p className="mt-1 truncate text-lg font-bold text-slate-900">{value}</p>
-            {detail && <p className="mt-0.5 text-[11px] text-slate-400">{detail}</p>}
-          </div>
-          <span
-            className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-1",
-              tones[tone],
-            )}
-          >
-            {icon}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className="grid gap-4 md:grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)]"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading menu workspace"
+    >
+      <Skeleton className="h-72 rounded-xl" />
+      <Skeleton className="h-72 rounded-xl" />
+    </div>
   );
 }
 
 function MenuPageSkeleton() {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Skeleton className="h-6 w-28" />
-        <Skeleton className="mt-2 h-4 w-96 max-w-full" />
-      </div>
-      <Skeleton className="h-36 w-full rounded-xl" />
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div
+      className="flex flex-col gap-5"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Loading menu planning workspace"
+    >
+      <WorkspacePageHeader
+        eyebrow="Culinary planning workspace"
+        title="Menu"
+        description="Loading the dish library, repeat-free capacity, and saved trip plans."
+        icon={ChefHat}
+        accent="amber"
+      />
+      <WorkspaceSummaryStrip label="Loading menu planning capacity">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-24 rounded-xl" />
+          <Skeleton key={index} className="h-[72px] rounded-none" />
         ))}
-      </div>
-      <Skeleton className="h-12 w-full rounded-xl" />
+      </WorkspaceSummaryStrip>
+      <Skeleton className="h-14 w-full rounded-xl" />
       <div className="grid gap-4 md:grid-cols-2">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-64 rounded-xl" />
-        ))}
+        <Skeleton className="h-72 rounded-xl" />
+        <Skeleton className="h-72 rounded-xl" />
       </div>
     </div>
   );

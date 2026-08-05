@@ -118,11 +118,28 @@ export default function SecureDocumentScreen() {
             'Select this trip before opening its offline documents.',
           );
         }
-        const document = await getDocument(tripId, id);
+        let document = await getDocument(tripId, id);
         if (!document || document.revoked_at) {
           throw new TerminalDocumentViewerError('This document is no longer available.');
         }
         if (!mounted.current || attempt.current !== operationAttempt) return;
+        setTitle(document.display_name);
+        setContentType(document.content_type);
+        if (
+          document.metadata_state !== 'ready' ||
+          !document.offline_available ||
+          !document.size_bytes ||
+          !document.checksum_sha256
+        ) {
+          // Pending personal metadata is deliberately materialized by the same
+          // signed authorization that downloads the first offline copy. Do not
+          // dead-end the viewer while the background prefetch is still running.
+          await cacheDocument(document, undefined, signal);
+          document = await getDocument(tripId, id);
+          if (!document || document.revoked_at) {
+            throw new TerminalDocumentViewerError('This document is no longer available.');
+          }
+        }
         if (
           document.metadata_state !== 'ready' ||
           !document.offline_available ||
@@ -131,8 +148,6 @@ export default function SecureDocumentScreen() {
         ) {
           throw new Error('This document is still being prepared for offline use.');
         }
-        setTitle(document.display_name);
-        setContentType(document.content_type);
         if (!document.offline || document.offlineVersion !== document.version) {
           await cacheDocument(document, undefined, signal);
         }

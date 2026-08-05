@@ -5,6 +5,7 @@ import { validateProductionPublicEnvironment } from './scripts/production-public
 const APP_ID = 'com.globalconnects.groupcompanion';
 const PRODUCTION_EAS_PROFILES = new Set(['production', 'production-apk']);
 const updatesUrl = process.env.EXPO_PUBLIC_UPDATES_URL;
+const googleServicesFile = process.env.GOOGLE_SERVICES_JSON;
 
 const shouldValidateProductionEnvironment =
   process.env.EXPO_PUBLIC_APP_ENV === 'production' ||
@@ -13,6 +14,11 @@ const shouldValidateProductionEnvironment =
 
 if (shouldValidateProductionEnvironment) {
   validateProductionPublicEnvironment(process.env);
+}
+if (process.env.GC_VALIDATE_ANDROID_PUSH === 'true' && !googleServicesFile) {
+  throw new Error(
+    'Android push configuration failed: GOOGLE_SERVICES_JSON must point to the protected Firebase google-services.json file.',
+  );
 }
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -54,6 +60,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: APP_ID,
     versionCode: 1,
+    ...(googleServicesFile ? { googleServicesFile } : {}),
     allowBackup: false,
     blockedPermissions: [
       'android.permission.READ_EXTERNAL_STORAGE',

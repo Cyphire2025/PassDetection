@@ -22,6 +22,7 @@ import {
   loadAttendanceSessionDetail,
   loadCachedAttendanceSessionDetail,
   loadCachedAttendanceSessions,
+  loadCoordinatorAttendanceRoster,
   refreshAttendanceSessions,
 } from '../data/attendance-sessions';
 
@@ -164,6 +165,25 @@ export function useAttendanceSessionDetail(tripId: string | null, sessionId: str
     enabled: Boolean(accountKey && tripId && sessionId && cacheHydrated),
   });
   return query;
+}
+
+export function useCoordinatorAttendanceRoster(
+  tripId: string | null,
+  sessionId: string | null,
+  status: 'counted' | 'missing',
+  enabled: boolean,
+) {
+  const accountKey = useCoordinatorAccountKey();
+  const queryKey = useMemo(
+    () => ['coordinator-attendance-roster', accountKey, tripId, sessionId, status] as const,
+    [accountKey, sessionId, status, tripId],
+  );
+  return useQuery({
+    queryKey,
+    queryFn: () => loadCoordinatorAttendanceRoster(tripId!, sessionId!, status),
+    enabled: Boolean(enabled && accountKey && tripId && sessionId),
+    staleTime: status === 'counted' ? 5_000 : 2_000,
+  });
 }
 
 export function useCoordinatorCommonDocuments(tripId: string | null) {

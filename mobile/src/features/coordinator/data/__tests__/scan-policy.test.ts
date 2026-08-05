@@ -3,6 +3,7 @@ import {
   isRapidRepeatScan,
   reconcileAttendanceCount,
   recordOptimisticAttendanceScan,
+  settleOptimisticAttendanceScans,
   visibleAttendanceCount,
 } from '../scan-policy';
 
@@ -47,4 +48,30 @@ test('switching activities resets optimistic state to that activity server count
     confirmedCount: 7,
     pendingCount: 0,
   });
+});
+
+test('settles an already-applied scan without inflating the visible server count', () => {
+  const pending = recordOptimisticAttendanceScan(
+    EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
+    'session-a',
+    9,
+  );
+  expect(visibleAttendanceCount(pending, 'session-a', 9)).toBe(10);
+
+  const settled = settleOptimisticAttendanceScans(pending, 'session-a', 9, 1);
+  expect(settled).toEqual({ sessionId: 'session-a', confirmedCount: 9, pendingCount: 0 });
+  expect(visibleAttendanceCount(settled, 'session-a', 9)).toBe(9);
+});
+
+test('settles accepted and rejected scans against the refreshed server count exactly once', () => {
+  let pending = recordOptimisticAttendanceScan(
+    EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
+    'session-a',
+    20,
+  );
+  pending = recordOptimisticAttendanceScan(pending, 'session-a', 20);
+
+  const settled = settleOptimisticAttendanceScans(pending, 'session-a', 21, 2);
+  expect(settled).toEqual({ sessionId: 'session-a', confirmedCount: 21, pendingCount: 0 });
+  expect(visibleAttendanceCount(settled, 'session-a', 21)).toBe(21);
 });

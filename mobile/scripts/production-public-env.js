@@ -75,8 +75,10 @@ function validateProductionPublicEnvironment(source) {
     errors.push('EXPO_PUBLIC_DEMO_MODE must be explicitly set to false.');
   }
   const hasUpdatesConfiguration = Boolean(source.EXPO_PUBLIC_UPDATES_URL);
-  if (easProjectId && !EAS_PROJECT_ID_PATTERN.test(easProjectId)) {
-    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID must be a valid UUID when provided.');
+  if (!easProjectId) {
+    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID is required for production push notifications.');
+  } else if (!EAS_PROJECT_ID_PATTERN.test(easProjectId)) {
+    errors.push('EXPO_PUBLIC_EAS_PROJECT_ID must be a valid UUID.');
   }
   if (expoOwner && /\s/.test(expoOwner)) {
     errors.push(

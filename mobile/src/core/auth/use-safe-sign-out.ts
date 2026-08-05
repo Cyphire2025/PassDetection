@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { logoutSession, purgeLocalSession } from './session-service';
+import { deactivateLocalSession, logoutSession } from './session-service';
 import { useSessionStore } from './session-store';
 import { principalAccountNamespace } from './types';
 
@@ -30,7 +30,7 @@ export function requestSafeSignOut(): Promise<SafeSignOutResult> {
       await logoutSession();
       return { ok: true, namespace: null };
     } catch {
-      // logoutSession clears in-memory authentication before local cleanup. Do
+      // logoutSession clears in-memory authentication before local deactivation. Do
       // not expose filesystem/keychain errors or allow an unhandled rejection.
       return { ok: false, namespace };
     }
@@ -40,7 +40,7 @@ export function requestSafeSignOut(): Promise<SafeSignOutResult> {
 export function retrySafeSignOutCleanup(namespace: string): Promise<SafeSignOutResult> {
   return singleFlight(async () => {
     try {
-      await purgeLocalSession(namespace);
+      await deactivateLocalSession(namespace);
       return { ok: true, namespace: null };
     } catch {
       return { ok: false, namespace };
@@ -49,7 +49,7 @@ export function retrySafeSignOutCleanup(namespace: string): Promise<SafeSignOutR
 }
 
 const SAFE_CLEANUP_ERROR =
-  'Signed out locally, but secure device cleanup is incomplete. Try again or contact support.';
+  'Signed out locally, but secure session deactivation is incomplete. Try again or contact support.';
 
 export function useSafeSignOut() {
   const [isSigningOut, setIsSigningOut] = useState(false);

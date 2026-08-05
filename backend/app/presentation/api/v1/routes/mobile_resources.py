@@ -842,7 +842,7 @@ async def list_mobile_personal_documents(
             # pending Passport/Visa/Ticket entries, and that owned, single-file
             # request performs any one-time legacy checksum repair before download.
             pending_count += 1
-            items.append(_pending_personal_document_response(source, trip))
+            items.append(_pending_personal_document_response(source, trip, cache))
         else:
             items.append(_personal_document_response(source, cache))
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
@@ -1951,7 +1951,8 @@ async def _materialize_personal_document_metadata(
                 raise
 
     changed_content = (
-        row.storage_key_hash != key_hash
+        not _cache_matches_source(row, source)
+        or row.storage_key_hash != key_hash
         or row.checksum_sha256 != checksum
         or row.byte_size != byte_size
         or row.content_type != source.content_type
@@ -2146,6 +2147,7 @@ def _personal_document_response(
 def _pending_personal_document_response(
     source: _MobileDocumentSource,
     trip: AuthorizedMobileTrip,
+    cache: MobileDocumentMetadataCacheModel | None,
 ) -> MobilePersonalDocumentResponse:
     if source.passenger_submission_id is None:
         raise AuthorizationError("Passenger document access is not available")
@@ -2157,7 +2159,11 @@ def _pending_personal_document_response(
         display_name=source.display_name,
         content_type=source.content_type,
         size_bytes=None,
-        version=1,
+        # A stale cache is materialized as exactly the next revision during
+        # authorization. Advertising that revision up front prevents the first
+        # tap after a replacement from requesting the stale version and receiving
+        # a deterministic 409 before the client has any bytes cached.
+        version=(cache.version + 1 if cache is not None else 1),
         checksum_sha256=None,
         offline_available=False,
         metadata_state="pending",

@@ -2,17 +2,21 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import json
 import uuid
 from collections.abc import Sequence
+from contextlib import aclosing
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any, Literal
+from urllib.parse import quote
 
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import String, case, cast, func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,6 +64,7 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.rooming.priority_fields import normalize_imported_field_key
+from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.tour_operations import (
     SCANNABLE_ATTENDANCE_STATUSES,
     _insert_canonical_attendance_record,
@@ -71,6 +76,7 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceBatchRequest,
     MobileAttendanceBatchResponse,
     MobileAttendanceMissingPassengerResponse,
+    MobileAttendanceRosterPageResponse,
     MobileAttendanceSessionCreateRequest,
     MobileAttendanceSessionDetailsResponse,
     MobileAttendanceSessionPageResponse,
@@ -82,6 +88,8 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileCoordinatorRosterResponse,
     MobileIncidentActionResponse,
     MobileIncidentCreateRequest,
+    MobileManagerPassengerResponse,
+    MobileManagerRosterResponse,
     MobileNotificationPageResponse,
     MobileNotificationReadResponse,
     MobileNotificationResponse,
@@ -105,6 +113,15 @@ _MAX_MISSING_PASSENGER_PAGE = 200
 _MAX_SCAN_CLOCK_SKEW = timedelta(minutes=15)
 _IDEMPOTENCY_RECEIPT_TTL = timedelta(days=30)
 _MAX_COORDINATOR_OPERATIONAL_DETAILS = 300
+_MANAGER_PREVIEW_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
+_MANAGER_PREVIEW_DATABASE_TYPES = {
+    "visa": ("visa",),
+    "flight_ticket": ("flight_ticket", "ticket"),
+}
+_MANAGER_PREVIEW_CONTENT_TYPES = frozenset(
+    {"application/pdf", "image/jpeg", "image/png", "image/webp"}
+)
+_MANAGER_PREVIEW_STREAM_SLOTS = asyncio.Semaphore(16)
 _COORDINATOR_PROJECTED_METADATA_KEYS = frozenset(
     {
         "agency_dealership_name",
@@ -404,6 +421,101 @@ async def list_mobile_coordinator_passengers(
 
 
 @router.get(
+    "/manager/groups/{group_id}/passengers",
+    response_model=MobileManagerRosterResponse,
+)
+async def list_mobile_manager_passengers(
+    group_id: uuid.UUID,
+    search: str = Query(default="", max_length=120),
+    cursor: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=100, ge=1, le=_MAX_ROSTER_PAGE),
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileManagerRosterResponse:
+    """Return a bounded, assignment-scoped roster without document bytes."""
+
+    await _require_client_manager_trip(session, claims, group_id)
+    employee_code = func.coalesce(
+        PassportSubmissionModel.confirmed_fields["agent_employee_code"].as_string(),
+        PassportSubmissionModel.staff_metadata["agent_employee_code"].as_string(),
+        PassportSubmissionModel.staff_metadata["employee_code"].as_string(),
+    )
+    filters = [
+        PassportSubmissionModel.agency_id == claims.agency_id,
+        PassportSubmissionModel.group_id == group_id,
+    ]
+    normalized_search = " ".join(search.split())
+    if normalized_search:
+        filters.append(
+            or_(
+                PassportSubmissionModel.client_name.icontains(normalized_search, autoescape=True),
+                employee_code.icontains(normalized_search, autoescape=True),
+            )
+        )
+    total = (
+        await session.execute(select(func.count(PassportSubmissionModel.id)).where(*filters))
+    ).scalar_one()
+    if cursor is not None:
+        filters.append(PassportSubmissionModel.id > cursor)
+    rows = list(
+        (
+            await session.execute(
+                select(
+                    PassportSubmissionModel.id,
+                    PassportSubmissionModel.client_name,
+                    employee_code.label("employee_code"),
+                )
+                .where(*filters)
+                .order_by(PassportSubmissionModel.id)
+                .limit(limit + 1)
+            )
+        ).all()
+    )
+    has_more = len(rows) > limit
+    rows = rows[:limit]
+    document_types: dict[uuid.UUID, set[str]] = {}
+    if rows:
+        for passenger_id, document_type in (
+            await session.execute(
+                select(
+                    DistributedDocumentModel.passenger_id,
+                    DistributedDocumentModel.document_type,
+                )
+                .where(
+                    DistributedDocumentModel.agency_id == claims.agency_id,
+                    DistributedDocumentModel.group_id == group_id,
+                    DistributedDocumentModel.passenger_id.in_([row.id for row in rows]),
+                    DistributedDocumentModel.match_status == "matched",
+                )
+                .distinct()
+            )
+        ).all():
+            document_types.setdefault(passenger_id, set()).add(
+                _coordinator_document_category(document_type)
+            )
+    return MobileManagerRosterResponse(
+        items=[
+            MobileManagerPassengerResponse(
+                id=row.id,
+                display_name=row.client_name,
+                employee_code=_bounded_optional_text(row.employee_code, 120),
+                visa_status=(
+                    "available" if "visa" in document_types.get(row.id, set()) else "not_available"
+                ),
+                flight_ticket_status=(
+                    "available"
+                    if "flight_ticket" in document_types.get(row.id, set())
+                    else "not_available"
+                ),
+            )
+            for row in rows
+        ],
+        next_cursor=str(rows[-1].id) if has_more and rows else None,
+        total=int(total or 0),
+    )
+
+
+@router.get(
     "/coordinator/groups/{group_id}/passengers/{passenger_id}",
     response_model=MobileCoordinatorPassengerDetailResponse,
 )
@@ -416,6 +528,42 @@ async def get_mobile_coordinator_passenger(
     """Return one explicit, permission-minimized operational passenger profile."""
 
     await _require_coordinator_trip(session, claims, group_id)
+    return await _mobile_operational_passenger_detail(
+        session,
+        claims=claims,
+        group_id=group_id,
+        passenger_id=passenger_id,
+    )
+
+
+@router.get(
+    "/manager/groups/{group_id}/passengers/{passenger_id}",
+    response_model=MobileCoordinatorPassengerDetailResponse,
+)
+async def get_mobile_manager_passenger(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileCoordinatorPassengerDetailResponse:
+    await _require_client_manager_trip(session, claims, group_id)
+    return await _mobile_operational_passenger_detail(
+        session,
+        claims=claims,
+        group_id=group_id,
+        passenger_id=passenger_id,
+        operationally_approved_only=False,
+    )
+
+
+async def _mobile_operational_passenger_detail(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    operationally_approved_only: bool = True,
+) -> MobileCoordinatorPassengerDetailResponse:
     employee_code = func.coalesce(
         PassportSubmissionModel.confirmed_fields["agent_employee_code"].as_string(),
         PassportSubmissionModel.staff_metadata["agent_employee_code"].as_string(),
@@ -475,6 +623,15 @@ async def get_mobile_coordinator_passenger(
     passport_issuing_country = _coordinator_reviewed_passport_field("issuing_country")
     passport_date_of_issue = _coordinator_reviewed_passport_field("date_of_issue")
     passport_date_of_expiry = _coordinator_reviewed_passport_field("date_of_expiry")
+    passenger_filters = [
+        PassportSubmissionModel.id == passenger_id,
+        PassportSubmissionModel.agency_id == claims.agency_id,
+        PassportSubmissionModel.group_id == group_id,
+    ]
+    if operationally_approved_only:
+        passenger_filters.append(
+            PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES)
+        )
     row = (
         await session.execute(
             select(
@@ -514,12 +671,7 @@ async def get_mobile_coordinator_passenger(
                 passport_issuing_country.label("passport_issuing_country"),
                 passport_date_of_issue.label("passport_date_of_issue"),
                 passport_date_of_expiry.label("passport_date_of_expiry"),
-            ).where(
-                PassportSubmissionModel.id == passenger_id,
-                PassportSubmissionModel.agency_id == claims.agency_id,
-                PassportSubmissionModel.group_id == group_id,
-                PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
-            )
+            ).where(*passenger_filters)
         )
     ).one_or_none()
     if row is None:
@@ -705,6 +857,120 @@ async def get_mobile_coordinator_passenger(
 
 
 @router.get(
+    "/manager/groups/{group_id}/passengers/{passenger_id}/documents/{document_type}/preview",
+    response_class=StreamingResponse,
+)
+async def preview_mobile_manager_passenger_document(
+    group_id: uuid.UUID,
+    passenger_id: uuid.UUID,
+    document_type: Literal["visa", "flight_ticket"],
+    request: Request,
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    """Stream one assigned passenger document without creating an offline grant."""
+
+    await _require_client_manager_trip(session, claims, group_id)
+    passenger_exists = (
+        await session.execute(
+            select(PassportSubmissionModel.id).where(
+                PassportSubmissionModel.id == passenger_id,
+                PassportSubmissionModel.agency_id == claims.agency_id,
+                PassportSubmissionModel.group_id == group_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if passenger_exists is None:
+        raise EntityNotFoundError("Client manager passenger", passenger_id)
+    document = (
+        await session.execute(
+            select(DistributedDocumentModel)
+            .where(
+                DistributedDocumentModel.agency_id == claims.agency_id,
+                DistributedDocumentModel.group_id == group_id,
+                DistributedDocumentModel.passenger_id == passenger_id,
+                DistributedDocumentModel.match_status == "matched",
+                func.lower(DistributedDocumentModel.document_type).in_(
+                    _MANAGER_PREVIEW_DATABASE_TYPES[document_type]
+                ),
+            )
+            .order_by(
+                DistributedDocumentModel.updated_at.desc(),
+                DistributedDocumentModel.id.desc(),
+            )
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if document is None:
+        raise EntityNotFoundError(document_type.replace("_", " ").title(), passenger_id)
+    content_type = document.content_type.casefold().split(";", 1)[0].strip()
+    if (
+        document_type not in _MANAGER_PREVIEW_DOCUMENT_TYPES
+        or content_type not in _MANAGER_PREVIEW_CONTENT_TYPES
+    ):
+        raise AuthorizationError("The requested document cannot be previewed")
+
+    storage = MinioStorageRepository()
+    metadata = await storage.stat_file(document.storage_key)
+    maximum_size = get_settings().mobile.personal_document_max_bytes
+    if metadata.size_bytes < 1 or metadata.size_bytes > maximum_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Document is outside the mobile preview limit",
+        )
+    if metadata.content_type and metadata.content_type != content_type:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Document metadata changed; publish the file again",
+        )
+    signature = await storage.get_file_range(
+        document.storage_key,
+        start=0,
+        end=min(metadata.size_bytes, 16) - 1,
+    )
+    _validate_manager_document_signature(signature, content_type)
+    await AuditLogRepository(session).record(
+        action="mobile.client_manager_document_previewed",
+        entity_type="distributed_document",
+        agency_id=claims.agency_id,
+        user_id=claims.principal_id,
+        entity_id=str(document.id),
+        ip_address=trusted_client_ip(request),
+        metadata={
+            "group_id": str(group_id),
+            "passenger_id": str(passenger_id),
+            "document_type": document_type,
+        },
+    )
+    storage_key = document.storage_key
+    safe_filename = f"{document_type}.{'pdf' if content_type == 'application/pdf' else content_type.split('/')[-1]}"
+    size_bytes = metadata.size_bytes
+    await session.commit()
+    await session.close()
+
+    async def chunks():  # type: ignore[no-untyped-def]
+        async with _MANAGER_PREVIEW_STREAM_SLOTS:
+            async with aclosing(
+                storage.stream_file(storage_key, start=0, expected_bytes=size_bytes)
+            ) as object_stream:
+                async for chunk in object_stream:
+                    yield chunk
+
+    return StreamingResponse(
+        chunks(),
+        media_type=content_type,
+        headers={
+            "Cache-Control": "private, no-store, max-age=0",
+            "Pragma": "no-cache",
+            "Content-Disposition": f"inline; filename*=UTF-8''{quote(safe_filename, safe='')}",
+            "Content-Length": str(size_bytes),
+            "Content-Security-Policy": "sandbox",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+@router.get(
     "/coordinator/groups/{group_id}/attendance/sessions",
     response_model=MobileAttendanceSessionPageResponse,
 )
@@ -716,6 +982,44 @@ async def list_mobile_attendance_sessions(
     session: AsyncSession = Depends(get_db_session),
 ) -> MobileAttendanceSessionPageResponse:
     await _require_coordinator_trip(session, claims, group_id)
+    return await _list_mobile_attendance_sessions(
+        session,
+        claims=claims,
+        group_id=group_id,
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+@router.get(
+    "/manager/groups/{group_id}/attendance/sessions",
+    response_model=MobileAttendanceSessionPageResponse,
+)
+async def list_mobile_manager_attendance_sessions(
+    group_id: uuid.UUID,
+    cursor: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=_MAX_ATTENDANCE_SESSION_PAGE),
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileAttendanceSessionPageResponse:
+    await _require_client_manager_trip(session, claims, group_id)
+    return await _list_mobile_attendance_sessions(
+        session,
+        claims=claims,
+        group_id=group_id,
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+async def _list_mobile_attendance_sessions(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+    cursor: uuid.UUID | None,
+    limit: int,
+) -> MobileAttendanceSessionPageResponse:
     statement = select(AttendanceSessionModel).where(
         AttendanceSessionModel.agency_id == claims.agency_id,
         AttendanceSessionModel.group_id == group_id,
@@ -880,6 +1184,122 @@ async def get_mobile_attendance_session_details(
             for row in missing_rows
         ],
         next_cursor=(str(missing_rows[-1].id) if has_more and missing_rows else None),
+    )
+
+
+@router.get(
+    "/coordinator/groups/{group_id}/attendance/sessions/{session_id}/roster",
+    response_model=MobileAttendanceRosterPageResponse,
+)
+async def list_mobile_coordinator_attendance_roster(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    roster_status: Literal["counted", "missing"] = Query(alias="status"),
+    cursor: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=100, ge=1, le=_MAX_MISSING_PASSENGER_PAGE),
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileAttendanceRosterPageResponse:
+    await _require_coordinator_trip(session, claims, group_id)
+    return await _list_mobile_attendance_roster(
+        session,
+        claims=claims,
+        group_id=group_id,
+        session_id=session_id,
+        roster_status=roster_status,
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+@router.get(
+    "/manager/groups/{group_id}/attendance/sessions/{session_id}/roster",
+    response_model=MobileAttendanceRosterPageResponse,
+)
+async def list_mobile_manager_attendance_roster(
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    roster_status: Literal["counted", "missing"] = Query(alias="status"),
+    cursor: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=100, ge=1, le=_MAX_MISSING_PASSENGER_PAGE),
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileAttendanceRosterPageResponse:
+    await _require_client_manager_trip(session, claims, group_id)
+    return await _list_mobile_attendance_roster(
+        session,
+        claims=claims,
+        group_id=group_id,
+        session_id=session_id,
+        roster_status=roster_status,
+        cursor=cursor,
+        limit=limit,
+    )
+
+
+async def _list_mobile_attendance_roster(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+    session_id: uuid.UUID,
+    roster_status: Literal["counted", "missing"],
+    cursor: uuid.UUID | None,
+    limit: int,
+) -> MobileAttendanceRosterPageResponse:
+    attendance_session = await _mobile_attendance_session(
+        session,
+        claims=claims,
+        group_id=group_id,
+        session_id=session_id,
+        lock=False,
+    )
+    scanned_passengers = select(AttendanceRecordModel.passenger_id).where(
+        AttendanceRecordModel.agency_id == claims.agency_id,
+        AttendanceRecordModel.session_id == attendance_session.id,
+    )
+    filters = [
+        PassportSubmissionModel.agency_id == claims.agency_id,
+        PassportSubmissionModel.group_id == group_id,
+        PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
+        (
+            PassportSubmissionModel.id.in_(scanned_passengers)
+            if roster_status == "counted"
+            else PassportSubmissionModel.id.not_in(scanned_passengers)
+        ),
+    ]
+    if cursor is not None:
+        filters.append(PassportSubmissionModel.id > cursor)
+    rows = list(
+        (
+            await session.execute(
+                select(PassportSubmissionModel.id, PassportSubmissionModel.client_name)
+                .where(*filters)
+                .order_by(PassportSubmissionModel.id)
+                .limit(limit + 1)
+            )
+        ).all()
+    )
+    has_more = len(rows) > limit
+    rows = rows[:limit]
+    summary = (
+        await _mobile_attendance_session_responses(
+            session,
+            claims=claims,
+            group_id=group_id,
+            attendance_sessions=[attendance_session],
+        )
+    )[0]
+    return MobileAttendanceRosterPageResponse(
+        session=summary,
+        items=[
+            MobileAttendanceMissingPassengerResponse(
+                id=row.id,
+                display_name=row.client_name,
+            )
+            for row in rows
+        ],
+        next_cursor=str(rows[-1].id) if has_more and rows else None,
     )
 
 
@@ -1828,6 +2248,34 @@ async def _require_coordinator_trip(
     if claims.principal_type != "coordinator":
         raise AuthorizationError("Coordinator group access is required")
     return await MobileAccessPolicy(session).require_trip_access(claims, group_id)
+
+
+async def _require_client_manager_trip(
+    session: AsyncSession,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+):
+    if claims.principal_type != "client_manager":
+        raise AuthorizationError("Client manager group access is required")
+    return await MobileAccessPolicy(session).require_trip_access(claims, group_id)
+
+
+def _validate_manager_document_signature(signature: bytes, content_type: str) -> None:
+    valid = {
+        "application/pdf": signature.startswith(b"%PDF-"),
+        "image/jpeg": signature.startswith(b"\xff\xd8\xff"),
+        "image/png": signature.startswith(b"\x89PNG\r\n\x1a\n"),
+        "image/webp": (
+            len(signature) >= 12
+            and signature.startswith(b"RIFF")
+            and signature[8:12] == b"WEBP"
+        ),
+    }.get(content_type, False)
+    if not valid:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="The stored document type does not match its content",
+        )
 
 
 async def _mobile_attendance_session(

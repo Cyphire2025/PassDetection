@@ -2,10 +2,17 @@
 
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CalendarDays, ChevronDown, Download, Eye, FileSpreadsheet, FileText, Loader2, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, UserCheck, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, ChevronDown, Download, Eye, FileSpreadsheet, FileText, Loader2, MapPin, MoreVertical, Pencil, RotateCcw, Search, Trash2, UploadCloud, UserCheck, UsersRound, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
+import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import {
+  WorkspaceHeaderContext,
+  WorkspacePageHeader,
+  WorkspaceSummaryItem,
+  WorkspaceSummaryStrip,
+} from "@/components/shared/workspace-ui";
 import { Badge, Button, Card, CardContent, ConfirmDialog, Input, Skeleton } from "@/components/ui";
 import { PASSPORT_STATUS_COLORS, PASSPORT_STATUS_LABELS } from "@/constants";
 import { ROUTES } from "@/constants/routes";
@@ -45,11 +52,7 @@ import {
   acquireDocumentThumbnailSlot,
   documentThumbnailUrl,
 } from "../services/document-thumbnail-scheduler";
-import { GroupWhatsAppBroadcastPanel } from "./group-whatsapp-broadcast-panel";
-import { GroupDocumentDeliveryPanel } from "./group-document-delivery-panel";
 import { GroupOptionToggle } from "./group-option-toggle";
-import { PassportImageCropEditor } from "./passport-image-crop-editor";
-import { PassportExportDialog } from "./passport-export-dialog";
 import {
   buildPassportDetailNavigationHref,
   buildPassportGroupHref,
@@ -59,6 +62,23 @@ import {
   type PassportDetailNavigationState,
   type PassportGroupViewState,
 } from "../utils/passport-group-navigation";
+
+const GroupWhatsAppBroadcastPanel = dynamic(
+  () => import("./group-whatsapp-broadcast-panel").then((module) => module.GroupWhatsAppBroadcastPanel),
+  { loading: () => <Skeleton className="h-56 w-full rounded-xl" /> },
+);
+const GroupDocumentDeliveryPanel = dynamic(
+  () => import("./group-document-delivery-panel").then((module) => module.GroupDocumentDeliveryPanel),
+  { loading: () => <Skeleton className="h-44 w-full rounded-xl" /> },
+);
+const PassportImageCropEditor = dynamic(
+  () => import("./passport-image-crop-editor").then((module) => module.PassportImageCropEditor),
+  { loading: () => null },
+);
+const PassportExportDialog = dynamic(
+  () => import("./passport-export-dialog").then((module) => module.PassportExportDialog),
+  { loading: () => null },
+);
 
 interface PassportGroupDetailProps {
   groupId: string;
@@ -548,79 +568,96 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <PageHeader
-          title="Group Submissions"
-          description="Review the passport submissions uploaded through this group link."
-        />
-        <div className="flex items-center gap-2">
-          <input
-            ref={importInputRef}
-            type="file"
-            accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = "";
-              if (!file) return;
-              setImportMessage(null);
-              importMutation.mutate(file, {
-                onSuccess: (result) => {
-                  setSelectedPassports([]);
-                  setSelectedPassportRevisions({});
-                  setSelectionPreset("");
-                  setImportMessage(
-                    `Imported ${result.imported_count} new, updated ${result.updated_count}, skipped ${result.skipped_count} duplicate row${result.skipped_count === 1 ? "" : "s"}.`,
-                  );
-                },
-                onError: (error) => {
-                  const message = error instanceof Error ? error.message : "Import failed";
-                  setImportMessage(message);
-                },
-              });
-            }}
-          />
-          <input
-            ref={passportImportInputRef}
-            type="file"
-            multiple
-            accept=".zip,image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={(event) => {
-              const files = Array.from(event.target.files ?? []);
-              event.target.value = "";
-              if (!files.length) return;
-              void handlePassportImportFiles(files);
-            }}
-          />
-          {exportImagesMutation.isPending && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-600"
+    <div className="flex flex-col gap-5">
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) return;
+          setImportMessage(null);
+          importMutation.mutate(file, {
+            onSuccess: (result) => {
+              setSelectedPassports([]);
+              setSelectedPassportRevisions({});
+              setSelectionPreset("");
+              setImportMessage(
+                `Imported ${result.imported_count} new, updated ${result.updated_count}, skipped ${result.skipped_count} duplicate row${result.skipped_count === 1 ? "" : "s"}.`,
+              );
+            },
+            onError: (error) => {
+              const message = error instanceof Error ? error.message : "Import failed";
+              setImportMessage(message);
+            },
+          });
+        }}
+      />
+      <input
+        ref={passportImportInputRef}
+        type="file"
+        multiple
+        accept=".zip,image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+          event.target.value = "";
+          if (!files.length) return;
+          void handlePassportImportFiles(files);
+        }}
+      />
+
+      <WorkspacePageHeader
+        eyebrow={includeDeleted ? "Retained passport archive" : "Group passport workspace"}
+        title={groupDetails?.group_name ?? "Group Submissions"}
+        description="Review passenger records, resolve exceptions, manage group exports, and move each passport through the existing confirmation workflow."
+        icon={UsersRound}
+        accent={includeDeleted ? "amber" : "sky"}
+        context={(
+          <>
+            {groupDetails?.destination && (
+              <WorkspaceHeaderContext icon={MapPin}>{groupDetails.destination}</WorkspaceHeaderContext>
+            )}
+            {groupDetails?.travel_date && (
+              <WorkspaceHeaderContext icon={CalendarDays}>{groupDetails.travel_date}</WorkspaceHeaderContext>
+            )}
+            <WorkspaceHeaderContext icon={FileText}>
+              {(submissionsView?.group_total ?? groupDetails?.total_passports ?? 0).toLocaleString()} passengers
+            </WorkspaceHeaderContext>
+          </>
+        )}
+        actions={(
+          <div className="flex items-center gap-2">
+            {exportImagesMutation.isPending && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-100"
+              >
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <span className="hidden xl:inline">Downloading passport images</span>
+              </div>
+            )}
+            <IntentPrefetchLink
+              href={ROUTES.dashboard.passports}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
             >
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              <span>Downloading passport images</span>
-            </div>
-          )}
-          <Link href={ROUTES.dashboard.passports}>
-            <Button variant="outline" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Groups
-            </Button>
-          </Link>
-          <div ref={actionsMenuRef} className="relative">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              All Groups
+            </IntentPrefetchLink>
+            <div ref={actionsMenuRef} className="relative">
             <Button
               type="button"
-              variant="outline"
               size="icon"
               aria-label="Open group actions"
               aria-haspopup="menu"
               aria-expanded={isActionsMenuOpen}
+              className="border border-white/20 bg-white/10 text-white shadow-none hover:bg-white/15 active:bg-white/20"
               onClick={() => setIsActionsMenuOpen((open) => !open)}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
             {isActionsMenuOpen && (
               <div
@@ -690,8 +727,48 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
               </div>
             )}
           </div>
-        </div>
-      </div>
+          </div>
+        )}
+      />
+
+      <WorkspaceSummaryStrip label="Group passport readiness">
+        {isLoading && !groupDetails ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-[72px] rounded-none" />
+          ))
+        ) : (
+          <>
+            <WorkspaceSummaryItem
+              label="Submitted"
+              value={(submissionsView?.group_total ?? groupDetails?.total_passports ?? 0).toLocaleString()}
+              helper="passengers"
+              icon={UsersRound}
+              tone="info"
+            />
+            <WorkspaceSummaryItem
+              label="Needs review"
+              value={(groupDetails?.pending_review_count ?? 0).toLocaleString()}
+              helper="records"
+              icon={AlertTriangle}
+              tone={(groupDetails?.pending_review_count ?? 0) > 0 ? "attention" : "success"}
+            />
+            <WorkspaceSummaryItem
+              label="Confirmed"
+              value={(groupDetails?.confirmed_count ?? 0).toLocaleString()}
+              helper="ready"
+              icon={CheckCircle2}
+              tone="success"
+            />
+            <WorkspaceSummaryItem
+              label="Failed"
+              value={(groupDetails?.failed_count ?? 0).toLocaleString()}
+              helper="need recovery"
+              icon={X}
+              tone={(groupDetails?.failed_count ?? 0) > 0 ? "attention" : "default"}
+            />
+          </>
+        )}
+      </WorkspaceSummaryStrip>
 
       {groupDetails && (
         <Card>
@@ -1226,15 +1303,16 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
+                  <caption className="sr-only">Group passenger passport readiness</caption>
                   <thead>
                     <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                      <th className="px-6 py-4">Client</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Passport</th>
-                      <th className="px-6 py-4">Passport Dates</th>
-                      <th className="px-6 py-4">Confidence</th>
-                      <th className="px-6 py-4">Updated</th>
-                      <th className="px-6 py-4 text-right">Action</th>
+                      <th scope="col" className="px-6 py-4">Client</th>
+                      <th scope="col" className="px-6 py-4">Status</th>
+                      <th scope="col" className="px-6 py-4">Passport</th>
+                      <th scope="col" className="px-6 py-4">Passport Dates</th>
+                      <th scope="col" className="px-6 py-4">Confidence</th>
+                      <th scope="col" className="px-6 py-4">Updated</th>
+                      <th scope="col" className="px-6 py-4 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -1845,12 +1923,13 @@ function PassportDocumentMatrix({
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
+            <caption className="sr-only">Current passenger document assignments</caption>
             <thead>
               <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-5 py-4">Person</th>
-                <th className="px-5 py-4">Passport pic</th>
-                <th className="px-5 py-4">Passport front</th>
-                <th className="px-5 py-4">Passport back</th>
+                <th scope="col" className="px-5 py-4">Person</th>
+                <th scope="col" className="px-5 py-4">Passport pic</th>
+                <th scope="col" className="px-5 py-4">Passport front</th>
+                <th scope="col" className="px-5 py-4">Passport back</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -2289,12 +2368,13 @@ function PassportImportPreviewMatrix({
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left text-sm">
+            <caption className="sr-only">Imported passenger document preview</caption>
             <thead>
               <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-5 py-4">Person</th>
-                <th className="px-5 py-4">Passport pic</th>
-                <th className="px-5 py-4">Passport front</th>
-                <th className="px-5 py-4">Passport back</th>
+                <th scope="col" className="px-5 py-4">Person</th>
+                <th scope="col" className="px-5 py-4">Passport pic</th>
+                <th scope="col" className="px-5 py-4">Passport front</th>
+                <th scope="col" className="px-5 py-4">Passport back</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

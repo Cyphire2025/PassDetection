@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -27,10 +28,18 @@ export function ConfirmDialog({
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+    >
       <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
           <div className="flex items-start gap-3">
@@ -38,8 +47,8 @@ export function ConfirmDialog({
               <AlertTriangle className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+              <h2 id={titleId} className="text-lg font-semibold text-slate-900">{title}</h2>
+              <p id={descriptionId} className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
             </div>
           </div>
           <button
@@ -89,15 +98,23 @@ export function TextInputDialog({
   onConfirm,
   onClose,
 }: TextInputDialogProps) {
+  const titleId = useId();
+  const descriptionId = useId();
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+    >
       <div className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+            <h2 id={titleId} className="text-lg font-semibold text-slate-900">{title}</h2>
+            <p id={descriptionId} className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
           </div>
           <button
             type="button"

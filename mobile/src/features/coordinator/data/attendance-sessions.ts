@@ -12,7 +12,9 @@ import { collectCursorItems } from '@/features/content/data/cursor-pagination';
 import {
   AttendanceSessionDetailSchema,
   AttendanceSessionPageSchema,
+  AttendanceRosterPageSchema,
   AttendanceSessionSchema,
+  type AttendanceRosterPassenger,
   type AttendanceSession,
   type MissingPassenger,
 } from '../api/coordinator-contracts';
@@ -285,6 +287,30 @@ export async function loadAttendanceSessionDetail(tripId: string, sessionId: str
     if (session) return { session, missing: await localMissing(tripId, sessionId), offline: true };
     throw networkError;
   }
+}
+
+export async function loadCoordinatorAttendanceRoster(
+  tripId: string,
+  sessionId: string,
+  status: 'counted' | 'missing',
+): Promise<{ session: AttendanceSession; items: AttendanceRosterPassenger[] }> {
+  let resolvedSession: AttendanceSession | null = null;
+  const items = await collectCursorItems(
+    async (cursor) => {
+      const page = await apiRequest(
+        `/mobile/coordinator/groups/${tripId}/attendance/sessions/${sessionId}/roster?status=${status}&limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+        { schema: AttendanceRosterPageSchema },
+      );
+      if (page.session.id !== sessionId) {
+        throw new Error('Attendance activity details were out of scope.');
+      }
+      resolvedSession = page.session;
+      return { items: page.items, next_cursor: page.next_cursor };
+    },
+    { maxPages: 20, maxItems: 4_000 },
+  );
+  if (!resolvedSession) throw new Error('Attendance activity details were empty.');
+  return { session: resolvedSession, items };
 }
 
 export async function completeAttendanceSession(tripId: string, sessionId: string): Promise<AttendanceSession> {

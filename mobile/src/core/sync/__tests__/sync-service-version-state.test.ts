@@ -402,7 +402,7 @@ test('empty-journal manager and coordinator versions refresh their role-specific
   installHarness('coordinator');
   mockedRoster.mockResolvedValue(undefined as never);
   mockedAttendance.mockResolvedValue(undefined as never);
-  jest.mocked(drainAttendanceQueue).mockResolvedValue(undefined);
+  jest.mocked(drainAttendanceQueue).mockResolvedValue({ settledBySession: {} });
   jest.mocked(drainIncidentQueue).mockResolvedValue(undefined);
   jest.mocked(drainNotificationReads).mockResolvedValue(undefined);
   await syncTrip(TRIP_ID);

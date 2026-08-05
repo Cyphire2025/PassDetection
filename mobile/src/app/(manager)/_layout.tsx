@@ -10,6 +10,10 @@ export default function ManagerLayout() {
       <Stack screenOptions={{ headerShown: false, animation: navigationAnimation(reduceMotion, 'slide_from_right') }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="document/[id]" />
+        <Stack.Screen name="operations/passengers" />
+        <Stack.Screen name="operations/passenger/[id]" />
+        <Stack.Screen name="operations/attendance" />
+        <Stack.Screen name="operations/preview" />
       </Stack>
     </RoleGate>
   );

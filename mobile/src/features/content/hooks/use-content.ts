@@ -18,12 +18,15 @@ import {
   localReadiness,
   localRoom,
   prefetchCommonOfflineDocuments,
+  prefetchPassengerOfflineDocuments,
   refreshAnnouncements,
   refreshCommonDocuments,
   refreshDocuments,
 } from '../data/content-repository';
+import { shouldPrefetchPassengerDocument } from '../data/passenger-document-policy';
 
 type CommonDocumentsResult = Awaited<ReturnType<typeof refreshCommonDocuments>>;
+type DocumentsResult = Awaited<ReturnType<typeof refreshDocuments>>;
 
 type CacheFirstQueryOptions<T> = {
   keyPrefix: string;
@@ -101,12 +104,77 @@ export function useAnnouncements(tripId: string | null) {
 }
 
 export function useDocuments(tripId: string | null) {
-  return useCacheFirstTripQuery({
+  const queryClient = useQueryClient();
+  const principalType = useSessionStore((state) => state.session?.principal.principalType ?? null);
+  const { accountKey, query, queryKey } = useCacheFirstTripQueryState({
     keyPrefix: 'trip-documents',
     tripId,
     refresh: refreshDocuments,
     cached: cachedDocuments,
   });
+  const attemptedPrefetch = useRef<string | null>(null);
+  const pendingSignature = useMemo(
+    () => (query.data?.items ?? [])
+      .filter((document) => shouldPrefetchPassengerDocument(document)
+        && (!document.offline || document.offlineVersion !== document.version))
+      .map((document) => `${document.id}:${document.version}`)
+      .sort()
+      .join('|'),
+    [query.data?.items],
+  );
+  const prefetchKey = principalType === 'passenger' && accountKey && tripId && pendingSignature
+    ? `${accountKey}\u001f${tripId}\u001f${pendingSignature}`
+    : null;
+
+  useEffect(() => {
+    if (!tripId || !accountKey || !prefetchKey || attemptedPrefetch.current === prefetchKey) return;
+    attemptedPrefetch.current = prefetchKey;
+    const expectedAccountKey = accountKey;
+    const controller = new AbortController();
+    let lease: ReturnType<typeof captureSyncContext>;
+    try {
+      lease = captureSyncContext();
+    } catch {
+      attemptedPrefetch.current = null;
+      return;
+    }
+    let active = true;
+    const syncContext = Object.freeze({
+      ...lease.context,
+      signal: AbortSignal.any([lease.context.signal, controller.signal]),
+    });
+    void prefetchPassengerOfflineDocuments(tripId, undefined, syncContext)
+      .then(async () => {
+        if (!active || syncContext.signal.aborted) return;
+        const session = useSessionStore.getState().session;
+        const currentAccountKey = session
+          ? accountNamespace({
+              agencyId: session.principal.agencyId,
+              accountId: session.principal.accountId,
+            })
+          : null;
+        if (currentAccountKey !== expectedAccountKey) return;
+        const items = await localDocuments(tripId, syncContext);
+        if (!active || syncContext.signal.aborted) return;
+        queryClient.setQueryData<DocumentsResult>(queryKey, (current) => ({
+          items,
+          offline: current?.offline ?? false,
+        }));
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          const code = error instanceof Error ? error.name : 'UNKNOWN';
+          console.warn('[documents] passenger prefetch deferred', { code });
+        }
+      })
+      .finally(() => lease.release());
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [accountKey, prefetchKey, queryClient, queryKey, tripId]);
+
+  return query;
 }
 
 export function useCommonDocuments(tripId: string | null) {
@@ -182,9 +250,13 @@ export function useCommonDocuments(tripId: string | null) {
           offline: current?.offline ?? false,
         }));
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         // The durable download queue and the next synchronization pass retain
         // retry ownership. Keep the last usable document list on screen.
+        if (!controller.signal.aborted) {
+          const code = error instanceof Error ? error.name : 'UNKNOWN';
+          console.warn('[documents] common prefetch deferred', { code });
+        }
       })
       .finally(releaseLease);
 

@@ -332,13 +332,14 @@ test('drains 1,500 scans in ordered API batches of at most 100', async () => {
     };
   });
 
-  await drainAttendanceQueue(TRIP_ID);
+  const result = await drainAttendanceQueue(TRIP_ID);
 
   expect(batches).toHaveLength(15);
   expect(batches.every((batch) => batch.length === 100)).toBe(true);
   expect(batches.flat()).toEqual(Array.from({ length: 1_500 }, (_, index) => eventId(index + 1)));
   expect(database.rows).toHaveLength(0);
   expect(database.receipts.size).toBe(1_500);
+  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 1_500 } });
 });
 
 test('reconciles out-of-order accepted, already-applied and rejected results atomically by event id', async () => {
@@ -372,7 +373,7 @@ test('reconciles out-of-order accepted, already-applied and rejected results ato
     };
   });
 
-  await drainAttendanceQueue(TRIP_ID);
+  const result = await drainAttendanceQueue(TRIP_ID);
 
   expect(database.receipts.get(eventId(1))?.status).toBe('accepted');
   expect(database.receipts.get(eventId(2))?.status).toBe('already_applied');
@@ -384,6 +385,7 @@ test('reconciles out-of-order accepted, already-applied and rejected results ato
     }),
   ]);
   expect(mockedTransaction.mock.calls.length).toBeGreaterThanOrEqual(2);
+  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 3 } });
 });
 
 test('preserves a transport-failed batch and retries it successfully later', async () => {
@@ -393,12 +395,13 @@ test('preserves a transport-failed batch and retries it successfully later', asy
   mockedOpenDatabase.mockResolvedValue(database as never);
   mockedApiRequest.mockRejectedValueOnce(new Error('offline'));
 
-  await drainAttendanceQueue(TRIP_ID);
+  const offlineResult = await drainAttendanceQueue(TRIP_ID);
 
   expect(database.rows).toHaveLength(120);
   expect(database.rows.filter((row) => row.state === 'retryable')).toHaveLength(100);
   expect(database.rows.filter((row) => row.state === 'pending')).toHaveLength(20);
   expect(database.rows.every((row) => row.state !== 'rejected')).toBe(true);
+  expect(offlineResult).toEqual({ settledBySession: {} });
 
   jest.setSystemTime(new Date('2030-01-01T00:10:00.000Z'));
   mockedApiRequest.mockImplementation(async (_path, options) => {
@@ -413,11 +416,12 @@ test('preserves a transport-failed batch and retries it successfully later', asy
     };
   });
 
-  await drainAttendanceQueue(TRIP_ID);
+  const recoveredResult = await drainAttendanceQueue(TRIP_ID);
 
   expect(database.rows).toHaveLength(0);
   expect(database.receipts.size).toBe(120);
   expect(mockedApiRequest).toHaveBeenCalledTimes(3);
+  expect(recoveredResult).toEqual({ settledBySession: { [SESSION_ID]: 120 } });
 });
 
 test('coalesces concurrent drains into one network batch', async () => {
@@ -447,11 +451,16 @@ test('coalesces concurrent drains into one network batch', async () => {
   expect(mockedApiRequest).toHaveBeenCalledTimes(1);
 
   resolveRequest(undefined);
-  await Promise.all([first, second, third]);
+  const results = await Promise.all([first, second, third]);
 
   expect(mockedOpenDatabase).toHaveBeenCalledTimes(1);
   expect(mockedApiRequest).toHaveBeenCalledTimes(1);
   expect(database.rows).toHaveLength(0);
+  expect(results).toEqual([
+    { settledBySession: { [SESSION_ID]: 80 } },
+    { settledBySession: { [SESSION_ID]: 80 } },
+    { settledBySession: { [SESSION_ID]: 80 } },
+  ]);
 });
 
 test('does not let a delayed retryable scan starve newer pending work', async () => {
@@ -474,7 +483,7 @@ test('does not let a delayed retryable scan starve newer pending work', async ()
     };
   });
 
-  await drainAttendanceQueue(TRIP_ID);
+  const result = await drainAttendanceQueue(TRIP_ID);
 
   expect(database.rows).toEqual([
     expect.objectContaining({
@@ -483,4 +492,5 @@ test('does not let a delayed retryable scan starve newer pending work', async ()
     }),
   ]);
   expect(database.receipts.has(eventId(2))).toBe(true);
+  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 1 } });
 });
