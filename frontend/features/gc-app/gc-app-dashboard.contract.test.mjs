@@ -65,6 +65,10 @@ test("Client Manager operations use isolated safe account APIs", () => {
   assert.match(managerPage, /page_size: GC_APP_DEFAULT_PAGE_SIZE/);
   assert.doesNotMatch(managerPage, /groupcompanion:\/\/activate\?token=/);
   assert.doesNotMatch(managerPage, /Single-use app activation link/);
+  assert.doesNotMatch(managerForm, /Force password change|force_password_change/);
+  assert.doesNotMatch(managerDetails, /forces a password change|Password change/);
+  assert.doesNotMatch(api, /force-password-change/);
+  assert.match(api, /force_password_change: false/);
   assert.match(managerDetails, /Type DELETE to confirm/);
   assert.match(managerDetails, /Groups, passengers, and operational history will remain intact/);
 });

@@ -35,7 +35,6 @@ interface RawClientManager {
   organization_id: string;
   organization_name: string;
   status: ClientManagerAccount["status"];
-  force_password_change: boolean;
   revision: number;
   group_ids: string[];
   assigned_groups?: RawGroup[];
@@ -228,7 +227,6 @@ function normalizeClientManager(manager: RawClientManager): ClientManagerAccount
       gc_enabled: true,
     })),
     status: manager.status,
-    force_password_change: manager.force_password_change,
     last_login_at: manager.last_login_at,
     created_at: manager.created_at,
     updated_at: manager.updated_at,
@@ -425,7 +423,9 @@ export const gcAppAdminApi = {
       return_temporary_password_once: false,
       invitation_flow: false,
       return_activation_token_once: false,
-      force_password_change: body.force_password_change,
+      // Keep rolling deployments safe even if an older backend still defaults
+      // this retired field to true.
+      force_password_change: false,
     }, { params: { agency_id: agencyId ?? undefined } });
     return normalizeClientManager(data);
   },
@@ -447,22 +447,12 @@ export const gcAppAdminApi = {
       },
       { params: agencyParams(agencyId) },
     );
-    let latest = updatedProfile;
     const { data: updatedGroups } = await apiClient.put<RawClientManager>(
       `${ROOT}/client-managers/${managerId}/groups`,
-      { group_ids: body.group_ids, expected_revision: latest.revision },
+      { group_ids: body.group_ids, expected_revision: updatedProfile.revision },
       { params: agencyParams(agencyId) },
     );
-    latest = updatedGroups;
-    if (latest.force_password_change !== body.force_password_change) {
-      const response = await apiClient.patch<RawClientManager>(
-        `${ROOT}/client-managers/${managerId}/force-password-change`,
-        { force_password_change: body.force_password_change, expected_revision: latest.revision },
-        { params: agencyParams(agencyId) },
-      );
-      latest = response.data;
-    }
-    return normalizeClientManager(latest);
+    return normalizeClientManager(updatedGroups);
   },
 
   setClientManagerStatus: async (
@@ -486,7 +476,7 @@ export const gcAppAdminApi = {
   ): Promise<ClientManagerAccount> => {
     const { data } = await apiClient.post<RawClientManager>(
       `${ROOT}/client-managers/${managerId}/reset-password`,
-      { temporary_password: temporaryPassword, force_password_change: true },
+      { temporary_password: temporaryPassword, force_password_change: false },
       { params: agencyParams(agencyId) },
     );
     return normalizeClientManager(data);

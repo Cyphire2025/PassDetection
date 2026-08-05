@@ -206,6 +206,8 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
     assert created.email == "manager@example.com"
     assert created.phone_number == "+919999999999"
     assert created.temporary_password == "SecurePass1!"
+    assert created.status == "active"
+    assert created.force_password_change is False
     assert http_response.headers["Cache-Control"] == "private, no-store, max-age=0"
     assert session.execute.await_count == 3
     assert session.flush.await_count == 2
@@ -213,6 +215,47 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
         ("UserModel",),
         ("UserModel", "ClientManagerProfileModel"),
     ]
+    session.rollback.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_client_manager_token_invitation_stays_pending_without_forced_password() -> None:
+    agency_id = uuid.uuid4()
+    organization = _organization(agency_id)
+    body = _create_body(organization.id).model_copy(
+        update={
+            "temporary_password": None,
+            "return_temporary_password_once": False,
+            "invitation_flow": True,
+            "return_activation_token_once": True,
+        }
+    )
+    added: list[object] = []
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _Result(organization),
+                _Result((False, False)),
+                _Result([]),
+            ]
+        ),
+        add=added.append,
+        flush=AsyncMock(),
+        rollback=AsyncMock(),
+    )
+
+    with patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()):
+        created = await create_client_manager(
+            body=body,
+            request=_request(),
+            http_response=Response(),
+            current_user=_current_user(agency_id),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert created.status == "invited"
+    assert created.force_password_change is False
+    assert created.activation_token is not None
     session.rollback.assert_not_awaited()
 
 

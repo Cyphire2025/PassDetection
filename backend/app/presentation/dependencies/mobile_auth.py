@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security.mobile_jwt import MobileAccessClaims, decode_mobile_access_token
 from app.domain.entities.entities import UserRole
-from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
+from app.domain.exceptions.exceptions import AuthenticationError
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerProfileModel,
     MobileDeviceSessionModel,
@@ -30,9 +30,9 @@ def client_manager_profile_allows_password_session(
     """Keep invitation redemption separate from temporary-password login.
 
     Invitation accounts carry a one-time activation token and must use the
-    activation endpoint. Legacy/temporary-password accounts can also be in the
+    activation endpoint. Legacy password-created accounts can also be in the
     ``invited`` state, but are distinguishable because they have no invitation
-    token pair and must enter the restricted password-change flow.
+    token pair and can be repaired safely during login or refresh.
     """
 
     if profile.status == "active":
@@ -140,8 +140,6 @@ async def get_current_mobile_claims(
             ).scalar_one_or_none()
             if profile is None or not client_manager_profile_allows_password_session(profile):
                 raise AuthenticationError("Client Manager profile is inactive")
-            if profile.force_password_change and not claims.password_change_required:
-                raise AuthenticationError("Password change is required")
 
     # Bound write amplification: refresh activity at most once every five minutes.
     if device_session.last_seen_at is None or device_session.last_seen_at <= now - timedelta(minutes=5):
@@ -152,6 +150,4 @@ async def get_current_mobile_claims(
 async def require_unrestricted_mobile_claims(
     claims: MobileAccessClaims = Depends(get_current_mobile_claims),
 ) -> MobileAccessClaims:
-    if claims.password_change_required:
-        raise AuthorizationError("Password change is required before using the mobile app")
     return claims

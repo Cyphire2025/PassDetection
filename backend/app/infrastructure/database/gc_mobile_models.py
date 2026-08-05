@@ -189,7 +189,7 @@ class ClientManagerProfileModel(Base):
         String(16), nullable=False, default="invited", server_default="invited"
     )
     force_password_change: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=True, server_default="true"
+        Boolean, nullable=False, default=False, server_default="false"
     )
     invitation_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     invitation_expires_at: Mapped[datetime | None] = mapped_column(

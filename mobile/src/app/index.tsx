@@ -10,9 +10,6 @@ export default function Index() {
 
   if (status === 'booting') return <LoadingScreen label="Preparing your trips" />;
   if (!session) return <Redirect href="/(auth)/welcome" />;
-  if (session.principal.forcePasswordChange) {
-    return <Redirect href="/(auth)/change-password" />;
-  }
   if (isRequiredPreparationActive(session.sessionId)) {
     return <Redirect href="/(auth)/prepare" />;
   }

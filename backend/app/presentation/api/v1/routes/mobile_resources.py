@@ -234,7 +234,7 @@ async def get_mobile_me(
         display_name=str(principal[0]),
         email=str(principal[1]) if principal[1] else None,
         phone_number=str(principal[2]) if principal[2] else None,
-        force_password_change=claims.password_change_required,
+        force_password_change=False,
     )
 
 

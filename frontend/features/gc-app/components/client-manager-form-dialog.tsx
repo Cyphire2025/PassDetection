@@ -14,7 +14,7 @@ import {
 } from "../hooks/use-gc-app-admin";
 import type { ClientManagerAccount, ClientManagerInput, GcGroupReference } from "../types";
 import { gcAppErrorMessage } from "../utils";
-import { AccessSwitch, GcAlert, GcLoadingRows } from "./gc-app-feedback";
+import { GcAlert, GcLoadingRows } from "./gc-app-feedback";
 import { GcDialog } from "./gc-dialog";
 import { GcSelect } from "./gc-select";
 
@@ -24,7 +24,6 @@ const managerSchema = z.object({
   phone_number: z.string().trim().min(8, "Enter a valid mobile number.").max(32),
   company_id: z.string().min(1, "Select the assigned company/client."),
   temporary_password: z.string().optional(),
-  force_password_change: z.boolean(),
 }).superRefine((data, context) => {
   if (data.temporary_password === undefined) return;
   const password = data.temporary_password;
@@ -85,7 +84,6 @@ export function ClientManagerFormDialog({
       phone_number: manager?.phone_number ?? "",
       company_id: manager?.company.id ?? "",
       temporary_password: manager ? undefined : "",
-      force_password_change: manager?.force_password_change ?? true,
     },
   });
   const selectedIds = useMemo(() => new Set(selectedGroups.map((group) => group.id)), [selectedGroups]);
@@ -276,10 +274,10 @@ export function ClientManagerFormDialog({
             <legend className="px-1 text-sm font-semibold text-slate-900">Initial password</legend>
             <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50/60 p-4">
               <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm"><KeyRound className="h-4 w-4" aria-hidden="true" /></span>
-              <span><span className="block text-sm font-semibold text-slate-900">Set the first sign-in password</span><span className="mt-1 block text-xs leading-5 text-slate-600">Share it through your approved channel. The manager will be required to change it after signing in.</span></span>
+              <span><span className="block text-sm font-semibold text-slate-900">Set the sign-in password</span><span className="mt-1 block text-xs leading-5 text-slate-600">Share it through your approved channel. The manager can use it immediately.</span></span>
             </div>
             <PasswordInput
-              label="Temporary password"
+              label="Initial password"
               autoComplete="new-password"
               required
               error={errors.temporary_password?.message}
@@ -287,14 +285,6 @@ export function ClientManagerFormDialog({
             />
           </fieldset>
         )}
-
-        <Controller
-          name="force_password_change"
-          control={control}
-          render={({ field }) => (
-            <AccessSwitch label="Force password change at next login" checked={field.value} onChange={field.onChange} />
-          )}
-        />
 
         {submitError && <GcAlert message={submitError} />}
       </form>

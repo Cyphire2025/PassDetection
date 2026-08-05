@@ -124,11 +124,10 @@ export function ClientManagerDetailsDialog({
 
         {tab === "overview" && (
           <div role="tabpanel" className="space-y-5">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-3">
               <Detail label="Status"><AccountStatusBadge status={manager.status} /></Detail>
               <Detail label="Mobile number">{manager.phone_number}</Detail>
               <Detail label="Last login">{manager.last_login_at ? formatGcDateTime(manager.last_login_at) : "Never"}</Detail>
-              <Detail label="Password change">{manager.force_password_change ? "Required" : "Not required"}</Detail>
             </div>
 
             <Card>
@@ -174,12 +173,12 @@ export function ClientManagerDetailsDialog({
                 {passwordOpen && (
                   <div className="space-y-3 rounded-xl border border-blue-200 bg-blue-50/50 p-4">
                     <PasswordInput
-                      label="New temporary password"
+                      label="New password"
                       autoComplete="new-password"
                       value={temporaryPassword}
                       onChange={(event) => setTemporaryPassword(event.target.value)}
                     />
-                    <p className="text-xs text-slate-600">Resetting signs the Client Manager out and forces a password change at next login.</p>
+                    <p className="text-xs text-slate-600">Resetting signs the Client Manager out. The new password can be used immediately.</p>
                     <div className="flex justify-end gap-2">
                       <Button type="button" variant="secondary" size="sm" onClick={() => setPasswordOpen(false)} disabled={isPending}>Cancel</Button>
                       <Button type="button" size="sm" onClick={() => void resetPassword()} isLoading={actions.resetPassword.isPending}>Reset password</Button>

@@ -874,7 +874,7 @@ async def test_credential_login_rejects_invitation_account_until_token_activatio
 
 
 @pytest.mark.asyncio
-async def test_credential_login_allows_restricted_temporary_password_flow() -> None:
+async def test_credential_login_repairs_legacy_direct_password_account() -> None:
     agency_id = uuid.uuid4()
     user = SimpleNamespace(
         id=uuid.uuid4(),
@@ -891,6 +891,11 @@ async def test_credential_login_allows_restricted_temporary_password_flow() -> N
         invitation_token_hash=None,
         invitation_expires_at=None,
         force_password_change=True,
+        activated_at=None,
+        suspended_at=None,
+        access_generation=2,
+        revision=4,
+        updated_at=None,
     )
     user_result = MagicMock()
     user_result.scalar_one_or_none.return_value = user
@@ -936,7 +941,12 @@ async def test_credential_login_allows_restricted_temporary_password_flow() -> N
     assert response == tokens
     limiter.record_failure.assert_not_awaited()
     limiter.record_success.assert_awaited_once()
-    assert issue_session.await_args.kwargs["password_change_required"] is True
+    assert issue_session.await_args.kwargs["password_change_required"] is False
+    assert profile.status == "active"
+    assert profile.force_password_change is False
+    assert profile.activated_at is not None
+    assert profile.access_generation == 3
+    assert profile.revision == 5
 
 
 @pytest.mark.asyncio

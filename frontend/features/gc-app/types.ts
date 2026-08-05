@@ -49,7 +49,6 @@ export interface ClientManagerAccount {
   company: GcCompanyReference;
   assigned_groups: GcGroupReference[];
   status: GcAppAccountStatus;
-  force_password_change: boolean;
   last_login_at: string | null;
   created_at: string;
   updated_at: string;
@@ -69,7 +68,6 @@ export interface ClientManagerInput {
   phone_number: string;
   company_id: string;
   group_ids: string[];
-  force_password_change: boolean;
   temporary_password?: string;
 }
 

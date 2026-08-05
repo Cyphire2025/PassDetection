@@ -44,9 +44,6 @@ class MobileAccessPolicy:
         claims: MobileAccessClaims,
         group_id: uuid.UUID,
     ) -> AuthorizedMobileTrip:
-        if claims.password_change_required:
-            raise AuthorizationError("Password change is required before trip access")
-
         now = datetime.now(tz=UTC)
         result = await self._session.execute(
             select(GCGroupAccessModel, ClientGroupModel)

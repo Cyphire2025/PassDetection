@@ -1109,9 +1109,9 @@ async def create_client_manager(
     )
     temporary_password = body.temporary_password or f"Gc1{secrets.token_urlsafe(18)}"
     activation_token = secrets.token_urlsafe(32) if body.invitation_flow else None
-    initial_status = (
-        "invited" if activation_token is not None or body.force_password_change else "active"
-    )
+    # A password-created account is ready as soon as its explicit assignments
+    # are saved. Only the separate token-invitation flow remains pending.
+    initial_status = "invited" if activation_token is not None else "active"
     try:
         password_hash = hash_password(temporary_password)
     except ValueError as exc:
@@ -1135,7 +1135,7 @@ async def create_client_manager(
         organization_id=organization.id,
         normalized_phone_number=normalized_phone,
         status=initial_status,
-        force_password_change=body.force_password_change,
+        force_password_change=False,
         invitation_token_hash=(
             hash_mobile_lookup(activation_token, purpose="manager-invitation")
             if activation_token
@@ -1388,7 +1388,15 @@ async def reset_client_manager_password(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
     now = datetime.now(tz=UTC)
-    profile.force_password_change = body.force_password_change
+    profile.force_password_change = False
+    if (
+        profile.status == "invited"
+        and profile.invitation_token_hash is None
+        and profile.invitation_expires_at is None
+    ):
+        profile.status = "active"
+        profile.activated_at = profile.activated_at or now
+        profile.suspended_at = None
     profile.access_generation += 1
     profile.revision += 1
     profile.updated_by_user_id = current_user.id
@@ -1403,7 +1411,7 @@ async def reset_client_manager_password(
         action="gc_app.client_manager_password_reset",
         entity_type="client_manager_profile",
         entity_id=profile.id,
-        metadata={"force_password_change": body.force_password_change},
+        metadata={"sessions_revoked": True},
     )
     assigned_groups = (await _manager_group_map(session, [profile.id])).get(
         profile.id, []
@@ -1436,15 +1444,14 @@ async def force_client_manager_password_change(
         session, tenant_id, profile_id, lock=True
     )
     _require_revision(profile.revision, body.expected_revision)
-    profile.force_password_change = body.force_password_change
+    # Compatibility endpoint for a rolling dashboard deployment. The forced
+    # first-login flow has been retired, so even an older client asking to turn
+    # it on receives the authoritative disabled state.
+    profile.force_password_change = False
     profile.access_generation += 1
     profile.revision += 1
     profile.updated_by_user_id = current_user.id
     profile.updated_at = datetime.now(tz=UTC)
-    if body.force_password_change:
-        await _revoke_mobile_sessions(
-            session, tenant_id, user.id, "password_change_required"
-        )
     await _audit(
         session,
         current_user,
@@ -1453,7 +1460,7 @@ async def force_client_manager_password_change(
         action="gc_app.client_manager_force_password_change_updated",
         entity_type="client_manager_profile",
         entity_id=profile.id,
-        metadata={"required": body.force_password_change},
+        metadata={"requested": body.force_password_change, "required": False},
     )
     assigned_groups = (await _manager_group_map(session, [profile.id])).get(
         profile.id, []

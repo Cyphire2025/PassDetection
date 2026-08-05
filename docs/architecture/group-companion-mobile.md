@@ -121,12 +121,12 @@ codes outside an explicit local-development setting. See
 ### Client manager and coordinator
 
 Credential login reuses the platform password hasher and account status rules,
-then enforces the distinct mobile-role policy. A forced-password-change account
-receives a restricted session whose access token carries
-`pwd_change_required=true`. Only `me`, password change, refresh, and logout are
-available. Trip, sync, push, document, and operational endpoints reject that
-session. Password change revokes the restricted session and returns a normal
-rotated session.
+then enforces the distinct mobile-role policy. Client Managers created with an
+administrator-set password are active immediately and receive only their
+explicitly assigned groups. Token-invitation accounts remain unavailable to
+password login until the one-time invitation is redeemed. Administrator
+password resets revoke existing sessions and the replacement password can be
+used immediately.
 
 ### Sessions
 

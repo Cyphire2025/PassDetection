@@ -93,6 +93,30 @@ _OTP_NEUTRAL_RESPONSE_MIN_SECONDS = 0.65
 _OTP_NEUTRAL_RESPONSE_JITTER_MS = 150
 
 
+def _normalize_direct_password_client_manager(
+    profile: ClientManagerProfileModel,
+    *,
+    now: datetime,
+) -> None:
+    """Repair the retired restricted-password state without opening invitations."""
+
+    direct_password_invited = (
+        profile.status == "invited"
+        and profile.invitation_token_hash is None
+        and profile.invitation_expires_at is None
+    )
+    if not direct_password_invited and not profile.force_password_change:
+        return
+    if direct_password_invited:
+        profile.status = "active"
+        profile.activated_at = profile.activated_at or now
+        profile.suspended_at = None
+    profile.force_password_change = False
+    profile.access_generation += 1
+    profile.revision += 1
+    profile.updated_at = now
+
+
 async def _complete_neutral_otp_timing(
     started_at: float,
     *,
@@ -500,6 +524,7 @@ async def mobile_credential_login(
             detail="Invalid email or password",
         )
 
+    now = datetime.now(tz=UTC)
     password_change_required = False
     principal_type = "coordinator"
     if user.role == UserRole.CLIENT_MANAGER.value:
@@ -519,11 +544,10 @@ async def mobile_credential_login(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password",
             )
-        password_change_required = profile.force_password_change
+        _normalize_direct_password_client_manager(profile, now=now)
         principal_type = "client_manager"
 
     await limiter.record_success(email=email, ip_address=client_ip)
-    now = datetime.now(tz=UTC)
     user.last_login_at = now
     user.updated_at = now
     tokens = await _issue_user_session(
@@ -772,7 +796,7 @@ async def mobile_me(
         display_name=display_name,
         email=email,
         phone_number=phone_number,
-        force_password_change=claims.password_change_required,
+        force_password_change=False,
     )
 
 
@@ -1845,7 +1869,6 @@ async def _refresh_principal(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive"
         )
-    force_change = False
     if device_session.subject_role == "client_manager":
         profile = (
             await session.execute(
@@ -1861,8 +1884,11 @@ async def _refresh_principal(
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile account is inactive"
             )
-        force_change = profile.force_password_change
-    return user, user.full_name, force_change
+        _normalize_direct_password_client_manager(
+            profile,
+            now=datetime.now(tz=UTC),
+        )
+    return user, user.full_name, False
 
 
 async def _principal_display_name(session: AsyncSession, claims: MobileAccessClaims) -> str:

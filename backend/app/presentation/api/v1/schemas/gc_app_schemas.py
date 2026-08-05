@@ -47,7 +47,9 @@ class ClientManagerCreateRequest(BaseModel):
     return_temporary_password_once: bool = False
     invitation_flow: bool = False
     return_activation_token_once: bool = False
-    force_password_change: bool = True
+    # Retained for rolling-client compatibility. Direct-password accounts are
+    # immediately usable, so the server intentionally normalizes this to false.
+    force_password_change: bool = False
 
     @model_validator(mode="after")
     def require_explicit_secret_return(self) -> ClientManagerCreateRequest:
@@ -81,7 +83,9 @@ class ClientManagerForcePasswordChangeRequest(BaseModel):
 class ClientManagerPasswordResetRequest(BaseModel):
     temporary_password: str | None = Field(default=None, min_length=10, max_length=256)
     return_temporary_password_once: bool = False
-    force_password_change: bool = True
+    # Retained for rolling-client compatibility; password resets no longer
+    # create a restricted first-login session.
+    force_password_change: bool = False
 
 
 class ClientManagerAssignmentRequest(BaseModel):

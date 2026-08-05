@@ -44,7 +44,6 @@ export function ClientManagerAccountsPage() {
         phone_number: body.phone_number,
         company_id: body.company_id,
         group_ids: body.group_ids,
-        force_password_change: body.force_password_change,
       };
       await mutations.update.mutateAsync({ managerId: editing.id, current: editing, body: update });
     } else {
