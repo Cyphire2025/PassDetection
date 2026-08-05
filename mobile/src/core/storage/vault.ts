@@ -22,6 +22,7 @@ import {
   type TemporaryViewCacheEntry,
 } from './temporary-view-cache-policy';
 import {
+  VAULT_PLAINTEXT_CHUNK_BYTES,
   VaultChunkContainerError,
   chunkedVaultMagic,
   consumePlaintextStreamBounded,
@@ -551,6 +552,73 @@ async function waitForTransferRetry(attempt: number, signal?: AbortSignal): Prom
   await waitForDocumentDelay(250 * (2 ** (attempt - 1)), signal);
 }
 
+type DocumentResponseReader = {
+  read: () => Promise<{ done: boolean; value?: Uint8Array | undefined }>;
+  cancel: (reason?: string) => Promise<unknown>;
+};
+
+/**
+ * Open an authorized response as bounded byte chunks on every React Native transport.
+ *
+ * React Native's fetch implementation can expose `arrayBuffer()` without exposing a
+ * WHATWG `ReadableStream`. The signed document size already caps the response at 25 MiB,
+ * so that platform path is safe to buffer once and is then drained into the encrypted
+ * vault in the same fixed-size frames as a streaming response.
+ */
+export async function openDocumentResponseReader(
+  response: Response,
+  expectedBytes: number,
+  signal?: AbortSignal,
+): Promise<DocumentResponseReader> {
+  if (
+    !Number.isSafeInteger(expectedBytes)
+    || expectedBytes < 1
+    || expectedBytes > MAX_DOCUMENT_BYTES
+  ) {
+    throw new DocumentTransferIntegrityError('The document response size was invalid.');
+  }
+
+  const networkReader = response.body?.getReader();
+  if (networkReader) {
+    return {
+      read: async () => networkReader.read(),
+      cancel: async (reason) => networkReader.cancel(reason),
+    };
+  }
+
+  assertDocumentOperationActive(signal);
+  const bufferedBytes = new Uint8Array(await response.arrayBuffer());
+  assertDocumentOperationActive(signal);
+  if (bufferedBytes.byteLength > expectedBytes) {
+    throw new DocumentTransferIntegrityError('Downloaded document exceeded its allowed size.');
+  }
+  if (bufferedBytes.byteLength < expectedBytes) {
+    throw new DocumentTransferIntegrityError(
+      'Document transfer ended before all signed bytes were received.',
+    );
+  }
+
+  let offset = 0;
+  return {
+    read: async () => {
+      assertDocumentOperationActive(signal);
+      if (offset >= bufferedBytes.byteLength) {
+        return { done: true, value: undefined };
+      }
+      const end = Math.min(
+        offset + VAULT_PLAINTEXT_CHUNK_BYTES,
+        bufferedBytes.byteLength,
+      );
+      const value = bufferedBytes.subarray(offset, end);
+      offset = end;
+      return { done: false, value };
+    },
+    cancel: async () => {
+      offset = bufferedBytes.byteLength;
+    },
+  };
+}
+
 async function appendAuthorizedResponse(
   response: Response,
   staging: File,
@@ -565,20 +633,13 @@ async function appendAuthorizedResponse(
     input.expectedSizeBytes,
     recovery.plaintextBytes,
   );
-  const networkReader = response.body?.getReader();
-  if (!networkReader) {
-    // Expo SDK 57 provides a native response stream. A whole-body fallback would recreate the
-    // exact memory spike this vault format is designed to prevent, so fail safely instead.
-    throw new DocumentTransferIntegrityError('The document transport did not provide a stream.');
-  }
+  const remainingBytes = input.expectedSizeBytes - recovery.plaintextBytes;
+  const responseReader = await openDocumentResponseReader(response, remainingBytes, signal);
   const appendHandle = staging.open(FileMode.Append);
   try {
     return await consumePlaintextStreamBounded(
-      {
-        read: async () => networkReader.read(),
-        cancel: async (reason) => networkReader.cancel(reason),
-      },
-      input.expectedSizeBytes - recovery.plaintextBytes,
+      responseReader,
+      remainingBytes,
       async (plaintext) => {
         const frame = await encodeVaultChunkFrame(
           plaintext,
@@ -597,7 +658,9 @@ async function appendAuthorizedResponse(
       signal,
     );
   } catch (error) {
-    await networkReader.cancel(error).catch(() => undefined);
+    await responseReader.cancel(
+      error instanceof Error ? error.message : 'Document download failed.',
+    ).catch(() => undefined);
     throw error;
   } finally {
     appendHandle.close();

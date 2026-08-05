@@ -3496,6 +3496,8 @@ async def bulk_staff_approve_passport_submissions(
 
     approvable_statuses = {
         PassportProcessingStatus.CONFIRMED.value,
+        PassportProcessingStatus.CLIENT_SUBMITTED.value,
+        PassportProcessingStatus.SUBMITTED.value,
         PassportProcessingStatus.AI_APPROVED.value,
         PassportProcessingStatus.NEEDS_REVIEW.value,
         PassportProcessingStatus.STAFF_APPROVED.value,

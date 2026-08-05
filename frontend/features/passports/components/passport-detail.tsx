@@ -1104,8 +1104,6 @@ function ReviewFieldsCard({
         >
           {isSaving ? (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : passport.status === "staff_approved" || passport.status === "ai_approved" ? (
-            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
             <Save className="h-4 w-4" aria-hidden="true" />
           )}

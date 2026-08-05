@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Settings2, Smartphone, Users } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { ROUTES } from "@/constants/routes";
+import { OperationsPageHeader } from "@/features/operations/components/operations-workspace-ui";
 import { canManageGcApp } from "@/lib/utils/role-access";
 import { selectHasHydrated, selectUser, useAuthStore } from "@/stores/auth.store";
 import { GcAppAgencyScopeProvider } from "./gc-app-agency-scope";
@@ -44,18 +45,12 @@ export function GcAppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="space-y-5">
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-5 py-5 text-white shadow-[0_22px_55px_-34px_rgba(15,23,42,0.85)] sm:px-6">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10 shadow-inner">
-            <Smartphone className="h-5 w-5 text-blue-200" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">Group Companion</p>
-            <h1 className="mt-0.5 text-xl font-semibold tracking-tight">GC App operations</h1>
-          </div>
-        </div>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Manage client access and mobile publishing from one controlled agency workspace.</p>
-      </section>
+      <OperationsPageHeader
+        eyebrow="Group Companion"
+        title="GC App operations"
+        description="Manage client access and mobile publishing from one controlled agency workspace."
+        icon={Smartphone}
+      />
 
       <nav aria-label="GC App" className="overflow-x-auto">
         <ul className="flex min-w-max gap-2 rounded-2xl border border-slate-200 bg-slate-100/70 p-1.5" role="list">

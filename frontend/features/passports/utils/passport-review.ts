@@ -324,14 +324,17 @@ export function getPassportReviewActionState(
     extracting: "Extraction in Progress",
     processing: "Extraction in Progress",
     ready_for_client_review: "Awaiting Client Review",
-    submitted: "AI Verification in Progress",
-    ai_approved: "AI Verified",
-    staff_approved: "Staff Verified",
   };
   const inactiveLabel = inactiveLabels[status];
   if (inactiveLabel) return { disabled: true, label: inactiveLabel };
   if (status === "needs_review") {
     return { disabled: false, label: "Approve After Manual Review" };
+  }
+  if (status === "submitted") {
+    return { disabled: false, label: "Save Changes for Review" };
+  }
+  if (status === "ai_approved" || status === "staff_approved") {
+    return { disabled: false, label: "Save Changes and Re-review" };
   }
   return {
     disabled: false,

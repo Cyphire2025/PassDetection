@@ -351,17 +351,24 @@ test("never reuses stale AI verdicts after the passport image changes", () => {
   assert.equal(getPassportVerificationConfidence(staleVerification), null);
 });
 
-test("enables staff approval only while the passport needs review", () => {
+test("keeps reviewed passport fields editable across completed workflow states", () => {
   assert.deepEqual(getPassportReviewActionState("needs_review", false), {
     disabled: false,
     label: "Approve After Manual Review",
   });
   assert.deepEqual(getPassportReviewActionState("staff_approved", false), {
-    disabled: true,
-    label: "Staff Verified",
+    disabled: false,
+    label: "Save Changes and Re-review",
   });
-  assert.equal(getPassportReviewActionState("submitted", false).disabled, true);
-  assert.equal(getPassportReviewActionState("ai_approved", false).disabled, true);
+  assert.deepEqual(getPassportReviewActionState("submitted", false), {
+    disabled: false,
+    label: "Save Changes for Review",
+  });
+  assert.deepEqual(getPassportReviewActionState("ai_approved", false), {
+    disabled: false,
+    label: "Save Changes and Re-review",
+  });
+  assert.equal(getPassportReviewActionState("processing", false).disabled, true);
   assert.deepEqual(getPassportReviewActionState("needs_review", true), {
     disabled: true,
     label: "Approving and saving corrections",

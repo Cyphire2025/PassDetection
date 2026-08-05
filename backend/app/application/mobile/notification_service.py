@@ -432,7 +432,7 @@ async def cancel_announcement_notifications(
     announcement_id: uuid.UUID,
     now: datetime | None = None,
 ) -> int:
-    """Cancel announcement pushes that have not left the durable queue."""
+    """Remove a revoked announcement from the in-app feed and stop unsent pushes."""
 
     result = await session.execute(
         update(MobileNotificationModel)
@@ -440,14 +440,7 @@ async def cancel_announcement_notifications(
             MobileNotificationModel.agency_id == access.agency_id,
             MobileNotificationModel.gc_group_access_id == access.id,
             MobileNotificationModel.dedupe_key == _announcement_dedupe_key(announcement_id),
-            MobileNotificationModel.status == "queued",
-            MobileNotificationModel.id.not_in(
-                select(MobilePushDeliveryModel.notification_id).where(
-                    MobilePushDeliveryModel.status.in_(
-                        ("receipt_pending", "delivered")
-                    )
-                )
-            ),
+            MobileNotificationModel.status.in_(("queued", "sent", "failed")),
         )
         .values(
             status="cancelled",

@@ -1124,15 +1124,17 @@ class PassportSubmission:
         """Approve a completed office record without bypassing in-flight work.
 
         Bulk review is intentionally narrower than a generic status override:
-        only completed legacy/imported records, AI-approved records, and rows
-        already awaiting staff review are eligible. Processing, failed, and
-        merely submitted rows remain untouched for explicit review.
+        completed legacy/imported records, client-submitted records, AI-approved
+        records, and rows already awaiting staff review are eligible. Processing
+        and failed rows remain untouched until their pipeline finishes.
         """
 
         if self.status == PassportProcessingStatus.STAFF_APPROVED:
             return StaffApprovalOutcome.ALREADY_APPROVED
         if self.status not in {
             PassportProcessingStatus.CONFIRMED,
+            PassportProcessingStatus.CLIENT_SUBMITTED,
+            PassportProcessingStatus.SUBMITTED,
             PassportProcessingStatus.AI_APPROVED,
             PassportProcessingStatus.NEEDS_REVIEW,
         }:

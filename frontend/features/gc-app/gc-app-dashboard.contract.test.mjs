@@ -34,6 +34,12 @@ test("GC App has one top-level sidebar entry and exactly two primary section lin
   assert.match(shell, /label: "App Controls"/);
 });
 
+test("GC App reuses the visible blue Tour Ops workspace header", () => {
+  assert.match(shell, /OperationsPageHeader/);
+  assert.match(shell, /eyebrow="Group Companion"/);
+  assert.doesNotMatch(shell, /from-slate-950|to-blue-950/);
+});
+
 test("all GC App routes are centrally registered and protected", () => {
   assert.match(routes, /gcAppRoot: "\/gc-app"/);
   assert.match(routes, /gcAppClientManagerAccounts: "\/gc-app\/client-manager-accounts"/);
@@ -57,8 +63,8 @@ test("Client Manager operations use isolated safe account APIs", () => {
   assert.match(api, /client-managers\/\$\{managerId\}\/revoke-sessions/);
   assert.doesNotMatch(api, /delete_owned_data|operationsApi|API_ENDPOINTS\.admin/);
   assert.match(managerPage, /page_size: GC_APP_DEFAULT_PAGE_SIZE/);
-  assert.match(managerPage, /groupcompanion:\/\/activate\?token=/);
-  assert.match(managerPage, /Single-use app activation link/);
+  assert.doesNotMatch(managerPage, /groupcompanion:\/\/activate\?token=/);
+  assert.doesNotMatch(managerPage, /Single-use app activation link/);
   assert.match(managerDetails, /Type DELETE to confirm/);
   assert.match(managerDetails, /Groups, passengers, and operational history will remain intact/);
 });

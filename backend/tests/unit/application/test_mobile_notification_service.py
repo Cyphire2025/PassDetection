@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.notification_service import (
     _announcement_notification,
+    cancel_announcement_notifications,
     dispatch_mobile_push_batch,
     enqueue_announcement_notifications,
     enqueue_personal_document_change_notifications,
@@ -486,6 +487,59 @@ async def test_announcement_producer_targets_only_explicit_role_grants(
     }
     assert all(row.lock_screen_body is None for row in document_rows)
     assert all(row.contains_sensitive_content is True for row in document_rows)
+
+
+@pytest.mark.asyncio
+async def test_announcement_cancellation_removes_all_delivery_states_from_feed(
+    db_session: AsyncSession,
+) -> None:
+    access = _access()
+    announcement = _announcement(access)
+    passengers = [
+        MobilePassengerIdentityModel(
+            id=uuid.uuid4(),
+            agency_id=access.agency_id,
+            group_id=access.group_id,
+            gc_group_access_id=access.id,
+            passenger_submission_id=uuid.uuid4(),
+            normalized_phone_number=f"+9199999999{index}",
+            phone_lookup_hash=f"{index + 10:064x}",
+            status="eligible",
+        )
+        for index in range(3)
+    ]
+    db_session.add_all([access, announcement, *passengers])
+    await db_session.flush()
+    counts = await enqueue_announcement_notifications(
+        db_session,
+        access=access,
+        announcement=announcement,
+    )
+    rows = list(
+        (
+            await db_session.execute(
+                select(MobileNotificationModel).order_by(MobileNotificationModel.id)
+            )
+        ).scalars()
+    )
+    assert counts.passengers == 3
+    rows[1].status = "sent"
+    rows[1].sent_at = datetime.now(tz=UTC)
+    rows[2].status = "failed"
+    rows[2].failure_code = "provider_rejected"
+    await db_session.flush()
+
+    cancelled = await cancel_announcement_notifications(
+        db_session,
+        access=access,
+        announcement_id=announcement.id,
+    )
+    for row in rows:
+        await db_session.refresh(row)
+
+    assert cancelled == 3
+    assert {row.status for row in rows} == {"cancelled"}
+    assert {row.failure_code for row in rows} == {"announcement_unpublished"}
 
 
 @pytest.mark.asyncio

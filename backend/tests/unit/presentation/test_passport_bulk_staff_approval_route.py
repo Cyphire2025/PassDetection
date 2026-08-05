@@ -146,11 +146,13 @@ async def test_bulk_staff_approval_is_atomic_audited_and_reports_skips() -> None
         _submission(group_id=group_id, agency_id=agency_id, status="confirmed"),
         _submission(group_id=group_id, agency_id=agency_id, status="ai_approved"),
         _submission(group_id=group_id, agency_id=agency_id, status="needs_review"),
+        _submission(group_id=group_id, agency_id=agency_id, status="submitted"),
+        _submission(group_id=group_id, agency_id=agency_id, status="client_submitted"),
         _submission(group_id=group_id, agency_id=agency_id, status="staff_approved"),
         _submission(group_id=group_id, agency_id=agency_id, status="processing"),
         _submission(group_id=group_id, agency_id=agency_id, status="confirmed"),
     ]
-    models[5].extraction_revision = 5
+    models[7].extraction_revision = 5
     session = SimpleNamespace(
         execute=AsyncMock(return_value=_ScalarResult(models)),
         add_all=Mock(),
@@ -190,14 +192,14 @@ async def test_bulk_staff_approval_is_atomic_audited_and_reports_skips() -> None
             session=session,  # type: ignore[arg-type]
         )
 
-    assert response.requested_count == 6
-    assert response.approved_count == 3
+    assert response.requested_count == 8
+    assert response.approved_count == 5
     assert response.already_approved_count == 1
     assert response.skipped_count == 2
-    assert response.skipped_submissions[0].submission_id == models[4].id
+    assert response.skipped_submissions[0].submission_id == models[6].id
     assert response.skipped_submissions[0].current_status == "processing"
     assert response.skipped_submissions[0].reason == "not_completed"
-    assert response.skipped_submissions[1].submission_id == models[5].id
+    assert response.skipped_submissions[1].submission_id == models[7].id
     assert response.skipped_submissions[1].reason == "stale"
     assert response.skipped_submissions[1].expected_extraction_revision == 4
     assert response.skipped_submissions[1].current_extraction_revision == 5
@@ -206,29 +208,31 @@ async def test_bulk_staff_approval_is_atomic_audited_and_reports_skips() -> None
         "staff_approved",
         "staff_approved",
         "staff_approved",
+        "staff_approved",
+        "staff_approved",
         "processing",
         "confirmed",
     ]
-    assert all(model.extraction_revision == 5 for model in models[:3])
-    assert models[3].extraction_revision == 4
-    assert models[4].extraction_revision == 4
-    assert models[5].extraction_revision == 5
+    assert all(model.extraction_revision == 5 for model in models[:5])
+    assert models[5].extraction_revision == 4
+    assert models[6].extraction_revision == 4
+    assert models[7].extraction_revision == 5
     session.add_all.assert_called_once()
     audit_rows = session.add_all.call_args.args[0]
-    assert len(audit_rows) == 3
-    assert {row.entity_id for row in audit_rows} == {str(model.id) for model in models[:3]}
+    assert len(audit_rows) == 5
+    assert {row.entity_id for row in audit_rows} == {str(model.id) for model in models[:5]}
     assert all(row.action == "passport_staff_approved" for row in audit_rows)
     session.commit.assert_awaited_once_with()
     session.rollback.assert_not_awaited()
     ensure_qrs.assert_awaited_once()
-    assert set(ensure_qrs.await_args.args[1]) == {model.id for model in models[:3]}
+    assert set(ensure_qrs.await_args.args[1]) == {model.id for model in models[:5]}
     locked_query = session.execute.await_args.args[0]
     assert locked_query._for_update_arg is not None
     assert "client_groups.status NOT IN" in str(locked_query)
     record_event.assert_any_call(
         OperationalEvent.STAFF_APPROVAL,
         "approved",
-        amount=3,
+        amount=5,
     )
     record_event.assert_any_call(
         OperationalEvent.STAFF_APPROVAL,

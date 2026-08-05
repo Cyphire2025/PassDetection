@@ -1454,7 +1454,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
       <ConfirmDialog
         isOpen={isBulkApprovalConfirmationOpen}
         title="Staff approve selected submissions?"
-        description={`Mark completed records among ${selectedPassports.length} selected submission${selectedPassports.length === 1 ? "" : "s"} as Staff Approved? Processing, failed, and incomplete records will be left unchanged and reported.`}
+        description={`Mark eligible records, including Client Submitted records, among ${selectedPassports.length} selected submission${selectedPassports.length === 1 ? "" : "s"} as Staff Approved? Processing, failed, and incomplete records will be left unchanged and reported.`}
         confirmLabel={`Approve ${selectedPassports.length} selected`}
         isLoading={bulkStaffApprove.isPending}
         onClose={() => {

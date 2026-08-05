@@ -28,7 +28,13 @@ function namespace(): string {
   return principalAccountNamespace(principal);
 }
 
-async function saveNotifications(items: MobileNotification[]): Promise<void> {
+async function saveNotifications(
+  items: MobileNotification[],
+  replaceTripId: string | null = null,
+): Promise<void> {
+  if (replaceTripId && items.some((item) => item.trip_id !== replaceTripId)) {
+    throw new Error('The notification response crossed its authorized trip boundary.');
+  }
   const account = namespace();
   const database = await openAccountDatabase(account);
   await withAccountTransaction(database, async (transaction) => {
@@ -49,6 +55,25 @@ async function saveNotifications(items: MobileNotification[]): Promise<void> {
         item.title, item.body, item.deep_link_path, item.available_at, item.expires_at,
         item.read_at, new Date().toISOString(),
       );
+    }
+    if (replaceTripId) {
+      if (items.length) {
+        const placeholders = items.map(() => '?').join(', ');
+        await transaction.runAsync(
+          `DELETE FROM mobile_notifications
+            WHERE account_namespace = ? AND trip_id = ?
+              AND id NOT IN (${placeholders})`,
+          account,
+          replaceTripId,
+          ...items.map((item) => item.id),
+        );
+      } else {
+        await transaction.runAsync(
+          'DELETE FROM mobile_notifications WHERE account_namespace = ? AND trip_id = ?',
+          account,
+          replaceTripId,
+        );
+      }
     }
   });
 }
@@ -73,7 +98,10 @@ export async function loadNotifications(tripId: string, cursor: string | null = 
   if (cursor) query.set('cursor', cursor);
   try {
     const result = await apiRequest(`/mobile/notifications?${query.toString()}`, { schema: MobileNotificationPageSchema });
-    await saveNotifications(result.items);
+    // A complete first page is an authoritative snapshot. Replace it so a revoked
+    // announcement cannot be resurrected by the offline cache after the server removes it.
+    const replaceTripId = cursor === null && result.next_cursor === null ? tripId : null;
+    await saveNotifications(result.items, replaceTripId);
     return { ...result, offline: false };
   } catch (networkError) {
     if (cursor) throw networkError;

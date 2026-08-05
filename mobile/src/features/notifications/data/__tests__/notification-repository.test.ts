@@ -3,7 +3,7 @@ import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
-import { drainNotificationReads } from '../notification-repository';
+import { drainNotificationReads, loadNotifications } from '../notification-repository';
 
 jest.mock('@/core/api/client', () => {
   const actual = jest.requireActual('@/core/api/client');
@@ -158,6 +158,45 @@ class FakeNotificationDatabase {
   }
 }
 
+class SnapshotNotificationDatabase {
+  readonly notifications = new Map<string, { tripId: string; readAt: string | null }>([
+    ['55555555-5555-4555-8555-555555555555', { tripId: TRIP_ID, readAt: null }],
+    [NOTIFICATION_ID, { tripId: TRIP_ID, readAt: '2029-01-02T00:00:00.000Z' }],
+    ['66666666-6666-4666-8666-666666666666', {
+      tripId: '77777777-7777-4777-8777-777777777777',
+      readAt: null,
+    }],
+  ]);
+
+  async runAsync(sql: string, ...parameters: unknown[]): Promise<{ changes: number }> {
+    const normalized = compactSql(sql);
+    if (normalized.startsWith('INSERT INTO mobile_notifications')) {
+      const id = parameters[0] as string;
+      const tripId = parameters[2] as string;
+      const incomingReadAt = parameters[11] as string | null;
+      const existing = this.notifications.get(id);
+      this.notifications.set(id, {
+        tripId,
+        readAt: existing?.readAt ?? incomingReadAt,
+      });
+      return { changes: 1 };
+    }
+    if (normalized.startsWith('DELETE FROM mobile_notifications')) {
+      const tripId = parameters[1] as string;
+      const retainedIds = new Set(parameters.slice(2) as string[]);
+      let changes = 0;
+      for (const [id, notification] of this.notifications) {
+        if (notification.tripId === tripId && !retainedIds.has(id)) {
+          this.notifications.delete(id);
+          changes += 1;
+        }
+      }
+      return { changes };
+    }
+    throw new Error(`Unexpected statement: ${normalized}`);
+  }
+}
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((complete) => {
@@ -194,6 +233,38 @@ test('coalesces concurrent drains and sends one claimed read action', async () =
   expect(mockedApiRequest).toHaveBeenCalledTimes(1);
   expect(database.deleted).toBe(true);
   expect(database.readAt).toBe('2030-01-01T00:00:00.000Z');
+});
+
+test('replaces a complete online trip snapshot and removes revoked cached updates', async () => {
+  const database = new SnapshotNotificationDatabase();
+  mockedOpenDatabase.mockResolvedValue(database as never);
+  mockedApiRequest.mockResolvedValue({
+    items: [{
+      id: NOTIFICATION_ID,
+      trip_id: TRIP_ID,
+      notification_type: 'announcement',
+      category: 'emergency',
+      priority: 'emergency',
+      title: 'Current update',
+      body: 'This update remains published.',
+      deep_link_path: `/updates?trip_id=${TRIP_ID}`,
+      payload: {},
+      available_at: '2030-01-01T00:00:00.000Z',
+      expires_at: null,
+      read_at: null,
+    }],
+    next_cursor: null,
+    unread_count: 1,
+  });
+
+  const result = await loadNotifications(TRIP_ID);
+
+  expect(result.offline).toBe(false);
+  expect(database.notifications.has('55555555-5555-4555-8555-555555555555')).toBe(false);
+  expect(database.notifications.get(NOTIFICATION_ID)?.readAt).toBe(
+    '2029-01-02T00:00:00.000Z',
+  );
+  expect(database.notifications.has('66666666-6666-4666-8666-666666666666')).toBe(true);
 });
 
 test('backs off a transient failure and does not immediately claim it again', async () => {

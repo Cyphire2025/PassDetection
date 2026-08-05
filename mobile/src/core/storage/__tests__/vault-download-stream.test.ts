@@ -1,4 +1,4 @@
-import { readResponseBytesBounded } from '../vault';
+import { openDocumentResponseReader, readResponseBytesBounded } from '../vault';
 
 const PDF = 'application/pdf';
 
@@ -41,6 +41,21 @@ function streamedResponse(
   } as unknown as Response;
 }
 
+function bufferedResponse(bytes: Uint8Array): Response {
+  return {
+    status: 200,
+    headers: new Headers({
+      'content-type': PDF,
+      'content-length': String(bytes.byteLength),
+    }),
+    body: null,
+    arrayBuffer: jest.fn(async () => bytes.buffer.slice(
+      bytes.byteOffset,
+      bytes.byteOffset + bytes.byteLength,
+    )),
+  } as unknown as Response;
+}
+
 describe('bounded document stream transport', () => {
   afterEach(() => {
     jest.useRealTimers();
@@ -59,6 +74,28 @@ describe('bounded document stream transport', () => {
       PDF,
       jest.fn(),
     )).resolves.toEqual(Uint8Array.from([1, 2, 3, 4]));
+  });
+
+  it('opens React Native buffered responses as bounded vault chunks', async () => {
+    const bytes = new Uint8Array(300_000).fill(7);
+    const reader = await openDocumentResponseReader(bufferedResponse(bytes), bytes.byteLength);
+
+    const first = await reader.read();
+    const second = await reader.read();
+    const end = await reader.read();
+
+    expect(first.done).toBe(false);
+    expect(first.value).toHaveLength(256 * 1024);
+    expect(second.done).toBe(false);
+    expect(second.value).toHaveLength(bytes.byteLength - 256 * 1024);
+    expect(end).toEqual({ done: true, value: undefined });
+  });
+
+  it('rejects a truncated React Native buffered response before vault writes begin', async () => {
+    await expect(openDocumentResponseReader(
+      bufferedResponse(Uint8Array.from([1, 2, 3])),
+      4,
+    )).rejects.toThrow('before all signed bytes were received');
   });
 
   it('resumes a mid-stream failure at the exact committed offset', async () => {
