@@ -174,6 +174,12 @@ async def test_client_manager_duplicate_phone_is_a_safe_conflict_before_writes()
 async def test_client_manager_create_returns_once_without_waiting_for_a_refetch() -> None:
     agency_id = uuid.uuid4()
     organization = _organization(agency_id)
+    added: list[object] = []
+    flush_snapshots: list[tuple[str, ...]] = []
+
+    def record_flush() -> None:
+        flush_snapshots.append(tuple(type(item).__name__ for item in added))
+
     session = SimpleNamespace(
         execute=AsyncMock(
             side_effect=[
@@ -182,9 +188,8 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
                 _Result([]),
             ]
         ),
-        add_all=lambda _items: None,
-        add=lambda _item: None,
-        flush=AsyncMock(),
+        add=added.append,
+        flush=AsyncMock(side_effect=record_flush),
         rollback=AsyncMock(),
     )
     http_response = Response()
@@ -204,6 +209,63 @@ async def test_client_manager_create_returns_once_without_waiting_for_a_refetch(
     assert http_response.headers["Cache-Control"] == "private, no-store, max-age=0"
     assert session.execute.await_count == 3
     assert session.flush.await_count == 2
+    assert flush_snapshots == [
+        ("UserModel",),
+        ("UserModel", "ClientManagerProfileModel"),
+    ]
+    session.rollback.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_client_manager_create_flushes_foreign_key_dependencies_in_order() -> None:
+    agency_id = uuid.uuid4()
+    organization = _organization(agency_id)
+    group_id = uuid.uuid4()
+    access_id = uuid.uuid4()
+    body = _create_body(organization.id).model_copy(update={"group_ids": [group_id]})
+    added: list[object] = []
+    flush_snapshots: list[tuple[str, ...]] = []
+
+    def record_flush() -> None:
+        flush_snapshots.append(tuple(type(item).__name__ for item in added))
+
+    session = SimpleNamespace(
+        execute=AsyncMock(
+            side_effect=[
+                _Result(organization),
+                _Result((False, False)),
+                _Result([]),
+            ]
+        ),
+        add=added.append,
+        flush=AsyncMock(side_effect=record_flush),
+        rollback=AsyncMock(),
+    )
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.gc_app._validate_manager_groups",
+            new=AsyncMock(return_value={group_id: SimpleNamespace(id=access_id)}),
+        ),
+        patch("app.presentation.api.v1.routes.gc_app._audit", new=AsyncMock()),
+    ):
+        await create_client_manager(
+            body=body,
+            request=_request(),
+            http_response=Response(),
+            current_user=_current_user(agency_id),
+            session=session,  # type: ignore[arg-type]
+        )
+
+    assert flush_snapshots == [
+        ("UserModel",),
+        ("UserModel", "ClientManagerProfileModel"),
+        (
+            "UserModel",
+            "ClientManagerProfileModel",
+            "ClientManagerGroupAssignmentModel",
+        ),
+    ]
     session.rollback.assert_not_awaited()
 
 
@@ -226,12 +288,25 @@ async def test_client_manager_unique_race_rolls_back_and_returns_precise_conflic
     organization = _organization(agency_id)
     session = SimpleNamespace(
         execute=AsyncMock(side_effect=[_Result(organization), _Result((False, False))]),
-        add_all=lambda _items: None,
+        add=lambda _item: None,
         flush=AsyncMock(
-            side_effect=IntegrityError(
-                "insert",
-                {},
-                _ConstraintError(constraint_name),
+            side_effect=(
+                [
+                    IntegrityError(
+                        "insert",
+                        {},
+                        _ConstraintError(constraint_name),
+                    )
+                ]
+                if constraint_name == "users_email_key"
+                else [
+                    None,
+                    IntegrityError(
+                        "insert",
+                        {},
+                        _ConstraintError(constraint_name),
+                    ),
+                ]
             )
         ),
         rollback=AsyncMock(),
@@ -262,8 +337,8 @@ async def test_client_manager_unrelated_integrity_failure_is_not_reported_as_dup
     )
     session = SimpleNamespace(
         execute=AsyncMock(side_effect=[_Result(organization), _Result((False, False))]),
-        add_all=lambda _items: None,
-        flush=AsyncMock(side_effect=original_error),
+        add=lambda _item: None,
+        flush=AsyncMock(side_effect=[None, original_error]),
         rollback=AsyncMock(),
     )
 

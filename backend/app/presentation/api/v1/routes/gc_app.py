@@ -1150,13 +1150,30 @@ async def create_client_manager(
         created_at=now,
         updated_at=now,
     )
-    session.add_all([user, profile])
+    # These models intentionally do not expose broad ORM relationships. Flush
+    # each dependency explicitly so PostgreSQL never receives the profile
+    # before its newly-created credential row.
+    session.add(user)
     try:
         await session.flush()
     except IntegrityError as exc:
         # The explicit checks above provide precise normal-case feedback. The
         # database constraints remain the race-safe authority when concurrent
         # requests attempt the same email or phone number.
+        await session.rollback()
+        duplicate_message = _client_manager_duplicate_message(exc)
+        if duplicate_message is None:
+            raise
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=duplicate_message,
+        ) from exc
+    session.add(profile)
+    try:
+        await session.flush()
+    except IntegrityError as exc:
+        # Keep the user/profile write atomic. A live-phone collision can still
+        # happen here when two creates race after the explicit preflight check.
         await session.rollback()
         duplicate_message = _client_manager_duplicate_message(exc)
         if duplicate_message is None:
@@ -1182,13 +1199,14 @@ async def create_client_manager(
                 updated_at=now,
             )
         )
-    try:
-        await session.flush()
-    except IntegrityError:
-        # Group-assignment failures are not account-identity duplicates. Keep
-        # the operation atomic and preserve the real database error for logs.
-        await session.rollback()
-        raise
+    if access_by_group:
+        try:
+            await session.flush()
+        except IntegrityError:
+            # Group-assignment failures are not account-identity duplicates.
+            # Keep the operation atomic and preserve the database error for logs.
+            await session.rollback()
+            raise
     await _audit(
         session,
         current_user,
