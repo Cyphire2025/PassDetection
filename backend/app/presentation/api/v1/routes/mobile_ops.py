@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import case, func, or_, select, tuple_
+from sqlalchemy import String, case, cast, func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -34,6 +34,7 @@ from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundE
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
+    GCAnnouncementModel,
     GCGroupAccessModel,
     MobileDeviceSessionModel,
     MobileIdempotencyReceiptModel,
@@ -98,6 +99,7 @@ _APP_BUNDLE_ID = "com.globalconnects.groupcompanion"
 _MAX_ROSTER_PAGE = 200
 _MAX_NOTIFICATION_PAGE = 200
 _PUSH_ONLY_NOTIFICATION_TYPES = frozenset({"trip_countdown"})
+_ANNOUNCEMENT_NOTIFICATION_TYPE = "group_announcement"
 _MAX_ATTENDANCE_SESSION_PAGE = 100
 _MAX_MISSING_PASSENGER_PAGE = 200
 _MAX_SCAN_CLOCK_SKEW = timedelta(minutes=15)
@@ -1739,6 +1741,7 @@ async def list_mobile_notifications(
     filters = [
         MobileNotificationModel.agency_id == claims.agency_id,
         recipient_filter,
+        _published_announcement_notification_filter(claims.agency_id),
         MobileNotificationModel.notification_type.not_in(
             _PUSH_ONLY_NOTIFICATION_TYPES
         ),
@@ -1990,6 +1993,44 @@ def _notification_recipient_filter(claims: MobileAccessClaims):
         (MobileNotificationModel.recipient_type == claims.principal_type)
         & (MobileNotificationModel.recipient_user_id == claims.principal_id)
         & MobileNotificationModel.recipient_passenger_identity_id.is_(None)
+    )
+
+
+def _published_announcement_notification_filter(agency_id: uuid.UUID):
+    """Hide legacy notification rows whose source announcement is no longer published."""
+
+    normalized_notification_source_id = func.replace(
+        func.replace(
+            MobileNotificationModel.dedupe_key,
+            "announcement:",
+            "",
+        ),
+        "-",
+        "",
+    )
+    normalized_announcement_id = func.replace(
+        cast(GCAnnouncementModel.id, String),
+        "-",
+        "",
+    )
+    current_announcement_exists = (
+        select(GCAnnouncementModel.id)
+        .where(
+            GCAnnouncementModel.agency_id == agency_id,
+            GCAnnouncementModel.agency_id == MobileNotificationModel.agency_id,
+            GCAnnouncementModel.group_id == MobileNotificationModel.group_id,
+            GCAnnouncementModel.gc_group_access_id
+            == MobileNotificationModel.gc_group_access_id,
+            GCAnnouncementModel.status == "published",
+            normalized_announcement_id == normalized_notification_source_id,
+        )
+        .correlate(MobileNotificationModel)
+        .exists()
+    )
+    return or_(
+        MobileNotificationModel.notification_type
+        != _ANNOUNCEMENT_NOTIFICATION_TYPE,
+        current_announcement_exists,
     )
 
 

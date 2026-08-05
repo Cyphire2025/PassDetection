@@ -22,6 +22,7 @@ from app.application.mobile.push_provider import (
     MobilePushReceipt,
     MobilePushTicket,
 )
+from app.core.security.mobile_jwt import MobileAccessClaims
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
@@ -39,6 +40,7 @@ from app.infrastructure.database.models import (
     CoordinatorGroupAssignmentModel,
     UserModel,
 )
+from app.presentation.api.v1.routes.mobile_ops import list_mobile_notifications
 
 
 def _access(*, enabled: bool = True) -> GCGroupAccessModel:
@@ -540,6 +542,66 @@ async def test_announcement_cancellation_removes_all_delivery_states_from_feed(
     assert cancelled == 3
     assert {row.status for row in rows} == {"cancelled"}
     assert {row.failure_code for row in rows} == {"announcement_unpublished"}
+
+
+@pytest.mark.asyncio
+async def test_notification_feed_hides_an_already_orphaned_announcement(
+    db_session: AsyncSession,
+) -> None:
+    access = _access()
+    group = _group(access)
+    announcement = _announcement(access)
+    passenger = MobilePassengerIdentityModel(
+        id=uuid.uuid4(),
+        agency_id=access.agency_id,
+        group_id=access.group_id,
+        gc_group_access_id=access.id,
+        passenger_submission_id=uuid.uuid4(),
+        normalized_phone_number="+919999999977",
+        phone_lookup_hash=uuid.uuid4().hex * 2,
+        status="eligible",
+    )
+    db_session.add_all([group, access, announcement, passenger])
+    await db_session.flush()
+    await enqueue_announcement_notifications(
+        db_session,
+        access=access,
+        announcement=announcement,
+    )
+    claims = MobileAccessClaims(
+        principal_id=passenger.id,
+        account_id=passenger.id,
+        principal_type="passenger",
+        agency_id=access.agency_id,
+        session_id=uuid.uuid4(),
+        session_generation=1,
+        password_change_required=False,
+        expires_at=datetime.now(tz=UTC) + timedelta(minutes=10),
+    )
+
+    published = await list_mobile_notifications(
+        trip_id=None,
+        cursor=None,
+        unread_only=False,
+        limit=100,
+        claims=claims,
+        session=db_session,
+    )
+    assert [item.title for item in published.items] == [announcement.title]
+
+    await db_session.delete(announcement)
+    await db_session.flush()
+    orphaned = await list_mobile_notifications(
+        trip_id=None,
+        cursor=None,
+        unread_only=False,
+        limit=100,
+        claims=claims,
+        session=db_session,
+    )
+
+    assert orphaned.items == []
+    assert orphaned.unread_count == 0
 
 
 @pytest.mark.asyncio
