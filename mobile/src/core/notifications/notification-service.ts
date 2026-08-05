@@ -28,18 +28,22 @@ export class NotificationRegistrationError extends Error {
   }
 }
 
+export async function configureTripUpdateChannel(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  await Notifications.setNotificationChannelAsync('trip-updates', {
+    name: 'Trip updates',
+    importance: Notifications.AndroidImportance.HIGH,
+    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
+    vibrationPattern: [0, 180, 90, 240],
+    sound: 'default',
+  });
+}
+
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!Device.isDevice) return false;
-  if (Platform.OS === 'android') {
-    // Android requires the channel before the runtime permission prompt so the
-    // operating system can present the final notification behavior accurately.
-    await Notifications.setNotificationChannelAsync('trip-updates', {
-      name: 'Trip updates',
-      importance: Notifications.AndroidImportance.HIGH,
-      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
-      vibrationPattern: [0, 180],
-    });
-  }
+  // Android requires the channel before the runtime permission prompt so the
+  // operating system can present the final notification behavior accurately.
+  await configureTripUpdateChannel();
 
   const current = await Notifications.getPermissionsAsync();
   const permission = current.granted
@@ -99,7 +103,7 @@ Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
-    shouldPlaySound: false,
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });

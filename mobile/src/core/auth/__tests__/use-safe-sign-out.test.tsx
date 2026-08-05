@@ -11,7 +11,12 @@ jest.mock('../session-service', () => ({
 
 const mockedLogout = jest.mocked(logoutSession);
 const mockedDeactivate = jest.mocked(deactivateLocalSession);
+const mockCancelDepartureReminders = jest.fn(async () => undefined);
 const namespace = '11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222';
+
+jest.mock('@/core/notifications/departure-reminders', () => ({
+  cancelDepartureReminders: () => mockCancelDepartureReminders(),
+}));
 
 function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
@@ -26,6 +31,7 @@ function deferred<T>() {
 beforeEach(() => {
   mockedLogout.mockReset();
   mockedDeactivate.mockReset();
+  mockCancelDepartureReminders.mockClear();
   mockedDeactivate.mockResolvedValue(undefined);
   useSessionStore.getState().setSession({
     accessToken: 'a'.repeat(48),
@@ -89,11 +95,13 @@ test('duplicate sign-out taps share one request and invoke logout once', async (
 
   expect(second).toBe(first);
   expect(mockedLogout).toHaveBeenCalledTimes(1);
+  expect(mockCancelDepartureReminders).not.toHaveBeenCalled();
   expect(result.current.isSigningOut).toBe(true);
 
   await act(async () => {
     pending.resolve();
     await first;
   });
+  expect(mockCancelDepartureReminders).toHaveBeenCalledTimes(1);
   expect(result.current.isSigningOut).toBe(false);
 });

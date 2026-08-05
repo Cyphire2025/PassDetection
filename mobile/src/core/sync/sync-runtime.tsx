@@ -4,6 +4,8 @@ import { AppState } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { reconcileDepartureReminders } from '@/core/notifications/departure-reminders';
+import { localTrips } from '@/features/trips/data/trip-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import {
@@ -154,6 +156,10 @@ export function SyncRuntime() {
             summary.tripsChanged,
             summary.removedTripIds,
           );
+          if (scope === 'full') {
+            const trips = await localTrips();
+            await reconcileDepartureReminders(trips);
+          }
         })
         .catch(() => undefined)
         .finally(() => {

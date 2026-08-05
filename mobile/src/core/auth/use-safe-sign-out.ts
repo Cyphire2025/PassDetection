@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { cancelDepartureReminders } from '@/core/notifications/departure-reminders';
+
 import { deactivateLocalSession, logoutSession } from './session-service';
 import { useSessionStore } from './session-store';
 import { principalAccountNamespace } from './types';
@@ -28,6 +30,7 @@ export function requestSafeSignOut(): Promise<SafeSignOutResult> {
   return singleFlight(async () => {
     try {
       await logoutSession();
+      await cancelDepartureReminders().catch(() => undefined);
       return { ok: true, namespace: null };
     } catch {
       // logoutSession clears in-memory authentication before local deactivation. Do

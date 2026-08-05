@@ -12,9 +12,10 @@ import {
 } from '@/core/storage/secure-store';
 import { syncTrip } from '@/core/sync/sync-service';
 import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinator-trip-store';
-import { refreshTrips } from '@/features/trips/data/trip-repository';
+import { localTrips, refreshTrips } from '@/features/trips/data/trip-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
+import { reconcileDepartureReminders } from './departure-reminders';
 import {
   notificationContentData,
   notificationData,
@@ -52,6 +53,11 @@ export function NotificationRuntime() {
           : 'PUSH_REGISTRATION_FAILED';
         console.warn('[notifications] registration deferred', { code });
       })
+      .then(async () => {
+        const trips = await localTrips();
+        await reconcileDepartureReminders(trips);
+      })
+      .catch(() => undefined)
       .finally(() => {
         if (registrationInFlight.current === operation) registrationInFlight.current = null;
       });
