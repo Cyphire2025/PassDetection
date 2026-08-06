@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import uuid
 from io import BytesIO
 from types import SimpleNamespace
@@ -617,10 +618,17 @@ def test_malaysia_airlines_electronic_ticket_receipt_is_a_ticket() -> None:
 
 def test_image_only_pdf_uses_bounded_ocr_fallback(monkeypatch) -> None:
     matcher = DocumentMatcher()
-    monkeypatch.setattr(matcher, "_extract_pdf_text_with_pypdf", lambda _content: "")
+    reads = 0
+
+    def read_image_only_pdf(_content: bytes):
+        nonlocal reads
+        reads += 1
+        return document_matcher_module._PdfTextRead("", True)
+
+    monkeypatch.setattr(matcher, "_read_pdf_text_with_pypdf", read_image_only_pdf)
     monkeypatch.setattr(
         matcher,
-        "_extract_image_only_pdf_text",
+        "_ocr_validated_image_only_pdf",
         lambda _content: (
             "E-TICKET ITINERARY\nBooking reference: ABC123\nDeparture: DEL\nArrival: BKK"
         ),
@@ -634,6 +642,115 @@ def test_image_only_pdf_uses_bounded_ocr_fallback(monkeypatch) -> None:
 
     assert result.accepted is True
     assert result.detected_type == "flight_ticket"
+    assert reads == 1
+
+
+def test_unsafe_image_only_pdf_never_reaches_ocr(monkeypatch) -> None:
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(
+        matcher,
+        "_read_pdf_text_with_pypdf",
+        lambda _content: document_matcher_module._PdfTextRead("", False),
+    )
+    ocr_called = False
+
+    def unexpected_ocr(_content: bytes) -> str:
+        nonlocal ocr_called
+        ocr_called = True
+        return "ELECTRONIC TICKET RECEIPT"
+
+    monkeypatch.setattr(matcher, "_ocr_validated_image_only_pdf", unexpected_ocr)
+
+    result = matcher.classify(
+        filename="unsafe.pdf",
+        content=b"%PDF-1.7\n%%EOF",
+        expected_type="flight_ticket",
+    )
+
+    assert result.accepted is False
+    assert result.detected_type == "unknown"
+    assert ocr_called is False
+
+
+def test_pdfium_empty_text_layer_skips_expensive_pypdf_layout_extraction(
+    monkeypatch,
+) -> None:
+    matcher = DocumentMatcher()
+
+    class PageThatMustNotExtract:
+        def extract_text(self) -> str:
+            raise AssertionError("pypdf layout extraction should not run for image-only PDFs")
+
+    reader = SimpleNamespace(
+        is_encrypted=False,
+        pages=[PageThatMustNotExtract()],
+        root_object={},
+    )
+    monkeypatch.setattr(document_matcher_module, "PdfReader", lambda *_args, **_kwargs: reader)
+    monkeypatch.setattr(matcher, "_has_active_pdf_features", lambda *_args, **_kwargs: False)
+    monkeypatch.setattr(matcher, "_extract_pdf_text_with_pdfium", lambda *_args, **_kwargs: "")
+
+    read = matcher._read_pdf_text_with_pypdf(b"%PDF-1.7\n%%EOF")
+
+    assert read == document_matcher_module._PdfTextRead("", True)
+
+
+def test_validated_image_ocr_receives_its_own_time_budget(monkeypatch) -> None:
+    matcher = DocumentMatcher()
+    observed_timeout = 0.0
+
+    class FakeImage:
+        width = 900
+        height = 1_200
+
+        def thumbnail(self, _size: tuple[int, int]) -> None:
+            raise AssertionError("bounded test image should not need resizing")
+
+    class FakeBitmap:
+        def to_pil(self) -> FakeImage:
+            return FakeImage()
+
+    class FakePage:
+        def render(self, *, scale: float) -> FakeBitmap:
+            assert scale == document_matcher_module.PDF_OCR_RENDER_SCALE
+            return FakeBitmap()
+
+    class FakeDocument:
+        def __len__(self) -> int:
+            return 1
+
+        def __getitem__(self, index: int) -> FakePage:
+            assert index == 0
+            return FakePage()
+
+    def image_to_string(
+        _image: FakeImage,
+        *,
+        lang: str,
+        config: str,
+        timeout: float,
+    ) -> str:
+        nonlocal observed_timeout
+        observed_timeout = timeout
+        assert lang == "eng"
+        assert config == "--oem 1 --psm 6"
+        return "ELECTRONIC TICKET RECEIPT\nBooking ref: EINDC4\nTicket number: 2322485729271"
+
+    monkeypatch.setattr(
+        document_matcher_module,
+        "pypdfium2",
+        SimpleNamespace(PdfDocument=lambda _content: FakeDocument()),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "pytesseract",
+        SimpleNamespace(image_to_string=image_to_string),
+    )
+
+    text = matcher._ocr_validated_image_only_pdf(b"%PDF-1.7\n%%EOF")
+
+    assert "ELECTRONIC TICKET RECEIPT" in text
+    assert 3.0 <= observed_timeout <= document_matcher_module.MAX_PDF_OCR_SECONDS
 
 
 def test_digital_arrival_card_is_never_classified_as_visa_or_ticket() -> None:

@@ -343,7 +343,10 @@ def test_out_of_order_or_mismatched_totals_never_complete() -> None:
 
 
 def test_scaled_parser_budget_covers_max_chunk_below_request_timeout() -> None:
-    assert bounded_pdf_batch_timeout_seconds(MAX_DOCUMENT_FILES_PER_CHUNK) == 80.0
+    assert (
+        bounded_pdf_batch_timeout_seconds(MAX_DOCUMENT_FILES_PER_CHUNK)
+        == MAX_PDF_SCALED_BATCH_SECONDS
+    )
     assert bounded_pdf_batch_timeout_seconds(1_500) == MAX_PDF_SCALED_BATCH_SECONDS
 
 

@@ -39,6 +39,7 @@ MAX_PDF_PAGE_TEXT_CHARS = 40_000
 MAX_PDF_TEXT_CHARS = 120_000
 MAX_PDF_SOURCE_BYTES = 16 * 1024 * 1024
 MAX_PDF_PARSE_SECONDS = 3.0
+MAX_PDF_OCR_SECONDS = 3.5
 MAX_PDF_OCR_PAGES = 2
 MAX_PDF_OCR_PIXELS = 4_000_000
 PDF_OCR_RENDER_SCALE = 1.5
@@ -309,6 +310,14 @@ class _VisaDocumentFacts:
     has_heading: bool
     has_authority: bool
     has_entry_information: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _PdfTextRead:
+    """Text plus the security decision needed before image-only OCR."""
+
+    text: str
+    safe_for_ocr: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -927,27 +936,30 @@ class DocumentMatcher:
         return deduped
 
     def _pdf_text(self, content: bytes) -> str:
-        text = self._extract_pdf_text_with_pypdf(content)
-        if text:
-            return text
-        return self._extract_image_only_pdf_text(content)
+        # Parse and validate the PDF once. Image-only travel PDFs previously
+        # repeated the full pypdf active-content scan before OCR, consuming
+        # most of the file's wall-time budget and leaving Tesseract less than a
+        # second on common scanned e-tickets.
+        read = self._read_pdf_text_with_pypdf(content)
+        if read.text or not read.safe_for_ocr:
+            return read.text
+        return self._ocr_validated_image_only_pdf(content)
 
     def _extract_image_only_pdf_text(self, content: bytes) -> str:
         """OCR a bounded image-only PDF after repeating all active-content checks."""
 
-        if PdfReader is None or pypdfium2 is None or len(content) > MAX_PDF_SOURCE_BYTES:
+        read = self._read_pdf_text_with_pypdf(content)
+        if read.text or not read.safe_for_ocr:
+            return ""
+        return self._ocr_validated_image_only_pdf(content)
+
+    def _ocr_validated_image_only_pdf(self, content: bytes) -> str:
+        """OCR content that already passed the active-PDF safety validation."""
+
+        if pypdfium2 is None or len(content) > MAX_PDF_SOURCE_BYTES:
             return ""
         started_at = time.monotonic()
         try:
-            reader = PdfReader(BytesIO(content), strict=False)
-            if reader.is_encrypted or not reader.pages or len(reader.pages) > MAX_PDF_TOTAL_PAGES:
-                return ""
-            if self._has_active_pdf_features(
-                reader,
-                deadline=started_at + MAX_PDF_PARSE_SECONDS,
-            ):
-                return ""
-
             import pytesseract
 
             document = pypdfium2.PdfDocument(content)
@@ -955,7 +967,7 @@ class DocumentMatcher:
             text_length = 0
             page_count = min(len(document), MAX_PDF_OCR_PAGES)
             for page_index in range(page_count):
-                remaining_seconds = MAX_PDF_PARSE_SECONDS - (time.monotonic() - started_at)
+                remaining_seconds = MAX_PDF_OCR_SECONDS - (time.monotonic() - started_at)
                 if remaining_seconds <= 0.25:
                     break
                 page = document[page_index]
@@ -989,26 +1001,42 @@ class DocumentMatcher:
             return ""
 
     def _extract_pdf_text_with_pypdf(self, content: bytes) -> str:
+        return self._read_pdf_text_with_pypdf(content).text
+
+    def _read_pdf_text_with_pypdf(self, content: bytes) -> _PdfTextRead:
         if PdfReader is None or len(content) > MAX_PDF_SOURCE_BYTES:
-            return ""
+            return _PdfTextRead("", False)
         try:
             started_at = time.monotonic()
             reader = PdfReader(BytesIO(content), strict=False)
             if reader.is_encrypted or len(reader.pages) > MAX_PDF_TOTAL_PAGES:
-                return ""
+                return _PdfTextRead("", False)
             if self._has_active_pdf_features(
                 reader,
                 deadline=started_at + MAX_PDF_PARSE_SECONDS,
             ):
-                return ""
+                return _PdfTextRead("", False)
+
+            # PDFium can determine whether a page has an embedded text layer
+            # without decoding the full-page scan through pypdf's layout
+            # extractor. On the production airline receipts this reduces the
+            # image-only decision from roughly 1-2 seconds to a few
+            # milliseconds, preserving the dedicated budget for Tesseract.
+            pdfium_text = self._extract_pdf_text_with_pdfium(
+                content,
+                deadline=started_at + MAX_PDF_PARSE_SECONDS,
+            )
+            if pdfium_text == "":
+                return _PdfTextRead("", True)
+
             page_texts: list[str] = []
             text_length = 0
             for page in reader.pages[:MAX_PDF_PAGES_TO_INSPECT]:
                 if time.monotonic() - started_at > MAX_PDF_PARSE_SECONDS:
-                    return ""
+                    return _PdfTextRead("", False)
                 page_text = (page.extract_text() or "")[:MAX_PDF_PAGE_TEXT_CHARS]
                 if time.monotonic() - started_at > MAX_PDF_PARSE_SECONDS:
-                    return ""
+                    return _PdfTextRead("", False)
                 if not page_text:
                     continue
                 normalized_lines = [
@@ -1020,12 +1048,52 @@ class DocumentMatcher:
                     break
                 page_texts.append(normalized[:remaining])
                 text_length += min(len(normalized), remaining)
-            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
+            return _PdfTextRead(
+                "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS],
+                True,
+            )
         except Exception:
             # A malformed, encrypted, image-only, or otherwise unreadable PDF
             # is uncertain and must fail closed instead of being classified by
             # filename or by arbitrary bytes from a compressed stream.
-            return ""
+            return _PdfTextRead("", False)
+
+    def _extract_pdf_text_with_pdfium(
+        self,
+        content: bytes,
+        *,
+        deadline: float,
+    ) -> str | None:
+        """Return bounded embedded text, or None when PDFium is unavailable."""
+
+        if pypdfium2 is None:
+            return None
+        try:
+            document = pypdfium2.PdfDocument(content)
+            page_texts: list[str] = []
+            text_length = 0
+            for page_index in range(min(len(document), MAX_PDF_PAGES_TO_INSPECT)):
+                if time.monotonic() > deadline:
+                    return None
+                page = document[page_index]
+                text_page = page.get_textpage()
+                page_text = text_page.get_text_range()[:MAX_PDF_PAGE_TEXT_CHARS]
+                normalized = "\n".join(
+                    " ".join(line.split())
+                    for line in page_text.splitlines()
+                    if line.strip()
+                )
+                remaining = MAX_PDF_TEXT_CHARS - text_length
+                if remaining <= 0:
+                    break
+                page_texts.append(normalized[:remaining])
+                text_length += min(len(normalized), remaining)
+            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
+        except Exception:
+            # pypdf remains the compatibility fallback for valid PDFs that
+            # PDFium cannot decode. The outer parser process still enforces the
+            # cumulative wall-time and memory limits.
+            return None
 
     def _has_active_pdf_features(
         self,

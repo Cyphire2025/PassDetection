@@ -29,7 +29,7 @@ PdfClassificationJob: TypeAlias = tuple[int, str, bytes, str]
 PdfClassificationPayload: TypeAlias = dict[str, str | bool | None]
 
 MAX_PDF_BATCH_PARSE_SECONDS = 20.0
-MAX_PDF_FILE_PARSE_SECONDS = 3.0
+MAX_PDF_FILE_PARSE_SECONDS = 5.0
 MAX_PDF_SCALED_BATCH_SECONDS = 90.0
 MAX_PDF_BATCH_TEXT_CHARS = 12_000_000
 MAX_PDF_PARSER_PROCESSES = 2
