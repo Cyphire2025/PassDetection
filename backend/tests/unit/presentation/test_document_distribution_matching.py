@@ -558,6 +558,7 @@ async def test_document_group_counts_use_constant_query_count() -> None:
     assigned_result.all.return_value = [
         (groups[0].id, "visa", 2),
         (groups[1].id, "flight_ticket", 1),
+        (groups[1].id, "flight_ticket_arrival", 3),
     ]
     passenger_result = MagicMock()
     passenger_result.all.return_value = [
@@ -582,6 +583,7 @@ async def test_document_group_counts_use_constant_query_count() -> None:
     assert [item.total_passengers for item in response] == [3, 4]
     assert response[0].visa_assigned_count == 2
     assert response[1].flight_ticket_assigned_count == 1
+    assert response[1].flight_ticket_arrival_assigned_count == 3
     passenger_statement = session.execute.await_args_list[2].args[0]
     rendered = str(passenger_statement)
     assert "GROUP BY passport_submissions.group_id" in rendered

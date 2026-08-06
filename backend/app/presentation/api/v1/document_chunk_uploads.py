@@ -38,7 +38,7 @@ def document_upload_scope_advisory_lock_key(
 ) -> int:
     """Return one stable lock key for distribution-session creation scope."""
 
-    if document_type not in {"visa", "flight_ticket", "other"}:
+    if document_type not in {"visa", "flight_ticket", "flight_ticket_arrival", "other"}:
         raise ValueError("Unsupported distribution document type")
     digest = hashlib.sha256(
         (f"document-upload-scope:distribution:{agency_id}:{group_id}:{document_type}").encode()

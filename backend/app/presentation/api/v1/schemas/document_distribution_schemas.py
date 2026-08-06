@@ -17,6 +17,7 @@ class DocumentGroupResponse(BaseModel):
     total_passengers: int
     visa_assigned_count: int = 0
     flight_ticket_assigned_count: int = 0
+    flight_ticket_arrival_assigned_count: int = 0
     other_assigned_count: int = 0
 
 

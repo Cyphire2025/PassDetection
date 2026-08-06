@@ -6,7 +6,8 @@ from collections.abc import Sequence
 
 DOCUMENT_DEFAULT_MESSAGE_CONTENT = {
     "visa": "This is your attached VISA",
-    "flight_ticket": "This is your attached FLIGHT TICKET",
+    "flight_ticket": "This is your attached DEPARTURE FLIGHT TICKET",
+    "flight_ticket_arrival": "This is your attached ARRIVAL FLIGHT TICKET",
     "other": "This is your attached TRAVEL DOCUMENT",
 }
 DOCUMENT_DEFAULT_REVIEW_CONTENT = "Kindly cross check all your details"
@@ -15,7 +16,8 @@ DOCUMENT_DEFAULT_REVIEW_CONTENT = "Kindly cross check all your details"
 def document_type_label(document_type: str) -> str:
     return {
         "visa": "Visa",
-        "flight_ticket": "Flight Ticket",
+        "flight_ticket": "Departure Flight Ticket",
+        "flight_ticket_arrival": "Arrival Flight Ticket",
         "other": "Travel Document",
     }.get(document_type, "Travel Document")
 

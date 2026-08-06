@@ -40,7 +40,7 @@ test("group details include compact document delivery management", () => {
   assert.match(groupPage, /GroupDocumentDeliveryPanel groupId=\{groupId\}/);
   assert.match(panel, /Document delivery tracking/);
   assert.match(panel, /Manage deliveries/);
-  assert.match(panel, /Visa, ticket, and travel-document WhatsApp delivery status/);
+  assert.match(panel, /Visa, departure-ticket, and arrival-ticket WhatsApp delivery status/);
   assert.match(panel, /No document broadcasts sent yet/);
 });
 
@@ -55,6 +55,10 @@ test("review tables keep one row per submitted passenger and nest saved document
 test("document review exposes assignment counts, filters, and safe bulk removal choices", () => {
   assert.match(types, /visa_assigned_count: number/);
   assert.match(types, /flight_ticket_assigned_count: number/);
+  assert.match(types, /flight_ticket_arrival_assigned_count: number/);
+  assert.match(workspace, /title: "Departure Ticket"/);
+  assert.match(workspace, /title: "Arrival Ticket"/);
+  assert.doesNotMatch(workspace, /title: "Other"/);
   assert.match(workspace, /Remove all assigned/);
   assert.match(workspace, /Keep saved PDFs/);
   assert.match(workspace, /Delete saved PDFs/);

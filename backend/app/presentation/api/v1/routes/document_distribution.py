@@ -1946,6 +1946,10 @@ async def list_document_groups(
                 total_passengers=passenger_counts.get(group.id, 0),
                 visa_assigned_count=assigned_counts.get((group.id, "visa"), 0),
                 flight_ticket_assigned_count=assigned_counts.get((group.id, "flight_ticket"), 0),
+                flight_ticket_arrival_assigned_count=assigned_counts.get(
+                    (group.id, "flight_ticket_arrival"),
+                    0,
+                ),
                 other_assigned_count=assigned_counts.get((group.id, "other"), 0),
             )
         )

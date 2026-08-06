@@ -1311,7 +1311,9 @@ async def get_mobile_manager_readiness(
                     DistributedDocumentModel.group_id == group_id,
                     DistributedDocumentModel.passenger_id.is_not(None),
                     DistributedDocumentModel.match_status == "matched",
-                    DistributedDocumentModel.document_type.in_(("visa", "flight_ticket")),
+                    DistributedDocumentModel.document_type.in_(
+                        ("visa", "flight_ticket", "flight_ticket_arrival")
+                    ),
                 )
                 .group_by(DistributedDocumentModel.document_type)
             )
@@ -1330,7 +1332,22 @@ async def get_mobile_manager_readiness(
     passenger_total = int(passenger_count or 0)
     passport_total = int(passports_complete or 0)
     visa_total = int(document_counts.get("visa", 0))
-    ticket_total = int(document_counts.get("flight_ticket", 0))
+    ticket_total = int(
+        (
+            await session.execute(
+                select(func.count(func.distinct(DistributedDocumentModel.passenger_id))).where(
+                    DistributedDocumentModel.agency_id == claims.agency_id,
+                    DistributedDocumentModel.group_id == group_id,
+                    DistributedDocumentModel.passenger_id.is_not(None),
+                    DistributedDocumentModel.match_status == "matched",
+                    DistributedDocumentModel.document_type.in_(
+                        ("flight_ticket", "flight_ticket_arrival")
+                    ),
+                )
+            )
+        ).scalar_one()
+        or 0
+    )
     readiness_revision = await _manager_readiness_revision(session, claims, trip)
     return MobileManagerReadinessResponse(
         trip_id=group_id,
@@ -1464,7 +1481,9 @@ async def _manager_readiness_revision(
                 DistributedDocumentModel.group_id == trip.group.id,
                 DistributedDocumentModel.passenger_id.is_not(None),
                 DistributedDocumentModel.match_status == "matched",
-                DistributedDocumentModel.document_type.in_(("visa", "flight_ticket")),
+                DistributedDocumentModel.document_type.in_(
+                    ("visa", "flight_ticket", "flight_ticket_arrival")
+                ),
             )
         )
     ).one()
@@ -2271,6 +2290,7 @@ def _mobile_document_category(value: str) -> str:
     normalized = re.sub(r"[^a-z0-9]+", "_", value.casefold()).strip("_")
     aliases = {
         "flight_ticket": "flight_ticket",
+        "flight_ticket_arrival": "flight_ticket",
         "ticket": "flight_ticket",
         "visa": "visa",
         "insurance": "insurance",

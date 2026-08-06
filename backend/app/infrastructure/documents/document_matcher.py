@@ -30,10 +30,11 @@ except ImportError:  # pragma: no cover - keeps local tooling usable until deps 
     pypdfium2 = None
 
 
-DOCUMENT_TYPES = {"visa", "flight_ticket", "other"}
+DOCUMENT_TYPES = {"visa", "flight_ticket", "flight_ticket_arrival", "other"}
 SUPPORTED_TRAVEL_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
 
-MAX_PDF_PAGES_TO_INSPECT = 5
+MAX_PDF_PAGES_TO_INSPECT = 200
+MAX_PDF_TEXT_LAYER_PAGES = 200
 MAX_PDF_TOTAL_PAGES = 200
 MAX_PDF_PAGE_TEXT_CHARS = 40_000
 MAX_PDF_TEXT_CHARS = 120_000
@@ -50,6 +51,15 @@ MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST = 36_000
 MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS = 72_000
 MAX_NAME_TOKENS = 8
 MAX_FUZZY_CANDIDATES = 32
+
+
+def classification_document_type(document_type: str) -> str:
+    """Map a distribution lane to the document class visible inside the PDF."""
+
+    return {
+        "flight_ticket_arrival": "flight_ticket",
+    }.get(document_type, document_type)
+
 
 VISA_CORE_TERMS = (
     "visa",
@@ -123,6 +133,7 @@ TICKET_CORE_TERMS = (
     "itinerary receipt",
     "passenger itinerary",
     "passenger receipt",
+    "flight summary",
     "boarding pass",
     "booking confirmation",
     "ticket number",
@@ -389,7 +400,9 @@ def _raise_for_common_unsupported_format(
     ):
         return
 
-    expected_types = {expected_type for _filename, _content, expected_type in jobs}
+    expected_types = {
+        classification_document_type(expected_type) for _filename, _content, expected_type in jobs
+    }
     if expected_types == {"visa"}:
         target = "a visa"
     elif expected_types == {"flight_ticket"}:
@@ -526,7 +539,8 @@ class DocumentMatcher:
         text = self._pdf_text(content)
         visa_facts = self._extract_visa_facts(text)
         detected_type = self._detect_type(text, visa_facts=visa_facts)
-        accepted = expected_type == "other" or detected_type == expected_type
+        expected_classification = classification_document_type(expected_type)
+        accepted = expected_classification == "other" or detected_type == expected_classification
         reason = "Accepted"
         if not accepted:
             if detected_type == "unknown":
@@ -803,6 +817,24 @@ class DocumentMatcher:
             content_match_groups.append(passport_matches)
 
         content_words = self._name_words(document.text)
+        # Resolve the complete text before the convenience `extracted_name`
+        # field. Combined airline bookings commonly expose the first traveller
+        # as a header value while listing every passenger later in the same PDF.
+        # The complete exact-name set is therefore the authoritative name set;
+        # the first-name extraction may safely narrow it but must not hide the
+        # remaining passengers.
+        name_matches, ambiguity = self._resolve_name_windows(
+            content_words,
+            prepared,
+            confidence=0.94,
+            reason="PDF text exact passenger name uniquely matched",
+            ambiguity_reason="PDF text passenger name matches multiple passengers",
+        )
+        if ambiguity is not None:
+            content_ambiguities.append(ambiguity)
+        if name_matches:
+            content_match_groups.append(name_matches)
+
         extracted_name_words = self._name_words(document.extracted_name or "")
         if extracted_name_words:
             name_matches, ambiguity = self._resolve_name_windows(
@@ -817,18 +849,6 @@ class DocumentMatcher:
                 content_ambiguities.append(ambiguity)
             if name_matches:
                 content_match_groups.append(name_matches)
-
-        name_matches, ambiguity = self._resolve_name_windows(
-            content_words,
-            prepared,
-            confidence=0.94,
-            reason="PDF text exact passenger name uniquely matched",
-            ambiguity_reason="PDF text passenger name matches multiple passengers",
-        )
-        if ambiguity is not None:
-            content_ambiguities.append(ambiguity)
-        if name_matches:
-            content_match_groups.append(name_matches)
 
         content_identifier_values = self._content_labeled_identifier_values(document.text)
         identifier_matches, ambiguity = self._resolve_identifier_values(
@@ -1026,8 +1046,12 @@ class DocumentMatcher:
                 content,
                 deadline=started_at + MAX_PDF_PARSE_SECONDS,
             )
-            if pdfium_text == "":
-                return _PdfTextRead("", True)
+            if pdfium_text is not None:
+                # PDFium is both substantially faster and more faithful for
+                # airline-generated PDFs than pypdf's layout extraction. An
+                # empty result is the explicit signal to use image OCR; any
+                # native text result is final and must never incur OCR.
+                return _PdfTextRead(pdfium_text, True)
 
             page_texts: list[str] = []
             text_length = 0
@@ -1072,7 +1096,7 @@ class DocumentMatcher:
             document = pypdfium2.PdfDocument(content)
             page_texts: list[str] = []
             text_length = 0
-            for page_index in range(min(len(document), MAX_PDF_PAGES_TO_INSPECT)):
+            for page_index in range(min(len(document), MAX_PDF_TEXT_LAYER_PAGES)):
                 if time.monotonic() > deadline:
                     return None
                 page = document[page_index]
@@ -2066,7 +2090,9 @@ class DocumentMatcher:
         return " ".join(re.findall(r"[^\W_]+", compatible, flags=re.UNICODE))
 
     def _label(self, value: str) -> str:
-        return {"visa": "visa", "flight_ticket": "flight ticket", "passport": "passport"}.get(
-            value,
-            value,
-        )
+        return {
+            "visa": "visa",
+            "flight_ticket": "flight ticket",
+            "flight_ticket_arrival": "arrival flight ticket",
+            "passport": "passport",
+        }.get(value, value)

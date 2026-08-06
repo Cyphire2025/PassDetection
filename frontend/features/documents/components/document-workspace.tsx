@@ -59,8 +59,18 @@ const DOCUMENT_TYPES: Array<{
   icon: LucideIcon;
 }> = [
   { type: "visa", title: "Visa", description: "Upload visa PDFs for this group.", icon: FileCheck2 },
-  { type: "flight_ticket", title: "Flight Ticket", description: "Upload e-tickets or itineraries.", icon: Plane },
-  { type: "other", title: "Other", description: "Upload supporting travel documents.", icon: FileQuestion },
+  {
+    type: "flight_ticket",
+    title: "Departure Ticket",
+    description: "Assign and send outbound flight tickets.",
+    icon: Plane,
+  },
+  {
+    type: "flight_ticket_arrival",
+    title: "Arrival Ticket",
+    description: "Assign and send return flight tickets independently.",
+    icon: Plane,
+  },
 ];
 
 function reviewRowDocuments(row: DocumentPassengerReviewRow): DistributedDocument[] {
@@ -201,7 +211,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       .filter((file) => file.accepted)
       .map((file) => file.staging_receipt);
   }, [verification]);
-  const showRowActions = selectedType === "visa" || selectedType === "flight_ticket";
+  const showRowActions =
+    selectedType === "visa" || selectedType.startsWith("flight_ticket");
   const assignedDocumentIds = useMemo(
     () =>
       reviewRows.flatMap((row) =>
@@ -462,7 +473,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               ? group?.visa_assigned_count
               : item.type === "flight_ticket"
                 ? group?.flight_ticket_assigned_count
-                : group?.other_assigned_count;
+                : group?.flight_ticket_arrival_assigned_count;
           return (
             <button
               key={item.type}
@@ -497,6 +508,9 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
               <h2 className="text-base font-semibold text-slate-900">Upload {selectedConfig.title} PDFs</h2>
               <p className="mt-1 text-sm text-slate-500">
                 Select all {selectedConfig.title.toLowerCase()} files. The system checks document type before upload and matches files to passengers.
+                {selectedType.startsWith("flight_ticket") && (
+                  <> A combined departure-and-arrival PDF can be uploaded in both ticket sections.</>
+                )}
               </p>
             </div>
             <Badge variant="outline">{review.data?.review_rows.length ?? 0} passengers</Badge>
@@ -1673,7 +1687,12 @@ function DocumentRowActionMenu({
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const label = documentType === "flight_ticket" ? "flight ticket" : "visa";
+  const label =
+    documentType === "flight_ticket"
+      ? "departure flight ticket"
+      : documentType === "flight_ticket_arrival"
+        ? "arrival flight ticket"
+        : "visa";
 
   useEffect(() => {
     if (!open) return;

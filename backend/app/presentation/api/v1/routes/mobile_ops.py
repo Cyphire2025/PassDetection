@@ -116,7 +116,7 @@ _MAX_COORDINATOR_OPERATIONAL_DETAILS = 300
 _MANAGER_PREVIEW_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
 _MANAGER_PREVIEW_DATABASE_TYPES = {
     "visa": ("visa",),
-    "flight_ticket": ("flight_ticket", "ticket"),
+    "flight_ticket": ("flight_ticket", "flight_ticket_arrival", "ticket"),
 }
 _MANAGER_PREVIEW_CONTENT_TYPES = frozenset(
     {"application/pdf", "image/jpeg", "image/png", "image/webp"}
@@ -285,6 +285,7 @@ _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS = (
 )
 _COORDINATOR_DOCUMENT_CATEGORY_ALIASES = {
     "flight_ticket": "flight_ticket",
+    "flight_ticket_arrival": "flight_ticket",
     "ticket": "flight_ticket",
     "visa": "visa",
     "insurance": "insurance",

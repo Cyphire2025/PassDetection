@@ -695,6 +695,58 @@ def test_pdfium_empty_text_layer_skips_expensive_pypdf_layout_extraction(
     assert read == document_matcher_module._PdfTextRead("", True)
 
 
+def test_pdfium_native_text_is_final_and_skips_pypdf_layout_extraction(
+    monkeypatch,
+) -> None:
+    matcher = DocumentMatcher()
+
+    class PageThatMustNotExtract:
+        def extract_text(self) -> str:
+            raise AssertionError("native PDFium text must not be parsed again")
+
+    reader = SimpleNamespace(
+        is_encrypted=False,
+        pages=[PageThatMustNotExtract()],
+        root_object={},
+    )
+    native_text = (
+        "Flight summary\nBooking no. ABC123\n"
+        "Departure: Chennai\nDestination: Ho Chi Minh City"
+    )
+    monkeypatch.setattr(document_matcher_module, "PdfReader", lambda *_args, **_kwargs: reader)
+    monkeypatch.setattr(matcher, "_has_active_pdf_features", lambda *_args, **_kwargs: False)
+    monkeypatch.setattr(
+        matcher,
+        "_extract_pdf_text_with_pdfium",
+        lambda *_args, **_kwargs: native_text,
+    )
+
+    read = matcher._read_pdf_text_with_pypdf(b"%PDF-1.7\n%%EOF")
+
+    assert read == document_matcher_module._PdfTextRead(native_text, True)
+
+
+def test_arrival_distribution_lane_accepts_a_verified_flight_ticket(monkeypatch) -> None:
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(
+        matcher,
+        "_pdf_text",
+        lambda _content: (
+            "Flight summary Booking no. ABC123 Departure: Chennai "
+            "Destination: Ho Chi Minh City"
+        ),
+    )
+
+    result = matcher.classify(
+        filename="return-ticket.pdf",
+        content=b"%PDF-1.7\n%%EOF",
+        expected_type="flight_ticket_arrival",
+    )
+
+    assert result.accepted is True
+    assert result.detected_type == "flight_ticket"
+
+
 def test_validated_image_ocr_receives_its_own_time_budget(monkeypatch) -> None:
     matcher = DocumentMatcher()
     observed_timeout = 0.0
@@ -1029,6 +1081,50 @@ def test_multiple_unique_content_passports_match_combined_document() -> None:
     )
 
     assert {match.passenger_id for match in matches} == {passenger.id for passenger in passengers}
+    assert {match.status for match in matches} == {"matched"}
+
+
+def test_complete_combined_name_list_outranks_first_extracted_passenger() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passengers = [
+        _passenger(
+            name=name,
+            passport_number=passport,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
+        for name, passport in (
+            ("Asha Mehta", "P1234567"),
+            ("Ravi Shah", "R7654321"),
+            ("Maya Singh", "M1122334"),
+        )
+    ]
+    matcher = DocumentMatcher()
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+    document = _document(
+        filename="combined-booking.pdf",
+        text=(
+            "Flight summary Booking no. ABC123. Passengers: "
+            "Asha Mehta, Ravi Shah, Maya Singh."
+        ),
+    )
+    document = ClassifiedDocument(
+        original_filename=document.original_filename,
+        detected_type="flight_ticket",
+        accepted=True,
+        reason="Accepted",
+        text=document.text,
+        extracted_name="Asha Mehta",
+        extracted_passport_number=None,
+        extracted_reference="ABC123",
+    )
+
+    matches = matcher.match_all(document, passengers, index=index)
+
+    assert {match.passenger_id for match in matches} == {
+        passenger.id for passenger in passengers
+    }
     assert {match.status for match in matches} == {"matched"}
 
 

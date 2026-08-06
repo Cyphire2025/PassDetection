@@ -32,7 +32,7 @@ export function GroupDocumentDeliveryPanel({ groupId }: { groupId: string }) {
             <div>
               <h2 className="text-base font-semibold text-slate-900">Document delivery tracking</h2>
               <p className="mt-1 text-sm text-slate-600">
-                Visa, ticket, and travel-document WhatsApp delivery status for this group.
+                Visa, departure-ticket, and arrival-ticket WhatsApp delivery status for this group.
               </p>
             </div>
           </div>
@@ -128,6 +128,7 @@ function DeliveryTrackingBadge({ status }: { status: string }) {
 
 function documentLabel(documentType: string): string {
   if (documentType === "visa") return "Visa";
-  if (documentType === "flight_ticket") return "Flight Ticket";
+  if (documentType === "flight_ticket") return "Departure Ticket";
+  if (documentType === "flight_ticket_arrival") return "Arrival Ticket";
   return "Travel Document";
 }

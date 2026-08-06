@@ -727,7 +727,9 @@ async def test_coordinator_passenger_detail_is_tenant_scoped_and_allowlisted() -
             one_or_none(row),
             first(room),
             scalars(["Grace Roommate"]),
-            scalars(["visa", "flight_ticket", "insurance", "hotel_voucher", "other"]),
+            scalars(
+                ["visa", "flight_ticket_arrival", "insurance", "hotel_voucher", "other"]
+            ),
             scalar_one(1),
         ]
     )
