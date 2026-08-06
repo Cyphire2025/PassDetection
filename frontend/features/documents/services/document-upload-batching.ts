@@ -7,7 +7,7 @@ export const TARGET_DOCUMENT_CHUNK_BYTES = 24 * 1024 * 1024;
 export const MAX_DOCUMENT_RECEIPT_CHUNK_BYTES = 8 * 1024 * 1024;
 export const MAX_DOCUMENT_VERIFICATION_CHUNK_FILES = 8;
 export const TARGET_DOCUMENT_VERIFICATION_CHUNK_BYTES = 8 * 1024 * 1024;
-export const MAX_DOCUMENT_VERIFICATION_CONCURRENCY = 2;
+export const MAX_DOCUMENT_VERIFICATION_CONCURRENCY = 1;
 
 export interface DocumentUploadSession {
   uploadId: string;
@@ -119,8 +119,11 @@ function createDocumentUploadSessionWithLimits(
  * Run independent verification chunks with bounded concurrency.
  *
  * Verification is intentionally separate from finalization: final document
- * writes retain their sequential, resumable commit order, while read-only PDF
- * checks can use the deployment's existing two-batch parser capacity. Every
+ * writes retain their sequential, resumable commit order. Verification chunks
+ * are also submitted sequentially because each backend batch already runs two
+ * isolated parser processes; overlapping HTTP chunks would otherwise create
+ * four simultaneous Tesseract processes and make image-only PDFs time out.
+ * Every
  * in-flight request is drained before an error is returned, so successful
  * staging writes always retain their server-side cleanup ownership.
  */

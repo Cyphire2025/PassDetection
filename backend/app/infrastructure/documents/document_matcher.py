@@ -40,7 +40,7 @@ MAX_PDF_PAGE_TEXT_CHARS = 40_000
 MAX_PDF_TEXT_CHARS = 120_000
 MAX_PDF_SOURCE_BYTES = 16 * 1024 * 1024
 MAX_PDF_PARSE_SECONDS = 3.0
-MAX_PDF_OCR_SECONDS = 3.5
+MAX_PDF_OCR_SECONDS = 7.0
 MAX_PDF_OCR_PAGES = 2
 MAX_PDF_OCR_PIXELS = 4_000_000
 PDF_OCR_RENDER_SCALE = 1.5
@@ -51,6 +51,7 @@ MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST = 36_000
 MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS = 72_000
 MAX_NAME_TOKENS = 8
 MAX_FUZZY_CANDIDATES = 32
+PDF_OCR_RETRY_REASON = "PDF OCR exceeded the temporary processing budget"
 
 
 def classification_document_type(document_type: str) -> str:
@@ -372,6 +373,7 @@ class DocumentMatchIndex:
     profiles_by_id: dict[uuid.UUID, _PassengerProfile]
     passports: dict[str, tuple[uuid.UUID, ...]]
     names: dict[tuple[str, ...], tuple[uuid.UUID, ...]]
+    compact_names: dict[str, tuple[uuid.UUID, ...]]
     identifiers: dict[str, tuple[_IdentifierOwner, ...]]
     name_token_passengers: dict[str, tuple[uuid.UUID, ...]]
     name_lengths: tuple[int, ...]
@@ -379,6 +381,10 @@ class DocumentMatchIndex:
 
 class DocumentParserUnavailableError(RuntimeError):
     """Transient parser-capacity failure that callers should expose as retryable."""
+
+
+class DocumentOcrUnavailableError(RuntimeError):
+    """Image-only PDF OCR exhausted its bounded runtime and may be retried."""
 
 
 class UnsupportedDocumentBatchFormatError(RuntimeError):
@@ -460,6 +466,13 @@ def classify_documents_bounded(
             batch_timeout_seconds=batch_timeout_seconds,
         )
     )
+    if any(payload.get("reason") == PDF_OCR_RETRY_REASON for payload in payloads):
+        # Verification is read-only at this point. Retry the complete immutable
+        # chunk instead of permanently misclassifying a real image-only travel
+        # document as an unknown PDF after temporary OCR contention.
+        raise DocumentParserUnavailableError(
+            "PDF verification is temporarily busy; retry the upload"
+        )
     classifications: list[ClassifiedDocument] = []
     for (filename, _content, _expected_type), payload in zip(jobs, payloads, strict=True):
         detected_type = payload.get("detected_type")
@@ -580,6 +593,7 @@ class DocumentMatcher:
         }
         passport_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
         name_owners: dict[tuple[str, ...], set[uuid.UUID]] = defaultdict(set)
+        compact_name_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
         identifier_owners: dict[str, set[_IdentifierOwner]] = defaultdict(set)
         name_token_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
         profiles: dict[uuid.UUID, _PassengerProfile] = {}
@@ -591,6 +605,8 @@ class DocumentMatcher:
             profiles[passenger_id] = _PassengerProfile(passenger_id, names)
             for name in names:
                 name_owners[name].add(passenger_id)
+                for alias in self._compact_name_aliases(name):
+                    compact_name_owners[alias].add(passenger_id)
                 for token in set(name):
                     if token not in _NAME_NOISE_TOKENS and len(token) > 1:
                         name_token_owners[token].add(passenger_id)
@@ -676,6 +692,7 @@ class DocumentMatcher:
             profiles_by_id=profiles,
             passports=self._freeze_uuid_index(passport_owners),
             names=self._freeze_name_index(name_owners),
+            compact_names=self._freeze_uuid_index(compact_name_owners),
             identifiers={
                 value: tuple(
                     sorted(
@@ -1002,10 +1019,10 @@ class DocumentMatcher:
                         config="--oem 1 --psm 6",
                         timeout=max(0.25, remaining_seconds),
                     )
-                except RuntimeError:
+                except RuntimeError as exc:
                     if page_texts:
                         break
-                    raise
+                    raise DocumentOcrUnavailableError from exc
                 normalized = "\n".join(
                     " ".join(line.split()) for line in page_text.splitlines() if line.strip()
                 )
@@ -1015,6 +1032,8 @@ class DocumentMatcher:
                 page_texts.append(normalized[:remaining_chars])
                 text_length += min(len(normalized), remaining_chars)
             return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
+        except DocumentOcrUnavailableError:
+            raise
         except Exception:
             # Rendering and OCR remain an optional, fail-closed fallback. The
             # isolated parser process owns the hard wall-time and memory caps.
@@ -1103,9 +1122,7 @@ class DocumentMatcher:
                 text_page = page.get_textpage()
                 page_text = text_page.get_text_range()[:MAX_PDF_PAGE_TEXT_CHARS]
                 normalized = "\n".join(
-                    " ".join(line.split())
-                    for line in page_text.splitlines()
-                    if line.strip()
+                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
                 )
                 remaining = MAX_PDF_TEXT_CHARS - text_length
                 if remaining <= 0:
@@ -1853,10 +1870,41 @@ class DocumentMatcher:
                     if candidate in index.names:
                         values.add(candidate)
 
+        compact_values: set[str] = set()
+        if exact_only:
+            compact = self._compact_name_value(words[:MAX_NAME_TOKENS])
+            if compact in index.compact_names:
+                compact_values.add(compact)
+        else:
+            # PDF generators and airline exports frequently remove the space
+            # between given and middle names (for example
+            # ``Akshaysunilkumar``), while filenames often put the surname
+            # first. Resolve bounded compact windows against precomputed,
+            # ambiguity-safe aliases so both filename and OCR text follow the
+            # same deterministic identity policy.
+            for start in range(len(words)):
+                compact_parts: list[str] = []
+                for width in range(1, MAX_NAME_TOKENS + 1):
+                    end = start + width
+                    if end > len(words):
+                        break
+                    compact_parts.append(words[end - 1])
+                    compact = self._compact_name_value(compact_parts)
+                    if len(compact) > 96:
+                        break
+                    if compact in index.compact_names:
+                        compact_values.add(compact)
+
         matched_ids: set[uuid.UUID] = set()
         ambiguous = False
         for value in values:
             owners = index.names.get(value, ())
+            if len(owners) == 1:
+                matched_ids.add(owners[0])
+            elif len(owners) > 1:
+                ambiguous = True
+        for compact_value in compact_values:
+            owners = index.compact_names.get(compact_value, ())
             if len(owners) == 1:
                 matched_ids.add(owners[0])
             elif len(owners) > 1:
@@ -1873,6 +1921,37 @@ class DocumentMatcher:
                 f"{ambiguity_reason}; manual review is required",
             )
         return matches, None
+
+    def _compact_name_aliases(self, name: tuple[str, ...]) -> set[str]:
+        """Return bounded joined-name aliases without weakening uniqueness checks."""
+
+        tokens = tuple(
+            token
+            for token in name[:MAX_NAME_TOKENS]
+            if token not in _NAME_NOISE_TOKENS and len(token) > 1
+        )
+        if not tokens:
+            return set()
+
+        aliases: set[str] = set()
+        # Rotations cover the common given-middle-surname versus
+        # surname-given-middle layouts. Reversed rotations cover airline/name
+        # exports that reverse the complete sequence. This stays linear in the
+        # number of name tokens instead of creating an unbounded permutation
+        # index for large rosters.
+        for ordered in (tokens, tuple(reversed(tokens))):
+            for offset in range(len(ordered)):
+                rotated = ordered[offset:] + ordered[:offset]
+                compact = self._compact_name_value(rotated)
+                if 8 <= len(compact) <= 96:
+                    aliases.add(compact)
+        return aliases
+
+    def _compact_name_value(self, tokens: Iterable[str]) -> str:
+        # Callers pass tokens produced by `_name_words`, so they are already
+        # normalized and contain no separators. Avoid regex work in the bounded
+        # full-document sliding window.
+        return "".join(token for token in tokens if token)
 
     def _resolve_identifier_values(
         self,

@@ -102,11 +102,11 @@ test("verification uses small chunks sized for progressive bounded OCR", () => {
   );
 
   assert.equal(MAX_DOCUMENT_VERIFICATION_CHUNK_FILES, 8);
-  assert.equal(MAX_DOCUMENT_VERIFICATION_CONCURRENCY, 2);
+  assert.equal(MAX_DOCUMENT_VERIFICATION_CONCURRENCY, 1);
   assert.deepEqual(session.chunks.map((chunk) => chunk.length), [8, 8, 8, 6]);
 });
 
-test("verification processes two chunks concurrently, preserves order, and reports committed files", async () => {
+test("verification can process chunks sequentially, preserves order, and reports committed files", async () => {
   let nextId = 0;
   const session = createDocumentVerificationSession(
     pdfFiles(18, 1),
@@ -118,7 +118,7 @@ test("verification processes two chunks concurrently, preserves order, and repor
 
   const results = await runConcurrentDocumentVerification({
     session,
-    concurrency: 2,
+    concurrency: 1,
     onProgress: (value) => progress.push(value),
     uploadChunk: async (chunk, chunkIndex, reportUpload) => {
       active += 1;
@@ -130,7 +130,7 @@ test("verification processes two chunks concurrently, preserves order, and repor
     },
   });
 
-  assert.equal(maxActive, 2);
+  assert.equal(maxActive, 1);
   assert.deepEqual(results, ["chunk-0", "chunk-1", "chunk-2"]);
   assert.equal(session.completedChunks, 3);
   assert.equal(progress.at(-1).completedFiles, 18);

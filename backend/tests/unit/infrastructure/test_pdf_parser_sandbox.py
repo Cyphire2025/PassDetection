@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from pypdf import PdfWriter
 
-from app.infrastructure.documents import pdf_parser_sandbox
+from app.infrastructure.documents import document_matcher, pdf_parser_sandbox
 from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
     classify_documents_bounded,
@@ -20,6 +20,12 @@ def _blank_pdf() -> bytes:
     output = BytesIO()
     writer.write(output)
     return output.getvalue()
+
+
+def test_per_file_safety_budget_leaves_headroom_for_image_ocr() -> None:
+    assert (
+        pdf_parser_sandbox.MAX_PDF_FILE_PARSE_SECONDS >= document_matcher.MAX_PDF_OCR_SECONDS + 2.0
+    )
 
 
 def test_windows_spawn_path_returns_ordered_fail_closed_results() -> None:
@@ -122,9 +128,7 @@ def test_global_lease_cap_rejects_without_spawning_and_releases_local_slot(
         lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("must not parse")),
     )
 
-    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
-        [("visa.pdf", _blank_pdf(), "visa")]
-    )
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated([("visa.pdf", _blank_pdf(), "visa")])
 
     assert results[0]["reason"] == "PDF parser capacity is temporarily exhausted"
     assert admission.acquire_calls == 1
@@ -149,9 +153,7 @@ def test_global_lease_is_released_when_parser_raises_base_exception(monkeypatch)
     )
 
     with pytest.raises(KeyboardInterrupt):
-        pdf_parser_sandbox.classify_pdf_batch_isolated(
-            [("visa.pdf", _blank_pdf(), "visa")]
-        )
+        pdf_parser_sandbox.classify_pdf_batch_isolated([("visa.pdf", _blank_pdf(), "visa")])
 
     assert len(redis.calls) == 2
     assert redis.calls[1][0] == pdf_parser_sandbox._RELEASE_PDF_BATCH_LEASE_LUA
@@ -175,9 +177,7 @@ def test_production_redis_outage_fails_closed_without_spawning(monkeypatch) -> N
         lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("must not parse")),
     )
 
-    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
-        [("visa.pdf", _blank_pdf(), "visa")]
-    )
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated([("visa.pdf", _blank_pdf(), "visa")])
 
     assert results[0]["reason"] == "PDF parser service is temporarily unavailable"
     assert admission.release_calls == 1
@@ -214,9 +214,7 @@ def test_development_parser_path_never_initializes_redis(monkeypatch) -> None:
         lambda *_args, **_kwargs: expected,
     )
 
-    results = pdf_parser_sandbox.classify_pdf_batch_isolated(
-        [("visa.pdf", _blank_pdf(), "visa")]
-    )
+    results = pdf_parser_sandbox.classify_pdf_batch_isolated([("visa.pdf", _blank_pdf(), "visa")])
 
     assert results == expected
     assert admission.release_calls == 1

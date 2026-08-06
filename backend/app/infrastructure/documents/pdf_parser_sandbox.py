@@ -29,7 +29,7 @@ PdfClassificationJob: TypeAlias = tuple[int, str, bytes, str]
 PdfClassificationPayload: TypeAlias = dict[str, str | bool | None]
 
 MAX_PDF_BATCH_PARSE_SECONDS = 20.0
-MAX_PDF_FILE_PARSE_SECONDS = 5.0
+MAX_PDF_FILE_PARSE_SECONDS = 10.0
 MAX_PDF_SCALED_BATCH_SECONDS = 90.0
 MAX_PDF_BATCH_TEXT_CHARS = 12_000_000
 MAX_PDF_PARSER_PROCESSES = 2
@@ -177,6 +177,10 @@ def _timeout_one_pdf(_signum: int, _frame: object) -> None:
 def _configure_parser_process(max_batch_seconds: float) -> None:
     """Apply defense-in-depth process limits where the OS supports them."""
 
+    # Tesseract may otherwise create multiple OpenMP threads inside each of the
+    # two isolated parser processes. Keeping one OCR thread per child avoids CPU
+    # oversubscription and makes bulk latency predictable under load.
+    os.environ.setdefault("OMP_THREAD_LIMIT", "1")
     try:
         import resource
 
@@ -233,7 +237,11 @@ def _classify_one_pdf(
 
         # Import lazily so the spawned process never needs to pickle the matcher
         # (and so importing the main API process does not initialize pypdf here).
-        from app.infrastructure.documents.document_matcher import DocumentMatcher
+        from app.infrastructure.documents.document_matcher import (
+            PDF_OCR_RETRY_REASON,
+            DocumentMatcher,
+            DocumentOcrUnavailableError,
+        )
 
         classification = DocumentMatcher().classify(
             filename=filename,
@@ -259,6 +267,8 @@ def _classify_one_pdf(
             "extracted_passport_number": classification.extracted_passport_number,
             "extracted_reference": classification.extracted_reference,
         }
+    except DocumentOcrUnavailableError:
+        return index, _failed_payload(filename, PDF_OCR_RETRY_REASON)
     except _PdfFileTimeoutError:
         return index, _failed_payload(filename, "PDF parsing exceeded the per-file safety limit")
     except BaseException:
