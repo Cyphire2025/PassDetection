@@ -31,6 +31,17 @@ const exportDialog = readFileSync(
   "utf8",
 );
 
+test("group action menu escapes the clipped workspace header through a body portal", () => {
+  assert.match(source, /import \{ createPortal \} from "react-dom"/);
+  assert.match(source, /ref=\{actionsMenuPopupRef\}/);
+  assert.match(source, /className="fixed z-\[70\] w-64/);
+  assert.match(source, /document\.body/);
+  assert.match(
+    source,
+    /!actionsMenuRef\.current\?\.contains\(target\)[\s\S]*?!actionsMenuPopupRef\.current\?\.contains\(target\)/,
+  );
+});
+
 test("group confidence displays the same server-computed value used for sorting", () => {
   assert.match(
     source,

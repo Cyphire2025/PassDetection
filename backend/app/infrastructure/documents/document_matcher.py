@@ -24,6 +24,11 @@ try:
 except ImportError:  # pragma: no cover - keeps local tooling usable until deps are installed
     PdfReader = None
 
+try:
+    import pypdfium2
+except ImportError:  # pragma: no cover - keeps local tooling usable until deps are installed
+    pypdfium2 = None
+
 
 DOCUMENT_TYPES = {"visa", "flight_ticket", "other"}
 SUPPORTED_TRAVEL_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
@@ -34,6 +39,9 @@ MAX_PDF_PAGE_TEXT_CHARS = 40_000
 MAX_PDF_TEXT_CHARS = 120_000
 MAX_PDF_SOURCE_BYTES = 16 * 1024 * 1024
 MAX_PDF_PARSE_SECONDS = 3.0
+MAX_PDF_OCR_PAGES = 2
+MAX_PDF_OCR_PIXELS = 4_000_000
+PDF_OCR_RENDER_SCALE = 1.5
 MAX_PASSENGER_NAMES = 12
 MAX_PASSENGER_IDENTIFIERS = 96
 MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER = 24
@@ -919,7 +927,66 @@ class DocumentMatcher:
         return deduped
 
     def _pdf_text(self, content: bytes) -> str:
-        return self._extract_pdf_text_with_pypdf(content)
+        text = self._extract_pdf_text_with_pypdf(content)
+        if text:
+            return text
+        return self._extract_image_only_pdf_text(content)
+
+    def _extract_image_only_pdf_text(self, content: bytes) -> str:
+        """OCR a bounded image-only PDF after repeating all active-content checks."""
+
+        if PdfReader is None or pypdfium2 is None or len(content) > MAX_PDF_SOURCE_BYTES:
+            return ""
+        started_at = time.monotonic()
+        try:
+            reader = PdfReader(BytesIO(content), strict=False)
+            if reader.is_encrypted or not reader.pages or len(reader.pages) > MAX_PDF_TOTAL_PAGES:
+                return ""
+            if self._has_active_pdf_features(
+                reader,
+                deadline=started_at + MAX_PDF_PARSE_SECONDS,
+            ):
+                return ""
+
+            import pytesseract
+
+            document = pypdfium2.PdfDocument(content)
+            page_texts: list[str] = []
+            text_length = 0
+            page_count = min(len(document), MAX_PDF_OCR_PAGES)
+            for page_index in range(page_count):
+                remaining_seconds = MAX_PDF_PARSE_SECONDS - (time.monotonic() - started_at)
+                if remaining_seconds <= 0.25:
+                    break
+                page = document[page_index]
+                bitmap = page.render(scale=PDF_OCR_RENDER_SCALE)
+                image = bitmap.to_pil()
+                if image.width * image.height > MAX_PDF_OCR_PIXELS:
+                    image.thumbnail((2000, 2000))
+                try:
+                    page_text = pytesseract.image_to_string(
+                        image,
+                        lang="eng",
+                        config="--oem 1 --psm 6",
+                        timeout=max(0.25, remaining_seconds),
+                    )
+                except RuntimeError:
+                    if page_texts:
+                        break
+                    raise
+                normalized = "\n".join(
+                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
+                )
+                remaining_chars = MAX_PDF_TEXT_CHARS - text_length
+                if remaining_chars <= 0:
+                    break
+                page_texts.append(normalized[:remaining_chars])
+                text_length += min(len(normalized), remaining_chars)
+            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
+        except Exception:
+            # Rendering and OCR remain an optional, fail-closed fallback. The
+            # isolated parser process owns the hard wall-time and memory caps.
+            return ""
 
     def _extract_pdf_text_with_pypdf(self, content: bytes) -> str:
         if PdfReader is None or len(content) > MAX_PDF_SOURCE_BYTES:

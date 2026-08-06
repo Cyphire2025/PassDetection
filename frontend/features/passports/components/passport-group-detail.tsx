@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -213,11 +214,17 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
   const importInputRef = useRef<HTMLInputElement | null>(null);
   const passportImportInputRef = useRef<HTMLInputElement | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const actionsMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const actionsMenuPopupRef = useRef<HTMLDivElement | null>(null);
   const bulkActionsMenuRef = useRef<HTMLDivElement | null>(null);
   const bulkActionsButtonRef = useRef<HTMLButtonElement | null>(null);
   const bulkActionsDisclosureId = useId();
   const selectedImageDownloadStartedRef = useRef(false);
   const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [actionsMenuPosition, setActionsMenuPosition] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
   const [isBulkActionsMenuOpen, setIsBulkActionsMenuOpen] = useState(false);
   const [selectionPreset, setSelectionPreset] = useState("");
   const [customSelectionCount, setCustomSelectionCount] = useState("");
@@ -306,19 +313,36 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     if (!isActionsMenuOpen) return;
 
     const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (!actionsMenuRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !actionsMenuRef.current?.contains(target)
+        && !actionsMenuPopupRef.current?.contains(target)
+      ) {
         setIsActionsMenuOpen(false);
+        setActionsMenuPosition(null);
       }
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsActionsMenuOpen(false);
+      if (event.key === "Escape") {
+        setIsActionsMenuOpen(false);
+        setActionsMenuPosition(null);
+        actionsMenuButtonRef.current?.focus();
+      }
+    };
+    const closeOnViewportChange = () => {
+      setIsActionsMenuOpen(false);
+      setActionsMenuPosition(null);
     };
 
     document.addEventListener("pointerdown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", closeOnViewportChange);
+    window.addEventListener("scroll", closeOnViewportChange, true);
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsidePointer);
       document.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", closeOnViewportChange);
+      window.removeEventListener("scroll", closeOnViewportChange, true);
     };
   }, [isActionsMenuOpen]);
 
@@ -649,20 +673,44 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
             </IntentPrefetchLink>
             <div ref={actionsMenuRef} className="relative">
             <Button
+              ref={actionsMenuButtonRef}
               type="button"
               size="icon"
               aria-label="Open group actions"
               aria-haspopup="menu"
               aria-expanded={isActionsMenuOpen}
               className="border border-white/20 bg-white/10 text-white shadow-none hover:bg-white/15 active:bg-white/20"
-              onClick={() => setIsActionsMenuOpen((open) => !open)}
+              onClick={() => {
+                if (isActionsMenuOpen) {
+                  setIsActionsMenuOpen(false);
+                  setActionsMenuPosition(null);
+                  return;
+                }
+                const rect = actionsMenuButtonRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                const menuWidth = 256;
+                const menuHeight = 224;
+                const top = rect.bottom + 8 + menuHeight > window.innerHeight
+                  ? Math.max(8, rect.top - menuHeight - 8)
+                  : rect.bottom + 8;
+                setActionsMenuPosition({
+                  left: Math.max(
+                    8,
+                    Math.min(window.innerWidth - menuWidth - 8, rect.right - menuWidth),
+                  ),
+                  top,
+                });
+                setIsActionsMenuOpen(true);
+              }}
             >
               <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
-            {isActionsMenuOpen && (
+            {isActionsMenuOpen && actionsMenuPosition && createPortal(
               <div
+                ref={actionsMenuPopupRef}
                 role="menu"
-                className="absolute right-0 top-11 z-40 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+                className="fixed z-[70] w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+                style={{ left: actionsMenuPosition.left, top: actionsMenuPosition.top }}
               >
                 <button
                   type="button"
@@ -724,7 +772,8 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                   <Download className="h-4 w-4 text-slate-500" />
                   {exportMutation.isPending ? "Exporting" : "Export Excel"}
                 </button>
-              </div>
+              </div>,
+              document.body,
             )}
           </div>
           </div>

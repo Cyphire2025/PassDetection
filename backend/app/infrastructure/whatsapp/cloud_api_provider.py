@@ -21,6 +21,9 @@ from app.core.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 
+WHATSAPP_PDF_CONTENT_TYPE = "application/pdf"
+WHATSAPP_MAX_DOCUMENT_BYTES = 100 * 1024 * 1024
+
 
 class WhatsAppCloudApiError(RuntimeError):
     """A safe provider error suitable for per-recipient message logs."""
@@ -159,14 +162,28 @@ async def upload_whatsapp_document(
             "WhatsApp Cloud API credentials are incomplete",
             code="WHATSAPP_PROVIDER_NOT_CONFIGURED",
         )
+    if not file_content.startswith(b"%PDF-") or len(file_content) > WHATSAPP_MAX_DOCUMENT_BYTES:
+        raise WhatsAppCloudApiError(
+            "The saved travel document is not a valid supported PDF",
+            code="WHATSAPP_DOCUMENT_INVALID",
+        )
+    normalized_filename = file_name.strip() or "travel-document.pdf"
+    if not normalized_filename.lower().endswith(".pdf"):
+        normalized_filename = f"{normalized_filename}.pdf"
     try:
         response = await client.post(
             (
                 f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
                 f"{settings.whatsapp_phone_number_id}/media"
             ),
-            data={"messaging_product": "whatsapp", "type": content_type},
-            files={"file": (file_name, file_content, content_type)},
+            data={"messaging_product": "whatsapp"},
+            files={
+                "file": (
+                    normalized_filename,
+                    file_content,
+                    WHATSAPP_PDF_CONTENT_TYPE,
+                )
+            },
             headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
         )
     except (httpx.ConnectTimeout, httpx.ConnectError, httpx.PoolTimeout) as exc:
@@ -188,12 +205,18 @@ async def upload_whatsapp_document(
         data = {}
     media_id = data.get("id") if isinstance(data, dict) else None
     if response.status_code >= 400 or not isinstance(media_id, str) or not media_id.strip():
+        meta_code, meta_subcode, meta_reference = _meta_error_reference(data)
         logger.warning(
             "whatsapp_document_upload_rejected",
-            extra={"status_code": response.status_code},
+            extra={
+                "status_code": response.status_code,
+                "meta_code": meta_code,
+                "meta_subcode": meta_subcode,
+            },
         )
         raise WhatsAppCloudApiError(
-            "Meta rejected the travel document upload; verify the PDF and try again",
+            "Meta rejected the travel document upload"
+            f"{meta_reference}; verify the PDF and try again",
             code="WHATSAPP_DOCUMENT_UPLOAD_REJECTED",
             transient=response.status_code == 429 or response.status_code >= 500,
         )

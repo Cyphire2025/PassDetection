@@ -15,6 +15,7 @@ from app.application.use_cases.whatsapp.document_templates import (
 )
 from app.infrastructure.database.models import DocumentWhatsAppDeliveryModel
 from app.infrastructure.whatsapp.cloud_api_provider import (
+    WhatsAppCloudApiError,
     send_whatsapp_document_template,
     upload_whatsapp_document,
 )
@@ -52,8 +53,8 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
             client=client,
             settings=self._settings(),
             file_name="visa.pdf",
-            file_content=b"pdf-content",
-            content_type="application/pdf",
+            file_content=b"%PDF-1.7\npdf-content\n%%EOF",
+            content_type="application/octet-stream",
         )
         provider_id = await send_whatsapp_document_template(
             client=client,
@@ -69,6 +70,9 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         )
 
         self.assertEqual(provider_id, "wamid.document-1")
+        upload_payload = client.post.await_args_list[0].kwargs
+        self.assertEqual(upload_payload["data"], {"messaging_product": "whatsapp"})
+        self.assertEqual(upload_payload["files"]["file"][2], "application/pdf")
         send_payload = client.post.await_args_list[1].kwargs["json"]
         components = send_payload["template"]["components"]
         self.assertEqual(
@@ -90,6 +94,47 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
                 {"type": "text", "text": "Kindly cross check all your details"},
             ],
         )
+
+    async def test_document_upload_rejects_non_pdf_before_meta(self) -> None:
+        client = types.SimpleNamespace(post=AsyncMock())
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await upload_whatsapp_document(
+                client=client,
+                settings=self._settings(),
+                file_name="renamed.pdf",
+                file_content=b"not-a-pdf",
+                content_type="application/pdf",
+            )
+
+        self.assertEqual(raised.exception.code, "WHATSAPP_DOCUMENT_INVALID")
+        client.post.assert_not_awaited()
+
+    async def test_document_upload_retains_safe_meta_error_reference(self) -> None:
+        response = types.SimpleNamespace(
+            status_code=400,
+            json=lambda: {
+                "error": {
+                    "code": 100,
+                    "error_subcode": 2388004,
+                    "message": "sensitive provider detail",
+                }
+            },
+        )
+        client = types.SimpleNamespace(post=AsyncMock(return_value=response))
+
+        with self.assertRaises(WhatsAppCloudApiError) as raised:
+            await upload_whatsapp_document(
+                client=client,
+                settings=self._settings(),
+                file_name="visa.pdf",
+                file_content=b"%PDF-1.7\n%%EOF",
+                content_type="application/pdf",
+            )
+
+        self.assertIn("Meta code 100", str(raised.exception))
+        self.assertIn("subcode 2388004", str(raised.exception))
+        self.assertNotIn("sensitive provider detail", str(raised.exception))
 
     def test_message_content_and_parameters_are_deterministic(self) -> None:
         self.assertEqual(

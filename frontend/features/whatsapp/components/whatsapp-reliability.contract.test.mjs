@@ -30,6 +30,17 @@ test("create and send actions have synchronous single-flight guards", () => {
   assert.match(pageSource, /sendInFlightRef\.current = false;/);
 });
 
+test("mobile and desktop broadcast menus use distinct open-state keys", () => {
+  assert.match(pageSource, /surface: "mobile" \| "desktop"/);
+  assert.match(pageSource, /const menuKey = `\$\{surface\}:\$\{group\.id\}`/);
+  assert.match(pageSource, /renderGroupActionMenu\(group, "mobile"\)/);
+  assert.match(pageSource, /renderGroupActionMenu\(group, "desktop"\)/);
+  assert.match(
+    pageSource,
+    /setOpenMenuKey\(\(current\) => \(current === menuKey \? null : menuKey\)\)/,
+  );
+});
+
 test("changing a preview cancels the superseded HTTP request", () => {
   assert.match(pageSource, /const controller = new AbortController\(\);/);
   assert.match(pageSource, /signal: controller\.signal/);

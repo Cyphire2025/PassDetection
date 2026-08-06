@@ -506,7 +506,7 @@ export function WhatsAppPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [groupQuery, setGroupQuery] = useState("");
   const deferredGroupQuery = useDeferredValue(groupQuery);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
   const [recipientListGroup, setRecipientListGroup] =
     useState<WhatsAppBroadcastGroup | null>(null);
   const [deleteTarget, setDeleteTarget] =
@@ -612,34 +612,40 @@ export function WhatsAppPage() {
     group: WhatsAppBroadcastGroup,
     messageType: WhatsAppMessageType,
   ) => {
-    setOpenMenuId(null);
+    setOpenMenuKey(null);
     setMessageTarget({ group, messageType });
   };
   const isSendingAnyMessage =
     sendWelcome.isPending || sendPassportLink.isPending || sendReminder.isPending;
-  const renderGroupActionMenu = (group: WhatsAppBroadcastGroup) => (
-    <ActionMenu
-      group={group}
-      isOpen={openMenuId === group.id}
-      isSending={isSendingAnyMessage}
-      onOpen={() =>
-        setOpenMenuId(openMenuId === group.id ? null : group.id)
-      }
-      onClose={() => setOpenMenuId(null)}
-      onRecipients={() => {
-        setOpenMenuId(null);
-        setRecipientListGroup(group);
-      }}
-      onWelcome={() => openMessagePreview(group, "welcome")}
-      onPassportLink={() => openMessagePreview(group, "passport_link")}
-      onReminder={() => openMessagePreview(group, "reminder")}
-      onDelete={() => {
-        setActionError(null);
-        setOpenMenuId(null);
-        setDeleteTarget(group);
-      }}
-    />
-  );
+  const renderGroupActionMenu = (
+    group: WhatsAppBroadcastGroup,
+    surface: "mobile" | "desktop",
+  ) => {
+    const menuKey = `${surface}:${group.id}`;
+    return (
+      <ActionMenu
+        group={group}
+        isOpen={openMenuKey === menuKey}
+        isSending={isSendingAnyMessage}
+        onOpen={() =>
+          setOpenMenuKey((current) => (current === menuKey ? null : menuKey))
+        }
+        onClose={() => setOpenMenuKey(null)}
+        onRecipients={() => {
+          setOpenMenuKey(null);
+          setRecipientListGroup(group);
+        }}
+        onWelcome={() => openMessagePreview(group, "welcome")}
+        onPassportLink={() => openMessagePreview(group, "passport_link")}
+        onReminder={() => openMessagePreview(group, "reminder")}
+        onDelete={() => {
+          setActionError(null);
+          setOpenMenuKey(null);
+          setDeleteTarget(group);
+        }}
+      />
+    );
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -829,7 +835,7 @@ export function WhatsAppPage() {
                         Updated {formatDateTime(group.updated_at)}
                       </p>
                     </div>
-                    {renderGroupActionMenu(group)}
+                    {renderGroupActionMenu(group, "mobile")}
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-sm">
                     <div>
@@ -902,7 +908,7 @@ export function WhatsAppPage() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex justify-end">
-                          {renderGroupActionMenu(group)}
+                          {renderGroupActionMenu(group, "desktop")}
                         </div>
                       </td>
                     </tr>

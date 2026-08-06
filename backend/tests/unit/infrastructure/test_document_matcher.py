@@ -601,6 +601,41 @@ def test_airline_itinerary_with_pnr_sector_and_flight_is_a_ticket() -> None:
     assert DocumentMatcher()._detect_type(text) == "flight_ticket"
 
 
+def test_malaysia_airlines_electronic_ticket_receipt_is_a_ticket() -> None:
+    text = """
+    ELECTRONIC TICKET RECEIPT
+    Passenger: SAMPLE TRAVELLER MR (ADT)
+    Booking ref: EINDC4
+    Ticket number: 232 2485729271
+    From AHMEDABAD To KUALA LUMPUR Flight MH107 Departure 22:45 Arrival 06:45
+    From KUALA LUMPUR To HO CHI MINH CITY Flight MH750 Departure 09:00 Arrival 10:00
+    Operated by: MALAYSIA AIRLINES Booking status: OK
+    """
+
+    assert DocumentMatcher()._detect_type(text) == "flight_ticket"
+
+
+def test_image_only_pdf_uses_bounded_ocr_fallback(monkeypatch) -> None:
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_extract_pdf_text_with_pypdf", lambda _content: "")
+    monkeypatch.setattr(
+        matcher,
+        "_extract_image_only_pdf_text",
+        lambda _content: (
+            "E-TICKET ITINERARY\nBooking reference: ABC123\nDeparture: DEL\nArrival: BKK"
+        ),
+    )
+
+    result = matcher.classify(
+        filename="ticket.pdf",
+        content=b"%PDF-1.7\n%%EOF",
+        expected_type="flight_ticket",
+    )
+
+    assert result.accepted is True
+    assert result.detected_type == "flight_ticket"
+
+
 def test_digital_arrival_card_is_never_classified_as_visa_or_ticket() -> None:
     text = """
     Thailand Digital Arrival Card

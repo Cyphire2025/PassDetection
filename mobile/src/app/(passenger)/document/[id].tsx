@@ -180,6 +180,7 @@ export default function SecureDocumentScreen() {
         setUri(createdTemporary.uri);
         createdTemporary = null;
       } catch (caught) {
+        if (__DEV__) console.error('[document-viewer-qa-timing]', caught);
         if (createdTemporary) {
           try {
             removeTemporaryView(createdTemporary);
