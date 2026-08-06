@@ -14,6 +14,9 @@ import {
   canFinalizeDocumentReceiptChunk,
   createAcceptedDocumentUploadSession,
   createDocumentUploadSession,
+  createDocumentVerificationSession,
+  MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
+  runConcurrentDocumentVerification,
   runChunkedDocumentUpload,
   type DocumentUploadProgress,
   type DocumentUploadSession,
@@ -41,12 +44,10 @@ export const documentDistributionApi = {
     files: File[],
     onProgress?: (progress: DocumentUploadProgress) => void,
   ): Promise<DocumentVerificationUploadPlan> => {
-    const session = createDocumentUploadSession(files);
-    const results: Array<DocumentVerificationResult | undefined> = Array(
-      session.chunks.length,
-    );
-    await runChunkedDocumentUpload({
+    const session = createDocumentVerificationSession(files);
+    const completedResults = await runConcurrentDocumentVerification({
       session,
+      concurrency: MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
       onProgress,
       uploadChunk: async (chunk, chunkIndex, reportUpload) => {
         const formData = new FormData();
@@ -62,16 +63,8 @@ export const documentDistributionApi = {
             onUploadProgress: (event) => reportUpload(event.loaded, event.total),
           },
         );
-        results[chunkIndex] = data;
         return data;
       },
-    });
-    const completedResults = Array.from({ length: results.length }, (_value, index) => {
-      const result = results[index];
-      if (!result) {
-        throw new Error("The document verification response was incomplete");
-      }
-      return result;
     });
     const uploadSession = createAcceptedDocumentUploadSession(
       session,

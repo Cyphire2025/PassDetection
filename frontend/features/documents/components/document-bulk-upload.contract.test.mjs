@@ -41,10 +41,14 @@ const batchingModule = await import(
   ).toString("base64")}`
 );
 const {
+  MAX_DOCUMENT_VERIFICATION_CHUNK_FILES,
+  MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
   MAX_DOCUMENT_RECEIPT_CHUNK_BYTES,
   canFinalizeDocumentReceiptChunk,
   createAcceptedDocumentUploadSession,
   createDocumentUploadSession,
+  createDocumentVerificationSession,
+  runConcurrentDocumentVerification,
 } = batchingModule;
 
 function pdfFiles(count, size = 1) {
@@ -88,6 +92,79 @@ test("the 24 MiB target splits a chunk before the 50-file ceiling", () => {
     session.chunks[0].reduce((total, file) => total + file.size, 0),
     24 * 1024 * 1024,
   );
+});
+
+test("verification uses small chunks sized for progressive bounded OCR", () => {
+  let nextId = 0;
+  const session = createDocumentVerificationSession(
+    pdfFiles(30, 512 * 1024),
+    () => `verify-${nextId++}`,
+  );
+
+  assert.equal(MAX_DOCUMENT_VERIFICATION_CHUNK_FILES, 8);
+  assert.equal(MAX_DOCUMENT_VERIFICATION_CONCURRENCY, 2);
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [8, 8, 8, 6]);
+});
+
+test("verification processes two chunks concurrently, preserves order, and reports committed files", async () => {
+  let nextId = 0;
+  const session = createDocumentVerificationSession(
+    pdfFiles(18, 1),
+    () => `parallel-${nextId++}`,
+  );
+  let active = 0;
+  let maxActive = 0;
+  const progress = [];
+
+  const results = await runConcurrentDocumentVerification({
+    session,
+    concurrency: 2,
+    onProgress: (value) => progress.push(value),
+    uploadChunk: async (chunk, chunkIndex, reportUpload) => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      reportUpload(chunk.length, chunk.length);
+      await new Promise((resolve) => setTimeout(resolve, 5 * (3 - chunkIndex)));
+      active -= 1;
+      return `chunk-${chunkIndex}`;
+    },
+  });
+
+  assert.equal(maxActive, 2);
+  assert.deepEqual(results, ["chunk-0", "chunk-1", "chunk-2"]);
+  assert.equal(session.completedChunks, 3);
+  assert.equal(progress.at(-1).completedFiles, 18);
+  assert.equal(progress.at(-1).percent, 100);
+  assert.ok(progress.some((value) => value.completedFiles > 0 && value.completedFiles < 18));
+  assert.ok(progress.every((value, index) => index === 0 || value.percent >= progress[index - 1].percent));
+});
+
+test("verification drains already-started requests before returning an error", async () => {
+  let nextId = 0;
+  const session = createDocumentVerificationSession(
+    pdfFiles(16, 1),
+    () => `drain-${nextId++}`,
+  );
+  let secondRequestDrained = false;
+
+  await assert.rejects(
+    runConcurrentDocumentVerification({
+      session,
+      concurrency: 2,
+      uploadChunk: async (_chunk, chunkIndex) => {
+        if (chunkIndex === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2));
+          throw new Error("first request failed");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 15));
+        secondRequestDrained = true;
+        return "drained";
+      },
+    }),
+    /first request failed/,
+  );
+
+  assert.equal(secondRequestDrained, true);
 });
 
 test("accepted files retain their verification upload and chunk identities", () => {
@@ -150,6 +227,9 @@ test("distribution verification binds receipts to the exact upload and chunk ses
     /formData\.append\("chunk_id", session\.chunkIds\[chunkIndex\]\)/,
   );
   assert.match(verifySource, /createAcceptedDocumentUploadSession/);
+  assert.match(verifySource, /createDocumentVerificationSession/);
+  assert.match(verifySource, /runConcurrentDocumentVerification/);
+  assert.match(verifySource, /MAX_DOCUMENT_VERIFICATION_CONCURRENCY/);
   assert.match(workspace, /setVerification\(data\.verification\)/);
   assert.match(workspace, /setUploadSession\(data\.uploadSession\)/);
   assert.doesNotMatch(workspace, /createDocumentUploadSession\(acceptedFiles\)/);

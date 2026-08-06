@@ -2051,7 +2051,10 @@ async def verify_documents(
     )
     agency_id = group.agency_id
     await session.rollback()
+    phase_started_at = perf_counter()
     uploads = await read_bounded_document_uploads(files)
+    upload_read_ms = (perf_counter() - phase_started_at) * 1000
+    phase_started_at = perf_counter()
     match_index = await asyncio.to_thread(
         matcher.build_index,
         passengers,
@@ -2059,7 +2062,9 @@ async def verify_documents(
         group_id=group_id,
         supplemental_identifiers=supplemental_identifiers,
     )
+    match_index_ms = (perf_counter() - phase_started_at) * 1000
     passengers_by_id = {passenger.id: passenger for passenger in passengers}
+    phase_started_at = perf_counter()
     try:
         classifications = await asyncio.to_thread(
             classify_documents_bounded,
@@ -2083,6 +2088,8 @@ async def verify_documents(
             detail=str(exc),
             headers={"Retry-After": "1"},
         ) from exc
+    classification_ms = (perf_counter() - phase_started_at) * 1000
+
     def match_classifications() -> list[list[MatchResult]]:
         return [
             matcher.match_all(classification, passengers, index=match_index)
@@ -2091,7 +2098,9 @@ async def verify_documents(
             for classification in classifications
         ]
 
+    phase_started_at = perf_counter()
     matches_by_classification = await asyncio.to_thread(match_classifications)
+    matching_ms = (perf_counter() - phase_started_at) * 1000
     accepted_indexes = [
         index for index, classification in enumerate(classifications) if classification.accepted
     ]
@@ -2101,6 +2110,7 @@ async def verify_documents(
     staging_tokens: list[str] | None = (
         [] if upload_id is not None and chunk_id is not None else None
     )
+    phase_started_at = perf_counter()
     if accepted_indexes and upload_id is not None and chunk_id is not None:
         try:
             staging_tokens = await stage_verified_documents(
@@ -2129,6 +2139,7 @@ async def verify_documents(
                 detail="Verified PDF staging is temporarily unavailable. Please try again.",
                 headers={"Retry-After": "1"},
             ) from exc
+    staging_ms = (perf_counter() - phase_started_at) * 1000
     staging_token_by_index = (
         dict(zip(accepted_indexes, staging_tokens, strict=True))
         if staging_tokens is not None
@@ -2187,6 +2198,11 @@ async def verify_documents(
         accepted_count=accepted_count,
         rejected_count=len(verified) - accepted_count,
         staging_enabled=staging_tokens is not None,
+        upload_read_ms=round(upload_read_ms, 1),
+        match_index_ms=round(match_index_ms, 1),
+        classification_ms=round(classification_ms, 1),
+        matching_ms=round(matching_ms, 1),
+        staging_ms=round(staging_ms, 1),
         duration_ms=round((perf_counter() - started_at) * 1000, 1),
     )
     return response

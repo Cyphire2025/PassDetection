@@ -563,8 +563,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                 <span>
                   {phase === "checking"
                     ? progressDetail?.phase === "processing"
-                      ? "Checking PDFs"
-                      : "Uploading PDFs for checks"
+                      ? "Checking PDFs in parallel"
+                      : "Preparing parallel PDF checks"
                     : progressDetail?.phase === "processing"
                       ? "Matching and saving PDFs"
                       : "Uploading accepted PDFs"}
