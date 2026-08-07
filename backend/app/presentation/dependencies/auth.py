@@ -35,6 +35,7 @@ from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationE
 from app.domain.repositories.interfaces import IUserRepository
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.dependencies.csrf import require_cookie_csrf
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -70,7 +71,19 @@ async def get_current_user(
     Raises:
         AuthenticationError: If token is missing, invalid, or user not found.
     """
-    token = credentials.credentials if credentials else request.cookies.get(get_settings().jwt.access_cookie_name)
+    if credentials is None and request.method.upper() not in {
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "TRACE",
+    }:
+        await require_cookie_csrf(request)
+
+    token = (
+        credentials.credentials
+        if credentials
+        else request.cookies.get(get_settings().jwt.access_cookie_name)
+    )
     if not token:
         raise AuthenticationError("Authorization header missing")
 

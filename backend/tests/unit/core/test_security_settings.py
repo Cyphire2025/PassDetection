@@ -5,6 +5,8 @@ from pydantic import ValidationError as PydanticValidationError
 
 from app.core.config.settings import JWTSettings, MobileSettings, Settings
 
+_STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+
 
 def test_jwt_algorithm_is_pinned_to_reviewed_hs256_profile() -> None:
     assert JWTSettings(_env_file=None).algorithm == "HS256"
@@ -57,7 +59,7 @@ def test_production_mobile_api_rejects_missing_or_weak_signing_secret(
     with pytest.raises(PydanticValidationError, match="at least 32 bytes"):
         Settings(
             app_env="production",
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             _env_file=None,
         )
 
@@ -73,11 +75,31 @@ def test_production_mobile_api_accepts_independent_high_entropy_signing_secret(
 
     settings = Settings(
         app_env="production",
-        app_secret_key="unit-test-secret",
+        app_secret_key=_STRONG_APP_SECRET,
         _env_file=None,
     )
 
     assert settings.mobile.jwt_secret_key is not None
+
+
+@pytest.mark.parametrize("app_env", ["staging", "production"])
+@pytest.mark.parametrize(
+    "secret",
+    [
+        "short-secret",
+        "CHANGE_ME_USE_openssl_rand_hex_32",
+    ],
+)
+def test_non_development_rejects_weak_dashboard_signing_secret(
+    app_env: str,
+    secret: str,
+) -> None:
+    with pytest.raises(PydanticValidationError, match="APP_SECRET_KEY"):
+        Settings(
+            app_env=app_env,  # type: ignore[arg-type]
+            app_secret_key=secret,
+            _env_file=None,
+        )
 
 
 def test_development_otp_provider_is_rejected_at_production_startup(
@@ -89,7 +111,7 @@ def test_development_otp_provider_is_rejected_at_production_startup(
     with pytest.raises(PydanticValidationError, match="forbidden"):
         Settings(
             app_env="production",
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             _env_file=None,
         )
 

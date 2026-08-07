@@ -35,6 +35,10 @@ from app.core.security.mobile_jwt import (
 from app.core.security.mobile_push_crypto import mobile_push_fernet
 from app.domain.entities.entities import OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
+from app.domain.value_objects.travel_document_taxonomy import (
+    FLIGHT_TICKET_DOCUMENT_TYPES,
+    mobile_document_category,
+)
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
@@ -116,7 +120,7 @@ _MAX_COORDINATOR_OPERATIONAL_DETAILS = 300
 _MANAGER_PREVIEW_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
 _MANAGER_PREVIEW_DATABASE_TYPES = {
     "visa": ("visa",),
-    "flight_ticket": ("flight_ticket", "flight_ticket_arrival", "ticket"),
+    "flight_ticket": (*FLIGHT_TICKET_DOCUMENT_TYPES, "ticket"),
 }
 _MANAGER_PREVIEW_CONTENT_TYPES = frozenset(
     {"application/pdf", "image/jpeg", "image/png", "image/webp"}
@@ -284,10 +288,7 @@ _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS = (
     "staffnote",
 )
 _COORDINATOR_DOCUMENT_CATEGORY_ALIASES = {
-    "flight_ticket": "flight_ticket",
-    "flight_ticket_arrival": "flight_ticket",
     "ticket": "flight_ticket",
-    "visa": "visa",
     "insurance": "insurance",
     "travel_insurance": "insurance",
     "hotel_voucher": "hotel_voucher",
@@ -2610,6 +2611,9 @@ def _coordinator_document_category(value: object) -> str:
     """Map only recognized document categories; unknown values stay generic."""
 
     normalized = normalize_imported_field_key(value)
+    distribution_category = mobile_document_category(normalized)
+    if distribution_category is not None:
+        return distribution_category
     return _COORDINATOR_DOCUMENT_CATEGORY_ALIASES.get(normalized, "other")
 
 

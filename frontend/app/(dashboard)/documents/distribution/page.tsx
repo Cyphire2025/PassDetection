@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { DocumentGroupList } from "@/features/documents/components/document-group-list";
+import { DocumentDistributionLanding } from "@/features/documents/components/document-distribution-landing";
 
 export const metadata: Metadata = {
   title: "Document Distribution",
 };
 
 export default function DocumentDistributionPage() {
-  return <DocumentGroupList />;
+  return <DocumentDistributionLanding />;
 }

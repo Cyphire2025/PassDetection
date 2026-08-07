@@ -49,6 +49,12 @@ from app.domain.exceptions.exceptions import (
     AuthorizationError,
     EntityNotFoundError,
 )
+from app.domain.value_objects.travel_document_taxonomy import (
+    FLIGHT_TICKET_DOCUMENT_TYPES,
+    MOBILE_PERSONAL_DOCUMENT_TYPES,
+    document_lane,
+    mobile_document_category,
+)
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
@@ -1312,7 +1318,7 @@ async def get_mobile_manager_readiness(
                     DistributedDocumentModel.passenger_id.is_not(None),
                     DistributedDocumentModel.match_status == "matched",
                     DistributedDocumentModel.document_type.in_(
-                        ("visa", "flight_ticket", "flight_ticket_arrival")
+                        tuple(MOBILE_PERSONAL_DOCUMENT_TYPES)
                     ),
                 )
                 .group_by(DistributedDocumentModel.document_type)
@@ -1341,7 +1347,7 @@ async def get_mobile_manager_readiness(
                     DistributedDocumentModel.passenger_id.is_not(None),
                     DistributedDocumentModel.match_status == "matched",
                     DistributedDocumentModel.document_type.in_(
-                        ("flight_ticket", "flight_ticket_arrival")
+                        tuple(FLIGHT_TICKET_DOCUMENT_TYPES)
                     ),
                 )
             )
@@ -1482,7 +1488,7 @@ async def _manager_readiness_revision(
                 DistributedDocumentModel.passenger_id.is_not(None),
                 DistributedDocumentModel.match_status == "matched",
                 DistributedDocumentModel.document_type.in_(
-                    ("visa", "flight_ticket", "flight_ticket_arrival")
+                    tuple(MOBILE_PERSONAL_DOCUMENT_TYPES)
                 ),
             )
         )
@@ -1801,11 +1807,14 @@ def _distributed_document_source(
         raise AuthorizationError("Passenger document access is not available")
     category = _mobile_document_category(document.document_type)
     safe_filename = _safe_mobile_filename(document.original_filename, content_type)
+    lane = document_lane(document.document_type)
     return _MobileDocumentSource(
         document_id=document.id,
         scope="personal",
         category=category,
-        display_name=_document_display_name(category, safe_filename),
+        display_name=(
+            lane.label if lane is not None else _document_display_name(category, safe_filename)
+        ),
         safe_filename=safe_filename,
         content_type=content_type,
         storage_key=document.storage_key,
@@ -2288,11 +2297,11 @@ def _mobile_document_range_start(value: str | None, total_size: int) -> int | No
 
 def _mobile_document_category(value: str) -> str:
     normalized = re.sub(r"[^a-z0-9]+", "_", value.casefold()).strip("_")
+    distribution_category = mobile_document_category(normalized)
+    if distribution_category is not None:
+        return distribution_category
     aliases = {
-        "flight_ticket": "flight_ticket",
-        "flight_ticket_arrival": "flight_ticket",
         "ticket": "flight_ticket",
-        "visa": "visa",
         "insurance": "insurance",
         "hotel_voucher": "hotel_voucher",
     }

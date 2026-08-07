@@ -15,7 +15,7 @@ from time import perf_counter
 from typing import Annotated, ParamSpec, TypeVar
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
-from sqlalchemy import and_, delete, func, select
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.passenger_change_propagation import (
@@ -40,6 +40,15 @@ from app.domain.entities.entities import (
     UserRole,
 )
 from app.domain.exceptions.exceptions import AuthorizationError, StorageError
+from app.domain.value_objects.travel_document_taxonomy import (
+    DOCUMENT_TYPES,
+    DOMESTIC_ONWARD_DOCUMENT_TYPE,
+    DOMESTIC_RETURN_DOCUMENT_TYPE,
+    INTERNATIONAL_ONWARD_DOCUMENT_TYPE,
+    INTERNATIONAL_RETURN_DOCUMENT_TYPE,
+    OTHER_DOCUMENT_TYPE,
+    VISA_DOCUMENT_TYPE,
+)
 from app.infrastructure.database.email_models import EmailArtifactDocumentModel
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -63,9 +72,9 @@ from app.infrastructure.documents.distribution_capacity import (
 from app.infrastructure.documents.distribution_ingestion import (
     TravelDocumentFile,
     TravelDocumentIngestionService,
+    automatic_passenger_matches,
 )
 from app.infrastructure.documents.document_matcher import (
-    DOCUMENT_TYPES,
     MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
     MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
     ClassifiedDocument,
@@ -1898,6 +1907,7 @@ async def _refresh_distribution_batches(
 
 @router.get("/groups", response_model=list[DocumentGroupResponse])
 async def list_document_groups(
+    search: Annotated[str | None, Query(max_length=160)] = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> list[DocumentGroupResponse]:
@@ -1907,6 +1917,26 @@ async def list_document_groups(
     stmt = select(ClientGroupModel).where(ClientGroupModel.agency_id == current_user.agency_id)
     stmt = stmt.where(ClientGroupModel.status.notin_(["archived", "deleted"]))
     stmt = AuthorizationPolicy.apply_group_visibility_scope(stmt, current_user)
+    normalized_search = search.strip() if search else ""
+    if normalized_search:
+        passenger_group_ids = select(PassportSubmissionModel.group_id).where(
+            PassportSubmissionModel.agency_id == current_user.agency_id,
+            PassportSubmissionModel.status.in_(_submitted_statuses()),
+            PassportSubmissionModel.client_name.icontains(
+                normalized_search,
+                autoescape=True,
+            ),
+        )
+        stmt = stmt.where(
+            or_(
+                ClientGroupModel.name.icontains(normalized_search, autoescape=True),
+                ClientGroupModel.destination.icontains(
+                    normalized_search,
+                    autoescape=True,
+                ),
+                ClientGroupModel.id.in_(passenger_group_ids),
+            )
+        )
     stmt = stmt.order_by(ClientGroupModel.created_at.desc())
     result = await session.execute(stmt)
     groups = result.scalars().all()
@@ -1969,13 +1999,24 @@ async def list_document_groups(
                 destination=group.destination,
                 travel_date=group.travel_date.isoformat() if group.travel_date else None,
                 total_passengers=passenger_counts.get(group.id, 0),
-                visa_assigned_count=assigned_counts.get((group.id, "visa"), 0),
-                flight_ticket_assigned_count=assigned_counts.get((group.id, "flight_ticket"), 0),
-                flight_ticket_arrival_assigned_count=assigned_counts.get(
-                    (group.id, "flight_ticket_arrival"),
+                visa_assigned_count=assigned_counts.get((group.id, VISA_DOCUMENT_TYPE), 0),
+                flight_ticket_assigned_count=assigned_counts.get(
+                    (group.id, INTERNATIONAL_ONWARD_DOCUMENT_TYPE),
                     0,
                 ),
-                other_assigned_count=assigned_counts.get((group.id, "other"), 0),
+                flight_ticket_arrival_assigned_count=assigned_counts.get(
+                    (group.id, INTERNATIONAL_RETURN_DOCUMENT_TYPE),
+                    0,
+                ),
+                flight_ticket_domestic_assigned_count=assigned_counts.get(
+                    (group.id, DOMESTIC_ONWARD_DOCUMENT_TYPE),
+                    0,
+                ),
+                flight_ticket_domestic_arrival_assigned_count=assigned_counts.get(
+                    (group.id, DOMESTIC_RETURN_DOCUMENT_TYPE),
+                    0,
+                ),
+                other_assigned_count=assigned_counts.get((group.id, OTHER_DOCUMENT_TYPE), 0),
             )
         )
     return responses
@@ -2130,8 +2171,24 @@ async def verify_documents(
     phase_started_at = perf_counter()
     matches_by_classification = await asyncio.to_thread(match_classifications)
     matching_ms = (perf_counter() - phase_started_at) * 1000
+    allowed_passenger_ids = set(passengers_by_id)
+    uploadable_matches_by_classification = [
+        automatic_passenger_matches(
+            matches,
+            allowed_passenger_ids=allowed_passenger_ids,
+        )
+        for matches in matches_by_classification
+    ]
     accepted_indexes = [
-        index for index, classification in enumerate(classifications) if classification.accepted
+        index
+        for index, (classification, matches) in enumerate(
+            zip(
+                classifications,
+                uploadable_matches_by_classification,
+                strict=True,
+            )
+        )
+        if classification.accepted and matches
     ]
     # Older clients do not send upload-session metadata. They keep the
     # established raw multipart finalization path and receive no unbound
@@ -2176,8 +2233,14 @@ async def verify_documents(
     )
 
     verified: list[VerifiedDocumentResponse] = []
-    for index, (upload, classification, matches) in enumerate(
-        zip(uploads, classifications, matches_by_classification, strict=True)
+    for index, (upload, classification, candidate_matches, matches) in enumerate(
+        zip(
+            uploads,
+            classifications,
+            matches_by_classification,
+            uploadable_matches_by_classification,
+            strict=True,
+        )
     ):
         matched_passengers = [
             passengers_by_id[match.passenger_id]
@@ -2185,26 +2248,37 @@ async def verify_documents(
             if match.passenger_id in passengers_by_id
         ]
         primary_match = matches[0] if matches else None
+        feedback_match = primary_match or (
+            candidate_matches[0] if candidate_matches else None
+        )
         primary_passenger = matched_passengers[0] if matched_passengers else None
+        is_uploadable = classification.accepted and bool(matches)
+        rejection_reason = (
+            feedback_match.reason
+            if classification.accepted and not is_uploadable and feedback_match
+            else "No passenger match found"
+            if classification.accepted and not is_uploadable
+            else classification.reason
+        )
         verified.append(
             VerifiedDocumentResponse(
                 filename=upload.filename,
                 detected_type=classification.detected_type,
-                accepted=classification.accepted,
-                reason=classification.reason,
+                accepted=is_uploadable,
+                reason=rejection_reason,
                 matched_passenger_id=primary_match.passenger_id if primary_match else None,
                 matched_passenger_name=primary_passenger.client_name if primary_passenger else None,
                 matched_passenger_ids=[
                     match.passenger_id for match in matches if match.passenger_id
                 ],
                 matched_passenger_names=[passenger.client_name for passenger in matched_passengers],
-                match_confidence=primary_match.confidence if primary_match else 0.0,
-                match_status=primary_match.status if primary_match else None,
+                match_confidence=feedback_match.confidence if feedback_match else 0.0,
+                match_status=feedback_match.status if feedback_match else None,
                 match_reason=(
                     f"Matched {len(matched_passengers)} passengers in one PDF"
                     if len(matched_passengers) > 1
-                    else primary_match.reason
-                    if primary_match
+                    else feedback_match.reason
+                    if feedback_match
                     else None
                 ),
                 staging_receipt=staging_token_by_index.get(index),
@@ -2673,6 +2747,7 @@ async def upload_documents(
             reject_common_unsupported_format=True,
             preclassified_documents=preclassified_documents,
             staged_storage_keys=staged_storage_keys,
+            require_passenger_match=True,
             before_persistence=reauthorize_before_persistence,
             before_persistence_capacity=enforce_capacity_before_persistence,
         )

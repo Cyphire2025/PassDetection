@@ -12,6 +12,7 @@ import type {
 const documentKeys = {
   all: ["document-distribution"] as const,
   groups: () => ["document-distribution", "groups"] as const,
+  groupSearch: (search: string) => [...documentKeys.groups(), "search", search] as const,
   review: (groupId: string, documentType: DistributionDocumentType) =>
     ["document-distribution", "groups", groupId, documentType] as const,
   deliveryPreview: (groupId: string, documentType: DistributionDocumentType) =>
@@ -25,6 +26,16 @@ export function useDocumentGroups() {
     queryKey: documentKeys.groups(),
     queryFn: () => documentDistributionApi.listGroups(),
     refetchInterval: 30_000,
+  });
+}
+
+export function useDocumentGroupSearch(search: string, enabled: boolean) {
+  const normalizedSearch = search.trim();
+  return useQuery({
+    queryKey: documentKeys.groupSearch(normalizedSearch),
+    queryFn: ({ signal }) => documentDistributionApi.listGroups(normalizedSearch, signal),
+    enabled: Boolean(enabled && normalizedSearch),
+    staleTime: 30_000,
   });
 }
 

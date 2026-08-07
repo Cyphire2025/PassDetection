@@ -602,6 +602,8 @@ async def test_document_group_counts_use_constant_query_count() -> None:
         (groups[0].id, "visa", 2),
         (groups[1].id, "flight_ticket", 1),
         (groups[1].id, "flight_ticket_arrival", 3),
+        (groups[1].id, "flight_ticket_domestic", 2),
+        (groups[1].id, "flight_ticket_domestic_arrival", 1),
     ]
     passenger_result = MagicMock()
     passenger_result.all.return_value = [
@@ -627,10 +629,52 @@ async def test_document_group_counts_use_constant_query_count() -> None:
     assert response[0].visa_assigned_count == 2
     assert response[1].flight_ticket_assigned_count == 1
     assert response[1].flight_ticket_arrival_assigned_count == 3
+    assert response[1].flight_ticket_domestic_assigned_count == 2
+    assert response[1].flight_ticket_domestic_arrival_assigned_count == 1
     passenger_statement = session.execute.await_args_list[2].args[0]
     rendered = str(passenger_statement)
     assert "GROUP BY passport_submissions.group_id" in rendered
     assert "passport_submissions.agency_id" in rendered
+
+
+@pytest.mark.asyncio
+async def test_document_group_search_includes_submitted_passenger_names() -> None:
+    agency_id = uuid.uuid4()
+    group = SimpleNamespace(
+        id=uuid.uuid4(),
+        name="Vietnam Tour",
+        status="active",
+        destination="Hanoi",
+        travel_date=None,
+    )
+    groups_result = MagicMock()
+    groups_result.scalars.return_value.all.return_value = [group]
+    assigned_result = MagicMock()
+    assigned_result.all.return_value = []
+    passenger_result = MagicMock()
+    passenger_result.all.return_value = [(group.id, 1)]
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[groups_result, assigned_result, passenger_result]
+    )
+    current_user = SimpleNamespace(
+        id=uuid.uuid4(),
+        agency_id=agency_id,
+        role=UserRole.AGENCY_ADMIN,
+    )
+
+    response = await document_distribution.list_document_groups(
+        search="Asha Mehta",
+        current_user=current_user,
+        session=session,
+    )
+
+    assert [item.group_id for item in response] == [group.id]
+    rendered = str(session.execute.await_args_list[0].args[0])
+    assert "passport_submissions.client_name" in rendered
+    assert "passport_submissions.group_id" in rendered
+    assert "client_groups.name" in rendered
+    assert "client_groups.destination" in rendered
 
 
 @pytest.mark.asyncio

@@ -597,6 +597,43 @@ def test_export_neutralizes_formula_like_text_after_leading_whitespace() -> None
     assert _safe_xlsx_value("2026-07-17") == "2026-07-17"
 
 
+def test_export_preserves_dynamic_header_text_without_formula_typing() -> None:
+    group_id = uuid.uuid4()
+    formula_label = '=HYPERLINK("https://example.test","Review")'
+    submission = _submission(group_id)
+    submission.custom_answers = [
+        {
+            "question_id": "formula-header",
+            "label": formula_label,
+            "answer": "ordinary answer",
+        }
+    ]
+
+    worksheet = _worksheet(
+        PassportExcelExporter().export_group(
+            [submission],
+            group_name="Formula Header Group",
+            group_details={
+                group_id: {
+                    "name": "Formula Header Group",
+                    **_OPTION_FLAGS,
+                    "custom_questions": [
+                        {
+                            "id": "formula-header",
+                            "label": formula_label,
+                            "enabled": True,
+                        }
+                    ],
+                }
+            },
+        )
+    )
+    header_cell = next(cell for cell in worksheet[4] if cell.value == formula_label)
+
+    assert header_cell.value == formula_label
+    assert header_cell.data_type == "s"
+
+
 @pytest.mark.parametrize(
     ("source", "expected"),
     (

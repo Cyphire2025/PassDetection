@@ -11,6 +11,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import DocumentUploadChunkModel
 from app.presentation.api.v1.document_uploads import (
     MAX_DOCUMENT_BATCH_BYTES,
@@ -38,7 +39,7 @@ def document_upload_scope_advisory_lock_key(
 ) -> int:
     """Return one stable lock key for distribution-session creation scope."""
 
-    if document_type not in {"visa", "flight_ticket", "flight_ticket_arrival", "other"}:
+    if document_type not in DOCUMENT_TYPES:
         raise ValueError("Unsupported distribution document type")
     digest = hashlib.sha256(
         (f"document-upload-scope:distribution:{agency_id}:{group_id}:{document_type}").encode()

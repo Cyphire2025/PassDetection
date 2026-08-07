@@ -21,6 +21,9 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
+from app.domain.value_objects.travel_document_taxonomy import (
+    SUPPORTED_TRAVEL_DOCUMENT_TYPES,
+)
 from app.infrastructure.database.models import (
     AgencyModel,
     DocumentRenameBatchModel,
@@ -30,7 +33,6 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.document_matcher import (
-    SUPPORTED_TRAVEL_DOCUMENT_TYPES,
     DocumentMatcher,
     DocumentParserUnavailableError,
     UnsupportedDocumentBatchFormatError,

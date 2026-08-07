@@ -1,5 +1,4 @@
 import os
-import re
 
 ROOT = r"C:\Users\nipun\Desktop\PassDetection\backend"
 

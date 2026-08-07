@@ -4,7 +4,7 @@ export default function DocumentDistributionLoading() {
   return (
     <WorkspaceRouteLoading
       eyebrow="Passenger document distribution"
-      title="Loading Distribution Groups"
+      title="Loading Document Distribution"
     />
   );
 }

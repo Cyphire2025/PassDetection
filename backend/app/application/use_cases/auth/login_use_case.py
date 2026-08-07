@@ -27,6 +27,10 @@ from app.infrastructure.security.login_attempt_limiter import LoginAttemptLimite
 
 logger = get_logger(__name__)
 
+# A fixed valid hash keeps the unknown-account path comparable to a normal
+# failed login without generating a new hash or storing any usable credential.
+_DUMMY_PASSWORD_HASH = "$2b$12$UNslkxiKhfVqyfCKD8VxsuRfyiTkzySdJYnzFZNrMWNTVfgCC.GlG"
+
 
 class LoginUseCase:
     """
@@ -64,7 +68,8 @@ class LoginUseCase:
         # 1. Fetch user
         user = await self._user_repo.get_by_email(dto.email)
         if not user:
-            # Use the same error message to prevent user enumeration
+            # Match the expensive verification work performed for known users.
+            verify_password(dto.password, _DUMMY_PASSWORD_HASH)
             await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 

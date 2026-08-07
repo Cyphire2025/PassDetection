@@ -636,6 +636,30 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_dashboard_signing_secret(self) -> Self:
+        """Reject weak shared signing keys outside local development."""
+
+        if self.app_env == "development":
+            return self
+
+        secret = self.app_secret_key.strip()
+        if len(secret.encode("utf-8")) < 32:
+            raise ValueError(
+                "APP_SECRET_KEY must contain at least 32 bytes in staging and production"
+            )
+
+        normalized = re.sub(r"[^a-z0-9]+", "_", secret.casefold()).strip("_")
+        if normalized.startswith("change_me") or normalized in {
+            "password",
+            "secret",
+            "unit_test_secret",
+        }:
+            raise ValueError(
+                "APP_SECRET_KEY must not use a placeholder in staging or production"
+            )
+        return self
+
+    @model_validator(mode="after")
     def validate_mobile_production_signing_secret(self) -> Self:
         """Fail startup before a weak production mobile signing key can be used."""
 

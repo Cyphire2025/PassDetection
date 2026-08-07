@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from app.domain.entities.entities import UserRole
 from app.infrastructure.documents.document_matcher import (
     ClassifiedDocument,
+    MatchResult,
     UnsupportedDocumentBatchFormatError,
 )
 from app.infrastructure.documents.verification_staging import (
@@ -393,7 +394,14 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
     monkeypatch.setattr(
         document_distribution.DocumentMatcher,
         "match_all",
-        lambda *_args, **_kwargs: [],
+        lambda *_args, **_kwargs: [
+            MatchResult(
+                passenger_id=passenger_id,
+                confidence=0.99,
+                status="matched",
+                reason="Passenger name matched",
+            )
+        ],
     )
     monkeypatch.setattr(
         document_distribution,
@@ -419,6 +427,97 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
 
 
 @pytest.mark.asyncio
+async def test_verify_does_not_stage_a_pdf_without_a_passenger_match(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    group_id, agency_id, user_id, passenger_id, upload_id, chunk_id = (
+        uuid.uuid4() for _index in range(6)
+    )
+    user = SimpleNamespace(id=user_id, agency_id=agency_id, role=UserRole.AGENCY_ADMIN)
+    group = SimpleNamespace(id=group_id, agency_id=agency_id)
+    passenger = SimpleNamespace(
+        id=passenger_id,
+        updated_at=None,
+        client_name="Passenger",
+        client_phone=None,
+        family_head_phone=None,
+        confirmed_fields={},
+        extracted_fields={},
+        staff_metadata={},
+        custom_answers=[],
+        custom_detail_answers=[],
+    )
+    upload = SimpleNamespace(
+        filename="unmatched.pdf",
+        content=b"%PDF",
+        content_type="application/pdf",
+    )
+    session = MagicMock(rollback=AsyncMock())
+    monkeypatch.setattr(
+        document_distribution, "_get_authorized_group", AsyncMock(return_value=group)
+    )
+    monkeypatch.setattr(
+        document_distribution, "_group_passengers", AsyncMock(return_value=[passenger])
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "_read_linked_document_match_source",
+        AsyncMock(return_value=SimpleNamespace(snapshot=())),
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "_linked_document_match_identifiers",
+        AsyncMock(return_value=()),
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "read_bounded_document_uploads",
+        AsyncMock(return_value=[upload]),
+    )
+    monkeypatch.setattr(
+        document_distribution.DocumentMatcher,
+        "build_index",
+        lambda *_args, **_kwargs: SimpleNamespace(),
+    )
+    monkeypatch.setattr(
+        document_distribution.DocumentMatcher,
+        "match_all",
+        lambda *_args, **_kwargs: [
+            MatchResult(
+                passenger_id=None,
+                confidence=0.0,
+                status="needs_review",
+                reason="No passenger match found",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        document_distribution,
+        "classify_documents_bounded",
+        lambda *_args, **_kwargs: [_classification("unmatched.pdf")],
+    )
+    stage = AsyncMock()
+    monkeypatch.setattr(document_distribution, "stage_verified_documents", stage)
+
+    result = await document_distribution.verify_documents(
+        group_id=group_id,
+        document_type="visa",
+        files=[],
+        upload_id=upload_id,
+        chunk_id=chunk_id,
+        current_user=user,
+        session=session,
+    )
+
+    assert result.accepted_count == 0
+    assert result.rejected_count == 1
+    assert result.files[0].accepted is False
+    assert result.files[0].reason == "No passenger match found"
+    assert result.files[0].staging_receipt is None
+    stage.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_upload_accepts_receipts_without_resending_pdf_bytes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -440,6 +539,7 @@ async def test_upload_accepts_receipts_without_resending_pdf_bytes(
     assert decode.call_args.kwargs["upload_id"] == context.upload_id
     assert decode.call_args.kwargs["chunk_id"] == context.chunk_id
     ingest_kwargs = context.ingest.await_args.kwargs
+    assert ingest_kwargs["require_passenger_match"] is True
     assert ingest_kwargs["preclassified_documents"] == [receipt.classification]
     assert ingest_kwargs["staged_storage_keys"] == [receipt.storage_key]
     assert len(ingest_kwargs["files"]) == 1

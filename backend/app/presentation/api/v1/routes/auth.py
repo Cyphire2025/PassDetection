@@ -36,6 +36,10 @@ from app.presentation.api.v1.schemas.auth_schemas import (
     UserResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
+from app.presentation.dependencies.csrf import (
+    require_cookie_csrf,
+    require_trusted_request_origin,
+)
 from app.presentation.security.auth_cookies import clear_auth_cookies, set_auth_cookies
 from app.presentation.security.client_ip import trusted_client_ip
 
@@ -102,6 +106,7 @@ def _get_me_use_case(
 async def login(
     request: Request,
     response: Response,
+    _trusted_origin: None = Depends(require_trusted_request_origin),
     form_data: OAuth2PasswordRequestForm = Depends(),
     use_case: LoginUseCase = Depends(_get_login_use_case),
 ) -> AuthResponse | Response:
@@ -133,6 +138,7 @@ async def login(
 async def refresh_token(
     request: Request,
     response: Response,
+    _cookie_csrf: None = Depends(require_cookie_csrf),
     body: RefreshTokenRequest | None = None,
     use_case: RefreshTokenUseCase = Depends(_get_refresh_use_case),
 ) -> AuthResponse | Response:
@@ -180,6 +186,7 @@ async def refresh_token(
 async def logout(
     request: Request,
     response: Response,
+    _cookie_csrf: None = Depends(require_cookie_csrf),
     body: LogoutRequest | None = None,
     use_case: LogoutUseCase = Depends(_get_logout_use_case),
 ) -> Response:

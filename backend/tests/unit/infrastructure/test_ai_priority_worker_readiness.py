@@ -17,6 +17,8 @@ from app.infrastructure.ai_priority.worker_readiness import (
     gemini_worker_readiness,
 )
 
+_STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+
 
 class AiPriorityWorkerReadinessTests(unittest.TestCase):
     def test_module_import_is_safe_without_eager_celery_import(self) -> None:
@@ -83,7 +85,7 @@ class AiPriorityWorkerReadinessTests(unittest.TestCase):
 
     def test_production_celery_requires_both_exact_ai_queues(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="celery",
         )
@@ -118,7 +120,7 @@ class AiPriorityWorkerReadinessTests(unittest.TestCase):
 
     def test_disabled_verification_still_requires_extraction_worker(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="celery",
             gemini_verification_enabled=False,
@@ -138,7 +140,7 @@ class AiPriorityWorkerReadinessTests(unittest.TestCase):
 
     def test_staging_celery_also_requires_queue_consumers(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="staging",
             processing_backend="celery",
         )
@@ -156,7 +158,7 @@ class AiPriorityWorkerReadinessTests(unittest.TestCase):
         query = Mock()
         probe = CachedCeleryQueueProbe(query=query)
         production_background = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="background",
         )

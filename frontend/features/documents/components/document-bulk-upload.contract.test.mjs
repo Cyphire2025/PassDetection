@@ -23,6 +23,15 @@ const distributionTypes = readFileSync(
 );
 const renamePage = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
+const workspaceDialogs = readFileSync(
+  new URL("./document-workspace-dialogs.tsx", import.meta.url),
+  "utf8",
+);
+const uploadPanel = readFileSync(new URL("./document-upload-panel.tsx", import.meta.url), "utf8");
+const laneNavigation = readFileSync(
+  new URL("./flight-ticket-lane-navigation.tsx", import.meta.url),
+  "utf8",
+);
 const distributionRoute = readFileSync(
   new URL(
     "../../../../backend/app/presentation/api/v1/routes/document_distribution.py",
@@ -48,6 +57,7 @@ const {
   createAcceptedDocumentUploadSession,
   createDocumentUploadSession,
   createDocumentVerificationSession,
+  isPassengerMatchedVerificationFile,
   runConcurrentDocumentVerification,
 } = batchingModule;
 
@@ -94,16 +104,27 @@ test("the 24 MiB target splits a chunk before the 50-file ceiling", () => {
   );
 });
 
-test("verification uses small chunks sized for progressive bounded OCR", () => {
+test("verification uses the largest file chunk inside the bounded OCR envelope", () => {
   let nextId = 0;
   const session = createDocumentVerificationSession(
     pdfFiles(30, 512 * 1024),
     () => `verify-${nextId++}`,
   );
 
-  assert.equal(MAX_DOCUMENT_VERIFICATION_CHUNK_FILES, 8);
+  assert.equal(MAX_DOCUMENT_VERIFICATION_CHUNK_FILES, 16);
   assert.equal(MAX_DOCUMENT_VERIFICATION_CONCURRENCY, 1);
-  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [8, 8, 8, 6]);
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [16, 14]);
+});
+
+test("verification keeps the 8 MiB byte cap when PDFs are larger", () => {
+  let nextId = 0;
+  const fiveMiB = 5 * 1024 * 1024;
+  const session = createDocumentVerificationSession(
+    pdfFiles(2, fiveMiB),
+    () => `verify-bytes-${nextId++}`,
+  );
+
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [1, 1]);
 });
 
 test("verification can process chunks sequentially, preserves order, and reports committed files", async () => {
@@ -131,8 +152,8 @@ test("verification can process chunks sequentially, preserves order, and reports
   });
 
   assert.equal(maxActive, 1);
-  assert.deepEqual(results, ["chunk-0", "chunk-1", "chunk-2"]);
-  assert.equal(session.completedChunks, 3);
+  assert.deepEqual(results, ["chunk-0", "chunk-1"]);
+  assert.equal(session.completedChunks, 2);
   assert.equal(progress.at(-1).completedFiles, 18);
   assert.equal(progress.at(-1).percent, 100);
   assert.ok(progress.some((value) => value.completedFiles > 0 && value.completedFiles < 18));
@@ -142,7 +163,7 @@ test("verification can process chunks sequentially, preserves order, and reports
 test("verification drains already-started requests before returning an error", async () => {
   let nextId = 0;
   const session = createDocumentVerificationSession(
-    pdfFiles(16, 1),
+    pdfFiles(32, 1),
     () => `drain-${nextId++}`,
   );
   let secondRequestDrained = false;
@@ -195,6 +216,27 @@ test("accepted files retain their verification upload and chunk identities", () 
   assert.equal(acceptedSession.completedChunks, 0);
 });
 
+test("only verified files with a confirmed passenger match are uploadable", () => {
+  assert.equal(
+    isPassengerMatchedVerificationFile({
+      accepted: true,
+      matched_passenger_id: "passenger-1",
+      matched_passenger_ids: ["passenger-1"],
+      match_status: "matched",
+    }),
+    true,
+  );
+  assert.equal(
+    isPassengerMatchedVerificationFile({
+      accepted: true,
+      matched_passenger_id: null,
+      matched_passenger_ids: [],
+      match_status: "needs_review",
+    }),
+    false,
+  );
+});
+
 test("receipt finalization is bounded by aggregate UTF-8 bytes", () => {
   assert.equal(MAX_DOCUMENT_RECEIPT_CHUNK_BYTES, 8 * 1024 * 1024);
   assert.equal(canFinalizeDocumentReceiptChunk(["receipt"], 1), true);
@@ -230,6 +272,8 @@ test("distribution verification binds receipts to the exact upload and chunk ses
   assert.match(verifySource, /createDocumentVerificationSession/);
   assert.match(verifySource, /runConcurrentDocumentVerification/);
   assert.match(verifySource, /MAX_DOCUMENT_VERIFICATION_CONCURRENCY/);
+  assert.match(verifySource, /isPassengerMatchedVerificationFile/);
+  assert.match(verifySource, /staging_receipt: null/);
   assert.match(workspace, /setVerification\(data\.verification\)/);
   assert.match(workspace, /setUploadSession\(data\.uploadSession\)/);
   assert.doesNotMatch(workspace, /createDocumentUploadSession\(acceptedFiles\)/);
@@ -251,25 +295,26 @@ test("every incomplete distribution upload is surfaced and can be explicitly dis
   assert.match(distributionHooks, /useAbortDistributionUploads/);
   assert.match(distributionHooks, /for \(const batchId of uniqueBatchIds\)/);
   assert.match(workspace, /review\.data\?\.processing_upload_ids \?\? \[\]/);
-  assert.match(workspace, /Discard incomplete/);
+  assert.match(workspaceDialogs, /Discard incomplete/);
   assert.match(workspace, /AbortIncompleteUploadDialog/);
   assert.match(workspace, /abortUploads\.mutate\(processingUploadIds/);
 });
 
 test("new selection and save remain blocked until incomplete uploads are resolved", () => {
-  assert.match(workspace, /disabled=\{hasIncompleteUploads \|\| upload\.isPending \|\| verify\.isPending\}/);
+  assert.match(uploadPanel, /const operationPending = uploadPending \|\| verifyPending/);
+  assert.match(uploadPanel, /disabled=\{hasIncompleteUploads \|\| operationPending\}/);
   assert.match(workspace, /hasIncompleteUploads && !canResumeCurrentUpload/);
   assert.match(
     workspace,
     /review\.data\.status === "saved" \|\| hasIncompleteUploads/,
   );
   assert.match(
-    workspace,
+    workspaceDialogs,
     /Completed and saved document lists are not changed\./,
   );
 });
 
-test("document type cannot change while type-scoped work is pending and safe switches clear stale state", () => {
+test("route-driven document lanes cannot change while type-scoped work is pending", () => {
   assert.match(workspace, /const documentTypeOperationPending =/);
   for (const pendingState of [
     "verify.isPending",
@@ -283,13 +328,13 @@ test("document type cannot change while type-scoped work is pending and safe swi
   ]) {
     assert.match(workspace, new RegExp(pendingState.replace(".", "\\.")));
   }
-  assert.match(workspace, /disabled=\{documentTypeOperationPending\}/);
-  assert.match(workspace, /onClick=\{\(\) => changeDocumentType\(item\.type\)\}/);
-  assert.match(workspace, /if \(nextType === selectedType \|\| documentTypeOperationPending\) return/);
-  assert.match(workspace, /setIsSendPreviewOpen\(false\)/);
-  assert.match(workspace, /setDeliveryDocumentIds\(null\)/);
-  assert.match(workspace, /verify\.reset\(\)/);
-  assert.match(workspace, /sendDocuments\.reset\(\)/);
+  assert.match(workspace, /operationPending=\{documentTypeOperationPending\}/);
+  assert.match(laneNavigation, /aria-disabled=\{operationPending\}/);
+  assert.match(laneNavigation, /hasUncommittedSelection/);
+  assert.match(laneNavigation, /window\.confirm/);
+  assert.match(laneNavigation, /event\.preventDefault\(\)/);
+  assert.doesNotMatch(workspace, /setSelectedType/);
+  assert.doesNotMatch(workspace, /changeDocumentType/);
 });
 
 test("distribution distinguishes physical files from assigned passengers and surfaces reasons first", () => {

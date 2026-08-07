@@ -158,16 +158,43 @@ class DocumentWhatsAppDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Kindly cross check all your details", rendered)
         self.assertIn("Team Global Connect Travels", rendered)
 
-    def test_arrival_and_departure_ticket_messages_are_independent(self) -> None:
-        departure = default_document_message_content("flight_ticket")
-        arrival = default_document_message_content("flight_ticket_arrival")
+    def test_ticket_lane_messages_are_independent_and_use_new_terminology(self) -> None:
+        international_onward = default_document_message_content("flight_ticket")
+        international_return = default_document_message_content("flight_ticket_arrival")
+        domestic_onward = default_document_message_content("flight_ticket_domestic")
+        domestic_return = default_document_message_content("flight_ticket_domestic_arrival")
 
-        self.assertEqual(departure[0], "This is your attached DEPARTURE FLIGHT TICKET")
-        self.assertEqual(arrival[0], "This is your attached ARRIVAL FLIGHT TICKET")
-        self.assertEqual(document_type_label("flight_ticket"), "Departure Flight Ticket")
+        self.assertEqual(
+            international_onward[0],
+            "This is your attached INTERNATIONAL ONWARD FLIGHT TICKET",
+        )
+        self.assertEqual(
+            international_return[0],
+            "This is your attached INTERNATIONAL RETURN FLIGHT TICKET",
+        )
+        self.assertEqual(
+            domestic_onward[0],
+            "This is your attached DOMESTIC ONWARD FLIGHT TICKET",
+        )
+        self.assertEqual(
+            domestic_return[0],
+            "This is your attached DOMESTIC RETURN FLIGHT TICKET",
+        )
+        self.assertEqual(
+            document_type_label("flight_ticket"),
+            "International Onward Flight Ticket",
+        )
         self.assertEqual(
             document_type_label("flight_ticket_arrival"),
-            "Arrival Flight Ticket",
+            "International Return Flight Ticket",
+        )
+        self.assertEqual(
+            document_type_label("flight_ticket_domestic"),
+            "Domestic Onward Flight Ticket",
+        )
+        self.assertEqual(
+            document_type_label("flight_ticket_domestic_arrival"),
+            "Domestic Return Flight Ticket",
         )
 
     def test_receipts_are_monotonic_and_late_failures_do_not_regress_read(self) -> None:

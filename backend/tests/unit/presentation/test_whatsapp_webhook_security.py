@@ -34,14 +34,21 @@ class WhatsAppWebhookSecurityTests(unittest.TestCase):
     def test_missing_app_secret_rejects_unsigned_production_webhooks(self) -> None:
         with patch(
             "app.presentation.api.v1.routes.whatsapp.get_settings",
-            return_value=types.SimpleNamespace(whatsapp_app_secret="", is_production=True),
+            return_value=types.SimpleNamespace(whatsapp_app_secret="", app_env="production"),
+        ):
+            self.assertFalse(_verify_meta_signature(b"{}", None))
+
+    def test_missing_app_secret_rejects_unsigned_staging_webhooks(self) -> None:
+        with patch(
+            "app.presentation.api.v1.routes.whatsapp.get_settings",
+            return_value=types.SimpleNamespace(whatsapp_app_secret="", app_env="staging"),
         ):
             self.assertFalse(_verify_meta_signature(b"{}", None))
 
     def test_missing_app_secret_allows_local_development_webhooks(self) -> None:
         with patch(
             "app.presentation.api.v1.routes.whatsapp.get_settings",
-            return_value=types.SimpleNamespace(whatsapp_app_secret="", is_production=False),
+            return_value=types.SimpleNamespace(whatsapp_app_secret="", app_env="development"),
         ):
             self.assertTrue(_verify_meta_signature(b"{}", None))
 

@@ -9,7 +9,10 @@ from unittest.mock import patch
 from fastapi import HTTPException
 from starlette.requests import Request
 
-from app.presentation.dependencies.csrf import require_cookie_csrf
+from app.presentation.dependencies.csrf import (
+    require_cookie_csrf,
+    require_trusted_request_origin,
+)
 
 
 def _request(*, headers: dict[str, str]) -> Request:
@@ -35,7 +38,10 @@ class CookieCsrfTests(unittest.IsolatedAsyncioTestCase):
             "app.presentation.dependencies.csrf.get_settings",
             return_value=SimpleNamespace(
                 allowed_origins=["https://office.example.com"],
-                jwt=SimpleNamespace(access_cookie_name="access_token"),
+                jwt=SimpleNamespace(
+                    access_cookie_name="access_token",
+                    refresh_cookie_name="refresh_token",
+                ),
             ),
         )
         self.addCleanup(patcher.stop)
@@ -71,3 +77,30 @@ class CookieCsrfTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertEqual(raised.exception.status_code, 403)
 
+    async def test_refresh_cookie_requires_exact_trusted_origin(self) -> None:
+        with self.assertRaises(HTTPException):
+            await require_cookie_csrf(
+                _request(headers={"Cookie": "refresh_token=refresh-cookie"})
+            )
+
+        await require_cookie_csrf(
+            _request(
+                headers={
+                    "Cookie": "refresh_token=refresh-cookie",
+                    "Origin": "https://office.example.com",
+                }
+            )
+        )
+
+    async def test_pre_auth_origin_rejects_browser_cross_site_signals(self) -> None:
+        await require_trusted_request_origin(_request(headers={}))
+        await require_trusted_request_origin(
+            _request(headers={"Origin": "https://office.example.com"})
+        )
+
+        for headers in (
+            {"Origin": "https://evil.example"},
+            {"Sec-Fetch-Site": "cross-site"},
+        ):
+            with self.subTest(headers=headers), self.assertRaises(HTTPException):
+                await require_trusted_request_origin(_request(headers=headers))

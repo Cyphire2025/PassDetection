@@ -33,13 +33,13 @@ const WORKFLOWS = [
     eyebrow: "Delivery workflow",
     title: "Document Distribution",
     description:
-      "Open a passenger group, validate document matches, resolve exceptions, and save the reviewed delivery roster before sending.",
+      "Choose Visa or Flight Tickets, open a passenger group, validate document matches, and save the reviewed delivery roster before sending.",
     href: ROUTES.dashboard.documentDistribution,
     icon: SendToBack,
     action: "Open distribution control",
     accent: "border-blue-200 bg-blue-50/55 text-blue-900",
     iconTone: "bg-blue-100 text-blue-700",
-    steps: ["Choose a group", "Verify passenger matches", "Save and distribute"],
+    steps: ["Choose a document family", "Choose a group", "Review and distribute"],
   },
 ] as const;
 

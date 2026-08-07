@@ -1749,7 +1749,8 @@ class DocumentUploadChunkModel(Base):
             "(workflow = 'rename' AND group_id IS NULL AND document_type IS NULL) "
             "OR (workflow = 'distribution' AND group_id IS NOT NULL "
             "AND document_type IN "
-            "('visa', 'flight_ticket', 'flight_ticket_arrival', 'other'))",
+            "('visa', 'flight_ticket', 'flight_ticket_arrival', "
+            "'flight_ticket_domestic', 'flight_ticket_domestic_arrival', 'other'))",
             name="ck_document_upload_chunks_scope",
         ),
         Index(

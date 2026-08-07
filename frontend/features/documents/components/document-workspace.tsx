@@ -1,24 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
   FileCheck2,
   FileQuestion,
-  FileX2,
-  MoreVertical,
   Plane,
-  RefreshCw,
   Save,
   Search,
-  SearchCheck,
   Send,
   Trash2,
-  UploadCloud,
-  X,
-  XCircle,
-  type LucideIcon,
 } from "lucide-react";
 import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
 import {
@@ -30,8 +22,6 @@ import { ROUTES } from "@/constants/routes";
 import { formatConfidence } from "@/lib/utils/format";
 import type {
   DistributedDocument,
-  DistributionDocumentType,
-  DocumentDeliveryPreview,
   DocumentPassengerReviewRow,
   DocumentVerificationResult,
 } from "@/types/document-distribution.types";
@@ -52,27 +42,25 @@ import {
   type DocumentUploadProgress,
   type DocumentUploadSession,
 } from "../services/document-upload-batching";
-
-const DOCUMENT_TYPES: Array<{
-  type: DistributionDocumentType;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}> = [
-  { type: "visa", title: "Visa", description: "Upload visa PDFs for this group.", icon: FileCheck2 },
-  {
-    type: "flight_ticket",
-    title: "Departure Ticket",
-    description: "Assign and send outbound flight tickets.",
-    icon: Plane,
-  },
-  {
-    type: "flight_ticket_arrival",
-    title: "Arrival Ticket",
-    description: "Assign and send return flight tickets independently.",
-    icon: Plane,
-  },
-];
+import {
+  type DocumentDistributionLane,
+} from "../config/document-distribution-lanes";
+import {
+  AbortIncompleteUploadDialog,
+  DocumentDeliveryPreviewDialog,
+  RemoveAssignmentsDialog,
+} from "./document-workspace-dialogs";
+import {
+  DocumentRowActionMenu,
+  DocumentSentStatus,
+  MatchBadge,
+  VerificationPanel,
+} from "./document-workspace-review";
+import {
+  DocumentUploadPanel,
+  type DocumentUploadPhase,
+} from "./document-upload-panel";
+import { FlightTicketLaneNavigation } from "./flight-ticket-lane-navigation";
 
 function reviewRowDocuments(row: DocumentPassengerReviewRow): DistributedDocument[] {
   if (row.documents?.length) return row.documents;
@@ -83,8 +71,14 @@ type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent";
 
 const SENT_DOCUMENT_STATUSES = new Set(["submitted", "sent", "delivered", "read"]);
 
-export function DocumentWorkspace({ groupId }: { groupId: string }) {
-  const [selectedType, setSelectedType] = useState<DistributionDocumentType>("visa");
+export function DocumentWorkspace({
+  groupId,
+  lane,
+}: {
+  groupId: string;
+  lane: DocumentDistributionLane;
+}) {
+  const documentType = lane.documentType;
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [verification, setVerification] = useState<DocumentVerificationResult | null>(null);
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
@@ -96,31 +90,30 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [uploadSession, setUploadSession] = useState<DocumentUploadSession | null>(null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [isAbortUploadDialogOpen, setIsAbortUploadDialogOpen] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
+  const [phase, setPhase] = useState<DocumentUploadPhase>("idle");
   const [isSendPreviewOpen, setIsSendPreviewOpen] = useState(false);
   const [deliveryDocumentIds, setDeliveryDocumentIds] = useState<string[] | null>(null);
   const [deliveryResendDocumentIds, setDeliveryResendDocumentIds] = useState<string[]>([]);
   const [deliveryMessageContent1, setDeliveryMessageContent1] = useState<string | null>(null);
   const [deliveryMessageContent2, setDeliveryMessageContent2] = useState<string | null>(null);
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
-  const review = useDocumentReview(groupId, selectedType);
-  const verify = useVerifyDistributionDocuments(groupId, selectedType);
-  const upload = useUploadDistributionDocuments(groupId, selectedType);
-  const abortUploads = useAbortDistributionUploads(groupId, selectedType);
-  const reupload = useReuploadPassengerDocument(groupId, selectedType);
-  const deleteDocuments = useDeleteDistributionDocuments(groupId, selectedType);
-  const unassignDocuments = useUnassignDistributionDocuments(groupId, selectedType);
-  const save = useSaveDocumentBatch(groupId, selectedType);
+  const review = useDocumentReview(groupId, documentType);
+  const verify = useVerifyDistributionDocuments(groupId, documentType);
+  const upload = useUploadDistributionDocuments(groupId, documentType);
+  const abortUploads = useAbortDistributionUploads(groupId, documentType);
+  const reupload = useReuploadPassengerDocument(groupId, documentType);
+  const deleteDocuments = useDeleteDistributionDocuments(groupId, documentType);
+  const unassignDocuments = useUnassignDistributionDocuments(groupId, documentType);
+  const save = useSaveDocumentBatch(groupId, documentType);
   const deliveryPreview = useDocumentDeliveryPreview(
     groupId,
-    selectedType,
+    documentType,
     isSendPreviewOpen,
   );
-  const sendDocuments = useSendDocumentWhatsAppBroadcast(groupId, selectedType);
-  const selectedConfig = DOCUMENT_TYPES.find((item) => item.type === selectedType) ?? DOCUMENT_TYPES[0];
+  const sendDocuments = useSendDocumentWhatsAppBroadcast(groupId, documentType);
+  const LaneIcon = lane.category === "visa" ? FileCheck2 : Plane;
   const documentTypeOperationPending =
     phase !== "idle" ||
     verify.isPending ||
@@ -131,6 +124,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     unassignDocuments.isPending ||
     save.isPending ||
     sendDocuments.isPending;
+  const hasUncommittedSelection =
+    selectedFiles.length > 0 || verification !== null || uploadSession !== null;
   const processingUploadIds = useMemo(() => {
     const surfacedIds = review.data?.processing_upload_ids ?? [];
     if (surfacedIds.length > 0) return surfacedIds;
@@ -222,7 +217,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
       .map((file) => file.staging_receipt);
   }, [verification]);
   const showRowActions =
-    selectedType === "visa" || selectedType.startsWith("flight_ticket");
+    documentType === "visa" || documentType.startsWith("flight_ticket");
   const assignedDocumentIds = useMemo(
     () =>
       reviewRows.flatMap((row) =>
@@ -414,50 +409,18 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     );
   };
 
-  const changeDocumentType = (nextType: DistributionDocumentType) => {
-    if (nextType === selectedType || documentTypeOperationPending) return;
-
-    setSelectedType(nextType);
-    setSelectedFiles([]);
-    setVerification(null);
-    setSelectedDocumentIds([]);
-    setReviewFilter("all");
-    setReviewSearchQuery("");
-    setPendingRemovalDocumentIds(null);
-    setUploadSession(null);
-    setSelectionError(null);
-    setIsAbortUploadDialogOpen(false);
-    setProgressDetail(null);
-    setProgress(0);
-    setPhase("idle");
-    setIsSendPreviewOpen(false);
-    setDeliveryDocumentIds(null);
-    setDeliveryResendDocumentIds([]);
-    setDeliveryMessageContent1(null);
-    setDeliveryMessageContent2(null);
-    setDeliveryFeedback(null);
-    verify.reset();
-    upload.reset();
-    abortUploads.reset();
-    reupload.reset();
-    deleteDocuments.reset();
-    unassignDocuments.reset();
-    save.reset();
-    sendDocuments.reset();
-  };
-
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
         eyebrow="Group document workspace"
         title={group ? `${group.group_name} Documents` : "Group Documents"}
         description="Validate uploaded files, resolve passenger matching exceptions, save the reviewed roster, and control delivery from one group context."
-        icon={FileCheck2}
+        icon={LaneIcon}
         accent="cyan"
         context={(
           <>
-            <WorkspaceHeaderContext icon={selectedConfig.icon}>
-              {selectedConfig.title} workflow
+            <WorkspaceHeaderContext icon={LaneIcon}>
+              {lane.workflowLabel} workflow
             </WorkspaceHeaderContext>
             <WorkspaceHeaderContext icon={CheckCircle2}>
               {assignedPassengerCount.toLocaleString()} of {(group?.total_passengers ?? reviewCounts.all).toLocaleString()} assigned
@@ -466,122 +429,48 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
         )}
         actions={(
           <IntentPrefetchLink
-            href={ROUTES.dashboard.documents}
+            href={lane.category === "visa"
+              ? ROUTES.dashboard.documentDistributionVisa
+              : ROUTES.dashboard.documentDistributionFlightTickets}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Document Hub
+            {lane.category === "visa" ? "Visa Groups" : "Flight-Ticket Groups"}
           </IntentPrefetchLink>
         )}
       />
 
-      <div className="grid gap-3 md:grid-cols-3">
-        {DOCUMENT_TYPES.map((item) => {
-          const Icon = item.icon;
-          const active = selectedType === item.type;
-          const assignedCount =
-            item.type === "visa"
-              ? group?.visa_assigned_count
-              : item.type === "flight_ticket"
-                ? group?.flight_ticket_assigned_count
-                : group?.flight_ticket_arrival_assigned_count;
-          return (
-            <button
-              key={item.type}
-              type="button"
-              disabled={documentTypeOperationPending}
-              onClick={() => changeDocumentType(item.type)}
-              className={`rounded-xl border bg-white p-5 text-left shadow-sm transition ${
-                active ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300"
-              } disabled:cursor-not-allowed disabled:opacity-60`}
-            >
-              <div className="flex items-center gap-3">
-                <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${active ? "bg-blue-50 text-blue-700" : "bg-slate-50 text-slate-500"}`}>
-                  <Icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="font-semibold text-slate-900">{item.title}</div>
-                  <div className="mt-1 text-sm text-slate-500">{item.description}</div>
-                  <div className="mt-2 text-sm font-medium text-blue-700">
-                    {assignedCount ?? 0}/{group?.total_passengers ?? 0} assigned
-                  </div>
-                </div>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {lane.category === "flight_tickets" && (
+        <FlightTicketLaneNavigation
+          groupId={groupId}
+          group={group}
+          lane={lane}
+          operationPending={documentTypeOperationPending}
+          hasUncommittedSelection={hasUncommittedSelection}
+        />
+      )}
 
+      <DocumentUploadPanel
+        lane={lane}
+        passengerCount={review.data?.review_rows.length ?? 0}
+        selectedFileCount={selectedFiles.length}
+        acceptedFileCount={acceptedFiles.length}
+        verificationReady={Boolean(verification)}
+        hasIncompleteUploads={hasIncompleteUploads}
+        canResumeCurrentUpload={canResumeCurrentUpload}
+        processingUploadCount={processingUploadIds.length}
+        uploadPending={upload.isPending}
+        verifyPending={verify.isPending}
+        abortPending={abortUploads.isPending}
+        onFilesSelected={resetSelection}
+        onCheck={checkDocuments}
+        onUpload={startUpload}
+        onDiscardIncomplete={() => setIsAbortUploadDialogOpen(true)}
+      />
+
+      {(upload.isPending || phase !== "idle" || upload.error || selectionError || verify.error || reupload.error || deleteDocuments.error || unassignDocuments.error || verification) && (
       <Card>
         <CardContent className="space-y-4 p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">Upload {selectedConfig.title} PDFs</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Select all {selectedConfig.title.toLowerCase()} files. The system checks document type before upload and matches files to passengers.
-                {selectedType.startsWith("flight_ticket") && (
-                  <> A combined departure-and-arrival PDF can be uploaded in both ticket sections.</>
-                )}
-              </p>
-            </div>
-            <Badge variant="outline">{review.data?.review_rows.length ?? 0} passengers</Badge>
-          </div>
-
-          {hasIncompleteUploads && (
-            <div className="flex flex-col gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="font-semibold text-amber-950">
-                  {processingUploadIds.length === 1
-                    ? "An incomplete upload needs attention"
-                    : `${processingUploadIds.length} incomplete uploads need attention`}
-                </div>
-                <p className="mt-1 text-sm leading-5 text-amber-800">
-                  {canResumeCurrentUpload
-                    ? "Continue with the same selected PDFs, or discard the incomplete upload before choosing new files."
-                    : "Discard the incomplete upload data before choosing and uploading a new set of PDFs."}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="danger"
-                disabled={upload.isPending || verify.isPending || abortUploads.isPending}
-                onClick={() => setIsAbortUploadDialogOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" />
-                Discard incomplete {processingUploadIds.length === 1 ? "upload" : "uploads"}
-              </Button>
-            </div>
-          )}
-
-          <input
-            ref={inputRef}
-            type="file"
-            accept="application/pdf,.pdf"
-            multiple
-            className="hidden"
-            onChange={(event) => {
-              resetSelection(Array.from(event.target.files ?? []));
-              event.currentTarget.value = "";
-            }}
-          />
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="button" variant="secondary" onClick={() => inputRef.current?.click()} disabled={hasIncompleteUploads || upload.isPending || verify.isPending}>
-              <UploadCloud className="h-4 w-4" />
-              Choose PDFs
-            </Button>
-            <Button type="button" variant="outline" onClick={checkDocuments} disabled={hasIncompleteUploads || selectedFiles.length === 0 || upload.isPending || verify.isPending}>
-              <SearchCheck className="h-4 w-4" />
-              Check Documents {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ""}
-            </Button>
-            <Button type="button" onClick={startUpload} disabled={!verification || acceptedFiles.length === 0 || (hasIncompleteUploads && !canResumeCurrentUpload) || upload.isPending || verify.isPending}>
-              Upload Accepted {verification ? `(${acceptedFiles.length})` : ""}
-            </Button>
-            {selectedFiles.length > 0 && (
-              <span className="text-sm text-slate-500">{selectedFiles.length} file{selectedFiles.length === 1 ? "" : "s"} selected</span>
-            )}
-          </div>
-
           {(upload.isPending || phase !== "idle") && (
             <div className="space-y-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
               <div className="flex items-center justify-between text-sm font-medium text-blue-900">
@@ -649,6 +538,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           )}
         </CardContent>
       </Card>
+      )}
 
       {review.isLoading ? (
         <Skeleton className="h-80 rounded-xl" />
@@ -993,7 +883,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           <DocumentRowActionMenu
                             row={row}
                             documents={documents}
-                            documentType={selectedType}
+                            documentType={documentType}
                             pending={reupload.isPending || removalPending}
                             onReupload={(file) => reupload.mutate({ passengerId: row.passenger_id, file })}
                             onRemoveAssignment={(documentId) =>
@@ -1169,719 +1059,5 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
         />
       )}
     </div>
-  );
-}
-
-function AbortIncompleteUploadDialog({
-  uploadCount,
-  pending,
-  error,
-  onClose,
-  onConfirm,
-}: {
-  uploadCount: number;
-  pending: boolean;
-  error: Error | null;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="abort-incomplete-upload-title"
-        className="w-full max-w-lg overflow-hidden rounded-xl bg-white shadow-2xl"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
-          <div>
-            <h2 id="abort-incomplete-upload-title" className="text-lg font-semibold text-slate-900">
-              Discard incomplete {uploadCount === 1 ? "upload" : "uploads"}?
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              This permanently removes only the PDFs and partial matches from {uploadCount === 1 ? "this unfinished upload" : `these ${uploadCount} unfinished uploads`}. Completed and saved document lists are not changed.
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Close dialog"
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            disabled={pending}
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="space-y-3 px-6 py-5">
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            After cleanup, you can choose a new PDF selection and Save List will no longer be blocked by these unfinished uploads.
-          </div>
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error.message}
-            </div>
-          )}
-        </div>
-        <div className="flex justify-end gap-2 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
-            Keep upload
-          </Button>
-          <Button type="button" variant="danger" onClick={onConfirm} isLoading={pending}>
-            <Trash2 className="h-4 w-4" />
-            Discard incomplete {uploadCount === 1 ? "upload" : "uploads"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RemoveAssignmentsDialog({
-  passengerCount,
-  documentCount,
-  pending,
-  error,
-  onClose,
-  onKeepFiles,
-  onDeleteFiles,
-}: {
-  passengerCount: number;
-  documentCount: number;
-  pending: boolean;
-  error: Error | null;
-  onClose: () => void;
-  onKeepFiles: () => void;
-  onDeleteFiles: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="remove-assignments-title"
-        className="w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-2xl"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
-          <div>
-            <h2 id="remove-assignments-title" className="text-lg font-semibold text-slate-900">
-              Remove document assignments?
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              This removes {documentCount} saved document{documentCount === 1 ? "" : "s"} from{" "}
-              {passengerCount} passenger{passengerCount === 1 ? "" : "s"}. Choose what should happen
-              to the saved PDF files.
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Close dialog"
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            disabled={pending}
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="space-y-3 px-6 py-5">
-          <button
-            type="button"
-            disabled={pending}
-            onClick={onKeepFiles}
-            className="w-full rounded-xl border border-blue-200 bg-blue-50 p-4 text-left transition hover:border-blue-300 disabled:pointer-events-none disabled:opacity-50"
-          >
-            <div className="font-semibold text-blue-950">Keep saved PDFs</div>
-            <div className="mt-1 text-sm leading-5 text-blue-800">
-              Remove the passenger assignments and move the PDFs to Needs assignment so they can
-              be assigned again later.
-            </div>
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={onDeleteFiles}
-            className="w-full rounded-xl border border-red-200 bg-red-50 p-4 text-left transition hover:border-red-300 disabled:pointer-events-none disabled:opacity-50"
-          >
-            <div className="font-semibold text-red-950">Delete saved PDFs</div>
-            <div className="mt-1 text-sm leading-5 text-red-800">
-              Remove the assignments and permanently delete these saved document files. Delivery
-              history remains recorded for audit purposes.
-            </div>
-          </button>
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error.message}
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={pending}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DocumentDeliveryPreviewDialog({
-  preview,
-  loading,
-  loadError,
-  selectedDocumentIds,
-  resendDocumentIds,
-  sending,
-  sendError,
-  messageContent1,
-  messageContent2,
-  onMessageContent1Change,
-  onMessageContent2Change,
-  onToggleDocument,
-  onToggleResend,
-  onClose,
-  onSend,
-}: {
-  preview: DocumentDeliveryPreview | undefined;
-  loading: boolean;
-  loadError: Error | null;
-  selectedDocumentIds: string[];
-  resendDocumentIds: string[];
-  sending: boolean;
-  sendError: Error | null;
-  messageContent1: string;
-  messageContent2: string;
-  onMessageContent1Change: (value: string) => void;
-  onMessageContent2Change: (value: string) => void;
-  onToggleDocument: (documentId: string) => void;
-  onToggleResend: (documentId: string) => void;
-  onClose: () => void;
-  onSend: () => void;
-}) {
-  const selectedDocumentIdSet = useMemo(
-    () => new Set(selectedDocumentIds),
-    [selectedDocumentIds],
-  );
-  const resendDocumentIdSet = useMemo(
-    () => new Set(resendDocumentIds),
-    [resendDocumentIds],
-  );
-  const sampleMessage = [
-    "Dear Delegates",
-    "Greetings from Global Connect Travels",
-    messageContent1,
-    messageContent2,
-    "Regards,\nTeam Global Connect Travels",
-  ].join("\n\n");
-  const messageContentValid =
-    Boolean(messageContent1.trim()) &&
-    Boolean(messageContent2.trim()) &&
-    messageContent1.length <= 600 &&
-    messageContent2.length <= 600;
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="document-delivery-preview-title"
-    >
-      <div className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
-          <div>
-            <h2 id="document-delivery-preview-title" className="text-lg font-semibold text-slate-950">
-              Preview WhatsApp document delivery
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Confirm the exact document, passenger, and opted-in WhatsApp number before queueing individual messages.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={sending}
-            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
-            aria-label="Close delivery preview"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-          {loading ? (
-            <div className="space-y-3">
-              <Skeleton className="h-20 rounded-xl" />
-              <Skeleton className="h-72 rounded-xl" />
-            </div>
-          ) : loadError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              {loadError.message || "The delivery preview could not be loaded."}
-            </div>
-          ) : preview ? (
-            <div className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                <DeliverySummary label="Passengers" value={preview.summary.total_passengers} />
-                <DeliverySummary label="Ready" value={preview.summary.ready} tone="success" />
-                <DeliverySummary label="Retryable" value={preview.summary.retryable} tone="warning" />
-                <DeliverySummary label="Already sent" value={preview.summary.already_sent} />
-                <DeliverySummary label="In progress" value={preview.summary.in_progress} />
-                <DeliverySummary label="Blocked" value={preview.summary.blocked} tone="danger" />
-              </div>
-
-              {preview.configuration_error && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  {preview.configuration_error}
-                </div>
-              )}
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
-                  <div>
-                    <label htmlFor="document-message-content-1" className="text-sm font-semibold text-slate-900">
-                      Editable text 1
-                    </label>
-                    <textarea
-                      id="document-message-content-1"
-                      value={messageContent1}
-                      onChange={(event) => onMessageContent1Change(event.target.value)}
-                      maxLength={600}
-                      rows={3}
-                      disabled={sending}
-                      className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
-                    />
-                    <p className="mt-1 text-right text-xs text-slate-400">{messageContent1.length}/600</p>
-                  </div>
-                  <div>
-                    <label htmlFor="document-message-content-2" className="text-sm font-semibold text-slate-900">
-                      Editable text 2
-                    </label>
-                    <textarea
-                      id="document-message-content-2"
-                      value={messageContent2}
-                      onChange={(event) => onMessageContent2Change(event.target.value)}
-                      maxLength={600}
-                      rows={3}
-                      disabled={sending}
-                      className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
-                    />
-                    <p className="mt-1 text-right text-xs text-slate-400">{messageContent2.length}/600</p>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
-                    documents_v1 preview
-                  </div>
-                  <div className="mt-3 rounded-lg border border-emerald-100 bg-white p-3 text-xs font-medium text-slate-600">
-                    PDF document attached individually
-                  </div>
-                  <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-800">{sampleMessage}</p>
-                  <p className="mt-2 text-xs text-slate-500">Each passenger receives only the PDF shown in their row.</p>
-                </div>
-              </div>
-
-              <div className="overflow-hidden rounded-xl border border-slate-200">
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[900px] text-left text-sm">
-                    <caption className="sr-only">WhatsApp document distribution preview</caption>
-                    <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                      <tr>
-                        <th scope="col" className="px-4 py-3">Send</th>
-                        <th scope="col" className="px-4 py-3">Passenger</th>
-                        <th scope="col" className="px-4 py-3">Document</th>
-                        <th scope="col" className="px-4 py-3">WhatsApp recipient</th>
-                        <th scope="col" className="px-4 py-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {preview.recipients.map((row) => {
-                        const resendSelected = Boolean(
-                          row.document_id &&
-                          resendDocumentIdSet.has(row.document_id),
-                        );
-                        return (
-                        <tr key={`${row.passenger_id}:${row.document_id ?? "empty"}`} className={row.eligible || resendSelected ? "bg-white" : "bg-slate-50/60"}>
-                          <td className="px-4 py-3">
-                            {row.delivery_status === "already_sent" && row.resend_allowed && row.document_id ? (
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant={resendSelected ? "secondary" : "outline"}
-                                disabled={sending}
-                                onClick={() => onToggleResend(row.document_id as string)}
-                              >
-                                {resendSelected ? "Resend selected" : "Resend"}
-                              </Button>
-                            ) : (
-                              <input
-                                type="checkbox"
-                                checked={Boolean(row.document_id && selectedDocumentIdSet.has(row.document_id))}
-                                disabled={!row.eligible || !row.document_id || sending}
-                                onChange={() => row.document_id && onToggleDocument(row.document_id)}
-                                aria-label={`Send document to ${row.passenger_name}`}
-                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                              />
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="font-semibold text-slate-900">{row.passenger_name}</div>
-                            <div className="mt-1 text-xs text-slate-500">{row.passport_number || "No passport number"}</div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-slate-800">{row.document_filename || "No document"}</div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-slate-800">{row.phone_number || "Not matched"}</div>
-                            <div className="mt-1 text-xs text-slate-500">{row.broadcast_name || "No linked broadcast match"}</div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <DeliveryPreviewStatus status={row.delivery_status} />
-                            <div className="mt-1 max-w-xs text-xs text-slate-500">{row.reason}</div>
-                            {row.error_message && row.delivery_status === "retryable" && (
-                              <div className="mt-1 max-w-md text-xs font-medium text-red-700">
-                                {row.error_message}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="border-t border-slate-200 px-6 py-4">
-          {(sendError || loadError) && (
-            <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {(sendError || loadError)?.message}
-            </div>
-          )}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-slate-500">
-              Successful and uncertain deliveries are excluded automatically to prevent duplicates.
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={onClose} disabled={sending}>Cancel</Button>
-              <Button
-                type="button"
-                onClick={onSend}
-                isLoading={sending}
-                disabled={
-                  !preview?.can_send ||
-                  selectedDocumentIds.length === 0 ||
-                  loading ||
-                  !messageContentValid
-                }
-              >
-                <Send className="h-4 w-4" />
-                Send individually to {selectedDocumentIds.length}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeliverySummary({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "success" | "warning" | "danger" }) {
-  const toneClass = tone === "success"
-    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-    : tone === "warning"
-      ? "border-amber-200 bg-amber-50 text-amber-900"
-      : tone === "danger"
-        ? "border-red-200 bg-red-50 text-red-900"
-        : "border-slate-200 bg-slate-50 text-slate-900";
-  return (
-    <div className={`rounded-xl border p-3 ${toneClass}`}>
-      <div className="text-xs font-medium opacity-70">{label}</div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function DeliveryPreviewStatus({ status }: { status: string }) {
-  if (status === "ready") return <Badge variant="success">Ready</Badge>;
-  if (status === "retryable") return <Badge variant="warning">Retry failed</Badge>;
-  if (status === "already_sent") return <Badge variant="success">Already sent</Badge>;
-  if (status === "queued" || status === "processing") return <Badge variant="outline">In progress</Badge>;
-  if (status === "delivery_unknown") return <Badge variant="warning">Outcome unknown</Badge>;
-  return <Badge variant="outline">Blocked</Badge>;
-}
-
-function VerificationPanel({ verification }: { verification: DocumentVerificationResult }) {
-  const accepted = verification.files.filter((file) => file.accepted);
-  const rejected = verification.files.filter((file) => !file.accepted);
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50">
-      <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">Document Check Results</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            {verification.accepted_count} accepted, {verification.rejected_count} rejected from {verification.total_count} selected files.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="success">{verification.accepted_count} accepted</Badge>
-          <Badge variant={verification.rejected_count > 0 ? "destructive" : "outline"}>{verification.rejected_count} rejected</Badge>
-        </div>
-      </div>
-
-      <div className="grid gap-4 p-4 lg:grid-cols-2">
-        <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-green-800">
-            <CheckCircle2 className="h-4 w-4" />
-            Ready To Upload
-          </div>
-          <div className="max-h-72 overflow-auto rounded-lg border border-green-100 bg-white">
-            {accepted.length === 0 ? (
-              <div className="p-4 text-sm text-slate-500">No files passed the document check.</div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {accepted.map((file) => (
-                  <div key={file.filename} className="p-3 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-slate-900">{file.filename}</div>
-                        <div className="mt-1 text-xs text-slate-500">
-                          <VerificationMatchText file={file} />
-                        </div>
-                      </div>
-                      <Badge variant="success">{file.detected_type}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-red-800">
-            <FileX2 className="h-4 w-4" />
-            Rejected Files
-          </div>
-          <div className="max-h-72 overflow-auto rounded-lg border border-red-100 bg-white">
-            {rejected.length === 0 ? (
-              <div className="p-4 text-sm text-slate-500">No files were rejected.</div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {rejected.map((file) => (
-                  <div key={file.filename} className="p-3 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-slate-900">{file.filename}</div>
-                        <div className="mt-1 text-xs text-red-700">{file.reason}</div>
-                      </div>
-                      <Badge variant="destructive">{file.detected_type}</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function VerificationMatchText({ file }: { file: DocumentVerificationResult["files"][number] }) {
-  const names = file.matched_passenger_names ?? [];
-  if (names.length > 1) {
-    return (
-      <>
-        Matched {names.length} passengers: {names.slice(0, 4).join(", ")}
-        {names.length > 4 ? `, +${names.length - 4} more` : ""}
-      </>
-    );
-  }
-  if (file.matched_passenger_name) return <>Matched {file.matched_passenger_name}</>;
-  return <>{file.match_reason || "Accepted"}</>;
-}
-
-function DocumentRowActionMenu({
-  row,
-  documents,
-  documentType,
-  pending,
-  onReupload,
-  onRemoveAssignment,
-}: {
-  row: DocumentPassengerReviewRow;
-  documents: DistributedDocument[];
-  documentType: DistributionDocumentType;
-  pending: boolean;
-  onReupload: (file: File) => void;
-  onRemoveAssignment: (documentId: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const label =
-    documentType === "flight_ticket"
-      ? "departure flight ticket"
-      : documentType === "flight_ticket_arrival"
-        ? "arrival flight ticket"
-        : "visa";
-
-  useEffect(() => {
-    if (!open) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
-
-  return (
-    <div ref={menuRef} className="relative inline-flex justify-end">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="application/pdf,.pdf"
-        className="hidden"
-        onChange={(event) => {
-          const file = event.target.files?.[0];
-          event.currentTarget.value = "";
-          setOpen(false);
-          if (file) onReupload(file);
-        }}
-      />
-      <button
-        type="button"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-        aria-label={`${row.passenger_name} document actions`}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        disabled={pending}
-        onClick={() => setOpen((current) => !current)}
-      >
-        <MoreVertical className="h-4 w-4" />
-      </button>
-      {open && (
-        <div role="menu" className="absolute right-0 top-10 z-30 w-72 rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
-          <button
-            type="button"
-            role="menuitem"
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            onClick={() => inputRef.current?.click()}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Add another document
-          </button>
-          {documents.length > 0 && <div className="my-1 border-t border-slate-100" />}
-          {documents.map((document) => (
-            <button
-              key={document.id}
-              type="button"
-              role="menuitem"
-              className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50"
-              onClick={() => {
-                setOpen(false);
-                onRemoveAssignment(document.id);
-              }}
-            >
-              <FileX2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <span className="min-w-0">
-                <span className="block font-medium">Remove assignment</span>
-                <span className="block truncate text-xs text-slate-500" title={document.original_filename}>
-                  {document.original_filename}
-                </span>
-              </span>
-            </button>
-          ))}
-          <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">
-            Upload one more {label} PDF without removing saved documents.
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function DocumentSentStatus({
-  status,
-  sentTo,
-  sentAt,
-  canResend,
-  onResend,
-}: {
-  status: string;
-  sentTo: string | null;
-  sentAt: string | null;
-  canResend: boolean;
-  onResend: () => void;
-}) {
-  if (status === "sent") {
-    return (
-      <div className="min-w-40">
-        <Badge variant="success">Sent</Badge>
-        <div className="mt-1 text-xs font-medium text-slate-700">
-          {sentTo || "WhatsApp accepted"}
-        </div>
-        {sentAt && (
-          <div className="mt-0.5 text-xs text-slate-500">
-            {new Date(sentAt).toLocaleString()}
-          </div>
-        )}
-        {canResend && (
-          <button
-            type="button"
-            onClick={onResend}
-            className="mt-2 text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline"
-          >
-            Resend explicitly
-          </button>
-        )}
-      </div>
-    );
-  }
-  if (status === "queued" || status === "processing") {
-    return <Badge variant="outline">In progress</Badge>;
-  }
-  if (status === "delivery_unknown") {
-    return <Badge variant="warning">Outcome unknown</Badge>;
-  }
-  if (status === "failed") {
-    return <Badge variant="destructive">Failed</Badge>;
-  }
-  return <Badge variant="outline">Not sent</Badge>;
-}
-
-function MatchBadge({ status }: { status: string }) {
-  if (status === "matched") {
-    return (
-      <Badge variant="success" dot>
-        <CheckCircle2 className="h-3 w-3" />
-        Matched
-      </Badge>
-    );
-  }
-  if (status === "no_document") {
-    return (
-      <Badge variant="outline" className="whitespace-nowrap">
-        <XCircle className="h-3 w-3" />
-        No document
-      </Badge>
-    );
-  }
-  if (status === "duplicate_document") {
-    return <Badge variant="warning">Previously replaced</Badge>;
-  }
-  return (
-    <Badge variant="warning" dot>
-      Needs review
-    </Badge>
   );
 }

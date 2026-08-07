@@ -15,6 +15,8 @@ from app.presentation.api.v1.routes.health import (
     router,
 )
 
+_STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+
 
 class _HealthyDatabase:
     async def execute(self, _statement: object) -> None:
@@ -53,7 +55,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="background",
             google_api_key=None,
@@ -74,7 +76,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_complete_background_configuration_is_ready(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="background",
             google_api_key=SecretStr("configured-key"),
@@ -97,7 +99,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="development",
             processing_backend="background",
         )
@@ -120,7 +122,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             processing_backend="celery",
         )
@@ -163,7 +165,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_readiness_does_not_log_raw_database_exception(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="development",
             processing_backend="background",
         )
@@ -193,7 +195,7 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="development",
         )
         with patch(

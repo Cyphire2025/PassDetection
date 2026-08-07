@@ -33,6 +33,12 @@ _TABLES = (
     "mobile_incidents",
 )
 
+# The current model reflects later migrations. Keep the immutable foundation
+# contract pinned to the value that 0069 actually installed.
+_FOUNDATION_SERVER_DEFAULT_OVERRIDES = {
+    ("client_manager_profiles", "force_password_change"): "true",
+}
+
 
 def _load_migration():  # type: ignore[no-untyped-def]
     path = (
@@ -229,7 +235,11 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
             model_column = model_table.c[column_name]
             assert _compiled_type(migration_column) == _compiled_type(model_column)
             assert migration_column.nullable is model_column.nullable
-            assert _server_default(migration_column) == _server_default(model_column)
+            expected_default = _FOUNDATION_SERVER_DEFAULT_OVERRIDES.get(
+                (table_name, column_name),
+                _server_default(model_column),
+            )
+            assert _server_default(migration_column) == expected_default
 
         migration_constraints = {
             _constraint_signature(item)
@@ -256,6 +266,7 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
     for table_name in _TABLES:
         for index in Base.metadata.tables[table_name].indexes:
             if index.name in {
+                "ix_client_manager_admin_list",
                 "ix_mobile_session_account",
                 "ix_mobile_session_group_status_expiry",
                 "uq_mobile_otp_pending_phone",

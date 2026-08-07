@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DocumentWorkspace } from "@/features/documents/components/document-workspace";
+import { DocumentGroupDistributionChooser } from "@/features/documents/components/document-group-distribution-chooser";
 
 export const metadata: Metadata = {
   title: "Group Documents",
@@ -11,5 +11,5 @@ interface DocumentGroupPageProps {
 
 export default async function DocumentGroupPage({ params }: DocumentGroupPageProps) {
   const { groupId } = await params;
-  return <DocumentWorkspace groupId={groupId} />;
+  return <DocumentGroupDistributionChooser groupId={groupId} />;
 }

@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import PassportSubmission
+from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
@@ -27,7 +28,6 @@ from app.infrastructure.documents.distribution_capacity import (
     enforce_distribution_assignment_capacity,
 )
 from app.infrastructure.documents.document_matcher import (
-    DOCUMENT_TYPES,
     ClassifiedDocument,
     DocumentMatcher,
     MatchResult,
@@ -69,6 +69,22 @@ class TravelDocumentIngestionResult:
     created_storage_keys: tuple[str, ...] = ()
 
 
+def automatic_passenger_matches(
+    matches: list[MatchResult],
+    *,
+    allowed_passenger_ids: set[uuid.UUID] | None = None,
+) -> list[MatchResult]:
+    """Return only confirmed matches that are safe to persist as assignments."""
+
+    return [
+        match
+        for match in matches
+        if match.status == "matched"
+        and match.passenger_id is not None
+        and (allowed_passenger_ids is None or match.passenger_id in allowed_passenger_ids)
+    ]
+
+
 class TravelDocumentIngestionService:
     """Persist a document-distribution batch through the canonical matcher."""
 
@@ -104,6 +120,7 @@ class TravelDocumentIngestionService:
         reject_common_unsupported_format: bool = False,
         preclassified_documents: list[ClassifiedDocument] | None = None,
         staged_storage_keys: list[str | None] | None = None,
+        require_passenger_match: bool = False,
         before_persistence: (
             Callable[[], Awaitable[tuple[uuid.UUID | None, str | None] | None]] | None
         ) = None,
@@ -171,6 +188,7 @@ class TravelDocumentIngestionService:
             created_at=now,
             updated_at=now,
         )
+        allowed_passenger_ids = {passenger.id for passenger in passengers}
         if forced_passenger_id is None:
             match_index = await asyncio.to_thread(
                 self._matcher.build_index,
@@ -180,23 +198,42 @@ class TravelDocumentIngestionService:
                 supplemental_identifiers=supplemental_identifiers,
             )
 
-            def match_with_capacity() -> list[list[MatchResult]]:
+            def match_with_capacity() -> tuple[list[list[MatchResult]], list[str | None]]:
                 matches_by_document: list[list[MatchResult]] = []
+                rejection_reasons: list[str | None] = []
                 projected_rows = batch.uploaded_count
                 for _, classification, _ in accepted:
-                    matches = self._matcher.match_all(
+                    candidate_matches = self._matcher.match_all(
                         classification,
                         passengers,
                         index=match_index,
                     )
+                    matches = (
+                        automatic_passenger_matches(
+                            candidate_matches,
+                            allowed_passenger_ids=allowed_passenger_ids,
+                        )
+                        if require_passenger_match
+                        else candidate_matches
+                    )
+                    if require_passenger_match and not matches:
+                        rejection_reasons.append(
+                            next(
+                                (match.reason for match in candidate_matches if match.reason),
+                                "No passenger match found",
+                            )
+                        )
+                        matches_by_document.append([])
+                        continue
                     projected_rows = enforce_distribution_assignment_capacity(
                         existing_rows=projected_rows,
                         match_groups=(matches,),
                     )
                     matches_by_document.append(matches)
-                return matches_by_document
+                    rejection_reasons.append(None)
+                return matches_by_document, rejection_reasons
 
-            document_matches = await asyncio.to_thread(
+            document_matches, passenger_match_rejections = await asyncio.to_thread(
                 match_with_capacity,
             )
         else:
@@ -211,10 +248,35 @@ class TravelDocumentIngestionService:
                 ]
                 for _ in accepted
             ]
+            passenger_match_rejections = [None] * len(accepted)
             enforce_distribution_assignment_capacity(
                 existing_rows=batch.uploaded_count,
                 match_groups=document_matches,
             )
+
+        if require_passenger_match:
+            uploadable: list[tuple[TravelDocumentFile, ClassifiedDocument, str | None]] = []
+            uploadable_matches: list[list[MatchResult]] = []
+            for accepted_document, matches, rejection_reason in zip(
+                accepted,
+                document_matches,
+                passenger_match_rejections,
+                strict=True,
+            ):
+                if rejection_reason is not None:
+                    file, classification, _ = accepted_document
+                    rejected.append(
+                        RejectedTravelDocument(
+                            filename=file.filename,
+                            detected_type=classification.detected_type,
+                            reason=rejection_reason,
+                        )
+                    )
+                    continue
+                uploadable.append(accepted_document)
+                uploadable_matches.append(matches)
+            accepted = uploadable
+            document_matches = uploadable_matches
 
         documents: list[DistributedDocumentModel] = []
         uploaded_keys: list[str] = []

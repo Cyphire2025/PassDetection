@@ -728,7 +728,18 @@ def test_pdfium_native_text_is_final_and_skips_pypdf_layout_extraction(
     assert read == document_matcher_module._PdfTextRead(native_text, True)
 
 
-def test_arrival_distribution_lane_accepts_a_verified_flight_ticket(monkeypatch) -> None:
+@pytest.mark.parametrize(
+    "expected_type",
+    [
+        "flight_ticket_arrival",
+        "flight_ticket_domestic",
+        "flight_ticket_domestic_arrival",
+    ],
+)
+def test_ticket_distribution_lanes_accept_a_verified_flight_ticket(
+    monkeypatch,
+    expected_type: str,
+) -> None:
     matcher = DocumentMatcher()
     monkeypatch.setattr(
         matcher,
@@ -741,7 +752,7 @@ def test_arrival_distribution_lane_accepts_a_verified_flight_ticket(monkeypatch)
     result = matcher.classify(
         filename="return-ticket.pdf",
         content=b"%PDF-1.7\n%%EOF",
-        expected_type="flight_ticket_arrival",
+        expected_type=expected_type,
     )
 
     assert result.accepted is True
@@ -1338,6 +1349,164 @@ def test_combined_ticket_assigns_the_same_pdf_to_twenty_named_passengers() -> No
 
     assert {match.passenger_id for match in matches} == {passenger.id for passenger in passengers}
     assert {match.status for match in matches} == {"matched"}
+
+
+def test_cropped_ticket_manifest_matches_unique_names_when_middle_names_are_omitted() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passengers = [
+        _passenger(
+            name=name,
+            passport_number=passport,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
+        for name, passport in (
+            ("Aarav Devkumar Patel", "P1234567"),
+            ("Maya Priyanka Shah", "R7654321"),
+        )
+    ]
+    matcher = DocumentMatcher()
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+    document = ClassifiedDocument(
+        original_filename="return-flight-ticket.pdf",
+        detected_type="flight_ticket",
+        accepted=True,
+        reason="Accepted",
+        text=(
+            "TRAVEL ITINERARY\n"
+            "2. Passenger(s) Information\n"
+            "Passenger Name(s) Seat(s)\n"
+            "PATEL, AARAV VJ140 --\n"
+            "SHAH, MAYA VJ971 --\n"
+            "3. Flight Information\n"
+            "Flight Number Date Depart Arrive"
+        ),
+        extracted_name=None,
+        extracted_passport_number=None,
+        extracted_reference="ABC123",
+    )
+
+    matches = matcher.match_all(document, passengers, index=index)
+
+    assert {match.passenger_id for match in matches} == {passenger.id for passenger in passengers}
+    assert {match.status for match in matches} == {"matched"}
+    assert {match.confidence for match in matches} == {0.88}
+
+
+def test_cropped_ticket_manifest_shared_name_pair_fails_closed() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passengers = [
+        _passenger(
+            name=name,
+            passport_number=passport,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
+        for name, passport in (
+            ("Aarav Dev Patel", "P1234567"),
+            ("Aarav Kumar Patel", "R7654321"),
+        )
+    ]
+    matcher = DocumentMatcher()
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+    document = ClassifiedDocument(
+        original_filename="return-flight-ticket.pdf",
+        detected_type="flight_ticket",
+        accepted=True,
+        reason="Accepted",
+        text=(
+            "TRAVEL ITINERARY\n"
+            "Passenger(s) Information\n"
+            "Passenger Name(s) Seat(s)\n"
+            "PATEL, AARAV VJ140 --\n"
+            "Flight Information\n"
+            "Flight Number Date Depart Arrive"
+        ),
+        extracted_name=None,
+        extracted_passport_number=None,
+        extracted_reference="ABC123",
+    )
+
+    matches = matcher.match_all(document, passengers, index=index)
+
+    assert len(matches) == 1
+    assert matches[0].passenger_id is None
+    assert matches[0].status == "needs_review"
+
+
+def test_flattened_ticket_manifest_rows_cannot_synthesize_a_third_passenger() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passengers = [
+        _passenger(
+            name=name,
+            passport_number=passport,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
+        for name, passport in (
+            ("Aarav Devkumar Patel", "P1234567"),
+            ("Maya Priyanka Shah", "R7654321"),
+            ("Aarav Zed Shah", "T2345678"),
+        )
+    ]
+    false_passenger_id = passengers[2].id
+    matcher = DocumentMatcher()
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+    document = ClassifiedDocument(
+        original_filename="flattened-manifest.pdf",
+        detected_type="flight_ticket",
+        accepted=True,
+        reason="Accepted",
+        text=(
+            "TRAVEL ITINERARY\n"
+            "Passenger(s) Information\n"
+            "Passenger Name(s) Seat(s)\n"
+            "PATEL, AARAV SHAH, MAYA VJ140 --\n"
+            "Flight Information\n"
+            "Flight Number Date Depart Arrive"
+        ),
+        extracted_name=None,
+        extracted_passport_number=None,
+        extracted_reference="ABC123",
+    )
+
+    matches = matcher.match_all(document, passengers, index=index)
+
+    assert false_passenger_id not in {
+        match.passenger_id for match in matches if match.status == "matched"
+    }
+
+
+def test_partial_name_pair_outside_ticket_manifest_is_not_identity_evidence() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = _passenger(
+        name="Aarav Devkumar Patel",
+        passport_number="P1234567",
+        agency_id=agency_id,
+        group_id=group_id,
+    )
+    matcher = DocumentMatcher()
+    index = matcher.build_index([passenger], agency_id=agency_id, group_id=group_id)
+    document = ClassifiedDocument(
+        original_filename="return-flight-ticket.pdf",
+        detected_type="flight_ticket",
+        accepted=True,
+        reason="Accepted",
+        text="Travel agent contact: Patel, Aarav. Booking reference ABC123.",
+        extracted_name=None,
+        extracted_passport_number=None,
+        extracted_reference="ABC123",
+    )
+
+    matches = matcher.match_all(document, [passenger], index=index)
+
+    assert len(matches) == 1
+    assert matches[0].passenger_id is None
+    assert matches[0].status == "needs_review"
 
 
 def test_combined_passports_with_conflicting_third_name_require_review() -> None:

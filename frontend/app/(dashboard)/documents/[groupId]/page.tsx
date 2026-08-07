@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { DocumentWorkspace } from "@/features/documents/components/document-workspace";
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 
 export const metadata: Metadata = {
   title: "Group Documents",
@@ -11,5 +12,5 @@ interface DocumentGroupPageProps {
 
 export default async function DocumentGroupPage({ params }: DocumentGroupPageProps) {
   const { groupId } = await params;
-  return <DocumentWorkspace groupId={groupId} />;
+  redirect(ROUTES.dashboard.documentGroup(groupId) as never);
 }

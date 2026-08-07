@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,12 +25,46 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
-import { useDocumentGroups } from "../hooks/use-document-distribution";
+import { useDebounce } from "@/hooks/use-debounce";
+import type { DocumentDistributionCategory } from "../config/document-distribution-lanes";
+import {
+  useDocumentGroupSearch,
+  useDocumentGroups,
+} from "../hooks/use-document-distribution";
 
-export function DocumentGroupList() {
+const GROUP_LIST_COPY = {
+  visa: {
+    eyebrow: "Visa distribution",
+    title: "Choose a Visa Group",
+    description:
+      "Search by group, destination, or passenger, then open the group visa workspace.",
+    heading: "Open a visa workspace",
+    action: "Open Visa Documents",
+  },
+  flight_tickets: {
+    eyebrow: "Flight-ticket distribution",
+    title: "Choose a Flight-Ticket Group",
+    description:
+      "Search by group, destination, or passenger, then choose International or Domestic Onward and Return tickets.",
+    heading: "Open a flight-ticket workspace",
+    action: "Open Flight Tickets",
+  },
+} as const;
+
+export function DocumentGroupList({
+  category,
+}: {
+  category: DocumentDistributionCategory;
+}) {
+  const copy = GROUP_LIST_COPY[category];
   const { data: groups = [], isLoading, error } = useDocumentGroups();
   const [query, setQuery] = useState("");
-  const deferredQuery = useDeferredValue(query);
+  const debouncedQuery = useDebounce(query, 300);
+  const normalizedQuery = debouncedQuery.trim();
+  const groupSearch = useDocumentGroupSearch(
+    normalizedQuery,
+    Boolean(normalizedQuery),
+  );
 
   const summary = useMemo(
     () => groups.reduce(
@@ -45,21 +79,18 @@ export function DocumentGroupList() {
   );
 
   const filteredGroups = useMemo(() => {
-    const normalized = deferredQuery.trim().toLocaleLowerCase();
-    if (!normalized) return groups;
-    return groups.filter((group) =>
-      `${group.group_name} ${group.destination ?? ""}`
-        .toLocaleLowerCase()
-        .includes(normalized),
-    );
-  }, [deferredQuery, groups]);
+    if (!normalizedQuery) return groups;
+    return groupSearch.data ?? [];
+  }, [groupSearch.data, groups, normalizedQuery]);
+  const listLoading = isLoading || (Boolean(normalizedQuery) && groupSearch.isLoading);
+  const listError = error ?? groupSearch.error;
 
   return (
     <div className="flex flex-col gap-5">
       <WorkspacePageHeader
-        eyebrow="Passenger document delivery"
-        title="Document Distribution"
-        description="Choose a group, upload reviewed visas or tickets, verify every passenger match, and keep delivery readiness visible before anything is sent."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         icon={FileStack}
         accent="cyan"
         context={(
@@ -74,16 +105,16 @@ export function DocumentGroupList() {
         )}
         actions={(
           <IntentPrefetchLink
-            href={ROUTES.dashboard.documents}
+            href={ROUTES.dashboard.documentDistribution}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Document Hub
+            Distribution Home
           </IntentPrefetchLink>
         )}
       />
 
-      {error && (
+      {listError && (
         <WorkspaceErrorNotice>
           Distribution groups could not be refreshed. Return to the Document Hub or try this view again.
         </WorkspaceErrorNotice>
@@ -135,7 +166,7 @@ export function DocumentGroupList() {
             Group selection
           </p>
           <h2 id="distribution-groups-heading" className="mt-0.5 font-semibold text-slate-950">
-            Open a document workspace
+            {copy.heading}
           </h2>
         </div>
 
@@ -143,11 +174,15 @@ export function DocumentGroupList() {
           query={query}
           onQueryChange={setQuery}
           searchLabel="Search document distribution groups"
-          placeholder="Search by group or destination"
-          resultLabel={`${filteredGroups.length.toLocaleString()} groups`}
+          placeholder="Search by group, destination, or passenger"
+          resultLabel={
+            normalizedQuery && groupSearch.isFetching
+              ? "Searching groups and passengers..."
+              : `${filteredGroups.length.toLocaleString()} groups`
+          }
         />
 
-        {isLoading ? (
+        {listLoading ? (
           <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
               <Skeleton key={index} className="h-44 rounded-xl" />
@@ -162,7 +197,7 @@ export function DocumentGroupList() {
           <WorkspaceEmptyState
             filtered
             title="No distribution groups match this search"
-            description="Search by the group name or destination, or clear the search to return to every available workspace."
+            description="Search by group name, destination, or passenger name, or clear the search to return to every available workspace."
           />
         ) : (
           <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
@@ -193,7 +228,7 @@ export function DocumentGroupList() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Travel/Departure</dt>
+                    <dt className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Travel date</dt>
                     <dd className="mt-1 truncate font-medium text-slate-800">
                       {group.travel_date || "Not set"}
                     </dd>
@@ -201,11 +236,13 @@ export function DocumentGroupList() {
                 </dl>
 
                 <IntentPrefetchLink
-                  href={ROUTES.dashboard.documentGroup(group.group_id)}
+                  href={category === "visa"
+                    ? ROUTES.dashboard.documentDistributionVisaGroup(group.group_id)
+                    : ROUTES.dashboard.documentDistributionFlightGroup(group.group_id)}
                   className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
                 >
                   <FolderOpen className="h-4 w-4" aria-hidden="true" />
-                  Open Documents
+                  {copy.action}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </IntentPrefetchLink>
               </article>

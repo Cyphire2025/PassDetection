@@ -37,6 +37,18 @@ export const ROUTES = {
     documents: "/documents",
     documentRename: "/documents/rename",
     documentDistribution: "/documents/distribution",
+    documentDistributionVisa: "/documents/distribution/visa",
+    documentDistributionVisaGroup: (groupId: string) =>
+      `/documents/distribution/visa/${groupId}`,
+    documentDistributionFlightTickets: "/documents/distribution/flight-tickets",
+    documentDistributionFlightGroup: (groupId: string) =>
+      `/documents/distribution/flight-tickets/${groupId}`,
+    documentDistributionFlightLane: (
+      groupId: string,
+      scope: "international" | "domestic",
+      leg: "onward" | "return",
+    ) => `/documents/distribution/flight-tickets/${groupId}/${scope}/${leg}`,
+    // Backwards-compatible group entry for notifications and linked workflows.
     documentGroup: (groupId: string) => `/documents/distribution/${groupId}`,
     tourOperations: "/tour-operations",
     tourOperationsCoordinators: "/tour-operations/coordinators",

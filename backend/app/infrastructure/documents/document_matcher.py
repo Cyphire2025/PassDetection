@@ -18,6 +18,14 @@ from app.domain.value_objects.personnel_codes import (
     prefixed_agent_employee_code,
     prefixed_staff_code,
 )
+from app.domain.value_objects.travel_document_taxonomy import (
+    DOCUMENT_TYPES,
+    classification_document_type,
+    document_type_label,
+)
+from app.domain.value_objects.travel_document_taxonomy import (
+    SUPPORTED_TRAVEL_DOCUMENT_TYPES as SUPPORTED_TRAVEL_DOCUMENT_TYPES,
+)
 
 try:
     from pypdf import PdfReader
@@ -29,9 +37,6 @@ try:
 except ImportError:  # pragma: no cover - keeps local tooling usable until deps are installed
     pypdfium2 = None
 
-
-DOCUMENT_TYPES = {"visa", "flight_ticket", "flight_ticket_arrival", "other"}
-SUPPORTED_TRAVEL_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
 
 MAX_PDF_PAGES_TO_INSPECT = 200
 MAX_PDF_TEXT_LAYER_PAGES = 200
@@ -52,14 +57,6 @@ MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS = 72_000
 MAX_NAME_TOKENS = 8
 MAX_FUZZY_CANDIDATES = 32
 PDF_OCR_RETRY_REASON = "PDF OCR exceeded the temporary processing budget"
-
-
-def classification_document_type(document_type: str) -> str:
-    """Map a distribution lane to the document class visible inside the PDF."""
-
-    return {
-        "flight_ticket_arrival": "flight_ticket",
-    }.get(document_type, document_type)
 
 
 VISA_CORE_TERMS = (
@@ -374,6 +371,7 @@ class DocumentMatchIndex:
     passports: dict[str, tuple[uuid.UUID, ...]]
     names: dict[tuple[str, ...], tuple[uuid.UUID, ...]]
     compact_names: dict[str, tuple[uuid.UUID, ...]]
+    partial_name_pairs: dict[tuple[str, ...], tuple[uuid.UUID, ...]]
     identifiers: dict[str, tuple[_IdentifierOwner, ...]]
     name_token_passengers: dict[str, tuple[uuid.UUID, ...]]
     name_lengths: tuple[int, ...]
@@ -594,6 +592,7 @@ class DocumentMatcher:
         passport_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
         name_owners: dict[tuple[str, ...], set[uuid.UUID]] = defaultdict(set)
         compact_name_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
+        partial_name_pair_owners: dict[tuple[str, ...], set[uuid.UUID]] = defaultdict(set)
         identifier_owners: dict[str, set[_IdentifierOwner]] = defaultdict(set)
         name_token_owners: dict[str, set[uuid.UUID]] = defaultdict(set)
         profiles: dict[uuid.UUID, _PassengerProfile] = {}
@@ -607,6 +606,8 @@ class DocumentMatcher:
                 name_owners[name].add(passenger_id)
                 for alias in self._compact_name_aliases(name):
                     compact_name_owners[alias].add(passenger_id)
+                for alias in self._partial_name_pair_aliases(name):
+                    partial_name_pair_owners[alias].add(passenger_id)
                 for token in set(name):
                     if token not in _NAME_NOISE_TOKENS and len(token) > 1:
                         name_token_owners[token].add(passenger_id)
@@ -693,6 +694,7 @@ class DocumentMatcher:
             passports=self._freeze_uuid_index(passport_owners),
             names=self._freeze_name_index(name_owners),
             compact_names=self._freeze_uuid_index(compact_name_owners),
+            partial_name_pairs=self._freeze_name_index(partial_name_pair_owners),
             identifiers={
                 value: tuple(
                     sorted(
@@ -847,6 +849,24 @@ class DocumentMatcher:
             reason="PDF text exact passenger name uniquely matched",
             ambiguity_reason="PDF text passenger name matches multiple passengers",
         )
+        if document.detected_type == "flight_ticket":
+            partial_name_matches = self._resolve_ticket_manifest_partial_names(
+                document.text,
+                prepared,
+            )
+            if partial_name_matches:
+                matches_by_id = {
+                    match.passenger_id: match
+                    for match in name_matches
+                    if match.passenger_id is not None
+                }
+                for match in partial_name_matches:
+                    if match.passenger_id is not None:
+                        matches_by_id.setdefault(match.passenger_id, match)
+                name_matches = [
+                    matches_by_id[passenger_id]
+                    for passenger_id in sorted(matches_by_id, key=str)
+                ]
         if ambiguity is not None:
             content_ambiguities.append(ambiguity)
         if name_matches:
@@ -1947,6 +1967,96 @@ class DocumentMatcher:
                     aliases.add(compact)
         return aliases
 
+    def _partial_name_pair_aliases(self, name: tuple[str, ...]) -> set[tuple[str, ...]]:
+        """Index unique two-token fallbacks for shortened airline manifests.
+
+        Airlines often omit a middle name from the compact passenger list even
+        though the operations roster keeps the complete passport name. Exact
+        and compact full-name matching remain authoritative. These pairs are
+        used only inside an explicitly labelled passenger-information section,
+        and a pair is eligible only when it belongs to one scoped passenger.
+        """
+
+        tokens = tuple(
+            dict.fromkeys(
+                token
+                for token in name[:MAX_NAME_TOKENS]
+                if token not in _NAME_NOISE_TOKENS
+                and len(token) > 1
+                and not any(character.isdigit() for character in token)
+            )
+        )
+        if len(tokens) < 3:
+            return set()
+        return {
+            tuple(sorted((tokens[left], tokens[right])))
+            for left in range(len(tokens) - 1)
+            for right in range(left + 1, len(tokens))
+            if len(tokens[left]) + len(tokens[right]) >= 7
+        }
+
+    def _resolve_ticket_manifest_partial_names(
+        self,
+        text: str,
+        index: DocumentMatchIndex,
+    ) -> list[MatchResult]:
+        """Resolve shortened names only inside a ticket passenger manifest."""
+
+        matched_ids: set[uuid.UUID] = set()
+        for line in self._ticket_passenger_manifest_lines(text):
+            words = [
+                word
+                for word in self._name_words(line)
+                if word not in _NAME_NOISE_TOKENS
+                and len(word) > 1
+                and not any(character.isdigit() for character in word)
+            ]
+            # This fallback exists only for the common ``SURNAME, GIVEN`` row
+            # where an airline omits the roster's middle name. Requiring one
+            # comma and exactly two name tokens prevents flattened OCR/table
+            # lines from combining adjacent passengers into a third identity.
+            if line.count(",") != 1 or len(words) != 2:
+                continue
+            pair = tuple(sorted(words))
+            owners = index.partial_name_pairs.get(pair, ())
+            if len(owners) == 1:
+                matched_ids.add(owners[0])
+        return [
+            MatchResult(
+                passenger_id,
+                0.88,
+                "matched",
+                "PDF passenger manifest uniquely matched a shortened passenger name",
+            )
+            for passenger_id in sorted(matched_ids, key=str)
+        ]
+
+    def _ticket_passenger_manifest_lines(self, text: str) -> tuple[str, ...]:
+        lines = self._text_lines(text)
+        manifest_lines: list[str] = []
+        in_manifest = False
+        for line in lines:
+            normalized = self._normalize(line)
+            is_manifest_heading = bool(
+                re.search(r"\bpassenger(?:\s+s)?\s+information\b", normalized)
+                or ("passenger" in normalized and "name" in normalized)
+            )
+            if not in_manifest:
+                if is_manifest_heading:
+                    in_manifest = True
+                continue
+            if re.search(
+                r"\b(?:flight|fare|payment|contact)\s+information\b",
+                normalized,
+            ):
+                break
+            if is_manifest_heading or normalized in {"seat", "seats"}:
+                continue
+            manifest_lines.append(line)
+            if len(manifest_lines) >= 1_000:
+                break
+        return tuple(manifest_lines)
+
     def _compact_name_value(self, tokens: Iterable[str]) -> str:
         # Callers pass tokens produced by `_name_words`, so they are already
         # normalized and contain no separators. Avoid regex work in the bounded
@@ -2169,9 +2279,6 @@ class DocumentMatcher:
         return " ".join(re.findall(r"[^\W_]+", compatible, flags=re.UNICODE))
 
     def _label(self, value: str) -> str:
-        return {
-            "visa": "visa",
-            "flight_ticket": "flight ticket",
-            "flight_ticket_arrival": "arrival flight ticket",
-            "passport": "passport",
-        }.get(value, value)
+        if value == "passport":
+            return "passport"
+        return document_type_label(value).casefold()

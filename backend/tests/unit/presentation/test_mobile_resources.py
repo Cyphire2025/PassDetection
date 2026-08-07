@@ -14,8 +14,10 @@ from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.storage.minio_repository import ObjectIntegrityMetadata
 from app.presentation.api.v1.routes.mobile_resources import (
     _coordinator_roster_revision,
+    _distributed_document_source,
     _materialize_personal_document_metadata,
     _mobile_announcement_priority,
+    _mobile_document_category,
     _mobile_document_range_start,
     _mobile_manifest_versions,
     _mobile_meal_preference,
@@ -55,6 +57,29 @@ def _claims(role: str = "passenger") -> MobileAccessClaims:
         password_change_required=False,
         expires_at=datetime.now(tz=UTC) + timedelta(minutes=10),
     )
+
+
+def test_mobile_resources_project_domestic_lanes_as_flight_tickets() -> None:
+    assert _mobile_document_category("flight_ticket_domestic") == "flight_ticket"
+    assert _mobile_document_category("flight_ticket_domestic_arrival") == "flight_ticket"
+
+
+def test_mobile_resource_keeps_lane_specific_ticket_display_name() -> None:
+    source = _distributed_document_source(
+        SimpleNamespace(
+            id=uuid.uuid4(),
+            document_type="flight_ticket_domestic_arrival",
+            original_filename="return.pdf",
+            content_type="application/pdf",
+            storage_key="documents/return.pdf",
+            updated_at=datetime.now(tz=UTC),
+        ),
+        uuid.uuid4(),
+        uuid.uuid4(),
+    )
+
+    assert source.category == "flight_ticket"
+    assert source.display_name == "Domestic Return Flight Ticket"
 
 
 def test_mobile_resource_routes_are_compact_and_bounded() -> None:

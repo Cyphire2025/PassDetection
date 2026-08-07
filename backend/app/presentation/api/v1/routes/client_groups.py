@@ -91,6 +91,7 @@ from app.infrastructure.database.models import (
     PassportProcessingJobModel,
     PassportRosterResolutionModel,
     PassportSubmissionModel,
+    PlatformSettingModel,
     QualifierSelectionModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
@@ -158,6 +159,14 @@ from app.presentation.dependencies.auth import (
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
+
+_CLIENT_GROUP_CREATION_ROLES = {
+    UserRole.SUPER_ADMIN,
+    UserRole.AGENCY_ADMIN,
+    UserRole.AGENCY_MANAGER,
+    UserRole.AGENCY_STAFF,
+}
+_PLATFORM_SETTINGS_KEY = "global"
 
 
 # ── Dependency Factories ──────────────────────────────────────────────────
@@ -481,6 +490,29 @@ async def _replace_whatsapp_links(
     return summaries, previous_ids, changed
 
 
+async def _require_client_group_creation_access(
+    user: User,
+    session: AsyncSession,
+) -> None:
+    """Apply the server-authoritative role and manager feature policy."""
+
+    if user.role not in _CLIENT_GROUP_CREATION_ROLES:
+        raise AuthorizationError("This account cannot create upload links")
+    if user.role != UserRole.AGENCY_MANAGER:
+        return
+
+    result = await session.execute(
+        select(PlatformSettingModel.value).where(
+            PlatformSettingModel.key == _PLATFORM_SETTINGS_KEY
+        )
+    )
+    values = result.scalar_one_or_none() or {}
+    if values.get("allow_manager_group_creation", True) is not True:
+        raise AuthorizationError(
+            "Manager upload-link creation is disabled by platform settings"
+        )
+
+
 async def _require_managed_group(
     session: AsyncSession,
     current_user: User,
@@ -649,6 +681,8 @@ async def create_client_group(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User must be associated with an agency to create upload links.",
         )
+
+    await _require_client_group_creation_access(current_user, session)
 
     if request.whatsapp_broadcast_group_ids:
         _require_whatsapp_broadcast_access(current_user)

@@ -15,10 +15,12 @@ from app.infrastructure.email.readiness import (
     email_runtime_readiness,
 )
 
+_STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+
 
 def _settings(**overrides: object) -> Settings:
     values: dict[str, object] = {
-        "app_secret_key": "unit-test-secret",
+        "app_secret_key": _STRONG_APP_SECRET,
         "app_env": "production",
         "processing_backend": "celery",
         "email_integrations_enabled": True,

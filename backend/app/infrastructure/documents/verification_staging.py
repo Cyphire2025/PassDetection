@@ -16,7 +16,8 @@ from cryptography.fernet import Fernet, InvalidToken
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
-from app.infrastructure.documents.document_matcher import DOCUMENT_TYPES, ClassifiedDocument
+from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
+from app.infrastructure.documents.document_matcher import ClassifiedDocument
 from app.infrastructure.documents.storage_cleanup import persist_storage_cleanup_job
 from app.infrastructure.documents.storage_transfers import (
     finish_cleanup_despite_cancellation,

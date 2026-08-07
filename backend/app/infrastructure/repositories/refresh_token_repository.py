@@ -69,6 +69,36 @@ class RefreshTokenRepository:
         )
         return result.scalar_one_or_none()
 
+    async def consume_valid_token(self, token: str) -> RefreshTokenModel | None:
+        """Atomically revoke and return one currently valid refresh token.
+
+        The validity predicates are part of the ``UPDATE`` itself. Concurrent
+        refresh requests therefore cannot both claim the same token: after the
+        first transaction updates the row, later contenders re-check the
+        predicates and receive no row from ``RETURNING``.
+
+        Both hashed and legacy plaintext rows remain readable during the
+        existing compatibility window.
+        """
+
+        now = datetime.now(tz=UTC)
+        hashed = hash_refresh_token(token)
+        result = await self._session.execute(
+            update(RefreshTokenModel)
+            .where(
+                RefreshTokenModel.token.in_([hashed, token]),
+                RefreshTokenModel.is_revoked.is_(False),
+                RefreshTokenModel.expires_at > now,
+            )
+            .values(is_revoked=True, revoked_at=now)
+            .returning(RefreshTokenModel)
+            .execution_options(synchronize_session=False)
+        )
+        consumed = result.scalar_one_or_none()
+        if consumed is not None:
+            logger.info("refresh_token_consumed", user_id=str(consumed.user_id))
+        return consumed
+
     async def revoke(self, token: str) -> None:
         """Revoke a single refresh token (logout from one device)."""
         hashed = hash_refresh_token(token)

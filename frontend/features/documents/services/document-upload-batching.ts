@@ -5,7 +5,10 @@ export const MAX_DOCUMENT_SELECTION_BYTES = 2 * 1024 * 1024 * 1024;
 export const MAX_DOCUMENT_CHUNK_FILES = 50;
 export const TARGET_DOCUMENT_CHUNK_BYTES = 24 * 1024 * 1024;
 export const MAX_DOCUMENT_RECEIPT_CHUNK_BYTES = 8 * 1024 * 1024;
-export const MAX_DOCUMENT_VERIFICATION_CHUNK_FILES = 8;
+// Two isolated parser workers can process eight 10-second waves inside the
+// backend's 90-second hard batch envelope. Keep the byte cap independent so
+// larger PDFs retain the existing memory and request-size bounds.
+export const MAX_DOCUMENT_VERIFICATION_CHUNK_FILES = 16;
 export const TARGET_DOCUMENT_VERIFICATION_CHUNK_BYTES = 8 * 1024 * 1024;
 export const MAX_DOCUMENT_VERIFICATION_CONCURRENCY = 1;
 
@@ -25,6 +28,23 @@ export interface DocumentUploadProgress {
   totalFiles: number;
   chunkNumber: number;
   chunkCount: number;
+}
+
+export interface PassengerMatchedVerificationCandidate {
+  accepted: boolean;
+  matched_passenger_id: string | null;
+  matched_passenger_ids: string[];
+  match_status: string | null;
+}
+
+export function isPassengerMatchedVerificationFile(
+  file: PassengerMatchedVerificationCandidate,
+): boolean {
+  return (
+    file.accepted &&
+    file.match_status === "matched" &&
+    (Boolean(file.matched_passenger_id) || file.matched_passenger_ids.length > 0)
+  );
 }
 
 interface RunChunkedUploadOptions<T> {
@@ -121,7 +141,8 @@ function createDocumentUploadSessionWithLimits(
  * Verification is intentionally separate from finalization: final document
  * writes retain their sequential, resumable commit order. Verification chunks
  * are also submitted sequentially because each backend batch already runs two
- * isolated parser processes; overlapping HTTP chunks would otherwise create
+ * isolated parser processes. Sixteen files is the largest chunk that fits the
+ * backend's eight parser waves; overlapping HTTP chunks would otherwise create
  * four simultaneous Tesseract processes and make image-only PDFs time out.
  * Every
  * in-flight request is drained before an error is returned, so successful

@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge, buttonVariants, Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
+import { distributionDocumentLabel } from "@/features/documents/config/document-distribution-lanes";
 import { useDocumentDeliveryTracking } from "@/features/documents/hooks/use-document-distribution";
 import { formatDateTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
@@ -32,7 +33,7 @@ export function GroupDocumentDeliveryPanel({ groupId }: { groupId: string }) {
             <div>
               <h2 className="text-base font-semibold text-slate-900">Document delivery tracking</h2>
               <p className="mt-1 text-sm text-slate-600">
-                Visa, departure-ticket, and arrival-ticket WhatsApp delivery status for this group.
+                Visa and International or Domestic Onward/Return ticket WhatsApp delivery status for this group.
               </p>
             </div>
           </div>
@@ -127,8 +128,5 @@ function DeliveryTrackingBadge({ status }: { status: string }) {
 }
 
 function documentLabel(documentType: string): string {
-  if (documentType === "visa") return "Visa";
-  if (documentType === "flight_ticket") return "Departure Ticket";
-  if (documentType === "flight_ticket_arrival") return "Arrival Ticket";
-  return "Travel Document";
+  return distributionDocumentLabel(documentType);
 }

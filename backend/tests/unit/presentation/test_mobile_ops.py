@@ -15,6 +15,7 @@ from app.core.security.mobile_jwt import MobileAccessClaims
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.presentation.api.v1.routes.mobile_ops import (
+    _MANAGER_PREVIEW_DATABASE_TYPES,
     _PUSH_ONLY_NOTIFICATION_TYPES,
     _accessible_group_ids,
     _attendance_rejection_code,
@@ -23,6 +24,7 @@ from app.presentation.api.v1.routes.mobile_ops import (
     _attendance_replay_state_from_snapshot,
     _attendance_sessions_for_actions,
     _AttendanceReplaySnapshot,
+    _coordinator_document_category,
     _PreparedAttendanceAction,
     _push_fernet,
     _require_client_manager_trip,
@@ -67,6 +69,15 @@ def _action(*, event_id: uuid.UUID | None = None) -> MobileAttendanceActionInput
         scanned_at=datetime.now(tz=UTC),
         source="qr",
     )
+
+
+def test_mobile_ops_projects_domestic_lanes_as_flight_tickets() -> None:
+    manager_types = _MANAGER_PREVIEW_DATABASE_TYPES["flight_ticket"]
+
+    assert "flight_ticket_domestic" in manager_types
+    assert "flight_ticket_domestic_arrival" in manager_types
+    assert _coordinator_document_category("flight_ticket_domestic") == "flight_ticket"
+    assert _coordinator_document_category("flight_ticket_domestic_arrival") == "flight_ticket"
 
 
 def test_mobile_ops_routes_match_native_client_contract() -> None:

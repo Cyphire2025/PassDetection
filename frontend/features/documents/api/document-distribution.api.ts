@@ -15,6 +15,7 @@ import {
   createAcceptedDocumentUploadSession,
   createDocumentUploadSession,
   createDocumentVerificationSession,
+  isPassengerMatchedVerificationFile,
   MAX_DOCUMENT_VERIFICATION_CONCURRENCY,
   runConcurrentDocumentVerification,
   runChunkedDocumentUpload,
@@ -28,8 +29,11 @@ export interface DocumentVerificationUploadPlan {
 }
 
 export const documentDistributionApi = {
-  listGroups: async (): Promise<DocumentDistributionGroup[]> => {
-    const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups);
+  listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {
+    const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups, {
+      params: search?.trim() ? { search: search.trim() } : undefined,
+      signal,
+    });
     return data;
   },
 
@@ -66,28 +70,47 @@ export const documentDistributionApi = {
         return data;
       },
     });
+    const normalizedResults = completedResults.map((result) => {
+      const verifiedFiles = result.files.map((file) => {
+        const accepted = isPassengerMatchedVerificationFile(file);
+        if (accepted === file.accepted) return file;
+        return {
+          ...file,
+          accepted,
+          reason: file.match_reason || "No passenger match found",
+          staging_receipt: null,
+        };
+      });
+      const acceptedCount = verifiedFiles.filter((file) => file.accepted).length;
+      return {
+        ...result,
+        accepted_count: acceptedCount,
+        rejected_count: verifiedFiles.length - acceptedCount,
+        files: verifiedFiles,
+      };
+    });
     const uploadSession = createAcceptedDocumentUploadSession(
       session,
-      completedResults.map((result) => result.files.map((file) => file.accepted)),
+      normalizedResults.map((result) => result.files.map((file) => file.accepted)),
     );
     return {
       uploadSession,
       verification: {
         group_id: groupId,
         document_type: documentType,
-        total_count: completedResults.reduce(
+        total_count: normalizedResults.reduce(
           (total, result) => total + result.total_count,
           0,
         ),
-        accepted_count: completedResults.reduce(
+        accepted_count: normalizedResults.reduce(
           (total, result) => total + result.accepted_count,
           0,
         ),
-        rejected_count: completedResults.reduce(
+        rejected_count: normalizedResults.reduce(
           (total, result) => total + result.rejected_count,
           0,
         ),
-        files: completedResults.flatMap((result) => result.files),
+        files: normalizedResults.flatMap((result) => result.files),
       },
     };
   },

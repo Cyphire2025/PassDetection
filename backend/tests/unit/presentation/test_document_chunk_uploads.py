@@ -187,6 +187,16 @@ async def test_distribution_scope_lock_is_stable_and_precedes_upload_lock() -> N
         group_id=group_id,
         document_type="flight_ticket_arrival",
     )
+    assert lock_key != document_upload_scope_advisory_lock_key(
+        agency_id=agency_id,
+        group_id=group_id,
+        document_type="flight_ticket_domestic",
+    )
+    assert lock_key != document_upload_scope_advisory_lock_key(
+        agency_id=agency_id,
+        group_id=group_id,
+        document_type="flight_ticket_domestic_arrival",
+    )
     assert "pg_advisory_xact_lock" in str(session.execute.await_args.args[0])
 
     source = py_inspect.getsource(upload_documents)
@@ -401,6 +411,10 @@ def test_database_constraints_fence_concurrent_chunk_index_and_manifest_shape() 
     ]
     assert "accepted_count + rejected_count = file_count" in constraints[
         "ck_document_upload_chunks_result_counts"
+    ]
+    assert "flight_ticket_domestic" in constraints["ck_document_upload_chunks_scope"]
+    assert "flight_ticket_domestic_arrival" in constraints[
+        "ck_document_upload_chunks_scope"
     ]
 
 

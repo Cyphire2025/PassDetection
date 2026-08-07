@@ -78,16 +78,27 @@ docker compose exec backend alembic upgrade head
 
 ### 4. Seed the first super admin
 
+Set the required email and password in your shell, then pass them into the backend container:
+
 ```bash
-docker compose exec backend python scripts/seed_admin.py
+export ADMIN_EMAIL="owner@example.com"
+read -r -s -p "Admin password: " ADMIN_PASSWORD
+printf '\n'
+export ADMIN_FULL_NAME="Platform Owner"
+
+docker compose exec \
+  -e ADMIN_EMAIL="$ADMIN_EMAIL" \
+  -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+  -e ADMIN_FULL_NAME="$ADMIN_FULL_NAME" \
+  backend python scripts/seed_admin.py
 ```
 
-Default credentials created by the script:
-
-- Email: `admin@passdetection.com`
-- Password: `Admin@1234!`
-
-Override them with `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_FULL_NAME` when needed.
+`ADMIN_EMAIL` and `ADMIN_PASSWORD` are required; replace the email/name examples and choose a
+unique password when prompted because the script has no default credentials. Email syntax and the
+shared password policy (at least 10 characters, including uppercase, lowercase, and a number) are
+validated before application settings or the database are loaded. `ADMIN_FULL_NAME` is optional
+and defaults to `Super Admin`. Re-running the command with the same normalized email is safe: the
+existing account is left unchanged.
 
 ### 5. Docker hot-reload mode
 

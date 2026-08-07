@@ -332,6 +332,9 @@ class PassportExcelExporter:
         worksheet.append(headers)
         header_row = 4
         for cell in worksheet[header_row]:
+            # Dynamic labels are intentionally preserved verbatim, but must be
+            # stored as text so formula-leading values cannot execute on open.
+            cell.data_type = "s"
             cell.font = Font(bold=True, color="FFFFFF")
             cell.fill = PatternFill("solid", fgColor="1D4ED8")
             cell.alignment = Alignment(horizontal="center")

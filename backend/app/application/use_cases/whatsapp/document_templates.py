@@ -4,30 +4,22 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from app.domain.value_objects.travel_document_taxonomy import (
+    TRAVEL_DOCUMENT_LANES,
+    default_document_message,
+    document_type_label,
+)
+
 DOCUMENT_DEFAULT_MESSAGE_CONTENT = {
-    "visa": "This is your attached VISA",
-    "flight_ticket": "This is your attached DEPARTURE FLIGHT TICKET",
-    "flight_ticket_arrival": "This is your attached ARRIVAL FLIGHT TICKET",
-    "other": "This is your attached TRAVEL DOCUMENT",
+    document_type: lane.default_message_content
+    for document_type, lane in TRAVEL_DOCUMENT_LANES.items()
 }
 DOCUMENT_DEFAULT_REVIEW_CONTENT = "Kindly cross check all your details"
 
 
-def document_type_label(document_type: str) -> str:
-    return {
-        "visa": "Visa",
-        "flight_ticket": "Departure Flight Ticket",
-        "flight_ticket_arrival": "Arrival Flight Ticket",
-        "other": "Travel Document",
-    }.get(document_type, "Travel Document")
-
-
 def default_document_message_content(document_type: str) -> tuple[str, str]:
     return (
-        DOCUMENT_DEFAULT_MESSAGE_CONTENT.get(
-            document_type,
-            DOCUMENT_DEFAULT_MESSAGE_CONTENT["other"],
-        ),
+        default_document_message(document_type),
         DOCUMENT_DEFAULT_REVIEW_CONTENT,
     )
 

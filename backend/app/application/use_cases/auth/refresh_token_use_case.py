@@ -55,8 +55,12 @@ class RefreshTokenUseCase:
             await self._token_repo.revoke(dto.refresh_token)
             raise AuthenticationError("This account cannot access the dashboard")
 
-        # 3. Revoke the used refresh token (rotation)
-        await self._token_repo.revoke(dto.refresh_token)
+        # 3. Atomically claim the used refresh token. A concurrent request may
+        # have consumed it after the initial lookup while the user was loaded.
+        consumed_token = await self._token_repo.consume_valid_token(dto.refresh_token)
+        if not consumed_token:
+            logger.warning("refresh_token_already_consumed")
+            raise TokenExpiredError()
 
         # 4. Issue new token pair
         access_token, access_expires = create_access_token(

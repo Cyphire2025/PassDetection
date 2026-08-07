@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { AxiosError, isAxiosError } from "axios";
 import {
   AlertCircle,
@@ -66,12 +67,25 @@ import {
   isTransientExtractionPollError,
   nextExtractionPollDelay,
 } from "./extraction-polling";
-import { PassportManualCrop } from "./passport-manual-crop";
-import { SmartCamera } from "./smart-camera";
-import { VisaPhotoUpload } from "./visa-photo-upload";
-import { VisaSelfieCamera } from "./visa-selfie-camera";
 import { RelationQualifierStep } from "./relation-qualifier-step";
 import { ProtectedUploadDocumentImage } from "./protected-upload-document-image";
+
+const PassportManualCrop = dynamic(
+  () => import("./passport-manual-crop").then((module) => module.PassportManualCrop),
+  { loading: () => <CenteredLoader /> },
+);
+const SmartCamera = dynamic(
+  () => import("./smart-camera").then((module) => module.SmartCamera),
+  { loading: () => <CenteredLoader /> },
+);
+const VisaPhotoUpload = dynamic(
+  () => import("./visa-photo-upload").then((module) => module.VisaPhotoUpload),
+  { loading: () => <CenteredLoader /> },
+);
+const VisaSelfieCamera = dynamic(
+  () => import("./visa-selfie-camera").then((module) => module.VisaSelfieCamera),
+  { loading: () => <CenteredLoader /> },
+);
 
 interface UploadFlowProps {
   token: string;

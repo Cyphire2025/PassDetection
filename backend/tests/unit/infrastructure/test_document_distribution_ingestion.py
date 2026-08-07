@@ -151,6 +151,73 @@ async def test_multiple_documents_for_one_passenger_are_all_preserved() -> None:
     assert len(result.created_storage_keys) == 2
 
 
+async def test_dashboard_ingestion_rejects_a_verified_pdf_without_a_passenger_match() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passenger = SimpleNamespace(id=uuid.uuid4())
+    session = MagicMock()
+    session.add = MagicMock()
+    session.flush = AsyncMock()
+    matcher = MagicMock()
+    matcher.build_index.return_value = MagicMock()
+    matcher.match_all.return_value = [
+        MatchResult(
+            passenger_id=None,
+            confidence=0.0,
+            status="needs_review",
+            reason="No passenger match found",
+        )
+    ]
+    storage = MagicMock()
+    storage.upload_file = AsyncMock()
+    storage.copy_file = AsyncMock()
+    audit_repository = MagicMock()
+    audit_repository.record = AsyncMock()
+
+    with patch(
+        "app.infrastructure.documents.distribution_ingestion.AuditLogRepository",
+        return_value=audit_repository,
+    ):
+        result = await TravelDocumentIngestionService(
+            session,
+            matcher=matcher,
+            storage=storage,
+        ).ingest(
+            agency_id=agency_id,
+            group_id=group_id,
+            document_type="flight_ticket",
+            passengers=[passenger],
+            files=[TravelDocumentFile(filename="unmatched.pdf", content=b"")],
+            created_by_user_id=None,
+            actor_email=None,
+            preclassified_documents=[
+                ClassifiedDocument(
+                    original_filename="unmatched.pdf",
+                    detected_type="flight_ticket",
+                    accepted=True,
+                    reason="Verified flight ticket structure",
+                    text="E-TICKET",
+                    extracted_name=None,
+                    extracted_passport_number=None,
+                    extracted_reference=None,
+                )
+            ],
+            staged_storage_keys=[
+                f"document-verification-staging/{agency_id}/unmatched.pdf"
+            ],
+            require_passenger_match=True,
+        )
+
+    storage.upload_file.assert_not_awaited()
+    storage.copy_file.assert_not_awaited()
+    assert result.documents == []
+    assert result.created_storage_keys == ()
+    assert result.batch.uploaded_count == 0
+    assert result.batch.matched_count == 0
+    assert result.batch.rejected_count == 1
+    assert result.rejected[0].reason == "No passenger match found"
+
+
 async def test_staged_document_skips_second_parse_and_copies_server_side(
     monkeypatch,
 ) -> None:
@@ -610,6 +677,7 @@ async def test_one_combined_pdf_may_assign_all_1500_passengers() -> None:
             files=[TravelDocumentFile(filename="combined.pdf", content=b"%PDF combined")],
             created_by_user_id=None,
             actor_email=None,
+            require_passenger_match=True,
         )
 
     assert len(result.documents) == 1_500

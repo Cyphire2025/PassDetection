@@ -1,7 +1,9 @@
 export type DistributionDocumentType =
   | "visa"
   | "flight_ticket"
-  | "flight_ticket_arrival";
+  | "flight_ticket_arrival"
+  | "flight_ticket_domestic"
+  | "flight_ticket_domestic_arrival";
 
 export interface DocumentDistributionGroup {
   group_id: string;
@@ -13,6 +15,8 @@ export interface DocumentDistributionGroup {
   visa_assigned_count: number;
   flight_ticket_assigned_count: number;
   flight_ticket_arrival_assigned_count: number;
+  flight_ticket_domestic_assigned_count: number;
+  flight_ticket_domestic_arrival_assigned_count: number;
   other_assigned_count: number;
 }
 

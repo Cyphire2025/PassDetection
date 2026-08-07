@@ -10,11 +10,13 @@ from app.infrastructure.ai_priority.identity import (
     gemini_runtime_identity,
 )
 
+_STRONG_APP_SECRET = "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+"
+
 
 class AiPriorityIdentityTests(unittest.TestCase):
     def test_identity_is_safe_and_never_contains_key_or_query(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             google_api_key=SecretStr("super-secret-google-key"),
             gemini_project_alias="gct-prod-tier1",
             gemini_config_version="2026-07-18.1",
@@ -37,21 +39,21 @@ class AiPriorityIdentityTests(unittest.TestCase):
         self.assertNotIn("?key=", serialized)
 
     def test_default_alias_is_explicitly_unconfigured(self) -> None:
-        settings = Settings(app_secret_key="unit-test-secret")
+        settings = Settings(app_secret_key=_STRONG_APP_SECRET)
         self.assertFalse(
             gemini_runtime_identity(settings).project_alias_configured
         )
 
     def test_blank_key_is_not_treated_as_configured(self) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             google_api_key=SecretStr("   "),
         )
         self.assertFalse(gemini_runtime_identity(settings).api_key_configured)
 
     def test_production_requires_credentials_alias_and_capacity(self) -> None:
         unready = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             google_api_key=None,
         )
@@ -68,7 +70,7 @@ class AiPriorityIdentityTests(unittest.TestCase):
         )
 
         calibrated = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             gemini_priority_capacity_calibrated=True,
             gemini_project_alias="gct-prod-tier1",
@@ -93,7 +95,7 @@ class AiPriorityIdentityTests(unittest.TestCase):
         self,
     ) -> None:
         settings = Settings(
-            app_secret_key="unit-test-secret",
+            app_secret_key=_STRONG_APP_SECRET,
             app_env="production",
             gemini_verification_enabled=False,
             google_api_key=None,
