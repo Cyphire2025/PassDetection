@@ -7,6 +7,7 @@ from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException
+from pydantic import ValidationError
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,27 @@ from app.presentation.api.v1.routes import document_distribution
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     SendDocumentBroadcastRequest,
 )
+
+
+def test_document_whatsapp_send_accepts_full_bulk_selection() -> None:
+    document_ids = [uuid.uuid4() for _ in range(1_501)]
+
+    request = SendDocumentBroadcastRequest(
+        document_ids=document_ids[:1_500],
+        resend_document_ids=document_ids[:1_500],
+        message_content_1="Your document",
+        message_content_2="Safe travels",
+    )
+
+    assert len(request.document_ids or []) == 1_500
+    assert len(request.resend_document_ids) == 1_500
+
+    with pytest.raises(ValidationError):
+        SendDocumentBroadcastRequest(
+            document_ids=document_ids,
+            message_content_1="Your document",
+            message_content_2="Safe travels",
+        )
 
 
 def _recipient(

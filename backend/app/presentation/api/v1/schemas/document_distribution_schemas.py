@@ -177,8 +177,8 @@ class DocumentDeliveryPreviewResponse(BaseModel):
 
 
 class SendDocumentBroadcastRequest(BaseModel):
-    document_ids: list[uuid.UUID] | None = Field(default=None, max_length=500)
-    resend_document_ids: list[uuid.UUID] = Field(default_factory=list, max_length=500)
+    document_ids: list[uuid.UUID] | None = Field(default=None, max_length=1_500)
+    resend_document_ids: list[uuid.UUID] = Field(default_factory=list, max_length=1_500)
     message_content_1: str = Field(min_length=1, max_length=600)
     message_content_2: str = Field(min_length=1, max_length=600)
 
