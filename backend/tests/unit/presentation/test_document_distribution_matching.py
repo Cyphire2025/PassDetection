@@ -41,6 +41,27 @@ def test_document_whatsapp_send_accepts_full_bulk_selection() -> None:
         )
 
 
+def test_document_preview_prefers_latest_complete_delivery_message() -> None:
+    newest = SimpleNamespace(template_parameter_values=[" Latest first ", " Latest second "])
+    older = SimpleNamespace(template_parameter_values=["Older first", "Older second"])
+
+    assert document_distribution._preferred_document_message_content(
+        [newest, older],
+        fallback_content_1="Default first",
+        fallback_content_2="Default second",
+    ) == ("Latest first", "Latest second")
+
+
+def test_document_preview_ignores_incomplete_saved_message() -> None:
+    incomplete = SimpleNamespace(template_parameter_values=["Only one section"])
+
+    assert document_distribution._preferred_document_message_content(
+        [incomplete],
+        fallback_content_1="Default first",
+        fallback_content_2="Default second",
+    ) == ("Default first", "Default second")
+
+
 def _recipient(
     *,
     agency_id: uuid.UUID,

@@ -498,6 +498,25 @@ async def _all_group_documents(
     return documents
 
 
+def _preferred_document_message_content(
+    deliveries: list[DocumentWhatsAppDeliveryModel],
+    *,
+    fallback_content_1: str,
+    fallback_content_2: str,
+) -> tuple[str, str]:
+    """Prefer the newest complete message pair already stored in the delivery ledger."""
+
+    for delivery in deliveries:
+        values = delivery.template_parameter_values
+        if not isinstance(values, list) or len(values) < 2:
+            continue
+        content_1 = str(values[0] or "").strip()
+        content_2 = str(values[1] or "").strip()
+        if content_1 and content_2:
+            return content_1, content_2
+    return fallback_content_1, fallback_content_2
+
+
 async def _enforce_group_document_assignment_capacity(
     session: AsyncSession,
     *,
@@ -1064,11 +1083,17 @@ async def _build_document_delivery_preview(
                 DocumentWhatsAppDeliveryModel.group_id == group.id,
             )
             .order_by(
-                DocumentWhatsAppDeliveryModel.status_updated_at.desc(),
                 DocumentWhatsAppDeliveryModel.created_at.desc(),
+                DocumentWhatsAppDeliveryModel.status_updated_at.desc(),
             )
         )
-        for delivery in delivery_result.scalars().all():
+        delivery_models = list(delivery_result.scalars().all())
+        message_content_1, message_content_2 = _preferred_document_message_content(
+            delivery_models,
+            fallback_content_1=message_content_1,
+            fallback_content_2=message_content_2,
+        )
+        for delivery in delivery_models:
             if delivery.distributed_document_id:
                 deliveries_by_document.setdefault(
                     delivery.distributed_document_id,

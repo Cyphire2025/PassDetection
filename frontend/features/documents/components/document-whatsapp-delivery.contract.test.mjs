@@ -70,3 +70,12 @@ test("document review exposes assignment counts, filters, and safe bulk removal 
   assert.match(api, /unassignDocuments/);
   assert.match(hooks, /useUnassignDistributionDocuments/);
 });
+
+test("document review supports passenger search and per-file assignment removal without a scroll-only action column", () => {
+  assert.match(workspace, /Search passenger name/);
+  assert.match(workspace, /row\.passenger_name\.toLocaleLowerCase\(\)\.includes/);
+  assert.match(workspace, /onRemoveAssignment\(document\.id\)/);
+  assert.match(workspace, /Remove assignment/);
+  assert.match(workspace, /w-full table-fixed/);
+  assert.doesNotMatch(workspace, /<div className="overflow-x-auto">\s*<table className="w-full text-left text-sm">/);
+});

@@ -11,6 +11,7 @@ import {
   Plane,
   RefreshCw,
   Save,
+  Search,
   SearchCheck,
   Send,
   Trash2,
@@ -88,6 +89,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const [verification, setVerification] = useState<DocumentVerificationResult | null>(null);
   const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
+  const [reviewSearchQuery, setReviewSearchQuery] = useState("");
   const [pendingRemovalDocumentIds, setPendingRemovalDocumentIds] = useState<string[] | null>(null);
   const [progress, setProgress] = useState(0);
   const [progressDetail, setProgressDetail] = useState<DocumentUploadProgress | null>(null);
@@ -182,8 +184,15 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
   const needsAssignmentCount =
     review.data?.needs_assignment_count ?? assignmentIssues.length;
   const visibleReviewRows = useMemo(
-    () =>
-      reviewRows.filter((row) => {
+    () => {
+      const normalizedSearch = reviewSearchQuery.trim().toLocaleLowerCase();
+      return reviewRows.filter((row) => {
+        if (
+          normalizedSearch &&
+          !row.passenger_name.toLocaleLowerCase().includes(normalizedSearch)
+        ) {
+          return false;
+        }
         const documents = reviewRowDocuments(row);
         if (reviewFilter === "assigned") return documents.length > 0;
         if (reviewFilter === "missing") return documents.length === 0;
@@ -198,8 +207,9 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
           );
         }
         return true;
-      }),
-    [reviewFilter, reviewRows],
+      });
+    },
+    [reviewFilter, reviewRows, reviewSearchQuery],
   );
   const acceptedFiles = useMemo(() => {
     if (!uploadSession) return [];
@@ -412,6 +422,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
     setVerification(null);
     setSelectedDocumentIds([]);
     setReviewFilter("all");
+    setReviewSearchQuery("");
     setPendingRemovalDocumentIds(null);
     setUploadSession(null);
     setSelectionError(null);
@@ -794,29 +805,42 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                   {label} ({count})
                 </button>
               ))}
-              {activeSelectedAssignedDocumentIds.length > 0 && (
-                <button
-                  type="button"
-                  className="ml-auto text-xs font-medium text-blue-700 hover:underline"
-                  onClick={() =>
-                    setSelectedDocumentIds((current) =>
-                      current.filter(
-                        (id) => !activeSelectedAssignedDocumentIdSet.has(id),
-                      ),
-                    )
-                  }
-                >
-                  Clear selected assignments
-                </button>
-              )}
+              <div className="ml-auto flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
+                {activeSelectedAssignedDocumentIds.length > 0 && (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-blue-700 hover:underline"
+                    onClick={() =>
+                      setSelectedDocumentIds((current) =>
+                        current.filter(
+                          (id) => !activeSelectedAssignedDocumentIdSet.has(id),
+                        ),
+                      )
+                    }
+                  >
+                    Clear selected assignments
+                  </button>
+                )}
+                <label className="relative w-full sm:w-64">
+                  <span className="sr-only">Search passenger name</span>
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="search"
+                    value={reviewSearchQuery}
+                    onChange={(event) => setReviewSearchQuery(event.target.value)}
+                    placeholder="Search passenger name"
+                    className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                  />
+                </label>
+              </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div className="w-full overflow-visible">
+              <table className="w-full table-fixed text-left text-sm">
                 <caption className="sr-only">Assigned passenger documents</caption>
                 <thead>
                   <tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-400">
-                    <th scope="col" className="px-5 py-4">
+                    <th scope="col" className="w-12 px-3 py-4">
                       <input
                         type="checkbox"
                         className="h-4 w-4 rounded border-slate-300"
@@ -835,13 +859,13 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         }}
                       />
                     </th>
-                    <th scope="col" className="px-5 py-4">Passenger</th>
-                    <th scope="col" className="px-5 py-4">Passport</th>
-                    <th scope="col" className="px-5 py-4">Document</th>
-                    <th scope="col" className="px-5 py-4">Confidence</th>
-                    <th scope="col" className="px-5 py-4">Status</th>
-                    <th scope="col" className="px-5 py-4">Sent</th>
-                    {showRowActions && <th scope="col" className="px-5 py-4 text-right">Action</th>}
+                    <th scope="col" className="w-[18%] px-3 py-4">Passenger</th>
+                    <th scope="col" className="w-[11%] px-3 py-4">Passport</th>
+                    <th scope="col" className="w-[25%] px-3 py-4">Document</th>
+                    <th scope="col" className="w-[10%] px-3 py-4">Confidence</th>
+                    <th scope="col" className="w-[12%] px-3 py-4">Status</th>
+                    <th scope="col" className="w-[19%] px-3 py-4">Sent</th>
+                    {showRowActions && <th scope="col" className="w-16 px-3 py-4 text-right">Action</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -856,7 +880,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                       );
                     return (
                     <tr key={row.passenger_id}>
-                      <td className="px-5 py-4 align-top">
+                      <td className="px-3 py-4 align-top">
                         {documents.length > 0 ? (
                           <input
                             type="checkbox"
@@ -884,8 +908,8 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           />
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top">
-                        <div className="font-semibold text-slate-900">{row.passenger_name}</div>
+                      <td className="min-w-0 px-3 py-4 align-top">
+                        <div className="break-words font-semibold text-slate-900">{row.passenger_name}</div>
                         <div className="mt-1 text-xs text-slate-500">{row.departure_city || "No departure city"}</div>
                         {documents.length > 1 && (
                           <Badge variant="outline" className="mt-2 whitespace-nowrap">
@@ -893,13 +917,13 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           </Badge>
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top text-slate-700">{row.passport_number || "Not set"}</td>
-                      <td className="px-5 py-4 align-top">
+                      <td className="break-words px-3 py-4 align-top text-slate-700">{row.passport_number || "Not set"}</td>
+                      <td className="min-w-0 px-3 py-4 align-top">
                         {documents.length > 0 ? (
                           <div className="divide-y divide-slate-100">
                             {documents.map((document) => (
                               <div key={document.id} className="flex min-h-16 flex-col justify-center py-2 first:pt-0 last:pb-0">
-                                <a href={document.url ?? "#"} target="_blank" rel="noreferrer" className="font-medium text-blue-700 hover:underline">
+                                <a href={document.url ?? "#"} target="_blank" rel="noreferrer" className="break-words font-medium text-blue-700 hover:underline">
                                   {document.original_filename}
                                 </a>
                                 <div className="mt-1 text-xs text-slate-500">
@@ -912,7 +936,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           <span className="text-slate-400">Empty</span>
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top text-slate-700">
+                      <td className="px-3 py-4 align-top text-slate-700">
                         {documents.length > 0 ? (
                           <div className="divide-y divide-slate-100">
                             {documents.map((document) => (
@@ -925,7 +949,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           "-"
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top">
+                      <td className="px-3 py-4 align-top">
                         {documents.length > 0 ? (
                           <div className="divide-y divide-slate-100">
                             {documents.map((document) => (
@@ -938,7 +962,7 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                           <MatchBadge status="no_document" />
                         )}
                       </td>
-                      <td className="px-5 py-4 align-top">
+                      <td className="min-w-0 px-3 py-4 align-top">
                         {documents.length > 0 ? (
                           <div className="divide-y divide-slate-100">
                             {documents.map((document) => (
@@ -965,12 +989,16 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         )}
                       </td>
                       {showRowActions && (
-                        <td className="px-5 py-4 text-right align-top">
+                        <td className="px-3 py-4 text-right align-top">
                           <DocumentRowActionMenu
                             row={row}
+                            documents={documents}
                             documentType={selectedType}
-                            pending={reupload.isPending}
+                            pending={reupload.isPending || removalPending}
                             onReupload={(file) => reupload.mutate({ passengerId: row.passenger_id, file })}
+                            onRemoveAssignment={(documentId) =>
+                              setPendingRemovalDocumentIds([documentId])
+                            }
                           />
                         </td>
                       )}
@@ -983,7 +1011,9 @@ export function DocumentWorkspace({ groupId }: { groupId: string }) {
                         colSpan={showRowActions ? 8 : 7}
                         className="px-5 py-10 text-center text-sm text-slate-500"
                       >
-                        No passengers match this filter.
+                        {reviewSearchQuery.trim()
+                          ? "No passenger names match this search and filter."
+                          : "No passengers match this filter."}
                       </td>
                     </tr>
                   )}
@@ -1675,14 +1705,18 @@ function VerificationMatchText({ file }: { file: DocumentVerificationResult["fil
 
 function DocumentRowActionMenu({
   row,
+  documents,
   documentType,
   pending,
   onReupload,
+  onRemoveAssignment,
 }: {
   row: DocumentPassengerReviewRow;
+  documents: DistributedDocument[];
   documentType: DistributionDocumentType;
   pending: boolean;
   onReupload: (file: File) => void;
+  onRemoveAssignment: (documentId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -1736,7 +1770,7 @@ function DocumentRowActionMenu({
         <MoreVertical className="h-4 w-4" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-10 z-30 w-48 rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
+        <div role="menu" className="absolute right-0 top-10 z-30 w-72 rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
           <button
             type="button"
             role="menuitem"
@@ -1746,6 +1780,27 @@ function DocumentRowActionMenu({
             <RefreshCw className="h-4 w-4" />
             Add another document
           </button>
+          {documents.length > 0 && <div className="my-1 border-t border-slate-100" />}
+          {documents.map((document) => (
+            <button
+              key={document.id}
+              type="button"
+              role="menuitem"
+              className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50"
+              onClick={() => {
+                setOpen(false);
+                onRemoveAssignment(document.id);
+              }}
+            >
+              <FileX2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <span className="min-w-0">
+                <span className="block font-medium">Remove assignment</span>
+                <span className="block truncate text-xs text-slate-500" title={document.original_filename}>
+                  {document.original_filename}
+                </span>
+              </span>
+            </button>
+          ))}
           <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">
             Upload one more {label} PDF without removing saved documents.
           </div>
