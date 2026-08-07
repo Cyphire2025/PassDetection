@@ -82,7 +82,9 @@ jobs:
   ios-compile:
     name: Mobile - iOS Release compile (unsigned simulator)
     needs: quality
-    runs-on: macos-15
+    # Expo SDK 57's expo-modules-jsi package requires Swift tools 6.2.
+    # The macOS 26 image supplies Xcode 26; macOS 15 stops at Xcode 16.4/Swift 6.1.
+    runs-on: macos-26
     defaults:
       run:
         working-directory: mobile
