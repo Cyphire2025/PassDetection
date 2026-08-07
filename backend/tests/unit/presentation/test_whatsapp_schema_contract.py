@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 
+import pydantic
+
 from app.presentation.api.v1.routes import whatsapp
 
 _MODEL_NAMES = [
@@ -36,7 +38,12 @@ _MODEL_NAMES = [
     "WhatsAppBatchSummaryResponse",
     "WhatsAppWebhookAck",
 ]
-_SCHEMA_SHA256 = "0bff4a036b43b8ca87677f4c366df3522ae6cc9087b9c7f734044d72d319a6bf"
+_SCHEMA_SHA256_BY_PYDANTIC = {
+    # Repository-pinned production and CI runtime.
+    "2.7.4": "412e9736798e5e1d039797e4bd189db5930d544845a51c861fa821346c205fa0",
+    # Python 3.13-compatible Windows development runtime.
+    "2.13.4": "0bff4a036b43b8ca87677f4c366df3522ae6cc9087b9c7f734044d72d319a6bf",
+}
 
 
 def test_whatsapp_route_reexports_unchanged_schema_contracts() -> None:
@@ -49,4 +56,5 @@ def test_whatsapp_route_reexports_unchanged_schema_contracts() -> None:
     ).encode()
 
     assert len(schemas) == 29
-    assert hashlib.sha256(payload).hexdigest() == _SCHEMA_SHA256
+    expected_hash = _SCHEMA_SHA256_BY_PYDANTIC[pydantic.__version__]
+    assert hashlib.sha256(payload).hexdigest() == expected_hash
