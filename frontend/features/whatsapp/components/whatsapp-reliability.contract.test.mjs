@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
 
-const pageSource = readFileSync(
-  new URL("./whatsapp-workspace.tsx", import.meta.url),
-  "utf8",
-);
+const pageSource = whatsappFeatureSource;
 const dialogSource = readFileSync(
   new URL("./whatsapp-dialog-ui.tsx", import.meta.url),
   "utf8",

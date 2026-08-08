@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
 
-const page = readFileSync(new URL("./whatsapp-workspace.tsx", import.meta.url), "utf8");
+const page = whatsappFeatureSource;
 const api = readFileSync(new URL("../api/whatsapp.api.ts", import.meta.url), "utf8");
 
 test("reminder_v1 is a separate broadcast option with one editable paragraph", () => {

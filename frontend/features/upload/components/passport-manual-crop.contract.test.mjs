@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { uploadFlowSource as flow } from "./upload-flow-source.contract-helper.mjs";
 
 const editor = readFileSync(
   new URL("./passport-manual-crop.tsx", import.meta.url),
   "utf8",
 );
-const flow = readFileSync(
-  new URL("./upload-flow.tsx", import.meta.url),
-  "utf8",
-);
-
 test("manual crop guidance protects the complete passport while removing surroundings", () => {
   assert.match(editor, /Crop out fingers and surrounding background\./);
   assert.match(

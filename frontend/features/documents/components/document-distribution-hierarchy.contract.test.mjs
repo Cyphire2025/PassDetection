@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
 
 const read = (relativePath) => readFileSync(new URL(relativePath, import.meta.url), "utf8");
 
 const routes = read("../../../constants/routes.ts");
 const landing = read("./document-distribution-landing.tsx");
 const groupList = read("./document-group-list.tsx");
-const workspace = read("./document-workspace.tsx");
+const workspace = readDocumentWorkspaceSource();
 const uploadPanel = read("./document-upload-panel.tsx");
 const navigation = read("./flight-ticket-lane-navigation.tsx");
 const lanes = read("../config/document-distribution-lanes.ts");

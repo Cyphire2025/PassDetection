@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import re
-import time
 import unicodedata
 import uuid
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 from typing import Any, cast
 
@@ -26,6 +24,13 @@ from app.domain.value_objects.travel_document_taxonomy import (
 from app.domain.value_objects.travel_document_taxonomy import (
     SUPPORTED_TRAVEL_DOCUMENT_TYPES as SUPPORTED_TRAVEL_DOCUMENT_TYPES,
 )
+from app.infrastructure.documents import document_pdf_support as _pdf_support
+from app.infrastructure.documents.document_pdf_support import (
+    DocumentOcrUnavailableError as DocumentOcrUnavailableError,
+)
+from app.infrastructure.documents.document_pdf_support import (
+    _PdfTextRead,
+)
 
 try:
     from pypdf import PdfReader
@@ -38,262 +43,71 @@ except ImportError:  # pragma: no cover - keeps local tooling usable until deps 
     pypdfium2 = None
 
 
-MAX_PDF_PAGES_TO_INSPECT = 200
-MAX_PDF_TEXT_LAYER_PAGES = 200
-MAX_PDF_TOTAL_PAGES = 200
-MAX_PDF_PAGE_TEXT_CHARS = 40_000
-MAX_PDF_TEXT_CHARS = 120_000
-MAX_PDF_SOURCE_BYTES = 16 * 1024 * 1024
-MAX_PDF_PARSE_SECONDS = 3.0
-MAX_PDF_OCR_SECONDS = 7.0
-MAX_PDF_OCR_PAGES = 2
-MAX_PDF_OCR_PIXELS = 4_000_000
-PDF_OCR_RENDER_SCALE = 1.5
-MAX_PASSENGER_NAMES = 12
-MAX_PASSENGER_IDENTIFIERS = 96
-MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER = 24
-MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST = 36_000
-MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS = 72_000
-MAX_NAME_TOKENS = 8
-MAX_FUZZY_CANDIDATES = 32
-PDF_OCR_RETRY_REASON = "PDF OCR exceeded the temporary processing budget"
-
-
-VISA_CORE_TERMS = (
-    "visa",
-    "evisa",
-    "e-visa",
-    "electronic visa",
-    "entry permit",
-    "visa grant",
-    "grant notice",
+from app.infrastructure.documents.document_matcher_rules import (
+    _AGENT_CODE_KEYS,
+    _DATE_VALUE_PATTERN,
+    _DOCUMENT_FILENAME_WORDS,
+    _FULL_NAME_KEYS,
+    _GIVEN_NAME_KEYS,
+    _IDENTIFIER_KEY_EXCLUSIONS,
+    _IDENTIFIER_KEY_TOKENS,
+    _NAME_NOISE_TOKENS,
+    _NON_TRAVEL_DOCUMENT_PATTERNS,
+    _PASSPORT_KEYS,
+    _STAFF_CODE_KEYS,
+    _SURNAME_KEYS,
+    MAX_FUZZY_CANDIDATES,
+    MAX_NAME_TOKENS,
+    MAX_PASSENGER_IDENTIFIERS,
+    MAX_PASSENGER_NAMES,
+    MAX_PDF_OCR_PAGES,
+    MAX_PDF_OCR_PIXELS,
+    MAX_PDF_OCR_SECONDS,
+    MAX_PDF_PAGE_TEXT_CHARS,
+    MAX_PDF_PAGES_TO_INSPECT,
+    MAX_PDF_PARSE_SECONDS,
+    MAX_PDF_SOURCE_BYTES,
+    MAX_PDF_TEXT_CHARS,
+    MAX_PDF_TEXT_LAYER_PAGES,
+    MAX_PDF_TOTAL_PAGES,
+    MAX_SUPPLEMENTAL_IDENTIFIER_INPUTS,
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_PASSENGER,
+    MAX_SUPPLEMENTAL_IDENTIFIERS_PER_REQUEST,
+    PASSPORT_TERMS,
+    PAYMENT_TERMS,
+    PDF_OCR_RENDER_SCALE,
+    PDF_OCR_RETRY_REASON,
+    TICKET_BOOKING_TERMS,
+    TICKET_CORE_TERMS,
+    TICKET_FLIGHT_TERMS,
+    TICKET_ROUTE_TERMS,
+    TICKET_TRAVEL_TERMS,
+    VISA_APPLICATION_TERMS,
+    VISA_AUTHORITY_TERMS,
+    VISA_CORE_TERMS,
+    VISA_VALIDITY_TERMS,
 )
-VISA_IDENTITY_TERMS = (
-    "visa number",
-    "visa no",
-    "visa type",
-    "visa category",
-    "grant number",
-    "entry permit number",
-    "travel document number",
-)
-VISA_VALIDITY_TERMS = (
-    "number of entries",
-    "multiple entries",
-    "single entry",
-    "valid from",
-    "valid until",
-    "date of issue",
-    "date of expiry",
-    "duration of stay",
-    "permitted to stay",
-)
-VISA_AUTHORITY_TERMS = (
-    "immigration",
-    "ministry of interior",
-    "ministry of public security",
-    "department of immigration",
-    "immigration department",
-    "immigration authority",
-    "vietnam immigration department",
-)
-VISA_APPLICATION_TERMS = (
-    "application received",
-    "application status",
-    "application form",
-    "application submitted",
-    "appointment confirmation",
-)
-PAYMENT_TERMS = (
-    "payment confirmation",
-    "payment receipt",
-    "fee charge payment",
-    "application fee",
-    "service fee",
-    "transaction id",
-    "payment details",
-    "payment method",
-    "total amount",
-    "amount paid",
-    "tax payment",
-    "invoice",
-    "receipt",
+from app.infrastructure.documents.document_matcher_rules import (
+    VISA_IDENTITY_TERMS as VISA_IDENTITY_TERMS,
 )
 
-TICKET_CORE_TERMS = (
-    "e-ticket",
-    "electronic ticket",
-    "flight ticket",
-    "flight tickets",
-    "itinerary",
-    "travel summary",
-    "ticket itinerary",
-    "itinerary receipt",
-    "passenger itinerary",
-    "passenger receipt",
-    "flight summary",
-    "boarding pass",
-    "booking confirmation",
-    "ticket number",
-    "ticket no",
-)
-TICKET_BOOKING_TERMS = (
-    "pnr",
-    "booking no",
-    "booking number",
-    "booking reference",
-    "reservation code",
-    "record locator",
-)
-TICKET_FLIGHT_TERMS = (
-    "flight number",
-    "flight no",
-    "flight summary",
-    "operated by",
-    "airline",
-    "carrier",
-    "sector",
-)
-TICKET_ROUTE_TERMS = (
-    "departure",
-    "arrival",
-    "departing",
-    "origin",
-    "destination",
-)
-TICKET_TRAVEL_TERMS = (
-    "boarding",
-    "check in",
-    "check-in",
-    "gate",
-    "seat",
-    "checked baggage",
-    "carry-on baggage",
-)
-PASSPORT_TERMS = ("passport", "nationality", "place of birth", "date of expiry")
 
-_PASSPORT_KEYS = frozenset(
-    {"passport", "passport_no", "passport_num", "passport_number", "passportnumber"}
-)
-_GIVEN_NAME_KEYS = frozenset({"first_name", "forename", "given_name", "given_names"})
-_SURNAME_KEYS = frozenset({"family_name", "last_name", "surname"})
-_FULL_NAME_KEYS = frozenset(
-    {
-        "client_name",
-        "employee_name",
-        "full_name",
-        "name",
-        "passenger_name",
-        "recipient_name",
-        "staff_name",
-        "staffname",
-        "traveller_name",
-        "traveler_name",
-    }
-)
-_STAFF_CODE_KEYS = frozenset(
-    {"employee_code", "employee_id", "staff_code", "staff_id", "staffcode"}
-)
-_AGENT_CODE_KEYS = frozenset({"agent_code", "agent_employee_code", "agent_id", "employee_code"})
-_IDENTIFIER_KEY_TOKENS = frozenset(
-    {"code", "id", "identifier", "no", "number", "ref", "reference", "serial"}
-)
-_IDENTIFIER_KEY_EXCLUSIONS = frozenset(
-    {
-        "agency_id",
-        "batch_id",
-        "broadcast_group_id",
-        "booking_no",
-        "booking_number",
-        "booking_reference",
-        "contact_no",
-        "contact_number",
-        "date_of_birth",
-        "date_of_expiry",
-        "date_of_issue",
-        "detail_id",
-        "document_id",
-        "dob",
-        "doe",
-        "doi",
-        "family_group_id",
-        "group_id",
-        "mobile_no",
-        "mobile_number",
-        "passenger_id",
-        "passport_no",
-        "passport_num",
-        "passport_number",
-        "phone_number",
-        "pnr",
-        "qualifier_selection_id",
-        "question_id",
-        "recipient_id",
-        "row_number",
-        "source_order",
-        "source_row",
-        "submission_id",
-        "ticket_no",
-        "ticket_number",
-        "transaction_id",
-    }
-)
-_DOCUMENT_FILENAME_WORDS = frozenset(
-    {
-        "document",
-        "evisa",
-        "flight",
-        "itinerary",
-        "pdf",
-        "ticket",
-        "visa",
-    }
-)
-_NAME_NOISE_TOKENS = frozenset(
-    {
-        "adult",
-        "arrival",
-        "booking",
-        "child",
-        "date",
-        "departure",
-        "document",
-        "female",
-        "flight",
-        "gender",
-        "infant",
-        "male",
-        "miss",
-        "mr",
-        "mrs",
-        "ms",
-        "passenger",
-        "passport",
-        "ticket",
-        "visa",
-    }
-)
+def _pdf_processing_limits() -> _pdf_support.PdfProcessingLimits:
+    """Resolve limits at call time so legacy monkeypatch/config seams remain intact."""
 
-_NON_TRAVEL_DOCUMENT_PATTERNS = (
-    r"\b(?:thailand\s+)?digital\s+arrival\s+card\b",
-    r"\bnot\s+(?:a|an)\s+(?:e-?visa|visa)\b",
-    r"\b(?:visa\s+)?application\s+form\b",
-    r"\bapplication\s+received\b",
-    r"\bapplication\s+submitted\b",
-    r"\bappointment\s+confirmation\b",
-    r"\b(?:travel\s+|insurance\s+|travel\s+insurance\s+)?claim\s+form\b",
-    r"\btravel\s+insurance\s+claim\b",
-    r"\b(?:price\s+)?quotation\b",
-    r"\bprice\s+quote\b",
-    r"\bpro\s+forma\s+invoice\b",
-    r"\b(?:blank|sample)\s+(?:application|claim|form|template)\b",
-)
-
-_DATE_VALUE_PATTERN = (
-    r"(?:\d{1,4}[./-]\d{1,2}[./-]\d{1,4}"
-    r"|\d{1,2}\s+[^\W\d_]{3,15}\s+\d{2,4}"
-    r"|[^\W\d_]{3,15}\s+\d{1,2},?\s+\d{2,4})"
-)
+    return _pdf_support.PdfProcessingLimits(
+        max_ocr_pages=MAX_PDF_OCR_PAGES,
+        max_ocr_pixels=MAX_PDF_OCR_PIXELS,
+        max_ocr_seconds=MAX_PDF_OCR_SECONDS,
+        max_page_text_chars=MAX_PDF_PAGE_TEXT_CHARS,
+        max_pages_to_inspect=MAX_PDF_PAGES_TO_INSPECT,
+        max_parse_seconds=MAX_PDF_PARSE_SECONDS,
+        max_source_bytes=MAX_PDF_SOURCE_BYTES,
+        max_text_chars=MAX_PDF_TEXT_CHARS,
+        max_text_layer_pages=MAX_PDF_TEXT_LAYER_PAGES,
+        max_total_pages=MAX_PDF_TOTAL_PAGES,
+        ocr_render_scale=PDF_OCR_RENDER_SCALE,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -319,14 +133,6 @@ class _VisaDocumentFacts:
     has_heading: bool
     has_authority: bool
     has_entry_information: bool
-
-
-@dataclass(frozen=True, slots=True)
-class _PdfTextRead:
-    """Text plus the security decision needed before image-only OCR."""
-
-    text: str
-    safe_for_ocr: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -379,10 +185,6 @@ class DocumentMatchIndex:
 
 class DocumentParserUnavailableError(RuntimeError):
     """Transient parser-capacity failure that callers should expose as retryable."""
-
-
-class DocumentOcrUnavailableError(RuntimeError):
-    """Image-only PDF OCR exhausted its bounded runtime and may be retried."""
 
 
 class UnsupportedDocumentBatchFormatError(RuntimeError):
@@ -993,10 +795,6 @@ class DocumentMatcher:
         return deduped
 
     def _pdf_text(self, content: bytes) -> str:
-        # Parse and validate the PDF once. Image-only travel PDFs previously
-        # repeated the full pypdf active-content scan before OCR, consuming
-        # most of the file's wall-time budget and leaving Tesseract less than a
-        # second on common scanned e-tickets.
         read = self._read_pdf_text_with_pypdf(content)
         if read.text or not read.safe_for_ocr:
             return read.text
@@ -1011,115 +809,23 @@ class DocumentMatcher:
         return self._ocr_validated_image_only_pdf(content)
 
     def _ocr_validated_image_only_pdf(self, content: bytes) -> str:
-        """OCR content that already passed the active-PDF safety validation."""
-
-        if pypdfium2 is None or len(content) > MAX_PDF_SOURCE_BYTES:
-            return ""
-        started_at = time.monotonic()
-        try:
-            import pytesseract
-
-            document = pypdfium2.PdfDocument(content)
-            page_texts: list[str] = []
-            text_length = 0
-            page_count = min(len(document), MAX_PDF_OCR_PAGES)
-            for page_index in range(page_count):
-                remaining_seconds = MAX_PDF_OCR_SECONDS - (time.monotonic() - started_at)
-                if remaining_seconds <= 0.25:
-                    break
-                page = document[page_index]
-                bitmap = page.render(scale=PDF_OCR_RENDER_SCALE)
-                image = bitmap.to_pil()
-                if image.width * image.height > MAX_PDF_OCR_PIXELS:
-                    image.thumbnail((2000, 2000))
-                try:
-                    page_text = pytesseract.image_to_string(
-                        image,
-                        lang="eng",
-                        config="--oem 1 --psm 6",
-                        timeout=max(0.25, remaining_seconds),
-                    )
-                except RuntimeError as exc:
-                    if page_texts:
-                        break
-                    raise DocumentOcrUnavailableError from exc
-                normalized = "\n".join(
-                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-                )
-                remaining_chars = MAX_PDF_TEXT_CHARS - text_length
-                if remaining_chars <= 0:
-                    break
-                page_texts.append(normalized[:remaining_chars])
-                text_length += min(len(normalized), remaining_chars)
-            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
-        except DocumentOcrUnavailableError:
-            raise
-        except Exception:
-            # Rendering and OCR remain an optional, fail-closed fallback. The
-            # isolated parser process owns the hard wall-time and memory caps.
-            return ""
+        return _pdf_support.ocr_validated_image_only_pdf(
+            content,
+            pdfium=pypdfium2,
+            limits=_pdf_processing_limits(),
+        )
 
     def _extract_pdf_text_with_pypdf(self, content: bytes) -> str:
         return self._read_pdf_text_with_pypdf(content).text
 
     def _read_pdf_text_with_pypdf(self, content: bytes) -> _PdfTextRead:
-        if PdfReader is None or len(content) > MAX_PDF_SOURCE_BYTES:
-            return _PdfTextRead("", False)
-        try:
-            started_at = time.monotonic()
-            reader = PdfReader(BytesIO(content), strict=False)
-            if reader.is_encrypted or len(reader.pages) > MAX_PDF_TOTAL_PAGES:
-                return _PdfTextRead("", False)
-            if self._has_active_pdf_features(
-                reader,
-                deadline=started_at + MAX_PDF_PARSE_SECONDS,
-            ):
-                return _PdfTextRead("", False)
-
-            # PDFium can determine whether a page has an embedded text layer
-            # without decoding the full-page scan through pypdf's layout
-            # extractor. On the production airline receipts this reduces the
-            # image-only decision from roughly 1-2 seconds to a few
-            # milliseconds, preserving the dedicated budget for Tesseract.
-            pdfium_text = self._extract_pdf_text_with_pdfium(
-                content,
-                deadline=started_at + MAX_PDF_PARSE_SECONDS,
-            )
-            if pdfium_text is not None:
-                # PDFium is both substantially faster and more faithful for
-                # airline-generated PDFs than pypdf's layout extraction. An
-                # empty result is the explicit signal to use image OCR; any
-                # native text result is final and must never incur OCR.
-                return _PdfTextRead(pdfium_text, True)
-
-            page_texts: list[str] = []
-            text_length = 0
-            for page in reader.pages[:MAX_PDF_PAGES_TO_INSPECT]:
-                if time.monotonic() - started_at > MAX_PDF_PARSE_SECONDS:
-                    return _PdfTextRead("", False)
-                page_text = (page.extract_text() or "")[:MAX_PDF_PAGE_TEXT_CHARS]
-                if time.monotonic() - started_at > MAX_PDF_PARSE_SECONDS:
-                    return _PdfTextRead("", False)
-                if not page_text:
-                    continue
-                normalized_lines = [
-                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-                ]
-                normalized = "\n".join(normalized_lines)
-                remaining = MAX_PDF_TEXT_CHARS - text_length
-                if remaining <= 0:
-                    break
-                page_texts.append(normalized[:remaining])
-                text_length += min(len(normalized), remaining)
-            return _PdfTextRead(
-                "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS],
-                True,
-            )
-        except Exception:
-            # A malformed, encrypted, image-only, or otherwise unreadable PDF
-            # is uncertain and must fail closed instead of being classified by
-            # filename or by arbitrary bytes from a compressed stream.
-            return _PdfTextRead("", False)
+        return _pdf_support.read_pdf_text_with_pypdf(
+            content,
+            pdf_reader=PdfReader,
+            has_active_pdf_features=self._has_active_pdf_features,
+            extract_pdf_text_with_pdfium=self._extract_pdf_text_with_pdfium,
+            limits=_pdf_processing_limits(),
+        )
 
     def _extract_pdf_text_with_pdfium(
         self,
@@ -1127,34 +833,12 @@ class DocumentMatcher:
         *,
         deadline: float,
     ) -> str | None:
-        """Return bounded embedded text, or None when PDFium is unavailable."""
-
-        if pypdfium2 is None:
-            return None
-        try:
-            document = pypdfium2.PdfDocument(content)
-            page_texts: list[str] = []
-            text_length = 0
-            for page_index in range(min(len(document), MAX_PDF_TEXT_LAYER_PAGES)):
-                if time.monotonic() > deadline:
-                    return None
-                page = document[page_index]
-                text_page = page.get_textpage()
-                page_text = text_page.get_text_range()[:MAX_PDF_PAGE_TEXT_CHARS]
-                normalized = "\n".join(
-                    " ".join(line.split()) for line in page_text.splitlines() if line.strip()
-                )
-                remaining = MAX_PDF_TEXT_CHARS - text_length
-                if remaining <= 0:
-                    break
-                page_texts.append(normalized[:remaining])
-                text_length += min(len(normalized), remaining)
-            return "\n".join(page_texts)[:MAX_PDF_TEXT_CHARS]
-        except Exception:
-            # pypdf remains the compatibility fallback for valid PDFs that
-            # PDFium cannot decode. The outer parser process still enforces the
-            # cumulative wall-time and memory limits.
-            return None
+        return _pdf_support.extract_pdf_text_with_pdfium(
+            content,
+            pdfium=pypdfium2,
+            deadline=deadline,
+            limits=_pdf_processing_limits(),
+        )
 
     def _has_active_pdf_features(
         self,
@@ -1162,68 +846,13 @@ class DocumentMatcher:
         *,
         deadline: float | None = None,
     ) -> bool:
-        """Reject executable, auto-action, attachment, and XFA PDF features."""
-
-        root = self._resolved_pdf_object(reader.root_object)
-        if not isinstance(root, Mapping):
-            return True
-        if any(
-            key in root
-            for key in (
-                "/OpenAction",
-                "/AA",
-                "/AF",
-                "/Collection",
-                "/JavaScript",
-                "/JS",
-            )
-        ):
-            return True
-
-        names = self._resolved_pdf_object(root.get("/Names"))
-        if isinstance(names, Mapping) and any(
-            key in names for key in ("/JavaScript", "/JS", "/EmbeddedFiles")
-        ):
-            return True
-
-        acro_form = self._resolved_pdf_object(root.get("/AcroForm"))
-        if isinstance(acro_form, Mapping):
-            if "/XFA" in acro_form or "/AA" in acro_form:
-                return True
-            if self._pdf_fields_have_actions(
-                acro_form.get("/Fields"),
-                deadline=deadline,
-            ):
-                return True
-
-        for page in reader.pages:
-            if deadline is not None and time.monotonic() > deadline:
-                return True
-            page_object = self._resolved_pdf_object(page)
-            if not isinstance(page_object, Mapping):
-                return True
-            if "/AA" in page_object or "/AF" in page_object:
-                return True
-            annotations = self._resolved_pdf_object(page_object.get("/Annots"))
-            if annotations is None:
-                continue
-            if not isinstance(annotations, (list, tuple)):
-                return True
-            for annotation_reference in annotations:
-                annotation = self._resolved_pdf_object(annotation_reference)
-                if not isinstance(annotation, Mapping):
-                    return True
-                if str(annotation.get("/Subtype", "")) in {
-                    "/FileAttachment",
-                    "/RichMedia",
-                }:
-                    return True
-                if "/AA" in annotation or self._pdf_action_is_active(
-                    annotation.get("/A"),
-                    deadline=deadline,
-                ):
-                    return True
-        return False
+        return _pdf_support.has_active_pdf_features(
+            reader,
+            deadline=deadline,
+            resolve_object=self._resolved_pdf_object,
+            fields_have_actions=self._pdf_fields_have_actions,
+            action_is_active=self._pdf_action_is_active,
+        )
 
     def _pdf_fields_have_actions(
         self,
@@ -1231,32 +860,12 @@ class DocumentMatcher:
         *,
         deadline: float | None,
     ) -> bool:
-        fields = self._resolved_pdf_object(fields_reference)
-        if fields is None:
-            return False
-        if not isinstance(fields, (list, tuple)):
-            return True
-        stack = list(fields)
-        visited = 0
-        while stack:
-            visited += 1
-            if visited > 10_000 or (deadline is not None and time.monotonic() > deadline):
-                return True
-            field = self._resolved_pdf_object(stack.pop())
-            if not isinstance(field, Mapping):
-                return True
-            if "/AA" in field or self._pdf_action_is_active(
-                field.get("/A"),
-                deadline=deadline,
-            ):
-                return True
-            children = self._resolved_pdf_object(field.get("/Kids"))
-            if children is None:
-                continue
-            if not isinstance(children, (list, tuple)):
-                return True
-            stack.extend(children)
-        return False
+        return _pdf_support.pdf_fields_have_actions(
+            fields_reference,
+            deadline=deadline,
+            resolve_object=self._resolved_pdf_object,
+            action_is_active=self._pdf_action_is_active,
+        )
 
     def _pdf_action_is_active(
         self,
@@ -1264,43 +873,14 @@ class DocumentMatcher:
         *,
         deadline: float | None,
     ) -> bool:
-        if action_reference is None:
-            return False
-        stack = [action_reference]
-        visited = 0
-        while stack:
-            visited += 1
-            if visited > 1_000 or (deadline is not None and time.monotonic() > deadline):
-                return True
-            action = self._resolved_pdf_object(stack.pop())
-            if not isinstance(action, Mapping):
-                return True
-            if "/JS" in action or "/JavaScript" in action or "/Launch" in action:
-                return True
-            if str(action.get("/S", "")) in {
-                "/JavaScript",
-                "/Launch",
-                "/SubmitForm",
-                "/ImportData",
-                "/GoToR",
-                "/Rendition",
-                "/RichMediaExecute",
-            }:
-                return True
-            next_action = self._resolved_pdf_object(action.get("/Next"))
-            if next_action is None:
-                continue
-            if isinstance(next_action, (list, tuple)):
-                stack.extend(next_action)
-            else:
-                stack.append(next_action)
-        return False
+        return _pdf_support.pdf_action_is_active(
+            action_reference,
+            deadline=deadline,
+            resolve_object=self._resolved_pdf_object,
+        )
 
     def _resolved_pdf_object(self, value: Any) -> Any:
-        if value is None:
-            return None
-        resolver = getattr(value, "get_object", None)
-        return resolver() if callable(resolver) else value
+        return _pdf_support.resolved_pdf_object(value)
 
     def _detect_type(
         self,

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
 
-const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
+const workspace = readDocumentWorkspaceSource();
 const workspaceDialogs = readFileSync(
   new URL("./document-workspace-dialogs.tsx", import.meta.url),
   "utf8",
@@ -58,7 +59,7 @@ test("group details include compact document delivery management", () => {
 
 test("review tables keep one row per submitted passenger and nest saved documents", () => {
   assert.match(types, /documents: DistributedDocument\[\]/);
-  assert.match(workspace, /const documents = reviewRowDocuments\(row\)/);
+  assert.match(workspace, /documentsByPassengerId\.get\(row\.passenger_id\) \?\? \[\]/);
   assert.match(workspace, /<tr key=\{row\.passenger_id\}>/);
   assert.match(workspace, /\{documents\.length\} saved documents/);
   assert.doesNotMatch(workspace, /<tr key=\{row\.document\?\.id/);

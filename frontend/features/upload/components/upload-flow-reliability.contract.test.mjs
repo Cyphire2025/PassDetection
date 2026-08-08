@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
-
-const source = readFileSync(
-  new URL("./upload-flow.tsx", import.meta.url),
-  "utf8",
-);
+import { uploadFlowSource as source } from "./upload-flow-source.contract-helper.mjs";
 
 test("initialization cleanup permits React effect replay", () => {
   assert.match(

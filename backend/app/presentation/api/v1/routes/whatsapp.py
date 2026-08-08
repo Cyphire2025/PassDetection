@@ -7,16 +7,12 @@ import hashlib
 import hmac
 import json
 import logging
-import math
-import re
 import uuid
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from itertools import islice
 from typing import Any, Literal
-from urllib.parse import urlparse
-from zipfile import BadZipFile, ZipFile
+from zipfile import BadZipFile
 
 import httpx
 from fastapi import (
@@ -34,7 +30,7 @@ from fastapi import (
 from fastapi.responses import PlainTextResponse
 from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
-from sqlalchemy import and_, delete, func, or_, select, union_all, update
+from sqlalchemy import and_, delete, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,23 +40,8 @@ from app.application.mobile.passenger_change_propagation import (
     reconcile_mobile_passenger_access_for_broadcast,
     reconcile_mobile_passenger_access_for_group,
 )
-from app.application.use_cases.whatsapp.contact_normalization import (
-    clean_whatsapp_name,
-    normalize_whatsapp_phone,
-)
 from app.application.use_cases.whatsapp.message_templates import (
-    AUTOMATED_NOTICE,
-    GREETING,
-    PASSPORT_INFORMATION_NOTICE,
-    STATIC_TEMPLATE_HEADER,
     WhatsAppMessageType,
-    default_message_content,
-    format_support_contacts,
-    passport_link_intro,
-    render_message,
-    template_header_parameters,
-    template_parameters,
-    validate_template_parameters,
 )
 from app.application.use_cases.whatsapp.recipient_capacity import (
     MAX_WHATSAPP_RECIPIENTS,
@@ -90,7 +71,6 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.passport_roster_resolution_repository import (
-    active_replacement_phone_numbers_for_broadcast,
     active_replacement_resolution_id_for_recipient,
     suppress_active_replacement_recipients,
 )
@@ -118,7 +98,19 @@ from app.infrastructure.whatsapp.private_delivery_policy import (
 from app.infrastructure.whatsapp.qr_delivery_runtime import (
     apply_qr_provider_status,
 )
-from app.presentation.api.v1.schemas.whatsapp_schemas import (
+from app.presentation.api.v1.routes import (
+    whatsapp_composer_support as _composer_support,
+)
+from app.presentation.api.v1.routes import (
+    whatsapp_contact_support as _contact_support,
+)
+from app.presentation.api.v1.routes import (
+    whatsapp_delivery_support as _delivery_support,
+)
+from app.presentation.api.v1.routes import (
+    whatsapp_roster_support as _roster_support,
+)
+from app.presentation.api.v1.schemas.whatsapp_schemas import (  # noqa: F401
     WhatsAppBatchSummaryResponse,
     WhatsAppBroadcastGroupDetailResponse,
     WhatsAppBroadcastGroupResponse,
@@ -161,64 +153,119 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 WHATSAPP_ROLES = [*WHATSAPP_BROADCAST_ROLES]
-PHONE_RE = re.compile(r"(?:\+|00)?\d[\d\s().-]{7,}\d")
-WHATSAPP_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
-WHATSAPP_ACCEPTED_STATUS_RANK = {
-    "submitted": 0,
-    "sent": 1,
-    "delivered": 2,
-    "read": 3,
-}
-WHATSAPP_WEBHOOK_STATUSES = frozenset({"sent", "delivered", "read", "failed"})
-WHATSAPP_IN_PROGRESS_STATUSES = frozenset({"queued", "processing"})
-WHATSAPP_UNCERTAIN_STATUSES = frozenset({"delivery_unknown"})
+PHONE_RE = _contact_support.PHONE_RE
+WHATSAPP_ACCEPTED_STATUSES = _delivery_support.WHATSAPP_ACCEPTED_STATUSES
+WHATSAPP_ACCEPTED_STATUS_RANK = _delivery_support.WHATSAPP_ACCEPTED_STATUS_RANK
+WHATSAPP_WEBHOOK_STATUSES = _delivery_support.WHATSAPP_WEBHOOK_STATUSES
+WHATSAPP_IN_PROGRESS_STATUSES = _delivery_support.WHATSAPP_IN_PROGRESS_STATUSES
+WHATSAPP_UNCERTAIN_STATUSES = _delivery_support.WHATSAPP_UNCERTAIN_STATUSES
 WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES = (
-    WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
+    _delivery_support.WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES
 )
-WHATSAPP_SUPPRESSED_STATUSES = (
-    WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_UNCERTAIN_STATUSES
-)
-WHATSAPP_STALE_CLAIM_AGE = timedelta(minutes=30)
+WHATSAPP_SUPPRESSED_STATUSES = _delivery_support.WHATSAPP_SUPPRESSED_STATUSES
+WHATSAPP_STALE_CLAIM_AGE = _delivery_support.WHATSAPP_STALE_CLAIM_AGE
 MAX_WHATSAPP_CONTACT_FILE_BYTES = 5 * 1024 * 1024
 MAX_WHATSAPP_WELCOME_IMAGE_BYTES = 5 * 1024 * 1024
-MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
-MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
-MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
-MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
+MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = (
+    _contact_support.MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES
+)
+MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = _contact_support.MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS
+MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = _contact_support.MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
+MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = _contact_support.MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS
 MAX_WHATSAPP_EXCEL_SHEETS = 50
 MAX_WHATSAPP_EXCEL_ROWS = 2_000
 MAX_WHATSAPP_REJECTED_ROWS = 500
-MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = 500
-MAX_WHATSAPP_IMPORTED_FIELDS = 256
-MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = 64
-MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = 256
-MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = 8 * 1024
-WHATSAPP_UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
-WHATSAPP_ROSTER_SOURCE_FIELDS = frozenset(
-    {"source_file", "source_order", "source_sheet", "source_row"}
+MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = (
+    _contact_support.MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP
 )
+MAX_WHATSAPP_IMPORTED_FIELDS = _contact_support.MAX_WHATSAPP_IMPORTED_FIELDS
+MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH = (
+    _contact_support.MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH
+)
+MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH = (
+    _contact_support.MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH
+)
+MAX_WHATSAPP_IMPORTED_FIELDS_BYTES = _contact_support.MAX_WHATSAPP_IMPORTED_FIELDS_BYTES
+WHATSAPP_UPLOAD_READ_CHUNK_BYTES = _contact_support.WHATSAPP_UPLOAD_READ_CHUNK_BYTES
+WHATSAPP_ROSTER_SOURCE_FIELDS = _contact_support.WHATSAPP_ROSTER_SOURCE_FIELDS
 
+_WhatsAppExcelContactParseResult = _contact_support._WhatsAppExcelContactParseResult
+_WhatsAppComposerSnapshot = _composer_support._WhatsAppComposerSnapshot
 
-@dataclass(slots=True)
-class _WhatsAppExcelContactParseResult:
-    contacts: list[WhatsAppRecipientInput]
-    rejected_rows: list[WhatsAppContactPreviewRejectedRow]
-    rejected_counts: dict[WhatsAppContactRejectionCode, int]
+_iter_webhook_values = _delivery_support._iter_webhook_values
+_extract_status_error = _delivery_support._extract_status_error
+_parse_provider_status_at = _delivery_support._parse_provider_status_at
+_is_stale_provider_status = _delivery_support._is_stale_provider_status
+_apply_provider_status_to_delivery_state = (
+    _delivery_support._apply_provider_status_to_delivery_state
+)
+_apply_provider_status_to_message_log = _delivery_support._apply_provider_status_to_message_log
+_provider_status_state_predicates = _delivery_support._provider_status_state_predicates
+_agency_filter = _delivery_support._agency_filter
+_broadcast_batch_summary_statement = _delivery_support._broadcast_batch_summary_statement
 
-    @property
-    def rejected_count(self) -> int:
-        return sum(self.rejected_counts.values())
+_normalize_phone = _contact_support._normalize_phone
+_clean_name = _contact_support._clean_name
+_clean_required_name = _contact_support._clean_required_name
+_validate_excel_archive = _contact_support._validate_excel_archive
+_excel_cell_text = _contact_support._excel_cell_text
+_excel_header_label = _contact_support._excel_header_label
+_EXCEL_FIELD_ALIASES = _contact_support._EXCEL_FIELD_ALIASES
+_EMPTY_EXCEL_VALUES = _contact_support._EMPTY_EXCEL_VALUES
+_excel_field_key = _contact_support._excel_field_key
+_safe_imported_fields = _contact_support._safe_imported_fields
+_is_excel_phone_header = _contact_support._is_excel_phone_header
+_is_excel_name_header = _contact_support._is_excel_name_header
+_excel_header_columns = _contact_support._excel_header_columns
+_find_excel_contact_header = _contact_support._find_excel_contact_header
+_excel_name_from_row = _contact_support._excel_name_from_row
+_excel_raw_name_from_row = _contact_support._excel_raw_name_from_row
+_bounded_excel_raw_value = _contact_support._bounded_excel_raw_value
+_is_repeated_excel_header = _contact_support._is_repeated_excel_header
+_row_has_contact_identity = _contact_support._row_has_contact_identity
+_WHATSAPP_CONTACT_REJECTION_REASONS = (
+    _contact_support._WHATSAPP_CONTACT_REJECTION_REASONS
+)
+_excel_fields_from_row = _contact_support._excel_fields_from_row
+_merge_recipient_inputs = _contact_support._merge_recipient_inputs
+_excel_contact_preview_response = _contact_support._excel_contact_preview_response
+_parse_manual_contacts = _contact_support._parse_manual_contacts
+_rejected_contact_fingerprint = _contact_support._rejected_contact_fingerprint
+_parse_rejected_contacts = _contact_support._parse_rejected_contacts
+_positive_int = _contact_support._positive_int
+_roster_source_sort_key = _contact_support._roster_source_sort_key
+_new_roster_display_orders = _contact_support._new_roster_display_orders
+_next_roster_display_order = _contact_support._next_roster_display_order
+_add_rejected_contact_models = _contact_support._add_rejected_contact_models
+_normalized_recipient_inputs = _contact_support._normalized_recipient_inputs
+_activate_recipient_models = _contact_support._activate_recipient_models
+_parse_support_contacts = _contact_support._parse_support_contacts
+_recipient_response = _contact_support._recipient_response
+_rejected_contact_response = _contact_support._rejected_contact_response
+_support_contact_response = _contact_support._support_contact_response
 
+_support_contacts_for_group = _roster_support._support_contacts_for_group
+_recipient_delivery_state_maps = _roster_support._recipient_delivery_state_maps
+_group_detail = _roster_support._group_detail
+_group_recipients = _roster_support._group_recipients
+_select_group_recipients = _roster_support._select_group_recipients
+_select_support_contacts = _roster_support._select_support_contacts
+_recipient_delivery_counts = _roster_support._recipient_delivery_counts
 
-
-
-@dataclass(frozen=True, slots=True)
-class _WhatsAppComposerSnapshot:
-    log: WhatsAppMessageLogModel
-    passport_intro: str | None
-    passport_link: str | None
-    message_content: str
-    header_image_id: str | None
+_as_message_type = _composer_support._as_message_type
+_resolve_message_content = _composer_support._resolve_message_content
+_resolve_send_message_content = _composer_support._resolve_send_message_content
+_resolve_passport_intro = _composer_support._resolve_passport_intro
+_resolve_send_passport_intro = _composer_support._resolve_send_passport_intro
+_resolve_send_header_image = _composer_support._resolve_send_header_image
+_validate_passport_link = _composer_support._validate_passport_link
+_message_values = _composer_support._message_values
+_split_rendered_support_block = _composer_support._split_rendered_support_block
+_decode_legacy_template_snapshot = _composer_support._decode_legacy_template_snapshot
+_template_snapshot_from_log = _composer_support._template_snapshot_from_log
+_composer_snapshot_from_log = _composer_support._composer_snapshot_from_log
+_latest_composer_snapshot = _composer_support._latest_composer_snapshot
+_merge_composer_snapshot = _composer_support._merge_composer_snapshot
 
 
 def _verify_meta_signature(raw_body: bytes, signature_header: str | None) -> bool:
@@ -231,136 +278,6 @@ def _verify_meta_signature(raw_body: bytes, signature_header: str | None) -> boo
     received_signature = signature_header.removeprefix("sha256=").strip()
     expected_signature = hmac.new(app_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
     return hmac.compare_digest(received_signature, expected_signature)
-
-
-def _iter_webhook_values(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    values: list[dict[str, Any]] = []
-    for entry in payload.get("entry", []) if isinstance(payload.get("entry"), list) else []:
-        for change in (
-            entry.get("changes", [])
-            if isinstance(entry, dict) and isinstance(entry.get("changes"), list)
-            else []
-        ):
-            value = change.get("value") if isinstance(change, dict) else None
-            if isinstance(value, dict):
-                values.append(value)
-    return values
-
-
-def _extract_status_error(status_payload: dict[str, Any]) -> str | None:
-    errors = status_payload.get("errors")
-    if not isinstance(errors, list) or not errors:
-        return None
-    first = errors[0]
-    if not isinstance(first, dict):
-        return None
-    provider_code = first.get("code")
-    code_suffix = (
-        f" ({provider_code})"
-        if isinstance(provider_code, (str, int)) and not isinstance(provider_code, bool)
-        else ""
-    )
-    return (
-        "WHATSAPP_PROVIDER_DELIVERY_FAILED: "
-        f"Meta reported that this message was not delivered{code_suffix}"
-    )
-
-
-def _parse_provider_status_at(value: Any) -> datetime | None:
-    try:
-        return datetime.fromtimestamp(int(str(value)), tz=UTC)
-    except (TypeError, ValueError, OSError):
-        return None
-
-
-def _is_stale_provider_status(
-    current: datetime | None,
-    incoming: datetime | None,
-) -> bool:
-    return bool(current and incoming and incoming < current)
-
-
-def _apply_provider_status_to_delivery_state(
-    delivery_state: WhatsAppRecipientMessageStateModel,
-    *,
-    provider_status: str,
-    provider_status_at: datetime | None,
-    now: datetime,
-) -> None:
-    """Apply Meta receipts without letting late events enable duplicate sends."""
-
-    if _is_stale_provider_status(
-        delivery_state.provider_status_at,
-        provider_status_at,
-    ):
-        return
-    if provider_status in WHATSAPP_ACCEPTED_STATUSES:
-        current_rank = WHATSAPP_ACCEPTED_STATUS_RANK.get(delivery_state.status, -1)
-        incoming_rank = WHATSAPP_ACCEPTED_STATUS_RANK[provider_status]
-        if incoming_rank >= current_rank:
-            delivery_state.status = provider_status
-        delivery_state.submitted_at = delivery_state.submitted_at or now
-        delivery_state.status_updated_at = now
-        delivery_state.provider_status_at = provider_status_at or delivery_state.provider_status_at
-        delivery_state.updated_at = now
-    elif provider_status == "failed" and delivery_state.status not in {
-        "delivered",
-        "read",
-    }:
-        # A current-batch definitive failure is retryable until Meta reports
-        # delivery. Delivered/read are monotonic and never move backwards.
-        delivery_state.status = "failed"
-        delivery_state.status_updated_at = now
-        delivery_state.provider_status_at = provider_status_at or delivery_state.provider_status_at
-        delivery_state.updated_at = now
-
-
-def _apply_provider_status_to_message_log(
-    log: WhatsAppMessageLogModel,
-    *,
-    provider_status: str,
-    error_message: str | None,
-    provider_status_at: datetime | None,
-    now: datetime,
-) -> None:
-    """Keep message-log status consistent with the monotonic delivery ledger."""
-
-    if _is_stale_provider_status(log.provider_status_at, provider_status_at):
-        return
-    if provider_status in WHATSAPP_ACCEPTED_STATUSES:
-        current_rank = WHATSAPP_ACCEPTED_STATUS_RANK.get(log.status, -1)
-        incoming_rank = WHATSAPP_ACCEPTED_STATUS_RANK[provider_status]
-        if incoming_rank >= current_rank:
-            log.status = provider_status
-            log.status_updated_at = now
-            log.provider_status_at = provider_status_at or log.provider_status_at
-    elif provider_status == "failed" and log.status not in {"delivered", "read"}:
-        log.status = "failed"
-        log.status_updated_at = now
-        log.provider_status_at = provider_status_at or log.provider_status_at
-    if error_message:
-        log.error_message = error_message
-
-
-def _provider_status_state_predicates(
-    log: WhatsAppMessageLogModel,
-    *,
-    provider_status: str,
-) -> list[Any]:
-    predicates = [
-        WhatsAppRecipientMessageStateModel.recipient_id == log.recipient_id,
-        WhatsAppRecipientMessageStateModel.message_type == log.message_type,
-    ]
-    if provider_status == "failed":
-        # A failed receipt is only authoritative for the matching attempt. A
-        # delayed failure from an older provider message must never release a
-        # newer claim for retry.
-        predicates.append(WhatsAppRecipientMessageStateModel.batch_id == log.batch_id)
-    # Provider acceptance is authoritative for this recipient and message
-    # type even if a later retry has already claimed the ledger. Omitting the
-    # batch predicate promotes the ledger and suppresses that duplicate send
-    # whenever the retry worker has not yet contacted Meta.
-    return predicates
 
 
 @router.get("/webhook", response_class=PlainTextResponse)
@@ -591,16 +508,6 @@ async def receive_whatsapp_webhook(
     )
 
 
-def _agency_filter(current_user: User) -> list[Any]:
-    if current_user.role == UserRole.SUPER_ADMIN:
-        return []
-    if not current_user.agency_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="User is not assigned to an agency"
-        )
-    return [WhatsAppBroadcastGroupModel.agency_id == current_user.agency_id]
-
-
 async def _prepare_private_recipient_mutation(
     session: AsyncSession,
     *,
@@ -689,32 +596,6 @@ async def _release_auth_transaction(
     await session.rollback()
 
 
-def _normalize_phone(raw: str) -> str | None:
-    return normalize_whatsapp_phone(raw)
-
-
-def _clean_name(value: Any) -> str | None:
-    return clean_whatsapp_name(value)
-
-
-def _clean_required_name(value: Any, field_label: str) -> str:
-    cleaned = _clean_name(value)
-    if not cleaned:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"{field_label} is required",
-        )
-    return cleaned
-
-
-def _as_message_type(value: str) -> WhatsAppMessageType:
-    if value == "welcome":
-        return "welcome"
-    if value == "reminder":
-        return "reminder"
-    return "passport_link"
-
-
 def _configured_template_name(message_type: WhatsAppMessageType) -> str:
     settings = get_settings()
     if message_type == "welcome":
@@ -722,493 +603,6 @@ def _configured_template_name(message_type: WhatsAppMessageType) -> str:
     if message_type == "reminder":
         return settings.whatsapp_reminder_template_name
     return settings.whatsapp_passport_link_template_name
-
-
-def _resolve_message_content(
-    message_type: WhatsAppMessageType,
-    value: str | None,
-    *,
-    group_name: str,
-) -> str:
-    if value is None:
-        return default_message_content(message_type, group_name=group_name)
-    return value.strip()
-
-
-def _resolve_send_message_content(
-    message_type: WhatsAppMessageType,
-    value: str | None,
-    *,
-    group_name: str,
-) -> str:
-    content = _resolve_message_content(message_type, value, group_name=group_name)
-    if not content:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "Enter the editable message section before sending. "
-                "Meta requires this template field to contain text."
-            ),
-        )
-    return content
-
-
-def _resolve_passport_intro(value: str | None, *, group_name: str) -> str:
-    if value is None:
-        return passport_link_intro(group_name)
-    return value.strip()
-
-
-def _resolve_send_passport_intro(value: str | None, *, group_name: str) -> str:
-    intro = _resolve_passport_intro(value, group_name=group_name)
-    if not intro:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "Enter the passport-link introduction before sending. "
-                "Meta requires BODY {{1}} to contain text."
-            ),
-        )
-    return intro
-
-
-def _resolve_send_header_image(
-    message_type: WhatsAppMessageType,
-    value: str | None,
-    *,
-    resend: bool = False,
-) -> str | None:
-    if message_type == "reminder":
-        return None
-    media_id = (value or "").strip()
-    if media_id:
-        return media_id
-    action = "resending" if resend else "sending"
-    label = "Welcome" if message_type == "welcome" else "Passport Link"
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail=f"Upload the required {label} image before {action}",
-    )
-
-
-def _validate_passport_link(value: str | None, *, allow_placeholder: bool = False) -> str:
-    link = (value or "").strip()
-    if not link and allow_placeholder:
-        return "[passport upload link]"
-    parsed = urlparse(link)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Enter a valid passport upload link starting with http:// or https://",
-        )
-    return link
-
-
-def _validate_excel_archive(payload: bytes) -> None:
-    with ZipFile(BytesIO(payload)) as archive:
-        members = archive.infolist()
-        if len(members) > MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The Excel contact file contains too many archive entries",
-            )
-        total_uncompressed = sum(member.file_size for member in members)
-        if total_uncompressed > MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The Excel contact file expands beyond the allowed size",
-            )
-        for member in members:
-            if (
-                member.file_size > WHATSAPP_UPLOAD_READ_CHUNK_BYTES
-                and member.compress_size > 0
-                and member.file_size / member.compress_size > MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO
-            ):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="The Excel contact file has an unsafe compression ratio",
-                )
-
-
-def _excel_cell_text(value: Any) -> str:
-    if value is None or isinstance(value, bool):
-        return ""
-    if isinstance(value, float):
-        if not math.isfinite(value):
-            return ""
-        if value.is_integer():
-            return str(int(value))
-    return str(value).strip()
-
-
-def _excel_header_label(value: Any) -> str:
-    return re.sub(r"[^a-z0-9]+", " ", _excel_cell_text(value).casefold()).strip()
-
-
-_EXCEL_FIELD_ALIASES = {
-    "contact name": "name",
-    "employee": "name",
-    "employee name": "name",
-    "full name": "name",
-    "passenger": "name",
-    "passenger name": "name",
-    "recipient": "name",
-    "recipient name": "name",
-    "staff": "name",
-    "staff name": "name",
-    "staffname": "name",
-    "contact": "phone_number",
-    "contact no": "phone_number",
-    "contact number": "phone_number",
-    "mobile": "phone_number",
-    "mobile no": "phone_number",
-    "mobile number": "phone_number",
-    "phone": "phone_number",
-    "phone no": "phone_number",
-    "phone number": "phone_number",
-    "telephone": "phone_number",
-    "whatsapp": "phone_number",
-    "whatsapp no": "phone_number",
-    "whatsapp number": "phone_number",
-    "email address": "email",
-    "e mail": "email",
-    "mail": "email",
-    "passport": "passport_number",
-    "passport no": "passport_number",
-    "passport number": "passport_number",
-    "passport_no": "passport_number",
-    "staff code": "staff_code",
-    "staffcode": "staff_code",
-    "employee code": "staff_code",
-    "agent code": "agent_code",
-    "agentcode": "agent_code",
-    "agent company": "agent_company",
-    "company name": "company",
-    "given name": "given_names",
-    "given names": "given_names",
-}
-_EMPTY_EXCEL_VALUES = frozenset({"-", "--", "n a", "na", "none", "null", "#n/a"})
-
-
-def _excel_field_key(value: Any) -> str:
-    label = _excel_header_label(value)
-    if not label:
-        return ""
-    alias = _EXCEL_FIELD_ALIASES.get(label)
-    if alias:
-        return alias
-    return re.sub(r"_+", "_", label.replace(" ", "_"))[:MAX_WHATSAPP_IMPORTED_FIELD_KEY_LENGTH]
-
-
-def _safe_imported_fields(value: Any) -> dict[str, str]:
-    if value in (None, {}):
-        return {}
-    if not isinstance(value, dict):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Recipient imported fields must be a key/value object",
-        )
-
-    cleaned: dict[str, str] = {}
-    imported_field_count = 0
-    total_size = 0
-    for raw_key, raw_value in value.items():
-        key = _excel_field_key(raw_key)
-        text_value = _excel_cell_text(raw_value)
-        if not key or not text_value or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES:
-            continue
-        if key == "name":
-            text_value = _clean_name(text_value) or ""
-        elif key == "phone_number":
-            text_value = _normalize_phone(text_value) or text_value
-        elif key == "email":
-            text_value = text_value.casefold()
-        elif key == "passport_number":
-            text_value = re.sub(
-                r"[^A-Z0-9]+",
-                "",
-                text_value.upper(),
-            )
-        elif key in {"agent_code", "staff_code"}:
-            # These are imported reference values, not identifiers used for
-            # authentication. Preserve meaningful separators for staff review.
-            text_value = " ".join(text_value.upper().split())
-        else:
-            text_value = " ".join(text_value.split())
-        if not text_value:
-            continue
-        is_roster_source_field = key in WHATSAPP_ROSTER_SOURCE_FIELDS
-        if (
-            not is_roster_source_field
-            and imported_field_count >= MAX_WHATSAPP_IMPORTED_FIELDS
-            and key not in cleaned
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "Each WhatsApp recipient can contain at most "
-                    f"{MAX_WHATSAPP_IMPORTED_FIELDS} imported fields"
-                ),
-            )
-        text_value = text_value[:MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH]
-        if key in cleaned:
-            continue
-        total_size += len(key.encode("utf-8")) + len(text_value.encode("utf-8"))
-        if total_size > MAX_WHATSAPP_IMPORTED_FIELDS_BYTES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="A WhatsApp recipient's imported fields are too large",
-            )
-        cleaned[key] = text_value
-        if not is_roster_source_field:
-            imported_field_count += 1
-    return cleaned
-
-
-def _is_excel_phone_header(label: str) -> bool:
-    tokens = set(label.split())
-    if tokens.intersection({"phone", "mobile", "whatsapp", "telephone"}):
-        return True
-    return "contact" in tokens and (
-        len(tokens) == 1 or bool(tokens.intersection({"number", "no", "phone", "mobile"}))
-    )
-
-
-def _is_excel_name_header(label: str) -> bool:
-    return _excel_field_key(label) == "name"
-
-
-def _excel_header_columns(
-    row: tuple[Any, ...],
-) -> tuple[list[int], list[int], list[int], list[int]]:
-    labels = [_excel_header_label(cell) for cell in row]
-    field_keys = [_excel_field_key(cell) for cell in row]
-    phone_columns = [
-        index for index, label in enumerate(labels) if label and _is_excel_phone_header(label)
-    ]
-    name_columns = [
-        index
-        for index, label in enumerate(labels)
-        if label and _is_excel_name_header(label) and index not in phone_columns
-    ]
-    given_name_columns = [index for index, key in enumerate(field_keys) if key == "given_names"]
-    surname_columns = [index for index, key in enumerate(field_keys) if key == "surname"]
-    return (
-        phone_columns,
-        name_columns,
-        given_name_columns,
-        surname_columns,
-    )
-
-
-def _find_excel_contact_header(
-    rows: list[tuple[Any, ...]],
-) -> tuple[int, list[int], list[int], list[int], list[int]] | None:
-    best_match: (
-        tuple[
-            tuple[int, int, int],
-            int,
-            list[int],
-            list[int],
-            list[int],
-            list[int],
-        ]
-        | None
-    ) = None
-    for row_index, row in enumerate(rows[:MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS]):
-        (
-            phone_columns,
-            name_columns,
-            given_name_columns,
-            surname_columns,
-        ) = _excel_header_columns(row)
-        if not phone_columns:
-            continue
-        score = (
-            1 if name_columns or given_name_columns else 0,
-            (
-                len(phone_columns)
-                + len(name_columns)
-                + len(given_name_columns)
-                + len(surname_columns)
-            ),
-            -row_index,
-        )
-        if best_match is None or score > best_match[0]:
-            best_match = (
-                score,
-                row_index,
-                phone_columns,
-                name_columns,
-                given_name_columns,
-                surname_columns,
-            )
-    if best_match is None:
-        return None
-    (
-        _,
-        row_index,
-        phone_columns,
-        name_columns,
-        given_name_columns,
-        surname_columns,
-    ) = best_match
-    return (
-        row_index,
-        phone_columns,
-        name_columns,
-        given_name_columns,
-        surname_columns,
-    )
-
-
-def _excel_name_from_row(
-    row_values: list[Any],
-    *,
-    name_columns: list[int],
-    given_name_columns: list[int],
-    surname_columns: list[int],
-    phone_columns: list[int],
-) -> str | None:
-    for index in name_columns:
-        if index >= len(row_values):
-            continue
-        name = _clean_name(row_values[index])
-        if name:
-            return name
-    given_name = next(
-        (
-            _clean_name(row_values[index])
-            for index in given_name_columns
-            if index < len(row_values) and _clean_name(row_values[index])
-        ),
-        None,
-    )
-    surname = next(
-        (
-            _clean_name(row_values[index])
-            for index in surname_columns
-            if index < len(row_values) and _clean_name(row_values[index])
-        ),
-        None,
-    )
-    composed = " ".join(part for part in (given_name, surname) if part)
-    if composed:
-        return composed
-    if name_columns or given_name_columns or surname_columns:
-        return None
-    for index, value in enumerate(row_values):
-        if index in phone_columns:
-            continue
-        name = _clean_name(value)
-        if name and any(character.isalpha() for character in name) and not PHONE_RE.search(name):
-            return name
-    return None
-
-
-def _excel_raw_name_from_row(
-    row_values: list[Any],
-    *,
-    name_columns: list[int],
-    given_name_columns: list[int],
-    surname_columns: list[int],
-    phone_columns: list[int],
-) -> str | None:
-    for index in name_columns:
-        if index >= len(row_values):
-            continue
-        if value := _excel_cell_text(row_values[index]):
-            return value[:256]
-    given_name = next(
-        (
-            _excel_cell_text(row_values[index])
-            for index in given_name_columns
-            if index < len(row_values) and _excel_cell_text(row_values[index])
-        ),
-        None,
-    )
-    surname = next(
-        (
-            _excel_cell_text(row_values[index])
-            for index in surname_columns
-            if index < len(row_values) and _excel_cell_text(row_values[index])
-        ),
-        None,
-    )
-    composed = " ".join(part for part in (given_name, surname) if part)
-    if composed:
-        return composed[:256]
-    if name_columns or given_name_columns or surname_columns:
-        return None
-    for index, value in enumerate(row_values):
-        if index in phone_columns:
-            continue
-        text = _excel_cell_text(value)
-        if text and any(character.isalpha() for character in text) and not PHONE_RE.search(text):
-            return text[:256]
-    return None
-
-
-def _bounded_excel_raw_value(value: Any, *, max_length: int) -> str | None:
-    text = _excel_cell_text(value)
-    if not text or _excel_header_label(text) in _EMPTY_EXCEL_VALUES:
-        return None
-    return text[:max_length]
-
-
-def _is_repeated_excel_header(
-    row_values: list[Any],
-    header_row: tuple[Any, ...],
-) -> bool:
-    identity_keys = {"given_names", "name", "phone_number", "surname"}
-
-    def identity_signature(values: list[Any] | tuple[Any, ...]) -> tuple[tuple[int, str], ...]:
-        return tuple(
-            (index, key)
-            for index, value in enumerate(values)
-            if (key := _excel_field_key(value)) in identity_keys
-        )
-
-    header_signature = identity_signature(header_row)
-    row_signature = identity_signature(row_values)
-    header_keys = {key for _, key in header_signature}
-    return (
-        "phone_number" in header_keys
-        and bool(header_keys & {"given_names", "name"})
-        and row_signature == header_signature
-    )
-
-
-def _row_has_contact_identity(
-    *,
-    name: str | None,
-    imported_fields: dict[str, str],
-) -> bool:
-    if name:
-        return True
-    return bool(
-        imported_fields.keys()
-        & {
-            "agent_code",
-            "email",
-            "passport_number",
-            "staff_code",
-        }
-    )
-
-
-_WHATSAPP_CONTACT_REJECTION_REASONS: dict[WhatsAppContactRejectionCode, str] = {
-    "missing_phone": "Add a WhatsApp number for this contact.",
-    "invalid_phone": (
-        "Use a 10-digit Indian mobile number, or an international number of "
-        "8 to 15 digits with its country code (prefix shorter numbers with + or 00)."
-    ),
-    "missing_name": "Add the recipient's name so staff can identify this contact.",
-    "duplicate_phone": (
-        "This WhatsApp number is already listed; its extra details were merged "
-        "into the first accepted contact."
-    ),
-}
 
 
 def _append_excel_contact_rejection(
@@ -1235,64 +629,6 @@ def _append_excel_contact_rejection(
             reason_code=reason_code,
             reason=_WHATSAPP_CONTACT_REJECTION_REASONS[reason_code],
         )
-    )
-
-
-def _excel_fields_from_row(
-    *,
-    header_row: tuple[Any, ...],
-    row_values: list[Any],
-    sheet_name: str,
-    source_file_name: str,
-    row_number: int,
-    source_order: int,
-) -> dict[str, str]:
-    fields: dict[str, str] = {}
-    for index, raw_header in enumerate(header_row):
-        if index >= len(row_values):
-            continue
-        key = _excel_field_key(raw_header)
-        text_value = _excel_cell_text(row_values[index])
-        if not key or not text_value or _excel_header_label(text_value) in _EMPTY_EXCEL_VALUES:
-            continue
-        fields.setdefault(key, text_value)
-    fields.setdefault("source_file", source_file_name)
-    fields.setdefault("source_order", str(source_order))
-    fields.setdefault("source_sheet", sheet_name)
-    fields.setdefault("source_row", str(row_number))
-    return _safe_imported_fields(fields)
-
-
-def _merge_recipient_inputs(
-    existing: WhatsAppRecipientInput,
-    incoming: WhatsAppRecipientInput,
-) -> WhatsAppRecipientInput:
-    merged_fields = dict(existing.imported_fields)
-    conflicting_keys: set[str] = set()
-    for key, value in incoming.imported_fields.items():
-        if key in WHATSAPP_ROSTER_SOURCE_FIELDS:
-            merged_fields.setdefault(key, value)
-            continue
-        current = merged_fields.get(key)
-        if current is None:
-            merged_fields[key] = value
-        elif current.casefold() != value.casefold():
-            conflicting_keys.add(key)
-            suffix = 2
-            alternate_key = f"{key}_{suffix}"
-            while alternate_key in merged_fields:
-                if merged_fields[alternate_key].casefold() == value.casefold():
-                    break
-                suffix += 1
-                alternate_key = f"{key}_{suffix}"
-            else:
-                merged_fields[alternate_key] = value
-    if conflicting_keys:
-        merged_fields["duplicate_conflicting_fields"] = ", ".join(sorted(conflicting_keys))
-    return WhatsAppRecipientInput(
-        name=existing.name or incoming.name,
-        phone_number=existing.phone_number,
-        imported_fields=_safe_imported_fields(merged_fields),
     )
 
 
@@ -1598,1006 +934,6 @@ async def _parse_excel_contacts(
             ),
         )
     return result.contacts
-
-
-def _excel_contact_preview_response(
-    contacts: list[WhatsAppRecipientInput],
-    rejected_rows: list[WhatsAppContactPreviewRejectedRow] | None = None,
-    *,
-    rejected_count: int | None = None,
-) -> WhatsAppContactPreviewResponse:
-    rejected_rows = rejected_rows or []
-    total_rejected = len(rejected_rows) if rejected_count is None else rejected_count
-    if not contacts and total_rejected == 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "No recipients were found. Include name and phone/WhatsApp "
-                "columns with at least one contact."
-            ),
-        )
-
-    normalized_contacts = _normalized_recipient_inputs(contacts) if contacts else {}
-    recipients = [
-        WhatsAppContactPreviewRecipient(
-            name=_clean_required_name(contact.name, "Recipient name"),
-            phone_number=normalized_phone,
-            imported_fields=contact.imported_fields,
-        )
-        for normalized_phone, contact in normalized_contacts.items()
-    ]
-    return WhatsAppContactPreviewResponse(
-        recipient_count=len(recipients),
-        accepted_count=len(recipients),
-        recipients=recipients,
-        rejected_count=total_rejected,
-        rejected_rows=rejected_rows,
-        rejected_rows_truncated=total_rejected > len(rejected_rows),
-        omitted_rejected_count=max(0, total_rejected - len(rejected_rows)),
-    )
-
-
-def _parse_manual_contacts(value: str) -> list[WhatsAppRecipientInput]:
-    try:
-        parsed = json.loads(value or "[]")
-        if not isinstance(parsed, list):
-            raise TypeError
-        return [WhatsAppRecipientInput(**item) for item in parsed]
-    except (TypeError, ValueError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid manual contact list",
-        ) from exc
-
-
-def _rejected_contact_fingerprint(
-    contact: WhatsAppRejectedContactInput,
-) -> str:
-    payload = json.dumps(
-        [
-            contact.source_file_name,
-            contact.sheet_name,
-            contact.row_number,
-            contact.raw_name,
-            contact.raw_phone_number,
-            contact.reason_code,
-        ],
-        ensure_ascii=False,
-        separators=(",", ":"),
-    )
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _parse_rejected_contacts(value: str) -> list[WhatsAppRejectedContactInput]:
-    try:
-        parsed = json.loads(value or "[]")
-        if not isinstance(parsed, list):
-            raise TypeError
-        if len(parsed) > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=(
-                    "A WhatsApp list can contain at most "
-                    f"{MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP} rejected contacts"
-                ),
-            )
-        contacts: list[WhatsAppRejectedContactInput] = []
-        fingerprints: set[str] = set()
-        for item in parsed:
-            contact = WhatsAppRejectedContactInput(**item)
-            source_file_name = (
-                contact.source_file_name.replace("\\", "/").rsplit("/", maxsplit=1)[-1].strip()
-            )
-            sheet_name = contact.sheet_name.strip()
-            raw_name = (contact.raw_name or "").strip() or None
-            raw_phone_number = (contact.raw_phone_number or "").strip() or None
-            if not source_file_name:
-                raise ValueError("source_file_name is empty")
-            if not sheet_name:
-                raise ValueError("sheet_name is empty")
-            normalized = WhatsAppRejectedContactInput(
-                source_file_name=source_file_name,
-                sheet_name=sheet_name,
-                row_number=contact.row_number,
-                raw_name=raw_name,
-                raw_phone_number=raw_phone_number,
-                imported_fields=_safe_imported_fields(contact.imported_fields),
-                reason_code=contact.reason_code,
-            )
-            fingerprint = _rejected_contact_fingerprint(normalized)
-            if fingerprint in fingerprints:
-                continue
-            fingerprints.add(fingerprint)
-            contacts.append(normalized)
-        return contacts
-    except HTTPException:
-        raise
-    except (TypeError, ValueError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid rejected WhatsApp contact list",
-        ) from exc
-
-
-def _positive_int(value: Any) -> int | None:
-    try:
-        parsed = int(str(value).strip())
-    except (TypeError, ValueError):
-        return None
-    return parsed if parsed > 0 else None
-
-
-def _roster_source_sort_key(
-    imported_fields: dict[str, str],
-    *,
-    fallback_source_file: str = "",
-    fallback_source_sheet: str = "",
-    fallback_source_row: int | None = None,
-    stable_index: int,
-) -> tuple[int, str, int, str, int, int]:
-    source_file = (imported_fields.get("source_file") or fallback_source_file or "").casefold()
-    source_sheet = (imported_fields.get("source_sheet") or fallback_source_sheet or "").casefold()
-    source_row = _positive_int(imported_fields.get("source_row")) or fallback_source_row or 0
-    source_order = _positive_int(imported_fields.get("source_order"))
-    is_imported = bool(source_file or source_sheet or source_row or source_order)
-    return (
-        0 if is_imported else 1,
-        source_file,
-        source_order or source_row,
-        source_sheet,
-        source_row,
-        stable_index,
-    )
-
-
-def _new_roster_display_orders(
-    *,
-    normalized_contacts: dict[str, WhatsAppRecipientInput],
-    rejected_contacts: list[WhatsAppRejectedContactInput],
-    existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel],
-    existing_by_fingerprint: dict[str, WhatsAppBroadcastRejectedContactModel],
-    start_order: int,
-) -> tuple[dict[str, int], dict[str, int]]:
-    candidates: list[
-        tuple[
-            tuple[int, str, int, str, int, int],
-            Literal["recipient", "rejected"],
-            str,
-        ]
-    ] = []
-    stable_index = 0
-    for normalized_phone, contact in normalized_contacts.items():
-        if normalized_phone not in existing_by_phone:
-            candidates.append(
-                (
-                    _roster_source_sort_key(
-                        contact.imported_fields,
-                        stable_index=stable_index,
-                    ),
-                    "recipient",
-                    normalized_phone,
-                )
-            )
-        stable_index += 1
-    for contact in rejected_contacts:
-        fingerprint = _rejected_contact_fingerprint(contact)
-        if fingerprint not in existing_by_fingerprint:
-            candidates.append(
-                (
-                    _roster_source_sort_key(
-                        contact.imported_fields,
-                        fallback_source_file=contact.source_file_name,
-                        fallback_source_sheet=contact.sheet_name,
-                        fallback_source_row=contact.row_number,
-                        stable_index=stable_index,
-                    ),
-                    "rejected",
-                    fingerprint,
-                )
-            )
-        stable_index += 1
-
-    recipient_orders: dict[str, int] = {}
-    rejected_orders: dict[str, int] = {}
-    for offset, (_, kind, identity) in enumerate(sorted(candidates)):
-        display_order = start_order + offset
-        if kind == "recipient":
-            recipient_orders[identity] = display_order
-        else:
-            rejected_orders[identity] = display_order
-    return recipient_orders, rejected_orders
-
-
-async def _next_roster_display_order(
-    session: AsyncSession,
-    group_id: uuid.UUID,
-) -> int:
-    existing_orders = union_all(
-        select(WhatsAppBroadcastRecipientModel.display_order.label("display_order")).where(
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
-        ),
-        select(WhatsAppBroadcastRejectedContactModel.display_order.label("display_order")).where(
-            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group_id,
-        ),
-    ).subquery()
-    result = await session.execute(
-        select(func.coalesce(func.max(existing_orders.c.display_order), 0))
-    )
-    return int(result.scalar_one()) + 1
-
-
-def _add_rejected_contact_models(
-    *,
-    session: AsyncSession,
-    group: WhatsAppBroadcastGroupModel,
-    contacts: list[WhatsAppRejectedContactInput],
-    existing_by_fingerprint: dict[
-        str,
-        WhatsAppBroadcastRejectedContactModel,
-    ],
-    now: datetime,
-    display_orders_by_fingerprint: dict[str, int] | None = None,
-) -> int:
-    display_orders_by_fingerprint = display_orders_by_fingerprint or {}
-    new_contacts: list[WhatsAppRejectedContactInput] = []
-    for contact in contacts:
-        fingerprint = _rejected_contact_fingerprint(contact)
-        existing = existing_by_fingerprint.get(fingerprint)
-        if existing is None:
-            new_contacts.append(contact)
-            continue
-        # A repeated import remains one rejected row, but can enrich a record
-        # created before imported spreadsheet fields were persisted.
-        merged_fields = dict(existing.imported_fields or {})
-        merged_fields.update(contact.imported_fields)
-        existing.imported_fields = _safe_imported_fields(merged_fields)
-    if len(existing_by_fingerprint) + len(new_contacts) > MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "A WhatsApp list can contain at most "
-                f"{MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP} rejected contacts"
-            ),
-        )
-    for contact in new_contacts:
-        fingerprint = _rejected_contact_fingerprint(contact)
-        model = WhatsAppBroadcastRejectedContactModel(
-            broadcast_group_id=group.id,
-            agency_id=group.agency_id,
-            source_file_name=contact.source_file_name,
-            sheet_name=contact.sheet_name,
-            row_number=contact.row_number,
-            raw_name=contact.raw_name,
-            raw_phone_number=contact.raw_phone_number,
-            imported_fields=_safe_imported_fields(contact.imported_fields),
-            display_order=display_orders_by_fingerprint.get(fingerprint),
-            reason_code=contact.reason_code,
-            reason=_WHATSAPP_CONTACT_REJECTION_REASONS[contact.reason_code],
-            fingerprint=fingerprint,
-            created_at=now,
-        )
-        existing_by_fingerprint[fingerprint] = model
-        session.add(model)
-    return len(new_contacts)
-
-
-def _normalized_recipient_inputs(
-    contacts: list[WhatsAppRecipientInput],
-) -> dict[str, WhatsAppRecipientInput]:
-    normalized_contacts: dict[str, WhatsAppRecipientInput] = {}
-    invalid_numbers: list[str] = []
-    for contact in contacts:
-        normalized = _normalize_phone(contact.phone_number)
-        if not normalized:
-            invalid_numbers.append(contact.phone_number)
-            continue
-        sanitized = WhatsAppRecipientInput(
-            name=contact.name,
-            phone_number=contact.phone_number,
-            imported_fields=_safe_imported_fields(contact.imported_fields),
-        )
-        existing = normalized_contacts.get(normalized)
-        normalized_contacts[normalized] = (
-            _merge_recipient_inputs(existing, sanitized) if existing else sanitized
-        )
-    if invalid_numbers:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"{len(invalid_numbers)} WhatsApp number(s) are invalid. "
-                "Use 8 to 15 digits with an optional country code."
-            ),
-        )
-    if not normalized_contacts:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Add at least one valid WhatsApp number",
-        )
-    unnamed_numbers = [
-        contact.phone_number
-        for contact in normalized_contacts.values()
-        if not _clean_name(contact.name)
-    ]
-    if unnamed_numbers:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                "Every recipient needs a name for personalised messages. "
-                f"Missing names for {len(unnamed_numbers)} contact(s)."
-            ),
-        )
-    if any(len(_clean_name(contact.name) or "") > 100 for contact in normalized_contacts.values()):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Recipient names must be 100 characters or fewer",
-        )
-    return normalized_contacts
-
-
-def _activate_recipient_models(
-    *,
-    session: AsyncSession,
-    group: WhatsAppBroadcastGroupModel,
-    existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel],
-    normalized_contacts: dict[str, WhatsAppRecipientInput],
-    now: datetime,
-    display_orders_by_phone: dict[str, int] | None = None,
-) -> None:
-    """Reactivate matching rows so their durable message checklist survives."""
-
-    display_orders_by_phone = display_orders_by_phone or {}
-    for normalized, contact in normalized_contacts.items():
-        existing = existing_by_phone.get(normalized)
-        if existing:
-            if existing.suppressed_by_roster_resolution_id is not None:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=(
-                        "A recipient in this import is currently marked as "
-                        "replaced in a linked passport group. Restore that "
-                        "replacement from the group before adding them back."
-                    ),
-                )
-            existing.name = _clean_name(contact.name)
-            existing.phone_number = contact.phone_number.strip()
-            if contact.imported_fields:
-                existing.imported_fields = contact.imported_fields
-            existing.removed_at = None
-            continue
-        session.add(
-            WhatsAppBroadcastRecipientModel(
-                broadcast_group_id=group.id,
-                agency_id=group.agency_id,
-                name=_clean_name(contact.name),
-                phone_number=contact.phone_number.strip(),
-                normalized_phone_number=normalized,
-                imported_fields=contact.imported_fields,
-                display_order=display_orders_by_phone.get(normalized),
-                removed_at=None,
-                created_at=now,
-            )
-        )
-
-
-def _parse_support_contacts(value: str) -> list[WhatsAppSupportContactInput]:
-    try:
-        parsed = json.loads(value or "[]")
-        if not isinstance(parsed, list):
-            raise TypeError
-        contacts = [WhatsAppSupportContactInput(**item) for item in parsed]
-    except (TypeError, ValueError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid customer support contact list",
-        ) from exc
-    if not contacts:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Add at least one customer support contact",
-        )
-    normalized: dict[str, WhatsAppSupportContactInput] = {}
-    for contact in contacts:
-        phone = _normalize_phone(contact.phone_number)
-        if not phone:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid WhatsApp number for support contact {contact.name}",
-            )
-        normalized.setdefault(phone, contact)
-    if len(normalized) > 3:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Add no more than three customer support contacts",
-        )
-    return list(normalized.values())
-
-
-def _recipient_response(
-    model: WhatsAppBroadcastRecipientModel,
-    states: list[WhatsAppRecipientMessageStateModel] | None = None,
-    resend_statuses: dict[str, str] | None = None,
-) -> WhatsAppRecipientResponse:
-    ordered_states = sorted(states or [], key=lambda state: state.message_type)
-    latest_resend_statuses = resend_statuses or {}
-    return WhatsAppRecipientResponse(
-        id=model.id,
-        name=model.name,
-        phone_number=model.phone_number,
-        normalized_phone_number=model.normalized_phone_number,
-        imported_fields=dict(getattr(model, "imported_fields", {}) or {}),
-        sent_message_types=[
-            state.message_type
-            for state in ordered_states
-            if state.status in WHATSAPP_ACCEPTED_STATUSES
-        ],
-        message_statuses=[
-            WhatsAppRecipientMessageStatusResponse(
-                message_type=state.message_type,
-                status=state.status,
-                already_sent=state.status in WHATSAPP_ACCEPTED_STATUSES,
-                send_suppressed=state.status in WHATSAPP_SUPPRESSED_STATUSES,
-                latest_resend_status=latest_resend_statuses.get(state.message_type),
-                resend_blocked=latest_resend_statuses.get(state.message_type)
-                in WHATSAPP_EXPLICIT_RESEND_BLOCKING_STATUSES,
-                submitted_at=state.submitted_at,
-                status_updated_at=state.status_updated_at,
-            )
-            for state in ordered_states
-        ],
-    )
-
-
-def _rejected_contact_response(
-    model: WhatsAppBroadcastRejectedContactModel,
-) -> WhatsAppRejectedContactResponse:
-    return WhatsAppRejectedContactResponse(
-        id=model.id,
-        source_file_name=model.source_file_name,
-        sheet_name=model.sheet_name,
-        row_number=model.row_number,
-        raw_name=model.raw_name,
-        raw_phone_number=model.raw_phone_number,
-        imported_fields=_safe_imported_fields(model.imported_fields),
-        reason_code=model.reason_code,
-        reason=model.reason,
-        created_at=model.created_at,
-    )
-
-
-def _support_contact_response(
-    model: WhatsAppBroadcastSupportContactModel,
-) -> WhatsAppSupportContactResponse:
-    return WhatsAppSupportContactResponse(
-        id=model.id,
-        name=model.name,
-        phone_number=model.phone_number,
-        normalized_phone_number=model.normalized_phone_number,
-    )
-
-
-async def _support_contacts_for_group(
-    session: AsyncSession,
-    group_id: uuid.UUID,
-) -> list[WhatsAppBroadcastSupportContactModel]:
-    result = await session.execute(
-        select(WhatsAppBroadcastSupportContactModel)
-        .where(WhatsAppBroadcastSupportContactModel.broadcast_group_id == group_id)
-        .order_by(
-            WhatsAppBroadcastSupportContactModel.sort_order.asc(),
-            WhatsAppBroadcastSupportContactModel.created_at.asc(),
-        )
-    )
-    return list(result.scalars().all())
-
-
-async def _recipient_delivery_state_maps(
-    session: AsyncSession,
-    recipients: list[WhatsAppBroadcastRecipientModel],
-) -> tuple[
-    dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]],
-    dict[uuid.UUID, dict[str, str]],
-]:
-    states_by_recipient: dict[uuid.UUID, list[WhatsAppRecipientMessageStateModel]] = {}
-    resend_statuses_by_recipient: dict[uuid.UUID, dict[str, str]] = {}
-    if not recipients:
-        return states_by_recipient, resend_statuses_by_recipient
-
-    recipient_ids = [recipient.id for recipient in recipients]
-    states_result = await session.execute(
-        select(WhatsAppRecipientMessageStateModel)
-        .where(WhatsAppRecipientMessageStateModel.recipient_id.in_(recipient_ids))
-        .order_by(WhatsAppRecipientMessageStateModel.message_type.asc())
-    )
-    for state_model in states_result.scalars().all():
-        states_by_recipient.setdefault(state_model.recipient_id, []).append(state_model)
-
-    resend_result = await session.execute(
-        select(WhatsAppMessageLogModel)
-        .where(
-            WhatsAppMessageLogModel.recipient_id.in_(recipient_ids),
-            WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-        )
-        .order_by(WhatsAppMessageLogModel.created_at.desc())
-    )
-    for resend_log in resend_result.scalars().all():
-        current_state = next(
-            (
-                state
-                for state in states_by_recipient.get(resend_log.recipient_id, [])
-                if state.message_type == resend_log.message_type
-            ),
-            None,
-        )
-        if (
-            current_state
-            and current_state.status == "failed"
-            and resend_log.created_at <= current_state.status_updated_at
-        ):
-            continue
-        recipient_statuses = resend_statuses_by_recipient.setdefault(
-            resend_log.recipient_id,
-            {},
-        )
-        recipient_statuses.setdefault(resend_log.message_type, resend_log.status)
-    return states_by_recipient, resend_statuses_by_recipient
-
-
-async def _group_detail(
-    session: AsyncSession, group: WhatsAppBroadcastGroupModel
-) -> WhatsAppBroadcastGroupDetailResponse:
-    recipients = await _group_recipients(session, group.id)
-    states_by_recipient, resend_statuses_by_recipient = await _recipient_delivery_state_maps(
-        session, recipients
-    )
-    support_contacts = await _support_contacts_for_group(session, group.id)
-    rejected_count_result = await session.execute(
-        select(func.count())
-        .select_from(WhatsAppBroadcastRejectedContactModel)
-        .where(
-            WhatsAppBroadcastRejectedContactModel.broadcast_group_id == group.id,
-        )
-    )
-    rejected_contact_count = int(rejected_count_result.scalar_one())
-    return WhatsAppBroadcastGroupDetailResponse(
-        id=group.id,
-        name=group.name,
-        organizing_company_name=group.organizing_company_name,
-        recipient_count=len(recipients),
-        total_contact_count=len(recipients) + rejected_contact_count,
-        recipient_opt_in_confirmed=group.recipient_opt_in_confirmed_at is not None,
-        created_at=group.created_at,
-        updated_at=group.updated_at,
-        recipients=[
-            _recipient_response(
-                recipient,
-                states_by_recipient.get(recipient.id, []),
-                resend_statuses_by_recipient.get(recipient.id, {}),
-            )
-            for recipient in recipients
-        ],
-        support_contacts=[_support_contact_response(contact) for contact in support_contacts],
-        rejected_contact_count=rejected_contact_count,
-    )
-
-
-async def _group_recipients(
-    session: AsyncSession,
-    group_id: uuid.UUID,
-) -> list[WhatsAppBroadcastRecipientModel]:
-    result = await session.execute(
-        select(WhatsAppBroadcastRecipientModel)
-        .where(
-            WhatsAppBroadcastRecipientModel.broadcast_group_id == group_id,
-            WhatsAppBroadcastRecipientModel.removed_at.is_(None),
-        )
-        .order_by(
-            WhatsAppBroadcastRecipientModel.name.asc().nullslast(),
-            WhatsAppBroadcastRecipientModel.created_at.asc(),
-        )
-    )
-    recipients = list(result.scalars().all())
-    if not recipients:
-        return []
-    suppressed_phones = await active_replacement_phone_numbers_for_broadcast(
-        session,
-        broadcast_group_id=group_id,
-        agency_id=recipients[0].agency_id,
-    )
-    return [
-        recipient
-        for recipient in recipients
-        if recipient.normalized_phone_number not in suppressed_phones
-    ]
-
-
-def _select_group_recipients(
-    recipients: list[WhatsAppBroadcastRecipientModel],
-    requested_ids: list[uuid.UUID] | None,
-) -> list[WhatsAppBroadcastRecipientModel]:
-    """Apply an optional custom-recipient selection without widening scope."""
-    if requested_ids is None:
-        return recipients
-    requested_id_set = set(requested_ids)
-    if not requested_id_set:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Select at least one WhatsApp recipient",
-        )
-    selected = [recipient for recipient in recipients if recipient.id in requested_id_set]
-    if len(selected) != len(requested_id_set):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="One or more selected WhatsApp recipients were not found in this list",
-        )
-    return selected
-
-
-def _select_support_contacts(
-    support_contacts: list[WhatsAppBroadcastSupportContactModel],
-    requested_ids: list[uuid.UUID] | None,
-    *,
-    message_type: WhatsAppMessageType,
-) -> list[WhatsAppBroadcastSupportContactModel]:
-    """Apply optional support-contact selection for Passport Link messages."""
-    if message_type != "passport_link" or requested_ids is None:
-        return support_contacts
-    requested_id_set = set(requested_ids)
-    if not requested_id_set:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Select at least one customer support contact",
-        )
-    selected = [contact for contact in support_contacts if contact.id in requested_id_set]
-    if len(selected) != len(requested_id_set):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=(
-                "One or more selected customer support contacts were not found "
-                "in this WhatsApp list"
-            ),
-        )
-    return selected
-
-
-async def _recipient_delivery_counts(
-    session: AsyncSession,
-    *,
-    recipients: list[WhatsAppBroadcastRecipientModel],
-    message_type: str,
-) -> tuple[int, int, int, int]:
-    if not recipients:
-        return 0, 0, 0, 0
-    states_result = await session.execute(
-        select(
-            WhatsAppRecipientMessageStateModel.recipient_id,
-            WhatsAppRecipientMessageStateModel.status,
-        ).where(
-            WhatsAppRecipientMessageStateModel.recipient_id.in_(
-                [recipient.id for recipient in recipients]
-            ),
-            WhatsAppRecipientMessageStateModel.message_type == message_type,
-        )
-    )
-    statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
-    already_sent = sum(
-        1 for state_status in statuses.values() if state_status in WHATSAPP_ACCEPTED_STATUSES
-    )
-    in_progress = sum(
-        1 for state_status in statuses.values() if state_status in WHATSAPP_IN_PROGRESS_STATUSES
-    )
-    uncertain = sum(
-        1 for state_status in statuses.values() if state_status in WHATSAPP_UNCERTAIN_STATUSES
-    )
-    return (
-        len(recipients) - already_sent - in_progress - uncertain,
-        already_sent,
-        in_progress,
-        uncertain,
-    )
-
-
-def _message_values(
-    *,
-    group: WhatsAppBroadcastGroupModel,
-    recipient: WhatsAppBroadcastRecipientModel,
-    support_contacts: list[WhatsAppBroadcastSupportContactModel],
-    body: WhatsAppSendRequest,
-    preview: bool = False,
-) -> tuple[
-    WhatsAppMessageType,
-    str | None,
-    str | None,
-    str,
-    str,
-    str,
-    list[str],
-    list[str],
-]:
-    message_type = _as_message_type(body.message_type)
-    message_content = _resolve_message_content(
-        message_type,
-        body.message_content,
-        group_name=group.name,
-    )
-    passport_intro = (
-        _resolve_passport_intro(body.passport_intro, group_name=group.name)
-        if message_type == "passport_link"
-        else None
-    )
-    passport_link = (
-        _validate_passport_link(body.passport_link, allow_placeholder=preview)
-        if message_type == "passport_link"
-        else None
-    )
-    recipient_name = _clean_name(recipient.name) or "Guest"
-    support_block = format_support_contacts(
-        [(contact.name, contact.phone_number) for contact in support_contacts]
-    )
-    rendered = render_message(
-        message_type=message_type,
-        group_name=group.name,
-        support_contacts=support_block,
-        message_content=message_content,
-        passport_link=passport_link,
-        passport_intro=passport_intro,
-    )
-    header_parameters = template_header_parameters(
-        message_type=message_type,
-        header_image_id=body.header_image_id,
-    )
-    parameters = template_parameters(
-        message_type=message_type,
-        group_name=group.name,
-        support_contacts=support_block,
-        message_content=message_content,
-        passport_link=passport_link,
-        passport_intro=passport_intro,
-    )
-    return (
-        message_type,
-        passport_intro,
-        passport_link,
-        message_content,
-        recipient_name,
-        rendered,
-        header_parameters,
-        parameters,
-    )
-
-
-def _split_rendered_support_block(rendered_body: str) -> tuple[str, str]:
-    assistance_marker = "\n\nFor assistance, please contact:\n"
-    footer = "\n\nRegards,\nTeam Global Connect Travels"
-    before_support, marker, support_and_footer = rendered_body.rpartition(assistance_marker)
-    if not marker:
-        raise ValueError("The saved WhatsApp message has an unknown assistance layout")
-    support_contacts, footer_marker, trailing = support_and_footer.rpartition(footer)
-    if not footer_marker or trailing or not support_contacts.strip():
-        raise ValueError("The saved WhatsApp message has an unknown footer layout")
-    return before_support, support_contacts
-
-
-def _decode_legacy_template_snapshot(
-    *,
-    message_type: WhatsAppMessageType,
-    rendered_message: str | None,
-) -> tuple[list[str], list[str]]:
-    """Decode only messages that exactly match our deterministic approved layout."""
-
-    if not rendered_message:
-        raise ValueError("The saved WhatsApp message has no reusable content")
-    prefix = f"{STATIC_TEMPLATE_HEADER}\n\n{GREETING}\n\n"
-    if not rendered_message.startswith(prefix):
-        raise ValueError("The saved WhatsApp message has an unknown header layout")
-    before_support, support_contacts = _split_rendered_support_block(
-        rendered_message[len(prefix) :]
-    )
-
-    if message_type == "welcome":
-        notice_suffix = f"\n\n{AUTOMATED_NOTICE}"
-        if not before_support.endswith(notice_suffix):
-            raise ValueError("The saved welcome message has an unknown notice layout")
-        message_content = before_support[: -len(notice_suffix)]
-        header_parameters: list[str] = []
-        parameters = [message_content, support_contacts]
-        reconstructed = (
-            f"{STATIC_TEMPLATE_HEADER}\n\n"
-            f"{GREETING}\n\n"
-            f"{message_content}\n\n"
-            f"{AUTOMATED_NOTICE}\n\n"
-            "For assistance, please contact:\n"
-            f"{support_contacts}\n\n"
-            "Regards,\n"
-            "Team Global Connect Travels"
-        )
-    else:
-        notice_suffix = f"\n\n{PASSPORT_INFORMATION_NOTICE}"
-        if not before_support.endswith(notice_suffix):
-            raise ValueError("The saved passport message has an unknown notice layout")
-        variable_area = before_support[: -len(notice_suffix)]
-        try:
-            intro, passport_link, message_content = variable_area.split("\n\n", 2)
-        except ValueError as exc:
-            raise ValueError(
-                "The saved passport message does not contain the approved variables"
-            ) from exc
-        intro_prefix = (
-            "Please use the secure link below to submit your travel documents required for "
-            "your trip to "
-        )
-        if (
-            not intro.startswith(intro_prefix)
-            or not intro.endswith(".")
-            or not intro[len(intro_prefix) : -1].strip()
-        ):
-            raise ValueError("The saved passport message has an unknown trip introduction")
-        original_group_name = intro[len(intro_prefix) : -1]
-        parsed_link = urlparse(passport_link)
-        if parsed_link.scheme not in {"http", "https"} or not parsed_link.netloc:
-            raise ValueError("The saved passport message has an invalid upload link")
-        if intro != passport_link_intro(original_group_name):
-            raise ValueError("The saved passport message trip introduction is inconsistent")
-        header_parameters = []
-        parameters = [
-            intro,
-            passport_link,
-            message_content,
-            support_contacts,
-        ]
-        reconstructed = render_message(
-            message_type=message_type,
-            group_name=original_group_name,
-            support_contacts=support_contacts,
-            message_content=message_content,
-            passport_link=passport_link,
-        )
-
-    validate_template_parameters(
-        message_type=message_type,
-        header_parameters=header_parameters,
-        body_parameters=parameters,
-    )
-    if reconstructed != rendered_message:
-        raise ValueError("The saved WhatsApp message could not be verified exactly")
-    return header_parameters, parameters
-
-
-def _template_snapshot_from_log(
-    log: WhatsAppMessageLogModel,
-) -> tuple[list[str], list[str]]:
-    if log.message_type not in {"welcome", "passport_link", "reminder"}:
-        raise ValueError("The saved WhatsApp message type cannot be resent")
-    message_type = _as_message_type(log.message_type)
-    saved_header = log.header_parameter_values
-    saved_body = log.template_parameter_values
-    if saved_header is None and saved_body is None:
-        return _decode_legacy_template_snapshot(
-            message_type=message_type,
-            rendered_message=log.rendered_message,
-        )
-    if not isinstance(saved_header, list) or not isinstance(saved_body, list):
-        raise ValueError("The saved WhatsApp message parameters are incomplete")
-    if any(not isinstance(value, str) for value in [*saved_header, *saved_body]):
-        raise ValueError("The saved WhatsApp message parameters are invalid")
-    header_parameters = list(saved_header)
-    parameters = list(saved_body)
-    validate_template_parameters(
-        message_type=message_type,
-        header_parameters=header_parameters,
-        body_parameters=parameters,
-    )
-    return header_parameters, parameters
-
-
-def _composer_snapshot_from_log(
-    log: WhatsAppMessageLogModel,
-) -> _WhatsAppComposerSnapshot:
-    header_parameters, parameters = _template_snapshot_from_log(log)
-    header_image_id = header_parameters[0] if header_parameters else None
-    if log.message_type in {"welcome", "reminder"}:
-        return _WhatsAppComposerSnapshot(
-            log=log,
-            passport_intro=None,
-            passport_link=None,
-            message_content=parameters[0],
-            header_image_id=header_image_id,
-        )
-    return _WhatsAppComposerSnapshot(
-        log=log,
-        passport_intro=parameters[0],
-        passport_link=parameters[1],
-        message_content=parameters[2],
-        header_image_id=header_image_id,
-    )
-
-
-async def _latest_composer_snapshot(
-    session: AsyncSession,
-    *,
-    group_id: uuid.UUID,
-    message_type: WhatsAppMessageType,
-    recipient_id: uuid.UUID | None = None,
-    accepted_only: bool = True,
-    include_failed: bool = False,
-    include_explicit_resends: bool = False,
-) -> _WhatsAppComposerSnapshot | None:
-    reusable_statuses = (
-        WHATSAPP_ACCEPTED_STATUSES
-        if accepted_only
-        else WHATSAPP_ACCEPTED_STATUSES | WHATSAPP_IN_PROGRESS_STATUSES
-    )
-    if include_failed:
-        reusable_statuses = reusable_statuses | {"failed"}
-    predicates: list[Any] = [
-        WhatsAppMessageLogModel.broadcast_group_id == group_id,
-        WhatsAppMessageLogModel.message_type == message_type,
-        WhatsAppMessageLogModel.status.in_(reusable_statuses),
-    ]
-    if recipient_id is not None:
-        predicates.append(WhatsAppMessageLogModel.recipient_id == recipient_id)
-    if not include_explicit_resends:
-        predicates.append(WhatsAppMessageLogModel.is_explicit_resend.is_(False))
-    result = await session.execute(
-        select(WhatsAppMessageLogModel)
-        .where(*predicates)
-        .order_by(
-            WhatsAppMessageLogModel.created_at.desc(),
-            WhatsAppMessageLogModel.status_updated_at.desc(),
-        )
-        .limit(20)
-    )
-    for log in result.scalars().all():
-        try:
-            return _composer_snapshot_from_log(log)
-        except ValueError:
-            logger.warning(
-                "whatsapp_composer_snapshot_ignored",
-                extra={
-                    "message_log_id": str(log.id),
-                    "message_type": message_type,
-                },
-            )
-    return None
-
-
-def _merge_composer_snapshot(
-    body: WhatsAppSendRequest,
-    snapshot: _WhatsAppComposerSnapshot | None,
-) -> WhatsAppSendRequest:
-    message_type = _as_message_type(body.message_type)
-    return WhatsAppSendRequest(
-        message_type=message_type,
-        passport_intro=(
-            body.passport_intro
-            if body.passport_intro is not None
-            else snapshot.passport_intro
-            if snapshot
-            else None
-        ),
-        passport_link=(
-            body.passport_link
-            if body.passport_link is not None
-            else snapshot.passport_link
-            if snapshot
-            else None
-        ),
-        message_content=(
-            body.message_content
-            if body.message_content is not None
-            else snapshot.message_content
-            if snapshot
-            else None
-        ),
-        header_image_id=(
-            body.header_image_id
-            if body.header_image_id is not None
-            else snapshot.header_image_id
-            if snapshot
-            else None
-        ),
-        recipient_ids=body.recipient_ids,
-        support_contact_ids=body.support_contact_ids,
-    )
 
 
 @router.post(
@@ -5025,54 +3361,6 @@ async def send_broadcast_message(
         skipped_in_progress=skipped_in_progress,
         skipped_delivery_unknown=skipped_delivery_unknown,
         results=results,
-    )
-
-
-def _broadcast_batch_summary_statement(
-    *,
-    batch_id: uuid.UUID,
-    current_user: User,
-    stale_cutoff: datetime,
-) -> Any:
-    """Build a tenant-scoped aggregate query without loading recipient details."""
-
-    log_status = WhatsAppMessageLogModel.status
-    is_in_progress = log_status.in_(WHATSAPP_IN_PROGRESS_STATUSES)
-    is_stale = and_(
-        is_in_progress,
-        WhatsAppMessageLogModel.status_updated_at < stale_cutoff,
-    )
-    is_queued = and_(
-        is_in_progress,
-        WhatsAppMessageLogModel.status_updated_at >= stale_cutoff,
-    )
-    is_sent = log_status.in_(WHATSAPP_ACCEPTED_STATUSES)
-    is_uncertain = or_(
-        log_status.in_({"delivery_unknown", "stalled"}),
-        is_stale,
-    )
-    terminal_failure_statuses = ~log_status.in_(
-        WHATSAPP_IN_PROGRESS_STATUSES | WHATSAPP_ACCEPTED_STATUSES | {"delivery_unknown", "stalled"}
-    )
-    return (
-        select(
-            func.count(WhatsAppMessageLogModel.id).label("total"),
-            func.count(WhatsAppMessageLogModel.id).filter(is_queued).label("queued"),
-            func.count(WhatsAppMessageLogModel.id).filter(is_sent).label("sent"),
-            func.count(WhatsAppMessageLogModel.id)
-            .filter(terminal_failure_statuses)
-            .label("failed"),
-            func.count(WhatsAppMessageLogModel.id).filter(is_uncertain).label("delivery_unknown"),
-        )
-        .select_from(WhatsAppMessageLogModel)
-        .join(
-            WhatsAppBroadcastGroupModel,
-            WhatsAppBroadcastGroupModel.id == WhatsAppMessageLogModel.broadcast_group_id,
-        )
-        .where(
-            WhatsAppMessageLogModel.batch_id == batch_id,
-            *_agency_filter(current_user),
-        )
     )
 
 

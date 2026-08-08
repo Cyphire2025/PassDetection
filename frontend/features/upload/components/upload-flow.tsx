@@ -1,46 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
-import { AxiosError, isAxiosError } from "axios";
 import {
   AlertCircle,
   ArrowLeft,
-  Camera,
   CheckCircle2,
-  ChevronRight,
-  Loader2,
   Mail,
-  MapPin,
   Phone,
-  BadgeCheck,
-  ImagePlus,
   User,
   Users,
-  Utensils,
-  X,
 } from "lucide-react";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
-import {
-  uploadLinksApi,
-  type CustomUploadDetail,
-  type CustomUploadQuestion,
-} from "@/features/passports/api/upload-links.api";
+import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
 import {
   cleanPassportReviewFields as cleanReviewFields,
 } from "@/features/passports/utils/passport-review";
-import { PassportDateInput } from "@/components/shared/passport-date-input";
-import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { previousPassportIsoDate } from "@/lib/utils/passport-date";
-import {
-  formatPassportNationality,
-  isRecognizedPassportCountryCode,
-} from "@/lib/utils/passport-country";
-import { getPassportTextField } from "@/lib/utils/passport-fields";
-import type { ExtractedPassportFields, PassportSubmission } from "@/types/passport.types";
+import type { PassportSubmission } from "@/types/passport.types";
 import { useSubmitClientPassportReview, useUploadPassport } from "../hooks/use-upload";
 import { usePublicFlowTelemetry } from "../hooks/use-public-flow-telemetry";
 import { uploadApi } from "../api/upload.api";
@@ -51,16 +29,36 @@ import {
   type QualifierPath,
 } from "../services/relation-qualifier";
 import {
-  applyUploadReconciliation,
   createUploadRecoveryRecord,
-  parseUploadRecoveryRecord,
-  serializeUploadRecoveryRecord,
-  uploadRecoveryTarget,
 } from "../services/upload-recovery";
 import {
   passportDocumentVerificationGate,
-  type PassportDocumentVerificationGate,
 } from "../services/passport-document-verification";
+import {
+  canRetryExtractionFor,
+  createFamilyMembers,
+  emptyDocumentBundle,
+  errorMessage,
+  extractionNoticeFor,
+  getInitialReviewFields,
+  hasMissingRequiredFields,
+  hasValidReviewDates,
+  isExtractionTerminal,
+  mergeMissingReviewFields,
+  passportHolderName,
+  resizeFamilyMembers,
+  sleep,
+  stageLabel,
+  submitErrorMessage,
+  uploadPersistenceErrorMessage,
+} from "../services/upload-flow-helpers";
+import {
+  createIdempotencyKey,
+  readUploadRecoveryRecord,
+  writeQualifierSelectionToken,
+  writeUploadRecoveryRecord,
+} from "../services/upload-flow-session";
+import { runUploadFlowBootstrap } from "../services/upload-flow-bootstrap";
 import {
   EXTRACTION_POLL_INITIAL_DELAY_MS,
   EXTRACTION_POLL_WINDOW_MS,
@@ -69,6 +67,53 @@ import {
 } from "./extraction-polling";
 import { RelationQualifierStep } from "./relation-qualifier-step";
 import { ProtectedUploadDocumentImage } from "./protected-upload-document-image";
+import {
+  FAMILY_RELATIONS,
+  GENDERS,
+  PASSIVE_PROGRESS_STEPS,
+} from "./upload-flow.constants";
+import {
+  ConfiguredClientFields,
+  ContactInput,
+  ContactSection,
+  CustomDetailFields,
+  CustomQuestionFields,
+  DepartureCitySelect,
+  NameInput,
+  SelectInput,
+} from "./upload-flow-fields";
+import {
+  PassportDocumentBundlePanel,
+  PassportUploadSection,
+  SavedPassportActions,
+  VisaSelfieChoice,
+} from "./upload-flow-passport-picker";
+import {
+  DocumentVerificationBlock,
+  ExtractionNotice,
+  PassportRoiOverlays,
+  ReviewFields,
+  ReviewLayout,
+  ReviewWarning,
+} from "./upload-flow-review";
+import {
+  BackButton,
+  CenteredLoader,
+  CenteredShell,
+  ChoiceCard,
+  ErrorMessage,
+  ProcessingScreen,
+  UploadHeader,
+} from "./upload-flow-shell";
+import type {
+  AgentEmployeeType,
+  ExtractionWaitResult,
+  FamilyMember,
+  FlowMode,
+  PassportDocumentBundle,
+  PendingPassportCrop,
+  UploadFlowStep as Step,
+} from "./upload-flow.types";
 
 const PassportManualCrop = dynamic(
   () => import("./passport-manual-crop").then((module) => module.PassportManualCrop),
@@ -90,109 +135,6 @@ const VisaSelfieCamera = dynamic(
 interface UploadFlowProps {
   token: string;
 }
-
-type FlowMode = "single" | "family";
-type AgentEmployeeType = "" | "agent" | "employee";
-type Step =
-  | "BOOTSTRAP"
-  | "RECOVERY_ERROR"
-  | "QUALIFIER_SELECT"
-  | "MODE_SELECT"
-  | "FAMILY_SETUP"
-  | "METHOD_SELECT"
-  | "SELFIE_CAMERA"
-  | "SELFIE_UPLOAD"
-  | "CAMERA"
-  | "PASSPORT_CROP"
-  | "UPLOADING"
-  | "REVIEW"
-  | "FAMILY_REVIEW"
-  | "SUBMITTING"
-  | "SUCCESS";
-
-interface FamilyMember {
-  localId: string;
-  name: string;
-  relation: string;
-  gender: string;
-  email: string;
-  phone: string;
-  baseCity: string;
-  nearestDomesticAirport: string;
-  staffCode: string;
-  agentEmployeeType: AgentEmployeeType;
-  agentEmployeeCode: string;
-  designation: string;
-  agencyDealershipName: string;
-  mealPreference: string;
-  customAnswers: Record<string, string>;
-  customDetailAnswers: Record<string, string>;
-  submission: PassportSubmission | null;
-  reviewFields: Record<string, string>;
-  visaSelfie: File | null;
-  uploadIdempotencyKey: string;
-  extractionNotice: string | null;
-  canRetryExtraction: boolean;
-}
-
-interface PassportDocumentBundle {
-  front: File | null;
-  back: File | null;
-  frontSource: "camera" | "file" | null;
-  backSource: "camera" | "file" | null;
-  frontManuallyCropped: boolean;
-  backManuallyCropped: boolean;
-}
-
-interface PendingPassportCrop {
-  file: File;
-  pageSide: "front" | "back";
-  source: "camera" | "file";
-}
-
-interface ExtractionWaitResult {
-  submission: PassportSubmission;
-  notice: string | null;
-  retryAllowed: boolean;
-}
-
-const REVIEW_FIELDS = [
-  "surname",
-  "given_names",
-  "passport_number",
-  "nationality",
-  "place_of_issue",
-  "date_of_birth",
-  "date_of_issue",
-  "date_of_expiry",
-  "sex",
-] as const;
-
-const REQUIRED_REVIEW_FIELDS = REVIEW_FIELDS.filter(
-  (field) => field !== "date_of_issue" && field !== "surname",
-);
-const RELATIONS = ["Head", "Spouse", "Son", "Daughter", "Father", "Mother", "Brother", "Sister", "Other"];
-const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
-const PASSPORT_IMAGE_ACCEPT = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".heic",
-  ".heif",
-  ".avif",
-  ".bmp",
-  ".tif",
-  ".tiff",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "image/avif",
-  "image/bmp",
-  "image/tiff",
-].join(",");
 
 export function UploadFlow({ token }: UploadFlowProps) {
   const { data: group, isLoading, error } = useUploadLinkByToken(token);
@@ -287,7 +229,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     || familyMembers.some((member) => member.submission !== null)
     || qualifierSelectionToken !== null
     || clientName.trim().length > 0
-    || !["BOOTSTRAP", "QUALIFIER_SELECT", "MODE_SELECT"].includes(step)
+    || !PASSIVE_PROGRESS_STEPS.has(step)
   );
   const {
     report: reportTelemetry,
@@ -307,202 +249,33 @@ export function UploadFlow({ token }: UploadFlowProps) {
     initializedGroupTokenRef.current = token;
 
     let cancelled = false;
-    void (async () => {
-      // Yield once so all initialization state changes happen from the
-      // external session/API synchronization callback, not synchronously in
-      // the effect body.
-      await Promise.resolve();
-      if (cancelled) return;
-
-      const storedRecovery = readUploadRecoveryRecord(token);
-      const recovery = storedRecovery
-        ?? createUploadRecoveryRecord(createIdempotencyKey());
-      setSingleUploadIdempotencyKey(recovery.idempotencyKey);
-      if (!storedRecovery) writeUploadRecoveryRecord(token, recovery);
-
-      const restoreSubmission = async (submissionId: string) => {
-        try {
-          const savedSubmission = await uploadApi.getUploadStatus(
-            token,
-            submissionId,
-            recovery.idempotencyKey,
-          );
-          if (cancelled) return;
-          reportPublicFlowOnce("recovery_succeeded");
-          writeUploadRecoveryRecord(
-            token,
-            createUploadRecoveryRecord(recovery.idempotencyKey, savedSubmission.id),
-          );
-          setSubmission(savedSubmission);
-          setClientName(
-            passportHolderName(
-              savedSubmission.confirmed_fields
-              ?? savedSubmission.extracted_fields,
-            )
-            || (
-              savedSubmission.client_name === "Passport holder"
-                ? ""
-                : savedSubmission.client_name
-            ),
-          );
-          if (isClientSubmissionComplete(savedSubmission)) {
-            setStep("SUCCESS");
-            return;
-          }
-          if (isExtractionTerminal(savedSubmission)) {
-            setReviewFields(getInitialReviewFields(savedSubmission.extracted_fields));
-            setExtractionNotice(extractionNoticeFor(savedSubmission));
-            setCanRetryExtraction(canRetryExtractionFor(savedSubmission));
-            setStep("REVIEW");
-            return;
-          }
-          setProcessingProgress(savedSubmission.processing_progress ?? 0.05);
-          setProcessingStage(stageLabel(
-            savedSubmission.processing_stage
-            ?? savedSubmission.processing_job_status
-            ?? "queued",
-          ));
+    void runUploadFlowBootstrap({
+      token,
+      relationWithQualifierEnabled,
+      isCancelled: () => cancelled,
+      reportPublicFlowOnce,
+      actions: {
+        setSingleUploadIdempotencyKey,
+        setSubmission,
+        setClientName,
+        setStep,
+        setReviewFields,
+        setExtractionNotice,
+        setCanRetryExtraction,
+        setProcessingProgress,
+        setProcessingStage,
+        queueSubmissionResume: (savedSubmission) => {
           resumeSubmissionRef.current = savedSubmission;
           setResumeSubmissionId(savedSubmission.id);
-          setStep("UPLOADING");
-        } catch (restoreError: unknown) {
-          if (cancelled) return;
-          reportPublicFlowOnce("recovery_missed");
-          if (isMissingSavedSubmissionError(restoreError)) {
-            const replacement = createUploadRecoveryRecord(createIdempotencyKey());
-            writeUploadRecoveryRecord(token, replacement);
-            setSingleUploadIdempotencyKey(replacement.idempotencyKey);
-            setUploadError(
-              "The previous saved upload is no longer available. Please start a new upload.",
-            );
-            if (relationWithQualifierEnabled) {
-              clearQualifierSelectionToken(token);
-              setQualifierSelectionToken(null);
-              setPersistedQualifierChoice(null);
-              setStep("QUALIFIER_SELECT");
-            } else {
-              setStep("MODE_SELECT");
-            }
-            return;
-          }
-          setUploadError(errorMessage(
-            restoreError,
-            "Your saved passport upload could not be reached. Retry reconnecting; a new upload has not been started.",
-          ));
-          setStep("RECOVERY_ERROR");
-        }
-      };
-
-      const recoveryTarget = uploadRecoveryTarget(recovery);
-      if (storedRecovery) {
-        reportPublicFlowOnce("recovery_started");
-      }
-      if (storedRecovery && recoveryTarget.kind === "attempt") {
-        try {
-          const reconciled = await uploadApi.reconcileUpload(
-            token,
-            recoveryTarget.idempotencyKey,
-          );
-          if (cancelled) return;
-          const reconciledRecovery = applyUploadReconciliation(
-            recovery,
-            reconciled.submission_id,
-          );
-          if (reconciledRecovery.submissionId) {
-            writeUploadRecoveryRecord(token, reconciledRecovery);
-            setFlowMode("single");
-            await restoreSubmission(reconciledRecovery.submissionId);
-            return;
-          }
-          reportPublicFlowOnce("recovery_missed");
-        } catch (reconciliationError: unknown) {
-          if (cancelled) return;
-          reportPublicFlowOnce("recovery_missed");
-          setUploadError(errorMessage(
-            reconciliationError,
-            "We could not check whether your previous upload was saved. Retry reconnecting before selecting the passport files again.",
-          ));
-          setStep("RECOVERY_ERROR");
-          return;
-        }
-      }
-
-      // A durable submission is already bound to this browser's private upload
-      // credential. Restore it before consulting the short-lived qualifier
-      // selection token so refresh/back navigation cannot create a second
-      // relationship choice for an upload that was safely persisted.
-      if (recovery.submissionId) {
-        setFlowMode("single");
-        await restoreSubmission(recovery.submissionId);
-        return;
-      }
-
-      if (!relationWithQualifierEnabled) {
-        setStep("MODE_SELECT");
-        return;
-      }
-
-      setFlowMode("single");
-      const storedToken = readQualifierSelectionToken(token);
-      if (!storedToken) {
-        setStep("QUALIFIER_SELECT");
-        return;
-      }
-
-      let selection: Awaited<
-        ReturnType<typeof uploadLinksApi.getQualifierSelection>
-      >;
-      try {
-        selection = await uploadLinksApi.getQualifierSelection(token, storedToken);
-      } catch (restoreError: unknown) {
-        if (cancelled) return;
-        if (isPermanentQualifierRestoreError(restoreError)) {
-          clearQualifierSelectionToken(token);
-          setQualifierSelectionToken(null);
-          setPersistedQualifierChoice(null);
-          setUploadError(
-            "Your previous relationship choice is no longer available. Please choose again.",
-          );
-          setStep("QUALIFIER_SELECT");
-          return;
-        }
-        setQualifierSelectionToken(storedToken);
-        setUploadError(errorMessage(
-          restoreError,
-          "Your saved relationship choice could not be reached. Retry reconnecting; it has not been discarded.",
-        ));
-        setStep("RECOVERY_ERROR");
-        return;
-      }
-      if (cancelled) return;
-      if (selection.status === "expired") {
-        clearQualifierSelectionToken(token);
-        setQualifierSelectionToken(null);
-        setPersistedQualifierChoice(null);
-        setUploadError("Your previous relationship choice expired. Please choose again.");
-        setStep("QUALIFIER_SELECT");
-        return;
-      }
-
-      setQualifierSelectionToken(storedToken);
-      setQualifierPath(selection.is_self ? "self" : "relation");
-      setQualifierRelationCode(selection.relation_code ?? "");
-      setPersistedQualifierChoice(qualifierChoiceKey(
-        selection.is_self ? "self" : "relation",
-        selection.relation_code ?? "",
-      ));
-
-      if (selection.status === "active" || !selection.submission_id) {
-        setStep("METHOD_SELECT");
-        return;
-      }
-
-      writeUploadRecoveryRecord(
-        token,
-        createUploadRecoveryRecord(recovery.idempotencyKey, selection.submission_id),
-      );
-      await restoreSubmission(selection.submission_id);
-    })();
+        },
+        setFlowMode,
+        setUploadError,
+        setQualifierSelectionToken,
+        setPersistedQualifierChoice,
+        setQualifierPath,
+        setQualifierRelationCode,
+      },
+    });
 
     return () => {
       cancelled = true;
@@ -570,14 +343,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   const updateFamilyCount = (count: number) => {
     const safeCount = Math.max(2, Math.min(20, count));
     setFamilyCountInput(String(safeCount));
-    setFamilyMembers((current) => {
-      const next = [...current];
-      while (next.length < safeCount) next.push(createFamilyMember(next.length));
-      return next.slice(0, safeCount).map((member, index) => ({
-        ...member,
-        relation: index === 0 ? "Head" : member.relation,
-      }));
-    });
+    setFamilyMembers((current) => resizeFamilyMembers(current, safeCount));
   };
 
   const handleFamilyCountInput = (value: string) => {
@@ -587,14 +353,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
     const count = Number(value);
     if (Number.isNaN(count)) return;
     if (count >= 2 && count <= 20) {
-      setFamilyMembers((current) => {
-        const next = [...current];
-        while (next.length < count) next.push(createFamilyMember(next.length));
-        return next.slice(0, count).map((member, index) => ({
-          ...member,
-          relation: index === 0 ? "Head" : member.relation,
-        }));
-      });
+      setFamilyMembers((current) => resizeFamilyMembers(current, count));
     }
   };
 
@@ -2080,7 +1839,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
                       <div className="grid min-w-0 gap-3">
                         <NameInput value={member.name} onChange={(value) => updateFamilyMember(index, { name: value })} placeholder="Full name" />
                         <div className="grid min-w-0 gap-3 sm:grid-cols-2">
-                          <SelectInput label="Relation" value={member.relation} values={RELATIONS} onChange={(value) => updateFamilyMember(index, { relation: value })} disabled={index === 0} />
+                          <SelectInput label="Relation" value={member.relation} values={FAMILY_RELATIONS} onChange={(value) => updateFamilyMember(index, { relation: value })} disabled={index === 0} />
                           <SelectInput label="Gender" value={member.gender} values={GENDERS} onChange={(value) => updateFamilyMember(index, { gender: value })} />
                         </div>
                         <div className="grid min-w-0 gap-3 sm:grid-cols-2">
@@ -2224,1333 +1983,4 @@ export function UploadFlow({ token }: UploadFlowProps) {
       </div>
     </div>
   );
-}
-
-function createFamilyMember(index: number): FamilyMember {
-  return {
-    localId: typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}-${index}`,
-    name: "",
-    relation: index === 0 ? "Head" : "",
-    gender: "",
-    email: "",
-    phone: "",
-    baseCity: "",
-    nearestDomesticAirport: "",
-    staffCode: "",
-    agentEmployeeType: "",
-    agentEmployeeCode: "",
-    designation: "",
-    agencyDealershipName: "",
-    mealPreference: "",
-    customAnswers: {},
-    customDetailAnswers: {},
-    submission: null,
-    reviewFields: {},
-    visaSelfie: null,
-    uploadIdempotencyKey: createIdempotencyKey(),
-    extractionNotice: null,
-    canRetryExtraction: false,
-  };
-}
-
-function createFamilyMembers(count: number) {
-  return Array.from({ length: count }, (_, index) => createFamilyMember(index));
-}
-
-function emptyDocumentBundle(): PassportDocumentBundle {
-  return {
-    front: null,
-    back: null,
-    frontSource: null,
-    backSource: null,
-    frontManuallyCropped: false,
-    backManuallyCropped: false,
-  };
-}
-
-function isClientSubmissionComplete(submission: PassportSubmission) {
-  return [
-    "submitted",
-    "ai_approved",
-    "needs_review",
-    "staff_approved",
-  ].includes(submission.status);
-}
-
-function uploadRecoveryStorageKey(groupToken: string) {
-  return `gct:upload-recovery:${groupToken}`;
-}
-
-function readUploadRecoveryRecord(groupToken: string) {
-  try {
-    return parseUploadRecoveryRecord(
-      window.sessionStorage.getItem(uploadRecoveryStorageKey(groupToken)),
-    );
-  } catch {
-    return null;
-  }
-}
-
-function writeUploadRecoveryRecord(
-  groupToken: string,
-  record: ReturnType<typeof createUploadRecoveryRecord>,
-) {
-  try {
-    window.sessionStorage.setItem(
-      uploadRecoveryStorageKey(groupToken),
-      serializeUploadRecoveryRecord(record),
-    );
-  } catch {
-    // Recovery storage is optional in privacy-restricted in-app browsers.
-    // Backend idempotency still protects the active in-memory attempt.
-  }
-}
-
-function qualifierStorageKey(groupToken: string) {
-  return `gct:qualifier-selection:${groupToken}`;
-}
-
-function readQualifierSelectionToken(groupToken: string) {
-  try {
-    return window.sessionStorage.getItem(qualifierStorageKey(groupToken));
-  } catch {
-    return null;
-  }
-}
-
-function writeQualifierSelectionToken(groupToken: string, selectionToken: string) {
-  try {
-    window.sessionStorage.setItem(
-      qualifierStorageKey(groupToken),
-      selectionToken,
-    );
-  } catch {
-    // Session storage is an optional recovery aid. The in-memory bearer token
-    // remains sufficient for the current upload attempt.
-  }
-}
-
-function clearQualifierSelectionToken(groupToken: string) {
-  try {
-    window.sessionStorage.removeItem(qualifierStorageKey(groupToken));
-  } catch {
-    // Storage may be unavailable in privacy-restricted in-app browsers.
-  }
-}
-
-function isPermanentQualifierRestoreError(error: unknown) {
-  if (!isAxiosError(error)) return false;
-  return [400, 401, 403, 404, 410, 422].includes(error.response?.status ?? 0);
-}
-
-function isMissingSavedSubmissionError(error: unknown) {
-  if (!isAxiosError(error)) return false;
-  return [404, 410].includes(error.response?.status ?? 0);
-}
-
-function UploadHeader({ groupName }: { groupName: string }) {
-  return (
-    <div className="mb-5 text-center sm:mb-8 lg:mb-10">
-      <BrandLogo
-        className="mx-auto mb-4 h-16 w-[240px] sm:mb-6 sm:h-20 sm:w-[300px]"
-        priority
-      />
-      <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:mb-3 sm:text-3xl">Upload Travel Documents</h1>
-      <p className="mx-auto max-w-md text-sm leading-relaxed text-slate-500 sm:text-base">Global Connect Travels has requested passport details for</p>
-      <div className="mt-2 inline-flex max-w-full rounded-full bg-blue-50 px-3 py-1 font-semibold text-blue-600">
-        <span className="truncate">{groupName}</span>
-      </div>
-    </div>
-  );
-}
-
-function ChoiceCard({ icon, title, description, onClick }: { icon: ReactNode; title: string; description: string; onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} className="group flex w-full items-start gap-3 rounded-2xl border-2 border-slate-100 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.99] hover:border-blue-600 hover:bg-blue-50/50 hover:shadow-md sm:gap-4 sm:p-5">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white sm:h-12 sm:w-12">{icon}</div>
-      <div className="min-w-0">
-        <h4 className="text-base font-bold text-slate-900 transition-colors group-hover:text-blue-900">{title}</h4>
-        <p className="mt-1 text-sm leading-5 text-slate-500">{description}</p>
-      </div>
-    </button>
-  );
-}
-
-function VisaSelfieChoice({
-  file,
-  onCameraClick,
-  onUploadClick,
-}: {
-  file: File | null;
-  onCameraClick: () => void;
-  onUploadClick: () => void;
-}) {
-  return (
-    <section
-      data-testid="visa-photo-choice"
-      className="relative rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm sm:p-5"
-    >
-      <div className="flex items-start gap-3 pr-20 sm:gap-4">
-        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${
-          file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-600"
-        }`}>
-          {file ? <CheckCircle2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
-        </div>
-        <div className="min-w-0">
-          <h4 className="text-base font-bold text-slate-900">
-            {file ? "Visa Photo ready" : "Upload Photo for Visa"}
-          </h4>
-          <p className="mt-1 text-sm leading-5 text-slate-500">
-            {file
-              ? "The selected Visa Photo passed the required checks. You can replace it using either option below."
-              : "Required. Choose live capture or upload the original digital photo supplied by a studio."}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCameraClick}
-          className="h-11 border-blue-200 bg-blue-50 text-blue-800 hover:border-blue-300 hover:bg-blue-100"
-        >
-          <Camera className="h-4 w-4" />
-          Use live camera
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onUploadClick}
-          className="h-11 border-blue-200 bg-white text-blue-800 hover:border-blue-300 hover:bg-blue-50"
-        >
-          <ImagePlus className="h-4 w-4" />
-          Upload studio photo
-        </Button>
-      </div>
-
-      <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-950">
-        Upload only a studio-taken photo with a plain white background.
-      </div>
-
-      <span className={`pointer-events-none absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${file ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}`}>
-        {file ? "Completed" : "Required"}
-      </span>
-    </section>
-  );
-}
-
-function PassportUploadSection({
-  children,
-  allowFilesFromDevice,
-}: {
-  children: ReactNode;
-  allowFilesFromDevice: boolean;
-}) {
-  return (
-    <details className="group overflow-hidden rounded-2xl border-2 border-slate-100 bg-white shadow-sm" open>
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 marker:hidden sm:p-5">
-        <div>
-          <h4 className="text-base font-bold text-slate-900">Passport</h4>
-          <p className="mt-1 text-sm text-slate-500">
-            {allowFilesFromDevice
-              ? "Scan both passport pages live or choose existing images from this device."
-              : "Live scanning is mandatory for both passport pages in this group."}
-          </p>
-        </div>
-        <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition-transform group-open:rotate-90" />
-      </summary>
-      <div className="border-t border-slate-100 p-4 pt-4 sm:p-5">
-        <div className="space-y-4">{children}</div>
-      </div>
-    </details>
-  );
-}
-
-function PassportDocumentBundlePanel({
-  bundle,
-  allowFilesFromDevice,
-  onChange,
-  onScan,
-  onFileSelect,
-  onUpload,
-}: {
-  bundle: PassportDocumentBundle;
-  allowFilesFromDevice: boolean;
-  onChange: (bundle: PassportDocumentBundle) => void;
-  onScan: (pageSide: "front" | "back") => void;
-  onFileSelect: (pageSide: "front" | "back", file: File) => void;
-  onUpload: () => void;
-}) {
-  const updateFile = (pageSide: "front" | "back", file: File | null) => {
-    if (file) {
-      onFileSelect(pageSide, file);
-      return;
-    }
-    onChange(pageSide === "front"
-      ? {
-          ...bundle,
-          front: null,
-          frontSource: null,
-          frontManuallyCropped: false,
-        }
-      : {
-          ...bundle,
-          back: null,
-          backSource: null,
-          backManuallyCropped: false,
-        });
-  };
-  const readyPageCount = Number(Boolean(bundle.front)) + Number(Boolean(bundle.back));
-
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/70 p-3 shadow-sm sm:p-5">
-      <div className="mb-5 flex items-start gap-3 px-1">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 sm:h-12 sm:w-12">
-          <Camera className="h-6 w-6" />
-        </div>
-        <div className="min-w-0">
-          <h4 className="text-base font-bold text-slate-900">Capture both passport pages</h4>
-          <p className="mt-1 text-sm leading-5 text-slate-500">
-            Add a clear front and back image. We will read the details after both pages are saved.
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="grid gap-3"
-        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))" }}
-      >
-        <PassportPageCaptureControl
-          pageSide="front"
-          file={bundle.front}
-          source={bundle.frontSource}
-          allowFilesFromDevice={allowFilesFromDevice}
-          onScan={() => onScan("front")}
-          onFileChange={(file) => updateFile("front", file)}
-        />
-        <PassportPageCaptureControl
-          pageSide="back"
-          file={bundle.back}
-          source={bundle.backSource}
-          allowFilesFromDevice={allowFilesFromDevice}
-          onScan={() => onScan("back")}
-          onFileChange={(file) => updateFile("back", file)}
-        />
-      </div>
-      <div className="mt-4 flex items-center justify-between gap-3 px-1 text-xs">
-        <span className="font-medium text-slate-500" aria-live="polite">
-          {readyPageCount} of 2 pages ready
-        </span>
-        <span className={readyPageCount === 2 ? "font-semibold text-emerald-700" : "text-slate-400"}>
-          {readyPageCount === 2 ? "Ready to extract" : "Both pages required"}
-        </span>
-      </div>
-      <Button
-        type="button"
-        className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-semibold shadow-lg shadow-blue-600/15 hover:bg-blue-700"
-        onClick={onUpload}
-        disabled={!bundle.front || !bundle.back}
-      >
-        <BadgeCheck className="h-5 w-5" aria-hidden="true" />
-        Save pages &amp; extract details
-      </Button>
-      <p className="mt-3 px-1 text-center text-xs leading-5 text-slate-400">
-        Reading usually takes about 30–35 seconds. Keep this page open while we verify the details.
-      </p>
-    </div>
-  );
-}
-
-function SavedPassportActions({
-  onResume,
-  onReplace,
-  isReplacing,
-}: {
-  onResume: () => void;
-  onReplace: () => void;
-  isReplacing: boolean;
-}) {
-  return (
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-      <div className="flex items-start gap-3">
-        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
-        <div>
-          <h4 className="text-sm font-bold text-emerald-950">Passport pages saved</h4>
-          <p className="mt-1 text-sm leading-5 text-emerald-800">
-            Continue reviewing the saved images. Replacing them is an explicit action, so back-navigation will not discard a successful upload.
-          </p>
-        </div>
-      </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <Button type="button" onClick={onResume} disabled={isReplacing}>
-          Resume review
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onReplace}
-          disabled={isReplacing}
-          aria-busy={isReplacing}
-        >
-          {isReplacing && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-          {isReplacing ? "Replacing saved pages" : "Replace saved pages"}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function PassportPageCaptureControl({
-  pageSide,
-  file,
-  source,
-  allowFilesFromDevice,
-  onScan,
-  onFileChange,
-}: {
-  pageSide: "front" | "back";
-  file: File | null;
-  source: "camera" | "file" | null;
-  allowFilesFromDevice: boolean;
-  onScan: () => void;
-  onFileChange: (file: File | null) => void;
-}) {
-  const label = `Passport ${pageSide} page`;
-  const inputId = `passport-${pageSide}-file`;
-  const pageNumber = pageSide === "front" ? 1 : 2;
-
-  return (
-    <section
-      aria-labelledby={`${inputId}-label`}
-      className={`rounded-2xl border p-4 transition ${
-        file
-          ? "border-emerald-200 bg-emerald-50/40 shadow-sm"
-          : "border-slate-200 bg-white"
-      }`}
-    >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-            file ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-600"
-          }`}>
-            {file ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : pageNumber}
-          </span>
-          <div className="min-w-0">
-            <h5 id={`${inputId}-label`} className="text-sm font-bold text-slate-900">{label}</h5>
-            <p id={`${inputId}-hint`} className="mt-1 text-xs leading-5 text-slate-500">
-              {pageSide === "front"
-                ? "Open the photo and MRZ details page."
-                : "Add the opposite passport page for the agency record."}
-            </p>
-          </div>
-        </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${
-          file ? "bg-emerald-100 text-emerald-800" : "bg-amber-50 text-amber-700"
-        }`}>
-          {file ? "Ready" : "Required"}
-        </span>
-      </div>
-
-      {file ? (
-        <div className="mb-3 flex min-w-0 items-center gap-3 rounded-xl border border-emerald-200 bg-white p-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-            <ImagePlus className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-slate-800" title={file.name}>{file.name}</span>
-            <span className="mt-0.5 block text-xs text-slate-500">
-              {source === "camera" ? "Live camera scan" : "Selected from device"} · {formatFileSize(file.size)}
-            </span>
-          </span>
-          <button
-            type="button"
-            onClick={() => onFileChange(null)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            aria-label={`Remove ${label.toLowerCase()}`}
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-      ) : (
-        <div className="mb-3 flex min-h-20 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
-          <p className="text-xs leading-5 text-slate-500">No {pageSide} page selected yet</p>
-        </div>
-      )}
-
-      <div className={`grid gap-2 ${allowFilesFromDevice ? "min-[360px]:grid-cols-2" : ""}`}>
-        <Button
-          type="button"
-          variant={file && source === "camera" ? "secondary" : "outline"}
-          className="h-11 w-full rounded-xl"
-          onClick={onScan}
-          aria-label={`${file && source === "camera" ? "Retake" : "Scan"} passport ${pageSide} page with live camera`}
-        >
-          <Camera className="h-4 w-4" aria-hidden="true" />
-          {file && source === "camera" ? "Retake scan" : "Use camera"}
-        </Button>
-
-        {allowFilesFromDevice && (
-          <>
-            <label
-              htmlFor={inputId}
-              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
-            >
-              <ImagePlus className="h-4 w-4" aria-hidden="true" />
-              {file && source === "file" ? "Choose another" : "Choose photo"}
-            </label>
-            <input
-              key={`${pageSide}:${source ?? "empty"}:${file?.name ?? ""}`}
-              id={inputId}
-              type="file"
-              accept={PASSPORT_IMAGE_ACCEPT}
-              className="sr-only"
-              onClick={(event) => {
-                event.currentTarget.value = "";
-              }}
-              onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
-              aria-describedby={`${inputId}-hint ${inputId}-formats`}
-              aria-label={`Choose passport ${pageSide} page image from device`}
-            />
-          </>
-        )}
-      </div>
-
-      {allowFilesFromDevice && (
-        <p id={`${inputId}-formats`} className="mt-3 text-xs leading-5 text-slate-400">
-          JPG, PNG, WebP, HEIC/HEIF, AVIF, BMP, or TIFF
-        </p>
-      )}
-    </section>
-  );
-}
-
-function BackButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-600">
-      <ArrowLeft className="h-4 w-4" />
-      Back
-    </button>
-  );
-}
-
-function NameInput({ value, onChange, placeholder = "e.g. John Doe", autoFocus = false }: { value: string; onChange: (value: string) => void; placeholder?: string; autoFocus?: boolean }) {
-  return (
-    <div className="relative min-w-0">
-      <User className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
-      <Input placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-12 text-base shadow-sm transition-colors placeholder:text-slate-400 focus-visible:ring-blue-600" required autoFocus={autoFocus} />
-    </div>
-  );
-}
-
-function SelectInput({ label, value, values, onChange, disabled = false }: { label: string; value: string; values: string[]; onChange: (value: string) => void; disabled?: boolean }) {
-  return (
-    <label className="block min-w-0 space-y-1.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
-        <option value="">Select {label.toLowerCase()}</option>
-        {values.map((item) => <option key={item} value={item}>{item}</option>)}
-      </select>
-    </label>
-  );
-}
-
-function ContactInput({
-  icon,
-  label,
-  type,
-  value,
-  onChange,
-  required = false,
-  maxLength,
-  inputMode,
-  pattern,
-}: {
-  icon: ReactNode;
-  label: string;
-  type: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
-  maxLength?: number;
-  inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
-  pattern?: string;
-}) {
-  return (
-    <label className="block min-w-0 space-y-1.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</span>
-      <div className="relative min-w-0">
-        <span className="absolute left-3 top-3 text-slate-400">{icon}</span>
-        <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white pl-10 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white" required={required} maxLength={maxLength} inputMode={inputMode} pattern={pattern} />
-      </div>
-    </label>
-  );
-}
-
-function ContactSection({
-  email,
-  phone,
-  departureCity,
-  departureCities,
-  onEmail,
-  onPhone,
-  onDepartureCity,
-  title,
-  emailRequired,
-  phoneRequired,
-}: {
-  email: string;
-  phone: string;
-  departureCity: string;
-  departureCities: string[];
-  onEmail: (value: string) => void;
-  onPhone: (value: string) => void;
-  onDepartureCity: (value: string) => void;
-  title: string;
-  emailRequired?: boolean;
-  phoneRequired?: boolean;
-}) {
-  return (
-    <div className="mt-6 border-t border-slate-100 pt-5">
-      <h3 className="mb-3 text-base font-bold text-slate-900">{title}</h3>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <ContactInput icon={<Mail className="h-5 w-5" />} label="Email" type="email" value={email} onChange={onEmail} required={emailRequired} />
-        <ContactInput icon={<Phone className="h-5 w-5" />} label="WhatsApp active number" type="tel" value={phone} onChange={onPhone} required={phoneRequired} />
-        {departureCities.length > 0 && <DepartureCitySelect value={departureCity} cities={departureCities} onChange={onDepartureCity} className="sm:col-span-2" />}
-      </div>
-    </div>
-  );
-}
-
-function CustomQuestionFields({
-  questions,
-  answers,
-  onChange,
-}: {
-  questions: CustomUploadQuestion[];
-  answers: Record<string, string>;
-  onChange: (questionId: string, value: string) => void;
-}) {
-  if (questions.length === 0) return null;
-
-  return (
-    <div className="mt-5 grid gap-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4 sm:grid-cols-2">
-      {questions.map((question) => (
-        <label key={question.id} className="block min-w-0 space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            {question.label}
-          </span>
-          <select
-            value={answers[question.id] ?? ""}
-            onChange={(event) => onChange(question.id, event.target.value)}
-            className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            required
-          >
-            <option value="">Select an option</option>
-            {question.options.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </label>
-      ))}
-    </div>
-  );
-}
-
-function CustomDetailFields({
-  details,
-  answers,
-  onChange,
-}: {
-  details: CustomUploadDetail[];
-  answers: Record<string, string>;
-  onChange: (detailId: string, value: string) => void;
-}) {
-  if (details.length === 0) return null;
-
-  return (
-    <div className="mt-5 grid gap-4 rounded-2xl border border-violet-100 bg-violet-50/40 p-4 sm:grid-cols-2">
-      {details.map((detail) => (
-        <ContactInput
-          key={detail.id}
-          icon={<BadgeCheck className="h-5 w-5" />}
-          label={detail.label}
-          type="text"
-          value={answers[detail.id] ?? ""}
-          onChange={(value) => onChange(detail.id, value)}
-          required
-          maxLength={500}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ConfiguredClientFields({
-  baseCityEnabled,
-  askNearestDomesticAirport,
-  staffCodeEnabled,
-  agentEmployeeCodeEnabled,
-  designationEnabled,
-  agencyDealershipNameEnabled,
-  mealPreferenceEnabled,
-  baseCity,
-  nearestDomesticAirport,
-  staffCode,
-  agentEmployeeType,
-  agentEmployeeCode,
-  designation,
-  agencyDealershipName,
-  mealPreference,
-  onBaseCity,
-  onNearestDomesticAirport,
-  onStaffCode,
-  onAgentEmployeeType,
-  onAgentEmployeeCode,
-  onDesignation,
-  onAgencyDealershipName,
-  onMealPreference,
-}: {
-  baseCityEnabled: boolean;
-  askNearestDomesticAirport: boolean;
-  staffCodeEnabled: boolean;
-  agentEmployeeCodeEnabled: boolean;
-  designationEnabled: boolean;
-  agencyDealershipNameEnabled: boolean;
-  mealPreferenceEnabled: boolean;
-  baseCity: string;
-  nearestDomesticAirport: string;
-  staffCode: string;
-  agentEmployeeType: AgentEmployeeType;
-  agentEmployeeCode: string;
-  designation: string;
-  agencyDealershipName: string;
-  mealPreference: string;
-  onBaseCity: (value: string) => void;
-  onNearestDomesticAirport: (value: string) => void;
-  onStaffCode: (value: string) => void;
-  onAgentEmployeeType: (value: AgentEmployeeType) => void;
-  onAgentEmployeeCode: (value: string) => void;
-  onDesignation: (value: string) => void;
-  onAgencyDealershipName: (value: string) => void;
-  onMealPreference: (value: string) => void;
-}) {
-  if (
-    !baseCityEnabled
-    && !askNearestDomesticAirport
-    && !staffCodeEnabled
-    && !agentEmployeeCodeEnabled
-    && !designationEnabled
-    && !agencyDealershipNameEnabled
-    && !mealPreferenceEnabled
-  ) return null;
-
-  return (
-    <div className="mt-5 grid gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
-      {baseCityEnabled && (
-        <ContactInput
-          icon={<MapPin className="h-5 w-5" />}
-          label="Base City"
-          type="text"
-          value={baseCity}
-          onChange={onBaseCity}
-          required
-        />
-      )}
-      {askNearestDomesticAirport && (
-        <ContactInput
-          icon={<MapPin className="h-5 w-5" />}
-          label="Nearest Domestic Airport"
-          type="text"
-          value={nearestDomesticAirport}
-          onChange={onNearestDomesticAirport}
-          required
-          maxLength={120}
-        />
-      )}
-      {staffCodeEnabled && (
-        <ContactInput
-          icon={<BadgeCheck className="h-5 w-5" />}
-          label="Staff Code"
-          type="text"
-          value={staffCode}
-          onChange={onStaffCode}
-          required
-        />
-      )}
-      {agentEmployeeCodeEnabled && (
-        <div className="grid min-w-0 gap-3 sm:col-span-2 sm:grid-cols-2">
-          <label className="block min-w-0 space-y-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Agent or Employee</span>
-            <select
-              value={agentEmployeeType}
-              onChange={(event) => onAgentEmployeeType(event.target.value as AgentEmployeeType)}
-              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
-            >
-              <option value="">Select Agent or Employee</option>
-              <option value="agent">Agent</option>
-              <option value="employee">Employee</option>
-            </select>
-          </label>
-          <ContactInput
-            icon={<BadgeCheck className="h-5 w-5" />}
-            label="Agent/Employee Code"
-            type="text"
-            value={agentEmployeeCode}
-            onChange={(value) => onAgentEmployeeCode(value.replace(/\D/g, "").slice(0, 10))}
-            required
-            maxLength={10}
-            inputMode="numeric"
-            pattern="[0-9]{1,10}"
-          />
-        </div>
-      )}
-      {designationEnabled && (
-        <ContactInput
-          icon={<BadgeCheck className="h-5 w-5" />}
-          label="Designation"
-          type="text"
-          value={designation}
-          onChange={onDesignation}
-          required
-          maxLength={160}
-        />
-      )}
-      {agencyDealershipNameEnabled && (
-        <ContactInput
-          icon={<BadgeCheck className="h-5 w-5" />}
-          label="Agency/Dealership Name"
-          type="text"
-          value={agencyDealershipName}
-          onChange={onAgencyDealershipName}
-          required
-          maxLength={200}
-        />
-      )}
-      {mealPreferenceEnabled && (
-        <label className="block min-w-0 space-y-1.5">
-          <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Meal Preference</span>
-          <div className="relative min-w-0">
-            <Utensils className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
-            <select
-              value={mealPreference}
-              onChange={(event) => onMealPreference(event.target.value)}
-              className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              required
-            >
-              <option value="">Select meal preference</option>
-              <option value="Veg">Veg</option>
-              <option value="Non Veg">Non Veg</option>
-              <option value="Jain">Jain</option>
-            </select>
-          </div>
-        </label>
-      )}
-    </div>
-  );
-}
-
-function DepartureCitySelect({ value, cities, onChange, className = "" }: { value: string; cities: string[]; onChange: (value: string) => void; className?: string }) {
-  return (
-    <label className={`block min-w-0 space-y-1.5 ${className}`}>
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Nearest International Airport</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="h-12 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" required>
-        <option value="">Select your nearest international airport</option>
-        {cities.map((city) => <option key={city} value={city}>{city}</option>)}
-      </select>
-    </label>
-  );
-}
-
-function ReviewLayout({
-  title,
-  description,
-  image,
-  photoImage,
-  backImage,
-  fields,
-  onBack,
-  children,
-}: {
-  title: string;
-  description: string;
-  image: ReactNode | null;
-  photoImage?: ReactNode | null;
-  backImage?: ReactNode | null;
-  fields: ExtractedPassportFields | null;
-  onBack: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 font-sans sm:py-10">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-4">
-          <div>
-            <Button type="button" variant="ghost" size="sm" onClick={onBack} className="mb-4 -ml-2 gap-2 text-slate-600 hover:text-slate-900">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-          </div>
-          {image ? (
-            <div className="space-y-4">
-              {photoImage && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  {photoImage}
-                </div>
-              )}
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative w-full">
-                  {image}
-                  <PassportRoiOverlays fields={fields} />
-                </div>
-              </div>
-              {backImage && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  {backImage}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex h-80 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400">Passport preview unavailable</div>
-          )}
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function ReviewWarning() {
-  return (
-    <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-      <p>Please compare these details with the passport image. Submit only after confirming the information is correct.</p>
-    </div>
-  );
-}
-
-function ErrorMessage({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <div
-      role="alert"
-      aria-live="assertive"
-      className="mb-5 rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-700"
-    >
-      {message}
-    </div>
-  );
-}
-
-function ReviewFields({ fields, onChange }: { fields: Record<string, string>; onChange: (key: string, value: string) => void }) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {REVIEW_FIELDS.map((key) => {
-        const isDate = key === "date_of_birth" || key === "date_of_issue" || key === "date_of_expiry";
-        const isOptional = key === "date_of_issue" || key === "surname";
-        return (
-          <div key={key} className="space-y-1.5">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              {toLabel(key)}
-            </span>
-            {isDate ? (
-              <PassportDateInput
-                value={fields[key] ?? ""}
-                onValueChange={(value) => onChange(key, value)}
-                minIso="1900-01-01"
-                maxIso={key === "date_of_birth" ? yesterdayIsoDate() : key === "date_of_issue" ? todayIsoDate() : "2200-12-31"}
-                required={!isOptional}
-                aria-label={toLabel(key)}
-                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
-              />
-            ) : (
-              <Input
-                type="text"
-                value={formatReviewFieldValue(key, fields[key] ?? "")}
-                onChange={(event) => onChange(key, event.target.value)}
-                placeholder={key === "surname" ? "Leave blank if not present" : "Not extracted"}
-                required={!isOptional}
-                aria-label={toLabel(key)}
-                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
-              />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function CenteredLoader() {
-  return (
-    <CenteredShell>
-      <div role="status" aria-live="polite">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" aria-hidden="true" />
-        <span className="sr-only">Loading secure upload</span>
-      </div>
-    </CenteredShell>
-  );
-}
-
-function CenteredShell({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">{children}</div>;
-}
-
-function ProcessingScreen({ title, description, progress }: { title: string; description: string; progress?: number | null }) {
-  const progressPercent = typeof progress === "number"
-    ? Math.max(0, Math.min(100, Math.round(progress * 100)))
-    : null;
-  return (
-    <CenteredShell>
-      <div
-        aria-busy="true"
-        className="flex w-full max-w-md flex-col items-center justify-center text-center"
-      >
-        <div className="relative mb-8">
-          <div className="absolute inset-0 animate-pulse rounded-full bg-blue-500/20 blur-xl"></div>
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-600 shadow-xl shadow-blue-600/20">
-            <Loader2 className="h-10 w-10 animate-spin text-white" aria-hidden="true" />
-          </div>
-        </div>
-        <div role="status" aria-live="polite" aria-atomic="true">
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-900">{title}</h2>
-          <p className="mx-auto max-w-xs text-slate-500">{description}</p>
-        </div>
-        {progressPercent !== null && (
-          <div
-            role="progressbar"
-            aria-label="Passport processing progress"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progressPercent}
-            className="mt-6 h-2 w-full max-w-xs overflow-hidden rounded-full bg-slate-200"
-          >
-            <div className="h-full rounded-full bg-blue-600 transition-all duration-500" style={{ width: `${Math.max(8, progressPercent)}%` }} />
-          </div>
-        )}
-      </div>
-    </CenteredShell>
-  );
-}
-
-function getInitialReviewFields(fields: ExtractedPassportFields | null) {
-  return REVIEW_FIELDS.reduce<Record<string, string>>((current, key) => {
-    current[key] = getPassportTextField(fields, key);
-    return current;
-  }, {});
-}
-
-function passportHolderName(
-  fields: ExtractedPassportFields | Record<string, string> | null,
-) {
-  if (!fields) return "";
-  const givenNames = getPassportTextField(
-    fields as ExtractedPassportFields,
-    "given_names",
-  );
-  const surname = getPassportTextField(
-    fields as ExtractedPassportFields,
-    "surname",
-  );
-  return [givenNames, surname]
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join(" ");
-}
-
-function mergeMissingReviewFields(current: Record<string, string>, fields: ExtractedPassportFields | null) {
-  return REVIEW_FIELDS.reduce<Record<string, string>>((next, key) => {
-    const value = getPassportTextField(fields, key);
-    if (value.trim() && !next[key]?.trim()) {
-      next[key] = value;
-    }
-    return next;
-  }, { ...current });
-}
-
-function hasMissingRequiredFields(fields: Record<string, string>) {
-  return REQUIRED_REVIEW_FIELDS.some((key) => !fields[key]?.trim());
-}
-
-function formatReviewFieldValue(key: typeof REVIEW_FIELDS[number], value: string) {
-  if (!isRecognizedPassportCountryCode(value)) return value;
-  if (key === "nationality") return formatPassportNationality(value);
-  return value;
-}
-
-function ExtractionNotice({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <div role="status" aria-live="polite" className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm font-medium leading-5 text-blue-900">
-      {message}
-    </div>
-  );
-}
-
-function DocumentVerificationBlock({
-  gate,
-  onRetry,
-  onReplace,
-  isRetrying,
-  isReplacing,
-}: {
-  gate: Extract<PassportDocumentVerificationGate, { accepted: false }>;
-  onRetry: () => void;
-  onReplace: () => void;
-  isRetrying: boolean;
-  isReplacing: boolean;
-}) {
-  const busy = isRetrying || isReplacing;
-  return (
-    <div
-      role="alert"
-      className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950"
-    >
-      <div className="flex items-start gap-3">
-        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-        <div className="min-w-0">
-          <h3 className="font-bold">Passport page not verified</h3>
-          <p className="mt-2 text-sm leading-6">{gate.message}</p>
-          <p className="mt-2 text-xs leading-5 text-amber-800">
-            Passport fields stay locked and cannot be submitted until this check passes.
-          </p>
-        </div>
-      </div>
-      <Button
-        type="button"
-        className="mt-4 h-11 w-full"
-        onClick={gate.action === "retry" ? onRetry : onReplace}
-        disabled={busy}
-      >
-        {gate.action === "retry"
-          ? isRetrying
-            ? "Retrying verification"
-            : "Retry verification on saved image"
-          : isReplacing
-            ? "Preparing replacement"
-            : "Replace passport pages"}
-      </Button>
-    </div>
-  );
-}
-
-function hasValidReviewDates(fields: Record<string, string>) {
-  const dateOfBirth = fields.date_of_birth?.trim() ?? "";
-  const dateOfIssue = fields.date_of_issue?.trim() ?? "";
-  const dateOfExpiry = fields.date_of_expiry?.trim() ?? "";
-  if (![dateOfBirth, dateOfExpiry].every(isValidIsoDate)) return false;
-  if (dateOfIssue && !isValidIsoDate(dateOfIssue)) return false;
-
-  const today = todayIsoDate();
-  if (dateOfBirth >= today || (dateOfIssue && dateOfIssue > today)) return false;
-  if (dateOfIssue && dateOfIssue <= dateOfBirth) return false;
-  if (dateOfIssue && dateOfExpiry && dateOfIssue >= dateOfExpiry) return false;
-  if (dateOfExpiry <= dateOfBirth) return false;
-  return true;
-}
-
-function isValidIsoDate(value: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-  return year >= 1900
-    && year <= 2200
-    && parsed.getUTCFullYear() === year
-    && parsed.getUTCMonth() === month - 1
-    && parsed.getUTCDate() === day;
-}
-
-function todayIsoDate() {
-  const now = new Date();
-  const localDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60_000));
-  return localDate.toISOString().slice(0, 10);
-}
-
-function toLabel(value: string) {
-  if (value === "given_names") return "Name";
-  if (value === "place_of_issue") return "Place of Issue";
-  if (value === "issuing_country") return "Issuing Country (legacy)";
-  return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function createIdempotencyKey() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  if (
-    typeof crypto !== "undefined"
-    && typeof crypto.getRandomValues === "function"
-  ) {
-    const bytes = crypto.getRandomValues(new Uint8Array(32));
-    return Array.from(
-      bytes,
-      (value) => value.toString(16).padStart(2, "0"),
-    ).join("");
-  }
-  throw new Error(
-    "Secure random number generation is required for passport upload.",
-  );
-}
-
-function yesterdayIsoDate() {
-  const today = todayIsoDate();
-  return previousPassportIsoDate(today) ?? today;
-}
-
-function isExtractionTerminal(submission: PassportSubmission) {
-  return [
-    "extraction_complete",
-    "extraction_partial",
-    "extraction_failed",
-    "ready_for_review",
-  ].includes(submission.extraction_status)
-    || submission.status === "ready_for_client_review"
-    || submission.status === "review_required"
-    || submission.status === "failed";
-}
-
-function extractionNoticeFor(submission: PassportSubmission) {
-  if (submission.extraction_status === "extraction_failed" || submission.status === "failed") {
-    return "Automatic passport detail extraction failed. Your passport images are saved. Retry automatic reading or enter the details manually.";
-  }
-  if (submission.extraction_status === "extraction_partial") {
-    return "Your passport pages were saved. Some details could not be read confidently, so check and complete the missing fields manually.";
-  }
-  return null;
-}
-
-function canRetryExtractionFor(submission: PassportSubmission) {
-  return submission.extraction_status === "extraction_failed" || submission.status === "failed";
-}
-
-function formatFileSize(bytes: number) {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "Size unavailable";
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
-}
-
-function sleep(delayMs: number, signal: AbortSignal) {
-  return new Promise<void>((resolve, reject) => {
-    if (signal.aborted) {
-      reject(new DOMException("Operation cancelled", "AbortError"));
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      signal.removeEventListener("abort", onAbort);
-      resolve();
-    }, delayMs);
-    const onAbort = () => {
-      window.clearTimeout(timer);
-      reject(new DOMException("Operation cancelled", "AbortError"));
-    };
-    signal.addEventListener("abort", onAbort, { once: true });
-  });
-}
-
-function stageLabel(stage: string) {
-  const labels: Record<string, string> = {
-    queued: "Your passport verification is queued and will begin shortly.",
-    retry_queued: "Your verification is queued safely while we handle higher traffic.",
-    starting: "Starting secure passport processing.",
-    downloading_image: "Preparing the passport image for extraction.",
-    extracting_passport_fields: "Extracting passport details from the passport image.",
-    verifying_passport_fields: "Verifying the extracted passport details against the image.",
-    saving_extraction_result: "Preparing the verified details for your review.",
-    completed: "Passport details are ready for review.",
-  };
-  return labels[stage] ?? stage.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function PassportRoiOverlays({ fields }: { fields: ExtractedPassportFields | null }) {
-  const boxes = roiOverlayBoxes(fields);
-  if (boxes.length === 0) return null;
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-10">
-      {boxes.map((box) => (
-        <div key={box.field} className="absolute rounded-sm border-2 border-red-500 shadow-[0_0_0_9999px_rgba(239,68,68,0.04)]" style={{ left: `${box.left * 100}%`, top: `${box.top * 100}%`, width: `${(box.right - box.left) * 100}%`, height: `${(box.bottom - box.top) * 100}%` }}>
-          <span className="absolute -top-6 left-0 rounded bg-red-600 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">{toLabel(box.field)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function roiOverlayBoxes(fields: ExtractedPassportFields | null) {
-  const provenance = fields?.field_provenance;
-  if (!provenance) return [];
-
-  return Object.entries(provenance)
-    .map(([field, item]) => {
-      const bbox = item?.debug?.image_relative_bbox;
-      if (!isNormalizedBbox(bbox)) return null;
-      return { field, left: bbox[0], top: bbox[1], right: bbox[2], bottom: bbox[3] };
-    })
-    .filter((box): box is { field: string; left: number; top: number; right: number; bottom: number } => Boolean(box));
-}
-
-function isNormalizedBbox(value: unknown): value is [number, number, number, number] {
-  return Array.isArray(value)
-    && value.length === 4
-    && value.every((item) => typeof item === "number" && item >= 0 && item <= 1)
-    && value[2] > value[0]
-    && value[3] > value[1];
-}
-
-function submitErrorMessage(error: unknown) {
-  if (isPublicApiError(error)) return error.message;
-  if (isAxiosError(error)) {
-    return extractApiErrorDetail(error.response?.data) ?? "Could not submit reviewed details. Please check the contact details.";
-  }
-  return "Could not submit reviewed details. Please try again.";
-}
-
-function errorMessage(error: unknown, fallback: string) {
-  if (isPublicApiError(error)) return error.message;
-  if (error instanceof Error && !(error instanceof AxiosError)) return error.message;
-  if (isAxiosError(error)) {
-    return extractApiErrorDetail(error.response?.data) ?? fallback;
-  }
-  return fallback;
-}
-
-function uploadPersistenceErrorMessage(error: unknown) {
-  if (isPublicApiError(error)) return error.message;
-  if (isAxiosError(error)) {
-    const detail = extractApiErrorDetail(error.response?.data);
-    if (error.response?.status && error.response.status >= 400 && error.response.status < 500) {
-      return detail ?? "The passport pages were rejected. Check the file type and size, then try again.";
-    }
-    return detail
-      ?? "We could not confirm that the passport pages were saved. Retry safely; the same upload will not create a duplicate.";
-  }
-  return "We could not confirm that the passport pages were saved. Check your connection and retry safely.";
-}
-
-function isPublicApiError(error: unknown): error is { code: string; message: string } {
-  if (!error || typeof error !== "object") return false;
-  const candidate = error as { code?: unknown; message?: unknown };
-  return typeof candidate.code === "string" && typeof candidate.message === "string";
-}
-
-function extractApiErrorDetail(payload: unknown) {
-  if (!payload || typeof payload !== "object") return null;
-  const data = payload as { detail?: unknown; error?: { message?: unknown } };
-  if (typeof data.detail === "string") return data.detail;
-  if (Array.isArray(data.detail)) {
-    return data.detail
-      .map((item) => {
-        if (!item || typeof item !== "object") return null;
-        const record = item as { msg?: unknown; loc?: unknown };
-        const label = Array.isArray(record.loc) ? record.loc.slice(1).join(".") : "";
-        return typeof record.msg === "string" ? [label, record.msg].filter(Boolean).join(": ") : null;
-      })
-      .filter(Boolean)
-      .join(" ");
-  }
-  if (typeof data.error?.message === "string") return data.error.message;
-  return null;
 }

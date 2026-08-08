@@ -3,15 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { whatsappFeatureSource } from "./whatsapp-source.contract-helper.mjs";
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 const featureDirectory = path.resolve(currentDirectory, "..");
 const frontendDirectory = path.resolve(featureDirectory, "../..");
 
-const pageSource = fs.readFileSync(
-  path.join(currentDirectory, "whatsapp-workspace.tsx"),
-  "utf8",
-);
+const pageSource = whatsappFeatureSource;
 const apiSource = fs.readFileSync(
   path.join(featureDirectory, "api/whatsapp.api.ts"),
   "utf8",

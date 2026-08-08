@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-import json
-import re
 import uuid
 from collections.abc import Awaitable, Callable
 from contextvars import ContextVar
-from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from functools import wraps
 from time import perf_counter
 from typing import Annotated, ParamSpec, TypeVar
@@ -34,7 +31,6 @@ from app.application.use_cases.whatsapp.group_submission_matching import (
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import (
-    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
     PassportSubmission,
     User,
     UserRole,
@@ -128,11 +124,16 @@ from app.presentation.api.v1.document_uploads import (
     MAX_DOCUMENT_BATCH_BYTES,
     read_bounded_document_uploads,
 )
+from app.presentation.api.v1.routes import (
+    document_distribution_delivery_support as _delivery_support,
+)
+from app.presentation.api.v1.routes import (
+    document_distribution_review_support as _review_support,
+)
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     AbortDocumentUploadResponse,
     DeleteDistributionDocumentsRequest,
     DistributedDocumentResponse,
-    DocumentAssignmentIssueResponse,
     DocumentBatchResponse,
     DocumentDeliveryPreviewRecipient,
     DocumentDeliveryPreviewResponse,
@@ -141,7 +142,6 @@ from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DocumentDeliveryTrackingResponse,
     DocumentDeliveryTrackingRow,
     DocumentGroupResponse,
-    DocumentPassengerReviewRow,
     RejectedDocumentResponse,
     SaveDocumentBatchResponse,
     SendDocumentBroadcastRequest,
@@ -156,28 +156,40 @@ router = APIRouter()
 logger = get_logger(__name__)
 DOCUMENT_RESPONSE_RENDER_WINDOW = 64
 
+DOCUMENT_DELIVERY_ACCEPTED_STATUSES = _delivery_support.DOCUMENT_DELIVERY_ACCEPTED_STATUSES
+DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = (
+    _delivery_support.DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES
+)
+DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = (
+    _delivery_support.DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES
+)
+DOCUMENT_DELIVERY_WEBHOOK_GRACE = _delivery_support.DOCUMENT_DELIVERY_WEBHOOK_GRACE
+DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS = _delivery_support.DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS
+DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS = _delivery_support.DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS
+SHARED_WHATSAPP_DESTINATION_REASON = _delivery_support.SHARED_WHATSAPP_DESTINATION_REASON
+
+DocumentDeliveryDecision = _delivery_support.DocumentDeliveryDecision
+_document_delivery_poll_after_seconds = _delivery_support._document_delivery_poll_after_seconds
+_document_delivery_decision = _delivery_support._document_delivery_decision
+_preferred_document_message_content = _delivery_support._preferred_document_message_content
+_processing_batch_response = _delivery_support._processing_batch_response
+
+_LinkedDocumentMatchSource = _review_support._LinkedDocumentMatchSource
+_owner_scope_for = _review_support._owner_scope_for
+_submitted_statuses = _review_support._submitted_statuses
+_passport_number = _review_support._passport_number
+_safe_filename = _review_support._safe_filename
+_snapshot_value = _review_support._snapshot_value
+_linked_document_match_source_from_models = (
+    _review_support._linked_document_match_source_from_models
+)
+_document_match_roster_snapshot = _review_support._document_match_roster_snapshot
+_passenger_review_rows = _review_support._passenger_review_rows
+_physical_file_accounting = _review_support._physical_file_accounting
+
 
 class _ConcurrentDocumentChunkReplay(Exception):
     """Internal control flow after an exact chunk wins a persistence race."""
-
-
-def _owner_scope_for(user: User) -> uuid.UUID | None:
-    return user.id if user.role == UserRole.AGENCY_STAFF else None
-
-
-def _submitted_statuses() -> tuple[str, ...]:
-    return OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
-
-
-def _passport_number(passenger: PassportSubmission) -> str | None:
-    fields = passenger.confirmed_fields or passenger.extracted_fields or {}
-    value = fields.get("passport_number")
-    return str(value).strip() if value else None
-
-
-def _safe_filename(value: str) -> str:
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", value.strip())[:120]
-    return name or "document.pdf"
 
 
 async def _cleanup_distribution_storage_keys(
@@ -217,11 +229,6 @@ async def _cleanup_distribution_storage_keys(
             )
 
 
-DOCUMENT_DELIVERY_ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
-DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES = frozenset({"queued", "processing", "delivery_unknown"})
-DOCUMENT_DELIVERY_STORAGE_REQUIRED_STATUSES = frozenset({"queued", "processing"})
-
-
 async def _released_document_passenger_ids(
     session: AsyncSession,
     *,
@@ -255,13 +262,6 @@ async def _released_document_passenger_ids(
             key=str,
         )
     )
-DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta(minutes=5)
-DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS = 5
-DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS = 10
-SHARED_WHATSAPP_DESTINATION_REASON = (
-    "A WhatsApp destination is shared by multiple passengers. Correct the recipient "
-    "numbers before sending private documents."
-)
 _UploadParameters = ParamSpec("_UploadParameters")
 _UploadResult = TypeVar("_UploadResult")
 _REQUEST_STAGING_CLEANUP_KEYS: ContextVar[list[str] | None] = ContextVar(
@@ -329,131 +329,6 @@ def _with_staging_cleanup(
     return wrapped
 
 
-def _document_delivery_poll_after_seconds(
-    *,
-    status_counts: dict[str, int],
-    latest_status_updates: dict[str, datetime],
-    now: datetime,
-) -> int | None:
-    if any(status_counts.get(value, 0) for value in ("queued", "processing")):
-        return DOCUMENT_DELIVERY_ACTIVE_POLL_SECONDS
-    awaiting_receipt_updates = [
-        latest_status_updates[value]
-        for value in ("submitted", "sent")
-        if value in latest_status_updates
-    ]
-    if not awaiting_receipt_updates:
-        return None
-    latest_update = max(awaiting_receipt_updates)
-    if latest_update.tzinfo is None:
-        latest_update = latest_update.replace(tzinfo=UTC)
-    if latest_update + DOCUMENT_DELIVERY_WEBHOOK_GRACE > now:
-        return DOCUMENT_DELIVERY_WEBHOOK_POLL_SECONDS
-    return None
-
-
-@dataclass(frozen=True)
-class DocumentDeliveryDecision:
-    status: str
-    eligible: bool
-    resend_allowed: bool
-    reason: str
-    error_message: str | None = None
-
-
-@dataclass(frozen=True)
-class _LinkedDocumentMatchSource:
-    """A canonical view of every linked row that can influence assignment."""
-
-    linked_broadcasts: dict[uuid.UUID, str]
-    recipients: tuple[WhatsAppBroadcastRecipientModel, ...]
-    snapshot: tuple[tuple[str, ...], ...]
-
-
-def _document_delivery_decision(
-    *,
-    saved: bool,
-    match_status: str,
-    recipient_available: bool,
-    delivery_history: list[DocumentWhatsAppDeliveryModel],
-) -> DocumentDeliveryDecision:
-    if not saved:
-        return DocumentDeliveryDecision(
-            status="blocked",
-            eligible=False,
-            resend_allowed=False,
-            reason="Save this document list before sending this document.",
-        )
-    if match_status != "matched":
-        return DocumentDeliveryDecision(
-            status="blocked",
-            eligible=False,
-            resend_allowed=False,
-            reason="The document still needs manual matching review.",
-        )
-    if not recipient_available:
-        return DocumentDeliveryDecision(
-            status="blocked",
-            eligible=False,
-            resend_allowed=False,
-            reason=(
-                "No confirmed WhatsApp recipient could be matched to this passenger "
-                "from the linked broadcasts."
-            ),
-        )
-
-    in_progress = next(
-        (
-            item
-            for item in delivery_history
-            if item.status in DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES
-        ),
-        None,
-    )
-    if in_progress:
-        return DocumentDeliveryDecision(
-            status=in_progress.status,
-            eligible=False,
-            resend_allowed=False,
-            reason=(
-                "Delivery is already in progress."
-                if in_progress.status != "delivery_unknown"
-                else "The previous delivery outcome is uncertain; resend is suppressed."
-            ),
-        )
-
-    accepted = next(
-        (item for item in delivery_history if item.status in DOCUMENT_DELIVERY_ACCEPTED_STATUSES),
-        None,
-    )
-    if accepted:
-        return DocumentDeliveryDecision(
-            status="already_sent",
-            eligible=False,
-            resend_allowed=True,
-            reason=(
-                f"Already sent to {accepted.phone_number}. "
-                "Choose Resend explicitly to send it again."
-            ),
-        )
-
-    latest = delivery_history[0] if delivery_history else None
-    if latest and latest.status == "failed":
-        return DocumentDeliveryDecision(
-            status="retryable",
-            eligible=True,
-            resend_allowed=False,
-            reason="The previous attempt failed and can be retried safely.",
-            error_message=latest.error_message,
-        )
-    return DocumentDeliveryDecision(
-        status="ready",
-        eligible=True,
-        resend_allowed=False,
-        reason="Ready to send.",
-    )
-
-
 async def _latest_document_batch(
     session: AsyncSession,
     *,
@@ -505,25 +380,6 @@ async def _all_group_documents(
             ),
         )
     return documents
-
-
-def _preferred_document_message_content(
-    deliveries: list[DocumentWhatsAppDeliveryModel],
-    *,
-    fallback_content_1: str,
-    fallback_content_2: str,
-) -> tuple[str, str]:
-    """Prefer the newest complete message pair already stored in the delivery ledger."""
-
-    for delivery in deliveries:
-        values = delivery.template_parameter_values
-        if not isinstance(values, list) or len(values) < 2:
-            continue
-        content_1 = str(values[0] or "").strip()
-        content_2 = str(values[1] or "").strip()
-        if content_1 and content_2:
-            return content_1, content_2
-    return fallback_content_1, fallback_content_2
 
 
 async def _enforce_group_document_assignment_capacity(
@@ -620,93 +476,6 @@ async def _linked_whatsapp_recipients(
         )
     )
     return linked_broadcasts, list(recipient_result.scalars().all())
-
-
-def _snapshot_value(value: object) -> str:
-    return value.isoformat() if hasattr(value, "isoformat") else str(value or "")
-
-
-def _linked_document_match_source_from_models(
-    *,
-    group: ClientGroupModel,
-    links: list[ClientGroupWhatsAppBroadcastLinkModel],
-    broadcasts: list[WhatsAppBroadcastGroupModel],
-    recipients: list[WhatsAppBroadcastRecipientModel],
-) -> _LinkedDocumentMatchSource:
-    """Build a deterministic, tenant-scoped snapshot from one coherent row set."""
-
-    linked_broadcasts = {
-        broadcast.id: broadcast.name
-        for broadcast in broadcasts
-        if broadcast.agency_id == group.agency_id
-    }
-    scoped_links = sorted(
-        (
-            link
-            for link in links
-            if link.agency_id == group.agency_id
-            and link.client_group_id == group.id
-            and link.broadcast_group_id in linked_broadcasts
-        ),
-        key=lambda item: str(item.id),
-    )
-    scoped_recipients = sorted(
-        (
-            recipient
-            for recipient in recipients
-            if recipient.agency_id == group.agency_id
-            and recipient.broadcast_group_id in linked_broadcasts
-            and recipient.removed_at is None
-        ),
-        key=lambda item: str(item.id),
-    )
-    snapshot: list[tuple[str, ...]] = []
-    for link in scoped_links:
-        snapshot.append(
-            (
-                "link",
-                str(link.id),
-                str(link.client_group_id),
-                str(link.broadcast_group_id),
-                str(link.agency_id),
-                str(link.created_by_user_id or ""),
-                _snapshot_value(link.created_at),
-            )
-        )
-    for broadcast in sorted(broadcasts, key=lambda item: str(item.id)):
-        if broadcast.id not in linked_broadcasts:
-            continue
-        snapshot.append(
-            (
-                "broadcast",
-                str(broadcast.id),
-                str(broadcast.agency_id),
-                str(broadcast.name or ""),
-            )
-        )
-    for recipient in scoped_recipients:
-        snapshot.append(
-            (
-                "recipient",
-                str(recipient.id),
-                str(recipient.broadcast_group_id),
-                str(recipient.agency_id),
-                str(recipient.name or ""),
-                str(recipient.normalized_phone_number or ""),
-                _snapshot_value(recipient.created_at),
-                json.dumps(
-                    dict(recipient.imported_fields or {}),
-                    sort_keys=True,
-                    default=str,
-                    separators=(",", ":"),
-                ),
-            )
-        )
-    return _LinkedDocumentMatchSource(
-        linked_broadcasts=linked_broadcasts,
-        recipients=tuple(scoped_recipients),
-        snapshot=tuple(snapshot),
-    )
 
 
 async def _read_linked_document_match_source(
@@ -1358,40 +1127,6 @@ async def _lock_document_passenger_roster(
     )
 
 
-def _document_match_roster_snapshot(
-    passengers: list[PassportSubmission],
-) -> tuple[tuple[str, ...], ...]:
-    """Capture every passenger field that can influence document assignment."""
-
-    snapshots: list[tuple[str, ...]] = []
-    for passenger in passengers:
-        updated_at = getattr(passenger, "updated_at", None)
-        snapshots.append(
-            (
-                str(passenger.id),
-                updated_at.isoformat() if hasattr(updated_at, "isoformat") else str(updated_at),
-                str(getattr(passenger, "client_name", "") or ""),
-                str(getattr(passenger, "client_phone", "") or ""),
-                str(getattr(passenger, "family_head_phone", "") or ""),
-                json.dumps(
-                    {
-                        "confirmed_fields": getattr(passenger, "confirmed_fields", None) or {},
-                        "extracted_fields": getattr(passenger, "extracted_fields", None) or {},
-                        "staff_metadata": getattr(passenger, "staff_metadata", None) or {},
-                        "custom_answers": getattr(passenger, "custom_answers", None) or [],
-                        "custom_detail_answers": (
-                            getattr(passenger, "custom_detail_answers", None) or []
-                        ),
-                    },
-                    sort_keys=True,
-                    default=str,
-                    separators=(",", ":"),
-                ),
-            )
-        )
-    return tuple(sorted(snapshots))
-
-
 def _detach_distribution_batch_before_long_processing(
     session: AsyncSession,
     batch: DocumentDistributionBatchModel,
@@ -1526,114 +1261,6 @@ async def _document_response(
         can_resend=latest_accepted is not None and not in_progress,
         url=await storage.get_presigned_url(document.storage_key),
     )
-
-
-def _passenger_review_rows(
-    *,
-    passengers: list[PassportSubmission],
-    documents: list[DistributedDocumentModel],
-    responses_by_document: dict[uuid.UUID, DistributedDocumentResponse],
-) -> tuple[
-    list[DocumentPassengerReviewRow],
-    list[DistributedDocumentResponse],
-    int,
-]:
-    """Group the persistent document ledger into one row per submitted passenger."""
-
-    passenger_ids = {passenger.id for passenger in passengers}
-    docs_by_passenger: dict[uuid.UUID, list[DistributedDocumentModel]] = {}
-    unmatched: list[DistributedDocumentResponse] = []
-    for document in documents:
-        if document.passenger_id in passenger_ids:
-            docs_by_passenger.setdefault(document.passenger_id, []).append(document)
-        else:
-            unmatched.append(responses_by_document[document.id])
-
-    rows: list[DocumentPassengerReviewRow] = []
-    matched_passenger_count = 0
-    for passenger in passengers:
-        passenger_documents = docs_by_passenger.get(passenger.id, [])
-        rendered_documents = [
-            responses_by_document[document.id] for document in passenger_documents
-        ]
-        if any(document.match_status == "matched" for document in passenger_documents):
-            matched_passenger_count += 1
-        rows.append(
-            DocumentPassengerReviewRow(
-                passenger_id=passenger.id,
-                passenger_name=passenger.client_name,
-                passport_number=_passport_number(passenger),
-                departure_city=passenger.departure_city,
-                document=rendered_documents[0] if rendered_documents else None,
-                documents=rendered_documents,
-            )
-        )
-
-    return rows, unmatched, matched_passenger_count
-
-
-def _physical_file_accounting(
-    *,
-    passengers: list[PassportSubmission],
-    documents: list[DistributedDocumentModel],
-    responses_by_document: dict[uuid.UUID, DistributedDocumentResponse],
-) -> tuple[int, int, int, list[DocumentAssignmentIssueResponse]]:
-    """Count stored PDFs independently from their assignment rows.
-
-    A combined PDF can intentionally create several rows that share one
-    storage key, while several PDFs can be assigned to the same passenger.
-    Grouping by the server-generated storage key keeps both cases truthful.
-    """
-
-    passenger_ids = {passenger.id for passenger in passengers}
-    physical_documents: dict[str, list[DistributedDocumentModel]] = {}
-    for document in documents:
-        storage_identity = str(getattr(document, "storage_key", "") or document.id)
-        physical_documents.setdefault(storage_identity, []).append(document)
-
-    assigned_files = 0
-    assigned_passengers: set[uuid.UUID] = set()
-    issues: list[DocumentAssignmentIssueResponse] = []
-    for grouped_documents in physical_documents.values():
-        valid_assignments = [
-            document
-            for document in grouped_documents
-            if document.match_status == "matched" and document.passenger_id in passenger_ids
-        ]
-        if valid_assignments:
-            assigned_files += 1
-            assigned_passengers.update(
-                document.passenger_id
-                for document in valid_assignments
-                if document.passenger_id is not None
-            )
-            continue
-
-        representative = grouped_documents[0]
-        response = responses_by_document[representative.id]
-        if any(
-            document.passenger_id is not None and document.passenger_id not in passenger_ids
-            for document in grouped_documents
-        ):
-            code = "passenger_no_longer_in_group"
-            reason = "The previously matched passenger is no longer in this group."
-        elif any(document.match_status == "duplicate_document" for document in grouped_documents):
-            code = "duplicate_document"
-            reason = response.match_reason or "This PDF duplicates an existing saved document."
-        else:
-            code = "no_unique_passenger_match"
-            reason = response.match_reason or "No unique passenger match was found."
-        issues.append(
-            DocumentAssignmentIssueResponse(
-                document_id=response.id,
-                original_filename=response.original_filename,
-                code=code,
-                reason=reason,
-                url=response.url,
-            )
-        )
-
-    return len(physical_documents), assigned_files, len(assigned_passengers), issues
 
 
 async def _batch_response(
@@ -1791,28 +1418,6 @@ async def _batch_response(
         unmatched_documents=unmatched,
         assignment_issues=assignment_issues,
         rejected_documents=persisted_rejections or rejected_documents or [],
-    )
-
-
-def _processing_batch_response(
-    batch: DocumentDistributionBatchModel,
-) -> DocumentBatchResponse:
-    """Avoid O(n-squared) roster hydration for non-final upload chunks."""
-
-    return DocumentBatchResponse(
-        batch_id=batch.id,
-        group_id=batch.group_id,
-        document_type=batch.document_type,
-        status="processing",
-        uploaded_count=batch.uploaded_count,
-        rejected_count=batch.rejected_count,
-        matched_count=batch.matched_count,
-        processing_upload_ids=[batch.id],
-        saved_at=None,
-        created_at=batch.created_at,
-        review_rows=[],
-        unmatched_documents=[],
-        rejected_documents=[],
     )
 
 

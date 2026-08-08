@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { passportGroupDetailSource } from "./passport-group-detail-source.contract-helper.mjs";
 
-const source = readFileSync(
-  new URL("./passport-group-detail.tsx", import.meta.url),
-  "utf8",
-);
+const source = passportGroupDetailSource;
 const api = readFileSync(
   new URL("../api/passports.api.ts", import.meta.url),
   "utf8",

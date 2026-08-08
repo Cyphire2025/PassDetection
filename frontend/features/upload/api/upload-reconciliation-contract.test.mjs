@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { uploadFlowSource as flowSource } from "../components/upload-flow-source.contract-helper.mjs";
 
 const apiSource = readFileSync(
   new URL("./upload.api.ts", import.meta.url),
   "utf8",
 );
-const flowSource = readFileSync(
-  new URL("../components/upload-flow.tsx", import.meta.url),
-  "utf8",
-);
-
 test("reconciliation is a key-only PUT and never rebuilds the upload form", () => {
   const start = apiSource.indexOf("reconcileUpload: async");
   const end = apiSource.indexOf("getUploadStatus: async", start);

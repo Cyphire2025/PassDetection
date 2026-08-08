@@ -1,13 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { uploadFlowSource } from "./upload-flow-source.contract-helper.mjs";
 
 const source = readFileSync(
   new URL("./relation-qualifier-step.tsx", import.meta.url),
-  "utf8",
-);
-const uploadFlowSource = readFileSync(
-  new URL("./upload-flow.tsx", import.meta.url),
   "utf8",
 );
 

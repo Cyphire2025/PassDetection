@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import ts from "typescript";
+import { readDocumentWorkspaceSource } from "./document-workspace-source.contract-helper.mjs";
 
 const batching = readFileSync(
   new URL("../services/document-upload-batching.ts", import.meta.url),
@@ -22,7 +23,7 @@ const distributionTypes = readFileSync(
   "utf8",
 );
 const renamePage = readFileSync(new URL("./document-rename-page.tsx", import.meta.url), "utf8");
-const workspace = readFileSync(new URL("./document-workspace.tsx", import.meta.url), "utf8");
+const workspace = readDocumentWorkspaceSource();
 const workspaceDialogs = readFileSync(
   new URL("./document-workspace-dialogs.tsx", import.meta.url),
   "utf8",
@@ -35,6 +36,13 @@ const laneNavigation = readFileSync(
 const distributionRoute = readFileSync(
   new URL(
     "../../../../backend/app/presentation/api/v1/routes/document_distribution.py",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const distributionDeliverySupport = readFileSync(
+  new URL(
+    "../../../../backend/app/presentation/api/v1/routes/document_distribution_delivery_support.py",
     import.meta.url,
   ),
   "utf8",
@@ -356,7 +364,10 @@ test("document delivery polling follows active work and stops after webhook grac
   assert.match(distributionHooks, /seconds \* 1_000 : false/);
   assert.match(distributionHooks, /refetchIntervalInBackground: false/);
   assert.match(distributionHooks, /gcTime: 0/);
-  assert.match(distributionRoute, /DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta\(minutes=5\)/);
+  assert.match(
+    distributionDeliverySupport,
+    /DOCUMENT_DELIVERY_WEBHOOK_GRACE = timedelta\(minutes=5\)/,
+  );
   assert.match(distributionRoute, /limit: Annotated\[int, Query\(ge=0, le=100\)\] = 100/);
   assert.match(distributionRoute, /\.limit\(limit\)/);
 });

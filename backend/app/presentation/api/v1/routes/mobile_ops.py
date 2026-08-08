@@ -10,14 +10,14 @@ import uuid
 from collections.abc import Sequence
 from contextlib import aclosing
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta
-from typing import Any, Literal
+from datetime import UTC, datetime, timedelta
+from typing import Literal
 from urllib.parse import quote
 
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import String, case, cast, func, or_, select, tuple_
+from sqlalchemy import case, func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -37,26 +37,18 @@ from app.domain.entities.entities import OPERATIONALLY_APPROVED_PASSPORT_STATUS_
 from app.domain.exceptions.exceptions import AuthorizationError, EntityNotFoundError
 from app.domain.value_objects.travel_document_taxonomy import (
     FLIGHT_TICKET_DOCUMENT_TYPES,
-    mobile_document_category,
 )
 from app.infrastructure.database.gc_mobile_models import (
-    ClientManagerGroupAssignmentModel,
-    ClientManagerProfileModel,
-    GCAnnouncementModel,
-    GCGroupAccessModel,
     MobileDeviceSessionModel,
     MobileIdempotencyReceiptModel,
     MobileIncidentModel,
     MobileNotificationModel,
-    MobilePassengerIdentityModel,
     MobilePushRegistrationModel,
     MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
-    ClientGroupModel,
-    CoordinatorGroupAssignmentModel,
     DistributedDocumentModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
@@ -67,8 +59,55 @@ from app.infrastructure.database.models import (
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import qr_hash
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
-from app.infrastructure.rooming.priority_fields import normalize_imported_field_key
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+    _ANNOUNCEMENT_NOTIFICATION_TYPE as _ANNOUNCEMENT_NOTIFICATION_TYPE,
+)
+from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+    _accessible_group_ids,
+    _notification_recipient_filter,
+    _notification_response,
+    _published_announcement_notification_filter,
+)
+from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+    _mobile_priority as _mobile_priority,
+)
+from app.presentation.api.v1.routes.mobile_ops_notification_support import (
+    _safe_public_payload as _safe_public_payload,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _COORDINATOR_DOCUMENT_CATEGORY_ALIASES as _COORDINATOR_DOCUMENT_CATEGORY_ALIASES,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _COORDINATOR_PROJECTED_METADATA_KEYS as _COORDINATOR_PROJECTED_METADATA_KEYS,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS as _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _COORDINATOR_SENSITIVE_METADATA_TOKENS as _COORDINATOR_SENSITIVE_METADATA_TOKENS,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _MAX_COORDINATOR_OPERATIONAL_DETAILS as _MAX_COORDINATOR_OPERATIONAL_DETAILS,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _bounded_operational_value as _bounded_operational_value,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _bounded_optional_text,
+    _coordinator_document_category,
+    _coordinator_metadata_value,
+    _coordinator_operational_details,
+    _coordinator_reviewed_passport_field,
+    _safe_optional_date,
+    _validate_manager_document_signature,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _coordinator_metadata_field_is_safe as _coordinator_metadata_field_is_safe,
+)
+from app.presentation.api.v1.routes.mobile_ops_passenger_support import (
+    _coordinator_metadata_label as _coordinator_metadata_label,
+)
 from app.presentation.api.v1.routes.tour_operations import (
     SCANNABLE_ATTENDANCE_STATUSES,
     _insert_canonical_attendance_record,
@@ -86,7 +125,6 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceSessionPageResponse,
     MobileAttendanceSessionResponse,
     MobileAttendanceSummaryResponse,
-    MobileCoordinatorOperationalDetail,
     MobileCoordinatorPassengerDetailResponse,
     MobileCoordinatorPassengerResponse,
     MobileCoordinatorRosterResponse,
@@ -96,7 +134,6 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileManagerRosterResponse,
     MobileNotificationPageResponse,
     MobileNotificationReadResponse,
-    MobileNotificationResponse,
     MobilePushRegistrationRequest,
     MobilePushRegistrationResponse,
     MobilePushUnregisterRequest,
@@ -111,12 +148,10 @@ _APP_BUNDLE_ID = "com.globalconnects.groupcompanion"
 _MAX_ROSTER_PAGE = 200
 _MAX_NOTIFICATION_PAGE = 200
 _PUSH_ONLY_NOTIFICATION_TYPES = frozenset({"trip_countdown"})
-_ANNOUNCEMENT_NOTIFICATION_TYPE = "group_announcement"
 _MAX_ATTENDANCE_SESSION_PAGE = 100
 _MAX_MISSING_PASSENGER_PAGE = 200
 _MAX_SCAN_CLOCK_SKEW = timedelta(minutes=15)
 _IDEMPOTENCY_RECEIPT_TTL = timedelta(days=30)
-_MAX_COORDINATOR_OPERATIONAL_DETAILS = 300
 _MANAGER_PREVIEW_DOCUMENT_TYPES = frozenset({"visa", "flight_ticket"})
 _MANAGER_PREVIEW_DATABASE_TYPES = {
     "visa": ("visa",),
@@ -126,175 +161,6 @@ _MANAGER_PREVIEW_CONTENT_TYPES = frozenset(
     {"application/pdf", "image/jpeg", "image/png", "image/webp"}
 )
 _MANAGER_PREVIEW_STREAM_SLOTS = asyncio.Semaphore(16)
-_COORDINATOR_PROJECTED_METADATA_KEYS = frozenset(
-    {
-        "agency_dealership_name",
-        "base_city",
-        "birth_date",
-        "birthdate",
-        "client_email",
-        "client_name",
-        "client_phone",
-        "contact",
-        "contact_no",
-        "contact_number",
-        "date_of_birth",
-        "date_of_expiration",
-        "date_of_expiry",
-        "date_of_issue",
-        "date_of_issuance",
-        "department",
-        "departure_city",
-        "departure_hub",
-        "designation",
-        "dob",
-        "doe",
-        "doi",
-        "domestic_airport",
-        "e_mail",
-        "email",
-        "email_address",
-        "emergency_contact_name",
-        "emergency_contact_number",
-        "emergency_contact_person",
-        "emergency_contact_phone",
-        "emergency_contact_relation",
-        "emergency_mobile",
-        "emergency_name",
-        "emergency_person",
-        "emergency_phone",
-        "emergency_relation",
-        "employee_code",
-        "employee_id",
-        "employee_type",
-        "expiration",
-        "expiration_date",
-        "expiry",
-        "expiry_date",
-        "family_name",
-        "first_name",
-        "forename",
-        "forenames",
-        "full_name",
-        "gender",
-        "given_name",
-        "given_names",
-        "guest_name",
-        "hub",
-        "international_airport",
-        "issue_country",
-        "issue_date",
-        "issue_place",
-        "issuing_country",
-        "last_name",
-        "meal_preference",
-        "mobile",
-        "mobile_no",
-        "mobile_number",
-        "name",
-        "nationality",
-        "nearest_airport_domestic",
-        "nearest_domestic_airport",
-        "passenger",
-        "passenger_email",
-        "passenger_name",
-        "phone",
-        "phone_no",
-        "phone_number",
-        "place_of_issue",
-        "place_of_issuance",
-        "recipient_name",
-        "remark",
-        "remarks",
-        "sex",
-        "source_zone",
-        "staff_code",
-        "staff_id",
-        "staff_name",
-        "staffname",
-        "sur_name",
-        "surname",
-        "telephone",
-        "traveler_name",
-        "traveller_name",
-        "valid_till",
-        "valid_until",
-        "whatsapp",
-        "whatsapp_no",
-        "whatsapp_number",
-        "zone",
-        "zone_name",
-        "zonename",
-    }
-)
-_COORDINATOR_SENSITIVE_METADATA_TOKENS = frozenset(
-    {
-        "aadhaar",
-        "aadhar",
-        "address",
-        "admin",
-        "ai",
-        "booking",
-        "bucket",
-        "confidence",
-        "credential",
-        "document",
-        "error",
-        "extraction",
-        "file",
-        "filename",
-        "hash",
-        "image",
-        "internal",
-        "mrz",
-        "note",
-        "notes",
-        "object",
-        "ocr",
-        "pan",
-        "passport",
-        "password",
-        "path",
-        "photo",
-        "private",
-        "pnr",
-        "prompt",
-        "reference",
-        "reservation",
-        "raw",
-        "s3",
-        "scan",
-        "score",
-        "secret",
-        "selfie",
-        "signature",
-        "storage",
-        "ticket",
-        "token",
-        "uri",
-        "url",
-        "visa",
-    }
-)
-_COORDINATOR_SENSITIVE_METADATA_COMPOUNDS = (
-    "bookingcode",
-    "internalcomment",
-    "internalnote",
-    "passportno",
-    "passportnum",
-    "passportnumber",
-    "postsubmissionverification",
-    "staffcomment",
-    "staffnote",
-)
-_COORDINATOR_DOCUMENT_CATEGORY_ALIASES = {
-    "ticket": "flight_ticket",
-    "insurance": "insurance",
-    "travel_insurance": "insurance",
-    "hotel_voucher": "hotel_voucher",
-    "voucher": "hotel_voucher",
-    "other": "other",
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -2262,24 +2128,6 @@ async def _require_client_manager_trip(
     return await MobileAccessPolicy(session).require_trip_access(claims, group_id)
 
 
-def _validate_manager_document_signature(signature: bytes, content_type: str) -> None:
-    valid = {
-        "application/pdf": signature.startswith(b"%PDF-"),
-        "image/jpeg": signature.startswith(b"\xff\xd8\xff"),
-        "image/png": signature.startswith(b"\x89PNG\r\n\x1a\n"),
-        "image/webp": (
-            len(signature) >= 12
-            and signature.startswith(b"RIFF")
-            and signature[8:12] == b"WEBP"
-        ),
-    }.get(content_type, False)
-    if not valid:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="The stored document type does not match its content",
-        )
-
-
 async def _mobile_attendance_session(
     session: AsyncSession,
     *,
@@ -2432,157 +2280,6 @@ def _push_fernet() -> Fernet:
     return mobile_push_fernet()
 
 
-def _notification_recipient_filter(claims: MobileAccessClaims):
-    if claims.principal_type == "passenger":
-        return (
-            (MobileNotificationModel.recipient_type == "passenger")
-            & (MobileNotificationModel.recipient_passenger_identity_id == claims.principal_id)
-            & MobileNotificationModel.recipient_user_id.is_(None)
-        )
-    return (
-        (MobileNotificationModel.recipient_type == claims.principal_type)
-        & (MobileNotificationModel.recipient_user_id == claims.principal_id)
-        & MobileNotificationModel.recipient_passenger_identity_id.is_(None)
-    )
-
-
-def _published_announcement_notification_filter(agency_id: uuid.UUID):
-    """Hide legacy notification rows whose source announcement is no longer published."""
-
-    normalized_notification_source_id = func.replace(
-        func.replace(
-            MobileNotificationModel.dedupe_key,
-            "announcement:",
-            "",
-        ),
-        "-",
-        "",
-    )
-    normalized_announcement_id = func.replace(
-        cast(GCAnnouncementModel.id, String),
-        "-",
-        "",
-    )
-    current_announcement_exists = (
-        select(GCAnnouncementModel.id)
-        .where(
-            GCAnnouncementModel.agency_id == agency_id,
-            GCAnnouncementModel.agency_id == MobileNotificationModel.agency_id,
-            GCAnnouncementModel.group_id == MobileNotificationModel.group_id,
-            GCAnnouncementModel.gc_group_access_id
-            == MobileNotificationModel.gc_group_access_id,
-            GCAnnouncementModel.status == "published",
-            normalized_announcement_id == normalized_notification_source_id,
-        )
-        .correlate(MobileNotificationModel)
-        .exists()
-    )
-    return or_(
-        MobileNotificationModel.notification_type
-        != _ANNOUNCEMENT_NOTIFICATION_TYPE,
-        current_announcement_exists,
-    )
-
-
-def _accessible_group_ids(claims: MobileAccessClaims, now: datetime):
-    statement = (
-        select(GCGroupAccessModel.group_id)
-        .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
-        .where(
-            GCGroupAccessModel.agency_id == claims.agency_id,
-            ClientGroupModel.agency_id == claims.agency_id,
-            ClientGroupModel.status.in_(("active", "closed")),
-            ClientGroupModel.deleted_at.is_(None),
-            GCGroupAccessModel.is_enabled.is_(True),
-            GCGroupAccessModel.revoked_at.is_(None),
-            or_(
-                GCGroupAccessModel.access_starts_at.is_(None),
-                GCGroupAccessModel.access_starts_at <= now,
-            ),
-            or_(
-                GCGroupAccessModel.access_expires_at.is_(None),
-                GCGroupAccessModel.access_expires_at > now,
-            ),
-        )
-    )
-    if claims.principal_type == "passenger":
-        statement = statement.join(
-            MobilePassengerIdentityModel,
-            MobilePassengerIdentityModel.gc_group_access_id == GCGroupAccessModel.id,
-        ).where(
-            GCGroupAccessModel.passenger_access_enabled.is_(True),
-            MobilePassengerIdentityModel.id == claims.principal_id,
-            MobilePassengerIdentityModel.status.in_(("eligible", "claimed")),
-            MobilePassengerIdentityModel.revoked_at.is_(None),
-        )
-    elif claims.principal_type == "client_manager":
-        statement = (
-            statement.join(
-                ClientManagerGroupAssignmentModel,
-                ClientManagerGroupAssignmentModel.gc_group_access_id == GCGroupAccessModel.id,
-            )
-            .join(
-                ClientManagerProfileModel,
-                ClientManagerProfileModel.id == ClientManagerGroupAssignmentModel.profile_id,
-            )
-            .where(
-                GCGroupAccessModel.client_manager_access_enabled.is_(True),
-                ClientManagerProfileModel.user_id == claims.principal_id,
-                ClientManagerProfileModel.status == "active",
-                ClientManagerProfileModel.deleted_at.is_(None),
-                ClientManagerGroupAssignmentModel.is_active.is_(True),
-                ClientManagerGroupAssignmentModel.revoked_at.is_(None),
-            )
-        )
-    else:
-        statement = statement.join(
-            CoordinatorGroupAssignmentModel,
-            CoordinatorGroupAssignmentModel.group_id == GCGroupAccessModel.group_id,
-        ).where(
-            GCGroupAccessModel.coordinator_access_enabled.is_(True),
-            CoordinatorGroupAssignmentModel.coordinator_user_id == claims.principal_id,
-            CoordinatorGroupAssignmentModel.agency_id == claims.agency_id,
-            CoordinatorGroupAssignmentModel.active.is_(True),
-        )
-    return statement.scalar_subquery()
-
-
-def _notification_response(item: MobileNotificationModel) -> MobileNotificationResponse:
-    return MobileNotificationResponse(
-        id=item.id,
-        trip_id=item.group_id,
-        notification_type=item.notification_type,
-        category=item.category,
-        priority=_mobile_priority(item.priority),
-        title=item.title,
-        body=item.body,
-        deep_link_path=item.deep_link_path,
-        payload=_safe_public_payload(item.public_payload),
-        available_at=item.available_at,
-        expires_at=item.expires_at,
-        read_at=item.read_at,
-    )
-
-
-def _safe_public_payload(value: object) -> dict[str, object]:
-    if not isinstance(value, dict):
-        return {}
-    safe: dict[str, object] = {}
-    for key in ("screen", "group_id", "entity_id", "category"):
-        item = value.get(key)
-        if isinstance(item, (str, int, bool)) and len(str(item)) <= 512:
-            safe[key] = item
-    return safe
-
-
-def _mobile_priority(value: str) -> str:
-    if value == "emergency":
-        return "emergency"
-    if value == "high":
-        return "important"
-    return "normal"
-
-
 def _attendance_rejection_code(value: str | None) -> str:
     mapping = {
         "unknown_token": "QR_UNKNOWN",
@@ -2592,191 +2289,3 @@ def _attendance_rejection_code(value: str | None) -> str:
         "wrong_group": "QR_WRONG_GROUP",
     }
     return mapping.get(value or "", "QR_INVALID")
-
-
-def _coordinator_reviewed_passport_field(field: str) -> Any:
-    """Resolve reviewed passport data before extraction fallback.
-
-    The raw JSON documents never leave the server; callers select only one
-    named operational field at a time.
-    """
-
-    return func.coalesce(
-        PassportSubmissionModel.confirmed_fields[field].as_string(),
-        PassportSubmissionModel.extracted_fields[field].as_string(),
-    )
-
-
-def _coordinator_document_category(value: object) -> str:
-    """Map only recognized document categories; unknown values stay generic."""
-
-    normalized = normalize_imported_field_key(value)
-    distribution_category = mobile_document_category(normalized)
-    if distribution_category is not None:
-        return distribution_category
-    return _COORDINATOR_DOCUMENT_CATEGORY_ALIASES.get(normalized, "other")
-
-
-def _coordinator_metadata_value(
-    metadata: dict[object, object],
-    keys: tuple[str, ...],
-    *,
-    max_length: int,
-) -> str | None:
-    normalized = {
-        normalize_imported_field_key(raw_key): raw_value for raw_key, raw_value in metadata.items()
-    }
-    for key in keys:
-        value = _bounded_optional_text(normalized.get(key), max_length)
-        if value is not None:
-            return value
-    return None
-
-
-def _coordinator_operational_details(
-    *,
-    staff_metadata: dict[object, object],
-    custom_answers: object,
-    custom_detail_answers: object,
-) -> list[MobileCoordinatorOperationalDetail]:
-    """Build a bounded, fail-closed projection of extra passenger attributes.
-
-    Imported spreadsheets intentionally retain their source columns for office
-    workflows. Mobile coordinators receive only display-safe operational
-    values. Known first-class fields are de-duplicated, while storage details,
-    government identifiers, document secrets, extraction/AI data, and internal
-    notes are rejected by normalized key and label.
-    """
-
-    details: list[MobileCoordinatorOperationalDetail] = []
-    seen: set[str] = set()
-
-    def append_detail(
-        *,
-        raw_key: object,
-        raw_label: object,
-        raw_value: object,
-        source: Literal["imported", "custom_question", "custom_detail"],
-    ) -> None:
-        if len(details) >= _MAX_COORDINATOR_OPERATIONAL_DETAILS:
-            return
-        key = normalize_imported_field_key(raw_key)
-        label_key = normalize_imported_field_key(raw_label)
-        if not key or not label_key:
-            return
-        if source == "imported" and key in _COORDINATOR_PROJECTED_METADATA_KEYS:
-            return
-        if not _coordinator_metadata_field_is_safe(key, label_key):
-            return
-        value = _bounded_operational_value(raw_value, 2048)
-        label = _bounded_optional_text(raw_label, 120)
-        if value is None or label is None:
-            return
-        stable_key = f"{source}:{key}"[:160]
-        if stable_key in seen:
-            return
-        seen.add(stable_key)
-        details.append(
-            MobileCoordinatorOperationalDetail(
-                key=stable_key,
-                label=label,
-                value=value,
-                source=source,
-            )
-        )
-
-    def append_custom_details(
-        values: object,
-        *,
-        source: Literal["custom_question", "custom_detail"],
-        id_key: Literal["question_id", "detail_id"],
-    ) -> None:
-        if not isinstance(values, list):
-            return
-        for item in values:
-            if not isinstance(item, dict):
-                continue
-            label = item.get("label")
-            append_detail(
-                raw_key=item.get(id_key) or label,
-                raw_label=label,
-                raw_value=item.get("value"),
-                source=source,
-            )
-
-    for raw_key, raw_value in staff_metadata.items():
-        key = normalize_imported_field_key(raw_key)
-        append_detail(
-            raw_key=key,
-            raw_label=_coordinator_metadata_label(key),
-            raw_value=raw_value,
-            source="imported",
-        )
-    append_custom_details(
-        custom_answers,
-        source="custom_question",
-        id_key="question_id",
-    )
-    append_custom_details(
-        custom_detail_answers,
-        source="custom_detail",
-        id_key="detail_id",
-    )
-    return details
-
-
-def _coordinator_metadata_field_is_safe(key: str, label_key: str) -> bool:
-    normalized = f"{key}_{label_key}"
-    tokens = set(normalized.split("_"))
-    compact = normalized.replace("_", "")
-    return not (
-        key.startswith("source_")
-        or bool(tokens & _COORDINATOR_SENSITIVE_METADATA_TOKENS)
-        or any(value in compact for value in _COORDINATOR_SENSITIVE_METADATA_COMPOUNDS)
-    )
-
-
-def _coordinator_metadata_label(key: str) -> str:
-    acronyms = {"dob": "DOB", "id": "ID", "pnr": "PNR"}
-    return " ".join(acronyms.get(part, part.capitalize()) for part in key.split("_") if part)
-
-
-def _bounded_operational_value(value: object, max_length: int) -> str | None:
-    """Render only bounded scalar spreadsheet values for coordinator display."""
-
-    if isinstance(value, bool):
-        return "Yes" if value else "No"
-    if isinstance(value, (int, float)):
-        return str(value)[:max_length]
-    if isinstance(value, (date, datetime)):
-        return value.isoformat()[:max_length]
-    return _bounded_optional_text(value, max_length)
-
-
-def _bounded_optional_text(value: object, max_length: int) -> str | None:
-    if not isinstance(value, str):
-        return None
-    cleaned = " ".join(value.split())
-    return cleaned[:max_length] or None
-
-
-def _safe_optional_date(value: object) -> date | None:
-    """Parse only known imported date formats without leaking malformed data."""
-
-    if isinstance(value, datetime):
-        return value.date()
-    if isinstance(value, date):
-        return value
-    cleaned = _bounded_optional_text(value, 32)
-    if cleaned is None:
-        return None
-    for parser in (
-        date.fromisoformat,
-        lambda item: datetime.strptime(item, "%d/%m/%Y").date(),
-        lambda item: datetime.strptime(item, "%d-%m-%Y").date(),
-    ):
-        try:
-            return parser(cleaned)
-        except ValueError:
-            continue
-    return None
