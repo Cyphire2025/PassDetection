@@ -28,6 +28,24 @@ export interface DocumentVerificationUploadPlan {
   uploadSession: DocumentUploadSession;
 }
 
+export type DocumentAssignmentExportFilter =
+  | "all"
+  | "assigned"
+  | "missing"
+  | "sent"
+  | "not_sent";
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
 export const documentDistributionApi = {
   listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {
     const { data } = await apiClient.get<DocumentDistributionGroup[]>(API_ENDPOINTS.documents.groups, {
@@ -40,6 +58,26 @@ export const documentDistributionApi = {
   getReview: async (groupId: string, documentType: DistributionDocumentType): Promise<DocumentBatchReview> => {
     const { data } = await apiClient.get<DocumentBatchReview>(API_ENDPOINTS.documents.review(groupId, documentType));
     return data;
+  },
+
+  exportReview: async (
+    groupId: string,
+    documentType: DistributionDocumentType,
+    filter: DocumentAssignmentExportFilter,
+    search: string,
+  ): Promise<void> => {
+    const response = await apiClient.get<Blob>(
+      API_ENDPOINTS.documents.reviewExport(groupId, documentType),
+      {
+        params: { filter, search: search.trim() || undefined },
+        responseType: "blob",
+        timeout: 0,
+      },
+    );
+    const disposition = String(response.headers["content-disposition"] ?? "");
+    const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+    const filename = filenameMatch?.[1] ?? `document-assignments-${filter}.xlsx`;
+    downloadBlob(response.data, filename);
   },
 
   verifyDocuments: async (

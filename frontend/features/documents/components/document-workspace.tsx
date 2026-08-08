@@ -22,6 +22,7 @@ import {
   useDocumentDeliveryPreview,
   useDocumentGroups,
   useDocumentReview,
+  useExportDocumentAssignments,
   useReuploadPassengerDocument,
   useSaveDocumentBatch,
   useSendDocumentWhatsAppBroadcast,
@@ -130,6 +131,7 @@ export function DocumentWorkspace({
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
   const review = useDocumentReview(groupId, documentType);
+  const exportAssignments = useExportDocumentAssignments(groupId, documentType);
   const verify = useVerifyDistributionDocuments(groupId, documentType);
   const upload = useUploadDistributionDocuments(groupId, documentType);
   const abortUploads = useAbortDistributionUploads(groupId, documentType);
@@ -429,6 +431,8 @@ export function DocumentWorkspace({
               savePending={save.isPending}
               saved={review.data?.status === "saved"}
               deliveryDisabled={!review.data?.batch_id || review.data.status !== "saved"}
+              exportPending={exportAssignments.isPending}
+              exportError={exportAssignments.isError}
               hasReviewData={Boolean(review.data)}
               physicalFileCount={physicalFileCount}
               assignmentIssues={assignmentIssues}
@@ -460,6 +464,13 @@ export function DocumentWorkspace({
                 setDeliveryMessageContent2(null);
                 setDeliveryFeedback(null);
                 setIsSendPreviewOpen(true);
+              }}
+              onExport={() => {
+                exportAssignments.reset();
+                exportAssignments.mutate({
+                  filter: reviewFilter,
+                  search: reviewSearchQuery,
+                });
               }}
               onToggleIssue={(documentId, selected) =>
                 setSelectedDocumentIds((current) =>

@@ -1,5 +1,6 @@
 import {
   CheckCircle2,
+  Download,
   FileQuestion,
   Save,
   Search,
@@ -29,6 +30,8 @@ interface DocumentWorkspaceReviewControlsProps {
   savePending: boolean;
   saved: boolean;
   deliveryDisabled: boolean;
+  exportPending: boolean;
+  exportError: boolean;
   hasReviewData: boolean;
   physicalFileCount: number;
   assignmentIssues: DocumentAssignmentIssue[];
@@ -40,11 +43,20 @@ interface DocumentWorkspaceReviewControlsProps {
   onDeleteUnassigned: () => void;
   onSave: () => void;
   onOpenDelivery: () => void;
+  onExport: () => void;
   onToggleIssue: (documentId: string, selected: boolean) => void;
   onReviewFilterChange: (filter: ReviewFilter) => void;
   onClearSelectedAssignments: () => void;
   onSearchQueryChange: (query: string) => void;
 }
+
+const REVIEW_FILTER_OPTIONS: Array<[ReviewFilter, string]> = [
+  ["all", "All"],
+  ["assigned", "Assigned"],
+  ["missing", "Missing"],
+  ["sent", "Sent"],
+  ["not_sent", "Not sent"],
+];
 
 export function DocumentWorkspaceReviewControls({
   assignedFileCount,
@@ -62,6 +74,8 @@ export function DocumentWorkspaceReviewControls({
   savePending,
   saved,
   deliveryDisabled,
+  exportPending,
+  exportError,
   hasReviewData,
   physicalFileCount,
   assignmentIssues,
@@ -73,11 +87,15 @@ export function DocumentWorkspaceReviewControls({
   onDeleteUnassigned,
   onSave,
   onOpenDelivery,
+  onExport,
   onToggleIssue,
   onReviewFilterChange,
   onClearSelectedAssignments,
   onSearchQueryChange,
 }: DocumentWorkspaceReviewControlsProps) {
+  const activeFilterLabel =
+    REVIEW_FILTER_OPTIONS.find(([value]) => value === reviewFilter)?.[1] ?? "All";
+
   return (
     <>
       <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -189,13 +207,7 @@ export function DocumentWorkspaceReviewControls({
       )}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-5 py-3">
-        {([
-          ["all", "All", reviewCounts.all],
-          ["assigned", "Assigned", reviewCounts.assigned],
-          ["missing", "Missing", reviewCounts.missing],
-          ["sent", "Sent", reviewCounts.sent],
-          ["not_sent", "Not sent", reviewCounts.not_sent],
-        ] as Array<[ReviewFilter, string, number]>).map(([value, label, count]) => (
+        {REVIEW_FILTER_OPTIONS.map(([value, label]) => (
           <button
             key={value}
             type="button"
@@ -206,7 +218,7 @@ export function DocumentWorkspaceReviewControls({
                 : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
             }`}
           >
-            {label} ({count})
+            {label} ({reviewCounts[value]})
           </button>
         ))}
         <div className="ml-auto flex w-full flex-wrap items-center justify-end gap-3 sm:w-auto">
@@ -219,6 +231,16 @@ export function DocumentWorkspaceReviewControls({
               Clear selected assignments
             </button>
           )}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={reviewCounts[reviewFilter] === 0}
+            isLoading={exportPending}
+            onClick={onExport}
+          >
+            <Download className="h-4 w-4" />
+            Export {activeFilterLabel} Excel
+          </Button>
           <label className="relative w-full sm:w-64">
             <span className="sr-only">Search passenger name</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -231,6 +253,11 @@ export function DocumentWorkspaceReviewControls({
             />
           </label>
         </div>
+        {exportError && (
+          <p className="w-full text-right text-xs font-medium text-red-700" role="alert">
+            Excel export failed. Please try again.
+          </p>
+        )}
       </div>
     </>
   );

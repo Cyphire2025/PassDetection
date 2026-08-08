@@ -6,6 +6,7 @@ import json
 import re
 import uuid
 from dataclasses import dataclass
+from typing import Literal
 
 from app.domain.entities.entities import (
     OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES,
@@ -19,6 +20,9 @@ from app.infrastructure.database.models import (
     DistributedDocumentModel,
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
+)
+from app.infrastructure.export.document_assignment_excel_exporter import (
+    DocumentAssignmentExportRow,
 )
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     DistributedDocumentResponse,
@@ -44,6 +48,77 @@ def _passport_number(passenger: PassportSubmission) -> str | None:
 def _safe_filename(value: str) -> str:
     name = re.sub(r"[^A-Za-z0-9_.-]+", "_", value.strip())[:120]
     return name or "document.pdf"
+
+
+DocumentAssignmentExportFilter = Literal[
+    "all",
+    "assigned",
+    "missing",
+    "sent",
+    "not_sent",
+]
+_SENT_DOCUMENT_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
+
+
+def _joined_document_values(values: list[object]) -> str:
+    return "\n".join(dict.fromkeys(str(value).strip() for value in values if value))
+
+
+def _document_assignment_export_rows(
+    rows: list[DocumentPassengerReviewRow],
+    *,
+    review_filter: DocumentAssignmentExportFilter,
+    search_query: str,
+) -> list[DocumentAssignmentExportRow]:
+    normalized_search = search_query.strip().casefold()
+    export_rows: list[DocumentAssignmentExportRow] = []
+    for row in rows:
+        if normalized_search and normalized_search not in row.passenger_name.casefold():
+            continue
+        documents = row.documents or ([row.document] if row.document is not None else [])
+        assigned = bool(documents)
+        sent = any(document.delivery_status in _SENT_DOCUMENT_STATUSES for document in documents)
+        not_sent = any(
+            document.delivery_status not in _SENT_DOCUMENT_STATUSES for document in documents
+        )
+        if review_filter == "assigned" and not assigned:
+            continue
+        if review_filter == "missing" and assigned:
+            continue
+        if review_filter == "sent" and not sent:
+            continue
+        if review_filter == "not_sent" and not not_sent:
+            continue
+
+        export_rows.append(
+            DocumentAssignmentExportRow(
+                passenger_name=row.passenger_name,
+                passport_number=row.passport_number or "",
+                departure_city=row.departure_city or "",
+                assignment_status="Assigned" if assigned else "Missing",
+                document_count=len(documents),
+                document_filenames=_joined_document_values(
+                    [document.original_filename for document in documents]
+                ),
+                match_statuses=_joined_document_values(
+                    [document.match_status for document in documents]
+                ),
+                match_confidences=_joined_document_values(
+                    [f"{document.match_confidence:.0%}" for document in documents]
+                ),
+                delivery_statuses=_joined_document_values(
+                    [document.delivery_status for document in documents]
+                ),
+                sent_to=_joined_document_values([document.sent_to for document in documents]),
+                last_sent_at=_joined_document_values(
+                    [document.last_sent_at for document in documents]
+                ),
+                match_reasons=_joined_document_values(
+                    [document.match_reason for document in documents]
+                ),
+            )
+        )
+    return export_rows
 
 
 @dataclass(frozen=True)

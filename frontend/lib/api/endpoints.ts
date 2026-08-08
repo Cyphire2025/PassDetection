@@ -229,6 +229,8 @@ export const API_ENDPOINTS = {
   documents: {
     groups: "/api/v1/document-distribution/groups",
     review: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}`,
+    reviewExport: (groupId: string, documentType: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/export.xlsx`,
     verify: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/verify`,
     upload: (groupId: string, documentType: string) => `/api/v1/document-distribution/groups/${groupId}/${documentType}/upload`,
     abortUpload: (groupId: string, documentType: string, batchId: string) =>

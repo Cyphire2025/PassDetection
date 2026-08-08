@@ -4,6 +4,7 @@ import type {
   DistributionDocumentType,
 } from "@/types/document-distribution.types";
 import { documentDistributionApi } from "../api/document-distribution.api";
+import type { DocumentAssignmentExportFilter } from "../api/document-distribution.api";
 import type {
   DocumentUploadProgress,
   DocumentUploadSession,
@@ -44,6 +45,18 @@ export function useDocumentReview(groupId: string, documentType: DistributionDoc
     queryKey: documentKeys.review(groupId, documentType),
     queryFn: () => documentDistributionApi.getReview(groupId, documentType),
     enabled: Boolean(groupId && documentType),
+  });
+}
+
+export function useExportDocumentAssignments(
+  groupId: string,
+  documentType: DistributionDocumentType,
+) {
+  return useMutation({
+    mutationFn: ({ filter, search }: {
+      filter: DocumentAssignmentExportFilter;
+      search: string;
+    }) => documentDistributionApi.exportReview(groupId, documentType, filter, search),
   });
 }
 

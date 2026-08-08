@@ -14,6 +14,11 @@ from app.presentation.api.v1.routes import (
 _EXPECTED_ROUTES = [
     (("GET",), "/groups", "list_document_groups"),
     (("GET",), "/groups/{group_id}/{document_type}", "get_document_review"),
+    (
+        ("GET",),
+        "/groups/{group_id}/{document_type}/export.xlsx",
+        "export_document_assignments",
+    ),
     (("POST",), "/groups/{group_id}/{document_type}/verify", "verify_documents"),
     (("POST",), "/groups/{group_id}/{document_type}/upload", "upload_documents"),
     (
@@ -80,6 +85,7 @@ _FACADE_NAMES = {
         "_document_match_roster_snapshot",
         "_passenger_review_rows",
         "_physical_file_accounting",
+        "_document_assignment_export_rows",
     ),
 }
 

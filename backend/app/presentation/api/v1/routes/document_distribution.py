@@ -9,9 +9,10 @@ from contextvars import ContextVar
 from datetime import UTC, datetime
 from functools import wraps
 from time import perf_counter
-from typing import Annotated, ParamSpec, TypeVar
+from typing import Annotated, Literal, ParamSpec, TypeVar
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,6 +45,7 @@ from app.domain.value_objects.travel_document_taxonomy import (
     INTERNATIONAL_RETURN_DOCUMENT_TYPE,
     OTHER_DOCUMENT_TYPE,
     VISA_DOCUMENT_TYPE,
+    document_type_label,
 )
 from app.infrastructure.database.email_models import EmailArtifactDocumentModel
 from app.infrastructure.database.models import (
@@ -103,6 +105,9 @@ from app.infrastructure.documents.verification_staging import (
     staged_document_chunk_fingerprint,
     validate_verification_receipt_token_batch,
     verification_scope_fingerprints,
+)
+from app.infrastructure.export.document_assignment_excel_exporter import (
+    build_document_assignment_workbook,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.repositories.passport_submission_repository import (
@@ -186,6 +191,7 @@ _linked_document_match_source_from_models = (
 _document_match_roster_snapshot = _review_support._document_match_roster_snapshot
 _passenger_review_rows = _review_support._passenger_review_rows
 _physical_file_accounting = _review_support._physical_file_accounting
+_document_assignment_export_rows = _review_support._document_assignment_export_rows
 
 
 class _ConcurrentDocumentChunkReplay(Exception):
@@ -1627,13 +1633,13 @@ async def list_document_groups(
     return responses
 
 
-@router.get("/groups/{group_id}/{document_type}", response_model=DocumentBatchResponse)
-async def get_document_review(
+async def _load_document_review(
     group_id: uuid.UUID,
     document_type: str,
-    current_user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_db_session),
-) -> DocumentBatchResponse:
+    *,
+    current_user: User,
+    session: AsyncSession,
+) -> tuple[ClientGroupModel, DocumentBatchResponse]:
     if document_type not in DOCUMENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported document type"
@@ -1661,14 +1667,83 @@ async def get_document_review(
         agency_id=group.agency_id,
         document_type=document_type,
     )
-    return await _batch_response(
+    return (
+        group,
+        await _batch_response(
+            session=session,
+            group_id=group_id,
+            agency_id=group.agency_id,
+            document_type=document_type,
+            passengers=passengers,
+            batch=batch,
+            documents=documents,
+        ),
+    )
+
+
+@router.get("/groups/{group_id}/{document_type}", response_model=DocumentBatchResponse)
+async def get_document_review(
+    group_id: uuid.UUID,
+    document_type: str,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> DocumentBatchResponse:
+    _, review = await _load_document_review(
+        group_id,
+        document_type,
+        current_user=current_user,
         session=session,
-        group_id=group_id,
-        agency_id=group.agency_id,
-        document_type=document_type,
-        passengers=passengers,
-        batch=batch,
-        documents=documents,
+    )
+    return review
+
+
+@router.get("/groups/{group_id}/{document_type}/export.xlsx")
+async def export_document_assignments(
+    group_id: uuid.UUID,
+    document_type: str,
+    review_filter: Annotated[
+        Literal["all", "assigned", "missing", "sent", "not_sent"],
+        Query(alias="filter"),
+    ] = "all",
+    search: Annotated[str, Query(max_length=200)] = "",
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> StreamingResponse:
+    group, review = await _load_document_review(
+        group_id,
+        document_type,
+        current_user=current_user,
+        session=session,
+    )
+    filter_labels = {
+        "all": "All",
+        "assigned": "Assigned",
+        "missing": "Missing",
+        "sent": "Sent",
+        "not_sent": "Not sent",
+    }
+    rows = _document_assignment_export_rows(
+        review.review_rows,
+        review_filter=review_filter,
+        search_query=search,
+    )
+    workbook = build_document_assignment_workbook(
+        group_name=group.name,
+        document_label=document_type_label(document_type),
+        filter_label=filter_labels[review_filter],
+        search_query=search,
+        rows=rows,
+    )
+    filename = (
+        _safe_filename(
+            f"{group.name}-{document_type}-{review_filter}-document-assignments"
+        )
+        + ".xlsx"
+    )
+    return StreamingResponse(
+        workbook,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
