@@ -4,6 +4,7 @@ import {
   filterRecipientRosterItems,
   recipientHasFailedMessage,
   recipientHasSentMessage,
+  searchRecipientRosterItems,
 } from "./recipient-roster.ts";
 
 function messageStatus({
@@ -245,4 +246,54 @@ test("equal display orders keep the server response order for deterministic numb
   const result = filterRecipientRosterItems([second, first], "all");
 
   assert.deepEqual(result.map(itemId), ["second", "first"]);
+});
+
+test("recipient search matches names, numbers, and imported passenger details", () => {
+  const passenger = recipientItem({
+    id: "searchable-passenger",
+    displayOrder: 60,
+  });
+  passenger.recipient.name = "Raman Jha";
+  passenger.recipient.phone_number = "+91 98187 52221";
+  passenger.recipient.imported_fields = {
+    passport_number: "N1234567",
+    destination: "Da Nang",
+  };
+
+  assert.deepEqual(
+    searchRecipientRosterItems([neverSent, passenger], "raman").map(itemId),
+    ["searchable-passenger"],
+  );
+  assert.deepEqual(
+    searchRecipientRosterItems([neverSent, passenger], "98187").map(itemId),
+    ["searchable-passenger"],
+  );
+  assert.deepEqual(
+    searchRecipientRosterItems([neverSent, passenger], "n1234567").map(itemId),
+    ["searchable-passenger"],
+  );
+  assert.deepEqual(
+    searchRecipientRosterItems([neverSent, passenger], "da nang").map(itemId),
+    ["searchable-passenger"],
+  );
+});
+
+test("recipient search covers rejected, replaced, and unidentified roster rows", () => {
+  assert.deepEqual(
+    searchRecipientRosterItems(unorderedRoster, "rejected-row").map(itemId),
+    ["rejected-row"],
+  );
+  assert.deepEqual(
+    searchRecipientRosterItems(unorderedRoster, "replacement-replaced-recipient").map(itemId),
+    ["replaced-recipient"],
+  );
+  assert.deepEqual(
+    searchRecipientRosterItems(unorderedRoster, "p1234567").map(itemId),
+    ["unidentified-upload"],
+  );
+});
+
+test("blank recipient search preserves the already-filtered roster", () => {
+  const filtered = filterRecipientRosterItems(unorderedRoster, "failed");
+  assert.equal(searchRecipientRosterItems(filtered, "  "), filtered);
 });

@@ -20,6 +20,10 @@ const endpointsSource = readFileSync(
   new URL("../../../lib/api/endpoints.ts", import.meta.url),
   "utf8",
 );
+const activityTrackerSource = readFileSync(
+  new URL("./whatsapp-activity-tracker.tsx", import.meta.url),
+  "utf8",
+);
 
 test("create and send actions have synchronous single-flight guards", () => {
   assert.match(pageSource, /if \(isLoading \|\| submitInFlightRef\.current\) return;/);
@@ -174,7 +178,7 @@ test("saved rejected contacts can be corrected into unsent recipients", () => {
   assert.match(pageSource, /added to the valid recipient list as Not sent/);
 });
 
-test("batch summary polling replaces repeated full-roster refreshes", () => {
+test("shared activity polling replaces repeated full-roster refreshes", () => {
   const rosterHookStart = hooksSource.indexOf(
     "export function useWhatsAppRecipientRoster",
   );
@@ -187,9 +191,12 @@ test("batch summary polling replaces repeated full-roster refreshes", () => {
   assert.doesNotMatch(rosterHook, /status\.status === "queued"/);
   assert.doesNotMatch(rosterHook, /status\.status === "processing"/);
   assert.match(rosterHook, /status\.latest_resend_status === "queued"/);
-  assert.match(pageSource, /groupId: messageTarget\.group\.id/);
-  assert.match(pageSource, /refreshedTerminalBatchRef/);
-  assert.match(pageSource, /"recipient-roster"/);
+  assert.match(pageSource, /sourceGroupId: messageTarget\.group\.id/);
+  assert.match(activityTrackerSource, /refreshedTerminalActivitiesRef/);
+  assert.match(
+    activityTrackerSource,
+    /queryKey: \["whatsapp", "groups"\]/,
+  );
 });
 
 test("rejected rows retain imported fields and expose inline correction controls", () => {

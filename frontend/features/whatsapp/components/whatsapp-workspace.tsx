@@ -13,9 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useQueryClient } from "@tanstack/react-query";
 import {
-  useCallback,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -41,7 +39,6 @@ import {
 import {
   type WhatsAppBroadcastGroup,
   type WhatsAppMessageType,
-  type WhatsAppSendResponse,
 } from "../api/whatsapp.api";
 import {
   useCreateWhatsAppGroup,
@@ -49,10 +46,13 @@ import {
   useSendWhatsAppPassportLink,
   useSendWhatsAppReminder,
   useSendWhatsAppWelcome,
-  useWhatsAppBatchStatus,
   useWhatsAppGroups,
 } from "../hooks/use-whatsapp";
-import { mergeWhatsAppSendProgress } from "../utils/send-progress";
+import { formatMessageType } from "../utils/message-types";
+import {
+  WhatsAppActivityInline,
+  useWhatsAppActivityTracker,
+} from "./whatsapp-activity-tracker";
 
 const CreateBroadcastDialog = dynamic(
   () => import("./whatsapp-create-broadcast-dialog").then((module) => module.CreateBroadcastDialog),
@@ -71,17 +71,6 @@ type MessageTarget = {
   group: WhatsAppBroadcastGroup;
   messageType: WhatsAppMessageType;
 };
-
-type PersistedBatch = {
-  id: string;
-  startedAt: number;
-  groupId?: string;
-  skipped_already_sent?: number;
-  skipped_in_progress?: number;
-  skipped_delivery_unknown?: number;
-};
-
-const LAST_BATCH_STORAGE_KEY = "passdetection:whatsapp:last-batch";
 
 function formatCompactDate(value: string): string {
   const date = new Date(value);
@@ -105,7 +94,7 @@ function DialogLoadingState({ label }: { label: string }) {
 }
 
 export function WhatsAppPage() {
-  const queryClient = useQueryClient();
+  const { activities, registerActivity } = useWhatsAppActivityTracker();
   const { data: groups = [], isLoading, error } = useWhatsAppGroups();
   const createGroup = useCreateWhatsAppGroup();
   const deleteGroup = useDeleteWhatsAppGroup();
@@ -124,49 +113,10 @@ export function WhatsAppPage() {
   const [messageTarget, setMessageTarget] = useState<MessageTarget | null>(
     null,
   );
-  const [lastSend, setLastSend] = useState<WhatsAppSendResponse | null>(null);
-  const [persistedBatch, setPersistedBatch] = useState<PersistedBatch | null>(
-    () => {
-      if (typeof window === "undefined") return null;
-      try {
-        const saved = window.sessionStorage.getItem(LAST_BATCH_STORAGE_KEY);
-        return saved ? (JSON.parse(saved) as PersistedBatch) : null;
-      } catch {
-        return null;
-      }
-    },
-  );
-  const refreshedTerminalBatchRef = useRef<string | null>(null);
-  const clearMissingBatchTracking = useCallback((missingBatchId: string) => {
-    setLastSend((current) =>
-      current?.batch_id === missingBatchId ? null : current,
-    );
-    setPersistedBatch((current) =>
-      current?.id === missingBatchId ? null : current,
-    );
-
-    if (typeof window === "undefined") return;
-    const saved = window.sessionStorage.getItem(LAST_BATCH_STORAGE_KEY);
-    if (!saved) return;
-    try {
-      const storedBatch = JSON.parse(saved) as Partial<PersistedBatch>;
-      if (storedBatch.id === missingBatchId) {
-        window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
-      }
-    } catch {
-      window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
-    }
-  }, []);
-  const activeBatchId = lastSend?.batch_id ?? persistedBatch?.id ?? null;
-  const { data: currentBatch } = useWhatsAppBatchStatus(
-    activeBatchId,
-    persistedBatch?.startedAt ?? null,
-    clearMissingBatchTracking,
-  );
-  const displayedSend = mergeWhatsAppSendProgress(
-    currentBatch,
-    lastSend,
-    persistedBatch,
+  const currentBatchQueued = activities.reduce(
+    (total, activity) =>
+      activity.kind === "broadcast" ? total + activity.queued : total,
+    0,
   );
   const filteredGroups = useMemo(() => {
     const normalized = deferredGroupQuery.trim().toLocaleLowerCase();
@@ -188,35 +138,6 @@ export function WhatsAppPage() {
     }, null),
     [groups],
   );
-  useEffect(() => {
-    if (
-      !currentBatch ||
-      currentBatch.queued > 0 ||
-      typeof window === "undefined"
-    )
-      return;
-    window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
-    if (refreshedTerminalBatchRef.current === currentBatch.batch_id) return;
-    refreshedTerminalBatchRef.current = currentBatch.batch_id;
-    const completedGroupId = persistedBatch?.groupId;
-    if (!completedGroupId) return;
-    void Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: ["whatsapp", "groups"],
-      }),
-      queryClient.invalidateQueries({
-        queryKey: ["whatsapp", "groups", completedGroupId],
-      }),
-      queryClient.invalidateQueries({
-        queryKey: [
-          "whatsapp",
-          "groups",
-          completedGroupId,
-          "recipient-roster",
-        ],
-      }),
-    ]);
-  }, [currentBatch, persistedBatch?.groupId, queryClient]);
   const openMessagePreview = (
     group: WhatsAppBroadcastGroup,
     messageType: WhatsAppMessageType,
@@ -311,71 +232,16 @@ export function WhatsAppPage() {
             />
             <WorkspaceSummaryItem
               label="Current batch"
-              value={(displayedSend?.queued ?? 0).toLocaleString()}
-              helper={displayedSend?.queued ? "messages queued" : latestUpdatedAt ? `Updated ${formatCompactDate(latestUpdatedAt)}` : "no active queue"}
-              icon={displayedSend?.queued ? Activity : Clock3}
-              tone={displayedSend?.queued ? "attention" : "default"}
+              value={currentBatchQueued.toLocaleString()}
+              helper={currentBatchQueued ? "messages queued" : latestUpdatedAt ? `Updated ${formatCompactDate(latestUpdatedAt)}` : "no active queue"}
+              icon={currentBatchQueued ? Activity : Clock3}
+              tone={currentBatchQueued ? "attention" : "default"}
             />
           </>
         )}
       </WorkspaceSummaryStrip>
 
-      {displayedSend && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            displayedSend.failed > 0 || displayedSend.delivery_unknown > 0
-              ? "border-amber-200 bg-amber-50 text-amber-800"
-              : displayedSend.queued > 0
-                ? "border-blue-200 bg-blue-50 text-blue-800"
-                : "border-emerald-200 bg-emerald-50 text-emerald-800"
-          }`}
-        >
-          {displayedSend.queued > 0 && (
-            <>
-              {displayedSend.queued} message
-              {displayedSend.queued === 1 ? " is" : "s are"} queued for
-              individual delivery.
-            </>
-          )}
-          {displayedSend.sent > 0 && (
-            <>{displayedSend.sent} submitted to WhatsApp. </>
-          )}
-          {displayedSend.skipped_already_sent > 0 && (
-            <>
-              {displayedSend.skipped_already_sent} skipped because this message
-              was already sent successfully.{" "}
-            </>
-          )}
-          {displayedSend.skipped_in_progress > 0 && (
-            <>
-              {displayedSend.skipped_in_progress} skipped because delivery is
-              already in progress.{" "}
-            </>
-          )}
-          {displayedSend.skipped_delivery_unknown > 0 && (
-            <>
-              {displayedSend.skipped_delivery_unknown} skipped because an
-              earlier delivery outcome is unknown; review before taking manual
-              action.{" "}
-            </>
-          )}
-          {displayedSend.failed > 0 && (
-            <>
-              {displayedSend.failed} failed; review the provider configuration
-              or recipient numbers.{" "}
-            </>
-          )}
-          {displayedSend.delivery_unknown > 0 && (
-            <>
-              {displayedSend.delivery_unknown} delivery outcome
-              {displayedSend.delivery_unknown === 1 ? " is" : "s are"} unknown;
-              review the recipient list before taking manual action.
-            </>
-          )}
-        </div>
-      )}
+      <WhatsAppActivityInline />
 
       {actionError && <ErrorBanner message={actionError} />}
 
@@ -584,24 +450,28 @@ export function WhatsAppPage() {
                     recipientIds,
                     supportContactIds,
                   });
-            setLastSend(result);
-            if (result.batch_id && typeof window !== "undefined") {
-              const savedBatch = {
+            if (result.batch_id) {
+              registerActivity({
                 id: result.batch_id,
+                kind: "broadcast",
                 startedAt: Date.now(),
-                groupId: messageTarget.group.id,
-                skipped_already_sent: result.skipped_already_sent,
-                skipped_in_progress: result.skipped_in_progress,
-                skipped_delivery_unknown: result.skipped_delivery_unknown,
-              };
-              setPersistedBatch(savedBatch);
-              window.sessionStorage.setItem(
-                LAST_BATCH_STORAGE_KEY,
-                JSON.stringify(savedBatch),
-              );
-            } else if (typeof window !== "undefined") {
-              setPersistedBatch(null);
-              window.sessionStorage.removeItem(LAST_BATCH_STORAGE_KEY);
+                title: `${formatMessageType(messageTarget.messageType)} broadcast`,
+                contextLabel: messageTarget.group.name,
+                sourceGroupId: messageTarget.group.id,
+                documentType: null,
+                total:
+                  result.queued
+                  + result.sent
+                  + result.failed
+                  + result.delivery_unknown,
+                queued: result.queued,
+                sent: result.sent,
+                failed: result.failed,
+                deliveryUnknown: result.delivery_unknown,
+                skippedAlreadySent: result.skipped_already_sent,
+                skippedInProgress: result.skipped_in_progress,
+                skippedDeliveryUnknown: result.skipped_delivery_unknown,
+              });
             }
             setMessageTarget(null);
           }}

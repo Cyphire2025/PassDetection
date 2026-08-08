@@ -7,6 +7,10 @@ import { Badge, Button, Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils/cn";
 import {
+  WhatsAppActivityInline,
+  useWhatsAppActivityTracker,
+} from "@/features/whatsapp/components/whatsapp-activity-tracker";
+import {
   useGroupQrCodes,
   usePassengerQrLifecycle,
   useQrDeliveryPreview,
@@ -31,6 +35,7 @@ type QrStatusFilter = "all" | "active" | "not_generated" | "attention";
 const INITIAL_QR_CARD_LIMIT = 48;
 
 export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
+  const { registerActivity } = useWhatsAppActivityTracker();
   const { data, isLoading, error } = useGroupQrCodes(groupId);
   const qrLifecycle = usePassengerQrLifecycle(groupId);
   const [qrImages, setQrImages] = useState<QrImageMap>({});
@@ -300,6 +305,10 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
       </div>
 
       <div className="print:hidden">
+        <WhatsAppActivityInline />
+      </div>
+
+      <div className="print:hidden">
         <OperationsSummaryStrip label="Passenger QR summary">
           {isLoading ? Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-[72px] rounded-none" />) : (
             <>
@@ -461,6 +470,22 @@ export function TourGroupQrCodesPage({ groupId }: { groupId: string }) {
               },
               {
                 onSuccess: (result) => {
+                  if (result.send_batch_id) {
+                    registerActivity({
+                      id: result.send_batch_id,
+                      kind: "qr",
+                      startedAt: Date.now(),
+                      title: "QR code broadcast",
+                      contextLabel: data?.group_name ?? "Passenger QR codes",
+                      sourceGroupId: groupId,
+                      documentType: null,
+                      total: result.queued_count,
+                      queued: result.queued_count,
+                      sent: 0,
+                      failed: 0,
+                      deliveryUnknown: 0,
+                    });
+                  }
                   setDeliveryFeedback(result.message);
                 },
               },

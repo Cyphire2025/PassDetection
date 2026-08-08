@@ -1,8 +1,9 @@
 "use client";
 
-import { Info, Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
+import { Info, Pencil, Plus, RotateCw, Search, Trash2, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
+  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
@@ -38,6 +39,7 @@ import {
 } from "../utils/recipient-delivery";
 import {
   filterRecipientRosterItems,
+  searchRecipientRosterItems,
   type WhatsAppRecipientRosterTab,
 } from "../utils/recipient-roster";
 import {
@@ -132,6 +134,8 @@ export function RecipientListDialog({
   const [recipientOptInConfirmed, setRecipientOptInConfirmed] = useState(false);
   const [recipientRosterTab, setRecipientRosterTab] =
     useState<WhatsAppRecipientRosterTab>("all");
+  const [recipientSearchQuery, setRecipientSearchQuery] = useState("");
+  const deferredRecipientSearchQuery = useDeferredValue(recipientSearchQuery);
   const [rejectedContactEdit, setRejectedContactEdit] =
     useState<RejectedContactCorrection | null>(null);
   const [rejectedContactError, setRejectedContactError] = useState<
@@ -389,11 +393,16 @@ export function RecipientListDialog({
     [recipientRoster?.items],
   );
   const visibleRosterItems = useMemo(
-    () =>
-      recipientRoster
-        ? filterRecipientRosterItems(recipientRoster.items, recipientRosterTab)
-        : [],
-    [recipientRoster, recipientRosterTab],
+    () => {
+      if (!recipientRoster) return [];
+      return searchRecipientRosterItems(
+        filterRecipientRosterItems(
+          recipientRoster.items,
+          recipientRosterTab,
+        ),
+        deferredRecipientSearchQuery,
+      );
+    }, [deferredRecipientSearchQuery, recipientRoster, recipientRosterTab],
   );
   const lastResendMessageStatus =
     lastResendTarget && detail
@@ -560,8 +569,38 @@ export function RecipientListDialog({
                 </p>
               </div>
 
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div className="w-full sm:max-w-xl">
+                  <Input
+                    id="recipient-roster-search"
+                    type="search"
+                    value={recipientSearchQuery}
+                    onChange={(event) => setRecipientSearchQuery(event.target.value)}
+                    placeholder="Search passenger name, WhatsApp number, passport or imported details"
+                    aria-label="Search current recipients"
+                    leftAddon={<Search className="h-4 w-4" aria-hidden="true" />}
+                    rightAddon={
+                      recipientSearchQuery ? (
+                        <button
+                          type="button"
+                          className="-mr-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                          aria-label="Clear recipient search"
+                          onClick={() => setRecipientSearchQuery("")}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      ) : null
+                    }
+                  />
+                </div>
+                <p className="shrink-0 text-xs font-medium text-slate-500" aria-live="polite">
+                  {visibleRosterItems.length.toLocaleString()} matching
+                  {visibleRosterItems.length === 1 ? " person" : " people"}
+                </p>
+              </div>
+
               <div
-                className="mt-4 flex flex-wrap gap-2"
+                className="mt-3 flex flex-wrap gap-2"
                 role="tablist"
                 aria-label="Recipient delivery filters"
               >
@@ -668,7 +707,9 @@ export function RecipientListDialog({
                   </div>
                 ) : visibleRosterItems.length === 0 ? (
                   <p className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    {recipientRosterTab === "unidentified"
+                    {deferredRecipientSearchQuery.trim()
+                      ? `No recipients match "${deferredRecipientSearchQuery.trim()}" in this filter.`
+                      : recipientRosterTab === "unidentified"
                       ? "No unidentified uploads were found."
                       : `No ${recipientRosterTab === "all" ? "" : `${recipientRosterTab} `}contacts were found.`}
                   </p>

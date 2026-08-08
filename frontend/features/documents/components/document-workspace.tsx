@@ -15,6 +15,10 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Card, CardContent, Skeleton } from "@/components/ui";
 import { ROUTES } from "@/constants/routes";
+import {
+  WhatsAppActivityInline,
+  useWhatsAppActivityTracker,
+} from "@/features/whatsapp/components/whatsapp-activity-tracker";
 import type { DocumentVerificationResult } from "@/types/document-distribution.types";
 import {
   useAbortDistributionUploads,
@@ -109,6 +113,7 @@ export function DocumentWorkspace({
   groupId: string;
   lane: DocumentDistributionLane;
 }) {
+  const { registerActivity } = useWhatsAppActivityTracker();
   const documentType = lane.documentType;
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [verification, setVerification] = useState<DocumentVerificationResult | null>(null);
@@ -365,6 +370,8 @@ export function DocumentWorkspace({
           </IntentPrefetchLink>
         )}
       />
+
+      <WhatsAppActivityInline />
 
       {lane.category === "flight_tickets" && (
         <FlightTicketLaneNavigation
@@ -705,6 +712,22 @@ export function DocumentWorkspace({
               },
               {
                 onSuccess: (result) => {
+                  if (result.send_batch_id) {
+                    registerActivity({
+                      id: result.send_batch_id,
+                      kind: "document",
+                      startedAt: Date.now(),
+                      title: `${lane.title} broadcast`,
+                      contextLabel: group?.group_name ?? "Document distribution",
+                      sourceGroupId: groupId,
+                      documentType,
+                      total: result.queued_count,
+                      queued: result.queued_count,
+                      sent: 0,
+                      failed: 0,
+                      deliveryUnknown: 0,
+                    });
+                  }
                   setDeliveryFeedback(result.message);
                   setIsSendPreviewOpen(false);
                   setDeliveryDocumentIds(null);

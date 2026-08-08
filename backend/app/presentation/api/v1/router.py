@@ -47,6 +47,9 @@ from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
     router as tour_operations_qr_delivery_router,
 )
 from app.presentation.api.v1.routes.whatsapp import router as whatsapp_router
+from app.presentation.api.v1.routes.whatsapp_activity import (
+    router as whatsapp_activity_router,
+)
 
 api_v1_router = APIRouter()
 
@@ -116,4 +119,9 @@ api_v1_router.include_router(
 api_v1_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 api_v1_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["Audit Logs"])
 api_v1_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_v1_router.include_router(
+    whatsapp_activity_router,
+    prefix="/whatsapp",
+    tags=["WhatsApp"],
+)
 api_v1_router.include_router(whatsapp_router, prefix="/whatsapp", tags=["WhatsApp"])

@@ -52,3 +52,65 @@ export function filterRecipientRosterItems(
     )
     .map(({ item }) => item);
 }
+
+function importedValues(fields: Record<string, unknown>): string[] {
+  return Object.entries(fields).flatMap(([key, value]) => [
+    key,
+    typeof value === "string" || typeof value === "number"
+      ? String(value)
+      : JSON.stringify(value) ?? "",
+  ]);
+}
+
+function recipientRosterSearchValues(
+  item: WhatsAppRecipientRosterItem,
+): Array<string | null | undefined> {
+  if (item.kind === "recipient") {
+    return [
+      item.recipient.name,
+      item.recipient.phone_number,
+      item.recipient.normalized_phone_number,
+      ...importedValues(item.recipient.imported_fields),
+    ];
+  }
+  if (item.kind === "rejected") {
+    return [
+      item.rejected_contact.raw_name,
+      item.rejected_contact.raw_phone_number,
+      item.rejected_contact.source_file_name,
+      item.rejected_contact.sheet_name,
+      ...importedValues(item.rejected_contact.imported_fields ?? {}),
+    ];
+  }
+  if (item.kind === "replaced") {
+    return [
+      item.replaced_recipient.name,
+      item.replaced_recipient.phone_number,
+      item.replaced_recipient.normalized_phone_number,
+      item.replaced_recipient.replacement_name,
+      item.replaced_recipient.replacement_phone,
+      item.replaced_recipient.client_group_name,
+      ...importedValues(item.replaced_recipient.imported_fields),
+    ];
+  }
+  return [
+    item.unidentified_upload.name,
+    item.unidentified_upload.phone_number,
+    item.unidentified_upload.email,
+    item.unidentified_upload.client_group_name,
+    ...importedValues(item.unidentified_upload.details),
+  ];
+}
+
+export function searchRecipientRosterItems(
+  items: WhatsAppRecipientRosterItem[],
+  query: string,
+): WhatsAppRecipientRosterItem[] {
+  const normalized = query.trim().toLocaleLowerCase();
+  if (!normalized) return items;
+  return items.filter((item) =>
+    recipientRosterSearchValues(item).some((value) =>
+      value?.toLocaleLowerCase().includes(normalized),
+    ),
+  );
+}

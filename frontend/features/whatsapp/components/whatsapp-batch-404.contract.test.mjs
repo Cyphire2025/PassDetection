@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const pageSource = readFileSync(
-  new URL("./whatsapp-workspace.tsx", import.meta.url),
+const trackerSource = readFileSync(
+  new URL("./whatsapp-activity-tracker.tsx", import.meta.url),
   "utf8",
 );
 const hooksSource = readFileSync(
@@ -21,21 +21,19 @@ test("batch summary 404 stops retries and interval polling", () => {
   );
 });
 
-test("a missing active batch clears only matching local progress", () => {
+test("a missing tracked activity clears only its persisted progress", () => {
   assert.match(
-    hooksSource,
-    /if \(batchId && isMissingWhatsAppBatchError\(error\)\)/,
+    trackerSource,
+    /isMissingWhatsAppBatchStatus\(whatsappBatchHttpStatus\(error\)\)/,
   );
-  assert.match(hooksSource, /onMissingBatch\?\.\(batchId\)/);
-  assert.match(pageSource, /clearMissingBatchTracking/);
   assert.match(
-    pageSource,
-    /current\?\.batch_id === missingBatchId \? null : current/,
+    trackerSource,
+    /const missingKey = whatsappActivityKey\(activity\)/,
   );
-  assert.match(pageSource, /current\?\.id === missingBatchId \? null : current/);
-  assert.match(pageSource, /storedBatch\.id === missingBatchId/);
   assert.match(
-    pageSource,
-    /sessionStorage\.removeItem\(LAST_BATCH_STORAGE_KEY\)/,
+    trackerSource,
+    /current\.filter\([\s\S]*whatsappActivityKey\(candidate\) !== missingKey/,
   );
+  assert.match(trackerSource, /WHATSAPP_ACTIVITY_STORAGE_KEY/);
+  assert.match(trackerSource, /JSON\.stringify\(trackedActivities\)/);
 });
