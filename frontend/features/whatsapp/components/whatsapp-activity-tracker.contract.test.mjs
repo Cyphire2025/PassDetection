@@ -26,9 +26,11 @@ test("dashboard owns one durable cross-route WhatsApp activity provider", () => 
   assert.match(trackingUtils, /passdetection:whatsapp:tracked-activities:v1/);
 });
 
-test("all bulk send entry points register their durable batch IDs", () => {
+test("all send entry points register their durable batch IDs", () => {
   assert.match(workspace, /kind: "broadcast"/);
   assert.match(workspace, /id: result\.batch_id/);
+  assert.match(recipientDialog, /kind: "broadcast"/);
+  assert.match(recipientDialog, /id: result\.batch_id/);
   assert.match(documentWorkspace, /kind: "document"/);
   assert.match(documentWorkspace, /id: result\.send_batch_id/);
   assert.match(qrWorkspace, /kind: "qr"/);
@@ -36,6 +38,13 @@ test("all bulk send entry points register their durable batch IDs", () => {
   assert.match(documentWorkspace, /<WhatsAppActivityInline \/>/);
   assert.match(qrWorkspace, /<WhatsAppActivityInline \/>/);
   assert.match(workspace, /<WhatsAppActivityInline \/>/);
+});
+
+test("live counts retain the action and passenger label registered by the sender", () => {
+  assert.match(tracker, /title: activity\.title/);
+  assert.match(tracker, /context_label: activity\.contextLabel/);
+  assert.match(recipientDialog, /target\.recipientName/);
+  assert.match(recipientDialog, /target\.action/);
 });
 
 test("floating progress hides on sender pages and remains draggable elsewhere", () => {

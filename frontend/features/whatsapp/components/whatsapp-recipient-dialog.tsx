@@ -46,6 +46,7 @@ import {
   formatMessageType,
   isWhatsAppMessageType,
 } from "../utils/message-types";
+import { useWhatsAppActivityTracker } from "./whatsapp-activity-tracker";
 import {
   ExcelRecipientImport,
   toRejectedContactInputs,
@@ -107,6 +108,7 @@ export function RecipientListDialog({
   group: WhatsAppBroadcastGroup;
   onClose: () => void;
 }) {
+  const { registerActivity } = useWhatsAppActivityTracker();
   const {
     data: detail,
     isLoading,
@@ -344,6 +346,29 @@ export function RecipientListDialog({
         headerImageId: payload.headerImageId,
         supportContactIds: payload.supportContactIds,
       });
+      if (result.batch_id) {
+        registerActivity({
+          id: result.batch_id,
+          kind: "broadcast",
+          startedAt: Date.now(),
+          title: `${formatMessageType(target.messageType)} ${target.action}`,
+          contextLabel: `${target.recipientName} - ${group.name}`,
+          sourceGroupId: group.id,
+          documentType: null,
+          total:
+            result.queued
+            + result.sent
+            + result.failed
+            + result.delivery_unknown,
+          queued: result.queued,
+          sent: result.sent,
+          failed: result.failed,
+          deliveryUnknown: result.delivery_unknown,
+          skippedAlreadySent: result.skipped_already_sent,
+          skippedInProgress: result.skipped_in_progress,
+          skippedDeliveryUnknown: result.skipped_delivery_unknown,
+        });
+      }
       setRecipientToResend(null);
       await refetchGroup();
       setLastResendTarget(target);

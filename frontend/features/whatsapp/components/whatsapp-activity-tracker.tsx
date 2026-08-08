@@ -220,6 +220,8 @@ export function WhatsAppActivityTrackerProvider({
           const summary = query?.data ?? initialWhatsAppActivitySummary(activity);
           return {
             ...summary,
+            title: activity.title,
+            context_label: activity.contextLabel,
             skipped_already_sent: activity.skippedAlreadySent ?? 0,
             skipped_in_progress: activity.skippedInProgress ?? 0,
             skipped_delivery_unknown: activity.skippedDeliveryUnknown ?? 0,

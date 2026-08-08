@@ -54,6 +54,16 @@ test("recipient details refresh after an accepted resend request", () => {
   assert.match(resendHook, /invalidateQueries/);
 });
 
+test("accepted one-person resends register their durable batch for global tracking", () => {
+  assert.match(pageSource, /useWhatsAppActivityTracker\(\)/);
+  assert.match(
+    pageSource,
+    /if \(result\.batch_id\) \{[\s\S]*registerActivity\(\{[\s\S]*id: result\.batch_id,[\s\S]*kind: "broadcast"/,
+  );
+  assert.match(pageSource, /title: `\$\{formatMessageType\(target\.messageType\)\} \$\{target\.action\}`/);
+  assert.match(pageSource, /contextLabel: `\$\{target\.recipientName\} - \$\{group\.name\}`/);
+});
+
 test("large broadcasts retain progress polling and set-based recipient selection", () => {
   assert.match(hooksSource, /whatsappApi\.batchSummary/);
   assert.match(hooksSource, /whatsappBatchPollInterval/);
