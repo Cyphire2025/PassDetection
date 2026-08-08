@@ -605,6 +605,55 @@ def test_airline_itinerary_with_pnr_sector_and_flight_is_a_ticket() -> None:
     assert DocumentMatcher()._detect_type(text) == "flight_ticket"
 
 
+def test_operational_airline_booking_without_itinerary_heading_matches_all_passengers(
+    monkeypatch,
+) -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    passengers = [
+        _passenger(
+            name=name,
+            passport_number=passport_number,
+            agency_id=agency_id,
+            group_id=group_id,
+        )
+        for name, passport_number in (
+            ("Asha Mehta", "P1234567"),
+            ("Ravi Shah", "R7654321"),
+        )
+    ]
+    text = """
+    PNR / Booking Ref X7K2Q9 Confirmed
+    Passenger Information
+    MR ASHA MEHTA Adult
+    MR RAVI SHAH Adult
+    Sector Seat Services Purchased
+    DEL-CCU 7F
+    Departing
+    6E 6894 . A320
+    Check-in/Bag drop closes: 10:50 hrs
+    Delhi DEL - Airport
+    Kolkata CCU - Airport
+    """
+    matcher = DocumentMatcher()
+    monkeypatch.setattr(matcher, "_pdf_text", lambda _content: text)
+
+    document = matcher.classify(
+        filename="combined-booking.pdf",
+        content=b"%PDF-1.7\n%%EOF",
+        expected_type="flight_ticket_domestic",
+    )
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+    matches = matcher.match_all(document, passengers, index=index)
+
+    assert document.detected_type == "flight_ticket"
+    assert document.accepted is True
+    assert {match.passenger_id for match in matches} == {
+        passenger.id for passenger in passengers
+    }
+    assert {match.status for match in matches} == {"matched"}
+
+
 def test_malaysia_airlines_electronic_ticket_receipt_is_a_ticket() -> None:
     text = """
     ELECTRONIC TICKET RECEIPT

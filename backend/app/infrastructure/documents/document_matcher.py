@@ -1333,7 +1333,23 @@ class DocumentMatcher:
             + min(ticket_route_score, 2)
             + min(ticket_travel_score, 2)
         )
-        ticket_is_conclusive = ticket_core_score >= 1 and ticket_has_structure
+        # Some airline booking summaries omit a literal "e-ticket" or
+        # "itinerary" heading even though they contain a value-bearing PNR,
+        # passenger sectors, a real route/flight, and check-in/seat details.
+        # Keep the established heading path unchanged, and admit the heading-
+        # free layout only when every independent operational category is
+        # present. ``ticket_has_structure`` still requires actual booking and
+        # route/flight values, so labels, generic travel prose, and filenames
+        # alone remain fail-closed.
+        ticket_has_operational_manifest = (
+            ticket_booking_score >= 1
+            and ticket_flight_score >= 1
+            and ticket_route_score >= 1
+            and ticket_travel_score >= 2
+        )
+        ticket_is_conclusive = ticket_has_structure and (
+            ticket_core_score >= 1 or ticket_has_operational_manifest
+        )
 
         visa_application_score = self._term_score(normalized, VISA_APPLICATION_TERMS)
 
