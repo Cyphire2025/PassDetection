@@ -9,7 +9,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
-  GripVertical,
   LoaderCircle,
   MessageCircle,
   RefreshCw,
@@ -19,6 +18,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   createContext,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useCallback,
@@ -58,6 +58,9 @@ import {
 
 const SUCCESS_AUTO_DISMISS_MS = 12_000;
 const FLOATING_EDGE_GAP = 16;
+const DRAG_INTENT_THRESHOLD_PX = 4;
+const DRAG_EXCLUSION_SELECTOR =
+  "button, input, textarea, select, [role='button'], [data-whatsapp-activity-no-drag]";
 
 function subscribeToClientEnvironment() {
   return () => undefined;
@@ -377,6 +380,7 @@ interface DragState {
   height: number;
   latestX: number;
   latestY: number;
+  moved: boolean;
 }
 
 function readFloatingPosition(): Position | null {
@@ -422,6 +426,7 @@ function DraggableWhatsAppActivityOverlay({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<DragState | null>(null);
+  const suppressClickAfterDragRef = useRef(false);
   const [position, setPosition] = useState<Position | null>(readFloatingPosition);
   const [dragging, setDragging] = useState(false);
 
@@ -467,7 +472,7 @@ function DraggableWhatsAppActivityOverlay({
     if (
       event.button !== 0
       || !(target instanceof Element)
-      || !target.closest("[data-whatsapp-activity-drag-handle]")
+      || target.closest(DRAG_EXCLUSION_SELECTOR)
     ) {
       return;
     }
@@ -483,16 +488,29 @@ function DraggableWhatsAppActivityOverlay({
       height: rect.height,
       latestX: rect.left,
       latestY: rect.top,
+      moved: false,
     };
-    setDragging(true);
   };
 
   const moveDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    if (
+      !drag.moved
+      && Math.hypot(deltaX, deltaY) < DRAG_INTENT_THRESHOLD_PX
+    ) {
+      return;
+    }
+    if (!drag.moved) {
+      drag.moved = true;
+      setDragging(true);
+    }
+    event.preventDefault();
     const next = clampPosition(
-      drag.originX + event.clientX - drag.startX,
-      drag.originY + event.clientY - drag.startY,
+      drag.originX + deltaX,
+      drag.originY + deltaY,
       drag.width,
       drag.height,
     );
@@ -513,16 +531,29 @@ function DraggableWhatsAppActivityOverlay({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     event.currentTarget.style.transform = "";
-    setPosition({ x: drag.latestX, y: drag.latestY });
+    if (drag.moved) {
+      setPosition({ x: drag.latestX, y: drag.latestY });
+      suppressClickAfterDragRef.current = true;
+      window.setTimeout(() => {
+        suppressClickAfterDragRef.current = false;
+      }, 0);
+    }
     dragStateRef.current = null;
     setDragging(false);
+  };
+
+  const suppressClickAfterDrag = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!suppressClickAfterDragRef.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+    suppressClickAfterDragRef.current = false;
   };
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "fixed z-[95] max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-24px))] space-y-2 overflow-y-auto overscroll-contain",
+        "fixed z-[95] max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-24px))] cursor-grab select-none space-y-2 overflow-y-auto overscroll-contain active:cursor-grabbing",
         dragging && "cursor-grabbing will-change-transform",
       )}
       style={
@@ -535,6 +566,7 @@ function DraggableWhatsAppActivityOverlay({
       onPointerMove={moveDrag}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
+      onClickCapture={suppressClickAfterDrag}
       aria-label="Movable WhatsApp delivery progress"
     >
       {activities.map((activity) => (
@@ -593,28 +625,19 @@ function WhatsAppActivityRow({
   return (
     <article
       className={cn(
-        "bg-white text-slate-950",
+        "text-slate-950",
         variant === "floating"
-          ? "overflow-hidden rounded-[2rem] border border-slate-200 shadow-[0_16px_48px_rgba(15,23,42,0.22)]"
-          : "px-4 py-3",
+          ? "overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-50 shadow-[0_16px_48px_rgba(6,78,59,0.20)]"
+          : "bg-white px-4 py-3",
       )}
       aria-label={`${activity.title}: ${activity.sent} sent of ${activity.total}`}
     >
       <div
         className={cn(
           "flex min-w-0 items-center gap-3",
-          variant === "floating" && "px-3 py-2.5",
+          variant === "floating" && "touch-none px-3 py-2.5",
         )}
       >
-        {variant === "floating" ? (
-          <span
-            className="shrink-0 touch-none cursor-grab select-none text-slate-300 active:cursor-grabbing"
-            data-whatsapp-activity-drag-handle
-            title="Drag delivery progress"
-          >
-            <GripVertical className="h-4 w-4" aria-hidden="true" />
-          </span>
-        ) : null}
         <span
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
@@ -660,7 +683,10 @@ function WhatsAppActivityRow({
             </span>
           </div>
           <div
-            className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100"
+            className={cn(
+              "mt-1.5 h-1.5 overflow-hidden rounded-full",
+              variant === "floating" ? "bg-emerald-100" : "bg-slate-100",
+            )}
             role="progressbar"
             aria-label={`${activity.title} progress`}
             aria-valuemin={0}
@@ -715,7 +741,9 @@ function WhatsAppActivityRow({
         <p
           className={cn(
             "text-[11px] leading-4 text-slate-500",
-            variant === "floating" ? "px-14 pb-2" : "ml-11 mt-1",
+            variant === "floating"
+              ? "touch-none px-14 pb-2"
+              : "ml-11 mt-1",
           )}
         >
           {activity.skipped_already_sent > 0
@@ -734,7 +762,9 @@ function WhatsAppActivityRow({
         <p
           className={cn(
             "text-xs font-medium text-amber-700",
-            variant === "floating" ? "px-14 pb-2" : "ml-11 mt-1",
+            variant === "floating"
+              ? "touch-none px-14 pb-2"
+              : "ml-11 mt-1",
           )}
         >
           {activity.delivery_unknown} delivery outcome
@@ -772,8 +802,11 @@ function FailureRecipients({
     <div
       className={cn(
         "border-t border-red-100 bg-red-50/70",
-        variant === "floating" ? "px-5 py-3" : "-mx-4 -mb-3 mt-3 px-5 py-3",
+        variant === "floating"
+          ? "cursor-auto touch-pan-y select-text px-5 py-3"
+          : "-mx-4 -mb-3 mt-3 px-5 py-3",
       )}
+      data-whatsapp-activity-no-drag={variant === "floating" ? "" : undefined}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-red-800">
         Failed recipients

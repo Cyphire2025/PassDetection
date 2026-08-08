@@ -54,7 +54,19 @@ test("floating progress hides on sender pages and remains draggable elsewhere", 
   assert.match(tracker, /releasePointerCapture/);
   assert.match(tracker, /clampPosition\(/);
   assert.match(tracker, /WHATSAPP_ACTIVITY_POSITION_KEY/);
+  assert.match(tracker, /DRAG_INTENT_THRESHOLD_PX/);
+  assert.match(tracker, /target\.closest\(DRAG_EXCLUSION_SELECTOR\)/);
+  assert.match(tracker, /onClickCapture=\{suppressClickAfterDrag\}/);
+  assert.doesNotMatch(tracker, /GripVertical/);
+  assert.doesNotMatch(tracker, /data-whatsapp-activity-drag-handle/);
   assert.match(tracker, /Hide until the next broadcast starts/);
+});
+
+test("floating progress uses a green capsule while inline progress remains unchanged", () => {
+  assert.match(tracker, /border-emerald-200 bg-emerald-50/);
+  assert.match(tracker, /variant === "floating" \? "bg-emerald-100" : "bg-slate-100"/);
+  assert.match(tracker, /touch-pan-y select-text/);
+  assert.match(tracker, /data-whatsapp-activity-no-drag/);
 });
 
 test("failed names load only after the failure arrow is expanded", () => {
