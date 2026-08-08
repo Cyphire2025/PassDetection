@@ -1213,6 +1213,44 @@ def test_multiple_unique_filename_identifiers_can_match_combined_document() -> N
     assert {match.status for match in matches} == {"matched"}
 
 
+def test_two_digit_ticket_count_cannot_override_manifest_passenger_name() -> None:
+    agency_id = uuid.uuid4()
+    group_id = uuid.uuid4()
+    ticket_passenger = _passenger(
+        name="Asha Mehta",
+        passport_number="P1234567",
+        agency_id=agency_id,
+        group_id=group_id,
+    )
+    unrelated_passenger = _passenger(
+        name="Maya Singh",
+        passport_number="M1122334",
+        agency_id=agency_id,
+        group_id=group_id,
+        staff_metadata={"staff_code": "17"},
+    )
+    passengers = [ticket_passenger, unrelated_passenger]
+    matcher = DocumentMatcher()
+    index = matcher.build_index(passengers, agency_id=agency_id, group_id=group_id)
+
+    matches = matcher.match_all(
+        _document(
+            filename="B9PJPZ - CJB-MAA-CJB X 17.pdf",
+            text=(
+                "Flight itinerary Booking B9PJPZ Passenger Information "
+                "MR ASHA MEHTA Adult CJB MAA Flight 6E 621"
+            ),
+        ),
+        passengers,
+        index=index,
+    )
+
+    assert [(match.passenger_id, match.status) for match in matches] == [
+        (ticket_passenger.id, "matched")
+    ]
+    assert matches[0].reason.startswith("PDF text exact passenger name")
+
+
 def test_single_passport_and_different_single_name_require_review() -> None:
     agency_id = uuid.uuid4()
     group_id = uuid.uuid4()

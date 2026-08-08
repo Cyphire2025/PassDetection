@@ -1777,7 +1777,11 @@ class DocumentMatcher:
         compact = "".join(meaningful)
         if compact and len(compact) <= 64 and any(character.isdigit() for character in compact):
             values.add(compact)
-        return {value for value in values if 1 <= len(value) <= 64}
+        return {
+            value
+            for value in values
+            if 1 <= len(value) <= 64 and (not value.isdigit() or len(value) >= 3)
+        }
 
     def _content_passport_values(self, document: ClassifiedDocument) -> set[str]:
         values: set[str] = set()
