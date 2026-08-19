@@ -219,6 +219,9 @@
           "source": {
             "const": "qr",
             "default": "qr",
+            "enum": [
+              "qr"
+            ],
             "title": "Source",
             "type": "string"
           }
@@ -2612,7 +2615,6 @@
             "type": "string"
           },
           "payload": {
-            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -2922,6 +2924,9 @@
           "scope": {
             "const": "personal",
             "default": "personal",
+            "enum": [
+              "personal"
+            ],
             "title": "Scope",
             "type": "string"
           },
@@ -3415,7 +3420,6 @@
             "type": "string"
           },
           "payload": {
-            "additionalProperties": true,
             "title": "Payload",
             "type": "object"
           },
@@ -3692,6 +3696,9 @@
           "strategy": {
             "const": "full_rebase",
             "default": "full_rebase",
+            "enum": [
+              "full_rebase"
+            ],
             "title": "Strategy",
             "type": "string"
           },
@@ -3755,6 +3762,9 @@
           "token_type": {
             "const": "bearer",
             "default": "bearer",
+            "enum": [
+              "bearer"
+            ],
             "title": "Token Type",
             "type": "string"
           }
