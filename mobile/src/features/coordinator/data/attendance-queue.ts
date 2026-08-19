@@ -7,7 +7,13 @@ import { useSessionStore } from '@/core/auth/session-store';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
 import { AttendanceBatchResponseSchema } from '../api/coordinator-contracts';
-import { attendanceDedupeMaterial } from './attendance-policy';
+import {
+  ATTENDANCE_QUEUE_POLICY,
+  attendanceDedupeMaterial,
+  attendanceQueueCutoffs,
+  attendanceSessionQueueLimit,
+} from './attendance-policy';
+import { authorizeAttendanceTokenForOfflineQueue } from './attendance-token-authorization';
 
 const AttendancePayloadSchema = z
   .object({
@@ -33,9 +39,63 @@ type PreparedAttendanceRow = PendingAttendanceRow & {
 
 export type AttendanceDrainResult = Readonly<{
   settledBySession: Readonly<Record<string, number>>;
+  confirmedBySession: Readonly<Record<string, number>>;
+  newlyAcceptedBySession: Readonly<Record<string, number>>;
+  rejectedBySession: Readonly<Record<string, number>>;
 }>;
 
+export type AttendanceEnqueueResult =
+  | Readonly<{
+      status: 'queued';
+      idempotencyKey: string;
+      duplicate: false;
+    }>
+  | Readonly<{
+      status: 'already_queued' | 'already_confirmed' | 'previously_rejected';
+      idempotencyKey: string;
+      duplicate: true;
+    }>
+  | Readonly<{
+      status: 'capacity_reached';
+      capacity: 'session' | 'trip' | 'account';
+      idempotencyKey: null;
+      duplicate: false;
+    }>;
+
+export type AttendanceSessionQueueStatus = Readonly<{
+  pending: number;
+  sending: number;
+  retryable: number;
+  awaitingConfirmation: number;
+}>;
+
+type MutableAttendanceDrainResult = {
+  settledBySession: Record<string, number>;
+  confirmedBySession: Record<string, number>;
+  newlyAcceptedBySession: Record<string, number>;
+  rejectedBySession: Record<string, number>;
+};
+
+type ExistingAttendanceAction = {
+  idempotency_key: string;
+  state: 'pending' | 'sending' | 'retryable' | 'rejected';
+};
+
+type AttendanceQueueStatusRow = {
+  state: 'pending' | 'sending' | 'retryable';
+  count: number;
+};
+
 const drainInFlight = new Map<string, Promise<AttendanceDrainResult>>();
+
+function emptyDrainResult(): MutableAttendanceDrainResult {
+  return {
+    settledBySession: {},
+    confirmedBySession: {},
+    newlyAcceptedBySession: {},
+    rejectedBySession: {},
+  };
+}
 
 function recordSettled(
   target: Record<string, number>,
@@ -43,6 +103,39 @@ function recordSettled(
   count = 1,
 ): void {
   target[sessionId] = (target[sessionId] ?? 0) + count;
+}
+
+function recordFinalOutcome(
+  target: MutableAttendanceDrainResult,
+  sessionId: string,
+  outcome: 'accepted' | 'already_applied' | 'rejected',
+): void {
+  recordSettled(target.settledBySession, sessionId);
+  if (outcome === 'accepted') {
+    recordSettled(target.confirmedBySession, sessionId);
+    recordSettled(target.newlyAcceptedBySession, sessionId);
+  } else if (outcome === 'already_applied') {
+    recordSettled(target.confirmedBySession, sessionId);
+  } else {
+    recordSettled(target.rejectedBySession, sessionId);
+  }
+}
+
+function mergeDrainResult(
+  target: MutableAttendanceDrainResult,
+  source: MutableAttendanceDrainResult,
+): void {
+  const fields = [
+    'settledBySession',
+    'confirmedBySession',
+    'newlyAcceptedBySession',
+    'rejectedBySession',
+  ] as const;
+  for (const field of fields) {
+    for (const [sessionId, count] of Object.entries(source[field])) {
+      recordSettled(target[field], sessionId, count);
+    }
+  }
 }
 
 function namespace(): string {
@@ -53,73 +146,224 @@ function namespace(): string {
   return principalAccountNamespace(principal);
 }
 
+async function maintainAttendanceQueue(
+  database: Awaited<ReturnType<typeof openAccountDatabase>>,
+  account: string,
+  tripId: string,
+  nowMs: number,
+): Promise<void> {
+  const now = new Date(nowMs).toISOString();
+  const cutoffs = attendanceQueueCutoffs(nowMs);
+  await database.runAsync(
+    `UPDATE pending_actions
+        SET state = 'rejected', next_attempt_at = NULL,
+            last_error_code = 'LOCAL_QUEUE_EXPIRED', updated_at = ?
+      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+        AND state IN ('pending', 'sending', 'retryable') AND created_at < ?`,
+    now,
+    account,
+    tripId,
+    cutoffs.active,
+  );
+  await database.runAsync(
+    `DELETE FROM pending_actions
+      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+        AND state = 'rejected' AND updated_at < ?`,
+    account,
+    tripId,
+    cutoffs.rejected,
+  );
+  await database.runAsync(
+    `DELETE FROM pending_actions
+      WHERE idempotency_key IN (
+        SELECT idempotency_key FROM pending_actions
+         WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+           AND state = 'rejected'
+         ORDER BY updated_at DESC, idempotency_key DESC
+         LIMIT -1 OFFSET ${ATTENDANCE_QUEUE_POLICY.maxRejectedPerTrip}
+      )`,
+    account,
+    tripId,
+  );
+  await database.runAsync(
+    `DELETE FROM attendance_scan_receipts
+      WHERE account_namespace = ? AND trip_id = ? AND accepted_at < ?`,
+    account,
+    tripId,
+    cutoffs.receipt,
+  );
+  await database.runAsync(
+    `DELETE FROM attendance_scan_receipts
+      WHERE rowid IN (
+        SELECT rowid FROM attendance_scan_receipts
+         WHERE account_namespace = ? AND trip_id = ?
+         ORDER BY accepted_at DESC, client_event_id DESC
+         LIMIT -1 OFFSET ${ATTENDANCE_QUEUE_POLICY.maxReceiptsPerTrip}
+      )`,
+    account,
+    tripId,
+  );
+}
+
 export async function enqueueQrScan(
   tripId: string,
   sessionId: string,
   signedQr: string,
-): Promise<{ idempotencyKey: string; duplicate: boolean }> {
+  options?: Readonly<{ assignedCount?: number }>,
+): Promise<AttendanceEnqueueResult> {
   const account = namespace();
   const database = await openAccountDatabase(account);
   const idempotencyKey = Crypto.randomUUID();
-  const now = new Date().toISOString();
+  const nowMs = Date.now();
+  const now = new Date(nowMs).toISOString();
   const payload = AttendancePayloadSchema.parse({
     session_id: sessionId,
     signed_qr: signedQr,
     scanned_at: now,
     source: 'qr',
   });
-  const dedupeKey = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    attendanceDedupeMaterial(account, tripId, sessionId, signedQr),
-  );
-  const applied = await database.getFirstAsync<{ client_event_id: string }>(
-    `SELECT client_event_id FROM attendance_scan_receipts
-      WHERE account_namespace = ? AND trip_id = ? AND session_id = ? AND dedupe_key = ?
-      LIMIT 1`,
-    account,
-    tripId,
-    sessionId,
-    dedupeKey,
-  );
-  if (applied) return { idempotencyKey: applied.client_event_id, duplicate: true };
-  const existing = await database.getFirstAsync<{ idempotency_key: string }>(
-    `SELECT idempotency_key FROM pending_actions
-      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
-        AND dedupe_key = ?
-      LIMIT 1`,
-    account,
-    tripId,
-    dedupeKey,
-  );
-  if (existing) return { idempotencyKey: existing.idempotency_key, duplicate: true };
+  const [dedupeKey, tokenHash] = await Promise.all([
+    Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      attendanceDedupeMaterial(account, tripId, sessionId, signedQr),
+    ),
+    Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, signedQr),
+  ]);
+  let enqueueResult: AttendanceEnqueueResult | null = null;
+  await withAccountTransaction(database, async (transaction) => {
+    await maintainAttendanceQueue(transaction, account, tripId, nowMs);
+    const applied = await transaction.getFirstAsync<{ client_event_id: string }>(
+      `SELECT client_event_id FROM attendance_scan_receipts
+        WHERE account_namespace = ? AND trip_id = ? AND session_id = ? AND dedupe_key = ?
+        LIMIT 1`,
+      account,
+      tripId,
+      sessionId,
+      dedupeKey,
+    );
+    if (applied) {
+      enqueueResult = {
+        status: 'already_confirmed',
+        idempotencyKey: applied.client_event_id,
+        duplicate: true,
+      };
+      return;
+    }
 
-  await database.runAsync(
-    `INSERT OR IGNORE INTO pending_actions
-      (idempotency_key, account_namespace, trip_id, action_type, dedupe_key, payload_json, base_version,
-       state, attempt_count, next_attempt_at, last_error_code, created_at, updated_at)
-     VALUES (?, ?, ?, 'attendance.scan', ?, ?, NULL, 'pending', 0, NULL, NULL, ?, ?)`,
-    idempotencyKey,
-    account,
-    tripId,
-    dedupeKey,
-    JSON.stringify(payload),
-    now,
-    now,
-  );
-  const stored = await database.getFirstAsync<{ idempotency_key: string }>(
-    `SELECT idempotency_key FROM pending_actions
-      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
-        AND dedupe_key = ?
-      LIMIT 1`,
-    account,
-    tripId,
-    dedupeKey,
-  );
-  if (!stored) throw new Error('The attendance scan could not be saved securely.');
-  return {
-    idempotencyKey: stored.idempotency_key,
-    duplicate: stored.idempotency_key !== idempotencyKey,
-  };
+    const existing = await transaction.getFirstAsync<ExistingAttendanceAction>(
+      `SELECT idempotency_key, state FROM pending_actions
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+          AND dedupe_key = ?
+        LIMIT 1`,
+      account,
+      tripId,
+      dedupeKey,
+    );
+    if (existing) {
+      enqueueResult = {
+        status: existing.state === 'rejected' ? 'previously_rejected' : 'already_queued',
+        idempotencyKey: existing.idempotency_key,
+        duplicate: true,
+      };
+      return;
+    }
+
+    await authorizeAttendanceTokenForOfflineQueue(
+      transaction,
+      account,
+      tripId,
+      tokenHash,
+      nowMs,
+    );
+
+    const activeTripCount = await transaction.getFirstAsync<{ count: number }>(
+      `SELECT COUNT(*) AS count FROM pending_actions
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+          AND state IN ('pending', 'sending', 'retryable')`,
+      account,
+      tripId,
+    );
+    if ((activeTripCount?.count ?? 0) >= ATTENDANCE_QUEUE_POLICY.maxActivePerTrip) {
+      enqueueResult = {
+        status: 'capacity_reached',
+        capacity: 'trip',
+        idempotencyKey: null,
+        duplicate: false,
+      };
+      return;
+    }
+    const activeSessionCount = await transaction.getFirstAsync<{ count: number }>(
+      `SELECT COUNT(*) AS count FROM pending_actions
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+          AND state IN ('pending', 'sending', 'retryable')
+          AND CASE WHEN json_valid(payload_json)
+            THEN json_extract(payload_json, '$.session_id')
+            ELSE NULL
+          END = ?`,
+      account,
+      tripId,
+      sessionId,
+    );
+    if ((activeSessionCount?.count ?? 0) >= attendanceSessionQueueLimit(options?.assignedCount)) {
+      enqueueResult = {
+        status: 'capacity_reached',
+        capacity: 'session',
+        idempotencyKey: null,
+        duplicate: false,
+      };
+      return;
+    }
+    const accountCount = await transaction.getFirstAsync<{ count: number }>(
+      `SELECT COUNT(*) AS count FROM pending_actions
+        WHERE account_namespace = ? AND action_type = 'attendance.scan'
+          AND state IN ('pending', 'sending', 'retryable')`,
+      account,
+    );
+    if ((accountCount?.count ?? 0) >= ATTENDANCE_QUEUE_POLICY.maxActivePerAccount) {
+      enqueueResult = {
+        status: 'capacity_reached',
+        capacity: 'account',
+        idempotencyKey: null,
+        duplicate: false,
+      };
+      return;
+    }
+
+    await transaction.runAsync(
+      `INSERT OR IGNORE INTO pending_actions
+        (idempotency_key, account_namespace, trip_id, action_type, dedupe_key, payload_json, base_version,
+         state, attempt_count, next_attempt_at, last_error_code, created_at, updated_at)
+       VALUES (?, ?, ?, 'attendance.scan', ?, ?, NULL, 'pending', 0, NULL, NULL, ?, ?)`,
+      idempotencyKey,
+      account,
+      tripId,
+      dedupeKey,
+      JSON.stringify(payload),
+      now,
+      now,
+    );
+    const stored = await transaction.getFirstAsync<ExistingAttendanceAction>(
+      `SELECT idempotency_key, state FROM pending_actions
+        WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+          AND dedupe_key = ?
+        LIMIT 1`,
+      account,
+      tripId,
+      dedupeKey,
+    );
+    if (!stored) throw new Error('The attendance scan could not be saved securely.');
+    if (stored.idempotency_key !== idempotencyKey) {
+      enqueueResult = {
+        status: stored.state === 'rejected' ? 'previously_rejected' : 'already_queued',
+        idempotencyKey: stored.idempotency_key,
+        duplicate: true,
+      };
+      return;
+    }
+    enqueueResult = { status: 'queued', idempotencyKey, duplicate: false };
+  });
+  if (!enqueueResult) throw new Error('The attendance scan could not be saved securely.');
+  return enqueueResult;
 }
 
 function retryDelay(attempt: number): number {
@@ -200,7 +444,7 @@ async function reconcileAttendanceBatch(
   tripId: string,
   rows: PreparedAttendanceRow[],
   response: z.infer<typeof AttendanceBatchResponseSchema>,
-): Promise<Record<string, number>> {
+): Promise<MutableAttendanceDrainResult> {
   const resultsByEvent = new Map<string, (typeof response.results)[number]>();
   const duplicateResults = new Set<string>();
   for (const result of response.results) {
@@ -211,7 +455,7 @@ async function reconcileAttendanceBatch(
     }
   }
 
-  const settledBySession: Record<string, number> = {};
+  const reconciled = emptyDrainResult();
   await withAccountTransaction(database, async (transaction) => {
     const reconciledAt = new Date().toISOString();
     for (const row of rows) {
@@ -219,7 +463,7 @@ async function reconcileAttendanceBatch(
         ? undefined
         : resultsByEvent.get(row.idempotency_key);
       if (result?.status === 'accepted' || result?.status === 'already_applied') {
-        recordSettled(settledBySession, row.payload.session_id);
+        recordFinalOutcome(reconciled, row.payload.session_id, result.status);
         await transaction.runAsync(
           `INSERT OR IGNORE INTO attendance_scan_receipts
             (account_namespace, trip_id, session_id, dedupe_key, client_event_id, server_status, accepted_at)
@@ -242,7 +486,7 @@ async function reconcileAttendanceBatch(
       }
 
       if (result) {
-        recordSettled(settledBySession, row.payload.session_id);
+        recordFinalOutcome(reconciled, row.payload.session_id, 'rejected');
         await transaction.runAsync(
           `UPDATE pending_actions
               SET state = 'rejected', next_attempt_at = NULL,
@@ -271,7 +515,7 @@ async function reconcileAttendanceBatch(
       );
     }
   });
-  return settledBySession;
+  return reconciled;
 }
 
 async function settleFailedBatch(
@@ -308,7 +552,10 @@ async function settleFailedBatch(
 
 async function drainTrip(account: string, tripId: string): Promise<AttendanceDrainResult> {
   const database = await openAccountDatabase(account);
-  const settledBySession: Record<string, number> = {};
+  const drainResult = emptyDrainResult();
+  await withAccountTransaction(database, async (transaction) => {
+    await maintainAttendanceQueue(transaction, account, tripId, Date.now());
+  });
   const staleSendingBefore = new Date(Date.now() - 2 * 60_000).toISOString();
   await database.runAsync(
     `UPDATE pending_actions
@@ -322,7 +569,7 @@ async function drainTrip(account: string, tripId: string): Promise<AttendanceDra
   );
   while (true) {
     const claimedRows = await claimAttendanceBatch(database, account, tripId);
-    if (claimedRows.length === 0) return { settledBySession };
+    if (claimedRows.length === 0) return drainResult;
 
     const preparedRows: PreparedAttendanceRow[] = [];
     const invalidRows: PendingAttendanceRow[] = [];
@@ -357,8 +604,10 @@ async function drainTrip(account: string, tripId: string): Promise<AttendanceDra
       });
     } catch (error) {
       const permanent = await settleFailedBatch(database, account, preparedRows, error);
-      if (!permanent) return { settledBySession };
-      for (const row of preparedRows) recordSettled(settledBySession, row.payload.session_id);
+      if (!permanent) return drainResult;
+      for (const row of preparedRows) {
+        recordFinalOutcome(drainResult, row.payload.session_id, 'rejected');
+      }
       continue;
     }
     const batchResult = await reconcileAttendanceBatch(
@@ -368,9 +617,7 @@ async function drainTrip(account: string, tripId: string): Promise<AttendanceDra
       preparedRows,
       response,
     );
-    for (const [sessionId, count] of Object.entries(batchResult)) {
-      recordSettled(settledBySession, sessionId, count);
-    }
+    mergeDrainResult(drainResult, batchResult);
   }
 }
 
@@ -384,6 +631,44 @@ export function drainAttendanceQueue(tripId: string): Promise<AttendanceDrainRes
   });
   drainInFlight.set(key, request);
   return request;
+}
+
+export async function attendanceSessionQueueStatus(
+  tripId: string,
+  sessionId: string,
+): Promise<AttendanceSessionQueueStatus> {
+  const account = namespace();
+  const database = await openAccountDatabase(account);
+  await withAccountTransaction(database, async (transaction) => {
+    await maintainAttendanceQueue(transaction, account, tripId, Date.now());
+  });
+  const rows = await database.getAllAsync<AttendanceQueueStatusRow>(
+    `SELECT state, COUNT(*) AS count FROM pending_actions
+      WHERE account_namespace = ? AND trip_id = ? AND action_type = 'attendance.scan'
+        AND state IN ('pending', 'sending', 'retryable')
+        AND CASE WHEN json_valid(payload_json)
+          THEN json_extract(payload_json, '$.session_id')
+          ELSE NULL
+        END = ?
+      GROUP BY state`,
+    account,
+    tripId,
+    sessionId,
+  );
+  let pending = 0;
+  let sending = 0;
+  let retryable = 0;
+  for (const row of rows) {
+    if (row.state === 'pending') pending = row.count;
+    else if (row.state === 'sending') sending = row.count;
+    else retryable = row.count;
+  }
+  return {
+    pending,
+    sending,
+    retryable,
+    awaitingConfirmation: pending + sending + retryable,
+  };
 }
 
 export async function attendanceQueueCounts(tripId: string) {

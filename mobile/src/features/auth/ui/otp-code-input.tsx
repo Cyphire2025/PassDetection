@@ -64,6 +64,7 @@ export function OtpCodeInput({
           return (
             <TextInput
               key={index}
+              testID={`passenger-otp-digit-${index + 1}`}
               ref={(node) => { inputs.current[index] = node; }}
               accessibilityLabel={`Verification code digit ${index + 1}`}
               autoFocus={index === 0}

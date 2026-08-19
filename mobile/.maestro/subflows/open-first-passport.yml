@@ -1,0 +1,21 @@
+appId: com.globalconnects.groupcompanion
+---
+- tapOn: "Documents"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-document-slot-passport"
+    timeout: 60000
+- tapOn:
+    id: "passenger-document-slot-passport"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-document-passport-0"
+    timeout: 30000
+- tapOn:
+    id: "passenger-document-passport-0"
+- extendedWaitUntil:
+    visible:
+      id: "secure-document-rendered"
+    timeout: 120000
+- assertNotVisible:
+    id: "secure-document-error"

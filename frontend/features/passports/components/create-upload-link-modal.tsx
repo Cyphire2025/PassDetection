@@ -19,6 +19,8 @@ import { GroupOptionToggle } from "./group-option-toggle";
 import { WhatsAppBroadcastSelector } from "./whatsapp-broadcast-selector";
 import { CustomQuestionBuilder } from "./custom-question-builder";
 import { CustomDetailBuilder } from "./custom-detail-builder";
+import { TripTimeZoneField } from "./trip-timezone-field";
+import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 
 interface CreateUploadLinkModalProps {
   isOpen: boolean;
@@ -51,6 +53,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       destination: "",
       travel_date: "",
       return_date: "",
+      timezone: DEFAULT_TRIP_TIMEZONE,
       departure_cities: [],
       base_city_enabled: false,
       nearest_international_airport_enabled: false,
@@ -303,6 +306,11 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                   type="date"
                   {...register("return_date")}
                   error={errors.return_date?.message}
+                  required
+                />
+                <TripTimeZoneField
+                  {...register("timezone")}
+                  error={errors.timezone?.message}
                   required
                 />
               </div>

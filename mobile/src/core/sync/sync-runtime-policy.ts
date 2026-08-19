@@ -5,6 +5,19 @@ export const FULL_TRIP_RECONCILIATION_INTERVAL_MS = 30 * 60_000;
 
 export type SyncScope = 'none' | 'selected' | 'full';
 
+const LOCAL_SYNC_PROJECTION_PREFIXES = new Set([
+  'coordinator-roster',
+  'manager-readiness',
+  'mobile-trips',
+  'trip-announcements',
+  'trip-common-documents',
+  'trip-documents',
+  'trip-itinerary',
+  'trip-meal',
+  'trip-qr',
+  'trip-room',
+]);
+
 export function syncRuntimeTimestamp(): number {
   return Date.now();
 }
@@ -16,6 +29,7 @@ export function resolveSyncScope(input: {
   now: number;
 }): SyncScope {
   const fullSyncDue = input.lastFullSyncAt === null
+    || input.lastFullSyncAt > input.now
     || input.now - input.lastFullSyncAt >= FULL_TRIP_RECONCILIATION_INTERVAL_MS;
   if (input.forceFull || fullSyncDue) return 'full';
   return input.selectedTripId ? 'selected' : 'none';
@@ -38,6 +52,18 @@ export function queryKeyMatchesAnyTrip(
   tripIds: readonly string[],
 ): boolean {
   return tripIds.some((tripId) => queryKey.includes(tripId));
+}
+
+export function isLocalSyncProjectionQuery(queryKey: readonly unknown[]): boolean {
+  const prefix = queryKey[0];
+  return typeof prefix === 'string' && LOCAL_SYNC_PROJECTION_PREFIXES.has(prefix);
+}
+
+export function queryKeyMatchesChangedProjection(
+  queryKey: readonly unknown[],
+  tripIds: readonly string[],
+): boolean {
+  return isLocalSyncProjectionQuery(queryKey) && queryKeyMatchesAnyTrip(queryKey, tripIds);
 }
 
 const comparableTrip = (trip: Trip) => ({

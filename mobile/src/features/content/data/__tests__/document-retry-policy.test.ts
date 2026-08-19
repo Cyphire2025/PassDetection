@@ -13,7 +13,11 @@ test('retries only bounded transient document failures', () => {
   expect(isRetryableDocumentError(new ApiError('busy', 503, 'TEMPORARY', null))).toBe(true);
   expect(isRetryableDocumentError(new ApiError('slow down', 429, 'RATE_LIMITED', 2))).toBe(true);
   expect(isRetryableDocumentError(new ApiError('expired grant', 401, 'DOWNLOAD_AUTH_EXPIRED', null))).toBe(true);
+  expect(isRetryableDocumentError(new ApiError('missing route', 404, 'HTTP_404', null))).toBe(true);
+  expect(isRetryableDocumentError(new ApiError('gone route', 410, 'HTTP_410', null))).toBe(true);
+  expect(isRetryableDocumentError(new ApiError('deleted', 404, 'NOT_FOUND', null))).toBe(false);
   expect(isRetryableDocumentError(new TypeError('Network request failed'))).toBe(true);
+  expect(isRetryableDocumentError(new TypeError('Cannot read properties of undefined'))).toBe(false);
   expect(isRetryableDocumentError({ code: 'LOCAL_OFFLINE_CIPHERTEXT_CORRUPT' })).toBe(true);
   expect(isRetryableDocumentError(new Error('Downloaded document checksum did not match.'))).toBe(false);
   expect(isRetryableDocumentError(new ApiError('forbidden', 403, 'FORBIDDEN', null))).toBe(false);

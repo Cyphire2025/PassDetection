@@ -101,6 +101,14 @@ class FakeAttendanceDatabase {
 
   async runAsync(sql: string, ...parameters: unknown[]): Promise<{ changes: number }> {
     const normalized = compactSql(sql);
+    if (
+      normalized.includes("last_error_code = 'LOCAL_QUEUE_EXPIRED'")
+      || normalized.includes("state = 'rejected' AND updated_at < ?")
+      || normalized.includes('LIMIT -1 OFFSET 1000')
+      || normalized.startsWith('DELETE FROM attendance_scan_receipts')
+    ) {
+      return { changes: 0 };
+    }
     if (normalized.includes("last_error_code = 'INTERRUPTED_RETRY'")) {
       const [updatedAt, account, tripId, staleBefore] = parameters as [
         string,
@@ -268,7 +276,7 @@ function signedQr(index: number): string {
 }
 
 function queueRow(index: number): QueueRow {
-  const createdAt = new Date(Date.UTC(2029, 0, 1, 0, 0, 0, index)).toISOString();
+  const createdAt = new Date(Date.UTC(2029, 11, 31, 23, 0, 0, index)).toISOString();
   return {
     idempotency_key: eventId(index),
     account_namespace: ACCOUNT,
@@ -339,7 +347,12 @@ test('drains 1,500 scans in ordered API batches of at most 100', async () => {
   expect(batches.flat()).toEqual(Array.from({ length: 1_500 }, (_, index) => eventId(index + 1)));
   expect(database.rows).toHaveLength(0);
   expect(database.receipts.size).toBe(1_500);
-  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 1_500 } });
+  expect(result).toEqual({
+    settledBySession: { [SESSION_ID]: 1_500 },
+    confirmedBySession: { [SESSION_ID]: 1_500 },
+    newlyAcceptedBySession: { [SESSION_ID]: 1_500 },
+    rejectedBySession: {},
+  });
 });
 
 test('reconciles out-of-order accepted, already-applied and rejected results atomically by event id', async () => {
@@ -385,7 +398,12 @@ test('reconciles out-of-order accepted, already-applied and rejected results ato
     }),
   ]);
   expect(mockedTransaction.mock.calls.length).toBeGreaterThanOrEqual(2);
-  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 3 } });
+  expect(result).toEqual({
+    settledBySession: { [SESSION_ID]: 3 },
+    confirmedBySession: { [SESSION_ID]: 2 },
+    newlyAcceptedBySession: { [SESSION_ID]: 1 },
+    rejectedBySession: { [SESSION_ID]: 1 },
+  });
 });
 
 test('preserves a transport-failed batch and retries it successfully later', async () => {
@@ -401,7 +419,12 @@ test('preserves a transport-failed batch and retries it successfully later', asy
   expect(database.rows.filter((row) => row.state === 'retryable')).toHaveLength(100);
   expect(database.rows.filter((row) => row.state === 'pending')).toHaveLength(20);
   expect(database.rows.every((row) => row.state !== 'rejected')).toBe(true);
-  expect(offlineResult).toEqual({ settledBySession: {} });
+  expect(offlineResult).toEqual({
+    settledBySession: {},
+    confirmedBySession: {},
+    newlyAcceptedBySession: {},
+    rejectedBySession: {},
+  });
 
   jest.setSystemTime(new Date('2030-01-01T00:10:00.000Z'));
   mockedApiRequest.mockImplementation(async (_path, options) => {
@@ -421,7 +444,12 @@ test('preserves a transport-failed batch and retries it successfully later', asy
   expect(database.rows).toHaveLength(0);
   expect(database.receipts.size).toBe(120);
   expect(mockedApiRequest).toHaveBeenCalledTimes(3);
-  expect(recoveredResult).toEqual({ settledBySession: { [SESSION_ID]: 120 } });
+  expect(recoveredResult).toEqual({
+    settledBySession: { [SESSION_ID]: 120 },
+    confirmedBySession: { [SESSION_ID]: 120 },
+    newlyAcceptedBySession: { [SESSION_ID]: 120 },
+    rejectedBySession: {},
+  });
 });
 
 test('coalesces concurrent drains into one network batch', async () => {
@@ -457,9 +485,24 @@ test('coalesces concurrent drains into one network batch', async () => {
   expect(mockedApiRequest).toHaveBeenCalledTimes(1);
   expect(database.rows).toHaveLength(0);
   expect(results).toEqual([
-    { settledBySession: { [SESSION_ID]: 80 } },
-    { settledBySession: { [SESSION_ID]: 80 } },
-    { settledBySession: { [SESSION_ID]: 80 } },
+    {
+      settledBySession: { [SESSION_ID]: 80 },
+      confirmedBySession: { [SESSION_ID]: 80 },
+      newlyAcceptedBySession: { [SESSION_ID]: 80 },
+      rejectedBySession: {},
+    },
+    {
+      settledBySession: { [SESSION_ID]: 80 },
+      confirmedBySession: { [SESSION_ID]: 80 },
+      newlyAcceptedBySession: { [SESSION_ID]: 80 },
+      rejectedBySession: {},
+    },
+    {
+      settledBySession: { [SESSION_ID]: 80 },
+      confirmedBySession: { [SESSION_ID]: 80 },
+      newlyAcceptedBySession: { [SESSION_ID]: 80 },
+      rejectedBySession: {},
+    },
   ]);
 });
 
@@ -492,5 +535,10 @@ test('does not let a delayed retryable scan starve newer pending work', async ()
     }),
   ]);
   expect(database.receipts.has(eventId(2))).toBe(true);
-  expect(result).toEqual({ settledBySession: { [SESSION_ID]: 1 } });
+  expect(result).toEqual({
+    settledBySession: { [SESSION_ID]: 1 },
+    confirmedBySession: { [SESSION_ID]: 1 },
+    newlyAcceptedBySession: { [SESSION_ID]: 1 },
+    rejectedBySession: {},
+  });
 });

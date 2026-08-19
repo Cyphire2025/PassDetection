@@ -18,7 +18,7 @@ def _message(**overrides: object) -> MobilePushMessage:
         "registration_id": "00000000-0000-4000-8000-000000000001",
         "notification_id": "00000000-0000-4000-8000-000000000002",
         "token": "ExponentPushToken[abcdefghijklmnopqrstuv]",
-        "title": "Group Companion update",
+        "title": "Global Connect Travels update",
         "body": None,
         "data": {
             "route": "updates",
@@ -76,7 +76,7 @@ async def test_expo_provider_sends_only_lock_screen_safe_payload() -> None:
     assert captured["authorization"] == "Bearer provider-secret"
     payload = captured["payload"]
     assert isinstance(payload, list)
-    assert payload[0]["title"] == "Group Companion update"
+    assert payload[0]["title"] == "Global Connect Travels update"
     assert "body" not in payload[0]
     assert set(payload[0]["data"]) == {"route", "trip_id", "event_id"}
 

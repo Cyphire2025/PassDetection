@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
 import Search from 'lucide-react-native/icons/search';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -12,6 +12,8 @@ import {
   View,
 } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
+import { useDebouncedValue } from '@/core/query/use-debounced-value';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { Screen } from '@/design/components/screen';
@@ -33,8 +35,8 @@ export default function ManagerPassengersScreen() {
   const mode = documentMode(params.mode);
   const trips = useTrips();
   const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search);
-  const roster = useManagerRoster(trips.selectedTripId, deferredSearch);
+  const debouncedSearch = useDebouncedValue(search.trim());
+  const roster = useManagerRoster(trips.selectedTripId, debouncedSearch);
   const passengers = useMemo(
     () => roster.data?.pages.flatMap((page) => page.items) ?? [],
     [roster.data?.pages],
@@ -97,10 +99,7 @@ export default function ManagerPassengersScreen() {
           );
         }}
         contentContainerStyle={styles.list}
-        initialNumToRender={18}
-        maxToRenderPerBatch={24}
-        updateCellsBatchingPeriod={35}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.detail}
         onEndReachedThreshold={0.35}
         onEndReached={() => {
           if (roster.hasNextPage && !roster.isFetchingNextPage) void roster.fetchNextPage();

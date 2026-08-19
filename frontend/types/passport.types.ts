@@ -246,6 +246,7 @@ export interface PassportGroupSummary {
   destination: string | null;
   travel_date: string | null;
   return_date: string | null;
+  timezone: string;
   package_name: string | null;
   departure_cities: string[];
   base_city_enabled: boolean;

@@ -3,6 +3,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { AppState, type AppStateStatus } from 'react-native';
 
+import { ApiError } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
 import {
@@ -11,7 +12,11 @@ import {
   releaseTemporaryView,
   removeTemporaryView,
 } from '@/core/storage/vault';
-import { cacheDocument, getDocument } from '@/features/content/data/content-repository';
+import {
+  cacheDocument,
+  getDocument,
+  recordOfflineDocumentOpened,
+} from '@/features/content/data/content-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import SecureDocumentScreen from '../[id]';
@@ -58,9 +63,22 @@ jest.mock('@/core/storage/vault', () => ({
   releaseTemporaryView: jest.fn(),
   removeTemporaryView: jest.fn(),
 }));
+jest.mock('@/core/security/sensitive-screen-protection', () => {
+  const React = require('react') as typeof import('react');
+  const { View: MockView } = require('react-native') as typeof import('react-native');
+  return {
+    SensitiveScreenProtection: ({ protectionKey }: { protectionKey: string }) => (
+      React.createElement(MockView, {
+        accessibilityLabel: protectionKey,
+        testID: 'sensitive-screen-protection',
+      })
+    ),
+  };
+});
 jest.mock('@/features/content/data/content-repository', () => ({
   cacheDocument: jest.fn(),
   getDocument: jest.fn(),
+  recordOfflineDocumentOpened: jest.fn(),
 }));
 jest.mock('@/design/components/glass-card', () => {
   const React = require('react') as typeof import('react');
@@ -93,6 +111,7 @@ jest.mock('@/design/components/screen', () => {
 
 const mockedCacheDocument = jest.mocked(cacheDocument);
 const mockedDecryptDocument = jest.mocked(decryptDocumentForViewing);
+const mockedRecordDocumentOpened = jest.mocked(recordOfflineDocumentOpened);
 const mockedGetDocument = jest.mocked(getDocument);
 const mockedReleaseTemporary = jest.mocked(releaseTemporaryView);
 const mockedRemoveTemporary = jest.mocked(removeTemporaryView);
@@ -145,6 +164,7 @@ beforeEach(() => {
   mockedGetDocument.mockResolvedValue(DOCUMENT);
   mockedCacheDocument.mockResolvedValue(undefined);
   mockedDecryptDocument.mockResolvedValue(temporary('file:///secure/passport.pdf'));
+  mockedRecordDocumentOpened.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -174,6 +194,12 @@ test('retries a transient download failure in place and coalesces repeated retry
   expect(mockedGetDocument).toHaveBeenCalledTimes(2);
   expect(mockedCacheDocument).toHaveBeenCalledTimes(2);
   expect(mockedDecryptDocument).toHaveBeenCalledTimes(1);
+  expect(mockedRecordDocumentOpened).toHaveBeenCalledWith({
+    namespace: `${SESSION.principal.agencyId}.${SESSION.principal.accountId}`,
+    tripId: DOCUMENT.trip_id,
+    documentId: DOCUMENT.id,
+    version: DOCUMENT.version,
+  });
 });
 
 test('cleans a failed renderer temporary file before retrying with a fresh view', async () => {
@@ -252,6 +278,8 @@ test('never places a decrypted personal image in the renderer disk cache', async
 
   await waitFor(() => expect(screen.getByTestId('image-viewer')).toBeTruthy());
   expect(screen.getByTestId('image-viewer').props.cachePolicy).toBe('none');
+  expect(screen.getByTestId('sensitive-screen-protection').props.accessibilityLabel)
+    .toBe('secure-document-viewer');
 });
 
 test('repairs a locally corrupted registered copy and retries decryption once', async () => {
@@ -268,6 +296,7 @@ test('repairs a locally corrupted registered copy and retries decryption once', 
     expect.objectContaining({ id: DOCUMENT.id }),
     undefined,
     expect.any(AbortSignal),
+    'required',
   );
   expect(mockedDecryptDocument).toHaveBeenCalledTimes(2);
 });
@@ -281,6 +310,19 @@ test('keeps a provider checksum mismatch terminal instead of treating it as loca
 
   await waitFor(() => expect(screen.getByText('Document unavailable')).toBeTruthy());
   expect(screen.queryByText('Retry')).toBeNull();
+  expect(mockedDecryptDocument).not.toHaveBeenCalled();
+});
+
+test('keeps a missing deployment route retryable without deleting advertised metadata', async () => {
+  mockedCacheDocument.mockRejectedValueOnce(
+    new ApiError('Not Found', 404, 'HTTP_404', null),
+  );
+
+  const screen = await render(<SecureDocumentScreen />);
+
+  await waitFor(() => expect(screen.getByText('Retry')).toBeTruthy());
+  expect(screen.getByText('The document service is temporarily unavailable. Try again.')).toBeTruthy();
+  expect(mockedGetDocument).toHaveBeenCalledTimes(1);
   expect(mockedDecryptDocument).not.toHaveBeenCalled();
 });
 

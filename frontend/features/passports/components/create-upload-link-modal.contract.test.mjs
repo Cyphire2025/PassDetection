@@ -58,6 +58,14 @@ test("group creation requires destination and Travel/Departure dates", () => {
   assert.equal(modalSource.match(/required/g)?.length >= 3, true);
 });
 
+test("group creation requires and submits a canonical trip timezone", () => {
+  assert.match(schemaSource, /timezone: z\.string\(\)/);
+  assert.match(schemaSource, /\.refine\(isSupportedIanaTimeZone/);
+  assert.match(modalSource, /timezone: DEFAULT_TRIP_TIMEZONE/);
+  assert.match(modalSource, /<TripTimeZoneField/);
+  assert.match(modalSource, /\.\.\.register\("timezone"\)/);
+});
+
 test("group creation can link a bounded set of existing WhatsApp broadcasts", () => {
   assert.match(modalSource, /<WhatsAppBroadcastSelector/);
   assert.match(modalSource, /name: "whatsapp_broadcast_group_ids"/);

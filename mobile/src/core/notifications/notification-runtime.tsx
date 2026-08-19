@@ -1,6 +1,5 @@
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
@@ -10,7 +9,7 @@ import {
   getHandledNotificationResponse,
   setHandledNotificationResponse,
 } from '@/core/storage/secure-store';
-import { syncTrip } from '@/core/sync/sync-service';
+import { requestSync } from '@/core/sync/sync-trigger';
 import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinator-trip-store';
 import { localTrips, refreshTrips } from '@/features/trips/data/trip-repository';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
@@ -19,6 +18,7 @@ import { reconcileDepartureReminders } from './departure-reminders';
 import {
   notificationContentData,
   notificationData,
+  invalidateCurrentPushRegistration,
   NotificationRegistrationError,
   registerPushDevice,
 } from './notification-service';
@@ -32,17 +32,18 @@ import {
 export function NotificationRuntime() {
   const demoMode = isDemoMode();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const session = useSessionStore((state) => state.session);
   const principalId = session?.principal.id ?? null;
   const accountId = session?.principal.accountId ?? null;
   const principalType = session?.principal.principalType ?? null;
   const agencyId = session?.principal.agencyId ?? null;
   const sessionId = session?.sessionId ?? null;
+  const networkMode = session?.networkMode ?? null;
   const registrationInFlight = useRef<Promise<void> | null>(null);
+  const tokenRotationScheduled = useRef(false);
 
   const registerNotifications = useCallback(() => {
-    if (!sessionId || demoMode || registrationInFlight.current) return;
+    if (!sessionId || networkMode !== 'online' || demoMode || registrationInFlight.current) return;
     const operation = registerPushDevice()
       .then((registered) => {
         if (!registered) console.warn('[notifications] permission not granted');
@@ -62,16 +63,32 @@ export function NotificationRuntime() {
         if (registrationInFlight.current === operation) registrationInFlight.current = null;
       });
     registrationInFlight.current = operation;
-  }, [demoMode, sessionId]);
+  }, [demoMode, networkMode, sessionId]);
 
   useEffect(() => {
-    if (!sessionId || demoMode) return;
+    if (!sessionId || networkMode !== 'online' || demoMode) return;
     registerNotifications();
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') registerNotifications();
     });
-    return () => subscription.remove();
-  }, [demoMode, registerNotifications, sessionId]);
+    const tokenSubscription = Notifications.addPushTokenListener(() => {
+      if (tokenRotationScheduled.current) return;
+      tokenRotationScheduled.current = true;
+      const activeRegistration = registrationInFlight.current ?? Promise.resolve();
+      void activeRegistration
+        .catch(() => undefined)
+        .then(() => invalidateCurrentPushRegistration())
+        .catch(() => undefined)
+        .finally(() => {
+          tokenRotationScheduled.current = false;
+          registerNotifications();
+        });
+    });
+    return () => {
+      subscription.remove();
+      tokenSubscription.remove();
+    };
+  }, [demoMode, networkMode, registerNotifications, sessionId]);
 
   useEffect(() => {
     if (!sessionId || !agencyId || !accountId || !principalId || !principalType) return;
@@ -154,17 +171,11 @@ export function NotificationRuntime() {
     const received = Notifications.addNotificationReceivedListener((notification) => {
       const data = notificationContentData(notification);
       if (!data || !principalId) return;
-      void syncTrip(data.trip_id)
-        .then((result) => {
-          if (!result.changed) return undefined;
-          return Promise.all([
-            queryClient.invalidateQueries({
-              predicate: (query) => query.queryKey.includes(data.trip_id),
-            }),
-            queryClient.invalidateQueries({ queryKey: ['mobile-trips'] }),
-          ]);
-        })
-        .catch(() => undefined);
+      void requestSync({
+        scope: 'trip',
+        tripId: data.trip_id,
+        reason: 'push-received',
+      }).catch(() => undefined);
     });
 
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -178,7 +189,7 @@ export function NotificationRuntime() {
       received.remove();
       subscription.remove();
     };
-  }, [accountId, agencyId, principalId, principalType, queryClient, router, sessionId]);
+  }, [accountId, agencyId, principalId, principalType, router, sessionId]);
 
   return null;
 }

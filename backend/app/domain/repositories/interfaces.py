@@ -26,6 +26,7 @@ from app.domain.entities.entities import (
     QualifierSelection,
     User,
 )
+from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
 
 @dataclass(frozen=True)
@@ -41,6 +42,7 @@ class PassportSubmissionGroupSummary:
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] | None = None
     base_city_enabled: bool = False

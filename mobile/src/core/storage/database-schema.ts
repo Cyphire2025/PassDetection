@@ -1,6 +1,8 @@
 import type * as SQLite from 'expo-sqlite';
 
-export const ACCOUNT_DATABASE_VERSION = 16;
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
+
+export const ACCOUNT_DATABASE_VERSION = 22;
 
 export type AccountTransactionRunner = (
   task: (transaction: SQLite.SQLiteDatabase) => Promise<void>,
@@ -18,6 +20,9 @@ export async function migrateAccountDatabase(
   }
 
   if (currentVersion === 0) {
+    // New databases opt into bounded incremental reclaim before the first table allocates pages.
+    // Existing databases are never subjected to the blocking full VACUUM required to retrofit it.
+    await database.execAsync('PRAGMA auto_vacuum = INCREMENTAL');
     await runTransaction(async (transaction) => {
       await transaction.execAsync(`
         CREATE TABLE IF NOT EXISTS users (
@@ -48,6 +53,8 @@ export async function migrateAccountDatabase(
           destination TEXT,
           travel_date TEXT,
           return_date TEXT,
+          timezone TEXT NOT NULL DEFAULT '${DEFAULT_TRIP_TIME_ZONE}'
+            CHECK (length(timezone) BETWEEN 1 AND 64 AND timezone = trim(timezone)),
           access_generation INTEGER NOT NULL,
           access_expires_at TEXT,
           itinerary_version INTEGER NOT NULL DEFAULT -1,
@@ -68,6 +75,8 @@ export async function migrateAccountDatabase(
           advertised_rooming_version INTEGER NOT NULL DEFAULT 0,
           advertised_meals_version INTEGER NOT NULL DEFAULT 0,
           advertised_qr_version INTEGER NOT NULL DEFAULT 0,
+          roster_projection_complete INTEGER NOT NULL DEFAULT 0
+            CHECK (roster_projection_complete IN (0, 1)),
           updated_at TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_trips_namespace ON trips(account_namespace, travel_date);
@@ -175,7 +184,44 @@ export async function migrateAccountDatabase(
           checksum_sha256 TEXT NOT NULL,
           encrypted_size_bytes INTEGER NOT NULL,
           downloaded_at TEXT NOT NULL,
-          last_opened_at TEXT
+          last_opened_at TEXT,
+          retention_class TEXT NOT NULL DEFAULT 'required'
+            CHECK (retention_class IN ('required', 'evictable'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_offline_files_eviction
+          ON offline_files(
+            account_namespace,
+            retention_class,
+            COALESCE(last_opened_at, downloaded_at),
+            downloaded_at,
+            encrypted_path
+          )
+          WHERE retention_class = 'evictable';
+
+        CREATE TABLE IF NOT EXISTS vault_eviction_tombstones (
+          encrypted_path TEXT PRIMARY KEY NOT NULL,
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL,
+          document_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          checksum_sha256 TEXT NOT NULL,
+          encrypted_size_bytes INTEGER NOT NULL CHECK (encrypted_size_bytes > 0),
+          created_at TEXT NOT NULL,
+          last_attempt_at TEXT,
+          attempt_count INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_vault_eviction_tombstones_account
+          ON vault_eviction_tombstones(account_namespace, created_at, encrypted_path);
+
+        CREATE TABLE IF NOT EXISTS storage_maintenance_state (
+          singleton_id INTEGER PRIMARY KEY NOT NULL CHECK (singleton_id = 1),
+          last_run_at_epoch_ms INTEGER NOT NULL CHECK (last_run_at_epoch_ms >= 0)
+        );
+
+        CREATE TABLE IF NOT EXISTS sync_runtime_state (
+          account_namespace TEXT PRIMARY KEY NOT NULL,
+          last_successful_full_sync_at_epoch_ms INTEGER NOT NULL
+            CHECK (last_successful_full_sync_at_epoch_ms >= 0)
         );
 
         CREATE TABLE IF NOT EXISTS offline_document_jobs (
@@ -246,6 +292,21 @@ export async function migrateAccountDatabase(
           employee_code TEXT,
           employee_type TEXT,
           attendance_status TEXT NOT NULL,
+          attendance_token_hash TEXT
+            CHECK (attendance_token_hash IS NULL OR (
+              length(attendance_token_hash) = 64
+              AND attendance_token_hash NOT GLOB '*[^0-9a-f]*'
+            )),
+          attendance_token_version INTEGER
+            CHECK (attendance_token_version IS NULL OR attendance_token_version >= 1),
+          attendance_token_state TEXT NOT NULL DEFAULT 'unknown'
+            CHECK (attendance_token_state IN (
+              'unknown', 'active', 'missing', 'inactive', 'revoked', 'expired'
+            )),
+          attendance_token_expires_at TEXT,
+          attendance_token_updated_at TEXT,
+          attendance_evidence_observed_at TEXT,
+          attendance_evidence_valid_until TEXT,
           phone_number TEXT,
           email TEXT,
           departure_city TEXT,
@@ -276,6 +337,94 @@ export async function migrateAccountDatabase(
         );
         CREATE INDEX IF NOT EXISTS idx_coordinator_roster_search
           ON coordinator_passengers(account_namespace, trip_id, display_name, employee_code);
+        CREATE INDEX IF NOT EXISTS idx_coordinator_attendance_token_lookup
+          ON coordinator_passengers(account_namespace, trip_id, attendance_token_hash)
+          WHERE attendance_token_state = 'active' AND attendance_token_hash IS NOT NULL;
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          );
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_rooming_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          )
+          WHERE room_number IS NOT NULL AND length(trim(room_number)) > 0;
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_meals_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          )
+          WHERE meal_preference IS NOT NULL AND length(trim(meal_preference)) > 0;
+
+        CREATE VIRTUAL TABLE IF NOT EXISTS coordinator_passengers_fts USING fts5(
+          display_name,
+          employee_code,
+          content='coordinator_passengers',
+          content_rowid='rowid',
+          tokenize='unicode61 remove_diacritics 2'
+        );
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_insert
+          AFTER INSERT ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(rowid, display_name, employee_code)
+          VALUES (new.rowid, new.display_name, new.employee_code);
+        END;
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_delete
+          AFTER DELETE ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(
+            coordinator_passengers_fts, rowid, display_name, employee_code
+          ) VALUES ('delete', old.rowid, old.display_name, old.employee_code);
+        END;
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_update
+          AFTER UPDATE OF display_name, employee_code ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(
+            coordinator_passengers_fts, rowid, display_name, employee_code
+          ) VALUES ('delete', old.rowid, old.display_name, old.employee_code);
+          INSERT INTO coordinator_passengers_fts(rowid, display_name, employee_code)
+          VALUES (new.rowid, new.display_name, new.employee_code);
+        END;
+
+        CREATE TABLE IF NOT EXISTS local_roster_cursors (
+          token TEXT PRIMARY KEY NOT NULL,
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          search_key TEXT NOT NULL,
+          filter_key TEXT NOT NULL CHECK (filter_key IN ('all', 'rooming', 'meals')),
+          last_display_name TEXT NOT NULL,
+          last_passenger_id TEXT NOT NULL,
+          expires_at_epoch_ms INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_local_roster_cursors_expiry
+          ON local_roster_cursors(account_namespace, expires_at_epoch_ms);
+
+        CREATE TABLE IF NOT EXISTS coordinator_roster_staging (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          generation_id TEXT NOT NULL,
+          item_index INTEGER NOT NULL CHECK (item_index >= 0),
+          id TEXT NOT NULL,
+          display_name TEXT NOT NULL,
+          employee_code TEXT,
+          attendance_status TEXT NOT NULL,
+          attendance_token_hash TEXT,
+          attendance_token_version INTEGER,
+          attendance_token_state TEXT NOT NULL,
+          attendance_token_expires_at TEXT,
+          attendance_token_updated_at TEXT,
+          attendance_evidence_observed_at TEXT,
+          attendance_evidence_valid_until TEXT,
+          room_number TEXT,
+          meal_preference TEXT,
+          has_alert INTEGER NOT NULL CHECK (has_alert IN (0, 1)),
+          updated_at TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, generation_id, id),
+          UNIQUE(account_namespace, trip_id, generation_id, item_index)
+        );
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_staging_page
+          ON coordinator_roster_staging(
+            account_namespace, trip_id, generation_id, item_index
+          );
 
         CREATE TABLE IF NOT EXISTS sync_cursors (
           account_namespace TEXT NOT NULL,
@@ -286,6 +435,26 @@ export async function migrateAccountDatabase(
           last_error_code TEXT,
           PRIMARY KEY(account_namespace, trip_id)
         );
+
+        CREATE TABLE IF NOT EXISTS sync_rebase_staging (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          generation_id TEXT NOT NULL,
+          resource_type TEXT NOT NULL CHECK (resource_type IN (
+            'manifest', 'itinerary', 'announcements', 'common_documents',
+            'personal_documents', 'room', 'meals', 'qr', 'readiness',
+            'roster', 'attendance_sessions'
+          )),
+          item_key TEXT NOT NULL,
+          item_index INTEGER NOT NULL CHECK (item_index >= 0),
+          payload_json TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, generation_id, resource_type, item_key),
+          UNIQUE(account_namespace, trip_id, generation_id, resource_type, item_index)
+        );
+        CREATE INDEX IF NOT EXISTS idx_sync_rebase_staging_page
+          ON sync_rebase_staging(
+            account_namespace, trip_id, generation_id, resource_type, item_index
+          );
 
         CREATE TABLE IF NOT EXISTS pending_actions (
           idempotency_key TEXT PRIMARY KEY NOT NULL,
@@ -306,6 +475,15 @@ export async function migrateAccountDatabase(
         CREATE UNIQUE INDEX IF NOT EXISTS idx_pending_action_dedupe
           ON pending_actions(account_namespace, trip_id, action_type, dedupe_key)
           WHERE dedupe_key IS NOT NULL;
+        CREATE INDEX IF NOT EXISTS idx_pending_attendance_session
+          ON pending_actions(
+            account_namespace,
+            trip_id,
+            state,
+            (CASE WHEN json_valid(payload_json)
+              THEN json_extract(payload_json, '$.session_id') ELSE NULL END)
+          )
+          WHERE action_type = 'attendance.scan';
 
         CREATE TABLE IF NOT EXISTS attendance_scan_receipts (
           account_namespace TEXT NOT NULL,
@@ -753,6 +931,239 @@ export async function migrateAccountDatabase(
       await transaction.execAsync(`
         ALTER TABLE users ADD COLUMN passenger_id TEXT;
         PRAGMA user_version = 16;
+      `);
+    });
+  }
+
+  if (currentVersion < 17) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        CREATE TABLE IF NOT EXISTS sync_rebase_staging (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          generation_id TEXT NOT NULL,
+          resource_type TEXT NOT NULL CHECK (resource_type IN (
+            'manifest', 'itinerary', 'announcements', 'common_documents',
+            'personal_documents', 'room', 'meals', 'qr', 'readiness',
+            'roster', 'attendance_sessions'
+          )),
+          item_key TEXT NOT NULL,
+          item_index INTEGER NOT NULL CHECK (item_index >= 0),
+          payload_json TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, generation_id, resource_type, item_key),
+          UNIQUE(account_namespace, trip_id, generation_id, resource_type, item_index)
+        );
+        CREATE INDEX IF NOT EXISTS idx_sync_rebase_staging_page
+          ON sync_rebase_staging(
+            account_namespace, trip_id, generation_id, resource_type, item_index
+          );
+        CREATE INDEX IF NOT EXISTS idx_pending_attendance_session
+          ON pending_actions(
+            account_namespace,
+            trip_id,
+            state,
+            (CASE WHEN json_valid(payload_json)
+              THEN json_extract(payload_json, '$.session_id') ELSE NULL END)
+          )
+          WHERE action_type = 'attendance.scan';
+        PRAGMA user_version = 17;
+      `);
+    });
+  }
+
+  if (currentVersion < 18) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE trips ADD COLUMN roster_projection_complete INTEGER NOT NULL DEFAULT 0
+          CHECK (roster_projection_complete IN (0, 1));
+        UPDATE trips
+           SET roster_projection_complete = CASE
+             WHEN roster_version >= 0 AND roster_version = advertised_roster_version THEN 1
+             ELSE 0
+           END;
+
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          );
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_rooming_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          )
+          WHERE room_number IS NOT NULL AND length(trim(room_number)) > 0;
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_meals_order
+          ON coordinator_passengers(
+            account_namespace, trip_id, display_name COLLATE NOCASE, id
+          )
+          WHERE meal_preference IS NOT NULL AND length(trim(meal_preference)) > 0;
+
+        CREATE VIRTUAL TABLE IF NOT EXISTS coordinator_passengers_fts USING fts5(
+          display_name,
+          employee_code,
+          content='coordinator_passengers',
+          content_rowid='rowid',
+          tokenize='unicode61 remove_diacritics 2'
+        );
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_insert
+          AFTER INSERT ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(rowid, display_name, employee_code)
+          VALUES (new.rowid, new.display_name, new.employee_code);
+        END;
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_delete
+          AFTER DELETE ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(
+            coordinator_passengers_fts, rowid, display_name, employee_code
+          ) VALUES ('delete', old.rowid, old.display_name, old.employee_code);
+        END;
+        CREATE TRIGGER IF NOT EXISTS coordinator_passengers_fts_update
+          AFTER UPDATE OF display_name, employee_code ON coordinator_passengers
+        BEGIN
+          INSERT INTO coordinator_passengers_fts(
+            coordinator_passengers_fts, rowid, display_name, employee_code
+          ) VALUES ('delete', old.rowid, old.display_name, old.employee_code);
+          INSERT INTO coordinator_passengers_fts(rowid, display_name, employee_code)
+          VALUES (new.rowid, new.display_name, new.employee_code);
+        END;
+        INSERT INTO coordinator_passengers_fts(coordinator_passengers_fts) VALUES ('rebuild');
+
+        CREATE TABLE IF NOT EXISTS local_roster_cursors (
+          token TEXT PRIMARY KEY NOT NULL,
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          search_key TEXT NOT NULL,
+          filter_key TEXT NOT NULL CHECK (filter_key IN ('all', 'rooming', 'meals')),
+          last_display_name TEXT NOT NULL,
+          last_passenger_id TEXT NOT NULL,
+          expires_at_epoch_ms INTEGER NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_local_roster_cursors_expiry
+          ON local_roster_cursors(account_namespace, expires_at_epoch_ms);
+
+        CREATE TABLE IF NOT EXISTS coordinator_roster_staging (
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+          generation_id TEXT NOT NULL,
+          item_index INTEGER NOT NULL CHECK (item_index >= 0),
+          id TEXT NOT NULL,
+          display_name TEXT NOT NULL,
+          employee_code TEXT,
+          attendance_status TEXT NOT NULL,
+          room_number TEXT,
+          meal_preference TEXT,
+          has_alert INTEGER NOT NULL CHECK (has_alert IN (0, 1)),
+          updated_at TEXT NOT NULL,
+          PRIMARY KEY(account_namespace, trip_id, generation_id, id),
+          UNIQUE(account_namespace, trip_id, generation_id, item_index)
+        );
+        CREATE INDEX IF NOT EXISTS idx_coordinator_roster_staging_page
+          ON coordinator_roster_staging(
+            account_namespace, trip_id, generation_id, item_index
+          );
+        PRAGMA user_version = 18;
+      `);
+    });
+  }
+
+  if (currentVersion < 19) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE offline_files ADD COLUMN retention_class TEXT NOT NULL DEFAULT 'required'
+          CHECK (retention_class IN ('required', 'evictable'));
+        CREATE INDEX IF NOT EXISTS idx_offline_files_eviction
+          ON offline_files(
+            account_namespace,
+            retention_class,
+            COALESCE(last_opened_at, downloaded_at),
+            downloaded_at,
+            encrypted_path
+          )
+          WHERE retention_class = 'evictable';
+
+        CREATE TABLE IF NOT EXISTS vault_eviction_tombstones (
+          encrypted_path TEXT PRIMARY KEY NOT NULL,
+          account_namespace TEXT NOT NULL,
+          trip_id TEXT NOT NULL,
+          document_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          checksum_sha256 TEXT NOT NULL,
+          encrypted_size_bytes INTEGER NOT NULL CHECK (encrypted_size_bytes > 0),
+          created_at TEXT NOT NULL,
+          last_attempt_at TEXT,
+          attempt_count INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_vault_eviction_tombstones_account
+          ON vault_eviction_tombstones(account_namespace, created_at, encrypted_path);
+
+        CREATE TABLE IF NOT EXISTS storage_maintenance_state (
+          singleton_id INTEGER PRIMARY KEY NOT NULL CHECK (singleton_id = 1),
+          last_run_at_epoch_ms INTEGER NOT NULL CHECK (last_run_at_epoch_ms >= 0)
+        );
+        PRAGMA user_version = 19;
+      `);
+    });
+  }
+
+  if (currentVersion < 20) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE trips ADD COLUMN timezone TEXT NOT NULL DEFAULT '${DEFAULT_TRIP_TIME_ZONE}'
+          CHECK (length(timezone) BETWEEN 1 AND 64 AND timezone = trim(timezone));
+        PRAGMA user_version = 20;
+      `);
+    });
+  }
+
+  if (currentVersion < 21) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_token_hash TEXT
+          CHECK (attendance_token_hash IS NULL OR (
+            length(attendance_token_hash) = 64
+            AND attendance_token_hash NOT GLOB '*[^0-9a-f]*'
+          ));
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_token_version INTEGER
+          CHECK (attendance_token_version IS NULL OR attendance_token_version >= 1);
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_token_state TEXT NOT NULL DEFAULT 'unknown'
+          CHECK (attendance_token_state IN (
+            'unknown', 'active', 'missing', 'inactive', 'revoked', 'expired'
+          ));
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_token_expires_at TEXT;
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_token_updated_at TEXT;
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_evidence_observed_at TEXT;
+        ALTER TABLE coordinator_passengers ADD COLUMN attendance_evidence_valid_until TEXT;
+
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_token_hash TEXT;
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_token_version INTEGER;
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_token_state TEXT NOT NULL DEFAULT 'unknown';
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_token_expires_at TEXT;
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_token_updated_at TEXT;
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_evidence_observed_at TEXT;
+        ALTER TABLE coordinator_roster_staging ADD COLUMN attendance_evidence_valid_until TEXT;
+
+        CREATE INDEX IF NOT EXISTS idx_coordinator_attendance_token_lookup
+          ON coordinator_passengers(account_namespace, trip_id, attendance_token_hash)
+          WHERE attendance_token_state = 'active' AND attendance_token_hash IS NOT NULL;
+
+        DELETE FROM coordinator_roster_staging;
+        UPDATE trips
+           SET roster_version = -1, roster_projection_complete = 0
+         WHERE role = 'coordinator';
+        PRAGMA user_version = 21;
+      `);
+    });
+  }
+
+  if (currentVersion < 22) {
+    await runTransaction(async (transaction) => {
+      await transaction.execAsync(`
+        CREATE TABLE IF NOT EXISTS sync_runtime_state (
+          account_namespace TEXT PRIMARY KEY NOT NULL,
+          last_successful_full_sync_at_epoch_ms INTEGER NOT NULL
+            CHECK (last_successful_full_sync_at_epoch_ms >= 0)
+        );
+        PRAGMA user_version = 22;
       `);
     });
   }

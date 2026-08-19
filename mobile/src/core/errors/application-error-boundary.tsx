@@ -1,17 +1,19 @@
 import * as SplashScreen from 'expo-splash-screen';
 import * as Updates from 'expo-updates';
 import React, { Component, Fragment, type ErrorInfo, type PropsWithChildren } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { requestSafeSignOut } from '@/core/auth/use-safe-sign-out';
 import { useSessionStore } from '@/core/auth/session-store';
+import { englishMessages } from '@/core/localization/messages';
+import { captureApplicationRenderFailure } from '@/core/observability/mobile-observability';
 import { colors, radii, spacing } from '@/design/theme';
 
 import { recordApplicationDiagnostic } from './application-diagnostics';
 
 const MAX_INLINE_RECOVERIES = 2;
-const SAFE_RECOVERY_FAILURE = 'The app could not finish that recovery step. Restart and try again.';
+const SAFE_RECOVERY_FAILURE = englishMessages.appRecoveryFailed();
 
 type State = {
   hasError: boolean;
@@ -38,8 +40,9 @@ export class ApplicationErrorBoundary extends Component<PropsWithChildren, State
     return { hasError: true, pendingAction: null };
   }
 
-  override componentDidCatch(_error: unknown, _info: ErrorInfo): void {
+  override componentDidCatch(error: unknown, _info: ErrorInfo): void {
     recordApplicationDiagnostic('APP_RENDER_FAILED', this.state.recoveryAttempts);
+    captureApplicationRenderFailure(error, this.state.recoveryAttempts);
     // Startup failures may occur before AppProviders gets a chance to dismiss
     // the native splash screen. Ensure the privacy-safe recovery UI is visible.
     void SplashScreen.hideAsync().catch(() => undefined);
@@ -102,28 +105,28 @@ export class ApplicationErrorBoundary extends Component<PropsWithChildren, State
 
     return (
       <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={styles.safeArea}>
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content}>
           <View accessibilityElementsHidden style={styles.symbol}>
             <Text style={styles.symbolText}>!</Text>
           </View>
-          <Text accessibilityRole="header" style={styles.title}>Something interrupted the app.</Text>
+          <Text accessibilityRole="header" style={styles.title}>{englishMessages.appInterruptedTitle()}</Text>
           <Text style={styles.message}>
-            Your private trip data remains protected. Try restoring this screen or restart the app.
+            {englishMessages.appInterruptedMessage()}
           </Text>
           {this.state.actionError ? (
             <Text accessibilityRole="alert" style={styles.error}>{this.state.actionError}</Text>
           ) : null}
           <View style={styles.actions}>
             {canRetry ? (
-              <RecoveryButton disabled={busy} label="Try again" onPress={this.retry} primary />
+              <RecoveryButton disabled={busy} label={englishMessages.tryAgain()} onPress={this.retry} primary />
             ) : null}
             {canSignOut ? (
-              <RecoveryButton disabled={busy} label="Sign out safely" onPress={() => void this.signOut()} />
+              <RecoveryButton disabled={busy} label={englishMessages.signOutSafely()} onPress={() => void this.signOut()} />
             ) : null}
-            <RecoveryButton disabled={busy} label="Restart app" onPress={() => void this.restart()} />
+            <RecoveryButton disabled={busy} label={englishMessages.restartApp()} onPress={() => void this.restart()} />
           </View>
-          {busy ? <ActivityIndicator accessibilityLabel="Recovering app" color={colors.greenDeep} /> : null}
-        </View>
+          {busy ? <ActivityIndicator accessibilityLabel={englishMessages.recoveringApp()} color={colors.greenDeep} /> : null}
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -158,7 +161,7 @@ function RecoveryButton({
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.greenWash },
   content: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,

@@ -8,6 +8,8 @@
 # ── Stage 1: Dependency Builder ───────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
+ARG PIP_VERSION=26.1.2
+
 WORKDIR /build
 
 # System dependencies required for C extensions (OpenCV, psycopg2, etc.)
@@ -26,9 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+COPY requirements.lock .
+RUN python -m pip install --no-cache-dir "pip==${PIP_VERSION}" && \
+    pip install --no-cache-dir --require-hashes -r requirements.lock
 
 # ── Stage 2: Production Runtime ──────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
@@ -72,10 +74,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8000/api/v1/health/live').raise_for_status()"
 
-# Use gunicorn with uvicorn workers in production
-CMD ["gunicorn", "app.main:app", \
-     "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--workers", "4", \
-     "--bind", "0.0.0.0:8000", \
-     "--timeout", "120", \
-     "--error-logfile", "-"]
+# The config validates WEB_CONCURRENCY and the aggregate PostgreSQL connection
+# budget before Gunicorn forks any API worker.
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "app.main:app"]

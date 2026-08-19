@@ -16,6 +16,8 @@ import {
   type ListRenderItem,
 } from 'react-native';
 
+import { formatCalendarDate } from '@/core/localization/date-time';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -60,7 +62,9 @@ export default function CoordinatorGroupsScreen() {
             <MapPinned color={colors.blueDeep} size={16} />
             <Text style={styles.meta}>{item.destination || 'Location pending'}</Text>
             <CalendarDays color={colors.blueDeep} size={16} />
-            <Text style={styles.meta}>{item.travelDate || 'Dates pending'}</Text>
+            <Text style={styles.meta}>
+              {item.travelDate ? formatCalendarDate(item.travelDate) : 'Dates pending'}
+            </Text>
           </View>
           {selected ? <StatusPill label="Selected group" tone="good" /> : null}
         </GlassCard>
@@ -76,10 +80,7 @@ export default function CoordinatorGroupsScreen() {
         renderItem={renderTrip}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={ListSeparator}
-        initialNumToRender={10}
-        maxToRenderPerBatch={12}
-        windowSize={7}
-        removeClippedSubviews
+        {...MOBILE_LIST_WINDOWING.standard}
         refreshControl={(
           <RefreshControl
             refreshing={manualRefresh.isRefreshing}

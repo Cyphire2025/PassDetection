@@ -10,6 +10,7 @@ from app.application.dtos.passport_dtos import (
     PassportSubmissionOutputDTO,
     passport_submission_output_from_entity,
 )
+from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.upload_session import is_valid_upload_credential
@@ -46,12 +47,14 @@ class SubmitPassportUseCase:
         storage_repo: IObjectStorageRepository,
         processing_job_repo: PassportProcessingJobRepository | None = None,
         qualifier_selection_repo: IQualifierSelectionRepository | None = None,
+        group_capacity_guard: GroupPassengerCapacityGuard | None = None,
     ) -> None:
         self._client_group_repo = client_group_repo
         self._passport_repo = passport_repo
         self._storage_repo = storage_repo
         self._processing_job_repo = processing_job_repo
         self._qualifier_selection_repo = qualifier_selection_repo
+        self._group_capacity_guard = group_capacity_guard
 
     async def execute(
         self,
@@ -183,6 +186,42 @@ class SubmitPassportUseCase:
             )
             if upload_error:
                 raise upload_error
+
+            if self._group_capacity_guard is not None:
+                # Lock only after object writes finish, so a slow storage call
+                # never holds the shared group creation lane. Re-check the
+                # idempotency key under that lock before consuming capacity.
+                await self._group_capacity_guard.lock_group(
+                    agency_id=group.agency_id,
+                    group_id=group.id,
+                )
+                if normalized_key:
+                    locked_existing = (
+                        await self._passport_repo.get_by_upload_idempotency_key(
+                            group.id,
+                            normalized_key,
+                        )
+                    )
+                    if locked_existing is not None:
+                        if (
+                            qualifier_selection is not None
+                            and locked_existing.qualifier_selection_id
+                            != qualifier_selection.id
+                        ):
+                            raise ValidationError(
+                                "This upload attempt belongs to a different qualifier selection.",
+                                field="qualifier_selection_token",
+                            )
+                        await self._cleanup_uploads(uploaded_keys)
+                        return await self._idempotent_replay_result(
+                            locked_existing,
+                            group,
+                        )
+                await self._group_capacity_guard.assert_available(
+                    agency_id=group.agency_id,
+                    group_id=group.id,
+                    additional_passengers=1,
+                )
 
             submission = PassportSubmission.create(
                 group_id=group.id,

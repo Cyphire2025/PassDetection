@@ -161,6 +161,9 @@ from app.infrastructure.imports.passport_excel_importer import (
     PassportExcelImporter,
     PassportExcelImportError,
 )
+from app.infrastructure.mobile_group_capacity import (
+    SqlAlchemyGroupPassengerCapacityGuard,
+)
 from app.infrastructure.observability.operational_events import (
     OperationalEvent,
     record_operational_event,
@@ -976,6 +979,7 @@ def _get_submit_passport_use_case(
         storage_repo=MinioStorageRepository(),
         processing_job_repo=PassportProcessingJobRepository(session),
         qualifier_selection_repo=QualifierSelectionRepository(session),
+        group_capacity_guard=SqlAlchemyGroupPassengerCapacityGuard(session),
     )
 
 
@@ -3576,6 +3580,16 @@ async def import_passports_by_group(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
         ) from exc
+
+    new_passenger_count = sum(
+        1 for _row, existing in resolved_rows if existing is None
+    )
+    if new_passenger_count:
+        await SqlAlchemyGroupPassengerCapacityGuard(session).assert_available(
+            agency_id=group.agency_id,
+            group_id=group.id,
+            additional_passengers=new_passenger_count,
+        )
 
     now = datetime.now(tz=UTC)
     models: list[PassportSubmissionModel] = []

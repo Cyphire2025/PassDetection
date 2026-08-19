@@ -12,6 +12,13 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import {
+  englishMessages,
+  formatCalendarDate,
+  formatInstantTime,
+} from '@/core/localization/date-time';
+import type { IanaTimeZone } from '@/core/localization/time-zone';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { managerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
@@ -38,6 +45,7 @@ type Section =
 
 export default function ManagerItineraryScreen() {
   const trips = useTrips();
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
   const manualRefresh = useManualRefresh();
   const itinerary = useItinerary(trips.selectedTripId);
   const documents = useCommonDocuments(trips.selectedTripId);
@@ -69,7 +77,9 @@ export default function ManagerItineraryScreen() {
 
   const renderItem = useCallback(
     ({ item }: SectionListRenderItemInfo<Row, Section>) => {
-      if (item.kind === 'itinerary') return <ManagerItineraryItem item={item.value} />;
+      if (item.kind === 'itinerary') {
+        return <ManagerItineraryItem item={item.value} timeZone={selectedTimeZone} />;
+      }
       const document = item.value;
       const canOpen = document.offline_available && document.metadata_state === 'ready';
       return (
@@ -92,7 +102,7 @@ export default function ManagerItineraryScreen() {
         </Pressable>
       );
     },
-    [openDocument],
+    [openDocument, selectedTimeZone],
   );
 
   return (
@@ -103,9 +113,7 @@ export default function ManagerItineraryScreen() {
         renderItem={renderItem}
         renderSectionHeader={renderSectionHeader}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={12}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.standard}
         refreshControl={(
           <RefreshControl
             refreshing={manualRefresh.isRefreshing}
@@ -150,16 +158,32 @@ function renderSectionHeader({ section }: { section: Section }) {
   return (
     <View accessibilityRole="header" style={styles.day}>
       <Text style={styles.dayNumber}>Day {section.day.day_number}</Text>
-      <Text style={styles.dayTitle}>{section.day.title || section.day.date || 'Schedule'}</Text>
+      <Text style={styles.dayTitle}>
+        {section.day.title
+          || (section.day.date ? formatCalendarDate(section.day.date) : null)
+          || 'Schedule'}
+      </Text>
     </View>
   );
 }
 
-function ManagerItineraryItem({ item }: { item: ItineraryItem }) {
+function ManagerItineraryItem({
+  item,
+  timeZone,
+}: {
+  item: ItineraryItem;
+  timeZone: IanaTimeZone | undefined;
+}) {
   return (
     <GlassCard style={styles.item}>
       <Text style={styles.itemTitle}>{item.title}</Text>
-      {item.starts_at ? <Text style={styles.meta}>{new Date(item.starts_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text> : null}
+      {item.starts_at ? (
+        <Text style={styles.meta}>
+          {timeZone
+            ? formatInstantTime(item.starts_at, { timeZone })
+            : englishMessages.dateUnavailable()}
+        </Text>
+      ) : null}
       {item.location_name ? (
         <View style={styles.location}>
           <MapPin color={colors.greenDeep} size={15} />

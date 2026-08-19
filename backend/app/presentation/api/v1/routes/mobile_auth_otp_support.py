@@ -376,5 +376,6 @@ def _claim_summary(
         destination=group.destination,
         travel_date=group.travel_date,
         return_date=group.return_date,
+        timezone=group.timezone,
         requires_secondary_verification=identity.requires_secondary_verification,
     )

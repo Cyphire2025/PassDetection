@@ -82,7 +82,7 @@ export default function OtpScreen() {
         onChange={setCode}
       />
       <AuthError message={error} />
-      <PrimaryButton label="Verify" loading={loading} onPress={() => void submit()} />
+      <PrimaryButton testID="passenger-verify-otp" label="Verify" loading={loading} onPress={() => void submit()} />
       {resendSeconds > 0 ? (
         <CountdownProgress remaining={resendSeconds} total={Math.max(1, flow.resendAfterSeconds)} />
       ) : null}

@@ -10,11 +10,16 @@ import { clearApplicationDiagnosticsForTests, recentApplicationDiagnostics } fro
 const mockReloadAsync = jest.fn();
 const mockRequestSafeSignOut = jest.fn();
 const mockHideAsync = jest.fn(async () => undefined);
+const mockCaptureApplicationRenderFailure = jest.fn();
 
 jest.mock('expo-updates', () => ({ reloadAsync: (...args: unknown[]) => mockReloadAsync(...args) }));
 jest.mock('expo-splash-screen', () => ({ hideAsync: () => mockHideAsync() }));
 jest.mock('@/core/auth/use-safe-sign-out', () => ({
   requestSafeSignOut: (...args: unknown[]) => mockRequestSafeSignOut(...args),
+}));
+jest.mock('@/core/observability/mobile-observability', () => ({
+  captureApplicationRenderFailure: (...args: unknown[]) =>
+    mockCaptureApplicationRenderFailure(...args),
 }));
 
 function Crash({ enabled, children }: PropsWithChildren<{ enabled: boolean }>) {
@@ -27,6 +32,7 @@ beforeEach(() => {
   mockReloadAsync.mockReset();
   mockRequestSafeSignOut.mockReset();
   mockHideAsync.mockClear();
+  mockCaptureApplicationRenderFailure.mockClear();
   useSessionStore.getState().clear();
   jest.spyOn(console, 'error').mockImplementation(() => undefined);
 });
@@ -38,6 +44,10 @@ test('renders privacy-safe recovery copy and never exposes the thrown value', as
   expect(view.getByText('Something interrupted the app.')).toBeTruthy();
   expect(view.queryByText(/passport|Z1234567|native\.db/i)).toBeNull();
   expect(mockHideAsync).toHaveBeenCalledTimes(1);
+  expect(mockCaptureApplicationRenderFailure).toHaveBeenCalledWith(
+    expect.any(Error),
+    0,
+  );
   expect(recentApplicationDiagnostics()).toEqual([{ code: 'APP_RENDER_FAILED', attempt: 0 }]);
 });
 

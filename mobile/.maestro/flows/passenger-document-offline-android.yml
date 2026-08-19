@@ -1,0 +1,27 @@
+appId: com.globalconnects.groupcompanion
+name: Android passenger document offline restart
+tags:
+  - release-hermes
+  - staging-fixture
+  - secure-document
+  - android-offline
+---
+- setAirplaneMode: disabled
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../subflows/passenger-login.yml
+- runFlow: ../subflows/open-first-passport.yml
+- tapOn:
+    id: "secure-document-close"
+- setAirplaneMode: enabled
+- killApp
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "Documents"
+    timeout: 60000
+- runFlow: ../subflows/open-first-passport.yml
+- assertVisible:
+    id: "secure-document-rendered"
+- setAirplaneMode: disabled

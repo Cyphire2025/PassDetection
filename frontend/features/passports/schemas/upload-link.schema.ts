@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isSupportedIanaTimeZone } from "../utils/trip-timezone";
 
 export const customQuestionSchema = z.object({
   id: z.string().uuid(),
@@ -29,6 +30,11 @@ export const createUploadLinkSchema = z.object({
   destination: z.string().trim().min(1, "Destination is required").max(255),
   travel_date: z.string().trim().min(1, "Travel/Departure date is required"),
   return_date: z.string().trim().min(1, "Return date is required"),
+  timezone: z.string()
+    .trim()
+    .min(1, "Trip timezone is required")
+    .max(64, "Trip timezone must be 64 characters or fewer")
+    .refine(isSupportedIanaTimeZone, "Enter a valid IANA timezone, such as Asia/Kolkata"),
   departure_cities: z.array(z.string().trim().min(1).max(120)).max(50),
   base_city_enabled: z.boolean(),
   nearest_international_airport_enabled: z.boolean(),

@@ -1,8 +1,12 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
+import { withAccountQueryContext } from '@/core/query/account-query-context';
+import { activeAttendanceRefreshInterval } from '@/core/query/attendance-refresh-policy';
+import { mergeProgressiveItemsById } from '@/core/query/progressive-page';
+import { useRouteFocus } from '@/core/query/use-route-focus';
 
 import {
   loadManagerAttendanceRoster,
@@ -28,7 +32,10 @@ export function useManagerRoster(tripId: string | null, search: string) {
   );
   return useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam }) => loadManagerRoster(tripId!, normalizedSearch, pageParam),
+    queryFn: ({ pageParam, signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadManagerRoster(tripId!, normalizedSearch, pageParam, context),
+    ),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.next_cursor,
     enabled: Boolean(accountKey && tripId),
@@ -44,26 +51,45 @@ export function useManagerPassenger(tripId: string | null, passengerId: string |
   );
   return useQuery({
     queryKey,
-    queryFn: () => loadManagerPassenger(tripId!, passengerId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadManagerPassenger(tripId!, passengerId!, context),
+    ),
     enabled: Boolean(accountKey && tripId && passengerId),
     staleTime: 15_000,
   });
 }
 
 export function useManagerAttendanceSessions(tripId: string | null) {
+  const queryClient = useQueryClient();
   const accountKey = useManagerAccountKey();
+  const routeFocused = useRouteFocus();
   const queryKey = useMemo(
     () => ['manager-attendance-sessions', accountKey, tripId] as const,
     [accountKey, tripId],
   );
   return useQuery({
     queryKey,
-    queryFn: () => loadManagerAttendanceSessions(tripId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadManagerAttendanceSessions(tripId!, context, (items) => {
+        queryClient.setQueryData<Awaited<ReturnType<typeof loadManagerAttendanceSessions>>>(
+          queryKey,
+          (current) => ({
+            items: mergeProgressiveItemsById(items, current?.items),
+          }),
+        );
+      }),
+    ),
     enabled: Boolean(accountKey && tripId),
     staleTime: 5_000,
-    refetchInterval: (query) => (
-      query.state.data?.items.some((session) => session.status === 'active') ? 8_000 : false
-    ),
+    refetchInterval: (query) => activeAttendanceRefreshInterval({
+      hasActiveSession: Boolean(
+        query.state.data?.items.some((session) => session.status === 'active'),
+      ),
+      error: query.state.error,
+      routeFocused,
+    }),
     refetchIntervalInBackground: false,
   });
 }
@@ -74,6 +100,7 @@ export function useManagerAttendanceRoster(
   status: AttendanceRosterStatus,
   enabled: boolean,
 ) {
+  const queryClient = useQueryClient();
   const accountKey = useManagerAccountKey();
   const queryKey = useMemo(
     () => ['manager-attendance-roster', accountKey, tripId, sessionId, status] as const,
@@ -81,7 +108,24 @@ export function useManagerAttendanceRoster(
   );
   return useQuery({
     queryKey,
-    queryFn: () => loadManagerAttendanceRoster(tripId!, sessionId!, status),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadManagerAttendanceRoster(
+        tripId!,
+        sessionId!,
+        status,
+        context,
+        (progress) => {
+          queryClient.setQueryData<Awaited<ReturnType<typeof loadManagerAttendanceRoster>>>(
+            queryKey,
+            (current) => ({
+              session: progress.session,
+              items: mergeProgressiveItemsById(progress.items, current?.items),
+            }),
+          );
+        },
+      ),
+    ),
     enabled: Boolean(enabled && accountKey && tripId && sessionId),
     staleTime: status === 'counted' ? 5_000 : 2_000,
   });

@@ -29,6 +29,10 @@ from app.domain.value_objects.custom_questions import (
 )
 from app.domain.value_objects.passport_fields import reconcile_confirmed_with_extraction
 from app.domain.value_objects.qualifier_relations import normalize_qualifier_choice
+from app.domain.value_objects.trip_timezone import (
+    DEFAULT_TRIP_TIMEZONE,
+    normalize_trip_timezone,
+)
 
 
 def _utcnow() -> datetime:
@@ -402,6 +406,7 @@ class ClientGroup:
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] = field(default_factory=list)
     base_city_enabled: bool = False
@@ -432,6 +437,7 @@ class ClientGroup:
         destination: str | None = None,
         travel_date: date | None = None,
         return_date: date | None = None,
+        timezone: str = DEFAULT_TRIP_TIMEZONE,
         package_name: str | None = None,
         departure_cities: list[str] | None = None,
         base_city_enabled: bool = False,
@@ -457,6 +463,10 @@ class ClientGroup:
                 "Return date cannot be before the Travel/Departure date.",
                 field="return_date",
             )
+        try:
+            normalized_timezone = normalize_trip_timezone(timezone)
+        except ValueError as exc:
+            raise ValidationError(str(exc), field="timezone") from exc
         normalized_departure_cities = (
             _normalize_departure_cities(departure_cities or [])
             if nearest_international_airport_enabled
@@ -477,6 +487,7 @@ class ClientGroup:
             destination=destination.strip() if destination else None,
             travel_date=travel_date,
             return_date=return_date,
+            timezone=normalized_timezone,
             package_name=package_name.strip() if package_name else None,
             departure_cities=normalized_departure_cities,
             base_city_enabled=base_city_enabled,
@@ -502,6 +513,7 @@ class ClientGroup:
         destination: str | None,
         travel_date: date | None,
         return_date: date | None,
+        timezone: str,
         package_name: str | None,
         departure_cities: list[str] | None,
         base_city_enabled: bool,
@@ -529,6 +541,10 @@ class ClientGroup:
                 "Return date cannot be before the Travel/Departure date.",
                 field="return_date",
             )
+        try:
+            normalized_timezone = normalize_trip_timezone(timezone)
+        except ValueError as exc:
+            raise ValidationError(str(exc), field="timezone") from exc
         normalized_departure_cities = (
             _normalize_departure_cities(departure_cities or [])
             if nearest_international_airport_enabled
@@ -544,6 +560,7 @@ class ClientGroup:
         self.destination = " ".join(destination.strip().split()) if destination else None
         self.travel_date = travel_date
         self.return_date = return_date
+        self.timezone = normalized_timezone
         self.package_name = " ".join(package_name.strip().split()) if package_name else None
         self.departure_cities = normalized_departure_cities
         self.base_city_enabled = base_city_enabled

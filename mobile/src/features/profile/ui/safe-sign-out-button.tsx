@@ -4,7 +4,13 @@ import { useSafeSignOut } from '@/core/auth/use-safe-sign-out';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { colors, spacing } from '@/design/theme';
 
-export function SafeSignOutButton({ label = 'Sign out' }: { label?: string }) {
+export function SafeSignOutButton({
+  label = 'Sign out',
+  testID = 'safe-sign-out',
+}: {
+  label?: string;
+  testID?: string;
+}) {
   const signOut = useSafeSignOut();
   return (
     <View style={styles.container}>
@@ -12,6 +18,7 @@ export function SafeSignOutButton({ label = 'Sign out' }: { label?: string }) {
         <Text accessibilityRole="alert" style={styles.error}>{signOut.errorMessage}</Text>
       ) : null}
       <PrimaryButton
+        testID={testID}
         label={signOut.errorMessage ? 'Retry secure cleanup' : label}
         loading={signOut.isSigningOut}
         tone="danger"

@@ -24,12 +24,20 @@ const mockSecureState: {
   activeNamespace: string | null;
   pendingCleanups: Set<string>;
   refreshTokens: Map<string, string>;
+  offlineAuthorizationRecords: Map<string, {
+    formatVersion: 1;
+    compactLease: string;
+    highWaterServerTimeMs: number;
+    anchoredWallClockMs: number;
+  }>;
 } = {
   activeNamespace: null,
   pendingCleanups: new Set(),
   refreshTokens: new Map(),
+  offlineAuthorizationRecords: new Map(),
 };
 let mockRefreshHandler: RegisteredRefreshHandler | null = null;
+let mockUnlockedOnlyAccessAvailable = true;
 
 const mockApiRequest = jest.fn();
 const mockInitializeFreshInstallGuard = jest.fn(async () => undefined);
@@ -40,15 +48,35 @@ const mockSetActiveNamespace = jest.fn(async (namespace: string) => {
   mockSecureState.activeNamespace = namespace;
 });
 const mockGetActiveNamespace = jest.fn(async () => mockSecureState.activeNamespace);
+const mockGetInstallationId = jest.fn(async () => 'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
 const mockGetRefreshToken = jest.fn(async (namespace: string) =>
   mockSecureState.refreshTokens.get(namespace) ?? null,
 );
+const mockSetOfflineAuthorizationRecord = jest.fn(async (
+  namespace: string,
+  record: {
+    formatVersion: 1;
+    compactLease: string;
+    highWaterServerTimeMs: number;
+    anchoredWallClockMs: number;
+  },
+) => {
+  mockSecureState.offlineAuthorizationRecords.set(namespace, record);
+});
+const mockGetOfflineAuthorizationRecord = jest.fn(async (namespace: string) =>
+  mockSecureState.offlineAuthorizationRecords.get(namespace) ?? null,
+);
+const mockClearOfflineAuthorizationRecord = jest.fn(async (namespace: string) => {
+  mockSecureState.offlineAuthorizationRecords.delete(namespace);
+});
 const mockClearNamespaceSecrets = jest.fn(async (namespace: string) => {
   mockSecureState.refreshTokens.delete(namespace);
+  mockSecureState.offlineAuthorizationRecords.delete(namespace);
   if (mockSecureState.activeNamespace === namespace) mockSecureState.activeNamespace = null;
 });
 const mockClearNamespaceAuthentication = jest.fn(async (namespace: string) => {
   mockSecureState.refreshTokens.delete(namespace);
+  mockSecureState.offlineAuthorizationRecords.delete(namespace);
   if (mockSecureState.activeNamespace === namespace) mockSecureState.activeNamespace = null;
 });
 const mockGetPendingLocalCleanups = jest.fn(async () => [...mockSecureState.pendingCleanups]);
@@ -70,7 +98,7 @@ const mockDatabaseRun = jest.fn(async (..._args: unknown[]) => undefined);
 const mockOpenAccountDatabase = jest.fn(async (namespace: string) => ({
   __namespace: namespace,
   runAsync: (...args: unknown[]) => mockDatabaseRun(namespace, ...args),
-  getFirstAsync: jest.fn(async () => null),
+  getFirstAsync: jest.fn<Promise<unknown>, []>(async () => null),
 }));
 
 jest.mock('@/core/api/client', () => {
@@ -121,8 +149,21 @@ jest.mock('@/core/storage/installation-guard', () => ({
 
 jest.mock('@/core/storage/secure-store', () => ({
   getActiveNamespace: () => mockGetActiveNamespace(),
+  getInstallationId: () => mockGetInstallationId(),
   getRefreshToken: (namespace: string) => mockGetRefreshToken(namespace),
   setRefreshToken: (...args: [string, string]) => mockSetRefreshToken(...args),
+  setOfflineAuthorizationRecord: (...args: [string, {
+    formatVersion: 1;
+    compactLease: string;
+    highWaterServerTimeMs: number;
+    anchoredWallClockMs: number;
+  }]) => mockSetOfflineAuthorizationRecord(...args),
+  getOfflineAuthorizationRecord: (namespace: string) => (
+    mockGetOfflineAuthorizationRecord(namespace)
+  ),
+  clearOfflineAuthorizationRecord: (namespace: string) => (
+    mockClearOfflineAuthorizationRecord(namespace)
+  ),
   setActiveNamespace: (...args: [string]) => mockSetActiveNamespace(...args),
   getPendingLocalCleanups: () => mockGetPendingLocalCleanups(),
   markLocalCleanupPending: (...args: [string]) => mockMarkLocalCleanupPending(...args),
@@ -131,7 +172,34 @@ jest.mock('@/core/storage/secure-store', () => ({
     mockClearNamespaceAuthentication(...args)
   ),
   clearNamespaceSecrets: (...args: [string]) => mockClearNamespaceSecrets(...args),
+  isUnlockedOnlySecureValueAccessAvailable: () => mockUnlockedOnlyAccessAvailable,
 }));
+
+jest.mock('../offline-authorization', () => {
+  class MockOfflineAuthorizationError extends Error {}
+  const record = (compactLease: string) => ({
+    formatVersion: 1 as const,
+    compactLease,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  });
+  return {
+    OfflineAuthorizationError: MockOfflineAuthorizationError,
+    acceptOnlineOfflineAuthorizationLease: (compactLease: string) => ({
+      claims: {},
+      record: record(compactLease),
+      trustedServerTimeMs: 1_900_000_000_000,
+      remainingMs: 43_200_000,
+    }),
+    authorizeStoredOfflineLease: (storedRecord: ReturnType<typeof record>) => ({
+      claims: {},
+      record: storedRecord,
+      trustedServerTimeMs: 1_900_000_000_000,
+      remainingMs: 43_200_000,
+    }),
+    clearOfflineAuthorizationBootAnchor: jest.fn(),
+  };
+});
 
 jest.mock('@/core/storage/database', () => ({
   openAccountDatabase: (namespace: string) => mockOpenAccountDatabase(namespace),
@@ -178,6 +246,7 @@ function tokenResponse(input: {
     access_token_expires_at: '2026-08-03T12:00:00.000Z',
     refresh_token_expires_at: '2026-09-03T12:00:00.000Z',
     session_id: input.sessionId,
+    offline_authorization_lease: `header.payload.signature-${input.marker}`.padEnd(300, input.marker),
     principal: {
       id: input.principalId,
       account_id: input.accountId ?? input.principalId,
@@ -227,6 +296,23 @@ const initialB = tokenResponse({
   marker: 'b',
 });
 
+function offlineRow(tokens: TokenResponse) {
+  return {
+    id: tokens.principal.id,
+    account_id: tokens.principal.account_id,
+    agency_id: tokens.principal.agency_id,
+    principal_type: tokens.principal.principal_type,
+    passenger_id: tokens.principal.passenger_id ?? tokens.principal.id,
+    display_name: tokens.principal.display_name,
+    email: tokens.principal.email,
+    phone_number: tokens.principal.phone_number,
+    session_id: tokens.session_id,
+    access_token_expires_at: tokens.access_token_expires_at,
+    refresh_token_expires_at: tokens.refresh_token_expires_at,
+    force_password_change: tokens.principal.force_password_change ? 1 : 0,
+  };
+}
+
 beforeEach(async () => {
   invalidateAuthenticationBoundary();
   useSessionStore.getState().clear();
@@ -234,22 +320,33 @@ beforeEach(async () => {
   mockSecureState.activeNamespace = null;
   mockSecureState.pendingCleanups.clear();
   mockSecureState.refreshTokens.clear();
+  mockSecureState.offlineAuthorizationRecords.clear();
   mockRefreshHandler = null;
+  mockUnlockedOnlyAccessAvailable = true;
   mockApiRequest.mockReset();
   mockInitializeFreshInstallGuard.mockReset();
   mockInitializeFreshInstallGuard.mockResolvedValue(undefined);
   mockApiRequest.mockImplementation(async (path: string) => {
     if (path === '/mobile/auth/logout') return null;
+    if (path === '/mobile/push/unregister') return { unregistered: true, revoked_count: 1 };
     throw new Error(`Unexpected API request: ${path}`);
   });
   mockSetRefreshToken.mockClear();
   mockSetActiveNamespace.mockClear();
   mockGetActiveNamespace.mockReset();
   mockGetActiveNamespace.mockImplementation(async () => mockSecureState.activeNamespace);
+  mockGetInstallationId.mockReset();
+  mockGetInstallationId.mockResolvedValue('dddddddd-dddd-4ddd-8ddd-dddddddddddd');
   mockGetRefreshToken.mockReset();
   mockGetRefreshToken.mockImplementation(async (namespace: string) =>
     mockSecureState.refreshTokens.get(namespace) ?? null,
   );
+  mockSetOfflineAuthorizationRecord.mockClear();
+  mockGetOfflineAuthorizationRecord.mockClear();
+  mockGetOfflineAuthorizationRecord.mockImplementation(async (namespace: string) =>
+    mockSecureState.offlineAuthorizationRecords.get(namespace) ?? null,
+  );
+  mockClearOfflineAuthorizationRecord.mockClear();
   mockClearNamespaceSecrets.mockClear();
   mockClearNamespaceAuthentication.mockClear();
   mockGetPendingLocalCleanups.mockClear();
@@ -291,6 +388,12 @@ test('an offline database bootstrap rejection becomes an explicit retryable erro
   useSessionStore.getState().beginBootstrap();
   mockSecureState.activeNamespace = namespaceA;
   mockSecureState.refreshTokens.set(namespaceA, 'stored-refresh-token');
+  mockSecureState.offlineAuthorizationRecords.set(namespaceA, {
+    formatVersion: 1,
+    compactLease: initialA.offline_authorization_lease,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  });
   mockApiRequest.mockRejectedValueOnce(new TypeError('network unavailable'));
   mockOpenAccountDatabase.mockRejectedValueOnce(new Error('NativeDatabase.execAsync rejected'));
 
@@ -302,6 +405,94 @@ test('an offline database bootstrap rejection becomes an explicit retryable erro
     bootstrapErrorCode: 'SESSION_BOOTSTRAP_FAILED',
   });
   expect(useSelectedTripStore.getState().tripId).toBeNull();
+});
+
+test('cache-first bootstrap publishes a valid local identity before online validation finishes', async () => {
+  const refreshResponse = deferred<TokenResponse>();
+  const refreshStarted = deferred<void>();
+  mockSecureState.activeNamespace = namespaceA;
+  mockSecureState.refreshTokens.set(namespaceA, 'stored-refresh-token');
+  mockSecureState.offlineAuthorizationRecords.set(namespaceA, {
+    formatVersion: 1,
+    compactLease: initialA.offline_authorization_lease,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  });
+  mockOpenAccountDatabase.mockImplementation(async (namespace: string) => ({
+    __namespace: namespace,
+    runAsync: (...args: unknown[]) => mockDatabaseRun(namespace, ...args),
+    getFirstAsync: jest.fn(async () => offlineRow(initialA)),
+  }));
+  mockApiRequest.mockImplementation(async (path: string) => {
+    if (path === '/mobile/auth/refresh') {
+      refreshStarted.resolve();
+      return refreshResponse.promise;
+    }
+    throw new Error(`Unexpected API request: ${path}`);
+  });
+
+  await expect(bootstrapSession({ validation: 'background' })).resolves.toBeUndefined();
+  await refreshStarted.promise;
+  expect(useSessionStore.getState().session).toMatchObject({
+    networkMode: 'offline',
+    sessionId: sessionA,
+    principal: { accountId: passengerA },
+  });
+
+  // A screen request that asks the registered refresh handler while bootstrap
+  // validation is active must join the same token exchange.
+  const joinedRefresh = mockRefreshHandler!(captureAuthenticationSnapshot());
+  expect(mockApiRequest).toHaveBeenCalledTimes(1);
+  refreshResponse.resolve(rotatedA);
+  await expect(joinedRefresh).resolves.toBe(rotatedA.access_token);
+  expect(useSessionStore.getState().session).toMatchObject({
+    networkMode: 'online',
+    accessToken: rotatedA.access_token,
+  });
+});
+
+test('cache-first bootstrap refuses an encrypted identity without a signed authorization lease', async () => {
+  mockSecureState.activeNamespace = namespaceA;
+  mockSecureState.refreshTokens.set(namespaceA, 'stored-refresh-token');
+  mockOpenAccountDatabase.mockImplementation(async (namespace: string) => ({
+    __namespace: namespace,
+    runAsync: (...args: unknown[]) => mockDatabaseRun(namespace, ...args),
+    getFirstAsync: jest.fn(async () => offlineRow(initialA)),
+  }));
+  mockApiRequest.mockRejectedValueOnce(new TypeError('network unavailable'));
+
+  await expect(bootstrapSession({ validation: 'background' })).resolves.toBeUndefined();
+
+  expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
+});
+
+test('native background bootstrap skips unlocked-only lease access but still refreshes metadata', async () => {
+  mockSecureState.activeNamespace = namespaceA;
+  mockSecureState.refreshTokens.set(namespaceA, 'stored-refresh-token');
+  mockSecureState.offlineAuthorizationRecords.set(namespaceA, {
+    formatVersion: 1,
+    compactLease: initialA.offline_authorization_lease,
+    highWaterServerTimeMs: 1_900_000_000_000,
+    anchoredWallClockMs: 1_800_000_000_000,
+  });
+  mockUnlockedOnlyAccessAvailable = false;
+  mockGetOfflineAuthorizationRecord.mockClear();
+  mockSetOfflineAuthorizationRecord.mockClear();
+  mockApiRequest.mockImplementation(async (path: string) => {
+    if (path === '/mobile/auth/refresh') return rotatedA;
+    throw new Error(`Unexpected API request: ${path}`);
+  });
+
+  await expect(bootstrapSession({ execution: 'native-background' })).resolves.toBeUndefined();
+
+  expect(mockGetOfflineAuthorizationRecord).not.toHaveBeenCalled();
+  expect(mockSetOfflineAuthorizationRecord).not.toHaveBeenCalled();
+  expect(mockSecureState.refreshTokens.get(namespaceA)).toBe(rotatedA.refresh_token);
+  expect(useSessionStore.getState().session).toMatchObject({
+    networkMode: 'online',
+    accessToken: rotatedA.access_token,
+    sessionId: sessionA,
+  });
 });
 
 test('a delayed refresh cannot reactivate an account after switching accounts', async () => {
@@ -461,7 +652,7 @@ test('bootstrap never restores an active namespace that remains pending cleanup'
   expect(useSelectedTripStore.getState().tripId).toBeNull();
 });
 
-test('logout clears authentication immediately and does not depend on the active namespace lookup', async () => {
+test('logout clears authentication immediately and purges the authenticated namespace', async () => {
   await activateSession(initialA);
   useSelectedTripStore.getState().selectTrip('55555555-5555-4555-8555-555555555555');
   mockGetActiveNamespace.mockClear();
@@ -473,15 +664,23 @@ test('logout clears authentication immediately and does not depend on the active
   await expect(logout).resolves.toBeUndefined();
 
   expect(mockGetActiveNamespace).not.toHaveBeenCalled();
-  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
+  expect(mockApiRequest).toHaveBeenCalledWith(
+    '/mobile/push/unregister',
+    expect.objectContaining({
+      body: { installation_id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd' },
+      authenticated: false,
+      retryAuthentication: false,
+      headers: { Authorization: `Bearer ${initialA.access_token}` },
+    }),
+  );
   expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
-  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
-  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
-  expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
-  expect(mockClearNamespaceSecrets).not.toHaveBeenCalled();
+  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
+  expect(mockFinishVaultNamespacePurge).toHaveBeenCalledWith(namespaceA, true);
 });
 
-test('logout remains anonymous and retains encrypted data when refresh-token lookup fails', async () => {
+test('logout remains anonymous and purges local data when refresh-token lookup fails', async () => {
   await activateSession(initialA);
   useSelectedTripStore.getState().selectTrip('55555555-5555-4555-8555-555555555555');
   mockGetRefreshToken.mockRejectedValueOnce(new Error('refresh token read failed'));
@@ -489,7 +688,7 @@ test('logout remains anonymous and retains encrypted data when refresh-token loo
   const logout = logoutSession();
   expect(useSessionStore.getState()).toMatchObject({ status: 'anonymous', session: null });
   expect(useSelectedTripStore.getState().tripId).toBeNull();
-  await expect(logout).rejects.toThrow('refresh token read failed');
+  await expect(logout).resolves.toBeUndefined();
 
   expect(mockApiRequest).toHaveBeenCalledWith(
     '/mobile/auth/logout',
@@ -499,12 +698,10 @@ test('logout remains anonymous and retains encrypted data when refresh-token loo
       headers: { Authorization: `Bearer ${initialA.access_token}` },
     }),
   );
-  expect(mockClearNamespaceAuthentication).toHaveBeenCalledWith(namespaceA);
   expect(mockPurgeTemporaryViews).toHaveBeenCalledTimes(1);
-  expect(mockCloseAccountDatabase).toHaveBeenCalledTimes(1);
-  expect(mockDeleteAccountDatabase).not.toHaveBeenCalled();
-  expect(mockDeleteVaultNamespace).not.toHaveBeenCalled();
-  expect(mockClearNamespaceSecrets).not.toHaveBeenCalled();
+  expect(mockDeleteAccountDatabase).toHaveBeenCalledWith(namespaceA);
+  expect(mockDeleteVaultNamespace).toHaveBeenCalledWith(namespaceA);
+  expect(mockClearNamespaceSecrets).toHaveBeenCalledWith(namespaceA);
 });
 
 test('a stale rejected refresh cannot purge the newly selected account', async () => {
@@ -557,6 +754,15 @@ test('a refresh inside the same authentication boundary still rotates normally',
   });
   expect(mockSecureState.activeNamespace).toBe(namespaceA);
   expect(mockSecureState.refreshTokens.get(namespaceA)).toBe(rotatedA.refresh_token);
+  expect(mockApiRequest).toHaveBeenCalledWith(
+    '/mobile/auth/refresh',
+    expect.objectContaining({
+      body: {
+        refresh_token: initialA.refresh_token,
+        installation_id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      },
+    }),
+  );
 });
 
 test('an authorized passenger trip switch rotates identity without purging the stable account', async () => {
@@ -566,7 +772,10 @@ test('an authorized passenger trip switch rotates identity without purging the s
   mockDeleteVaultNamespace.mockClear();
   mockApiRequest.mockImplementation(async (path: string, options?: { body?: unknown }) => {
     if (path === '/mobile/auth/passenger/trip/switch') {
-      expect(options?.body).toEqual({ group_id: '55555555-5555-4555-8555-555555555555' });
+      expect(options?.body).toEqual({
+        group_id: '55555555-5555-4555-8555-555555555555',
+        installation_id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      });
       return switchedA;
     }
     throw new Error(`Unexpected API request: ${path}`);

@@ -6,7 +6,9 @@ import {
 } from '../document-database';
 import {
   queryPersonalQr,
+  replaceMealInformationInTransaction,
   replaceAnnouncementsInTransaction,
+  replaceRoomAssignmentInTransaction,
 } from '../content-resource-database';
 
 const document: DocumentMetadata = {
@@ -99,7 +101,7 @@ describe('document database boundary', () => {
     ]);
   });
 
-  it('replaces one document as a single ordered account-scoped batch', async () => {
+  it('replaces one document through a staged account-scoped authoritative set', async () => {
     const transaction = {
       runAsync: jest.fn(async (_statement: string, ..._parameters: unknown[]) => ({
         changes: 1,
@@ -117,24 +119,60 @@ describe('document database boundary', () => {
       assertActive,
     });
 
-    expect(transaction.runAsync).toHaveBeenCalledTimes(4);
+    expect(transaction.runAsync).toHaveBeenCalledTimes(7);
     expect(transaction.runAsync.mock.calls.map(([sql]) => sql)).toEqual([
+      expect.stringContaining('CREATE TEMP TABLE'),
+      expect.stringContaining('DELETE FROM mobile_document_replacement_ids'),
+      expect.stringContaining('INSERT INTO mobile_document_replacement_ids'),
       expect.stringContaining('INSERT INTO document_metadata'),
       expect.stringContaining('INSERT INTO offline_document_jobs'),
       expect.stringContaining('DELETE FROM document_metadata'),
       expect.stringContaining('DELETE FROM offline_files'),
     ]);
-    expect(transaction.runAsync.mock.calls[2]?.slice(1)).toEqual([
+    expect(transaction.runAsync.mock.calls[5]?.slice(1)).toEqual([
       'agency.account',
       document.trip_id,
       'personal',
-      document.id,
     ]);
-    expect(transaction.runAsync.mock.calls[3]?.slice(1)).toEqual([
+    expect(transaction.runAsync.mock.calls[6]?.slice(1)).toEqual([
       'agency.account',
       document.trip_id,
     ]);
-    expect(assertActive).toHaveBeenCalledTimes(3);
+    expect(transaction.runAsync.mock.calls[5]?.[0]).toContain('NOT EXISTS');
+    expect(assertActive).toHaveBeenCalledTimes(7);
+  });
+
+  it('replaces 10k document and preload-job rows in bounded O(batch) statements', async () => {
+    const transaction = {
+      runAsync: jest.fn(async (_statement: string, ..._parameters: unknown[]) => ({
+        changes: 1,
+        lastInsertRowId: 0,
+      })),
+    };
+    const documents = Array.from({ length: 10_000 }, (_, index): DocumentMetadata => ({
+      ...document,
+      id: `document-${index}`,
+      display_name: `Passport ${index}`,
+    }));
+
+    await replaceDocumentsInTransaction(transaction as never, {
+      namespace: 'agency.account',
+      tripId: document.trip_id,
+      scope: 'personal',
+      documents,
+      nowIso: '2030-01-01T00:01:00.000Z',
+    });
+
+    expect(transaction.runAsync).toHaveBeenCalledTimes(
+      2
+      + Math.ceil(10_000 / 900)
+      + Math.ceil(10_000 / 60)
+      + Math.ceil(10_000 / 150)
+      + 2,
+    );
+    expect(transaction.runAsync.mock.calls.every((call) => call.slice(1).length <= 900)).toBe(true);
+    expect(transaction.runAsync.mock.calls.some(([sql]) => String(sql).includes('NOT IN')))
+      .toBe(false);
   });
 });
 
@@ -216,6 +254,62 @@ describe('content resource database boundary', () => {
       document.trip_id,
       nowIso,
       nowIso,
+    ]);
+  });
+
+  it('atomically replaces stale room and meal projections, including empty projections', async () => {
+    const transaction = {
+      runAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => ({
+        changes: 1,
+        lastInsertRowId: 0,
+      })),
+    };
+    const room = {
+      id: '55555555-5555-4555-8555-555555555555',
+      trip_id: document.trip_id,
+      passenger_id: document.passenger_id,
+      hotel_name: null,
+      room_number: null,
+      roommate_summary: null,
+      version: 4,
+      updated_at: '2030-01-01T00:03:00.000Z',
+    };
+    const meal = {
+      id: '66666666-6666-4666-8666-666666666666',
+      trip_id: document.trip_id,
+      passenger_id: document.passenger_id,
+      preference: null,
+      notes: null,
+      version: 5,
+      updated_at: '2030-01-01T00:04:00.000Z',
+    };
+
+    await replaceRoomAssignmentInTransaction(
+      transaction as never,
+      'agency.account',
+      document.trip_id,
+      room,
+    );
+    await replaceMealInformationInTransaction(
+      transaction as never,
+      'agency.account',
+      document.trip_id,
+      meal,
+    );
+
+    expect(transaction.runAsync.mock.calls.map(([sql]) => String(sql))).toEqual([
+      expect.stringContaining('DELETE FROM room_assignments'),
+      expect.stringContaining('INSERT INTO room_assignments'),
+      expect.stringContaining('DELETE FROM meal_information'),
+      expect.stringContaining('INSERT INTO meal_information'),
+    ]);
+    expect(transaction.runAsync.mock.calls[0]?.slice(1)).toEqual([
+      'agency.account',
+      document.trip_id,
+    ]);
+    expect(transaction.runAsync.mock.calls[2]?.slice(1)).toEqual([
+      'agency.account',
+      document.trip_id,
     ]);
   });
 });

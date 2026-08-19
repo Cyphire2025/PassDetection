@@ -1,0 +1,6833 @@
+{
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "MobileActivationRequest": {
+        "properties": {
+          "activation_token": {
+            "maxLength": 512,
+            "minLength": 32,
+            "title": "Activation Token",
+            "type": "string"
+          },
+          "device": {
+            "$ref": "#/components/schemas/MobileDeviceInput"
+          },
+          "new_password": {
+            "maxLength": 256,
+            "minLength": 10,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activation_token",
+          "new_password",
+          "device"
+        ],
+        "title": "MobileActivationRequest",
+        "type": "object"
+      },
+      "MobileAnnouncementPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAnnouncementResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileAnnouncementPageResponse",
+        "type": "object"
+      },
+      "MobileAnnouncementResponse": {
+        "properties": {
+          "available_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Until"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_read": {
+            "default": false,
+            "title": "Is Read",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "priority": {
+            "enum": [
+              "normal",
+              "important",
+              "emergency"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "trip_id",
+          "version",
+          "title",
+          "message",
+          "priority",
+          "published_at"
+        ],
+        "title": "MobileAnnouncementResponse",
+        "type": "object"
+      },
+      "MobileAppAttestRegistrationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "attestation_object": {
+            "maxLength": 65536,
+            "minLength": 32,
+            "title": "Attestation Object",
+            "type": "string"
+          },
+          "challenge_id": {
+            "format": "uuid",
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "key_id": {
+            "maxLength": 512,
+            "minLength": 32,
+            "pattern": "^[A-Za-z0-9_+/=-]+$",
+            "title": "Key Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "installation_id",
+          "key_id",
+          "attestation_object"
+        ],
+        "title": "MobileAppAttestRegistrationRequest",
+        "type": "object"
+      },
+      "MobileAppAttestRegistrationResponse": {
+        "properties": {
+          "registered": {
+            "default": true,
+            "title": "Registered",
+            "type": "boolean"
+          }
+        },
+        "title": "MobileAppAttestRegistrationResponse",
+        "type": "object"
+      },
+      "MobileAttendanceActionInput": {
+        "properties": {
+          "client_event_id": {
+            "format": "uuid",
+            "title": "Client Event Id",
+            "type": "string"
+          },
+          "scanned_at": {
+            "format": "date-time",
+            "title": "Scanned At",
+            "type": "string"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id"
+          },
+          "signed_qr": {
+            "maxLength": 49,
+            "minLength": 49,
+            "pattern": "^pdatt:[A-Za-z0-9_-]{43}$",
+            "title": "Signed Qr",
+            "type": "string"
+          },
+          "source": {
+            "const": "qr",
+            "default": "qr",
+            "enum": [
+              "qr"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_event_id",
+          "signed_qr",
+          "scanned_at"
+        ],
+        "title": "MobileAttendanceActionInput",
+        "type": "object"
+      },
+      "MobileAttendanceActionResult": {
+        "properties": {
+          "client_event_id": {
+            "format": "uuid",
+            "title": "Client Event Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "server_version": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Server Version"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "already_applied",
+              "rejected",
+              "refresh_required"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_event_id",
+          "status"
+        ],
+        "title": "MobileAttendanceActionResult",
+        "type": "object"
+      },
+      "MobileAttendanceBatchRequest": {
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceActionInput"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Actions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "actions"
+        ],
+        "title": "MobileAttendanceBatchRequest",
+        "type": "object"
+      },
+      "MobileAttendanceBatchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceActionResult"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "title": "MobileAttendanceBatchResponse",
+        "type": "object"
+      },
+      "MobileAttendanceMissingPassengerResponse": {
+        "properties": {
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "display_name"
+        ],
+        "title": "MobileAttendanceMissingPassengerResponse",
+        "type": "object"
+      },
+      "MobileAttendanceRosterPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceMissingPassengerResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "session": {
+            "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+          }
+        },
+        "required": [
+          "session",
+          "items"
+        ],
+        "title": "MobileAttendanceRosterPageResponse",
+        "type": "object"
+      },
+      "MobileAttendanceSessionCreateRequest": {
+        "properties": {
+          "name": {
+            "maxLength": 160,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "MobileAttendanceSessionCreateRequest",
+        "type": "object"
+      },
+      "MobileAttendanceSessionDetailsResponse": {
+        "properties": {
+          "missing": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceMissingPassengerResponse"
+            },
+            "maxItems": 200,
+            "title": "Missing",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "session": {
+            "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+          }
+        },
+        "required": [
+          "session",
+          "missing"
+        ],
+        "title": "MobileAttendanceSessionDetailsResponse",
+        "type": "object"
+      },
+      "MobileAttendanceSessionPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileAttendanceSessionPageResponse",
+        "type": "object"
+      },
+      "MobileAttendanceSessionResponse": {
+        "properties": {
+          "assigned_count": {
+            "minimum": 0.0,
+            "title": "Assigned Count",
+            "type": "integer"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "scanned_count": {
+            "minimum": 0.0,
+            "title": "Scanned Count",
+            "type": "integer"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "completed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "scanned_count",
+          "assigned_count"
+        ],
+        "title": "MobileAttendanceSessionResponse",
+        "type": "object"
+      },
+      "MobileAttendanceSummaryResponse": {
+        "properties": {
+          "excused": {
+            "minimum": 0.0,
+            "title": "Excused",
+            "type": "integer"
+          },
+          "missing": {
+            "minimum": 0.0,
+            "title": "Missing",
+            "type": "integer"
+          },
+          "not_marked": {
+            "minimum": 0.0,
+            "title": "Not Marked",
+            "type": "integer"
+          },
+          "present": {
+            "minimum": 0.0,
+            "title": "Present",
+            "type": "integer"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "trip_id",
+          "total",
+          "present",
+          "missing",
+          "excused",
+          "not_marked",
+          "version",
+          "updated_at"
+        ],
+        "title": "MobileAttendanceSummaryResponse",
+        "type": "object"
+      },
+      "MobileClaimVerifyRequest": {
+        "properties": {
+          "challenge_id": {
+            "format": "uuid",
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Id"
+          },
+          "device": {
+            "$ref": "#/components/schemas/MobileDeviceInput"
+          },
+          "verification_value": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verification Value"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "device"
+        ],
+        "title": "MobileClaimVerifyRequest",
+        "type": "object"
+      },
+      "MobileCommonDocumentPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileCommonDocumentResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileCommonDocumentPageResponse",
+        "type": "object"
+      },
+      "MobileCommonDocumentResponse": {
+        "properties": {
+          "byte_size": {
+            "exclusiveMinimum": 0.0,
+            "title": "Byte Size",
+            "type": "integer"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "checksum_sha256": {
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "logical_document_id": {
+            "format": "uuid",
+            "title": "Logical Document Id",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "offline_available": {
+            "title": "Offline Available",
+            "type": "boolean"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "logical_document_id",
+          "trip_id",
+          "category",
+          "title",
+          "media_type",
+          "byte_size",
+          "checksum_sha256",
+          "version",
+          "offline_available",
+          "published_at",
+          "updated_at"
+        ],
+        "title": "MobileCommonDocumentResponse",
+        "type": "object"
+      },
+      "MobileCoordinatorAttendanceTokenEvidence": {
+        "description": "Non-bearer proof used only to reject unsafe offline attendance scans.",
+        "properties": {
+          "evidence_observed_at": {
+            "format": "date-time",
+            "title": "Evidence Observed At",
+            "type": "string"
+          },
+          "evidence_valid_until": {
+            "format": "date-time",
+            "title": "Evidence Valid Until",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "missing",
+              "inactive",
+              "revoked",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "token_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Expires At"
+          },
+          "token_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Hash"
+          },
+          "token_updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Updated At"
+          },
+          "token_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Version"
+          }
+        },
+        "required": [
+          "state",
+          "evidence_observed_at",
+          "evidence_valid_until"
+        ],
+        "title": "MobileCoordinatorAttendanceTokenEvidence",
+        "type": "object"
+      },
+      "MobileCoordinatorOperationalDetail": {
+        "description": "One bounded, display-safe imported or configured passenger attribute.",
+        "properties": {
+          "key": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "imported",
+              "custom_question",
+              "custom_detail"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value",
+          "source"
+        ],
+        "title": "MobileCoordinatorOperationalDetail",
+        "type": "object"
+      },
+      "MobileCoordinatorPassengerDetailResponse": {
+        "description": "Permission-minimized operational projection for one assigned passenger.\n\nThis deliberately excludes passport numbers, MRZ data, document storage\nlocations, extraction confidence, and internal dashboard notes.  Mobile\nclients must never receive an unreviewed ORM/JSON projection.",
+        "properties": {
+          "additional_details": {
+            "items": {
+              "$ref": "#/components/schemas/MobileCoordinatorOperationalDetail"
+            },
+            "maxItems": 300,
+            "title": "Additional Details",
+            "type": "array"
+          },
+          "agency_dealership_name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agency Dealership Name"
+          },
+          "attendance_status": {
+            "enum": [
+              "not_marked",
+              "present",
+              "missing",
+              "excused"
+            ],
+            "title": "Attendance Status",
+            "type": "string"
+          },
+          "attendance_token": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MobileCoordinatorAttendanceTokenEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "base_city": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base City"
+          },
+          "date_of_birth": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Of Birth"
+          },
+          "department": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department"
+          },
+          "departure_city": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure City"
+          },
+          "designation": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Designation"
+          },
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "emergency_contact_name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emergency Contact Name"
+          },
+          "emergency_contact_phone": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emergency Contact Phone"
+          },
+          "emergency_contact_relation": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emergency Contact Relation"
+          },
+          "employee_code": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Code"
+          },
+          "employee_type": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Type"
+          },
+          "family_head_email": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Head Email"
+          },
+          "family_head_name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Head Name"
+          },
+          "family_head_phone": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Head Phone"
+          },
+          "family_relation": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family Relation"
+          },
+          "flight_ticket_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Flight Ticket Status",
+            "type": "string"
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender"
+          },
+          "has_alert": {
+            "default": false,
+            "title": "Has Alert",
+            "type": "boolean"
+          },
+          "hotel_name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotel Name"
+          },
+          "hotel_voucher_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Hotel Voucher Status",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "insurance_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Insurance Status",
+            "type": "string"
+          },
+          "meal_preference": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meal Preference"
+          },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nationality"
+          },
+          "nearest_domestic_airport": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nearest Domestic Airport"
+          },
+          "operational_remarks": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operational Remarks"
+          },
+          "other_document_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Other Document Status",
+            "type": "string"
+          },
+          "passport_date_of_expiry": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Date Of Expiry"
+          },
+          "passport_date_of_issue": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Date Of Issue"
+          },
+          "passport_given_names": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Given Names"
+          },
+          "passport_issuing_country": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Issuing Country"
+          },
+          "passport_place_of_issue": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Place Of Issue"
+          },
+          "passport_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Passport Status",
+            "type": "string"
+          },
+          "passport_surname": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Surname"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "qualifier_relation": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualifier Relation"
+          },
+          "room_number": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Number"
+          },
+          "roommate_summary": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roommate Summary"
+          },
+          "staff_code": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Staff Code"
+          },
+          "submission_mode": {
+            "enum": [
+              "single",
+              "family"
+            ],
+            "title": "Submission Mode",
+            "type": "string"
+          },
+          "submission_status": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Submission Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "visa_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Visa Status",
+            "type": "string"
+          },
+          "zone_name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zone Name"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "attendance_status",
+          "submission_mode",
+          "submission_status",
+          "passport_status",
+          "visa_status",
+          "flight_ticket_status",
+          "insurance_status",
+          "hotel_voucher_status",
+          "other_document_status",
+          "updated_at"
+        ],
+        "title": "MobileCoordinatorPassengerDetailResponse",
+        "type": "object"
+      },
+      "MobileCoordinatorPassengerResponse": {
+        "properties": {
+          "attendance_status": {
+            "enum": [
+              "not_marked",
+              "present",
+              "missing",
+              "excused"
+            ],
+            "title": "Attendance Status",
+            "type": "string"
+          },
+          "attendance_token": {
+            "$ref": "#/components/schemas/MobileCoordinatorAttendanceTokenEvidence"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "employee_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Code"
+          },
+          "has_alert": {
+            "default": false,
+            "title": "Has Alert",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "meal_preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meal Preference"
+          },
+          "room_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Number"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "attendance_status",
+          "attendance_token"
+        ],
+        "title": "MobileCoordinatorPassengerResponse",
+        "type": "object"
+      },
+      "MobileCoordinatorRosterResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileCoordinatorPassengerResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "roster_revision": {
+            "maximum": 9007199254740991.0,
+            "minimum": 0.0,
+            "title": "Roster Revision",
+            "type": "integer"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "roster_revision"
+        ],
+        "title": "MobileCoordinatorRosterResponse",
+        "type": "object"
+      },
+      "MobileCredentialLoginRequest": {
+        "properties": {
+          "device": {
+            "$ref": "#/components/schemas/MobileDeviceInput"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 256,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "device"
+        ],
+        "title": "MobileCredentialLoginRequest",
+        "type": "object"
+      },
+      "MobileDeviceInput": {
+        "properties": {
+          "app_version": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "App Version",
+            "type": "string"
+          },
+          "device_name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Name"
+          },
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "platform": {
+            "enum": [
+              "android",
+              "ios"
+            ],
+            "title": "Platform",
+            "type": "string"
+          }
+        },
+        "required": [
+          "installation_id",
+          "platform",
+          "app_version"
+        ],
+        "title": "MobileDeviceInput",
+        "type": "object"
+      },
+      "MobileDocumentAuthorizationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "integrity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MobileIntegrityProofRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "MobileDocumentAuthorizationRequest",
+        "type": "object"
+      },
+      "MobileDocumentAuthorizationResponse": {
+        "properties": {
+          "checksum_sha256": {
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "title": "Checksum Sha256",
+            "type": "string"
+          },
+          "content_path": {
+            "pattern": "^/api/v1/mobile/",
+            "title": "Content Path",
+            "type": "string"
+          },
+          "content_type": {
+            "enum": [
+              "application/pdf",
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ],
+            "title": "Content Type",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "download_token": {
+            "maxLength": 4096,
+            "minLength": 32,
+            "title": "Download Token",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "size_bytes": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 26214400.0,
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version",
+          "size_bytes",
+          "checksum_sha256",
+          "content_type",
+          "content_path",
+          "download_token",
+          "expires_at"
+        ],
+        "title": "MobileDocumentAuthorizationResponse",
+        "type": "object"
+      },
+      "MobileIncidentActionResponse": {
+        "properties": {
+          "client_event_id": {
+            "format": "uuid",
+            "title": "Client Event Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Id"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "already_applied",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_event_id",
+          "status"
+        ],
+        "title": "MobileIncidentActionResponse",
+        "type": "object"
+      },
+      "MobileIncidentCreateRequest": {
+        "properties": {
+          "client_event_id": {
+            "format": "uuid",
+            "title": "Client Event Id",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 2000,
+            "minLength": 3,
+            "title": "Description",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 160,
+            "minLength": 3,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_event_id",
+          "title",
+          "description",
+          "severity",
+          "occurred_at"
+        ],
+        "title": "MobileIncidentCreateRequest",
+        "type": "object"
+      },
+      "MobileIntegrityChallengeRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "document_download_authorize",
+              "app_attest_key_register"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "key_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 32,
+                "pattern": "^[A-Za-z0-9_+/=-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Id"
+          },
+          "provider": {
+            "enum": [
+              "play_integrity",
+              "app_attest"
+            ],
+            "title": "Provider",
+            "type": "string"
+          },
+          "request_hash": {
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "title": "Request Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "action",
+          "request_hash",
+          "installation_id"
+        ],
+        "title": "MobileIntegrityChallengeRequest",
+        "type": "object"
+      },
+      "MobileIntegrityChallengeResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "challenge_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challenge Id"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "mode": {
+            "enum": [
+              "disabled",
+              "monitor",
+              "enforce"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "play_integrity",
+              "app_attest"
+            ],
+            "title": "Provider",
+            "type": "string"
+          },
+          "provider_request_hash": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9_-]{43}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Request Hash"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "disabled",
+              "issued"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "mode",
+          "required",
+          "provider"
+        ],
+        "title": "MobileIntegrityChallengeResponse",
+        "type": "object"
+      },
+      "MobileIntegrityProofRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "challenge_id": {
+            "format": "uuid",
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "key_id": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 32,
+                "pattern": "^[A-Za-z0-9_+/=-]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Id"
+          },
+          "proof": {
+            "maxLength": 65536,
+            "minLength": 16,
+            "title": "Proof",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "play_integrity",
+              "app_attest"
+            ],
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "provider",
+          "proof",
+          "installation_id"
+        ],
+        "title": "MobileIntegrityProofRequest",
+        "type": "object"
+      },
+      "MobileItineraryDayResponse": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "day_number": {
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Day Number",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileItineraryItemResponse"
+            },
+            "maxItems": 250,
+            "title": "Items",
+            "type": "array"
+          },
+          "sort_order": {
+            "minimum": 0.0,
+            "title": "Sort Order",
+            "type": "integer"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "day_number",
+          "sort_order",
+          "items"
+        ],
+        "title": "MobileItineraryDayResponse",
+        "type": "object"
+      },
+      "MobileItineraryItemResponse": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "location_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location Name"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "sort_order": {
+            "minimum": 0.0,
+            "title": "Sort Order",
+            "type": "integer"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "sort_order"
+        ],
+        "title": "MobileItineraryItemResponse",
+        "type": "object"
+      },
+      "MobileItineraryResponse": {
+        "properties": {
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/MobileItineraryDayResponse"
+            },
+            "maxItems": 365,
+            "title": "Days",
+            "type": "array"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "trip_id",
+          "version",
+          "title",
+          "published_at",
+          "days"
+        ],
+        "title": "MobileItineraryResponse",
+        "type": "object"
+      },
+      "MobileLogoutRequest": {
+        "properties": {
+          "refresh_token": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Token"
+          }
+        },
+        "title": "MobileLogoutRequest",
+        "type": "object"
+      },
+      "MobileManagerPassengerResponse": {
+        "properties": {
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "employee_code": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Code"
+          },
+          "flight_ticket_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Flight Ticket Status",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "visa_status": {
+            "enum": [
+              "available",
+              "not_available"
+            ],
+            "title": "Visa Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "visa_status",
+          "flight_ticket_status"
+        ],
+        "title": "MobileManagerPassengerResponse",
+        "type": "object"
+      },
+      "MobileManagerReadinessResponse": {
+        "properties": {
+          "items_needing_attention": {
+            "minimum": 0.0,
+            "title": "Items Needing Attention",
+            "type": "integer"
+          },
+          "meals_confirmed": {
+            "minimum": 0.0,
+            "title": "Meals Confirmed",
+            "type": "integer"
+          },
+          "passenger_count": {
+            "minimum": 0.0,
+            "title": "Passenger Count",
+            "type": "integer"
+          },
+          "passports_complete": {
+            "minimum": 0.0,
+            "title": "Passports Complete",
+            "type": "integer"
+          },
+          "rooms_assigned": {
+            "minimum": 0.0,
+            "title": "Rooms Assigned",
+            "type": "integer"
+          },
+          "tickets_available": {
+            "minimum": 0.0,
+            "title": "Tickets Available",
+            "type": "integer"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          },
+          "visas_available": {
+            "minimum": 0.0,
+            "title": "Visas Available",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "trip_id",
+          "passenger_count",
+          "passports_complete",
+          "visas_available",
+          "tickets_available",
+          "items_needing_attention",
+          "rooms_assigned",
+          "meals_confirmed",
+          "version",
+          "updated_at"
+        ],
+        "title": "MobileManagerReadinessResponse",
+        "type": "object"
+      },
+      "MobileManagerRosterResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileManagerPassengerResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "MobileManagerRosterResponse",
+        "type": "object"
+      },
+      "MobileManifestResources": {
+        "properties": {
+          "announcements": {
+            "title": "Announcements",
+            "type": "string"
+          },
+          "common_documents": {
+            "title": "Common Documents",
+            "type": "string"
+          },
+          "itinerary": {
+            "title": "Itinerary",
+            "type": "string"
+          },
+          "meals": {
+            "title": "Meals",
+            "type": "string"
+          },
+          "personal_documents": {
+            "title": "Personal Documents",
+            "type": "string"
+          },
+          "qr": {
+            "title": "Qr",
+            "type": "string"
+          },
+          "room": {
+            "title": "Room",
+            "type": "string"
+          },
+          "sync_changes": {
+            "title": "Sync Changes",
+            "type": "string"
+          }
+        },
+        "required": [
+          "itinerary",
+          "announcements",
+          "common_documents",
+          "personal_documents",
+          "room",
+          "meals",
+          "qr",
+          "sync_changes"
+        ],
+        "title": "MobileManifestResources",
+        "type": "object"
+      },
+      "MobileManifestResponse": {
+        "properties": {
+          "access_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Expires At"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/MobileManifestResources"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "sync_cursor": {
+            "title": "Sync Cursor",
+            "type": "integer"
+          },
+          "trip": {
+            "$ref": "#/components/schemas/MobileTripSummaryResponse"
+          },
+          "versions": {
+            "$ref": "#/components/schemas/MobileManifestVersions"
+          }
+        },
+        "required": [
+          "trip",
+          "sync_cursor",
+          "server_time",
+          "versions",
+          "resources"
+        ],
+        "title": "MobileManifestResponse",
+        "type": "object"
+      },
+      "MobileManifestVersions": {
+        "properties": {
+          "announcements": {
+            "minimum": 0.0,
+            "title": "Announcements",
+            "type": "integer"
+          },
+          "common_documents": {
+            "minimum": 0.0,
+            "title": "Common Documents",
+            "type": "integer"
+          },
+          "itinerary": {
+            "minimum": 0.0,
+            "title": "Itinerary",
+            "type": "integer"
+          },
+          "manifest": {
+            "minimum": 0.0,
+            "title": "Manifest",
+            "type": "integer"
+          },
+          "meals": {
+            "minimum": 0.0,
+            "title": "Meals",
+            "type": "integer"
+          },
+          "personal_documents": {
+            "minimum": 0.0,
+            "title": "Personal Documents",
+            "type": "integer"
+          },
+          "qr": {
+            "minimum": 0.0,
+            "title": "Qr",
+            "type": "integer"
+          },
+          "readiness": {
+            "minimum": 0.0,
+            "title": "Readiness",
+            "type": "integer"
+          },
+          "rooming": {
+            "minimum": 0.0,
+            "title": "Rooming",
+            "type": "integer"
+          },
+          "roster": {
+            "minimum": 0.0,
+            "title": "Roster",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "manifest",
+          "itinerary",
+          "common_documents",
+          "personal_documents",
+          "announcements",
+          "rooming",
+          "meals",
+          "qr",
+          "readiness",
+          "roster"
+        ],
+        "title": "MobileManifestVersions",
+        "type": "object"
+      },
+      "MobileMealResponse": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "passenger_id": {
+            "format": "uuid",
+            "title": "Passenger Id",
+            "type": "string"
+          },
+          "preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preference"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "trip_id",
+          "passenger_id",
+          "version",
+          "updated_at"
+        ],
+        "title": "MobileMealResponse",
+        "type": "object"
+      },
+      "MobileNotificationPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileNotificationResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "unread_count": {
+            "minimum": 0.0,
+            "title": "Unread Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "unread_count"
+        ],
+        "title": "MobileNotificationPageResponse",
+        "type": "object"
+      },
+      "MobileNotificationReadResponse": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "read_at": {
+            "format": "date-time",
+            "title": "Read At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "read_at"
+        ],
+        "title": "MobileNotificationReadResponse",
+        "type": "object"
+      },
+      "MobileNotificationResponse": {
+        "properties": {
+          "available_at": {
+            "format": "date-time",
+            "title": "Available At",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "deep_link_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deep Link Path"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "notification_type": {
+            "title": "Notification Type",
+            "type": "string"
+          },
+          "payload": {
+            "title": "Payload",
+            "type": "object"
+          },
+          "priority": {
+            "enum": [
+              "normal",
+              "important",
+              "emergency"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trip_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trip Id"
+          }
+        },
+        "required": [
+          "id",
+          "notification_type",
+          "category",
+          "priority",
+          "title",
+          "body",
+          "available_at"
+        ],
+        "title": "MobileNotificationResponse",
+        "type": "object"
+      },
+      "MobileOTPRequest": {
+        "properties": {
+          "phone_number": {
+            "maxLength": 64,
+            "minLength": 8,
+            "title": "Phone Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phone_number"
+        ],
+        "title": "MobileOTPRequest",
+        "type": "object"
+      },
+      "MobileOTPRequestResponse": {
+        "description": "Intentionally identical whether or not an eligible identity exists.",
+        "properties": {
+          "accepted": {
+            "default": true,
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "challenge_id": {
+            "format": "uuid",
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "expires_in_seconds": {
+            "title": "Expires In Seconds",
+            "type": "integer"
+          },
+          "resend_after_seconds": {
+            "title": "Resend After Seconds",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "expires_in_seconds",
+          "resend_after_seconds"
+        ],
+        "title": "MobileOTPRequestResponse",
+        "type": "object"
+      },
+      "MobileOTPVerifyRequest": {
+        "properties": {
+          "challenge_id": {
+            "format": "uuid",
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 12,
+            "minLength": 4,
+            "pattern": "^[0-9]+$",
+            "title": "Code",
+            "type": "string"
+          },
+          "device": {
+            "$ref": "#/components/schemas/MobileDeviceInput"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "code",
+          "device"
+        ],
+        "title": "MobileOTPVerifyRequest",
+        "type": "object"
+      },
+      "MobileOTPVerifyResponse": {
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/MobileTripClaimSummary"
+            },
+            "maxItems": 50,
+            "title": "Claims",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "claim_selection_required",
+              "secondary_verification_required",
+              "authenticated"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MobileTokenResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "MobileOTPVerifyResponse",
+        "type": "object"
+      },
+      "MobilePassengerTripSwitchRequest": {
+        "description": "Select one group from the identities proven for the live session.",
+        "properties": {
+          "group_id": {
+            "format": "uuid",
+            "title": "Group Id",
+            "type": "string"
+          },
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group_id",
+          "installation_id"
+        ],
+        "title": "MobilePassengerTripSwitchRequest",
+        "type": "object"
+      },
+      "MobilePasswordChangeRequest": {
+        "properties": {
+          "current_password": {
+            "maxLength": 256,
+            "minLength": 8,
+            "title": "Current Password",
+            "type": "string"
+          },
+          "device": {
+            "$ref": "#/components/schemas/MobileDeviceInput"
+          },
+          "new_password": {
+            "maxLength": 256,
+            "minLength": 10,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_password",
+          "new_password",
+          "device"
+        ],
+        "title": "MobilePasswordChangeRequest",
+        "type": "object"
+      },
+      "MobilePersonalDocumentPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobilePersonalDocumentResponse"
+            },
+            "maxItems": 200,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobilePersonalDocumentPageResponse",
+        "type": "object"
+      },
+      "MobilePersonalDocumentResponse": {
+        "properties": {
+          "category": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "checksum_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checksum Sha256"
+          },
+          "content_type": {
+            "enum": [
+              "application/pdf",
+              "image/jpeg",
+              "image/png",
+              "image/webp"
+            ],
+            "title": "Content Type",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metadata_state": {
+            "enum": [
+              "ready",
+              "pending"
+            ],
+            "title": "Metadata State",
+            "type": "string"
+          },
+          "offline_available": {
+            "title": "Offline Available",
+            "type": "boolean"
+          },
+          "passenger_id": {
+            "format": "uuid",
+            "title": "Passenger Id",
+            "type": "string"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "scope": {
+            "const": "personal",
+            "default": "personal",
+            "enum": [
+              "personal"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "size_bytes": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 26214400.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Bytes"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "trip_id",
+          "passenger_id",
+          "category",
+          "display_name",
+          "content_type",
+          "version",
+          "offline_available",
+          "metadata_state",
+          "updated_at"
+        ],
+        "title": "MobilePersonalDocumentResponse",
+        "type": "object"
+      },
+      "MobilePrincipalResponse": {
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "agency_id": {
+            "format": "uuid",
+            "title": "Agency Id",
+            "type": "string"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "force_password_change": {
+            "default": false,
+            "title": "Force Password Change",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "passenger_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passenger Id"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "principal_type": {
+            "enum": [
+              "passenger",
+              "client_manager",
+              "coordinator"
+            ],
+            "title": "Principal Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "account_id",
+          "principal_type",
+          "agency_id",
+          "display_name"
+        ],
+        "title": "MobilePrincipalResponse",
+        "type": "object"
+      },
+      "MobilePushRegistrationRequest": {
+        "properties": {
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "expo",
+              "fcm",
+              "apns"
+            ],
+            "title": "Provider",
+            "type": "string"
+          },
+          "push_token": {
+            "maxLength": 512,
+            "minLength": 16,
+            "title": "Push Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "push_token",
+          "installation_id"
+        ],
+        "title": "MobilePushRegistrationRequest",
+        "type": "object"
+      },
+      "MobilePushRegistrationResponse": {
+        "properties": {
+          "registered": {
+            "default": true,
+            "title": "Registered",
+            "type": "boolean"
+          },
+          "registration_id": {
+            "format": "uuid",
+            "title": "Registration Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "registration_id"
+        ],
+        "title": "MobilePushRegistrationResponse",
+        "type": "object"
+      },
+      "MobilePushUnregisterRequest": {
+        "properties": {
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "enum": [
+                  "expo",
+                  "fcm",
+                  "apns"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          }
+        },
+        "required": [
+          "installation_id"
+        ],
+        "title": "MobilePushUnregisterRequest",
+        "type": "object"
+      },
+      "MobilePushUnregisterResponse": {
+        "properties": {
+          "revoked_count": {
+            "minimum": 0.0,
+            "title": "Revoked Count",
+            "type": "integer"
+          },
+          "unregistered": {
+            "default": true,
+            "title": "Unregistered",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revoked_count"
+        ],
+        "title": "MobilePushUnregisterResponse",
+        "type": "object"
+      },
+      "MobileQRResponse": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "offline_allowed": {
+            "title": "Offline Allowed",
+            "type": "boolean"
+          },
+          "passenger_id": {
+            "format": "uuid",
+            "title": "Passenger Id",
+            "type": "string"
+          },
+          "signed_payload": {
+            "title": "Signed Payload",
+            "type": "string"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "trip_id",
+          "passenger_id",
+          "signed_payload",
+          "version",
+          "offline_allowed",
+          "updated_at"
+        ],
+        "title": "MobileQRResponse",
+        "type": "object"
+      },
+      "MobileRefreshRequest": {
+        "properties": {
+          "installation_id": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Installation Id",
+            "type": "string"
+          },
+          "refresh_token": {
+            "maxLength": 512,
+            "minLength": 32,
+            "title": "Refresh Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token",
+          "installation_id"
+        ],
+        "title": "MobileRefreshRequest",
+        "type": "object"
+      },
+      "MobileRoomResponse": {
+        "properties": {
+          "hotel_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotel Name"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "passenger_id": {
+            "format": "uuid",
+            "title": "Passenger Id",
+            "type": "string"
+          },
+          "room_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Number"
+          },
+          "roommate_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roommate Summary"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "trip_id",
+          "passenger_id",
+          "version",
+          "updated_at"
+        ],
+        "title": "MobileRoomResponse",
+        "type": "object"
+      },
+      "MobileSyncAcknowledgementRequest": {
+        "properties": {
+          "access_generation": {
+            "minimum": 0.0,
+            "title": "Access Generation",
+            "type": "integer"
+          },
+          "cursor": {
+            "minimum": 0.0,
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          },
+          "versions": {
+            "$ref": "#/components/schemas/MobileManifestVersions"
+          }
+        },
+        "required": [
+          "trip_id",
+          "cursor",
+          "access_generation",
+          "versions"
+        ],
+        "title": "MobileSyncAcknowledgementRequest",
+        "type": "object"
+      },
+      "MobileSyncAcknowledgementResponse": {
+        "properties": {
+          "access_generation": {
+            "minimum": 0.0,
+            "title": "Access Generation",
+            "type": "integer"
+          },
+          "acknowledged_at": {
+            "format": "date-time",
+            "title": "Acknowledged At",
+            "type": "string"
+          },
+          "cursor": {
+            "minimum": 0.0,
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "trip_id": {
+            "format": "uuid",
+            "title": "Trip Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trip_id",
+          "cursor",
+          "access_generation",
+          "acknowledged_at"
+        ],
+        "title": "MobileSyncAcknowledgementResponse",
+        "type": "object"
+      },
+      "MobileSyncChangeResponse": {
+        "properties": {
+          "entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "group_id": {
+            "format": "uuid",
+            "title": "Group Id",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "upsert",
+              "delete",
+              "revoke"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "payload": {
+            "title": "Payload",
+            "type": "object"
+          },
+          "sequence": {
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sequence",
+          "group_id",
+          "entity_type",
+          "operation",
+          "version",
+          "occurred_at"
+        ],
+        "title": "MobileSyncChangeResponse",
+        "type": "object"
+      },
+      "MobileSyncPageResponse": {
+        "properties": {
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/MobileSyncChangeResponse"
+            },
+            "title": "Changes",
+            "type": "array"
+          },
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "title": "Next Cursor",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "changes",
+          "next_cursor",
+          "has_more"
+        ],
+        "title": "MobileSyncPageResponse",
+        "type": "object"
+      },
+      "MobileSyncSnapshotResourceCounts": {
+        "description": "Exact item counts for every paginated resource in one snapshot fence.",
+        "properties": {
+          "announcements": {
+            "minimum": 0.0,
+            "title": "Announcements",
+            "type": "integer"
+          },
+          "attendance_sessions": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attendance Sessions"
+          },
+          "common_documents": {
+            "minimum": 0.0,
+            "title": "Common Documents",
+            "type": "integer"
+          },
+          "personal_documents": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personal Documents"
+          },
+          "roster": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roster"
+          }
+        },
+        "required": [
+          "announcements",
+          "common_documents"
+        ],
+        "title": "MobileSyncSnapshotResourceCounts",
+        "type": "object"
+      },
+      "MobileSyncSnapshotResources": {
+        "description": "Metadata-only resource map used to build a replacement local projection.",
+        "properties": {
+          "acknowledge": {
+            "title": "Acknowledge",
+            "type": "string"
+          },
+          "announcements": {
+            "title": "Announcements",
+            "type": "string"
+          },
+          "attendance_sessions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attendance Sessions"
+          },
+          "common_documents": {
+            "title": "Common Documents",
+            "type": "string"
+          },
+          "itinerary": {
+            "title": "Itinerary",
+            "type": "string"
+          },
+          "manifest": {
+            "title": "Manifest",
+            "type": "string"
+          },
+          "meals": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meals"
+          },
+          "personal_documents": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personal Documents"
+          },
+          "qr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qr"
+          },
+          "readiness": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readiness"
+          },
+          "room": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room"
+          },
+          "roster": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roster"
+          },
+          "sync_changes": {
+            "title": "Sync Changes",
+            "type": "string"
+          }
+        },
+        "required": [
+          "manifest",
+          "itinerary",
+          "announcements",
+          "common_documents",
+          "sync_changes",
+          "acknowledge"
+        ],
+        "title": "MobileSyncSnapshotResources",
+        "type": "object"
+      },
+      "MobileSyncSnapshotResponse": {
+        "description": "Stable rebase fence; resource bodies remain in their paginated APIs.",
+        "properties": {
+          "access_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Expires At"
+          },
+          "access_generation": {
+            "minimum": 0.0,
+            "title": "Access Generation",
+            "type": "integer"
+          },
+          "baseline_cursor": {
+            "minimum": 0.0,
+            "title": "Baseline Cursor",
+            "type": "integer"
+          },
+          "max_attendance_sessions_per_group": {
+            "exclusiveMinimum": 0.0,
+            "title": "Max Attendance Sessions Per Group",
+            "type": "integer"
+          },
+          "max_group_passengers": {
+            "exclusiveMinimum": 0.0,
+            "title": "Max Group Passengers",
+            "type": "integer"
+          },
+          "max_incremental_changes": {
+            "exclusiveMinimum": 0.0,
+            "title": "Max Incremental Changes",
+            "type": "integer"
+          },
+          "resource_counts": {
+            "$ref": "#/components/schemas/MobileSyncSnapshotResourceCounts"
+          },
+          "resources": {
+            "$ref": "#/components/schemas/MobileSyncSnapshotResources"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "strategy": {
+            "const": "full_rebase",
+            "default": "full_rebase",
+            "enum": [
+              "full_rebase"
+            ],
+            "title": "Strategy",
+            "type": "string"
+          },
+          "trip": {
+            "$ref": "#/components/schemas/MobileTripSummaryResponse"
+          },
+          "versions": {
+            "$ref": "#/components/schemas/MobileManifestVersions"
+          }
+        },
+        "required": [
+          "trip",
+          "baseline_cursor",
+          "access_generation",
+          "server_time",
+          "versions",
+          "resources",
+          "resource_counts",
+          "max_incremental_changes",
+          "max_group_passengers",
+          "max_attendance_sessions_per_group"
+        ],
+        "title": "MobileSyncSnapshotResponse",
+        "type": "object"
+      },
+      "MobileTokenResponse": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "access_token_expires_at": {
+            "format": "date-time",
+            "title": "Access Token Expires At",
+            "type": "string"
+          },
+          "offline_authorization_lease": {
+            "maxLength": 4096,
+            "minLength": 256,
+            "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+            "title": "Offline Authorization Lease",
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/MobilePrincipalResponse"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "refresh_token_expires_at": {
+            "format": "date-time",
+            "title": "Refresh Token Expires At",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "title": "Session Id",
+            "type": "string"
+          },
+          "token_type": {
+            "const": "bearer",
+            "default": "bearer",
+            "enum": [
+              "bearer"
+            ],
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token",
+          "access_token_expires_at",
+          "refresh_token_expires_at",
+          "session_id",
+          "offline_authorization_lease",
+          "principal"
+        ],
+        "title": "MobileTokenResponse",
+        "type": "object"
+      },
+      "MobileTripClaimSummary": {
+        "properties": {
+          "claim_id": {
+            "format": "uuid",
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "destination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination"
+          },
+          "group_id": {
+            "format": "uuid",
+            "title": "Group Id",
+            "type": "string"
+          },
+          "group_name": {
+            "title": "Group Name",
+            "type": "string"
+          },
+          "requires_secondary_verification": {
+            "default": false,
+            "title": "Requires Secondary Verification",
+            "type": "boolean"
+          },
+          "return_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Date"
+          },
+          "timezone": {
+            "default": "Asia/Kolkata",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Timezone",
+            "type": "string"
+          },
+          "travel_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Travel Date"
+          }
+        },
+        "required": [
+          "claim_id",
+          "group_id",
+          "group_name"
+        ],
+        "title": "MobileTripClaimSummary",
+        "type": "object"
+      },
+      "MobileTripSummaryResponse": {
+        "properties": {
+          "access_generation": {
+            "title": "Access Generation",
+            "type": "integer"
+          },
+          "announcement_version": {
+            "title": "Announcement Version",
+            "type": "integer"
+          },
+          "common_document_version": {
+            "title": "Common Document Version",
+            "type": "integer"
+          },
+          "destination": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "itinerary_version": {
+            "title": "Itinerary Version",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "return_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Date"
+          },
+          "role": {
+            "enum": [
+              "passenger",
+              "client_manager",
+              "coordinator"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "timezone": {
+            "default": "Asia/Kolkata",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Timezone",
+            "type": "string"
+          },
+          "travel_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Travel Date"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "access_generation",
+          "itinerary_version",
+          "common_document_version",
+          "announcement_version"
+        ],
+        "title": "MobileTripSummaryResponse",
+        "type": "object"
+      },
+      "MobileTripsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileTripSummaryResponse"
+            },
+            "maxItems": 100,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileTripsResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "Global Connects Dashboard",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/mobile/auth/activate": {
+      "post": {
+        "description": "Redeem one invitation exactly once and issue an unrestricted session.",
+        "operationId": "activate_client_manager_api_v1_mobile_auth_activate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileActivationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Client Manager",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/claim/verify": {
+      "post": {
+        "operationId": "verify_passenger_claim_api_v1_mobile_auth_claim_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileClaimVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileOTPVerifyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Passenger Claim",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/login": {
+      "post": {
+        "operationId": "mobile_credential_login_api_v1_mobile_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileCredentialLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Mobile Credential Login",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/logout": {
+      "post": {
+        "operationId": "logout_mobile_session_api_v1_mobile_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/MobileLogoutRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Logout Mobile Session",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/logout-all": {
+      "post": {
+        "operationId": "logout_all_mobile_sessions_api_v1_mobile_auth_logout_all_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Logout All Mobile Sessions",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/me": {
+      "get": {
+        "operationId": "mobile_me_api_v1_mobile_auth_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobilePrincipalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mobile Me",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/otp/request": {
+      "post": {
+        "operationId": "request_passenger_otp_api_v1_mobile_auth_otp_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileOTPRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileOTPRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Request Passenger Otp",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/otp/verify": {
+      "post": {
+        "operationId": "verify_passenger_otp_api_v1_mobile_auth_otp_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileOTPVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileOTPVerifyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Passenger Otp",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/passenger/trip/switch": {
+      "post": {
+        "description": "Rotate the live session to one previously proven passenger identity.\n\nThe caller supplies only a group identifier. The identity itself is\nresolved exclusively from the server-side authorization set established\nby OTP and any required secondary factor. Old access and refresh tokens\nare invalidated before the replacement pair is returned.",
+        "operationId": "switch_passenger_trip_api_v1_mobile_auth_passenger_trip_switch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilePassengerTripSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Switch Passenger Trip",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/password/change": {
+      "post": {
+        "operationId": "change_mobile_password_api_v1_mobile_auth_password_change_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilePasswordChangeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Change Mobile Password",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/auth/refresh": {
+      "post": {
+        "operationId": "refresh_mobile_session_api_v1_mobile_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileRefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh Mobile Session",
+        "tags": [
+          "GC Mobile Authentication"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/actions": {
+      "post": {
+        "operationId": "apply_mobile_attendance_actions_api_v1_mobile_coordinator_groups__group_id__attendance_actions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAttendanceBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceBatchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Apply Mobile Attendance Actions",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions": {
+      "get": {
+        "operationId": "list_mobile_attendance_sessions_api_v1_mobile_coordinator_groups__group_id__attendance_sessions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Attendance Sessions",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      },
+      "post": {
+        "operationId": "create_mobile_attendance_session_api_v1_mobile_coordinator_groups__group_id__attendance_sessions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAttendanceSessionCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Mobile Attendance Session",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}": {
+      "get": {
+        "operationId": "get_mobile_attendance_session_details_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionDetailsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Attendance Session Details",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/complete": {
+      "put": {
+        "operationId": "complete_mobile_attendance_session_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__complete_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Complete Mobile Attendance Session",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/sessions/{session_id}/roster": {
+      "get": {
+        "operationId": "list_mobile_coordinator_attendance_roster_api_v1_mobile_coordinator_groups__group_id__attendance_sessions__session_id__roster_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": true,
+            "schema": {
+              "enum": [
+                "counted",
+                "missing"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceRosterPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Coordinator Attendance Roster",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/attendance/summary": {
+      "get": {
+        "operationId": "get_mobile_attendance_summary_api_v1_mobile_coordinator_groups__group_id__attendance_summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Attendance Summary",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/incidents": {
+      "post": {
+        "operationId": "create_mobile_incident_api_v1_mobile_coordinator_groups__group_id__incidents_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileIncidentCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileIncidentActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Mobile Incident",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/passengers": {
+      "get": {
+        "operationId": "list_mobile_coordinator_passengers_api_v1_mobile_coordinator_groups__group_id__passengers_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 120,
+              "title": "Search",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "all",
+                "rooming",
+                "meals"
+              ],
+              "title": "Filter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileCoordinatorRosterResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Coordinator Passengers",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/coordinator/groups/{group_id}/passengers/{passenger_id}": {
+      "get": {
+        "description": "Return one explicit, permission-minimized operational passenger profile.",
+        "operationId": "get_mobile_coordinator_passenger_api_v1_mobile_coordinator_groups__group_id__passengers__passenger_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "passenger_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileCoordinatorPassengerDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Coordinator Passenger",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/integrity/app-attest/keys/register": {
+      "post": {
+        "operationId": "register_mobile_app_attest_key_api_v1_mobile_integrity_app_attest_keys_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileAppAttestRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAppAttestRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Register Mobile App Attest Key",
+        "tags": [
+          "GC Mobile Integrity"
+        ]
+      }
+    },
+    "/api/v1/mobile/integrity/challenges": {
+      "post": {
+        "operationId": "issue_mobile_integrity_challenge_api_v1_mobile_integrity_challenges_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileIntegrityChallengeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileIntegrityChallengeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Issue Mobile Integrity Challenge",
+        "tags": [
+          "GC Mobile Integrity"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/attendance/sessions": {
+      "get": {
+        "operationId": "list_mobile_manager_attendance_sessions_api_v1_mobile_manager_groups__group_id__attendance_sessions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceSessionPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Manager Attendance Sessions",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/attendance/sessions/{session_id}/roster": {
+      "get": {
+        "operationId": "list_mobile_manager_attendance_roster_api_v1_mobile_manager_groups__group_id__attendance_sessions__session_id__roster_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Session Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": true,
+            "schema": {
+              "enum": [
+                "counted",
+                "missing"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAttendanceRosterPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Manager Attendance Roster",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/passengers": {
+      "get": {
+        "description": "Return a bounded, assignment-scoped roster without document bytes.",
+        "operationId": "list_mobile_manager_passengers_api_v1_mobile_manager_groups__group_id__passengers_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 120,
+              "title": "Search",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileManagerRosterResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Manager Passengers",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/passengers/{passenger_id}": {
+      "get": {
+        "operationId": "get_mobile_manager_passenger_api_v1_mobile_manager_groups__group_id__passengers__passenger_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "passenger_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileCoordinatorPassengerDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Manager Passenger",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/passengers/{passenger_id}/documents/{document_type}/preview": {
+      "get": {
+        "description": "Stream one assigned passenger document without creating an offline grant.",
+        "operationId": "preview_mobile_manager_passenger_document_api_v1_mobile_manager_groups__group_id__passengers__passenger_id__documents__document_type__preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "passenger_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Passenger Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "visa",
+                "flight_ticket"
+              ],
+              "title": "Document Type",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Preview Mobile Manager Passenger Document",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/manager/groups/{group_id}/readiness": {
+      "get": {
+        "operationId": "get_mobile_manager_readiness_api_v1_mobile_manager_groups__group_id__readiness_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileManagerReadinessResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Manager Readiness",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/me": {
+      "get": {
+        "description": "Top-level alias retained independently of the authentication namespace.",
+        "operationId": "get_mobile_me_api_v1_mobile_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobilePrincipalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Me",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/notifications": {
+      "get": {
+        "operationId": "list_mobile_notifications_api_v1_mobile_notifications_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "trip_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Trip Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "unread_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Unread Only",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileNotificationPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Notifications",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/notifications/{notification_id}/read": {
+      "post": {
+        "operationId": "mark_mobile_notification_read_api_v1_mobile_notifications__notification_id__read_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notification_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Notification Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileNotificationReadResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark Mobile Notification Read",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/push/register": {
+      "post": {
+        "operationId": "register_mobile_push_token_api_v1_mobile_push_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilePushRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobilePushRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Register Mobile Push Token",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/push/unregister": {
+      "post": {
+        "operationId": "unregister_mobile_push_token_api_v1_mobile_push_unregister_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobilePushUnregisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobilePushUnregisterResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Unregister Mobile Push Token",
+        "tags": [
+          "GC Mobile Operations"
+        ]
+      }
+    },
+    "/api/v1/mobile/sync/ack": {
+      "post": {
+        "description": "Acknowledge a durable, fully refreshed local sync snapshot.\n\nThe acknowledgement is deliberately not a sync mutation and therefore\nnever appends to the change journal.  It is accepted only for the live\naccess generation, a non-future journal cursor, and the exact current\nresource revisions the client says it committed locally.",
+        "operationId": "acknowledge_mobile_sync_api_v1_mobile_sync_ack_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileSyncAcknowledgementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileSyncAcknowledgementResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Acknowledge Mobile Sync",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/sync/changes": {
+      "get": {
+        "operationId": "list_mobile_sync_changes_api_v1_mobile_sync_changes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "trip_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Trip Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileSyncPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Sync Changes",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/sync/snapshot": {
+      "get": {
+        "description": "Return a metadata-only fence for an atomic client-side full rebase.\n\nThe journal watermark is intentionally captured before the resource\nrevisions. If a dashboard transaction commits between those reads, the\nreturned cursor can lag the returned versions, but it can never skip that\ntransaction: its journal entry remains available on the next delta pass.\nClients stage the paginated resources, atomically promote them with this\nbaseline cursor, and use ``/sync/ack`` as the final revision check.",
+        "operationId": "get_mobile_sync_snapshot_api_v1_mobile_sync_snapshot_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "trip_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Trip Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileSyncSnapshotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Sync Snapshot",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips": {
+      "get": {
+        "description": "Return only explicitly granted, currently available groups.",
+        "operationId": "list_mobile_trips_api_v1_mobile_trips_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileTripsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Trips",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/announcements": {
+      "get": {
+        "operationId": "list_mobile_announcements_api_v1_mobile_trips__group_id__announcements_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileAnnouncementPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Announcements",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/common-documents": {
+      "get": {
+        "operationId": "list_mobile_common_documents_api_v1_mobile_trips__group_id__common_documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileCommonDocumentPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Common Documents",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/documents": {
+      "get": {
+        "description": "Return only passenger-owned metadata; never return storage locations.",
+        "operationId": "list_mobile_personal_documents_api_v1_mobile_trips__group_id__documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobilePersonalDocumentPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Mobile Personal Documents",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/documents/{document_id}/authorize": {
+      "post": {
+        "operationId": "authorize_mobile_document_download_api_v1_mobile_trips__group_id__documents__document_id__authorize_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/MobileDocumentAuthorizationRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileDocumentAuthorizationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Authorize Mobile Document Download",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/documents/{document_id}/content": {
+      "get": {
+        "operationId": "download_mobile_document_content_api_v1_mobile_trips__group_id__documents__document_id__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-GC-Download-Token",
+            "required": true,
+            "schema": {
+              "title": "X-Gc-Download-Token",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Range",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Range"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download Mobile Document Content",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/itinerary": {
+      "get": {
+        "operationId": "get_mobile_itinerary_api_v1_mobile_trips__group_id__itinerary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileItineraryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Itinerary",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/manifest": {
+      "get": {
+        "operationId": "get_mobile_manifest_api_v1_mobile_trips__group_id__manifest_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileManifestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Manifest",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/meals": {
+      "get": {
+        "operationId": "get_mobile_meals_api_v1_mobile_trips__group_id__meals_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileMealResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Meals",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/qr": {
+      "get": {
+        "operationId": "get_mobile_qr_api_v1_mobile_trips__group_id__qr_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileQRResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Qr",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    },
+    "/api/v1/mobile/trips/{group_id}/room": {
+      "get": {
+        "operationId": "get_mobile_room_api_v1_mobile_trips__group_id__room_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileRoomResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Room",
+        "tags": [
+          "GC Mobile Resources"
+        ]
+      }
+    }
+  }
+}

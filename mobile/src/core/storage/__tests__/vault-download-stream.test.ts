@@ -1,185 +1,84 @@
-import { openDocumentResponseReader, readResponseBytesBounded } from '../vault';
+import { validateNativeDocumentDownload } from '../vault';
 
 const PDF = 'application/pdf';
 
-function streamedResponse(
-  chunks: readonly Uint8Array[],
-  options: {
-    status?: number;
-    contentLength?: string | null;
-    contentRange?: string | null;
-    failAfterChunks?: number;
-  } = {},
-): Response {
-  let cursor = 0;
-  const reader = {
-    cancel: jest.fn(async () => undefined),
-    read: jest.fn(async () => {
-      if (options.failAfterChunks !== undefined && cursor >= options.failAfterChunks) {
-        throw new Error('simulated interrupted transfer');
-      }
-      if (cursor >= chunks.length) return { done: true, value: undefined };
-      const value = chunks[cursor];
-      cursor += 1;
-      return { done: false, value };
-    }),
-  };
-  const headers = new Headers({ 'content-type': PDF });
-  if (options.contentLength !== undefined && options.contentLength !== null) {
-    headers.set('content-length', options.contentLength);
-  }
-  if (options.contentRange !== undefined && options.contentRange !== null) {
-    headers.set('content-range', options.contentRange);
-  }
-  return {
-    status: options.status ?? 200,
-    headers,
-    body: { getReader: () => reader },
-    arrayBuffer: async () => {
-      throw new Error('stream reader should be used');
-    },
-  } as unknown as Response;
+function response(
+  status: number,
+  headers: Readonly<Record<string, string>>,
+) {
+  return { status, headers };
 }
 
-function bufferedResponse(bytes: Uint8Array): Response {
-  return {
-    status: 200,
-    headers: new Headers({
-      'content-type': PDF,
-      'content-length': String(bytes.byteLength),
-    }),
-    body: null,
-    arrayBuffer: jest.fn(async () => bytes.buffer.slice(
-      bytes.byteOffset,
-      bytes.byteOffset + bytes.byteLength,
-    )),
-  } as unknown as Response;
-}
-
-describe('bounded document stream transport', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-  });
-
-  it('accepts an unknown Content-Length while enforcing the signed byte ceiling', async () => {
-    const response = streamedResponse([
-      Uint8Array.from([1, 2]),
-      Uint8Array.from([3, 4]),
-    ], { contentLength: null });
-
-    await expect(readResponseBytesBounded(
-      response,
-      4,
+describe('native bounded document transport contract', () => {
+  test('accepts an exact full response before native-file encryption', () => {
+    expect(() => validateNativeDocumentDownload(
+      response(200, {
+        'content-type': 'application/pdf; charset=binary',
+        'content-length': '4',
+      }),
       PDF,
-      jest.fn(),
-    )).resolves.toEqual(Uint8Array.from([1, 2, 3, 4]));
-  });
-
-  it('opens React Native buffered responses as bounded vault chunks', async () => {
-    const bytes = new Uint8Array(300_000).fill(7);
-    const reader = await openDocumentResponseReader(bufferedResponse(bytes), bytes.byteLength);
-
-    const first = await reader.read();
-    const second = await reader.read();
-    const end = await reader.read();
-
-    expect(first.done).toBe(false);
-    expect(first.value).toHaveLength(256 * 1024);
-    expect(second.done).toBe(false);
-    expect(second.value).toHaveLength(bytes.byteLength - 256 * 1024);
-    expect(end).toEqual({ done: true, value: undefined });
-  });
-
-  it('rejects a truncated React Native buffered response before vault writes begin', async () => {
-    await expect(openDocumentResponseReader(
-      bufferedResponse(Uint8Array.from([1, 2, 3])),
       4,
-    )).rejects.toThrow('before all signed bytes were received');
+      0,
+    )).not.toThrow();
   });
 
-  it('resumes a mid-stream failure at the exact committed offset', async () => {
-    jest.useFakeTimers();
-    const initial = streamedResponse([
-      Uint8Array.from([1, 2]),
-      Uint8Array.from([3, 4]),
-    ], { failAfterChunks: 1 });
-    const resumed = streamedResponse([
-      Uint8Array.from([3, 4]),
-    ], {
-      status: 206,
-      contentLength: '2',
-      contentRange: 'bytes 2-3/4',
-    });
-    const resume = jest.fn(async () => resumed);
-
-    const pending = readResponseBytesBounded(initial, 4, PDF, resume);
-    await jest.runAllTimersAsync();
-
-    await expect(pending).resolves.toEqual(Uint8Array.from([1, 2, 3, 4]));
-    expect(resume).toHaveBeenCalledTimes(1);
-    expect(resume).toHaveBeenCalledWith(2);
-  });
-
-  it('rejects a resumed response with a mismatched Content-Range', async () => {
-    jest.useFakeTimers();
-    const initial = streamedResponse([
-      Uint8Array.from([1, 2]),
-    ], { failAfterChunks: 1 });
-    const invalidResume = streamedResponse([
-      Uint8Array.from([3, 4]),
-    ], {
-      status: 206,
-      contentLength: '2',
-      contentRange: 'bytes 1-2/4',
-    });
-
-    const pending = readResponseBytesBounded(
-      initial,
-      4,
+  test('accepts chunked transfer metadata while the final native file owns exact-size proof', () => {
+    expect(() => validateNativeDocumentDownload(
+      response(200, { 'content-type': PDF }),
       PDF,
-      async () => invalidResume,
-    );
-    const rejection = expect(pending).rejects.toThrow('range did not match');
-    await jest.runAllTimersAsync();
-
-    await rejection;
+      4,
+      0,
+    )).not.toThrow();
   });
 
-  it('cancels and rejects when a stream exceeds its signed maximum', async () => {
-    const response = streamedResponse([
-      Uint8Array.from([1, 2, 3]),
-      Uint8Array.from([4, 5]),
-    ]);
-
-    await expect(readResponseBytesBounded(
-      response,
-      4,
+  test('requires an exact 206 range when encrypted staging resumes', () => {
+    expect(() => validateNativeDocumentDownload(
+      response(206, {
+        'content-type': PDF,
+        'content-length': '2',
+        'content-range': 'bytes 2-3/4',
+      }),
       PDF,
-      jest.fn(),
-    )).rejects.toThrow('exceeded its allowed size');
+      4,
+      2,
+    )).not.toThrow();
   });
 
-  it('does not resume an aborted transfer', async () => {
-    jest.useFakeTimers();
-    const controller = new AbortController();
-    const initial = streamedResponse([
-      Uint8Array.from([1, 2]),
-    ], { failAfterChunks: 1 });
-    const resume = jest.fn();
-    const pending = readResponseBytesBounded(
-      initial,
-      4,
+  test.each([
+    [200, 'bytes 2-3/4', 'server did not honor'],
+    [206, 'bytes 1-2/4', 'range did not match'],
+  ])('rejects invalid resume response %#', (status, contentRange, message) => {
+    expect(() => validateNativeDocumentDownload(
+      response(status, {
+        'content-type': PDF,
+        'content-length': '2',
+        'content-range': contentRange,
+      }),
       PDF,
-      resume,
-      controller.signal,
-    );
-    const rejection = expect(pending).rejects.toMatchObject({ name: 'AbortError' });
-    await Promise.resolve();
-    controller.abort();
-    await jest.runAllTimersAsync();
+      4,
+      2,
+    )).toThrow(message);
+  });
 
-    await rejection;
-    expect(resume).not.toHaveBeenCalled();
+  test('rejects type and declared-length mismatches before reading plaintext chunks', () => {
+    expect(() => validateNativeDocumentDownload(
+      response(200, {
+        'content-type': 'image/png',
+        'content-length': '4',
+      }),
+      PDF,
+      4,
+      0,
+    )).toThrow('type did not match');
+
+    expect(() => validateNativeDocumentDownload(
+      response(200, {
+        'content-type': PDF,
+        'content-length': '5',
+      }),
+      PDF,
+      4,
+      0,
+    )).toThrow('length did not match');
   });
 });

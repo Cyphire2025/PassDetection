@@ -83,6 +83,31 @@ def test_production_mobile_api_accepts_independent_high_entropy_signing_secret(
 
 
 @pytest.mark.parametrize("app_env", ["staging", "production"])
+def test_non_development_mobile_api_requires_valid_offline_ed25519_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+    app_env: str,
+) -> None:
+    monkeypatch.setenv("MOBILE_ENABLED", "true")
+    monkeypatch.setenv(
+        "MOBILE_JWT_SECRET_KEY",
+        "9Wv!mR3#kP7@xN2$zQ8&bL5^tY4*cH6+",
+    )
+    monkeypatch.delenv("MOBILE_OFFLINE_LEASE_ACTIVE_KID", raising=False)
+    monkeypatch.delenv("MOBILE_OFFLINE_LEASE_PRIVATE_KEY_B64", raising=False)
+    monkeypatch.delenv("MOBILE_OFFLINE_LEASE_PUBLIC_KEYS_JSON", raising=False)
+
+    with pytest.raises(
+        PydanticValidationError,
+        match="MOBILE_OFFLINE_LEASE_ACTIVE_KID",
+    ):
+        Settings(
+            app_env=app_env,  # type: ignore[arg-type]
+            app_secret_key=_STRONG_APP_SECRET,
+            _env_file=None,
+        )
+
+
+@pytest.mark.parametrize("app_env", ["staging", "production"])
 @pytest.mark.parametrize(
     "secret",
     [

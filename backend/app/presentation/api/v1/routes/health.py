@@ -31,6 +31,7 @@ from app.infrastructure.ai_priority.worker_readiness import (
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.email.readiness import email_runtime_readiness
+from app.infrastructure.mobile_realtime import get_mobile_realtime_hub
 from app.infrastructure.observability.metrics import metrics
 from app.presentation.dependencies.auth import require_role
 
@@ -96,6 +97,10 @@ async def readiness(
         checks["ai_priority_redis"] = "unreachable"
         overall_healthy = False
 
+    realtime_status, realtime_ready = get_mobile_realtime_hub().readiness()
+    checks["mobile_realtime"] = realtime_status
+    overall_healthy = overall_healthy and realtime_ready
+
     gemini_checks, gemini_ready = gemini_configuration_readiness(settings)
     checks.update(gemini_checks)
     overall_healthy = overall_healthy and gemini_ready
@@ -151,6 +156,10 @@ async def diagnostics(
             error_type=type(exc).__name__,
         )
         checks["database"] = "unreachable"
+        http_status = status.HTTP_503_SERVICE_UNAVAILABLE
+    realtime_status, realtime_ready = get_mobile_realtime_hub().readiness()
+    checks["mobile_realtime"] = realtime_status
+    if not realtime_ready:
         http_status = status.HTTP_503_SERVICE_UNAVAILABLE
     operational_metrics = await asyncio.to_thread(metrics.snapshot)
 

@@ -19,6 +19,10 @@ from sqlalchemy.orm import InstrumentedAttribute, undefer
 
 from app.application.mobile.push_provider import MobilePushMessage, MobilePushProvider
 from app.core.security.mobile_push_crypto import mobile_push_fernet
+from app.domain.value_objects.trip_timezone import (
+    DEFAULT_TRIP_TIMEZONE,
+    normalize_trip_timezone,
+)
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerGroupAssignmentModel,
     ClientManagerProfileModel,
@@ -44,7 +48,7 @@ _RECIPIENT_PAGE_SIZE = 250
 _COUNTDOWN_CLEANUP_PAGE_SIZE = 1_000
 _NOTIFICATION_TYPE = "group_announcement"
 _COUNTDOWN_NOTIFICATION_TYPE = "trip_countdown"
-_LOCK_SCREEN_TITLE = "Group Companion update"
+_LOCK_SCREEN_TITLE = "Global Connect Travels update"
 _COUNTDOWN_DAYS = (3, 2, 1)
 _COUNTDOWN_TEMPLATES: dict[int, tuple[tuple[str, str], ...]] = {
     3: (
@@ -334,21 +338,23 @@ async def schedule_trip_countdown_notifications(
 ) -> CountdownNotificationCounts:
     """Reconcile future 3/2/1-day push-only trip countdowns.
 
-    The trip model currently stores an authoritative date rather than a
-    departure timestamp.  The configured IANA timezone and local send hour
-    therefore define the delivery instant.  Passed instants are never caught
-    up, which prevents a newly installed app or newly enabled group receiving
-    a burst of stale countdowns.
+    The trip model stores an authoritative date and IANA timezone rather than a
+    departure timestamp. The group timezone and configured local send hour
+    therefore define each delivery instant. ``timezone_name`` remains the
+    rolling-deployment fallback for rows/test doubles that predate the column.
+    Passed instants are never caught up, preventing newly enabled groups from
+    receiving a burst of stale countdowns.
     """
 
     if send_hour < 0 or send_hour > 23:
         raise ValueError("Countdown send hour must be between 0 and 23")
-    timezone = ZoneInfo(timezone_name)
+    fallback_timezone_name = normalize_trip_timezone(timezone_name)
     current = _aware_utc(now or datetime.now(tz=UTC))
     assert current is not None
-    local_today = current.astimezone(timezone).date()
-    first_candidate_date = local_today + timedelta(days=1)
-    last_candidate_date = local_today + timedelta(days=366)
+    # The indexed coarse window spans the maximum one-day civil offset
+    # difference. Exact eligibility is checked in each trip timezone below.
+    first_candidate_date = current.date()
+    last_candidate_date = current.date() + timedelta(days=367)
 
     cancelled = await _cancel_stale_countdowns(session, now=current)
     inserted = 0
@@ -383,10 +389,19 @@ async def schedule_trip_countdown_notifications(
             groups_scanned += 1
             if group.travel_date is None:
                 continue
+            trip_timezone_name = normalize_trip_timezone(
+                getattr(group, "timezone", None) or fallback_timezone_name
+            )
+            trip_timezone = ZoneInfo(trip_timezone_name)
+            local_today = current.astimezone(trip_timezone).date()
+            if not (
+                local_today < group.travel_date <= local_today + timedelta(days=366)
+            ):
+                continue
             trip_starts_at = datetime.combine(
                 group.travel_date,
                 time.min,
-                tzinfo=timezone,
+                tzinfo=trip_timezone,
             ).astimezone(UTC)
             access_start = _aware_utc(access.access_starts_at)
             access_expiry = _aware_utc(access.access_expires_at)
@@ -394,7 +409,7 @@ async def schedule_trip_countdown_notifications(
                 scheduled_at = datetime.combine(
                     group.travel_date - timedelta(days=days_remaining),
                     time(hour=send_hour),
-                    tzinfo=timezone,
+                    tzinfo=trip_timezone,
                 ).astimezone(UTC)
                 if scheduled_at <= current:
                     continue
@@ -411,6 +426,7 @@ async def schedule_trip_countdown_notifications(
                     session,
                     access=access,
                     travel_date=group.travel_date,
+                    timezone_name=trip_timezone_name,
                     days_remaining=days_remaining,
                     available_at=scheduled_at,
                     expires_at=expires_at,
@@ -1273,10 +1289,14 @@ async def _cancel_stale_countdowns(
             expires_at = _aware_utc(notification.expires_at)
             access_start = _aware_utc(access.access_starts_at)
             access_expiry = _aware_utc(access.access_expires_at)
+            trip_timezone_name = normalize_trip_timezone(
+                getattr(group, "timezone", None) or DEFAULT_TRIP_TIMEZONE
+            )
             current_schedule = (
                 group.travel_date is not None
                 and notification.dedupe_key.startswith(
-                    f"trip-countdown:{group.travel_date.isoformat()}:"
+                    "trip-countdown:"
+                    f"{group.travel_date.isoformat()}:{trip_timezone_name}:"
                 )
             )
             invalid = (
@@ -1322,6 +1342,7 @@ async def _enqueue_countdown_recipients(
     *,
     access: GCGroupAccessModel,
     travel_date: date,
+    timezone_name: str,
     days_remaining: int,
     available_at: datetime,
     expires_at: datetime,
@@ -1341,6 +1362,7 @@ async def _enqueue_countdown_recipients(
             recipient_type="passenger",
             access=access,
             travel_date=travel_date,
+            timezone_name=timezone_name,
             days_remaining=days_remaining,
             available_at=available_at,
             expires_at=expires_at,
@@ -1378,6 +1400,7 @@ async def _enqueue_countdown_recipients(
             recipient_type="client_manager",
             access=access,
             travel_date=travel_date,
+            timezone_name=timezone_name,
             days_remaining=days_remaining,
             available_at=available_at,
             expires_at=expires_at,
@@ -1406,6 +1429,7 @@ async def _enqueue_countdown_recipients(
             recipient_type="coordinator",
             access=access,
             travel_date=travel_date,
+            timezone_name=timezone_name,
             days_remaining=days_remaining,
             available_at=available_at,
             expires_at=expires_at,
@@ -1421,6 +1445,7 @@ async def _enqueue_countdown_pages(
     recipient_type: Literal["passenger", "client_manager", "coordinator"],
     access: GCGroupAccessModel,
     travel_date: date,
+    timezone_name: str,
     days_remaining: int,
     available_at: datetime,
     expires_at: datetime,
@@ -1448,6 +1473,7 @@ async def _enqueue_countdown_pages(
                 recipient_type=recipient_type,
                 access=access,
                 travel_date=travel_date,
+                timezone_name=timezone_name,
                 days_remaining=days_remaining,
                 available_at=available_at,
                 expires_at=expires_at,
@@ -1467,13 +1493,15 @@ def _countdown_notification_values(
     recipient_type: Literal["passenger", "client_manager", "coordinator"],
     access: GCGroupAccessModel,
     travel_date: date,
+    timezone_name: str,
     days_remaining: int,
     available_at: datetime,
     expires_at: datetime,
 ) -> dict[str, object]:
     templates = _COUNTDOWN_TEMPLATES[days_remaining]
     seed = (
-        f"{access.group_id}:{recipient_id}:{travel_date.isoformat()}:{days_remaining}"
+        f"{access.group_id}:{recipient_id}:{travel_date.isoformat()}:"
+        f"{timezone_name}:{days_remaining}"
     ).encode("ascii")
     template_index = int.from_bytes(hashlib.sha256(seed).digest()[:2], "big") % len(
         templates
@@ -1498,7 +1526,7 @@ def _countdown_notification_values(
         "contains_sensitive_content": False,
         "deep_link_path": f"/trip?trip_id={access.group_id}",
         "dedupe_key": (
-            f"trip-countdown:{travel_date.isoformat()}:{days_remaining}"
+            f"trip-countdown:{travel_date.isoformat()}:{timezone_name}:{days_remaining}"
         ),
         "public_payload": {"route": "trip", "trip_id": str(access.group_id)},
         "status": "queued",
@@ -1672,9 +1700,9 @@ def _personal_document_change_notification(
         "coordinator": "Passenger information updated",
     }
     body_by_role = {
-        "passenger": "Open Group Companion to refresh your travel documents.",
-        "client_manager": "Open Group Companion to refresh the group readiness summary.",
-        "coordinator": "Open Group Companion to refresh passenger information.",
+        "passenger": "Open Global Connect Travels to refresh your travel documents.",
+        "client_manager": "Open Global Connect Travels to refresh the group readiness summary.",
+        "coordinator": "Open Global Connect Travels to refresh passenger information.",
     }
     route = route_by_role[recipient_type]
     is_passenger = recipient_type == "passenger"

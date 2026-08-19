@@ -4,15 +4,16 @@ import * as TaskManager from 'expo-task-manager';
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
 
-import { BACKGROUND_SYNC_TASK } from '../background-sync';
-import { syncAllTrips } from '../sync-service';
+import { BACKGROUND_SYNC_TASK, runBackgroundSyncTask } from '../background-sync';
+import { requestSync } from '../sync-trigger';
 
-const mockBootstrapSession = jest.fn(async () => undefined);
+const mockBootstrapSession = jest.fn(async (_options?: unknown) => undefined);
 const mockRetryPendingTripPurges = jest.fn(async () => undefined);
 const mockPurgeExpiredTripCaches = jest.fn(async () => [] as string[]);
 
 jest.mock('expo-background-task', () => ({
   BackgroundTaskResult: { Success: 1, Failed: 2 },
+  addExpirationListener: jest.fn(() => ({ remove: jest.fn() })),
   registerTaskAsync: jest.fn(async () => undefined),
   unregisterTaskAsync: jest.fn(async () => undefined),
 }));
@@ -25,7 +26,7 @@ jest.mock('expo-task-manager', () => ({
 }));
 
 jest.mock('@/core/auth/session-service', () => ({
-  bootstrapSession: () => mockBootstrapSession(),
+  bootstrapSession: (options?: unknown) => mockBootstrapSession(options),
 }));
 
 jest.mock('../access-cache', () => ({
@@ -33,11 +34,11 @@ jest.mock('../access-cache', () => ({
   purgeExpiredTripCaches: () => mockPurgeExpiredTripCaches(),
 }));
 
-jest.mock('../sync-service', () => ({
-  syncAllTrips: jest.fn(),
+jest.mock('../sync-trigger', () => ({
+  requestSync: jest.fn(),
 }));
 
-const mockedSyncAllTrips = jest.mocked(syncAllTrips);
+const mockedRequestSync = jest.mocked(requestSync);
 
 const session: MobileSession = {
   accessToken: 'access-token',
@@ -66,15 +67,19 @@ function registeredTask(): () => Promise<number> {
 }
 
 beforeEach(() => {
-  mockedSyncAllTrips.mockReset();
+  mockedRequestSync.mockReset();
   mockBootstrapSession.mockClear();
   mockRetryPendingTripPurges.mockClear();
   mockPurgeExpiredTripCaches.mockClear();
+  jest.mocked(BackgroundTask.addExpirationListener).mockClear();
+  jest.mocked(BackgroundTask.addExpirationListener).mockImplementation(
+    () => ({ remove: jest.fn() }),
+  );
   useSessionStore.getState().setSession(session);
 });
 
 test('the OS task reports failure when every assigned trip fails', async () => {
-  mockedSyncAllTrips.mockResolvedValue({
+  mockedRequestSync.mockResolvedValue({
     results: [],
     failures: [
       { tripId: 'trip-a', category: 'network', retryable: true, code: 'SYNC_NETWORK' },
@@ -86,10 +91,11 @@ test('the OS task reports failure when every assigned trip fails', async () => {
   });
 
   await expect(registeredTask()()).resolves.toBe(BackgroundTask.BackgroundTaskResult.Failed);
+  expect(mockBootstrapSession).toHaveBeenCalledWith({ execution: 'native-background' });
 });
 
 test('the OS task reports failure for an observable partial sync', async () => {
-  mockedSyncAllTrips.mockResolvedValue({
+  mockedRequestSync.mockResolvedValue({
     results: [{
       tripId: 'trip-a',
       cursor: 2,
@@ -110,7 +116,7 @@ test('the OS task reports failure for an observable partial sync', async () => {
 });
 
 test('an empty assignment is a successful background no-op', async () => {
-  mockedSyncAllTrips.mockResolvedValue({
+  mockedRequestSync.mockResolvedValue({
     results: [],
     failures: [],
     requestedTripCount: 0,
@@ -119,4 +125,57 @@ test('an empty assignment is a successful background no-op', async () => {
   });
 
   await expect(registeredTask()()).resolves.toBe(BackgroundTask.BackgroundTaskResult.Success);
+});
+
+test('the operating-system expiration callback cooperatively aborts active sync work', async () => {
+  let receivedSignal: AbortSignal | null = null;
+  mockedRequestSync.mockImplementation((_trigger, { signal } = {}) => {
+    receivedSignal = signal ?? null;
+    return new Promise((_resolve, reject) => {
+      signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
+    });
+  });
+
+  const task = registeredTask()();
+  for (let attempt = 0; attempt < 10 && mockedRequestSync.mock.calls.length === 0; attempt += 1) {
+    await Promise.resolve();
+  }
+  expect(mockedRequestSync).toHaveBeenCalledWith(
+    { scope: 'full', reason: 'native-background' },
+    { signal: expect.any(AbortSignal) },
+  );
+  const expirationListener = jest.mocked(BackgroundTask.addExpirationListener).mock.calls[0]?.[0];
+  expect(expirationListener).toBeDefined();
+  expirationListener?.();
+
+  await expect(task).resolves.toBe(BackgroundTask.BackgroundTaskResult.Failed);
+  expect(receivedSignal).not.toBeNull();
+  expect((receivedSignal as unknown as AbortSignal).aborted).toBe(true);
+  const subscription = jest.mocked(BackgroundTask.addExpirationListener).mock.results[0]?.value;
+  expect(subscription?.remove).toHaveBeenCalledTimes(1);
+});
+
+test('the internal safety deadline aborts work even when the OS callback is late', async () => {
+  jest.useFakeTimers();
+  try {
+    mockedRequestSync.mockImplementation((_trigger, { signal } = {}) => new Promise((_resolve, reject) => {
+      signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
+    }));
+
+    const task = runBackgroundSyncTask(1_000);
+    for (let attempt = 0; attempt < 10 && mockedRequestSync.mock.calls.length === 0; attempt += 1) {
+      await Promise.resolve();
+    }
+    expect(mockedRequestSync).toHaveBeenCalledWith(
+      { scope: 'full', reason: 'native-background' },
+      { signal: expect.any(AbortSignal) },
+    );
+    await jest.advanceTimersByTimeAsync(1_000);
+
+    await expect(task).resolves.toBe(BackgroundTask.BackgroundTaskResult.Failed);
+    const signal = mockedRequestSync.mock.calls[0]?.[1]?.signal;
+    expect(signal?.aborted).toBe(true);
+  } finally {
+    jest.useRealTimers();
+  }
 });

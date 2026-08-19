@@ -1,6 +1,7 @@
 import { apiRequest, ApiError } from '@/core/api/client';
 import { principalAccountNamespace, type MobilePrincipal } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
+import { mobileQueryClient } from '@/core/query/query-client';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   assertSyncContextActive,
@@ -10,14 +11,16 @@ import {
 import { isAccessLeaseExpired } from '@/core/sync/access-expiry-policy';
 import {
   discardEncryptedOfflineFile,
+  deleteVaultQuotaEvictionCandidates,
   downloadAndEncryptDocument,
   finalizeEncryptedOfflineFile,
   inspectRegisteredOfflineFile,
   isLocalOfflineCiphertextError,
-  LocalOfflineCiphertextError,
   reconcileTripVault,
   removeRegisteredOfflineFile,
   type EncryptedOfflineFile,
+  type VaultQuotaEvictionCandidate,
+  type VaultStorageQuotaReclaimer,
 } from '@/core/storage/vault';
 import { offlinePrefetchConcurrency } from '@/core/storage/vault-policy';
 
@@ -42,6 +45,14 @@ import {
 } from './document-retry-policy';
 import { shouldPrefetchPassengerDocument } from './passenger-document-policy';
 import {
+  acknowledgeVaultEvictionTombstones,
+  detachVaultQuotaCandidates,
+  markOfflineFileOpened,
+  queryVaultEvictionTombstones,
+  queryVaultQuotaCandidates,
+  recordVaultEvictionAttempt,
+} from './vault-quota-database';
+import {
   queryDocument,
   queryLocalDocuments,
   queryOfflineDocumentRegistration,
@@ -62,18 +73,44 @@ import {
   queryReadiness,
   queryRoomAssignment,
   replaceAnnouncementsInTransaction,
-  saveMealInformation,
+  replaceMealInformationInTransaction,
+  replaceRoomAssignmentInTransaction,
   savePersonalQr,
   saveReadiness,
-  saveRoomAssignment,
 } from './content-resource-database';
+import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinator-trip-store';
+import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 export type { DocumentWithOfflineState } from './document-database';
 
 const documentDownloads = new Map<string, Promise<void>>();
 const recoveredTripVaults = new Set<string>();
 const vaultRecoveryJobs = new Map<string, Promise<void>>();
+const vaultEvictionRecoveryJobs = new Map<string, Promise<void>>();
 const MAX_DURABLE_DOCUMENT_RETRY_DELAY_MS = 6 * 60 * 60 * 1_000;
+
+class AuthoritativeDocumentUnavailableError extends Error {
+  readonly code = 'DOCUMENT_UNAVAILABLE';
+
+  constructor(cause?: unknown) {
+    super('This document is no longer available for the selected trip.', { cause });
+    this.name = 'AuthoritativeDocumentUnavailableError';
+  }
+}
+
+function isAuthoritativeDocumentUnavailable(error: unknown): boolean {
+  return error instanceof AuthoritativeDocumentUnavailableError
+    || (
+      error instanceof ApiError
+      && (
+        (error.status === 404 && error.code === 'NOT_FOUND')
+        || (
+          error.status === 410
+          && ['DOCUMENT_GONE', 'DOCUMENT_REVOKED'].includes(error.code)
+        )
+      )
+    );
+}
 
 type AccountDatabase = Awaited<ReturnType<typeof openAccountDatabase>>;
 
@@ -112,6 +149,107 @@ async function recoverTripVaultOnce(
     });
   vaultRecoveryJobs.set(key, recovery);
   await recovery;
+}
+
+async function recoverVaultEvictionsForAccount(
+  database: AccountDatabase,
+  namespace: string,
+): Promise<void> {
+  const existing = vaultEvictionRecoveryJobs.get(namespace);
+  if (existing) return existing;
+  const recovery = (async () => {
+    const tombstones = await queryVaultEvictionTombstones(database, namespace);
+    if (!tombstones.length) return;
+    try {
+      await deleteVaultQuotaEvictionCandidates(namespace, tombstones);
+      await withAccountTransaction(database, (transaction) => (
+        acknowledgeVaultEvictionTombstones(transaction, namespace, tombstones)
+      ));
+    } catch (error) {
+      await recordVaultEvictionAttempt(
+        database,
+        namespace,
+        tombstones,
+        new Date().toISOString(),
+      ).catch(() => undefined);
+      throw error;
+    }
+  })().finally(() => {
+    if (vaultEvictionRecoveryJobs.get(namespace) === recovery) {
+      vaultEvictionRecoveryJobs.delete(namespace);
+    }
+  });
+  vaultEvictionRecoveryJobs.set(namespace, recovery);
+  return recovery;
+}
+
+/** Retry crash-left native deletions for the active account without crossing its database. */
+export async function recoverPendingVaultEvictions(): Promise<void> {
+  const namespace = activeNamespace();
+  const database = await openAccountDatabase(namespace);
+  await recoverVaultEvictionsForAccount(database, namespace);
+}
+
+function protectedVaultTripIds(namespace: string, requestedTripId: string): string[] {
+  const protectedTrips = new Set([requestedTripId]);
+  const selectedPassengerTrip = useSelectedTripStore.getState().tripId;
+  if (selectedPassengerTrip) protectedTrips.add(selectedPassengerTrip);
+  const selectedCoordinatorTrip = useCoordinatorTripStore.getState();
+  if (
+    selectedCoordinatorTrip.accountKey === namespace
+    && selectedCoordinatorTrip.tripId
+  ) {
+    protectedTrips.add(selectedCoordinatorTrip.tripId);
+  }
+  return [...protectedTrips];
+}
+
+function vaultQuotaReclaimer(
+  database: AccountDatabase,
+  namespace: string,
+  requestedTripId: string,
+  syncContext?: ImmutableSyncContext,
+): VaultStorageQuotaReclaimer {
+  const assertActive = () => {
+    if (syncContext) assertSyncContextActive(syncContext);
+  };
+  return {
+    listCandidates: async () => {
+      assertActive();
+      await recoverVaultEvictionsForAccount(database, namespace);
+      assertActive();
+      return queryVaultQuotaCandidates(
+        database,
+        namespace,
+        protectedVaultTripIds(namespace, requestedTripId),
+      );
+    },
+    evict: async (candidates: readonly VaultQuotaEvictionCandidate[]) => {
+      assertActive();
+      const detachedAt = new Date().toISOString();
+      await withAccountTransaction(database, async (transaction) => {
+        assertActive();
+        await detachVaultQuotaCandidates(transaction, namespace, candidates, detachedAt);
+        assertActive();
+      });
+      try {
+        await deleteVaultQuotaEvictionCandidates(namespace, candidates);
+        assertActive();
+        await withAccountTransaction(database, async (transaction) => {
+          assertActive();
+          await acknowledgeVaultEvictionTombstones(transaction, namespace, candidates);
+        });
+      } catch (error) {
+        await recordVaultEvictionAttempt(
+          database,
+          namespace,
+          candidates,
+          new Date().toISOString(),
+        ).catch(() => undefined);
+        throw error;
+      }
+    },
+  };
 }
 
 function documentAbortError(signal?: AbortSignal): Error {
@@ -215,27 +353,39 @@ export async function localAnnouncements(
   return queryAnnouncements(database, namespace, tripId);
 }
 
-export async function refreshAnnouncements(tripId: string, syncContext?: ImmutableSyncContext) {
+function cursorResourcePath(path: string, cursor: string | null): string {
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
+}
+
+export async function refreshAnnouncements(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/announcements`,
+) {
   try {
     if (syncContext) assertSyncContextActive(syncContext);
     const items = await collectCursorItems(
       (cursor) => {
         if (syncContext) assertSyncContextActive(syncContext);
-        return apiRequest(
-          `/mobile/trips/${tripId}/announcements?limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-          {
+        return apiRequest(cursorResourcePath(requestPath, cursor), {
             schema: AnnouncementListSchema,
             ...(syncContext ? { signal: syncContext.signal } : {}),
-          },
-        );
+        });
       },
-      { maxPages: 20, maxItems: 4_000 },
+      {
+        itemKey: (announcement) => announcement.id,
+        ...(syncContext ? {
+          assertActive: () => assertSyncContextActive(syncContext),
+        } : {}),
+      },
     );
     if (syncContext) assertSyncContextActive(syncContext);
     await saveAnnouncements(tripId, items, syncContext);
     return { items, offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const items = await localAnnouncements(tripId, syncContext);
     if (items.length) return { items, offline: true };
     throw networkError;
@@ -310,10 +460,103 @@ export async function localDocuments(
   });
 }
 
+type CachedDocumentCollection = Readonly<{
+  items: readonly DocumentWithOfflineState[];
+  offline: boolean;
+}>;
+
+function removeDocumentFromQueryCache(
+  namespace: string,
+  tripId: string,
+  documentId: string,
+): void {
+  for (const prefix of ['trip-documents', 'trip-common-documents'] as const) {
+    const queryKey = [prefix, tripId, namespace] as const;
+    mobileQueryClient.setQueryData<CachedDocumentCollection>(queryKey, (current) => (
+      current
+        ? { ...current, items: current.items.filter((item) => item.id !== documentId) }
+        : current
+    ));
+    void mobileQueryClient.invalidateQueries({ queryKey }).catch(() => undefined);
+  }
+}
+
+/**
+ * Reconciles an exact document revision after its signed authorization endpoint
+ * authoritatively reports that it was deleted or withdrawn.
+ *
+ * The deletion is constrained to the active account, trip, revision, and role
+ * ownership boundary. SQLite makes the metadata, retry job, and offline-file
+ * registration unreachable atomically; managed ciphertext is then removed by
+ * the normal path-validating vault reconciler.
+ */
+export async function reconcileUnavailableDocument(
+  document: Pick<
+    DocumentMetadata,
+    'id' | 'trip_id' | 'passenger_id' | 'scope' | 'version'
+  >,
+  syncContext?: ImmutableSyncContext,
+): Promise<boolean> {
+  const principal = useSessionStore.getState().session?.principal;
+  if (!principal) throw new Error('Authentication is required.');
+  if (principal.principalType === 'passenger' && !principal.passengerId) {
+    throw new Error('The passenger ownership boundary is unavailable. Sign in again while online.');
+  }
+  if (
+    document.scope === 'personal'
+    && (
+      principal.principalType !== 'passenger'
+      || !principal.passengerId
+      || document.passenger_id !== principal.passengerId
+    )
+  ) {
+    throw new Error('The personal document does not belong to the active passenger.');
+  }
+
+  const namespace = activeNamespace(syncContext);
+  const database = await openAccountDatabase(namespace);
+  if (syncContext) assertSyncContextActive(syncContext);
+  let removed = false;
+  await withAccountTransaction(database, async (transaction) => {
+    if (syncContext) assertSyncContextActive(syncContext);
+    const ownershipClause = principal.principalType === 'passenger'
+      ? "AND (scope = 'common' OR (scope = 'personal' AND passenger_id = ?))"
+      : "AND scope = 'common'";
+    const ownershipParameters = principal.principalType === 'passenger'
+      ? [principal.passengerId!]
+      : [];
+    const result = await transaction.runAsync(
+      `DELETE FROM document_metadata
+        WHERE account_namespace = ? AND trip_id = ? AND id = ? AND version = ?
+          AND revoked_at IS NULL
+          ${ownershipClause}`,
+      namespace,
+      document.trip_id,
+      document.id,
+      document.version,
+      ...ownershipParameters,
+    );
+    removed = result.changes === 1;
+  });
+  if (!removed) return false;
+
+  removeDocumentFromQueryCache(namespace, document.trip_id, document.id);
+  const recoveryKey = `${namespace}:${document.trip_id}`;
+  recoveredTripVaults.delete(recoveryKey);
+  // The database deletion already made both metadata and the cascaded vault
+  // registration unreachable. Physical removal is best effort here: if the
+  // filesystem is temporarily unavailable, the cleared recovery marker makes
+  // the next trip read retry path-validated orphan cleanup without restoring
+  // the withdrawn document to the UI.
+  await reconcileRegisteredTripVault(database, namespace, document.trip_id).catch(() => undefined);
+  return true;
+}
+
 export async function cacheDocument(
   document: DocumentMetadata,
   syncContext?: ImmutableSyncContext,
   signal?: AbortSignal,
+  retentionClass: 'required' | 'evictable' = 'evictable',
 ): Promise<void> {
   const operationSignal = signal ?? syncContext?.signal;
   assertDocumentOperationActive(operationSignal);
@@ -343,13 +586,13 @@ export async function cacheDocument(
       ) {
         // The previous owner may have closed its viewer. Its cancellation must not poison a live
         // background worker or a second viewer that joined the same logical document operation.
-        return cacheDocument(document, syncContext, signal);
+        return cacheDocument(document, syncContext, signal, retentionClass);
       }
       throw error;
     }
     if (syncContext) assertSyncContextActive(syncContext);
     assertDocumentOperationActive(operationSignal);
-    return cacheDocument(document, syncContext, signal);
+    return cacheDocument(document, syncContext, signal, retentionClass);
   }
 
   const download = cacheDocumentForNamespace(
@@ -357,7 +600,12 @@ export async function cacheDocument(
     document,
     syncContext,
     operationSignal,
-  ).finally(() => {
+    retentionClass,
+  ).catch(async (error: unknown) => {
+    if (!isAuthoritativeDocumentUnavailable(error)) throw error;
+    await reconcileUnavailableDocument(document, syncContext);
+    throw new AuthoritativeDocumentUnavailableError(error);
+  }).finally(() => {
     if (documentDownloads.get(downloadKey) === download) documentDownloads.delete(downloadKey);
   });
   documentDownloads.set(downloadKey, download);
@@ -371,6 +619,7 @@ async function cacheDocumentForNamespace(
   document: DocumentMetadata,
   syncContext?: ImmutableSyncContext,
   signal?: AbortSignal,
+  retentionClass: 'required' | 'evictable' = 'evictable',
 ): Promise<void> {
   assertDocumentOperationActive(signal);
   if (syncContext) assertSyncContextActive(syncContext);
@@ -428,14 +677,26 @@ async function cacheDocumentForNamespace(
     };
     const inspection = await inspectRegisteredOfflineFile(registeredInput, signal);
     if (inspection.status === 'valid') {
-      await database.runAsync(
-        `DELETE FROM offline_document_jobs
-          WHERE document_id = ? AND account_namespace = ? AND trip_id = ? AND version = ?`,
-        document.id,
-        namespace,
-        stored.trip_id,
-        document.version,
-      );
+      await withAccountTransaction(database, async (transaction) => {
+        if (retentionClass === 'required') {
+          await transaction.runAsync(
+            `UPDATE offline_files SET retention_class = 'required'
+              WHERE document_id = ? AND account_namespace = ? AND trip_id = ? AND version = ?`,
+            document.id,
+            namespace,
+            stored.trip_id,
+            document.version,
+          );
+        }
+        await transaction.runAsync(
+          `DELETE FROM offline_document_jobs
+            WHERE document_id = ? AND account_namespace = ? AND trip_id = ? AND version = ?`,
+          document.id,
+          namespace,
+          stored.trip_id,
+          document.version,
+        );
+      });
       return;
     }
 
@@ -498,25 +759,21 @@ async function cacheDocumentForNamespace(
         expectedSizeBytes: stored.size_bytes,
         contentType: stored.content_type,
       } : {}),
-    }, signal);
+    }, signal, vaultQuotaReclaimer(
+      database,
+      namespace,
+      stored.trip_id,
+      syncContext,
+    ));
     encrypted = downloaded;
     if (syncContext) assertSyncContextActive(syncContext);
     assertDocumentOperationActive(signal);
-    const candidateInspection = await inspectRegisteredOfflineFile({
-      namespace,
-      tripId: stored.trip_id,
-      documentId: document.id,
-      version: document.version,
-      checksumSha256: downloaded.checksumSha256,
-      expectedSizeBytes: downloaded.plaintextSizeBytes,
-      contentType: downloaded.contentType,
-      encryptedUri: downloaded.uri,
-    }, signal);
-    if (candidateInspection.status !== 'valid') {
-      throw new LocalOfflineCiphertextError(
-        'The newly saved encrypted document copy failed local integrity verification.',
-      );
-    }
+    // downloadAndEncryptDocument authenticates every written AES-GCM frame and
+    // verifies the complete signed plaintext checksum before atomically moving
+    // the candidate into its immutable final path. Re-reading and decrypting the
+    // same file here doubled CPU and I/O without adding an independent trust
+    // boundary. Existing registrations are still fully inspected above, and
+    // every viewer authenticates the ciphertext again before exposing plaintext.
     await withAccountTransaction(database, async (transaction) => {
       if (syncContext) assertSyncContextActive(syncContext);
       const updated = await transaction.runAsync(
@@ -539,8 +796,8 @@ async function cacheDocumentForNamespace(
       await transaction.runAsync(
         `INSERT INTO offline_files
           (document_id, account_namespace, trip_id, version, encrypted_path, checksum_sha256,
-           encrypted_size_bytes, downloaded_at, last_opened_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)
+           encrypted_size_bytes, downloaded_at, last_opened_at, retention_class)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
          ON CONFLICT(document_id) DO UPDATE SET
            account_namespace = excluded.account_namespace,
            trip_id = excluded.trip_id,
@@ -549,7 +806,11 @@ async function cacheDocumentForNamespace(
            checksum_sha256 = excluded.checksum_sha256,
            encrypted_size_bytes = excluded.encrypted_size_bytes,
            downloaded_at = excluded.downloaded_at,
-           last_opened_at = NULL`,
+           last_opened_at = NULL,
+           retention_class = CASE
+             WHEN offline_files.retention_class = 'required' THEN 'required'
+             ELSE excluded.retention_class
+           END`,
         document.id,
         namespace,
         stored.trip_id,
@@ -558,6 +819,7 @@ async function cacheDocumentForNamespace(
         downloaded.checksumSha256,
         downloaded.encryptedSizeBytes,
         new Date().toISOString(),
+        retentionClass,
       );
       await transaction.runAsync(
         `DELETE FROM offline_document_jobs
@@ -606,6 +868,9 @@ function safeDocumentFailure(error: unknown): Readonly<{
 }> {
   if (isLocalOfflineCiphertextError(error)) {
     return { code: 'LOCAL_CIPHERTEXT_CORRUPT', retryable: true };
+  }
+  if (isAuthoritativeDocumentUnavailable(error)) {
+    return { code: 'DOCUMENT_UNAVAILABLE', retryable: false };
   }
   if (isDocumentMetadataConflict(error)) return { code: 'DOCUMENT_METADATA_CONFLICT', retryable: true };
   if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
@@ -697,10 +962,14 @@ async function cacheDocumentWithRetry(
   for (let attempt = 1; attempt <= MAX_DOCUMENT_DOWNLOAD_ATTEMPTS; attempt += 1) {
     try {
       if (syncContext) assertSyncContextActive(syncContext);
-      await cacheDocument(candidate, syncContext, signal);
+      await cacheDocument(candidate, syncContext, signal, 'required');
       return;
     } catch (error) {
       if (syncContext) assertSyncContextActive(syncContext);
+      // An authoritative withdrawal was already removed transactionally by
+      // cacheDocument. Treat that reconciliation as completed work rather than
+      // recreating a durable retry for an object that no longer exists.
+      if (error instanceof AuthoritativeDocumentUnavailableError) return;
       const action = documentRetryAction(error, attempt, refreshedAfterConflict);
       if (action === 'refresh_metadata') {
         refreshedAfterConflict = true;
@@ -865,48 +1134,81 @@ export async function getDocument(
   return lookup?.document ?? null;
 }
 
-export async function refreshDocuments(tripId: string, syncContext?: ImmutableSyncContext) {
+/** Record a successful authenticated decrypt, not a list view or background prefetch. */
+export async function recordOfflineDocumentOpened(options: Readonly<{
+  namespace: string;
+  tripId: string;
+  documentId: string;
+  version: number;
+}>): Promise<void> {
+  const principal = useSessionStore.getState().session?.principal;
+  if (!principal || principalAccountNamespace(principal) !== options.namespace) {
+    throw new Error('The document access no longer belongs to the active account.');
+  }
+  const database = await openAccountDatabase(options.namespace);
+  await withAccountTransaction(database, async (transaction) => {
+    await markOfflineFileOpened(transaction, {
+      ...options,
+      openedAtIso: new Date().toISOString(),
+    });
+  });
+}
+
+export async function refreshDocuments(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/documents`,
+) {
   try {
     if (syncContext) assertSyncContextActive(syncContext);
     const items = await collectCursorItems(
       (cursor) => {
         if (syncContext) assertSyncContextActive(syncContext);
-        return apiRequest(
-          `/mobile/trips/${tripId}/documents?limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-          {
+        return apiRequest(cursorResourcePath(requestPath, cursor), {
             schema: DocumentListSchema,
             ...(syncContext ? { signal: syncContext.signal } : {}),
-          },
-        );
+        });
       },
-      { maxPages: 20, maxItems: 4_000 },
+      {
+        itemKey: (document) => document.id,
+        ...(syncContext ? {
+          assertActive: () => assertSyncContextActive(syncContext),
+        } : {}),
+      },
     );
     if (syncContext) assertSyncContextActive(syncContext);
     await saveDocuments(tripId, items, 'personal', syncContext);
     return { items: await localDocuments(tripId, syncContext), offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const items = await localDocuments(tripId, syncContext);
     if (items.length) return { items, offline: true };
     throw networkError;
   }
 }
 
-export async function refreshCommonDocuments(tripId: string, syncContext?: ImmutableSyncContext) {
+export async function refreshCommonDocuments(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/common-documents`,
+) {
   try {
     if (syncContext) assertSyncContextActive(syncContext);
     const commonItems = await collectCursorItems(
       (cursor) => {
         if (syncContext) assertSyncContextActive(syncContext);
-        return apiRequest(
-          `/mobile/trips/${tripId}/common-documents?limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-          {
+        return apiRequest(cursorResourcePath(requestPath, cursor), {
             schema: CommonDocumentListSchema,
             ...(syncContext ? { signal: syncContext.signal } : {}),
-          },
-        );
+        });
       },
-      { maxPages: 20, maxItems: 4_000 },
+      {
+        itemKey: (document) => document.id,
+        ...(syncContext ? {
+          assertActive: () => assertSyncContextActive(syncContext),
+        } : {}),
+      },
     );
     if (syncContext) assertSyncContextActive(syncContext);
     const documents: DocumentMetadata[] = commonItems.map((item) => ({
@@ -929,31 +1231,45 @@ export async function refreshCommonDocuments(tripId: string, syncContext?: Immut
     return { items: await localDocuments(tripId, syncContext, 'common'), offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const items = await localDocuments(tripId, syncContext, 'common');
     if (items.length) return { items, offline: true };
     throw networkError;
   }
 }
 
-export async function refreshQr(tripId: string, syncContext?: ImmutableSyncContext) {
+export async function refreshQr(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/qr`,
+) {
   const namespace = activeNamespace(syncContext);
   const database = await openAccountDatabase(namespace);
   if (syncContext) assertSyncContextActive(syncContext);
   let qr;
   try {
-    qr = await apiRequest(`/mobile/trips/${tripId}/qr`, {
+    qr = await apiRequest(requestPath, {
       schema: PersonalQrSchema,
       ...(syncContext ? { signal: syncContext.signal } : {}),
     });
     if (syncContext) assertSyncContextActive(syncContext);
   } catch (error) {
     if (syncContext) assertSyncContextActive(syncContext);
-    if (error instanceof ApiError && error.status === 404) {
-      await deletePersonalQr(database, namespace, tripId);
+    if (error instanceof ApiError && error.status === 404 && error.code === 'NOT_FOUND') {
+      await withAccountTransaction(database, async (transaction) => {
+        if (syncContext) assertSyncContextActive(syncContext);
+        await deletePersonalQr(transaction, namespace, tripId);
+        if (syncContext) assertSyncContextActive(syncContext);
+      });
+      return { qr: null, offline: false };
     }
     throw error;
   }
-  await savePersonalQr(database, namespace, tripId, qr);
+  await withAccountTransaction(database, async (transaction) => {
+    if (syncContext) assertSyncContextActive(syncContext);
+    await savePersonalQr(transaction, namespace, tripId, qr);
+    if (syncContext) assertSyncContextActive(syncContext);
+  });
   return { qr, offline: false };
 }
 
@@ -975,20 +1291,29 @@ export async function loadQr(tripId: string, syncContext?: ImmutableSyncContext)
   }
 }
 
-export async function loadRoom(tripId: string, syncContext?: ImmutableSyncContext) {
+export async function loadRoom(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/room`,
+) {
   const namespace = activeNamespace(syncContext);
   const database = await openAccountDatabase(namespace);
   if (syncContext) assertSyncContextActive(syncContext);
   try {
-    const room = await apiRequest(`/mobile/trips/${tripId}/room`, {
+    const room = await apiRequest(requestPath, {
       schema: RoomSchema,
       ...(syncContext ? { signal: syncContext.signal } : {}),
     });
     if (syncContext) assertSyncContextActive(syncContext);
-    await saveRoomAssignment(database, namespace, tripId, room);
+    await withAccountTransaction(database, async (transaction) => {
+      if (syncContext) assertSyncContextActive(syncContext);
+      await replaceRoomAssignmentInTransaction(transaction, namespace, tripId, room);
+      if (syncContext) assertSyncContextActive(syncContext);
+    });
     return { ...room, offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const room = await localRoom(tripId, syncContext);
     if (room) return room;
     throw networkError;
@@ -1002,20 +1327,29 @@ export async function localRoom(tripId: string, syncContext?: ImmutableSyncConte
   return queryRoomAssignment(database, namespace, tripId);
 }
 
-export async function loadMeal(tripId: string, syncContext?: ImmutableSyncContext) {
+export async function loadMeal(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/meals`,
+) {
   const namespace = activeNamespace(syncContext);
   const database = await openAccountDatabase(namespace);
   if (syncContext) assertSyncContextActive(syncContext);
   try {
-    const meal = await apiRequest(`/mobile/trips/${tripId}/meals`, {
+    const meal = await apiRequest(requestPath, {
       schema: MealSchema,
       ...(syncContext ? { signal: syncContext.signal } : {}),
     });
     if (syncContext) assertSyncContextActive(syncContext);
-    await saveMealInformation(database, namespace, tripId, meal);
+    await withAccountTransaction(database, async (transaction) => {
+      if (syncContext) assertSyncContextActive(syncContext);
+      await replaceMealInformationInTransaction(transaction, namespace, tripId, meal);
+      if (syncContext) assertSyncContextActive(syncContext);
+    });
     return { ...meal, offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const meal = await localMeal(tripId, syncContext);
     if (meal) return meal;
     throw networkError;
@@ -1043,6 +1377,7 @@ export async function loadReadiness(tripId: string, syncContext?: ImmutableSyncC
     return { ...readiness, offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
+    if (syncContext) throw networkError;
     const readiness = await localReadiness(tripId, syncContext);
     if (readiness) return readiness;
     throw networkError;

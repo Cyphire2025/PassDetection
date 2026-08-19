@@ -171,10 +171,11 @@ export async function loadLocalItinerary(
 export async function refreshItinerary(
   tripId: string,
   syncContext?: ImmutableSyncContext,
+  requestPath = `/mobile/trips/${tripId}/itinerary`,
 ): Promise<{ itinerary: Itinerary | null; offline: boolean }> {
   try {
     if (syncContext) assertSyncContextActive(syncContext);
-    const itinerary = await apiRequest(`/mobile/trips/${tripId}/itinerary`, {
+    const itinerary = await apiRequest(requestPath, {
       schema: ItinerarySchema,
       ...(syncContext ? { signal: syncContext.signal } : {}),
     });
@@ -183,11 +184,19 @@ export async function refreshItinerary(
     return { itinerary, offline: false };
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
-    if (networkError instanceof ApiError && networkError.status === 404) {
-      // A 404 is authoritative publication state, not an offline/network failure.
-      // Keeping the prior rows would make an unpublished itinerary visible forever.
+    if (
+      networkError instanceof ApiError
+      && networkError.status === 404
+      && networkError.code === 'NOT_FOUND'
+    ) {
+      // Only the backend's explicit domain absence may unpublish local state.
+      // A generic HTTP_404 means the manifest pointed at a missing deployment
+      // route and must fail synchronization instead of advancing stale state.
       await clearItinerary(tripId, syncContext);
       return { itinerary: null, offline: false };
+    }
+    if (syncContext || (networkError instanceof ApiError && networkError.status === 404)) {
+      throw networkError;
     }
     const itinerary = await loadLocalItinerary(tripId, syncContext);
     if (itinerary) return { itinerary, offline: true };

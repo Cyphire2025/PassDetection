@@ -1,10 +1,13 @@
 import type { Trip } from '@/features/trips/model/trip';
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 
 import {
   FULL_TRIP_RECONCILIATION_INTERVAL_MS,
   SELECTED_TRIP_FALLBACK_INTERVAL_MS,
   changedSyncTripIds,
   mergeSyncScopes,
+  isLocalSyncProjectionQuery,
+  queryKeyMatchesChangedProjection,
   queryKeyMatchesAnyTrip,
   resolveSyncScope,
   tripCollectionsDiffer,
@@ -16,6 +19,7 @@ const trip = (overrides: Partial<Trip> = {}): Trip => ({
   destination: 'Vietnam',
   travelDate: '2026-08-12',
   returnDate: '2026-08-15',
+  timeZone: DEFAULT_TRIP_TIME_ZONE,
   role: 'coordinator',
   accessGeneration: 1,
   accessExpiresAt: null,
@@ -52,6 +56,28 @@ test('selects one trip until the periodic full reconciliation is due', () => {
     lastFullSyncAt: 1_000,
     now: 1_000 + SELECTED_TRIP_FALLBACK_INTERVAL_MS,
   })).toBe('none');
+  expect(resolveSyncScope({
+    forceFull: false,
+    selectedTripId: trip().id,
+    lastFullSyncAt: 2_000,
+    now: 1_000,
+  })).toBe('full');
+});
+
+test('publication matches only synchronized local projections', () => {
+  expect(isLocalSyncProjectionQuery(['trip-itinerary', 'trip-a', 'account-a'])).toBe(true);
+  expect(queryKeyMatchesChangedProjection(
+    ['coordinator-roster', 'account-a', 'trip-a', '', 'all'],
+    ['trip-a'],
+  )).toBe(true);
+  expect(queryKeyMatchesChangedProjection(
+    ['mobile-notifications', 'trip-a', 'account-a'],
+    ['trip-a'],
+  )).toBe(false);
+  expect(queryKeyMatchesChangedProjection(
+    ['manager-attendance-sessions', 'account-a', 'trip-a'],
+    ['trip-a'],
+  )).toBe(false);
 });
 
 test('full synchronization wins when event triggers are coalesced', () => {

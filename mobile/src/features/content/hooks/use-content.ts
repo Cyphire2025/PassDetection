@@ -3,14 +3,15 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
+import { withAccountQueryContext } from '@/core/query/account-query-context';
 import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
-import { captureSyncContext } from '@/core/sync/sync-context';
+import {
+  captureSyncContext,
+  type ImmutableSyncContext,
+} from '@/core/sync/sync-context';
+import { requestSync } from '@/core/sync/sync-trigger';
 
 import {
-  loadMeal,
-  loadQr,
-  loadReadiness,
-  loadRoom,
   localAnnouncements,
   localDocuments,
   localMeal,
@@ -19,43 +20,41 @@ import {
   localRoom,
   prefetchCommonOfflineDocuments,
   prefetchPassengerOfflineDocuments,
-  refreshAnnouncements,
-  refreshCommonDocuments,
-  refreshDocuments,
 } from '../data/content-repository';
 import { shouldPrefetchPassengerDocument } from '../data/passenger-document-policy';
 
-type CommonDocumentsResult = Awaited<ReturnType<typeof refreshCommonDocuments>>;
-type DocumentsResult = Awaited<ReturnType<typeof refreshDocuments>>;
+type DocumentsResult = {
+  items: Awaited<ReturnType<typeof localDocuments>>;
+  offline: boolean;
+};
+type CommonDocumentsResult = DocumentsResult;
 
 type CacheFirstQueryOptions<T> = {
   keyPrefix: string;
   tripId: string | null;
-  refresh: (tripId: string) => Promise<T>;
-  cached: (tripId: string) => Promise<T | null>;
+  cached: (tripId: string, context?: ImmutableSyncContext) => Promise<T | null>;
 };
 
-const cachedAnnouncements = async (tripId: string) => ({
-  items: await localAnnouncements(tripId),
+const cachedAnnouncements = async (tripId: string, context?: ImmutableSyncContext) => ({
+  items: await localAnnouncements(tripId, context),
   offline: true as const,
 });
-const cachedDocuments = async (tripId: string) => ({
-  items: await localDocuments(tripId),
+const cachedDocuments = async (tripId: string, context?: ImmutableSyncContext) => ({
+  items: await localDocuments(tripId, context),
   offline: true as const,
 });
-const cachedCommonDocuments = async (tripId: string) => ({
-  items: await localDocuments(tripId, undefined, 'common'),
+const cachedCommonDocuments = async (tripId: string, context?: ImmutableSyncContext) => ({
+  items: await localDocuments(tripId, context, 'common'),
   offline: true as const,
 });
-const cachedQr = async (tripId: string) => {
-  const qr = await localQr(tripId);
+const cachedQr = async (tripId: string, context?: ImmutableSyncContext) => {
+  const qr = await localQr(tripId, context);
   return qr ? { qr, offline: true as const } : null;
 };
 
 function useCacheFirstTripQueryState<T>({
   keyPrefix,
   tripId,
-  refresh,
   cached,
 }: CacheFirstQueryOptions<T>) {
   const agencyId = useSessionStore((state) => state.session?.principal.agencyId ?? null);
@@ -79,7 +78,10 @@ function useCacheFirstTripQueryState<T>({
   });
   const query = useQuery({
     queryKey,
-    queryFn: () => refresh(tripId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => cached(tripId!, context),
+    ),
     enabled: Boolean(accountKey && tripId && cacheHydrated),
     // A persisted snapshot is the instant first paint, not proof that the
     // server has no newer data. Always reconcile once after hydration.
@@ -87,7 +89,19 @@ function useCacheFirstTripQueryState<T>({
     refetchOnMount: 'always',
   });
 
-  return { accountKey, query, queryKey };
+  const localRefetch = query.refetch;
+  const coordinatedRefetch = useCallback((
+    options?: Parameters<typeof localRefetch>[0],
+  ) => {
+    if (!tripId) return localRefetch(options);
+    return requestSync({
+      scope: 'trip',
+      tripId,
+      reason: `manual-${keyPrefix}`,
+    }).then(() => localRefetch(options));
+  }, [keyPrefix, localRefetch, tripId]);
+
+  return { accountKey, query: { ...query, refetch: coordinatedRefetch }, queryKey };
 }
 
 export function useCacheFirstTripQuery<T>(options: CacheFirstQueryOptions<T>) {
@@ -98,7 +112,6 @@ export function useAnnouncements(tripId: string | null) {
   return useCacheFirstTripQuery({
     keyPrefix: 'trip-announcements',
     tripId,
-    refresh: refreshAnnouncements,
     cached: cachedAnnouncements,
   });
 }
@@ -109,7 +122,6 @@ export function useDocuments(tripId: string | null) {
   const { accountKey, query, queryKey } = useCacheFirstTripQueryState({
     keyPrefix: 'trip-documents',
     tripId,
-    refresh: refreshDocuments,
     cached: cachedDocuments,
   });
   const attemptedPrefetch = useRef<string | null>(null);
@@ -182,7 +194,6 @@ export function useCommonDocuments(tripId: string | null) {
   const { accountKey, query, queryKey } = useCacheFirstTripQueryState({
     keyPrefix: 'trip-common-documents',
     tripId,
-    refresh: refreshCommonDocuments,
     cached: cachedCommonDocuments,
   });
   const attemptedPrefetch = useRef<string | null>(null);
@@ -274,7 +285,6 @@ export function useQr(tripId: string | null) {
   return useCacheFirstTripQuery({
     keyPrefix: 'trip-qr',
     tripId,
-    refresh: loadQr,
     cached: cachedQr,
   });
 }
@@ -283,7 +293,6 @@ export function useRoom(tripId: string | null) {
   return useCacheFirstTripQuery({
     keyPrefix: 'trip-room',
     tripId,
-    refresh: loadRoom,
     cached: localRoom,
   });
 }
@@ -292,7 +301,6 @@ export function useMeal(tripId: string | null) {
   return useCacheFirstTripQuery({
     keyPrefix: 'trip-meal',
     tripId,
-    refresh: loadMeal,
     cached: localMeal,
   });
 }
@@ -301,7 +309,6 @@ export function useReadiness(tripId: string | null) {
   return useCacheFirstTripQuery({
     keyPrefix: 'manager-readiness',
     tripId,
-    refresh: loadReadiness,
     cached: localReadiness,
   });
 }

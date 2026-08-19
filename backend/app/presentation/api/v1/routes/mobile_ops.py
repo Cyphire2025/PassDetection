@@ -17,11 +17,14 @@ from urllib.parse import quote
 from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import case, func, or_, select, tuple_
+from sqlalchemy import case, func, or_, select, true, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from app.application.mobile.attendance_qr_evidence import (
+    build_attendance_qr_evidence,
+)
 from app.application.mobile.coordinator_roster_revision import (
     coordinator_roster_revision,
 )
@@ -49,6 +52,7 @@ from app.infrastructure.database.gc_mobile_models import (
 from app.infrastructure.database.models import (
     AttendanceRecordModel,
     AttendanceSessionModel,
+    ClientGroupModel,
     DistributedDocumentModel,
     PassengerQRTokenModel,
     PassportSubmissionModel,
@@ -125,6 +129,7 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAttendanceSessionPageResponse,
     MobileAttendanceSessionResponse,
     MobileAttendanceSummaryResponse,
+    MobileCoordinatorAttendanceTokenEvidence,
     MobileCoordinatorPassengerDetailResponse,
     MobileCoordinatorPassengerResponse,
     MobileCoordinatorRosterResponse,
@@ -176,6 +181,56 @@ class _AttendanceReplaySnapshot:
     event_passengers: dict[tuple[uuid.UUID, str], set[uuid.UUID]]
 
 
+def _latest_attendance_qr_lateral(agency_id: uuid.UUID):
+    """Return one tenant-scoped latest token row per outer passenger."""
+
+    return (
+        select(
+            PassengerQRTokenModel.token_hash.label("attendance_token_hash"),
+            PassengerQRTokenModel.token_version.label("attendance_token_version"),
+            PassengerQRTokenModel.is_active.label("attendance_token_is_active"),
+            PassengerQRTokenModel.revoked_at.label("attendance_token_revoked_at"),
+            PassengerQRTokenModel.expires_at.label("attendance_token_expires_at"),
+            PassengerQRTokenModel.updated_at.label("attendance_token_updated_at"),
+        )
+        .where(
+            PassengerQRTokenModel.agency_id == agency_id,
+            PassengerQRTokenModel.passenger_id == PassportSubmissionModel.id,
+        )
+        .order_by(
+            PassengerQRTokenModel.token_version.desc(),
+            PassengerQRTokenModel.created_at.desc(),
+        )
+        .limit(1)
+        .lateral("latest_attendance_qr")
+    )
+
+
+def _attendance_qr_evidence_response(
+    row: object,
+    *,
+    observed_at: datetime,
+) -> MobileCoordinatorAttendanceTokenEvidence:
+    evidence = build_attendance_qr_evidence(
+        token_hash=getattr(row, "attendance_token_hash", None),
+        token_version=getattr(row, "attendance_token_version", None),
+        is_active=getattr(row, "attendance_token_is_active", None),
+        revoked_at=getattr(row, "attendance_token_revoked_at", None),
+        expires_at=getattr(row, "attendance_token_expires_at", None),
+        updated_at=getattr(row, "attendance_token_updated_at", None),
+        observed_at=observed_at,
+    )
+    return MobileCoordinatorAttendanceTokenEvidence(
+        token_hash=evidence.token_hash,
+        token_version=evidence.token_version,
+        state=evidence.state,
+        token_expires_at=evidence.token_expires_at,
+        token_updated_at=evidence.token_updated_at,
+        evidence_observed_at=evidence.evidence_observed_at,
+        evidence_valid_until=evidence.evidence_valid_until,
+    )
+
+
 @router.get(
     "/coordinator/groups/{group_id}/passengers",
     response_model=MobileCoordinatorRosterResponse,
@@ -183,6 +238,10 @@ class _AttendanceReplaySnapshot:
 async def list_mobile_coordinator_passengers(
     group_id: uuid.UUID,
     search: str = Query(default="", max_length=120),
+    roster_filter: Literal["all", "rooming", "meals"] = Query(
+        default="all",
+        alias="filter",
+    ),
     cursor: uuid.UUID | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=_MAX_ROSTER_PAGE),
     claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
@@ -190,6 +249,8 @@ async def list_mobile_coordinator_passengers(
 ) -> MobileCoordinatorRosterResponse:
     trip = await _require_coordinator_trip(session, claims, group_id)
     del trip
+    evidence_observed_at = datetime.now(tz=UTC)
+    latest_attendance_qr = _latest_attendance_qr_lateral(claims.agency_id)
 
     employee_code = func.coalesce(
         PassportSubmissionModel.confirmed_fields["agent_employee_code"].as_string(),
@@ -218,6 +279,20 @@ async def list_mobile_coordinator_passengers(
         PassportSubmissionModel.group_id == group_id,
         PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES),
     ]
+    if roster_filter == "rooming":
+        filters.extend(
+            (
+                room_number.is_not(None),
+                func.length(func.trim(room_number)) > 0,
+            )
+        )
+    elif roster_filter == "meals":
+        filters.extend(
+            (
+                meal_preference.is_not(None),
+                func.length(func.trim(meal_preference)) > 0,
+            )
+        )
     normalized_search = " ".join(search.split())
     if normalized_search:
         filters.append(
@@ -240,7 +315,14 @@ async def list_mobile_coordinator_passengers(
                     employee_code.label("employee_code"),
                     meal_preference.label("meal_preference"),
                     room_number.label("room_number"),
+                    latest_attendance_qr.c.attendance_token_hash,
+                    latest_attendance_qr.c.attendance_token_version,
+                    latest_attendance_qr.c.attendance_token_is_active,
+                    latest_attendance_qr.c.attendance_token_revoked_at,
+                    latest_attendance_qr.c.attendance_token_expires_at,
+                    latest_attendance_qr.c.attendance_token_updated_at,
                 )
+                .outerjoin(latest_attendance_qr, true())
                 .where(*filters)
                 .order_by(PassportSubmissionModel.id)
                 .limit(limit + 1)
@@ -264,6 +346,11 @@ async def list_mobile_coordinator_passengers(
             ).scalars()
         )
     session_completed = attendance_session is not None and attendance_session.status == "completed"
+    roster_revision = await coordinator_roster_revision(
+        session,
+        agency_id=claims.agency_id,
+        group_id=group_id,
+    )
     return MobileCoordinatorRosterResponse(
         items=[
             MobileCoordinatorPassengerResponse(
@@ -280,11 +367,16 @@ async def list_mobile_coordinator_passengers(
                 room_number=_bounded_optional_text(row.room_number, 80),
                 meal_preference=_bounded_optional_text(row.meal_preference, 255),
                 has_alert=False,
+                attendance_token=_attendance_qr_evidence_response(
+                    row,
+                    observed_at=evidence_observed_at,
+                ),
             )
             for row in rows
         ],
         next_cursor=str(rows[-1].id) if has_more and rows else None,
         total=int(total or 0),
+        roster_revision=roster_revision,
     )
 
 
@@ -500,48 +592,55 @@ async def _mobile_operational_passenger_detail(
         passenger_filters.append(
             PassportSubmissionModel.status.in_(OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES)
         )
-    row = (
-        await session.execute(
-            select(
-                PassportSubmissionModel.id,
-                PassportSubmissionModel.client_name,
-                PassportSubmissionModel.client_phone,
-                PassportSubmissionModel.client_email,
-                PassportSubmissionModel.departure_city,
-                PassportSubmissionModel.nearest_domestic_airport,
-                PassportSubmissionModel.family_relation,
-                PassportSubmissionModel.family_head_name,
-                PassportSubmissionModel.family_head_phone,
-                PassportSubmissionModel.family_head_email,
-                PassportSubmissionModel.submission_mode,
-                PassportSubmissionModel.qualifier_relation_label,
-                PassportSubmissionModel.status,
-                PassportSubmissionModel.staff_metadata,
-                PassportSubmissionModel.custom_answers,
-                PassportSubmissionModel.custom_detail_answers,
-                PassportSubmissionModel.image_s3_key,
-                PassportSubmissionModel.updated_at,
-                employee_code.label("employee_code"),
-                employee_type.label("employee_type"),
-                staff_code.label("staff_code"),
-                base_city.label("base_city"),
-                agency_dealership_name.label("agency_dealership_name"),
-                zone_name.label("zone_name"),
-                meal_preference.label("meal_preference"),
-                designation.label("designation"),
-                department.label("department"),
-                gender.label("gender"),
-                date_of_birth.label("date_of_birth"),
-                nationality.label("nationality"),
-                passport_surname.label("passport_surname"),
-                passport_given_names.label("passport_given_names"),
-                passport_place_of_issue.label("passport_place_of_issue"),
-                passport_issuing_country.label("passport_issuing_country"),
-                passport_date_of_issue.label("passport_date_of_issue"),
-                passport_date_of_expiry.label("passport_date_of_expiry"),
-            ).where(*passenger_filters)
-        )
-    ).one_or_none()
+    passenger_statement = select(
+        PassportSubmissionModel.id,
+        PassportSubmissionModel.client_name,
+        PassportSubmissionModel.client_phone,
+        PassportSubmissionModel.client_email,
+        PassportSubmissionModel.departure_city,
+        PassportSubmissionModel.nearest_domestic_airport,
+        PassportSubmissionModel.family_relation,
+        PassportSubmissionModel.family_head_name,
+        PassportSubmissionModel.family_head_phone,
+        PassportSubmissionModel.family_head_email,
+        PassportSubmissionModel.submission_mode,
+        PassportSubmissionModel.qualifier_relation_label,
+        PassportSubmissionModel.status,
+        PassportSubmissionModel.staff_metadata,
+        PassportSubmissionModel.custom_answers,
+        PassportSubmissionModel.custom_detail_answers,
+        PassportSubmissionModel.image_s3_key,
+        PassportSubmissionModel.updated_at,
+        employee_code.label("employee_code"),
+        employee_type.label("employee_type"),
+        staff_code.label("staff_code"),
+        base_city.label("base_city"),
+        agency_dealership_name.label("agency_dealership_name"),
+        zone_name.label("zone_name"),
+        meal_preference.label("meal_preference"),
+        designation.label("designation"),
+        department.label("department"),
+        gender.label("gender"),
+        date_of_birth.label("date_of_birth"),
+        nationality.label("nationality"),
+        passport_surname.label("passport_surname"),
+        passport_given_names.label("passport_given_names"),
+        passport_place_of_issue.label("passport_place_of_issue"),
+        passport_issuing_country.label("passport_issuing_country"),
+        passport_date_of_issue.label("passport_date_of_issue"),
+        passport_date_of_expiry.label("passport_date_of_expiry"),
+    )
+    if operationally_approved_only:
+        latest_attendance_qr = _latest_attendance_qr_lateral(claims.agency_id)
+        passenger_statement = passenger_statement.add_columns(
+            latest_attendance_qr.c.attendance_token_hash,
+            latest_attendance_qr.c.attendance_token_version,
+            latest_attendance_qr.c.attendance_token_is_active,
+            latest_attendance_qr.c.attendance_token_revoked_at,
+            latest_attendance_qr.c.attendance_token_expires_at,
+            latest_attendance_qr.c.attendance_token_updated_at,
+        ).outerjoin(latest_attendance_qr, true())
+    row = (await session.execute(passenger_statement.where(*passenger_filters))).one_or_none()
     if row is None:
         raise EntityNotFoundError("Coordinator passenger", passenger_id)
 
@@ -662,6 +761,7 @@ async def _mobile_operational_passenger_detail(
             ).scalar_one()
         )
     session_completed = attendance_session is not None and attendance_session.status == "completed"
+    evidence_observed_at = datetime.now(tz=UTC)
     return MobileCoordinatorPassengerDetailResponse(
         id=row.id,
         display_name=row.client_name,
@@ -718,6 +818,11 @@ async def _mobile_operational_passenger_detail(
             "available" if "hotel_voucher" in document_types else "not_available"
         ),
         other_document_status=("available" if "other" in document_types else "not_available"),
+        attendance_token=(
+            _attendance_qr_evidence_response(row, observed_at=evidence_observed_at)
+            if operationally_approved_only
+            else None
+        ),
         additional_details=additional_details,
         updated_at=row.updated_at,
         has_alert=False,
@@ -930,6 +1035,12 @@ async def create_mobile_attendance_session(
     await _require_coordinator_trip(session, claims, group_id)
     display_name = " ".join(body.name.split())
     normalized_name = normalize_attendance_activity_name(display_name)
+    await _assert_attendance_session_creation_capacity(
+        session,
+        claims=claims,
+        group_id=group_id,
+        normalized_name=normalized_name,
+    )
     now = datetime.now(tz=UTC)
     candidate_id = uuid.uuid4()
     inserted_id = (
@@ -985,6 +1096,71 @@ async def create_mobile_attendance_session(
             attendance_sessions=[attendance_session],
         )
     )[0]
+
+
+async def _assert_attendance_session_creation_capacity(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    group_id: uuid.UUID,
+    normalized_name: str,
+) -> None:
+    """Serialize new activity admission on the tenant-owned group row.
+
+    Retrying an already-active normalized activity remains idempotent even at
+    capacity. A genuinely new activity is rejected before insertion, and the
+    group lock prevents concurrent coordinators from both admitting the final
+    slot.
+    """
+
+    locked_group_id = await session.scalar(
+        select(ClientGroupModel.id)
+        .where(
+            ClientGroupModel.id == group_id,
+            ClientGroupModel.agency_id == claims.agency_id,
+            ClientGroupModel.deleted_at.is_(None),
+        )
+        .with_for_update()
+    )
+    if locked_group_id is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
+
+    existing_id = await session.scalar(
+        select(AttendanceSessionModel.id)
+        .where(
+            AttendanceSessionModel.agency_id == claims.agency_id,
+            AttendanceSessionModel.group_id == group_id,
+            AttendanceSessionModel.normalized_name == normalized_name,
+            AttendanceSessionModel.status.in_(("draft", "active")),
+            AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+        )
+        .limit(1)
+    )
+    if existing_id is not None:
+        return
+
+    current = int(
+        await session.scalar(
+            select(func.count(AttendanceSessionModel.id)).where(
+                AttendanceSessionModel.agency_id == claims.agency_id,
+                AttendanceSessionModel.group_id == group_id,
+                AttendanceSessionModel.id == AttendanceSessionModel.canonical_session_id,
+            )
+        )
+        or 0
+    )
+    maximum = get_settings().mobile.max_attendance_sessions_per_group
+    if current >= maximum:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "ATTENDANCE_SESSION_CAPACITY_REACHED",
+                "message": (
+                    f"This trip supports at most {maximum:,} attendance activities. "
+                    "Archive or remove an existing activity before creating another."
+                ),
+            },
+        )
 
 
 @router.get(

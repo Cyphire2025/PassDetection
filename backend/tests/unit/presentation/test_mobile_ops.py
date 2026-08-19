@@ -5,6 +5,7 @@ import json
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from typing import Literal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -18,6 +19,7 @@ from app.presentation.api.v1.routes.mobile_ops import (
     _MANAGER_PREVIEW_DATABASE_TYPES,
     _PUSH_ONLY_NOTIFICATION_TYPES,
     _accessible_group_ids,
+    _assert_attendance_session_creation_capacity,
     _attendance_rejection_code,
     _attendance_replay_snapshot,
     _attendance_replay_state,
@@ -37,6 +39,7 @@ from app.presentation.api.v1.routes.mobile_ops import (
     create_mobile_incident,
     get_mobile_coordinator_passenger,
     get_mobile_manager_passenger,
+    list_mobile_coordinator_passengers,
     list_mobile_manager_passengers,
     router,
 )
@@ -141,6 +144,107 @@ async def test_client_manager_roster_includes_every_group_passenger_status() -> 
     assert "passport_submissions.agency_id =" in sql
     assert "passport_submissions.group_id =" in sql
     assert "passport_submissions.status" not in sql
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("roster_filter", "required_sql"),
+    (("rooming", "rooming_rooms.room_number"), ("meals", "meal_preference")),
+)
+async def test_coordinator_roster_filters_before_count_and_cursor_pagination(
+    roster_filter: Literal["rooming", "meals"],
+    required_sql: str,
+) -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    count_result = MagicMock()
+    count_result.scalar_one.return_value = 0
+    rows_result = MagicMock()
+    rows_result.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[count_result, rows_result])
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._require_coordinator_trip",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops._latest_attendance_session",
+            new=AsyncMock(return_value=None),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_ops.coordinator_roster_revision",
+            new=AsyncMock(return_value=7),
+        ),
+    ):
+        response = await list_mobile_coordinator_passengers(
+            group_id=group_id,
+            search="",
+            roster_filter=roster_filter,
+            cursor=None,
+            limit=100,
+            claims=claims,
+            session=session,
+        )
+
+    assert response.total == 0
+    statements = [
+        str(call.args[0].compile(compile_kwargs={"literal_binds": True})).lower()
+        for call in session.execute.await_args_list
+    ]
+    assert len(statements) == 2
+    for sql in statements:
+        assert required_sql in sql
+        assert "is not null" in sql
+        assert "length(trim" in sql
+
+
+@pytest.mark.asyncio
+async def test_attendance_session_capacity_is_tenant_scoped_and_serialized() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    session = MagicMock()
+    session.scalar = AsyncMock(side_effect=[group_id, None, 10_000])
+
+    with pytest.raises(HTTPException) as caught:
+        await _assert_attendance_session_creation_capacity(
+            session,
+            claims=claims,
+            group_id=group_id,
+            normalized_name="departure",
+        )
+
+    assert caught.value.status_code == 409
+    assert caught.value.detail["code"] == "ATTENDANCE_SESSION_CAPACITY_REACHED"
+    assert session.scalar.await_count == 3
+    lock_sql = str(
+        session.scalar.await_args_list[0].args[0].compile(
+            compile_kwargs={"literal_binds": True}
+        )
+    )
+    assert "client_groups.agency_id" in lock_sql
+    assert "client_groups.deleted_at IS NULL" in lock_sql
+    assert "FOR UPDATE" in lock_sql
+
+
+@pytest.mark.asyncio
+async def test_attendance_session_capacity_keeps_idempotent_active_name_retry() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    existing_id = uuid.uuid4()
+    session = MagicMock()
+    session.scalar = AsyncMock(side_effect=[group_id, existing_id])
+
+    await _assert_attendance_session_creation_capacity(
+        session,
+        claims=claims,
+        group_id=group_id,
+        normalized_name="departure",
+    )
+
+    assert session.scalar.await_count == 2
+
 
 
 @pytest.mark.asyncio

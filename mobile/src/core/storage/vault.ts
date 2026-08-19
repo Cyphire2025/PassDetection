@@ -3,17 +3,17 @@ import {
   AESSealedData,
   CryptoDigestAlgorithm,
   aesDecryptAsync,
-  aesEncryptAsync,
-  digest,
   digestStringAsync,
   randomUUID,
 } from 'expo-crypto';
 import { Directory, File, FileMode, Paths } from 'expo-file-system';
 
-import { apiRequest, authorizedDownloadResponse } from '@/core/api/client';
+import { apiRequest } from '@/core/api/client';
 import { DocumentDownloadAuthorizationSchema } from '@/core/api/contracts';
 import { AbortableSemaphore } from '@/core/async/abortable-semaphore';
+import { AbortableSharedTaskRegistry } from '@/core/async/abortable-shared-task';
 import { assertSensitiveOfflineStorageAllowed } from '@/core/security/device-risk';
+import { createDocumentAuthorizationIntegrityProof } from '@/core/security/app-integrity';
 
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
 import { getOrCreateSecret } from './secure-store';
@@ -22,18 +22,31 @@ import {
   type TemporaryViewCacheEntry,
 } from './temporary-view-cache-policy';
 import {
-  VAULT_PLAINTEXT_CHUNK_BYTES,
   VaultChunkContainerError,
-  chunkedVaultMagic,
-  consumePlaintextStreamBounded,
-  encodeVaultChunkFrame,
-  isChunkedVaultPrefix,
   maximumChunkedVaultBytes,
-  recoverChunkedVault,
-  type VaultChunkCipher,
-  type VaultChunkReader,
   type VaultChunkRecovery,
 } from './vault-chunk-container';
+import {
+  fileUsesChunkContainer,
+  recoverEncryptedChunks,
+  recoverOrResetEncryptedStaging,
+  sha256,
+  validateExistingCiphertext,
+  vaultChunkCipher,
+  vaultDocumentAdditionalData,
+} from './vault-crypto';
+import {
+  beginNativeTransferStagingWrite,
+  DocumentTransferIntegrityError,
+  downloadAndAppendAuthorizedFile,
+  protectNativeTransferStagingFromBackup,
+  purgeNativeTransferStaging,
+} from './vault-native-transfer';
+import {
+  assertDocumentOperationActive,
+  documentAbortError,
+  waitForDocumentDelay,
+} from './vault-operation';
 import {
   ALLOWED_DOCUMENT_CONTENT_TYPES,
   MAX_CONCURRENT_DOWNLOADS,
@@ -44,7 +57,6 @@ import {
   planVaultOrphanCleanup,
   shouldDiscardManagedCiphertextAfterFailure,
   validateAuthorizedDocumentPath,
-  validateDeclaredDocumentLength,
   validateVaultDocument,
   validateVaultDocumentIdentity,
   type VaultDocument,
@@ -54,6 +66,18 @@ import {
   TripVaultWriteCoordinator,
   VaultWriteCoordinator,
 } from './vault-write-coordinator';
+import {
+  DEFAULT_VAULT_STORAGE_QUOTA_POLICY,
+  type VaultStorageQuotaPolicy,
+} from './vault-quota-policy';
+import {
+  inspectVaultStorageQuotaWithRuntime,
+  reserveVaultStorageQuotaWithRuntime,
+  type VaultQuotaEvictionCandidate,
+  type VaultStorageQuotaReclaimer,
+  type VaultStorageQuotaRuntime,
+  type VaultStorageQuotaStatus,
+} from './vault-storage-quota';
 
 const vaultWrites = new VaultWriteCoordinator();
 const temporaryViewWrites = new TripVaultWriteCoordinator();
@@ -104,6 +128,7 @@ const activeVaultWrites = new Map<string, VaultWriteLease>();
 const activeStagingUris = new Set<string>();
 type CachedTemporaryView = TemporaryViewCacheEntry & { file: File };
 const cachedTemporaryViews = new Map<string, CachedTemporaryView>();
+const temporaryViewDecryptions = new AbortableSharedTaskRegistry<string, File>();
 
 function temporaryViewCacheKey(input: VaultDocument): string {
   return [
@@ -187,9 +212,43 @@ async function vaultDirectory(namespace: string, tripId: string): Promise<Direct
   return root;
 }
 
-function aad(input: VaultDocument): Uint8Array {
-  return new TextEncoder().encode(
-    `${input.namespace}|${input.tripId}|${input.documentId}|${input.version}|${input.checksumSha256}`,
+const vaultStorageQuotaRuntime: VaultStorageQuotaRuntime = {
+  activeEncryptedUris: () => [
+    ...[...activeVaultWrites.values()].map(({ file }) => file.uri),
+    ...activeStagingUris,
+  ],
+  managedVaultRoot,
+  namespaceHash,
+};
+
+/**
+ * Reports encrypted-vault pressure without exposing account identifiers or document paths.
+ * Active writes are represented by their remaining worst-case growth, so the status cannot
+ * temporarily under-report capacity while ciphertext is still being streamed.
+ */
+export function inspectVaultStorageQuota(
+  namespace: string,
+  policy: VaultStorageQuotaPolicy = DEFAULT_VAULT_STORAGE_QUOTA_POLICY,
+): Promise<VaultStorageQuotaStatus> {
+  return inspectVaultStorageQuotaWithRuntime(vaultStorageQuotaRuntime, namespace, policy);
+}
+
+async function reserveVaultStorageQuota(
+  namespace: string,
+  staging: File,
+  maximumEncryptedBytes: number,
+  expectedPlaintextBytes: number,
+  reclaimer?: VaultStorageQuotaReclaimer,
+  policy: VaultStorageQuotaPolicy = DEFAULT_VAULT_STORAGE_QUOTA_POLICY,
+): Promise<() => void> {
+  return reserveVaultStorageQuotaWithRuntime(
+    vaultStorageQuotaRuntime,
+    namespace,
+    staging,
+    maximumEncryptedBytes,
+    expectedPlaintextBytes,
+    reclaimer,
+    policy,
   );
 }
 
@@ -234,302 +293,7 @@ export function discardEncryptedOfflineFile(
   if (lease.file.exists) lease.file.delete();
 }
 
-async function sha256(bytes: Uint8Array): Promise<string> {
-  let input: ArrayBuffer;
-  if (
-    bytes.buffer instanceof ArrayBuffer &&
-    bytes.byteOffset === 0 &&
-    bytes.byteLength === bytes.buffer.byteLength
-  ) {
-    input = bytes.buffer;
-  } else {
-    const owned = new Uint8Array(bytes.byteLength);
-    owned.set(bytes);
-    input = owned.buffer;
-  }
-  const hashed = new Uint8Array(await digest(CryptoDigestAlgorithm.SHA256, input));
-  return Array.from(hashed, (value) => value.toString(16).padStart(2, '0')).join('');
-}
-
-function vaultChunkCipher(key: AESEncryptionKey): VaultChunkCipher {
-  return {
-    seal: async (plaintext, additionalData) => {
-      const sealed = await aesEncryptAsync(plaintext, key, { additionalData });
-      return sealed.combined('bytes');
-    },
-    open: async (sealed, additionalData) => aesDecryptAsync(
-      AESSealedData.fromCombined(sealed),
-      key,
-      { additionalData },
-    ),
-  };
-}
-
-function documentAbortError(signal?: AbortSignal): Error {
-  if (signal?.reason instanceof Error) return signal.reason;
-  const error = new Error('Document download was cancelled.');
-  error.name = 'AbortError';
-  return error;
-}
-
 const downloadSlots = new AbortableSemaphore(MAX_CONCURRENT_DOWNLOADS, documentAbortError);
-
-function assertDocumentOperationActive(signal?: AbortSignal): void {
-  if (signal?.aborted) throw documentAbortError(signal);
-}
-
-async function waitForDocumentDelay(milliseconds: number, signal?: AbortSignal): Promise<void> {
-  assertDocumentOperationActive(signal);
-  if (!signal) {
-    await new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
-    return;
-  }
-  await new Promise<void>((resolve, reject) => {
-    let settled = false;
-    const finish = (operation: () => void) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      signal.removeEventListener('abort', onAbort);
-      operation();
-    };
-    const onAbort = () => finish(() => reject(documentAbortError(signal)));
-    const timer = setTimeout(() => finish(resolve), milliseconds);
-    signal.addEventListener('abort', onAbort, { once: true });
-    if (signal.aborted) onAbort();
-  });
-}
-
-async function withVaultChunkReader<T>(
-  file: File,
-  operation: (reader: VaultChunkReader) => Promise<T> | T,
-): Promise<T> {
-  const handle = file.open(FileMode.ReadOnly);
-  try {
-    return await operation({
-      size: file.size,
-      read: (offset, length) => {
-        const output = new Uint8Array(length);
-        let outputOffset = 0;
-        handle.offset = offset;
-        while (outputOffset < length) {
-          const next = handle.readBytes(length - outputOffset);
-          if (!next.byteLength) break;
-          output.set(next, outputOffset);
-          outputOffset += next.byteLength;
-        }
-        return outputOffset === length ? output : output.subarray(0, outputOffset);
-      },
-    });
-  } finally {
-    handle.close();
-  }
-}
-
-async function recoverEncryptedChunks(
-  file: File,
-  cipher: VaultChunkCipher,
-  input: VaultDocument,
-  onPlaintext?: (plaintext: Uint8Array) => void,
-  signal?: AbortSignal,
-): Promise<VaultChunkRecovery> {
-  assertDocumentOperationActive(signal);
-  return withVaultChunkReader(file, (reader) => recoverChunkedVault(
-    reader,
-    cipher,
-    aad(input),
-    input.expectedSizeBytes,
-    (plaintext) => {
-      assertDocumentOperationActive(signal);
-      onPlaintext?.(plaintext);
-    },
-  ));
-}
-
-async function fileUsesChunkContainer(file: File): Promise<boolean> {
-  if (!file.exists || file.size < chunkedVaultMagic().byteLength) return false;
-  return withVaultChunkReader(file, (reader) => isChunkedVaultPrefix(
-    reader.read(0, chunkedVaultMagic().byteLength),
-  ));
-}
-
-function initializeEncryptedStaging(file: File): void {
-  if (file.exists) file.delete();
-  file.create({ overwrite: false, intermediates: true });
-  const handle = file.open(FileMode.WriteOnly);
-  try {
-    handle.writeBytes(chunkedVaultMagic());
-  } finally {
-    handle.close();
-  }
-}
-
-async function validateExistingCiphertext(
-  file: File,
-  key: AESEncryptionKey,
-  input: VaultDocument,
-  signal?: AbortSignal,
-): Promise<boolean> {
-  assertDocumentOperationActive(signal);
-  if (!file.exists || file.size < 29) return false;
-  if (await fileUsesChunkContainer(file)) {
-    if (file.size > maximumChunkedVaultBytes(input.expectedSizeBytes)) return false;
-    const recovered = await recoverEncryptedChunks(file, vaultChunkCipher(key), input, undefined, signal);
-    assertDocumentOperationActive(signal);
-    const valid = recovered.plaintextBytes === input.expectedSizeBytes
-      && recovered.hasher.hexDigest().toLowerCase() === input.checksumSha256.toLowerCase();
-    assertDocumentOperationActive(signal);
-    return valid;
-  }
-  if (file.size > input.expectedSizeBytes + 64) return false;
-  assertDocumentOperationActive(signal);
-  const sealed = AESSealedData.fromCombined(await file.bytes());
-  assertDocumentOperationActive(signal);
-  const plaintext = await aesDecryptAsync(sealed, key, { additionalData: aad(input) });
-  assertDocumentOperationActive(signal);
-  const checksum = await sha256(plaintext);
-  assertDocumentOperationActive(signal);
-  return plaintext.byteLength === input.expectedSizeBytes
-    && checksum.toLowerCase() === input.checksumSha256.toLowerCase();
-}
-
-function responseContentType(response: Response): string {
-  return (response.headers.get('content-type') ?? '').split(';', 1)[0]?.trim().toLowerCase() ?? '';
-}
-
-class DocumentTransferIntegrityError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'DocumentTransferIntegrityError';
-  }
-}
-
-function validateDownloadResponse(
-  response: Response,
-  expectedContentType: string,
-  expectedSizeBytes: number,
-  rangeStart: number,
-): void {
-  const contentType = responseContentType(response);
-  if (!ALLOWED_DOCUMENT_CONTENT_TYPES.has(contentType) || contentType !== expectedContentType.toLowerCase()) {
-    throw new DocumentTransferIntegrityError('Downloaded document type did not match its metadata.');
-  }
-  if (rangeStart > 0) {
-    if (response.status !== 206) {
-      throw new DocumentTransferIntegrityError('The server did not honor the document resume request.');
-    }
-    const expectedRange = `bytes ${rangeStart}-${expectedSizeBytes - 1}/${expectedSizeBytes}`;
-    if (response.headers.get('content-range') !== expectedRange) {
-      throw new DocumentTransferIntegrityError('The resumed document range did not match its metadata.');
-    }
-  } else if (response.status !== 200 && response.status !== 206) {
-    throw new DocumentTransferIntegrityError('The document server returned an invalid download response.');
-  }
-  try {
-    validateDeclaredDocumentLength(
-      response.headers.get('content-length'),
-      expectedSizeBytes - rangeStart,
-    );
-  } catch {
-    throw new DocumentTransferIntegrityError(
-      'The downloaded document length did not match its signed metadata.',
-    );
-  }
-}
-
-/**
- * Reads one authorized document response into its signed, exact-size buffer.
- *
- * This is exported so the transport state machine can be exercised directly
- * without involving platform key stores or the encrypted filesystem. It is
- * still an internal vault primitive; callers should use
- * `downloadAndEncryptDocument` for production document downloads.
- */
-export async function readResponseBytesBounded(
-  initialResponse: Response,
-  maximumBytes: number,
-  expectedContentType: string,
-  resume: (offset: number) => Promise<Response>,
-  signal?: AbortSignal,
-): Promise<Uint8Array> {
-  // The signed grant gives an exact upper bound, so fill one preallocated buffer instead
-  // of retaining every network chunk and then allocating a second full-size copy.
-  const bytes = new Uint8Array(maximumBytes);
-  let offset = 0;
-  let response = initialResponse;
-  let resumeAttempts = 0;
-
-  while (offset < maximumBytes) {
-    assertDocumentOperationActive(signal);
-    validateDownloadResponse(response, expectedContentType, maximumBytes, offset);
-    const reader = response.body?.getReader();
-    try {
-      if (!reader) {
-        const remainder = new Uint8Array(await response.arrayBuffer());
-        assertDocumentOperationActive(signal);
-        if (offset + remainder.byteLength > maximumBytes) {
-          throw new DocumentTransferIntegrityError('Downloaded document exceeded its allowed size.');
-        }
-        bytes.set(remainder, offset);
-        offset += remainder.byteLength;
-      } else {
-        while (true) {
-          const next = await reader.read();
-          if (next.done) break;
-          if (!next.value?.byteLength) continue;
-          if (offset + next.value.byteLength > maximumBytes) {
-            await reader.cancel('Document exceeded its allowed size.').catch(() => undefined);
-            throw new DocumentTransferIntegrityError('Downloaded document exceeded its allowed size.');
-          }
-          bytes.set(next.value, offset);
-          offset += next.value.byteLength;
-        }
-      }
-      if (offset === maximumBytes) return bytes;
-      throw new Error('Document transfer ended before all signed bytes were received.');
-    } catch (error) {
-      await reader?.cancel().catch(() => undefined);
-      if (signal?.aborted) throw documentAbortError(signal);
-      if (
-        error instanceof DocumentTransferIntegrityError ||
-        resumeAttempts >= 2 ||
-        offset <= 0
-      ) {
-        throw error;
-      }
-      resumeAttempts += 1;
-      await waitForDocumentDelay(250 * (2 ** (resumeAttempts - 1)), signal);
-      response = await resume(offset);
-    }
-  }
-  return bytes;
-}
-
-async function recoverOrResetEncryptedStaging(
-  file: File,
-  cipher: VaultChunkCipher,
-  input: VaultDocument,
-  signal?: AbortSignal,
-): Promise<VaultChunkRecovery> {
-  assertDocumentOperationActive(signal);
-  if (file.exists) {
-    try {
-      if (file.size > maximumChunkedVaultBytes(input.expectedSizeBytes)) {
-        throw new VaultChunkContainerError('Encrypted vault staging exceeded its signed size.');
-      }
-      return await recoverEncryptedChunks(file, cipher, input, undefined, signal);
-    } catch {
-      if (!shouldDiscardManagedCiphertextAfterFailure(signal)) {
-        throw documentAbortError(signal);
-      }
-      // A partial frame can be left behind if the OS terminates the process during an append.
-      // It is never trusted or decrypted further: discard it and restart from the signed source.
-      file.delete();
-    }
-  }
-  initializeEncryptedStaging(file);
-  return recoverEncryptedChunks(file, cipher, input, undefined, signal);
-}
 
 function pruneSupersededResumeStaging(
   root: Directory,
@@ -550,121 +314,6 @@ function pruneSupersededResumeStaging(
 
 async function waitForTransferRetry(attempt: number, signal?: AbortSignal): Promise<void> {
   await waitForDocumentDelay(250 * (2 ** (attempt - 1)), signal);
-}
-
-type DocumentResponseReader = {
-  read: () => Promise<{ done: boolean; value?: Uint8Array | undefined }>;
-  cancel: (reason?: string) => Promise<unknown>;
-};
-
-/**
- * Open an authorized response as bounded byte chunks on every React Native transport.
- *
- * React Native's fetch implementation can expose `arrayBuffer()` without exposing a
- * WHATWG `ReadableStream`. The signed document size already caps the response at 25 MiB,
- * so that platform path is safe to buffer once and is then drained into the encrypted
- * vault in the same fixed-size frames as a streaming response.
- */
-export async function openDocumentResponseReader(
-  response: Response,
-  expectedBytes: number,
-  signal?: AbortSignal,
-): Promise<DocumentResponseReader> {
-  if (
-    !Number.isSafeInteger(expectedBytes)
-    || expectedBytes < 1
-    || expectedBytes > MAX_DOCUMENT_BYTES
-  ) {
-    throw new DocumentTransferIntegrityError('The document response size was invalid.');
-  }
-
-  const networkReader = response.body?.getReader();
-  if (networkReader) {
-    return {
-      read: async () => networkReader.read(),
-      cancel: async (reason) => networkReader.cancel(reason),
-    };
-  }
-
-  assertDocumentOperationActive(signal);
-  const bufferedBytes = new Uint8Array(await response.arrayBuffer());
-  assertDocumentOperationActive(signal);
-  if (bufferedBytes.byteLength > expectedBytes) {
-    throw new DocumentTransferIntegrityError('Downloaded document exceeded its allowed size.');
-  }
-  if (bufferedBytes.byteLength < expectedBytes) {
-    throw new DocumentTransferIntegrityError(
-      'Document transfer ended before all signed bytes were received.',
-    );
-  }
-
-  let offset = 0;
-  return {
-    read: async () => {
-      assertDocumentOperationActive(signal);
-      if (offset >= bufferedBytes.byteLength) {
-        return { done: true, value: undefined };
-      }
-      const end = Math.min(
-        offset + VAULT_PLAINTEXT_CHUNK_BYTES,
-        bufferedBytes.byteLength,
-      );
-      const value = bufferedBytes.subarray(offset, end);
-      offset = end;
-      return { done: false, value };
-    },
-    cancel: async () => {
-      offset = bufferedBytes.byteLength;
-    },
-  };
-}
-
-async function appendAuthorizedResponse(
-  response: Response,
-  staging: File,
-  cipher: VaultChunkCipher,
-  input: VaultDocument,
-  recovery: VaultChunkRecovery,
-  signal?: AbortSignal,
-): Promise<number> {
-  validateDownloadResponse(
-    response,
-    input.contentType,
-    input.expectedSizeBytes,
-    recovery.plaintextBytes,
-  );
-  const remainingBytes = input.expectedSizeBytes - recovery.plaintextBytes;
-  const responseReader = await openDocumentResponseReader(response, remainingBytes, signal);
-  const appendHandle = staging.open(FileMode.Append);
-  try {
-    return await consumePlaintextStreamBounded(
-      responseReader,
-      remainingBytes,
-      async (plaintext) => {
-        const frame = await encodeVaultChunkFrame(
-          plaintext,
-          cipher,
-          aad(input),
-          recovery.chunkCount,
-          recovery.plaintextBytes,
-        );
-        appendHandle.writeBytes(frame);
-        // Advance only after the complete authenticated frame has been handed to app-private
-        // storage. A restart independently rebuilds these values from ciphertext on disk.
-        recovery.hasher.update(plaintext);
-        recovery.plaintextBytes += plaintext.byteLength;
-        recovery.chunkCount += 1;
-      },
-      signal,
-    );
-  } catch (error) {
-    await responseReader.cancel(
-      error instanceof Error ? error.message : 'Document download failed.',
-    ).catch(() => undefined);
-    throw error;
-  } finally {
-    appendHandle.close();
-  }
 }
 
 /**
@@ -811,22 +460,98 @@ export async function removeRegisteredOfflineFile(
   }
 }
 
+/**
+ * Removes an already-detached quota plan from the managed vault. The complete path set is
+ * validated before any file is touched, and account/trip write leases keep logout and trip purge
+ * from racing the cleanup. Missing files are success: a prior killed attempt may already have
+ * completed the native deletion while its durable tombstone was still present.
+ */
+export async function deleteVaultQuotaEvictionCandidates(
+  namespace: string,
+  candidates: readonly VaultQuotaEvictionCandidate[],
+): Promise<void> {
+  if (!namespace) throw new Error('A vault account namespace is required.');
+  const validated: { candidate: VaultQuotaEvictionCandidate; file: File }[] = [];
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    if (
+      candidate.namespace !== namespace
+      || candidate.retentionClass !== 'evictable'
+      || candidate.protectedFromEviction === true
+    ) {
+      throw new Error('A protected or cross-account vault artifact cannot be evicted.');
+    }
+    validateVaultDocumentIdentity({
+      namespace,
+      tripId: candidate.tripId,
+      documentId: candidate.documentId,
+      version: candidate.version,
+    });
+    if (!/^[0-9a-f]{64}$/i.test(candidate.checksumSha256)) {
+      throw new Error('Invalid document checksum.');
+    }
+    if (seen.has(candidate.encryptedUri)) {
+      throw new Error('Vault quota candidates must have unique encrypted URIs.');
+    }
+    seen.add(candidate.encryptedUri);
+    const root = new Directory(
+      Paths.document,
+      VAULT_ROOT_NAME,
+      await namespaceHash(namespace),
+      candidate.tripId,
+    );
+    planVaultOrphanCleanup(root.uri, [], [candidate.encryptedUri]);
+    const expected = offlineFile(
+      root,
+      candidate.documentId,
+      candidate.version,
+      candidate.checksumSha256,
+    ).uri;
+    const legacy = legacyOfflineFile(root, candidate.documentId, candidate.version).uri;
+    if (candidate.encryptedUri !== expected && candidate.encryptedUri !== legacy) {
+      throw new Error('A vault eviction path did not match its registered metadata.');
+    }
+    validated.push({ candidate, file: new File(candidate.encryptedUri) });
+  }
+
+  const releases: (() => void)[] = [];
+  try {
+    for (const tripId of new Set(validated.map(({ candidate }) => candidate.tripId))) {
+      releases.push(vaultWrites.beginDocumentWrite(namespace, tripId));
+    }
+    for (const { file } of validated) {
+      if (file.exists) file.delete();
+    }
+  } finally {
+    for (const release of releases.reverse()) release();
+  }
+}
+
 export async function downloadAndEncryptDocument(
   input: VaultDocumentDownloadRequest,
   signal?: AbortSignal,
+  quotaReclaimer?: VaultStorageQuotaReclaimer,
 ): Promise<EncryptedOfflineFile> {
   validateVaultDocumentIdentity(input);
   const releaseTripWrite = vaultWrites.beginDocumentWrite(input.namespace, input.tripId);
   let releaseDownloadSlot: (() => void) | null = null;
+  let releaseTransferStaging: (() => void) | null = null;
   try {
+    releaseTransferStaging = beginNativeTransferStagingWrite();
     await assertSensitiveOfflineStorageAllowed();
     releaseDownloadSlot = await downloadSlots.acquire(signal);
     assertDocumentOperationActive(signal);
+    const integrity = await createDocumentAuthorizationIntegrityProof({
+      namespace: input.namespace,
+      tripId: input.tripId,
+      documentId: input.documentId,
+      version: input.version,
+    }, signal);
     const authorization = await apiRequest(
       `/mobile/trips/${input.tripId}/documents/${input.documentId}/authorize?version=${input.version}`,
       {
         method: 'POST',
-        body: {},
+        body: integrity ? { integrity } : {},
         schema: DocumentDownloadAuthorizationSchema,
         timeoutMs: 5_000,
         ...(signal ? { signal } : {}),
@@ -856,7 +581,6 @@ export async function downloadAndEncryptDocument(
     ) {
       throw new Error('Authorized document metadata did not match the synchronized version.');
     }
-    assertVaultFreeSpace(Paths.availableDiskSpace, resolved.expectedSizeBytes);
     validateAuthorizedDocumentPath(
       authorization.content_path,
       input.tripId,
@@ -899,9 +623,19 @@ export async function downloadAndEncryptDocument(
     const staging = resumableStagingFile(root, resolved);
     const stagingUri = staging.uri;
     activeStagingUris.add(stagingUri);
-    pruneSupersededResumeStaging(root, staging, resolved.documentId);
+    let releaseQuotaReservation: (() => void) | null = null;
     let promoted = false;
     try {
+      pruneSupersededResumeStaging(root, staging, resolved.documentId);
+      // Reuse of an already-verified final file above needs no additional disk headroom. Measure
+      // only after stale staging has been pruned and immediately before a write reservation.
+      releaseQuotaReservation = await reserveVaultStorageQuota(
+        resolved.namespace,
+        staging,
+        maximumChunkedVaultBytes(resolved.expectedSizeBytes),
+        resolved.expectedSizeBytes,
+        quotaReclaimer,
+      );
       const cipher = vaultChunkCipher(key);
       let recovery = await recoverOrResetEncryptedStaging(staging, cipher, resolved, signal);
       let transferAttempts = 0;
@@ -913,13 +647,15 @@ export async function downloadAndEncryptDocument(
             : new Error('Document download was cancelled.');
         }
         try {
-          const response = await authorizedDownloadResponse(
+          await downloadAndAppendAuthorizedFile(
             authorization.content_path,
             authorization.download_token,
+            staging,
+            cipher,
+            resolved,
+            recovery,
             signal,
-            recovery.plaintextBytes,
           );
-          await appendAuthorizedResponse(response, staging, cipher, resolved, recovery, signal);
           if (recovery.plaintextBytes < resolved.expectedSizeBytes) {
             throw new Error('Document transfer ended before all signed bytes were received.');
           }
@@ -968,10 +704,12 @@ export async function downloadAndEncryptDocument(
       if (promoted && destination.exists) destination.delete();
       throw error;
     } finally {
+      releaseQuotaReservation?.();
       activeStagingUris.delete(stagingUri);
     }
   } finally {
     releaseDownloadSlot?.();
+    releaseTransferStaging?.();
     releaseTripWrite();
   }
 }
@@ -991,7 +729,7 @@ function viewerExtension(contentType: string): string {
   }
 }
 
-export async function decryptDocumentForViewing(
+async function decryptDocumentForViewingUncoalesced(
   input: VaultDocument,
   signal?: AbortSignal,
 ): Promise<File> {
@@ -1061,7 +799,9 @@ export async function decryptDocumentForViewing(
         try {
           const sealed = AESSealedData.fromCombined(await encrypted.bytes());
           assertDocumentOperationActive(signal);
-          plaintext = await aesDecryptAsync(sealed, key, { additionalData: aad(input) });
+          plaintext = await aesDecryptAsync(sealed, key, {
+            additionalData: vaultDocumentAdditionalData(input),
+          });
           assertDocumentOperationActive(signal);
         } catch {
           if (signal?.aborted) throw documentAbortError(signal);
@@ -1088,6 +828,23 @@ export async function decryptDocumentForViewing(
   }
 }
 
+/**
+ * Decrypt one immutable document revision at most once at a time. A route
+ * transition can cancel its own wait without terminating a decrypt that a
+ * second active viewer still needs.
+ */
+export function decryptDocumentForViewing(
+  input: VaultDocument,
+  signal?: AbortSignal,
+): Promise<File> {
+  validateVaultDocument(input);
+  return temporaryViewDecryptions.run(
+    temporaryViewCacheKey(input),
+    (sharedSignal) => decryptDocumentForViewingUncoalesced(input, sharedSignal),
+    signal,
+  );
+}
+
 export function removeTemporaryView(file: File): void {
   const viewRoot = new Directory(Paths.cache, TEMPORARY_VIEW_ROOT_NAME);
   assertManagedTemporaryViewUri(viewRoot.uri, file.uri);
@@ -1109,6 +866,10 @@ export function releaseTemporaryView(file: File): void {
 }
 
 export async function purgeTemporaryViews(): Promise<void> {
+  // A terminated native transfer can leave plaintext only in this dedicated,
+  // app-private cache root. Purge it before ordinary viewer residue on every
+  // startup, background, logout, and account transition.
+  await purgeNativeTransferStaging();
   await temporaryViewWrites.beginPurge(TEMPORARY_VIEW_WRITE_KEY);
   let acknowledged = false;
   try {
@@ -1139,6 +900,7 @@ export function finishVaultNamespacePurge(namespace: string, acknowledged: boole
 export async function protectManagedVaultStorageFromBackup(): Promise<void> {
   await managedVaultRoot(false);
   await managedTemporaryViewRoot(false);
+  await protectNativeTransferStagingFromBackup();
 }
 
 export async function deleteAllManagedVaultStorage(): Promise<void> {
@@ -1203,8 +965,17 @@ export async function vaultUsageBytes(namespace: string): Promise<number> {
 export const documentVaultPolicy = Object.freeze({
   maxDocumentBytes: MAX_DOCUMENT_BYTES,
   maxConcurrentDownloads: MAX_CONCURRENT_DOWNLOADS,
+  maxAccountBytes: DEFAULT_VAULT_STORAGE_QUOTA_POLICY.maximumAccountBytes,
+  maxAppBytes: DEFAULT_VAULT_STORAGE_QUOTA_POLICY.maximumAppBytes,
+  quotaRecoveryTargetRatio: DEFAULT_VAULT_STORAGE_QUOTA_POLICY.recoveryTargetRatio,
   allowedContentTypes: [...ALLOWED_DOCUMENT_CONTENT_TYPES],
 });
 
 export type { VaultDocument } from './vault-policy';
 export { validateDeclaredDocumentLength, validateVaultDocument } from './vault-policy';
+export { validateNativeDocumentDownload } from './vault-native-transfer';
+export type {
+  VaultQuotaEvictionCandidate,
+  VaultStorageQuotaReclaimer,
+  VaultStorageQuotaStatus,
+} from './vault-storage-quota';

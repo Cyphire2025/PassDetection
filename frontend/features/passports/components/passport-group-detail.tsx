@@ -52,6 +52,7 @@ import { canEditPassportImages } from "../utils/passport-image-crop-permissions"
 import { DocumentCell } from "./passport-document-cell";
 import { matchPreviewFiles } from "../utils/passport-document-import";
 import { normalizeCities } from "../utils/passport-group-trip";
+import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 import {
   buildPassportDetailNavigationHref,
   buildPassportGroupHref,
@@ -213,6 +214,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     destination: deletedGroup.destination,
     travel_date: deletedGroup.travel_date,
     return_date: deletedGroup.return_date,
+    timezone: deletedGroup.timezone,
     package_name: deletedGroup.package_name,
     departure_cities: deletedGroup.departure_cities ?? [],
     base_city_enabled: deletedGroup.base_city_enabled,
@@ -275,6 +277,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
     destination: "",
     travel_date: "",
     return_date: "",
+    timezone: DEFAULT_TRIP_TIMEZONE,
     departure_cities: [] as string[],
     base_city_enabled: false,
     nearest_international_airport_enabled: false,
@@ -886,6 +889,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                       destination: groupDetails.destination ?? "",
                       travel_date: groupDetails.travel_date ?? "",
                       return_date: groupDetails.return_date ?? "",
+                      timezone: groupDetails.timezone ?? DEFAULT_TRIP_TIMEZONE,
                       departure_cities: groupDetails.departure_cities ?? [],
                       base_city_enabled: groupDetails.base_city_enabled,
                       nearest_international_airport_enabled: groupDetails.nearest_international_airport_enabled,
@@ -920,6 +924,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 <InfoPair label="Destination" value={groupDetails.destination || "Not set"} />
                 <InfoPair label="Travel/Departure Date" value={groupDetails.travel_date || "Not set"} />
                 <InfoPair label="Return Date" value={groupDetails.return_date || "Not set"} />
+                <InfoPair label="Trip Timezone" value={groupDetails.timezone || DEFAULT_TRIP_TIMEZONE} />
                 <InfoPair label="Base City" value={groupDetails.base_city_enabled ? "Required" : "Disabled"} />
                 <InfoPair label="Nearest International Airport" value={groupDetails.nearest_international_airport_enabled ? ((groupDetails.departure_cities ?? []).join(", ") || "Not configured") : "Disabled"} />
                 <InfoPair label="Staff Code" value={groupDetails.staff_code_enabled ? "Required" : "Disabled"} />
@@ -1523,6 +1528,7 @@ export function PassportGroupDetail({ groupId }: PassportGroupDetailProps) {
                 destination: tripForm.destination || null,
                 travel_date: tripForm.travel_date || null,
                 return_date: tripForm.return_date || null,
+                timezone: tripForm.timezone.trim(),
                 departure_cities: tripForm.nearest_international_airport_enabled
                   ? normalizeCities(tripForm.departure_cities)
                   : [],

@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
+import { withAccountQueryContext } from '@/core/query/account-query-context';
 import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
 
 import {
@@ -44,13 +45,19 @@ export function useNotifications(tripId: string | null) {
   });
   const query = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam }) => loadNotifications(tripId!, pageParam),
+    queryFn: ({ pageParam, signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadNotifications(tripId!, pageParam, context),
+    ),
     initialPageParam: null as string | null,
     getNextPageParam: (page) => page.next_cursor,
     enabled: Boolean(accountKey && tripId && cacheHydrated),
   });
   const read = useMutation({
-    mutationFn: (notificationId: string) => markNotificationRead(notificationId, tripId!),
+    mutationFn: (notificationId: string) => withAccountQueryContext(
+      new AbortController().signal,
+      (context) => markNotificationRead(notificationId, tripId!, context),
+    ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['mobile-notifications', tripId] }),
   });
   return { ...query, markRead: read.mutate, markingRead: read.isPending };

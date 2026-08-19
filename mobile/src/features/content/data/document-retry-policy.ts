@@ -27,9 +27,18 @@ export function isRetryableDocumentError(error: unknown): boolean {
     && error.code === 'LOCAL_OFFLINE_CIPHERTEXT_CORRUPT'
   ) return true;
   if (error instanceof ApiError) {
-    return error.code === 'DOWNLOAD_AUTH_EXPIRED' || error.status === 408 || error.status === 425 || error.status === 429 || error.status >= 500;
+    return error.code === 'DOWNLOAD_AUTH_EXPIRED'
+      || ((error.status === 404 || error.status === 410) && error.code === `HTTP_${error.status}`)
+      || error.status === 408
+      || error.status === 425
+      || error.status === 429
+      || error.status >= 500;
   }
-  if (error instanceof TypeError) return true;
+  if (error instanceof TypeError) {
+    // A programming defect can also surface as TypeError. Retry only the stable
+    // transport messages emitted by fetch implementations on supported runtimes.
+    return /network request failed|failed to fetch|load failed/i.test(error.message);
+  }
   if (!(error instanceof Error)) return false;
   if (error.name === 'AbortError' || error.name === 'TimeoutError') return true;
   return /network|connection|temporar|timed?\s*out|fetch failed/i.test(error.message);

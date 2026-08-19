@@ -11,14 +11,28 @@ Design:
 
 from __future__ import annotations
 
+import os
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.config.settings import Settings
-from app.infrastructure.database.models import Base
-from app.infrastructure.database.session import get_db_session
-from app.main import create_application
+# Deterministic Ed25519 fixture material used only by the isolated test process.
+# Production and staging must inject independent keys through their secret manager.
+os.environ.setdefault("MOBILE_OFFLINE_LEASE_ACTIVE_KID", "unit-test-2026-01")
+os.environ.setdefault(
+    "MOBILE_OFFLINE_LEASE_PRIVATE_KEY_B64",
+    "MC4CAQAwBQYDK2VwBCIEIAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8g",
+)
+os.environ.setdefault(
+    "MOBILE_OFFLINE_LEASE_PUBLIC_KEYS_JSON",
+    '{"unit-test-2026-01":"ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ"}',
+)
+
+from app.core.config.settings import Settings  # noqa: E402
+from app.infrastructure.database.models import Base  # noqa: E402
+from app.infrastructure.database.session import get_db_session  # noqa: E402
+from app.main import create_application  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 

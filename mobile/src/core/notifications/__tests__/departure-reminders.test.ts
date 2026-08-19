@@ -1,4 +1,5 @@
 import type { Trip } from '@/features/trips/model/trip';
+import { parseIanaTimeZone } from '@/core/localization/time-zone';
 
 import {
   cancelDepartureReminders,
@@ -34,6 +35,7 @@ function trip(overrides: Partial<Trip> = {}): Trip {
     destination: 'Vietnam',
     travelDate: '2026-08-10',
     returnDate: '2026-08-16',
+    timeZone: parseIanaTimeZone('Asia/Singapore'),
     role: 'passenger',
     accessGeneration: 1,
     accessExpiresAt: null,
@@ -57,24 +59,39 @@ beforeEach(() => {
 test('plans corporate reminders at 9 AM for three, two, one and zero days before departure', () => {
   const reminders = planDepartureReminders(
     [trip()],
-    new Date(2026, 7, 1, 12, 0, 0).getTime(),
+    Date.parse('2026-08-01T04:00:00Z'),
   );
 
   expect(reminders).toHaveLength(4);
   expect(reminders.map((reminder) => ({
-    day: reminder.triggerDate.getDate(),
-    hour: reminder.triggerDate.getHours(),
+    instant: reminder.triggerDate.toISOString(),
     title: reminder.title,
   }))).toEqual([
-    { day: 7, hour: 9, title: 'Your trip begins in 3 days ✈️' },
-    { day: 8, hour: 9, title: '2 days until departure' },
-    { day: 9, hour: 9, title: 'Departure is tomorrow 🧳' },
-    { day: 10, hour: 9, title: 'Your travel day is here ✈️' },
+    { instant: '2026-08-07T01:00:00.000Z', title: 'Your trip begins in 3 days ✈️' },
+    { instant: '2026-08-08T01:00:00.000Z', title: '2 days until departure' },
+    { instant: '2026-08-09T01:00:00.000Z', title: 'Departure is tomorrow 🧳' },
+    { instant: '2026-08-10T01:00:00.000Z', title: 'Your travel day is here ✈️' },
   ]);
 });
 
+test('timezone participates in the schedule and identifier', () => {
+  const [singapore] = planDepartureReminders(
+    [trip()],
+    Date.parse('2026-08-09T00:00:00Z'),
+  );
+  const [losAngeles] = planDepartureReminders(
+    [trip({ timeZone: parseIanaTimeZone('America/Los_Angeles') })],
+    Date.parse('2026-08-09T00:00:00Z'),
+  );
+
+  expect(singapore?.triggerDate.toISOString()).toBe('2026-08-09T01:00:00.000Z');
+  expect(losAngeles?.triggerDate.toISOString()).toBe('2026-08-09T16:00:00.000Z');
+  expect(singapore?.identifier).toContain('.Asia/Singapore.1');
+  expect(losAngeles?.identifier).toContain('.America/Los_Angeles.1');
+});
+
 test('schedules passenger reminders once and removes stale departure dates', async () => {
-  jest.spyOn(Date, 'now').mockReturnValue(new Date(2026, 7, 1, 12, 0, 0).getTime());
+  jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-08-01T04:00:00Z'));
   mockGetScheduled.mockResolvedValueOnce([
     { identifier: 'gc.departure.v1.11111111-1111-4111-8111-111111111111.2026-08-09.3' },
     { identifier: 'unrelated.notification' },

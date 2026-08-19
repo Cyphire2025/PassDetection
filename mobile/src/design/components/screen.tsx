@@ -1,9 +1,18 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { PropsWithChildren } from 'react';
-import { ScrollView, StyleSheet, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type ScrollViewProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { responsiveContentLayout } from '@/design/accessibility/layout-policy';
 import { spacing } from '@/design/theme';
 
 const wallpaperSource = require('../../../assets/images/wallpaper.png') as number;
@@ -17,9 +26,13 @@ type Props = PropsWithChildren<{
 
 export function Screen({ children, scroll = true, contentStyle, bottomInset = 24, scrollProps }: Props) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const responsive = responsiveContentLayout(width);
   const padding = {
     paddingTop: Math.max(insets.top, spacing.lg),
     paddingBottom: insets.bottom + bottomInset,
+    paddingHorizontal: responsive.horizontalPadding,
+    maxWidth: responsive.maximumWidth,
   };
 
   return (
@@ -49,5 +62,5 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   wallpaper: { position: 'absolute', inset: 0 },
   fill: { flex: 1 },
-  content: { paddingHorizontal: spacing.lg },
+  content: { width: '100%', alignSelf: 'center' },
 });

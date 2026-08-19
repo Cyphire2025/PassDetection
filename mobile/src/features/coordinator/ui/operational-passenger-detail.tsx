@@ -10,7 +10,10 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
+import { formatCalendarDate, formatInstantDateTime } from '@/core/localization/date-time';
+import type { IanaTimeZone } from '@/core/localization/time-zone';
 import { GlassCard } from '@/design/components/glass-card';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
@@ -29,6 +32,7 @@ export function OperationalPassengerDetail({
   onRefresh,
   subtitle,
   errorMessage,
+  timeZone,
 }: {
   passenger: CoordinatorPassengerDetail | undefined;
   isPending: boolean;
@@ -37,10 +41,11 @@ export function OperationalPassengerDetail({
   onRefresh: () => void;
   subtitle: string;
   errorMessage: string;
+  timeZone: IanaTimeZone | undefined;
 }) {
   const sections = useMemo(
-    () => passenger ? passengerDetailSections(passenger) : [],
-    [passenger],
+    () => passenger ? passengerDetailSections(passenger, timeZone) : [],
+    [passenger, timeZone],
   );
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
@@ -48,10 +53,7 @@ export function OperationalPassengerDetail({
         sections={sections}
         keyExtractor={(item, index) => item.key ?? `${item.label}:${index}`}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={18}
-        maxToRenderPerBatch={24}
-        updateCellsBatchingPeriod={35}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.detail}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={(
@@ -98,7 +100,10 @@ function PassengerIdentity({ passenger }: { passenger: CoordinatorPassengerDetai
   );
 }
 
-function passengerDetailSections(passenger: CoordinatorPassengerDetail): DetailSection[] {
+function passengerDetailSections(
+  passenger: CoordinatorPassengerDetail,
+  timeZone: IanaTimeZone | undefined,
+): DetailSection[] {
   const importedDetails = passenger.additional_details
     .filter((item) => item.source === 'imported')
     .map((item) => ({ key: item.key, label: item.label, value: item.value }));
@@ -185,7 +190,10 @@ function passengerDetailSections(passenger: CoordinatorPassengerDetail): DetailS
         { label: 'Attendance', value: humanizeStatus(passenger.attendance_status) },
         { label: 'Submission type', value: humanizeStatus(passenger.submission_mode) },
         { label: 'Submission status', value: humanizeStatus(passenger.submission_status) },
-        { label: 'Last updated', value: formatDateTime(passenger.updated_at) },
+        {
+          label: 'Last updated',
+          value: formatInstantDateTime(passenger.updated_at, { timeZone }),
+        },
       ],
     },
     { title: 'Imported operational details', data: importedDetails },
@@ -213,14 +221,7 @@ function humanizeStatus(value: string): string {
 }
 
 function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  const [year, month, day] = value.split('-');
-  return year && month && day ? `${day}/${month}/${year}` : value;
-}
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.valueOf()) ? value : date.toLocaleString();
+  return value ? formatCalendarDate(value) : null;
 }
 
 const styles = StyleSheet.create({

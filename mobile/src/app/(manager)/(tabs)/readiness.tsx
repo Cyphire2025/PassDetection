@@ -12,6 +12,7 @@ import {
   type ColorValue,
 } from 'react-native';
 
+import { englishMessages, formatInstantDateTime } from '@/core/localization/date-time';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -58,6 +59,7 @@ export default function ManagerReadinessScreen() {
   const manualRefresh = useManualRefresh();
   const readiness = useReadiness(trips.selectedTripId);
   const attendance = useManagerAttendanceSessions(trips.selectedTripId);
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
 
   return (
     <Screen
@@ -117,7 +119,12 @@ export default function ManagerReadinessScreen() {
             />
           </View>
           <Text style={styles.updated}>
-            Updated {new Date(readiness.data.updated_at).toLocaleString()} · version {readiness.data.version}
+            {selectedTimeZone
+              ? englishMessages.updatedOn(formatInstantDateTime(
+                readiness.data.updated_at,
+                { timeZone: selectedTimeZone },
+              ))
+              : englishMessages.dateUnavailable()} · version {readiness.data.version}
           </Text>
         </>
       ) : null}

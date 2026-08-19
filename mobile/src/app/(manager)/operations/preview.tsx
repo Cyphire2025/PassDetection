@@ -6,6 +6,7 @@ import Pdf from 'react-native-pdf';
 
 import { ApiError } from '@/core/api/client';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { SensitiveScreenProtection } from '@/core/security/sensitive-screen-protection';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
 import { Screen } from '@/design/components/screen';
 import { colors, spacing } from '@/design/theme';
@@ -132,6 +133,7 @@ export default function ManagerDocumentPreviewScreen() {
         ) : preview ? (
           <Image
             source={{ uri: preview.file.uri }}
+            cachePolicy="none"
             contentFit="contain"
             onLoad={() => setRendererLoaded(true)}
             onError={() => setError('The image viewer could not display this document.')}
@@ -145,6 +147,7 @@ export default function ManagerDocumentPreviewScreen() {
         ) : null}
       </View>
       <Text style={styles.notice}>This preview is removed from the device when you leave this page.</Text>
+      <SensitiveScreenProtection protectionKey="manager-document-preview" />
     </Screen>
   );
 }

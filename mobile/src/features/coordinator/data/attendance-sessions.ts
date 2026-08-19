@@ -7,6 +7,15 @@ import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { isDemoMode } from '@/core/demo/demo-mode';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
+import {
+  sqliteBindBatches,
+  sqliteValuesClause,
+  stageSqliteReplacementIds,
+} from '@/core/storage/sqlite-batching';
+import {
+  assertSyncContextActive,
+  type ImmutableSyncContext,
+} from '@/core/sync/sync-context';
 import { collectCursorItems } from '@/features/content/data/cursor-pagination';
 
 import {
@@ -18,10 +27,21 @@ import {
   type AttendanceSession,
   type MissingPassenger,
 } from '../api/coordinator-contracts';
+import {
+  MOBILE_ATTENDANCE_ROSTER_CAPACITY,
+  MOBILE_ATTENDANCE_SESSION_CAPACITY,
+} from './attendance-capacity';
 
 const CreateSessionSchema = z.object({ name: z.string().trim().min(2).max(160) }).strict();
 
-function namespace(): string {
+function namespace(syncContext?: ImmutableSyncContext): string {
+  if (syncContext) {
+    assertSyncContextActive(syncContext);
+    if (syncContext.role !== 'coordinator') {
+      throw new Error('Coordinator authentication is required.');
+    }
+    return syncContext.namespace;
+  }
   const principal = useSessionStore.getState().session?.principal;
   if (!principal || principal.principalType !== 'coordinator') {
     throw new Error('Coordinator authentication is required.');
@@ -33,9 +53,11 @@ async function upsertSession(
   tripId: string,
   session: AttendanceSession,
   transaction?: SQLiteDatabase,
+  syncContext?: ImmutableSyncContext,
 ): Promise<void> {
-  const account = namespace();
+  const account = namespace(syncContext);
   const database = transaction ?? await openAccountDatabase(account);
+  if (syncContext) assertSyncContextActive(syncContext);
   await database.runAsync(
     `INSERT INTO attendance_sessions
       (id, account_namespace, trip_id, name, status, scanned_count, assigned_count,
@@ -56,49 +78,107 @@ async function upsertSession(
     session.completed_at,
     new Date().toISOString(),
   );
+  if (syncContext) assertSyncContextActive(syncContext);
 }
 
-async function replaceSessions(tripId: string, sessions: AttendanceSession[]): Promise<void> {
-  const account = namespace();
+async function replaceSessions(
+  tripId: string,
+  sessions: AttendanceSession[],
+  syncContext?: ImmutableSyncContext,
+): Promise<void> {
+  const account = namespace(syncContext);
   const database = await openAccountDatabase(account);
-  await withAccountTransaction(database, async (transaction) => {
-    const identifiers = sessions.map((session) => session.id);
-    for (const session of sessions) await upsertSession(tripId, session, transaction);
-    if (identifiers.length) {
-      const placeholders = identifiers.map(() => '?').join(',');
-      await transaction.runAsync(
-        `DELETE FROM attendance_sessions
-          WHERE account_namespace = ? AND trip_id = ? AND id NOT IN (${placeholders})`,
-        account,
-        tripId,
-        ...identifiers,
-      );
-    } else {
-      await transaction.runAsync(
-        'DELETE FROM attendance_sessions WHERE account_namespace = ? AND trip_id = ?',
-        account,
-        tripId,
-      );
-    }
+  if (syncContext) assertSyncContextActive(syncContext);
+  await withAccountTransaction(database, (transaction) => replaceAttendanceSessionsInTransaction(
+    transaction,
+    {
+      account,
+      tripId,
+      sessions,
+      updatedAt: new Date().toISOString(),
+      ...(syncContext ? {
+        assertActive: () => assertSyncContextActive(syncContext),
+      } : {}),
+    },
+  ));
+}
+
+export async function replaceAttendanceSessionsInTransaction(
+  transaction: SQLiteDatabase,
+  options: Readonly<{
+    account: string;
+    tripId: string;
+    sessions: readonly AttendanceSession[];
+    updatedAt: string;
+    assertActive?: () => void;
+  }>,
+): Promise<void> {
+  const { account, assertActive, sessions, tripId, updatedAt } = options;
+  await stageSqliteReplacementIds(
+    transaction,
+    'mobile_attendance_session_replacement_ids',
+    sessions.map((session) => session.id),
+    assertActive,
+  );
+  for (const batch of sqliteBindBatches(sessions, 10)) {
+    assertActive?.();
     await transaction.runAsync(
-      `DELETE FROM attendance_session_selection
-        WHERE account_namespace = ? AND trip_id = ?
-          AND session_id NOT IN (
-            SELECT id FROM attendance_sessions
-             WHERE account_namespace = ? AND trip_id = ? AND status IN ('draft', 'active')
-          )`,
-      account,
-      tripId,
-      account,
-      tripId,
+      `INSERT INTO attendance_sessions
+        (id, account_namespace, trip_id, name, status, scanned_count, assigned_count,
+         started_at, completed_at, updated_at)
+       VALUES ${sqliteValuesClause(batch.length, 10)}
+       ON CONFLICT(id) DO UPDATE SET
+         name = excluded.name, status = excluded.status, scanned_count = excluded.scanned_count,
+         assigned_count = excluded.assigned_count, started_at = excluded.started_at,
+         completed_at = excluded.completed_at, updated_at = excluded.updated_at`,
+      ...batch.flatMap((session) => [
+        session.id,
+        account,
+        tripId,
+        session.name,
+        session.status,
+        session.scanned_count,
+        session.assigned_count,
+        session.started_at,
+        session.completed_at,
+        updatedAt,
+      ]),
     );
-  });
+  }
+  assertActive?.();
+  await transaction.runAsync(
+    `DELETE FROM attendance_sessions
+      WHERE account_namespace = ? AND trip_id = ?
+        AND NOT EXISTS (
+          SELECT 1 FROM mobile_attendance_session_replacement_ids incoming
+           WHERE incoming.id = attendance_sessions.id
+        )`,
+    account,
+    tripId,
+  );
+  await transaction.runAsync(
+    `DELETE FROM attendance_session_selection
+      WHERE account_namespace = ? AND trip_id = ?
+        AND session_id NOT IN (
+          SELECT id FROM attendance_sessions
+           WHERE account_namespace = ? AND trip_id = ? AND status IN ('draft', 'active')
+        )`,
+    account,
+    tripId,
+    account,
+    tripId,
+  );
+  assertActive?.();
 }
 
-async function localSessions(tripId: string): Promise<AttendanceSession[]> {
-  const account = namespace();
+async function localSessions(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+): Promise<AttendanceSession[]> {
+  const account = namespace(syncContext);
   const database = await openAccountDatabase(account);
-  return database.getAllAsync<AttendanceSession>(
+  if (syncContext) assertSyncContextActive(syncContext);
+  const sessions = await database.getAllAsync<AttendanceSession>(
     `SELECT id, name, status, scanned_count, assigned_count, started_at, completed_at
        FROM attendance_sessions
       WHERE account_namespace = ? AND trip_id = ?
@@ -107,18 +187,27 @@ async function localSessions(tripId: string): Promise<AttendanceSession[]> {
     account,
     tripId,
   );
+  if (syncContext) assertSyncContextActive(syncContext);
+  return sessions;
 }
 
-export async function loadCachedAttendanceSessions(tripId: string) {
-  const items = await localSessions(tripId);
-  const current = await selectedAttendanceSession(tripId);
+export async function loadCachedAttendanceSessions(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+) {
+  const items = await localSessions(tripId, syncContext);
+  const current = await selectedAttendanceSession(tripId, syncContext);
   return { items, selectedSessionId: current?.id ?? null, offline: true };
 }
 
-export async function selectedAttendanceSession(tripId: string): Promise<AttendanceSession | null> {
-  const account = namespace();
+export async function selectedAttendanceSession(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+): Promise<AttendanceSession | null> {
+  const account = namespace(syncContext);
   const database = await openAccountDatabase(account);
-  return database.getFirstAsync<AttendanceSession>(
+  if (syncContext) assertSyncContextActive(syncContext);
+  const session = await database.getFirstAsync<AttendanceSession>(
     `SELECT s.id, s.name, s.status, s.scanned_count, s.assigned_count, s.started_at, s.completed_at
        FROM attendance_session_selection p
        JOIN attendance_sessions s ON s.id = p.session_id
@@ -127,6 +216,8 @@ export async function selectedAttendanceSession(tripId: string): Promise<Attenda
     account,
     tripId,
   );
+  if (syncContext) assertSyncContextActive(syncContext);
+  return session;
 }
 
 export async function selectAttendanceSession(tripId: string, sessionId: string): Promise<void> {
@@ -152,22 +243,43 @@ export async function selectAttendanceSession(tripId: string, sessionId: string)
   );
 }
 
-export async function refreshAttendanceSessions(tripId: string) {
+export async function refreshAttendanceSessions(
+  tripId: string,
+  syncContext?: ImmutableSyncContext,
+  onPage?: (items: readonly AttendanceSession[]) => void | Promise<void>,
+) {
   try {
-    const items = await collectCursorItems(
-      (cursor) => apiRequest(
-        `/mobile/coordinator/groups/${tripId}/attendance/sessions?limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-        { schema: AttendanceSessionPageSchema },
-      ),
-      { maxPages: 20, maxItems: 2_000 },
+    const items = await collectCursorItems<AttendanceSession>(
+      (cursor) => {
+        if (syncContext) assertSyncContextActive(syncContext);
+        return apiRequest(
+          `/mobile/coordinator/groups/${tripId}/attendance/sessions?limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
+          {
+            schema: AttendanceSessionPageSchema,
+            ...(syncContext ? { signal: syncContext.signal } : {}),
+          },
+        );
+      },
+      {
+        maxItems: MOBILE_ATTENDANCE_SESSION_CAPACITY,
+        itemKey: (session) => session.id,
+        ...(syncContext ? {
+          assertActive: () => assertSyncContextActive(syncContext),
+        } : {}),
+        ...(onPage ? {
+          onPage: (progress) => onPage(progress.items),
+        } : {}),
+      },
     );
-    await replaceSessions(tripId, items);
-    const current = await selectedAttendanceSession(tripId);
+    if (syncContext) assertSyncContextActive(syncContext);
+    await replaceSessions(tripId, items, syncContext);
+    const current = await selectedAttendanceSession(tripId, syncContext);
     return { items, selectedSessionId: current?.id ?? null, offline: false };
   } catch (networkError) {
-    const items = await localSessions(tripId);
+    if (syncContext) assertSyncContextActive(syncContext);
+    const items = await localSessions(tripId, syncContext);
     if (items.length) {
-      const current = await selectedAttendanceSession(tripId);
+      const current = await selectedAttendanceSession(tripId, syncContext);
       return { items, selectedSessionId: current?.id ?? null, offline: true };
     }
     throw networkError;
@@ -214,77 +326,162 @@ async function saveMissing(
   tripId: string,
   sessionId: string,
   missing: MissingPassenger[],
+  syncContext?: ImmutableSyncContext,
 ): Promise<void> {
-  const account = namespace();
+  const account = namespace(syncContext);
   const database = await openAccountDatabase(account);
+  if (syncContext) assertSyncContextActive(syncContext);
   const now = new Date().toISOString();
-  await withAccountTransaction(database, async (transaction) => {
-    await transaction.runAsync(
-      `DELETE FROM attendance_session_missing
-        WHERE account_namespace = ? AND trip_id = ? AND session_id = ?`,
+  await withAccountTransaction(database, (transaction) => replaceMissingAttendanceInTransaction(
+    transaction,
+    {
       account,
       tripId,
       sessionId,
-    );
-    for (const passenger of missing) {
-      await transaction.runAsync(
-        `INSERT INTO attendance_session_missing
-          (account_namespace, trip_id, session_id, passenger_id, display_name, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+      missing,
+      updatedAt: now,
+      ...(syncContext ? {
+        assertActive: () => assertSyncContextActive(syncContext),
+      } : {}),
+    },
+  ));
+}
+
+export async function replaceMissingAttendanceInTransaction(
+  transaction: SQLiteDatabase,
+  options: Readonly<{
+    account: string;
+    tripId: string;
+    sessionId: string;
+    missing: readonly MissingPassenger[];
+    updatedAt: string;
+    assertActive?: () => void;
+  }>,
+): Promise<void> {
+  const { account, assertActive, missing, sessionId, tripId, updatedAt } = options;
+  if (new Set(missing.map((passenger) => passenger.id)).size !== missing.length) {
+    throw new Error('The missing-attendee replacement repeated a passenger.');
+  }
+  assertActive?.();
+  await transaction.runAsync(
+    `DELETE FROM attendance_session_missing
+      WHERE account_namespace = ? AND trip_id = ? AND session_id = ?`,
+    account,
+    tripId,
+    sessionId,
+  );
+  for (const batch of sqliteBindBatches(missing, 6)) {
+    assertActive?.();
+    await transaction.runAsync(
+      `INSERT INTO attendance_session_missing
+        (account_namespace, trip_id, session_id, passenger_id, display_name, updated_at)
+       VALUES ${sqliteValuesClause(batch.length, 6)}`,
+      ...batch.flatMap((passenger) => [
         account,
         tripId,
         sessionId,
         passenger.id,
         passenger.display_name,
-        now,
-      );
-    }
-  });
+        updatedAt,
+      ]),
+    );
+  }
+  assertActive?.();
 }
 
-async function localMissing(tripId: string, sessionId: string): Promise<MissingPassenger[]> {
-  const account = namespace();
+async function localMissing(
+  tripId: string,
+  sessionId: string,
+  syncContext?: ImmutableSyncContext,
+): Promise<MissingPassenger[]> {
+  const account = namespace(syncContext);
   const database = await openAccountDatabase(account);
-  return database.getAllAsync<MissingPassenger>(
+  if (syncContext) assertSyncContextActive(syncContext);
+  const missing = await database.getAllAsync<MissingPassenger>(
     `SELECT passenger_id AS id, display_name FROM attendance_session_missing
       WHERE account_namespace = ? AND trip_id = ? AND session_id = ?
-      ORDER BY display_name LIMIT 4000`,
+      ORDER BY display_name`,
     account,
     tripId,
     sessionId,
   );
+  if (syncContext) assertSyncContextActive(syncContext);
+  return missing;
 }
 
-export async function loadCachedAttendanceSessionDetail(tripId: string, sessionId: string) {
-  const session = (await localSessions(tripId)).find((item) => item.id === sessionId) ?? null;
+export async function loadCachedAttendanceSessionDetail(
+  tripId: string,
+  sessionId: string,
+  syncContext?: ImmutableSyncContext,
+) {
+  const session = (await localSessions(tripId, syncContext))
+    .find((item) => item.id === sessionId) ?? null;
   if (!session) return null;
-  return { session, missing: await localMissing(tripId, sessionId), offline: true };
+  return {
+    session,
+    missing: await localMissing(tripId, sessionId, syncContext),
+    offline: true,
+  };
 }
 
-export async function loadAttendanceSessionDetail(tripId: string, sessionId: string) {
+export async function loadAttendanceSessionDetail(
+  tripId: string,
+  sessionId: string,
+  syncContext?: ImmutableSyncContext,
+  onPage?: (progress: Readonly<{
+    session: AttendanceSession;
+    missing: readonly MissingPassenger[];
+  }>) => void | Promise<void>,
+) {
   try {
     let resolvedSession: AttendanceSession | null = null;
-    const missing = await collectCursorItems(
+    const missing = await collectCursorItems<MissingPassenger>(
       async (cursor) => {
+        if (syncContext) assertSyncContextActive(syncContext);
         const page = await apiRequest(
           `/mobile/coordinator/groups/${tripId}/attendance/sessions/${sessionId}?limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-          { schema: AttendanceSessionDetailSchema },
+          {
+            schema: AttendanceSessionDetailSchema,
+            ...(syncContext ? { signal: syncContext.signal } : {}),
+          },
         );
+        if (syncContext) assertSyncContextActive(syncContext);
         if (page.session.id !== sessionId || (resolvedSession && page.session.id !== resolvedSession.id)) {
           throw new Error('Attendance activity details were out of scope.');
         }
         resolvedSession = page.session;
         return { items: page.missing, next_cursor: page.next_cursor };
       },
-      { maxPages: 20, maxItems: 4_000 },
+      {
+        maxItems: MOBILE_ATTENDANCE_ROSTER_CAPACITY,
+        itemKey: (passenger) => passenger.id,
+        ...(syncContext ? {
+          assertActive: () => assertSyncContextActive(syncContext),
+        } : {}),
+        ...(onPage ? {
+          onPage: async (progress) => {
+            if (!resolvedSession) throw new Error('Attendance activity details were empty.');
+            await onPage({ session: resolvedSession, missing: progress.items });
+          },
+        } : {}),
+      },
     );
     if (!resolvedSession) throw new Error('Attendance activity details were empty.');
-    await upsertSession(tripId, resolvedSession);
-    await saveMissing(tripId, sessionId, missing);
+    if (syncContext) assertSyncContextActive(syncContext);
+    await upsertSession(tripId, resolvedSession, undefined, syncContext);
+    await saveMissing(tripId, sessionId, missing, syncContext);
     return { session: resolvedSession, missing, offline: false };
   } catch (networkError) {
-    const session = (await localSessions(tripId)).find((item) => item.id === sessionId) ?? null;
-    if (session) return { session, missing: await localMissing(tripId, sessionId), offline: true };
+    if (syncContext) assertSyncContextActive(syncContext);
+    const session = (await localSessions(tripId, syncContext))
+      .find((item) => item.id === sessionId) ?? null;
+    if (session) {
+      return {
+        session,
+        missing: await localMissing(tripId, sessionId, syncContext),
+        offline: true,
+      };
+    }
     throw networkError;
   }
 }
@@ -293,22 +490,46 @@ export async function loadCoordinatorAttendanceRoster(
   tripId: string,
   sessionId: string,
   status: 'counted' | 'missing',
+  syncContext?: ImmutableSyncContext,
+  onPage?: (progress: Readonly<{
+    session: AttendanceSession;
+    items: readonly AttendanceRosterPassenger[];
+  }>) => void | Promise<void>,
 ): Promise<{ session: AttendanceSession; items: AttendanceRosterPassenger[] }> {
+  if (syncContext) assertSyncContextActive(syncContext);
   let resolvedSession: AttendanceSession | null = null;
-  const items = await collectCursorItems(
+  const items = await collectCursorItems<AttendanceRosterPassenger>(
     async (cursor) => {
+      if (syncContext) assertSyncContextActive(syncContext);
       const page = await apiRequest(
         `/mobile/coordinator/groups/${tripId}/attendance/sessions/${sessionId}/roster?status=${status}&limit=200${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`,
-        { schema: AttendanceRosterPageSchema },
+        {
+          schema: AttendanceRosterPageSchema,
+          ...(syncContext ? { signal: syncContext.signal } : {}),
+        },
       );
+      if (syncContext) assertSyncContextActive(syncContext);
       if (page.session.id !== sessionId) {
         throw new Error('Attendance activity details were out of scope.');
       }
       resolvedSession = page.session;
       return { items: page.items, next_cursor: page.next_cursor };
     },
-    { maxPages: 20, maxItems: 4_000 },
+    {
+      maxItems: MOBILE_ATTENDANCE_ROSTER_CAPACITY,
+      itemKey: (passenger) => passenger.id,
+      ...(syncContext ? {
+        assertActive: () => assertSyncContextActive(syncContext),
+      } : {}),
+      ...(onPage ? {
+        onPage: async (progress) => {
+          if (!resolvedSession) throw new Error('Attendance activity details were empty.');
+          await onPage({ session: resolvedSession, items: progress.items });
+        },
+      } : {}),
+    },
   );
+  if (syncContext) assertSyncContextActive(syncContext);
   if (!resolvedSession) throw new Error('Attendance activity details were empty.');
   return { session: resolvedSession, items };
 }

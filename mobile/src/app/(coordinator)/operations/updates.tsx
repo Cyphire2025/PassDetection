@@ -4,6 +4,8 @@ import CircleAlert from 'lucide-react-native/icons/circle-alert';
 import { useCallback, useMemo } from 'react';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View, type SectionListRenderItemInfo } from 'react-native';
 
+import { englishMessages, formatInstantDateTime } from '@/core/localization/date-time';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -27,6 +29,7 @@ type UpdatesSection = { title: 'Updates' | 'Group announcements'; data: Row[] };
 export default function CoordinatorUpdatesScreen() {
   const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
   const notifications = useCoordinatorNotifications(trips.selectedTripId);
   const announcements = useCoordinatorAnnouncements(trips.selectedTripId);
   const notificationItems = useMemo(() => {
@@ -58,7 +61,11 @@ export default function CoordinatorUpdatesScreen() {
       return (
         <GlassCard style={[styles.card, item.value.priority === 'emergency' && styles.emergency]}>
           <Text style={styles.title}>{item.value.title}</Text>
-          <Text style={styles.date}>{new Date(item.value.published_at).toLocaleString()}</Text>
+          <Text style={styles.date}>
+            {selectedTimeZone
+              ? formatInstantDateTime(item.value.published_at, { timeZone: selectedTimeZone })
+              : englishMessages.dateUnavailable()}
+          </Text>
           <Text style={styles.message}>{item.value.message}</Text>
         </GlassCard>
       );
@@ -82,7 +89,11 @@ export default function CoordinatorUpdatesScreen() {
             </View>
             <View style={styles.headingText}>
               <Text style={styles.title}>{notification.title}</Text>
-              <Text style={styles.date}>{notification.category} · {new Date(notification.available_at).toLocaleString()}</Text>
+              <Text style={styles.date}>
+                {notification.category} · {selectedTimeZone
+                  ? formatInstantDateTime(notification.available_at, { timeZone: selectedTimeZone })
+                  : englishMessages.dateUnavailable()}
+              </Text>
             </View>
             {!notification.read_at ? <View accessibilityLabel="Unread" style={styles.unreadDot} /> : null}
           </View>
@@ -90,7 +101,7 @@ export default function CoordinatorUpdatesScreen() {
         </GlassCard>
       </Pressable>
     );
-  }, [notifications]);
+  }, [notifications, selectedTimeZone]);
 
   const loadMore = useCallback(() => {
     if (notifications.hasNextPage && !notifications.isFetchingNextPage) void notifications.fetchNextPage();
@@ -104,9 +115,7 @@ export default function CoordinatorUpdatesScreen() {
         renderSectionHeader={({ section }) => <Text accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
         keyExtractor={(item) => `${item.kind}:${item.value.id}`}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={14}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.feed}
         onEndReached={loadMore}
         onEndReachedThreshold={0.6}
         contentContainerStyle={styles.list}

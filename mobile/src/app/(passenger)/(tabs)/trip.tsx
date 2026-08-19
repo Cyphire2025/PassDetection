@@ -13,7 +13,9 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { englishMessages, formatInstantDate } from '@/core/localization/date-time';
 import { passengerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -36,6 +38,7 @@ type CommonDocumentSection = {
 
 export default function PassengerTripScreen() {
   const trips = useTrips();
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
   const announcements = useAnnouncements(trips.selectedTripId);
   const commonDocuments = useCommonDocuments(trips.selectedTripId);
   const [documentError, setDocumentError] = useState<string | null>(null);
@@ -96,7 +99,12 @@ export default function PassengerTripScreen() {
           <View style={styles.documentCopy}>
             <Text numberOfLines={2} style={styles.documentTitle}>{document.display_name}</Text>
             <Text style={styles.documentMeta}>
-              {ready ? `Updated ${new Date(document.updated_at).toLocaleDateString()}` : 'Being prepared'}
+              {ready
+                ? englishMessages.updatedOn(formatInstantDate(
+                  document.updated_at,
+                  { timeZone: selectedTimeZone },
+                ))
+                : 'Being prepared'}
             </Text>
           </View>
           {!offlineCurrent ? (
@@ -105,7 +113,7 @@ export default function PassengerTripScreen() {
         </GlassCard>
       </Pressable>
     );
-  }, [openDocument]);
+  }, [openDocument, selectedTimeZone]);
 
   const renderSectionHeader = useCallback(({ section }: { section: CommonDocumentSection }) => (
     <View style={styles.sectionHeader}>
@@ -150,9 +158,7 @@ export default function PassengerTripScreen() {
         renderSectionHeader={renderSectionHeader}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.list}
-        initialNumToRender={8}
-        maxToRenderPerBatch={12}
-        windowSize={5}
+        {...MOBILE_LIST_WINDOWING.compact}
         refreshControl={(
           <RefreshControl
             refreshing={manualRefresh.isRefreshing}
@@ -169,7 +175,11 @@ export default function PassengerTripScreen() {
                 onPress={() => router.push('/(passenger)/select-trip')}
               />
             ) : null}
-            <DepartureCountdownCard travelDate={trip.travelDate} returnDate={trip.returnDate} />
+            <DepartureCountdownCard
+              travelDate={trip.travelDate}
+              returnDate={trip.returnDate}
+              timeZone={trip.timeZone}
+            />
             {importantAnnouncement ? (
               <GlassCard style={styles.alertCard}>
                 <Text style={styles.alertEyebrow}>{importantAnnouncement.priority === 'emergency' ? 'Emergency update' : 'Important update'}</Text>

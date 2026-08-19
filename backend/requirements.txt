@@ -23,11 +23,25 @@ celery==5.4.0
 # ── Authentication & Security ─────────────────────────────────────────────────
 PyJWT==2.13.0
 cryptography==50.0.0
-passlib[bcrypt]==1.7.4
+# Apple App Attest verifier and its security-sensitive direct dependency set.
+# These are pinned together because provider verification must not drift during
+# an otherwise unrelated backend rebuild.
+pyattest==1.0.5
+cbor2==6.1.4
+asn1crypto==1.5.1
+pyhanko-certvalidator==0.31.4
+oscrypto==1.3.0
+uritools==6.1.3
+python-jose[cryptography]==3.5.0
+ecdsa==0.19.2
+# The application imports bcrypt directly; avoid carrying the unused and
+# unmaintained Passlib compatibility layer into the production dependency set.
+bcrypt==5.0.0
 python-multipart==0.0.32  # file uploads
 
 # ── HTTP Client (for webhooks, cloud APIs) ────────────────────────────────────
 httpx==0.27.0
+google-auth==2.56.3       # Application Default Credentials for Play Integrity REST verification
 
 # ── Storage ───────────────────────────────────────────────────────────────────
 boto3==1.34.131          # S3-compatible (AWS, MinIO, etc.)
@@ -59,5 +73,6 @@ sentry-sdk[fastapi]==2.66.0
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 python-dateutil==2.9.0
+tzdata==2026.3           # explicit IANA database for ZoneInfo on minimal/Windows runtimes
 shortuuid==1.0.13
 tenacity==8.3.0          # retry logic

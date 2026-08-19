@@ -1,4 +1,4 @@
-# Group Companion Mobile
+# Global Connect Travels Mobile
 
 Production React Native companion for PassDetection passengers, client managers, and coordinators. It is an Expo Prebuild application—not a WebView—and produces native Android and iOS projects from one strict TypeScript codebase.
 
@@ -13,7 +13,11 @@ Production React Native companion for PassDetection passengers, client managers,
 - Expo Notifications provider abstraction, private Android notification visibility, durable read state, strict deep-link routing, and push-triggered refresh.
 - Expo Background Task for opportunistic synchronization; foreground and reconnect synchronization remain authoritative because operating systems do not guarantee background execution.
 
-The encrypted local namespace includes agency, principal, trip, and—where applicable—passenger ownership. Account switching, logout, access-generation changes, trip removal, access denial, and expiry purge the affected database rows, vault files, secrets, and temporary viewer files.
+SecureStore access is sensitivity-tiered and centralized. The document-vault key and signed offline-authorization lease are unlocked-only on iOS and blocked by the application outside an active foreground; exact background metadata requirements use device-only after-first-unlock storage. Android receives separate Keystore aliases per tier, but Expo does not expose native unlocked-device-required keys, so physical lock/reboot testing and the residual native-hardening decision remain release gates. Biometric `requireAuthentication` is not enabled because it would invalidate keys on enrollment changes and break required headless/non-biometric workflows. See `docs/MOBILE_KEY_ACCESSIBILITY.md`.
+
+The encrypted local namespace includes agency, principal, trip, and—where applicable—passenger ownership. Ordinary sign-out, account switching, access-generation changes, trip removal, access denial, expiry, and installation reset purge the affected database rows, encrypted vault files, account-scoped keys, and temporary viewer files. Sign-out clears in-memory authentication immediately, attempts server-session and push-registration revocation without making local sign-out depend on the network, and records a durable cleanup marker before destructive local work. An interrupted deletion stays fenced and is retried before that namespace can be reopened. The next login therefore performs a fresh synchronization; there is no retained-on-sign-out reactivation mode. See `docs/MOBILE_LOCAL_DATA_RETENTION.md`.
+
+Production release additionally requires signed-device storage inspection after sign-out, force-stop during cleanup, reboot, restore, and reinstall, as well as offline shell restoration tests proving that cached access is granted only by a valid signed offline-authorization lease or a successful online session check.
 
 ## Configuration
 
@@ -26,11 +30,17 @@ EXPO_PUBLIC_DEMO_MODE=false
 EXPO_PUBLIC_EAS_PROJECT_ID=<Expo project UUID>
 EXPO_PUBLIC_EXPO_OWNER=<Expo account>
 EXPO_PUBLIC_UPDATES_URL=https://u.expo.dev/<Expo project UUID>
+EXPO_UPDATES_CODE_SIGNING_CERTIFICATE=<path to protected build input certificate.pem>
+GOOGLE_SERVICES_JSON=<path to protected Firebase google-services.json>
+GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS=<production SHA-256 fingerprint(s)>
+GC_APPLE_TEAM_ID=<10-character Apple Team ID>
 ```
 
 Never place API, SMS, push-service, signing, or encryption secrets in an `EXPO_PUBLIC_*` variable. Non-development builds reject cleartext API origins. Android manifest configuration also disables cleartext traffic and backups.
 
-Every production build must provide the API URL, `EXPO_PUBLIC_APP_ENV=production`, and `EXPO_PUBLIC_DEMO_MODE=false`. A real EAS project ID may be supplied by itself to enable push-token registration while OTA updates remain disabled. To enable EAS Update, also provide the Expo owner and canonical Update URL containing the same project UUID. The release scripts validate this contract before native generation.
+Every production build must provide the API URL, `EXPO_PUBLIC_APP_ENV=production`, and `EXPO_PUBLIC_DEMO_MODE=false`. A real EAS project ID may be supplied by itself to enable push-token registration while OTA updates remain disabled. To enable EAS Update, also provide the Expo owner, canonical Update URL containing the same project UUID, and a build-time verification certificate. Unsigned remote updates are rejected by configuration. The private update-signing key is used only by the protected publishing job and must never enter the repository or application build.
+
+Production release preparation also validates the external App Link/Universal Link files before regenerating native projects. `https://tech.gctravels.com/.well-known/assetlinks.json` and `https://tech.gctravels.com/.well-known/apple-app-site-association` must return HTTP 200 JSON directly, without redirects, and must match the protected Android signing fingerprint or Apple Team ID. The deployed backend derives those public documents from the same signing identities enforced by Play Integrity and App Attest. Native generation fails closed if the deployment configuration is missing or points elsewhere.
 
 The Expo project ID, owner, API URL, and update URL are public application configuration, not signing credentials. Keep Android keystores, Apple certificates, service-account keys, provider tokens, and update-signing private keys out of `.env` and `EXPO_PUBLIC_*`.
 
@@ -46,9 +56,21 @@ npm run typecheck
 npm run lint
 npm test
 npm run doctor
+npm run dependencies:check
+npm run audit:runtime
 ```
 
 This app uses SQLCipher, native PDF rendering, camera, notifications, and secure storage. Expo Go is not a valid runtime; use a native development build.
+
+### Release-Hermes emulator/simulator smoke
+
+The `e2e-test` EAS profile produces an Android APK and iOS simulator `.app` without distribution credentials. The manual workflow at `.eas/workflows/release-hermes-smoke.yml` builds both artifacts with the explicitly configured Hermes engine, runs `.maestro/release-hermes-auth-smoke.yml`, and records the emulator/simulator screens:
+
+```powershell
+npx eas workflow:run .eas/workflows/release-hermes-smoke.yml
+```
+
+Run this from the linked, protected Expo project with its `preview` environment configured. The source workflow follows Expo's [EAS Maestro E2E pattern](https://docs.expo.dev/eas/workflows/examples/e2e-tests/) and [pre-packaged Maestro job contract](https://docs.expo.dev/eas/workflows/pre-packaged-jobs/). A successful cloud run is required evidence; merely parsing these YAML files locally is not a passing test. This smoke proves only release-engine startup and the anonymous passenger/staff authentication shells. It does not replace store-signed physical-device tests for secure documents, camera scanning, links, push, app attestation, storage cleanup, screenshots, background execution, performance, or accessibility.
 
 ## Native projects and Android builds
 
@@ -68,12 +90,15 @@ $env:EXPO_PUBLIC_DEMO_MODE='false'
 $env:EXPO_PUBLIC_EAS_PROJECT_ID='<real Expo project UUID>'
 $env:EXPO_PUBLIC_EXPO_OWNER='<real Expo account>'
 $env:EXPO_PUBLIC_UPDATES_URL="https://u.expo.dev/$env:EXPO_PUBLIC_EAS_PROJECT_ID"
+$env:EXPO_UPDATES_CODE_SIGNING_CERTIFICATE='C:\protected\updates\certificate.pem'
+$env:GOOGLE_SERVICES_JSON='C:\protected\firebase\google-services.json'
+$env:GC_ANDROID_APP_LINK_SHA256_CERT_FINGERPRINTS='<production SHA-256 fingerprint>'
 npm run release:validate-env
 npm run android:apk
 npm run android:aab
 ```
 
-The release scripts validate the production public environment and synchronize the generated Android project before compiling. They serialize Gradle work and reserve up to 4 GB heap/1 GB metaspace because SQLCipher, Expo Updates, Hermes, and four native ABIs can exceed Gradle's small default metaspace during KSP/lint analysis.
+The release scripts validate the supported Expo dependency set, production public environment, Firebase package identity, update-signing certificate, and live App Link association before cleanly regenerating the Android project. They serialize Gradle work and reserve up to 4 GB heap/1 GB metaspace because SQLCipher, Expo Updates, Hermes, and four native ABIs can exceed Gradle's small default metaspace during KSP/lint analysis.
 
 Outputs are normally:
 
@@ -98,17 +123,20 @@ EAS alternatives:
 
 ```powershell
 npx eas build --platform android --profile preview
+npm run release:preflight-android
 npx eas build --platform android --profile production-apk
 npx eas build --platform android --profile production
 ```
+
+Run the matching `release:preflight-ios` gate before a production iOS EAS build. Protected CI/CD should make these preflight commands mandatory rather than invoking a production EAS profile directly.
 
 `production-apk` is the installable internal-testing variant and inherits the production environment, channel, version increment, and protected EAS Android credentials. `production` produces the Play Store AAB. A profile definition does not prove that credentials exist or that a build is distribution-signed; confirm the EAS project and credential assignment before distributing either artifact. The `fingerprint` OTA runtime policy prevents updates built against a different native dependency/configuration fingerprint from reaching an incompatible binary.
 
 ## iOS build and signing
 
-Generate `ios/` with `npm run native:sync`. Final compilation and signing require macOS, Xcode, an Apple Developer team, a matching provisioning profile, push-notification entitlement, and the associated-domain file for `app.globalconnecttravels.com`.
+Generate `ios/` with `npm run native:sync`. Final compilation and signing require macOS, Xcode, an Apple Developer team, a matching provisioning profile, push-notification entitlement, and the associated-domain file for `tech.gctravels.com`.
 
-On macOS:
+On macOS, also set `GC_APPLE_TEAM_ID` to the production team identifier. The Universal Link association gate runs before native generation against `tech.gctravels.com`:
 
 ```bash
 npm ci

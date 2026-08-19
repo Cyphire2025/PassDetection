@@ -15,6 +15,7 @@ import { ApiError } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { SensitiveScreenProtection } from '@/core/security/sensitive-screen-protection';
 import {
   decryptDocumentForViewing,
   isLocalOfflineCiphertextError,
@@ -25,7 +26,11 @@ import { GlassCard } from '@/design/components/glass-card';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { Screen } from '@/design/components/screen';
 import { colors, radii, spacing } from '@/design/theme';
-import { cacheDocument, getDocument } from '@/features/content/data/content-repository';
+import {
+  cacheDocument,
+  getDocument,
+  recordOfflineDocumentOpened,
+} from '@/features/content/data/content-repository';
 import { useCoordinatorTripStore } from '@/features/coordinator/state/coordinator-trip-store';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
@@ -38,15 +43,25 @@ class TerminalDocumentViewerError extends Error {}
 function viewerFailure(error: unknown): ViewerFailure {
   const localCiphertextFailure = isLocalOfflineCiphertextError(error);
   const internalMessage = error instanceof Error ? error.message : '';
-  const terminalApiFailure = error instanceof ApiError
-    && (error.status === 403 || error.status === 404 || error.status === 410);
+  const terminalApiFailure = error instanceof ApiError && (
+    error.status === 403
+    || (
+      (error.status === 404 || error.status === 410)
+      && ['NOT_FOUND', 'DOCUMENT_GONE', 'DOCUMENT_REVOKED'].includes(error.code)
+    )
+  );
   const terminalMessage = (
     /no longer available|revoked|not authorized|integrity verification|checksum.*(?:did not match|mismatch)|invalid document checksum/i
   ).test(internalMessage);
+  const routeContractMismatch = error instanceof ApiError
+    && (error.status === 404 || error.status === 410)
+    && error.code === `HTTP_${error.status}`;
   return {
     message: error instanceof TerminalDocumentViewerError
       ? error.message
-      : userFacingErrorMessage(error, 'The document could not be opened.'),
+      : routeContractMismatch
+        ? 'The document service is temporarily unavailable. Try again.'
+        : userFacingErrorMessage(error, 'The document could not be opened.'),
     retryable: localCiphertextFailure
       || !(error instanceof TerminalDocumentViewerError || terminalApiFailure || terminalMessage),
   };
@@ -134,7 +149,7 @@ export default function SecureDocumentScreen() {
           // Pending personal metadata is deliberately materialized by the same
           // signed authorization that downloads the first offline copy. Do not
           // dead-end the viewer while the background prefetch is still running.
-          await cacheDocument(document, undefined, signal);
+          await cacheDocument(document, undefined, signal, 'required');
           document = await getDocument(tripId, id);
           if (!document || document.revoked_at) {
             throw new TerminalDocumentViewerError('This document is no longer available.');
@@ -149,7 +164,7 @@ export default function SecureDocumentScreen() {
           throw new Error('This document is still being prepared for offline use.');
         }
         if (!document.offline || document.offlineVersion !== document.version) {
-          await cacheDocument(document, undefined, signal);
+          await cacheDocument(document, undefined, signal, 'required');
         }
         if (!mounted.current || attempt.current !== operationAttempt) return;
         const vaultInput = {
@@ -168,9 +183,15 @@ export default function SecureDocumentScreen() {
           // A post-registration bit flip or truncation is repaired from the signed source. The
           // repository atomically unregisters the damaged copy and leaves a durable retry job if
           // connectivity disappears during this attempt.
-          await cacheDocument(document, undefined, signal);
+          await cacheDocument(document, undefined, signal, 'required');
           createdTemporary = await decryptDocumentForViewing(vaultInput, signal);
         }
+        await recordOfflineDocumentOpened({
+          namespace,
+          tripId,
+          documentId: document.id,
+          version: document.version,
+        }).catch(() => undefined);
         if (!mounted.current || attempt.current !== operationAttempt) {
           releaseTemporaryView(createdTemporary);
           createdTemporary = null;
@@ -180,7 +201,6 @@ export default function SecureDocumentScreen() {
         setUri(createdTemporary.uri);
         createdTemporary = null;
       } catch (caught) {
-        if (__DEV__) console.error('[document-viewer-qa-timing]', caught);
         if (createdTemporary) {
           try {
             removeTemporaryView(createdTemporary);
@@ -287,7 +307,7 @@ export default function SecureDocumentScreen() {
   return (
     <Screen scroll={false} contentStyle={styles.screen} bottomInset={8}>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close document" onPress={closeDocument} style={styles.close}>
+        <Pressable testID="secure-document-close" accessibilityRole="button" accessibilityLabel="Close document" onPress={closeDocument} style={styles.close}>
           <Text style={styles.closeText}>Close</Text>
         </Pressable>
         <Text numberOfLines={1} style={styles.title}>
@@ -296,7 +316,7 @@ export default function SecureDocumentScreen() {
         <View style={styles.headerSpacer} />
       </View>
       {error ? (
-        <GlassCard style={styles.messageCard}>
+        <GlassCard testID="secure-document-error" style={styles.messageCard}>
           <Text accessibilityRole="alert" style={styles.errorTitle}>
             Document unavailable
           </Text>
@@ -310,12 +330,12 @@ export default function SecureDocumentScreen() {
           ) : null}
         </GlassCard>
       ) : opening || !uri ? (
-        <View accessibilityRole="progressbar" accessibilityLabel="Opening document" style={styles.loading}>
+        <View testID="secure-document-opening" accessibilityRole="progressbar" accessibilityLabel="Opening document" style={styles.loading}>
           <ActivityIndicator color={colors.greenDeep} size="large" />
           <Text style={styles.loadingText}>Opening your document…</Text>
         </View>
       ) : contentType === 'application/pdf' ? (
-        <View style={styles.viewerContainer}>
+        <View testID="secure-document-rendered" style={styles.viewerContainer}>
           <Pdf
             key={uri}
             source={{ uri, cache: false }}
@@ -332,7 +352,7 @@ export default function SecureDocumentScreen() {
           ) : null}
         </View>
       ) : (
-        <View style={styles.viewerContainer}>
+        <View testID="secure-document-rendered" style={styles.viewerContainer}>
           <Image
             key={uri}
             source={{ uri }}
@@ -350,6 +370,7 @@ export default function SecureDocumentScreen() {
           ) : null}
         </View>
       )}
+      <SensitiveScreenProtection protectionKey="secure-document-viewer" />
     </Screen>
   );
 }

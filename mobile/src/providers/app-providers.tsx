@@ -13,9 +13,13 @@ import { isDemoMode } from '@/core/demo/demo-mode';
 import { shouldPurgeDiskCacheForAccountTransition } from '@/core/storage/render-cache-policy';
 import { purgeTemporaryViews } from '@/core/storage/vault';
 import { NotificationRuntime } from '@/core/notifications/notification-runtime';
+import { markApplicationInteractive } from '@/core/observability/mobile-observability';
+import { LocalizationProvider } from '@/core/localization/localization-provider';
 import { mobileQueryClient } from '@/core/query/query-client';
 import { ReactNativeQueryRuntime } from '@/core/query/react-native-query-runtime';
+import { RealtimeRuntime } from '@/core/realtime/realtime-runtime';
 import { SyncRuntime } from '@/core/sync/sync-runtime';
+import { purgeManagerDocumentPreviews } from '@/features/manager/data/manager-document-preview';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 async function purgeSensitiveRenderingResidue(includeDiskCache: boolean): Promise<void> {
@@ -24,6 +28,7 @@ async function purgeSensitiveRenderingResidue(includeDiskCache: boolean): Promis
   // decrypted view outside the managed temporary-view directory.
   const cleanup: Promise<unknown>[] = [
     purgeTemporaryViews(),
+    purgeManagerDocumentPreviews(),
     Image.clearMemoryCache(),
   ];
   // Disk eviction is needed at startup and account boundaries to clean residue
@@ -67,7 +72,10 @@ export function AppProviders({ children }: PropsWithChildren) {
     // outcome, so a native SecureStore/SQLite rejection cannot become an
     // unhandled promise or leave the router permanently in `booting`.
     void bootstrapApplicationSession().finally(() => {
-      if (active) void SplashScreen.hideAsync().catch(() => undefined);
+      if (active) {
+        markApplicationInteractive();
+        void SplashScreen.hideAsync().catch(() => undefined);
+      }
     });
     return () => {
       active = false;
@@ -87,12 +95,15 @@ export function AppProviders({ children }: PropsWithChildren) {
   return (
     <GestureHandlerRootView style={styles.fill}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ReactNativeQueryRuntime />
-          <SyncRuntime />
-          <NotificationRuntime />
-          {children}
-        </QueryClientProvider>
+        <LocalizationProvider>
+          <QueryClientProvider client={queryClient}>
+            <ReactNativeQueryRuntime />
+            <SyncRuntime />
+            <RealtimeRuntime />
+            <NotificationRuntime />
+            {children}
+          </QueryClientProvider>
+        </LocalizationProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

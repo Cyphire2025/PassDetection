@@ -1,8 +1,10 @@
 import {
   EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
+  confirmedAttendanceCount,
   isRapidRepeatScan,
   reconcileAttendanceCount,
   recordOptimisticAttendanceScan,
+  restorePendingAttendanceScans,
   settleOptimisticAttendanceScans,
   visibleAttendanceCount,
 } from '../scan-policy';
@@ -74,4 +76,31 @@ test('settles accepted and rejected scans against the refreshed server count exa
   const settled = settleOptimisticAttendanceScans(pending, 'session-a', 21, 2);
   expect(settled).toEqual({ sessionId: 'session-a', confirmedCount: 21, pendingCount: 0 });
   expect(visibleAttendanceCount(settled, 'session-a', 21)).toBe(21);
+});
+
+test('counts only server-accepted scans as confirmed when the follow-up read is stale', () => {
+  let pending = recordOptimisticAttendanceScan(
+    EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
+    'session-a',
+    20,
+  );
+  pending = recordOptimisticAttendanceScan(pending, 'session-a', 20);
+
+  const settled = settleOptimisticAttendanceScans(pending, 'session-a', 20, 2, 1);
+
+  expect(settled).toEqual({ sessionId: 'session-a', confirmedCount: 21, pendingCount: 0 });
+  expect(confirmedAttendanceCount(settled, 'session-a', 20)).toBe(21);
+});
+
+test('restores the durable pending count without presenting it as confirmed', () => {
+  const restored = restorePendingAttendanceScans(
+    EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
+    'session-a',
+    20,
+    3,
+  );
+
+  expect(restored).toEqual({ sessionId: 'session-a', confirmedCount: 20, pendingCount: 3 });
+  expect(confirmedAttendanceCount(restored, 'session-a', 20)).toBe(20);
+  expect(visibleAttendanceCount(restored, 'session-a', 20)).toBe(23);
 });

@@ -24,6 +24,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 from app.infrastructure.database import communications_models as _communications_models
 from app.infrastructure.database import document_models as _document_models
 from app.infrastructure.database import operations_models as _operations_models
@@ -146,6 +147,12 @@ class RefreshTokenModel(Base):
 
 class ClientGroupModel(Base):
     __tablename__ = "client_groups"
+    __table_args__ = (
+        CheckConstraint(
+            "length(timezone) BETWEEN 1 AND 64 AND timezone = trim(timezone)",
+            name="ck_client_groups_timezone_shape",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -176,6 +183,12 @@ class ClientGroupModel(Base):
     destination: Mapped[str | None] = mapped_column(String(255), nullable=True)
     travel_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     return_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    timezone: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+        default=DEFAULT_TRIP_TIMEZONE,
+        server_default=DEFAULT_TRIP_TIMEZONE,
+    )
     package_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     departure_cities: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
     base_city_enabled: Mapped[bool] = mapped_column(

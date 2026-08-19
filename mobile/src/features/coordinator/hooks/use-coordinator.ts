@@ -8,7 +8,12 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
+import { withAccountQueryContext } from '@/core/query/account-query-context';
+import { activeAttendanceRefreshInterval } from '@/core/query/attendance-refresh-policy';
+import { mergeProgressiveItemsById } from '@/core/query/progressive-page';
 import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
+import { useRouteFocus } from '@/core/query/use-route-focus';
+import { requestSync } from '@/core/sync/sync-trigger';
 import { useAnnouncements, useCommonDocuments } from '@/features/content/hooks/use-content';
 import { useNotifications } from '@/features/notifications/hooks/use-notifications';
 
@@ -16,8 +21,8 @@ import {
   loadCachedCoordinatorPassenger,
   loadCachedRoster,
   loadCoordinatorPassenger,
-  loadRoster,
 } from '../data/coordinator-repository';
+import type { LocalRosterFilter } from '../data/local-roster-search';
 import {
   loadAttendanceSessionDetail,
   loadCachedAttendanceSessionDetail,
@@ -34,32 +39,41 @@ function useCoordinatorAccountKey(): string | null {
   return agencyId && accountId ? accountNamespace({ agencyId, accountId }) : null;
 }
 
-export function useCoordinatorRoster(tripId: string | null, search: string) {
+export function useCoordinatorRoster(
+  tripId: string | null,
+  search: string,
+  filter: LocalRosterFilter = 'all',
+) {
   const queryClient = useQueryClient();
   const accountKey = useCoordinatorAccountKey();
   const normalizedSearch = search.trim();
   const refreshLock = useRef(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryKey = useMemo(
-    () => ['coordinator-roster', accountKey, tripId, normalizedSearch] as const,
-    [accountKey, normalizedSearch, tripId],
+    () => ['coordinator-roster', accountKey, tripId, normalizedSearch, filter] as const,
+    [accountKey, filter, normalizedSearch, tripId],
   );
   const loadCachedRosterQuery = useCallback(async () => {
-    const cached = await loadCachedRoster(tripId!, normalizedSearch);
+    const cached = await loadCachedRoster(tripId!, normalizedSearch, null, undefined, filter);
     return {
       pages: [cached],
       pageParams: [null as string | null],
     };
-  }, [normalizedSearch, tripId]);
+  }, [filter, normalizedSearch, tripId]);
   const cacheHydrated = usePersistentQueryHydration({
     accountKey,
-    hydrationKey: tripId ? `coordinator-roster:${tripId}:${normalizedSearch}` : null,
+    hydrationKey: tripId
+      ? `coordinator-roster:${tripId}:${normalizedSearch}:${filter}`
+      : null,
     queryKey,
     load: loadCachedRosterQuery,
   });
   const query = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam }) => loadRoster(tripId!, search, pageParam),
+    queryFn: ({ pageParam, signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadCachedRoster(tripId!, normalizedSearch, pageParam, context, filter),
+    ),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.next_cursor,
     enabled: Boolean(accountKey && tripId && cacheHydrated),
@@ -69,7 +83,15 @@ export function useCoordinatorRoster(tripId: string | null, search: string) {
     refreshLock.current = true;
     setIsRefreshing(true);
     try {
-      const fresh = await loadRoster(tripId, normalizedSearch, null);
+      await requestSync({
+        scope: 'trip',
+        tripId,
+        reason: 'manual-coordinator-roster',
+      });
+      const fresh = await withAccountQueryContext(
+        new AbortController().signal,
+        (context) => loadCachedRoster(tripId, normalizedSearch, null, context, filter),
+      );
       queryClient.setQueryData<InfiniteData<typeof fresh, string | null>>(queryKey, {
         pages: [fresh],
         pageParams: [null],
@@ -80,8 +102,19 @@ export function useCoordinatorRoster(tripId: string | null, search: string) {
       refreshLock.current = false;
       setIsRefreshing(false);
     }
-  }, [normalizedSearch, queryClient, queryKey, tripId]);
-  return { ...query, refreshFirstPage, isRefreshing };
+  }, [filter, normalizedSearch, queryClient, queryKey, tripId]);
+  const localRefetch = query.refetch;
+  const coordinatedRefetch = useCallback((
+    options?: Parameters<typeof localRefetch>[0],
+  ) => {
+    if (!tripId) return localRefetch(options);
+    return requestSync({
+      scope: 'trip',
+      tripId,
+      reason: 'manual-coordinator-roster-query',
+    }).then(() => localRefetch(options));
+  }, [localRefetch, tripId]);
+  return { ...query, refetch: coordinatedRefetch, refreshFirstPage, isRefreshing };
 }
 
 export function useCoordinatorPassenger(tripId: string | null, passengerId: string | null) {
@@ -105,7 +138,10 @@ export function useCoordinatorPassenger(tripId: string | null, passengerId: stri
   });
   const query = useQuery({
     queryKey,
-    queryFn: () => loadCoordinatorPassenger(tripId!, passengerId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadCoordinatorPassenger(tripId!, passengerId!, context),
+    ),
     enabled: Boolean(accountKey && tripId && passengerId && cacheHydrated),
     staleTime: 15_000,
     refetchOnMount: 'always',
@@ -114,7 +150,9 @@ export function useCoordinatorPassenger(tripId: string | null, passengerId: stri
 }
 
 export function useAttendanceSessions(tripId: string | null) {
+  const queryClient = useQueryClient();
   const accountKey = useCoordinatorAccountKey();
+  const routeFocused = useRouteFocus();
   const queryKey = useMemo(
     () => ['coordinator-attendance-sessions', accountKey, tripId] as const,
     [accountKey, tripId],
@@ -131,19 +169,36 @@ export function useAttendanceSessions(tripId: string | null) {
   });
   const query = useQuery({
     queryKey,
-    queryFn: () => refreshAttendanceSessions(tripId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => refreshAttendanceSessions(tripId!, context, (items) => {
+        queryClient.setQueryData<Awaited<ReturnType<typeof refreshAttendanceSessions>>>(
+          queryKey,
+          (current) => ({
+            items: mergeProgressiveItemsById(items, current?.items),
+            selectedSessionId: current?.selectedSessionId ?? null,
+            offline: false,
+          }),
+        );
+      }),
+    ),
     enabled: Boolean(accountKey && tripId && cacheHydrated),
     staleTime: 5_000,
     refetchOnMount: 'always',
-    refetchInterval: (query) => (
-      query.state.data?.items.some((session) => session.status === 'active') ? 8_000 : false
-    ),
+    refetchInterval: (query) => activeAttendanceRefreshInterval({
+      hasActiveSession: Boolean(
+        query.state.data?.items.some((session) => session.status === 'active'),
+      ),
+      error: query.state.error,
+      routeFocused,
+    }),
     refetchIntervalInBackground: false,
   });
   return query;
 }
 
 export function useAttendanceSessionDetail(tripId: string | null, sessionId: string | null) {
+  const queryClient = useQueryClient();
   const accountKey = useCoordinatorAccountKey();
   const queryKey = useMemo(
     () => ['coordinator-attendance-session-detail', accountKey, tripId, sessionId] as const,
@@ -161,7 +216,19 @@ export function useAttendanceSessionDetail(tripId: string | null, sessionId: str
   });
   const query = useQuery({
     queryKey,
-    queryFn: () => loadAttendanceSessionDetail(tripId!, sessionId!),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadAttendanceSessionDetail(tripId!, sessionId!, context, (progress) => {
+        queryClient.setQueryData<Awaited<ReturnType<typeof loadAttendanceSessionDetail>>>(
+          queryKey,
+          (current) => ({
+            session: progress.session,
+            missing: mergeProgressiveItemsById(progress.missing, current?.missing),
+            offline: false,
+          }),
+        );
+      }),
+    ),
     enabled: Boolean(accountKey && tripId && sessionId && cacheHydrated),
   });
   return query;
@@ -173,6 +240,7 @@ export function useCoordinatorAttendanceRoster(
   status: 'counted' | 'missing',
   enabled: boolean,
 ) {
+  const queryClient = useQueryClient();
   const accountKey = useCoordinatorAccountKey();
   const queryKey = useMemo(
     () => ['coordinator-attendance-roster', accountKey, tripId, sessionId, status] as const,
@@ -180,7 +248,24 @@ export function useCoordinatorAttendanceRoster(
   );
   return useQuery({
     queryKey,
-    queryFn: () => loadCoordinatorAttendanceRoster(tripId!, sessionId!, status),
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      (context) => loadCoordinatorAttendanceRoster(
+        tripId!,
+        sessionId!,
+        status,
+        context,
+        (progress) => {
+          queryClient.setQueryData<Awaited<ReturnType<typeof loadCoordinatorAttendanceRoster>>>(
+            queryKey,
+            (current) => ({
+              session: progress.session,
+              items: mergeProgressiveItemsById(progress.items, current?.items),
+            }),
+          );
+        },
+      ),
+    ),
     enabled: Boolean(enabled && accountKey && tripId && sessionId),
     staleTime: status === 'counted' ? 5_000 : 2_000,
   });

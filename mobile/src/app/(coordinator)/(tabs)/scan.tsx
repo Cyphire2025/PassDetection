@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -30,15 +31,20 @@ import { Screen } from '@/design/components/screen';
 import { TextField } from '@/design/components/text-field';
 import { colors, radii, spacing } from '@/design/theme';
 import type { AttendanceSession } from '@/features/coordinator/api/coordinator-contracts';
-import { enqueueQrScan, drainAttendanceQueue } from '@/features/coordinator/data/attendance-queue';
+import {
+  attendanceSessionQueueStatus,
+  enqueueQrScan,
+  drainAttendanceQueue,
+} from '@/features/coordinator/data/attendance-queue';
 import { createAttendanceSession, selectAttendanceSession } from '@/features/coordinator/data/attendance-sessions';
 import {
   EMPTY_OPTIMISTIC_ATTENDANCE_COUNT,
   attendanceScanTimestamp,
+  confirmedAttendanceCount,
   isRapidRepeatScan,
   recordOptimisticAttendanceScan,
+  restorePendingAttendanceScans,
   settleOptimisticAttendanceScans,
-  visibleAttendanceCount,
   type RecentAttendanceScan,
 } from '@/features/coordinator/data/scan-policy';
 import { useAttendanceSessions } from '@/features/coordinator/hooks/use-coordinator';
@@ -65,6 +71,8 @@ export default function CoordinatorScanScreen() {
   const selectedSession = availableSessions.find(
     (session) => session.id === sessions.data?.selectedSessionId,
   ) ?? null;
+  const selectedSessionId = selectedSession?.id ?? null;
+  const selectedSessionScannedCount = selectedSession?.scanned_count ?? 0;
   const [permission, requestPermission] = useCameraPermissions();
   const [torch, setTorch] = useState(false);
   const [scanState, setScanState] = useState<ScanState>(null);
@@ -83,6 +91,7 @@ export default function CoordinatorScanScreen() {
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const drainRunning = useRef(false);
   const pendingDrainTrips = useRef(new Set<string>());
+  const queueStatusLoad = useRef(0);
   const flushDrainRef = useRef<() => void>(() => undefined);
   const selectedTripIdRef = useRef(trips.selectedTripId);
   const selectedSessionRef = useRef<AttendanceSession | null>(selectedSession);
@@ -111,6 +120,37 @@ export default function CoordinatorScanScreen() {
     activityMutationLock.current = false;
   }, [selectedSession?.id, trips.selectedTripId]);
 
+  useEffect(() => {
+    const loadId = queueStatusLoad.current + 1;
+    queueStatusLoad.current = loadId;
+    const tripId = trips.selectedTripId;
+    if (!tripId || !selectedSessionId) return;
+    void attendanceSessionQueueStatus(tripId, selectedSessionId)
+      .then((status) => {
+        if (
+          queueStatusLoad.current !== loadId
+          || selectedTripIdRef.current !== tripId
+          || selectedSessionRef.current?.id !== selectedSessionId
+        ) return;
+        setOptimisticScans((current) => {
+          if (current.sessionId === null && status.awaitingConfirmation === 0) return current;
+          return restorePendingAttendanceScans(
+            current,
+            selectedSessionId,
+            selectedSessionScannedCount,
+            status.awaitingConfirmation,
+          );
+        });
+      })
+      .catch(() => undefined);
+  }, [selectedSessionId, selectedSessionScannedCount, trips.selectedTripId]);
+
+  const showFeedback = useCallback((next: Exclude<ScanState, null>) => {
+    setScanState(next);
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setScanState(null), 1_800);
+  }, []);
+
   const ensureDrainScheduled = useCallback(() => {
     if (drainTimer.current || drainRunning.current || pendingDrainTrips.current.size === 0) return;
     drainTimer.current = setTimeout(() => {
@@ -124,6 +164,9 @@ export default function CoordinatorScanScreen() {
     drainRunning.current = true;
     const drainedTrips = new Set<string>();
     const settledByTrip = new Map<string, Record<string, number>>();
+    const confirmedByTrip = new Map<string, Record<string, number>>();
+    const newlyAcceptedByTrip = new Map<string, Record<string, number>>();
+    const rejectedByTrip = new Map<string, Record<string, number>>();
     try {
       while (pendingDrainTrips.current.size > 0) {
         const batch = [...pendingDrainTrips.current];
@@ -135,35 +178,90 @@ export default function CoordinatorScanScreen() {
           const tripId = batch[index];
           if (result.status !== 'fulfilled' || !tripId) return;
           drainedTrips.add(tripId);
-          const tripSettlements = settledByTrip.get(tripId) ?? {};
-          for (const [sessionId, count] of Object.entries(result.value.settledBySession)) {
-            tripSettlements[sessionId] = (tripSettlements[sessionId] ?? 0) + count;
+          const fields = [
+            [settledByTrip, result.value.settledBySession],
+            [confirmedByTrip, result.value.confirmedBySession],
+            [newlyAcceptedByTrip, result.value.newlyAcceptedBySession],
+            [rejectedByTrip, result.value.rejectedBySession],
+          ] as const;
+          for (const [target, source] of fields) {
+            const counts = target.get(tripId) ?? {};
+            for (const [sessionId, count] of Object.entries(source)) {
+              counts[sessionId] = (counts[sessionId] ?? 0) + count;
+            }
+            target.set(tripId, counts);
           }
-          settledByTrip.set(tripId, tripSettlements);
         });
       }
       const activeTripId = selectedTripIdRef.current;
       if (activeTripId && drainedTrips.has(activeTripId)) {
-        const refreshed = await refetchSessionsRef.current();
         const activeSession = selectedSessionRef.current;
-        const serverSession = activeSession
-          ? refreshed.data?.items.find((item) => item.id === activeSession.id)
-          : null;
         if (activeSession) {
+          let serverCount = activeSession.scanned_count;
+          try {
+            const refreshed = await refetchSessionsRef.current();
+            serverCount = refreshed.data?.items.find(
+              (item) => item.id === activeSession.id,
+            )?.scanned_count ?? serverCount;
+          } catch {
+            // The server acknowledgement below is still authoritative if the follow-up read is offline.
+          }
+          let durablePendingCount: number | null = null;
+          try {
+            durablePendingCount = (
+              await attendanceSessionQueueStatus(activeTripId, activeSession.id)
+            ).awaitingConfirmation;
+          } catch {
+            // Keep the in-memory pending count; the next queue read will restore the durable value.
+          }
+          if (
+            selectedTripIdRef.current !== activeTripId
+            || selectedSessionRef.current?.id !== activeSession.id
+          ) return;
           const settledCount = settledByTrip.get(activeTripId)?.[activeSession.id] ?? 0;
-          setOptimisticScans((current) => settleOptimisticAttendanceScans(
-            current,
-            activeSession.id,
-            serverSession?.scanned_count ?? activeSession.scanned_count,
-            settledCount,
-          ));
+          const newlyAcceptedCount = newlyAcceptedByTrip
+            .get(activeTripId)?.[activeSession.id] ?? 0;
+          setOptimisticScans((current) => {
+            const settled = settleOptimisticAttendanceScans(
+              current,
+              activeSession.id,
+              serverCount,
+              settledCount,
+              newlyAcceptedCount,
+            );
+            return durablePendingCount === null
+              ? settled
+              : restorePendingAttendanceScans(
+                  settled,
+                  activeSession.id,
+                  serverCount,
+                  durablePendingCount,
+                );
+          });
+
+          const confirmedCount = confirmedByTrip.get(activeTripId)?.[activeSession.id] ?? 0;
+          const rejectedCount = rejectedByTrip.get(activeTripId)?.[activeSession.id] ?? 0;
+          if (rejectedCount > 0) {
+            const confirmedPrefix = confirmedCount > 0 ? `${confirmedCount} confirmed; ` : '';
+            showFeedback({
+              tone: 'danger',
+              message: `${confirmedPrefix}${rejectedCount} not accepted — review the activity`,
+            });
+            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          } else if (confirmedCount > 0) {
+            showFeedback({
+              tone: 'good',
+              message: confirmedCount === 1 ? 'Checked in' : `${confirmedCount} check-ins confirmed`,
+            });
+            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
         }
       }
     } finally {
       drainRunning.current = false;
       ensureDrainScheduled();
     }
-  }, [ensureDrainScheduled]);
+  }, [ensureDrainScheduled, showFeedback]);
 
   useEffect(() => {
     flushDrainRef.current = () => {
@@ -175,12 +273,6 @@ export default function CoordinatorScanScreen() {
     pendingDrainTrips.current.add(tripId);
     ensureDrainScheduled();
   }, [ensureDrainScheduled]);
-
-  const showFeedback = useCallback((next: Exclude<ScanState, null>) => {
-    setScanState(next);
-    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
-    feedbackTimer.current = setTimeout(() => setScanState(null), 850);
-  }, []);
 
   const handleScan = useCallback(async ({ data }: BarcodeScanningResult) => {
     const tripId = selectedTripIdRef.current;
@@ -196,16 +288,33 @@ export default function CoordinatorScanScreen() {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         return;
       }
-      const queued = await enqueueQrScan(tripId, session.id, data);
-      if (queued.duplicate) {
-        showFeedback({ tone: 'warning', message: 'Already scanned for this activity' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      } else {
+      const queued = await enqueueQrScan(tripId, session.id, data, {
+        assignedCount: session.assigned_count,
+      });
+      if (queued.status === 'queued') {
+        queueStatusLoad.current += 1;
         setOptimisticScans((current) => (
           recordOptimisticAttendanceScan(current, session.id, session.scanned_count)
         ));
-        showFeedback({ tone: 'good', message: 'Checked in' });
-        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        showFeedback({ tone: 'warning', message: 'Saved — confirmation pending' });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        scheduleDrain(tripId);
+      } else if (queued.status === 'already_queued') {
+        showFeedback({ tone: 'warning', message: 'Already saved — confirmation pending' });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        scheduleDrain(tripId);
+      } else if (queued.status === 'already_confirmed') {
+        showFeedback({ tone: 'warning', message: 'Already confirmed for this activity' });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      } else if (queued.status === 'previously_rejected') {
+        showFeedback({ tone: 'danger', message: 'This QR was not accepted earlier — review the activity' });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      } else {
+        showFeedback({
+          tone: 'danger',
+          message: 'Unsent scan limit reached — connect and sync before scanning more',
+        });
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         scheduleDrain(tripId);
       }
     } catch {
@@ -263,7 +372,10 @@ export default function CoordinatorScanScreen() {
   }, []);
 
   const liveCount = selectedSession
-    ? visibleAttendanceCount(optimisticScans, selectedSession.id, selectedSession.scanned_count)
+    ? confirmedAttendanceCount(optimisticScans, selectedSession.id, selectedSession.scanned_count)
+    : 0;
+  const awaitingConfirmation = selectedSession && optimisticScans.sessionId === selectedSession.id
+    ? optimisticScans.pendingCount
     : 0;
   const activityManagementVisible = managingActivity || !selectedSession;
   const refreshActivities = useCallback(
@@ -313,11 +425,7 @@ export default function CoordinatorScanScreen() {
           data={availableSessions}
           keyExtractor={(session) => session.id}
           renderItem={renderActivity}
-          initialNumToRender={10}
-          maxToRenderPerBatch={12}
-          updateCellsBatchingPeriod={35}
-          windowSize={7}
-          removeClippedSubviews
+          {...MOBILE_LIST_WINDOWING.interactive}
           contentContainerStyle={styles.activityList}
           {...(activityRefreshEnabled ? {
             refreshing: manualRefresh.isRefreshing,
@@ -413,6 +521,11 @@ export default function CoordinatorScanScreen() {
       <Text accessibilityLiveRegion="polite" style={styles.liveCount}>
         {liveCount.toLocaleString()} of {selectedSession.assigned_count.toLocaleString()} scanned
       </Text>
+      {awaitingConfirmation > 0 ? (
+        <Text accessibilityLiveRegion="polite" style={styles.pendingStatus}>
+          {awaitingConfirmation.toLocaleString()} saved on this device — awaiting server confirmation
+        </Text>
+      ) : null}
     </Screen>
   );
 }
@@ -457,5 +570,6 @@ const styles = StyleSheet.create({
   feedbackWarning: { backgroundColor: 'rgba(166,106,18,0.94)' },
   feedbackText: { color: colors.white, fontSize: 15, fontWeight: '900', textAlign: 'center' },
   liveCount: { color: colors.ink, textAlign: 'center', fontSize: 22, fontWeight: '900' },
+  pendingStatus: { color: colors.inkMuted, textAlign: 'center', fontSize: 13, fontWeight: '700' },
   pressed: { opacity: 0.68 },
 });

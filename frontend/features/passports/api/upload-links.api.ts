@@ -31,6 +31,7 @@ export interface UpdateUploadLinkRequest {
   destination?: string | null;
   travel_date?: string | null;
   return_date?: string | null;
+  timezone?: string;
   package_name?: string | null;
   departure_cities?: string[];
   base_city_enabled: boolean;
@@ -54,6 +55,7 @@ export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
   destination: string;
   travel_date: string;
   return_date: string;
+  timezone: string;
   custom_questions: CustomUploadQuestion[];
   custom_details: CustomUploadDetail[];
 }
@@ -208,6 +210,7 @@ export interface UploadLinkResponse {
   destination: string | null;
   travel_date: string | null;
   return_date: string | null;
+  timezone: string;
   package_name: string | null;
   departure_cities: string[];
   base_city_enabled: boolean;

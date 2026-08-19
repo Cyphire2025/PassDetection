@@ -110,4 +110,19 @@ describe('itinerary cache authority', () => {
     expect(result.itinerary?.days[0]?.items[0]?.title).toBe('Airport reporting');
     expect(mockedTransaction).not.toHaveBeenCalled();
   });
+
+  it('does not confuse a missing deployment route with an unpublished itinerary', async () => {
+    const database = {
+      getAllAsync: jest.fn().mockResolvedValue([]),
+    };
+    mockedOpenDatabase.mockResolvedValue(database as never);
+    const missingRoute = new ApiError('Not Found', 404, 'HTTP_404', null);
+    mockedApiRequest.mockRejectedValue(missingRoute);
+
+    useSessionStore.getState().setSession(TEST_SESSION);
+
+    await expect(refreshItinerary(TRIP_ID)).rejects.toBe(missingRoute);
+    expect(mockedTransaction).not.toHaveBeenCalled();
+    expect(database.getAllAsync).not.toHaveBeenCalled();
+  });
 });

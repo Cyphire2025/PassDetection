@@ -48,6 +48,7 @@ class ListPassportGroupSummariesUseCase:
                 destination=summary.destination,
                 travel_date=summary.travel_date,
                 return_date=summary.return_date,
+                timezone=summary.timezone,
                 package_name=summary.package_name,
                 departure_cities=list(summary.departure_cities or []),
                 base_city_enabled=summary.base_city_enabled,

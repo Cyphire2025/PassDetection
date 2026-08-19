@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { activateSession } from '@/core/auth/session-service';
+import { formatCalendarDate } from '@/core/localization/date-time';
 import { GlassCard } from '@/design/components/glass-card';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { TextField } from '@/design/components/text-field';
@@ -81,7 +82,10 @@ export default function ClaimScreen() {
               <View style={styles.claimText}>
                 <Text style={styles.claimTitle}>{claim.group_name}</Text>
                 <Text style={styles.claimMeta}>
-                  {[claim.destination, claim.travel_date].filter(Boolean).join(' · ') || 'Trip details available after verification'}
+                  {[
+                    claim.destination,
+                    claim.travel_date ? formatCalendarDate(claim.travel_date) : null,
+                  ].filter(Boolean).join(' · ') || 'Trip details available after verification'}
                 </Text>
               </View>
               <View style={[styles.radio, selectedRow && styles.radioSelected]} />

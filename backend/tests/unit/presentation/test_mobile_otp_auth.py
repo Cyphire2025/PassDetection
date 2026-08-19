@@ -12,7 +12,11 @@ from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
 
 from app.application.mobile.otp_provider import OTPDeliveryError
-from app.core.security.mobile_jwt import MobileAccessClaims, hash_mobile_otp_code
+from app.core.security.mobile_jwt import (
+    MobileAccessClaims,
+    hash_mobile_lookup,
+    hash_mobile_otp_code,
+)
 from app.domain.entities.entities import UserRole
 from app.domain.exceptions.exceptions import AuthenticationError
 from app.presentation.api.v1.routes.mobile_auth import (
@@ -70,6 +74,7 @@ def _tokens(*, principal_type: str = "passenger") -> MobileTokenResponse:
         access_token_expires_at=now + timedelta(minutes=15),
         refresh_token_expires_at=now + timedelta(days=30),
         session_id=uuid.uuid4(),
+        offline_authorization_lease=("a" * 80) + "." + ("b" * 80) + "." + ("c" * 94),
         principal=MobilePrincipalResponse(
             id=principal_id,
             account_id=principal_id,
@@ -132,9 +137,7 @@ async def test_request_otp_reuses_pending_challenge_during_resend_cooldown() -> 
             "app.presentation.api.v1.routes.mobile_auth.MobileOTPRateLimiter",
             return_value=limiter,
         ),
-        patch(
-            "app.presentation.api.v1.routes.mobile_auth.get_otp_provider"
-        ) as provider_factory,
+        patch("app.presentation.api.v1.routes.mobile_auth.get_otp_provider") as provider_factory,
         patch(
             "app.presentation.api.v1.routes.mobile_auth._complete_neutral_otp_timing",
             AsyncMock(),
@@ -194,11 +197,7 @@ async def test_otp_challenge_is_committed_before_provider_delivery() -> None:
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth._eligible_passenger_identities",
-            AsyncMock(
-                return_value=[
-                    (identity, SimpleNamespace(), SimpleNamespace())
-                ]
-            ),
+            AsyncMock(return_value=[(identity, SimpleNamespace(), SimpleNamespace())]),
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.get_otp_provider",
@@ -389,11 +388,7 @@ async def test_provider_delivery_failures_keep_neutral_response_and_safe_state(
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth._eligible_passenger_identities",
-            AsyncMock(
-                return_value=[
-                    (identity, SimpleNamespace(), SimpleNamespace())
-                ]
-            ),
+            AsyncMock(return_value=[(identity, SimpleNamespace(), SimpleNamespace())]),
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.get_otp_provider",
@@ -407,9 +402,7 @@ async def test_provider_delivery_failures_keep_neutral_response_and_safe_state(
             "app.presentation.api.v1.routes.mobile_auth._complete_neutral_otp_timing",
             AsyncMock(),
         ),
-        patch(
-            "app.presentation.api.v1.routes.mobile_auth.logger.warning"
-        ) as safe_log,
+        patch("app.presentation.api.v1.routes.mobile_auth.logger.warning") as safe_log,
     ):
         response = await request_passenger_otp(
             MobileOTPRequest(phone_number="+91 98732 99928"),
@@ -497,9 +490,7 @@ async def test_verify_otp_issues_passenger_session_for_one_active_identity() -> 
     session.commit = AsyncMock()
 
     with (
-        patch(
-            "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"
-        ),
+        patch("app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"),
         patch(
             "app.presentation.api.v1.routes.mobile_auth._locked_challenge",
             AsyncMock(return_value=challenge),
@@ -553,8 +544,7 @@ async def test_verify_otp_requires_secondary_proof_for_cross_group_phone() -> No
         for _ in range(2)
     ]
     eligible = [
-        (identity, SimpleNamespace(id=uuid.uuid4()), SimpleNamespace())
-        for identity in identities
+        (identity, SimpleNamespace(id=uuid.uuid4()), SimpleNamespace()) for identity in identities
     ]
     tokens = _tokens()
     session = MagicMock()
@@ -658,9 +648,7 @@ async def test_verify_otp_denies_challenge_when_no_identity_remains_eligible() -
     session.commit = AsyncMock()
 
     with (
-        patch(
-            "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"
-        ),
+        patch("app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"),
         patch(
             "app.presentation.api.v1.routes.mobile_auth._locked_challenge",
             AsyncMock(return_value=challenge),
@@ -783,9 +771,7 @@ async def test_credential_login_rejects_inactive_account_without_issuing_session
     limiter.record_failure = AsyncMock()
 
     with (
-        patch(
-            "app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"
-        ),
+        patch("app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.LoginAttemptLimiter",
             return_value=limiter,
@@ -1107,9 +1093,7 @@ async def test_current_mobile_claims_rejects_account_namespace_swapping() -> Non
     ):
         with pytest.raises(AuthenticationError, match="account mismatch"):
             await get_current_mobile_claims(
-                HTTPAuthorizationCredentials(
-                    scheme="Bearer", credentials="mobile-token"
-                ),
+                HTTPAuthorizationCredentials(scheme="Bearer", credentials="mobile-token"),
                 session,
             )
 
@@ -1226,6 +1210,10 @@ async def test_passenger_trip_switch_rotates_subject_and_both_token_types() -> N
         passenger_identity_id=old_identity_id,
         selected_gc_group_access_id=uuid.uuid4(),
         selected_group_id=uuid.uuid4(),
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        ),
         status="active",
         session_generation=3,
         refresh_family_id=uuid.uuid4(),
@@ -1291,7 +1279,10 @@ async def test_passenger_trip_switch_rotates_subject_and_both_token_types() -> N
         ),
     ):
         response = await switch_passenger_trip(
-            MobilePassengerTripSwitchRequest(group_id=target_group_id),
+            MobilePassengerTripSwitchRequest(
+                group_id=target_group_id,
+                installation_id=_device().installation_id,
+            ),
             _request("/api/v1/mobile/auth/passenger/trip/switch"),
             claims,
             session,
@@ -1328,7 +1319,10 @@ async def test_passenger_trip_switch_cannot_resurrect_revoked_refresh_family() -
 
     with pytest.raises(HTTPException) as caught:
         await switch_passenger_trip(
-            MobilePassengerTripSwitchRequest(group_id=uuid.uuid4()),
+            MobilePassengerTripSwitchRequest(
+                group_id=uuid.uuid4(),
+                installation_id=_device().installation_id,
+            ),
             _request("/api/v1/mobile/auth/passenger/trip/switch"),
             _passenger_claims(
                 principal_id=uuid.uuid4(),
@@ -1348,6 +1342,43 @@ async def test_passenger_trip_switch_cannot_resurrect_revoked_refresh_family() -
 
 
 @pytest.mark.asyncio
+async def test_passenger_trip_switch_rejects_a_different_installation_before_rotation() -> None:
+    agency_id = uuid.uuid4()
+    session_id = uuid.uuid4()
+    identity_id = uuid.uuid4()
+    refresh_lock_result = MagicMock()
+    refresh_lock_result.scalars.return_value.all.return_value = [uuid.uuid4()]
+    device_result = MagicMock()
+    device_result.scalar_one_or_none.return_value = SimpleNamespace(
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        )
+    )
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[refresh_lock_result, device_result])
+
+    with pytest.raises(HTTPException) as caught:
+        await switch_passenger_trip(
+            MobilePassengerTripSwitchRequest(
+                group_id=uuid.uuid4(),
+                installation_id="different-installation-test",
+            ),
+            _request("/api/v1/mobile/auth/passenger/trip/switch"),
+            _passenger_claims(
+                principal_id=identity_id,
+                agency_id=agency_id,
+                session_id=session_id,
+            ),
+            session,
+        )
+
+    assert caught.value.status_code == 401
+    assert caught.value.detail == "Mobile session is no longer active"
+    assert session.execute.await_count == 2
+
+
+@pytest.mark.asyncio
 async def test_passenger_trip_switch_denies_identifier_swapping_and_other_tenants() -> None:
     agency_id = uuid.uuid4()
     session_id = uuid.uuid4()
@@ -1358,6 +1389,10 @@ async def test_passenger_trip_switch_denies_identifier_swapping_and_other_tenant
         agency_id=agency_id,
         account_id=identity_id,
         passenger_identity_id=identity_id,
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        ),
         session_generation=3,
         expires_at=datetime.now(tz=UTC) + timedelta(days=1),
     )
@@ -1368,9 +1403,7 @@ async def test_passenger_trip_switch_denies_identifier_swapping_and_other_tenant
     refresh_lock_result = MagicMock()
     refresh_lock_result.scalars.return_value.all.return_value = [uuid.uuid4()]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[refresh_lock_result, device_result, target_result]
-    )
+    session.execute = AsyncMock(side_effect=[refresh_lock_result, device_result, target_result])
     claims = _passenger_claims(
         principal_id=identity_id,
         agency_id=agency_id,
@@ -1379,7 +1412,10 @@ async def test_passenger_trip_switch_denies_identifier_swapping_and_other_tenant
 
     with pytest.raises(HTTPException) as caught:
         await switch_passenger_trip(
-            MobilePassengerTripSwitchRequest(group_id=requested_group_id),
+            MobilePassengerTripSwitchRequest(
+                group_id=requested_group_id,
+                installation_id=_device().installation_id,
+            ),
             _request("/api/v1/mobile/auth/passenger/trip/switch"),
             claims,
             session,
@@ -1406,6 +1442,10 @@ async def test_passenger_trip_switch_query_denies_revoked_disabled_expired_or_st
         id=session_id,
         agency_id=agency_id,
         passenger_identity_id=identity_id,
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        ),
         session_generation=3,
         expires_at=datetime.now(tz=UTC) + timedelta(days=1),
     )
@@ -1414,9 +1454,7 @@ async def test_passenger_trip_switch_query_denies_revoked_disabled_expired_or_st
     refresh_lock_result = MagicMock()
     refresh_lock_result.scalars.return_value.all.return_value = [uuid.uuid4()]
     session = MagicMock()
-    session.execute = AsyncMock(
-        side_effect=[refresh_lock_result, device_result, target_result]
-    )
+    session.execute = AsyncMock(side_effect=[refresh_lock_result, device_result, target_result])
     claims = _passenger_claims(
         principal_id=identity_id,
         agency_id=agency_id,
@@ -1425,7 +1463,10 @@ async def test_passenger_trip_switch_query_denies_revoked_disabled_expired_or_st
 
     with pytest.raises(HTTPException):
         await switch_passenger_trip(
-            MobilePassengerTripSwitchRequest(group_id=uuid.uuid4()),
+            MobilePassengerTripSwitchRequest(
+                group_id=uuid.uuid4(),
+                installation_id=_device().installation_id,
+            ),
             _request("/api/v1/mobile/auth/passenger/trip/switch"),
             claims,
             session,
@@ -1473,6 +1514,10 @@ async def test_refresh_rotation_locks_token_before_its_device_session() -> None:
         revoked_at=None,
         expires_at=now + timedelta(days=1),
         session_generation=3,
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        ),
         last_refresh_at=None,
         last_seen_at=None,
         last_ip_hash=None,
@@ -1491,7 +1536,7 @@ async def test_refresh_rotation_locks_token_before_its_device_session() -> None:
         patch("app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"),
         patch(
             "app.presentation.api.v1.routes.mobile_auth._refresh_principal",
-            AsyncMock(return_value=(principal, "Passenger", False)),
+            AsyncMock(return_value=(principal, "Passenger", False, None)),
         ),
         patch(
             "app.presentation.api.v1.routes.mobile_auth.create_mobile_refresh_token",
@@ -1511,7 +1556,10 @@ async def test_refresh_rotation_locks_token_before_its_device_session() -> None:
         ),
     ):
         response = await refresh_mobile_session(
-            MobileRefreshRequest(refresh_token="r" * 48),
+            MobileRefreshRequest(
+                refresh_token="r" * 48,
+                installation_id=_device().installation_id,
+            ),
             _request("/api/v1/mobile/auth/refresh"),
             session,
         )
@@ -1523,15 +1571,54 @@ async def test_refresh_rotation_locks_token_before_its_device_session() -> None:
     assert replacement.parent_token_id == stored.id
     assert replacement.token_generation == 5
     token_sql = str(
-        session.execute.await_args_list[0].args[0].compile(
-            compile_kwargs={"literal_binds": True}
-        )
+        session.execute.await_args_list[0].args[0].compile(compile_kwargs={"literal_binds": True})
     )
     device_sql = str(
-        session.execute.await_args_list[1].args[0].compile(
-            compile_kwargs={"literal_binds": True}
-        )
+        session.execute.await_args_list[1].args[0].compile(compile_kwargs={"literal_binds": True})
     )
     assert "FROM mobile_refresh_tokens" in token_sql
     assert "mobile_device_sessions" not in token_sql
     assert "FROM mobile_device_sessions" in device_sql
+
+
+@pytest.mark.asyncio
+async def test_refresh_rejects_a_different_installation_before_consuming_the_token() -> None:
+    agency_id = uuid.uuid4()
+    session_id = uuid.uuid4()
+    family_id = uuid.uuid4()
+    stored = SimpleNamespace(
+        session_id=session_id,
+        agency_id=agency_id,
+        family_id=family_id,
+        consumed_at=None,
+    )
+    device_session = SimpleNamespace(
+        device_identifier_hash=hash_mobile_lookup(
+            _device().installation_id,
+            purpose="device-installation",
+        )
+    )
+    stored_result = MagicMock()
+    stored_result.scalar_one_or_none.return_value = stored
+    session_result = MagicMock()
+    session_result.scalar_one_or_none.return_value = device_session
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[stored_result, session_result])
+
+    with (
+        patch("app.presentation.api.v1.routes.mobile_auth._require_mobile_enabled"),
+        pytest.raises(HTTPException) as caught,
+    ):
+        await refresh_mobile_session(
+            MobileRefreshRequest(
+                refresh_token="r" * 48,
+                installation_id="different-installation-test",
+            ),
+            _request("/api/v1/mobile/auth/refresh"),
+            session,
+        )
+
+    assert caught.value.status_code == 401
+    assert caught.value.detail == "Invalid refresh token"
+    assert stored.consumed_at is None
+    assert session.execute.await_count == 2

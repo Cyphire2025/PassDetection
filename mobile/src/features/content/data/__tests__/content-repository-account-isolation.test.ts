@@ -1,3 +1,4 @@
+import { ApiError, apiRequest } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
@@ -17,14 +18,20 @@ import {
   getDocument,
   localDocuments,
   prefetchPassengerOfflineDocuments,
+  refreshQr,
 } from '../content-repository';
 
+jest.mock('@/core/api/client', () => {
+  const actual = jest.requireActual('@/core/api/client');
+  return { ...actual, apiRequest: jest.fn() };
+});
 jest.mock('@/core/storage/database', () => ({
   openAccountDatabase: jest.fn(),
   withAccountTransaction: jest.fn(),
 }));
 jest.mock('@/core/storage/vault', () => ({
   discardEncryptedOfflineFile: jest.fn(),
+  deleteVaultQuotaEvictionCandidates: jest.fn(async () => undefined),
   downloadAndEncryptDocument: jest.fn(),
   finalizeEncryptedOfflineFile: jest.fn(),
   inspectRegisteredOfflineFile: jest.fn(async () => ({ status: 'valid' })),
@@ -41,6 +48,7 @@ jest.mock('@/core/storage/vault', () => ({
 
 const mockedOpenDatabase = jest.mocked(openAccountDatabase);
 const mockedTransaction = jest.mocked(withAccountTransaction);
+const mockedApiRequest = jest.mocked(apiRequest);
 const mockedDownload = jest.mocked(downloadAndEncryptDocument);
 const mockedDiscard = jest.mocked(discardEncryptedOfflineFile);
 const mockedFinalize = jest.mocked(finalizeEncryptedOfflineFile);
@@ -232,9 +240,7 @@ describe('document vault synchronization isolation', () => {
       getAllAsync: jest.fn().mockResolvedValue([{ encrypted_path: encrypted.uri }]),
     };
     mockedOpenDatabase.mockResolvedValue(database as never);
-    mockedInspectRegisteredFile
-      .mockResolvedValueOnce({ status: 'missing' })
-      .mockResolvedValueOnce({ status: 'valid' });
+    mockedInspectRegisteredFile.mockResolvedValueOnce({ status: 'missing' });
     mockedDownload.mockResolvedValue(encrypted);
     mockedTransaction.mockImplementation(async (_database, task) => {
       await task(transactionDatabase as never);
@@ -262,6 +268,11 @@ describe('document vault synchronization isolation', () => {
       mockedReconcile.mock.invocationCallOrder[0]!,
     );
     expect(mockedDiscard).not.toHaveBeenCalled();
+    const registrationCall = transactionDatabase.runAsync.mock.calls.find(
+      ([sql]) => String(sql).includes('INSERT INTO offline_files'),
+    );
+    expect(registrationCall).toBeDefined();
+    expect(registrationCall![registrationCall!.length - 1]).toBe('evictable');
   });
 
   it.each(['bit-flipped', 'truncated'])(
@@ -303,9 +314,7 @@ describe('document vault synchronization isolation', () => {
       getAllAsync: jest.fn().mockResolvedValue([{ encrypted_path: corruptUri }]),
     };
     mockedOpenDatabase.mockResolvedValue(database as never);
-    mockedInspectRegisteredFile
-      .mockResolvedValueOnce({ status: 'corrupt' })
-      .mockResolvedValueOnce({ status: 'valid' });
+    mockedInspectRegisteredFile.mockResolvedValueOnce({ status: 'corrupt' });
     mockedDownload.mockResolvedValue(encrypted);
     mockedTransaction.mockImplementation(async (_database, task) => {
       await task(transactionDatabase as never);
@@ -404,6 +413,85 @@ describe('document vault synchronization isolation', () => {
       'does not belong to the active passenger',
     );
     expect(mockedDownload).not.toHaveBeenCalled();
+  });
+
+  it('removes a document and encrypted registration after authoritative download withdrawal', async () => {
+    const transactionDatabase = {
+      runAsync: jest.fn().mockResolvedValue({ changes: 1, lastInsertRowId: 0 }),
+    };
+    const database = {
+      getFirstAsync: jest
+        .fn()
+        .mockResolvedValueOnce({
+          id: document.id,
+          account_namespace: 'agency-a.principal-a',
+          trip_id: document.trip_id,
+          scope: document.scope,
+          category: document.category,
+          content_type: document.content_type,
+          size_bytes: document.size_bytes,
+          version: document.version,
+          checksum_sha256: document.checksum_sha256,
+          offline_available: 1,
+          metadata_state: 'ready',
+        })
+        .mockResolvedValueOnce(null),
+      getAllAsync: jest.fn().mockResolvedValue([]),
+    };
+    mockedOpenDatabase.mockResolvedValue(database as never);
+    mockedDownload.mockRejectedValueOnce(
+      new ApiError('Document was deleted.', 404, 'NOT_FOUND', null),
+    );
+    mockedTransaction.mockImplementation(async (_database, task) => {
+      await task(transactionDatabase as never);
+    });
+    useSessionStore.getState().setSession(session('a'));
+
+    await expect(cacheDocument(document, undefined, undefined, 'required')).rejects.toThrow(
+      'no longer available for the selected trip',
+    );
+
+    expect(transactionDatabase.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('DELETE FROM document_metadata'),
+      'agency-a.principal-a',
+      document.trip_id,
+      document.id,
+      document.version,
+      PASSENGER_RECORD_A,
+    );
+    expect(mockedReconcile).toHaveBeenCalledWith(
+      'agency-a.principal-a',
+      document.trip_id,
+      [],
+    );
+  });
+
+  it('clears a stale QR only for an explicit domain absence, never for a missing route', async () => {
+    const transactionDatabase = {
+      runAsync: jest.fn().mockResolvedValue({ changes: 1, lastInsertRowId: 0 }),
+    };
+    const database = {};
+    mockedOpenDatabase.mockResolvedValue(database as never);
+    mockedTransaction.mockImplementation(async (_database, task) => {
+      await task(transactionDatabase as never);
+    });
+    mockedApiRequest.mockRejectedValueOnce(
+      new ApiError('Passenger QR was not found.', 404, 'NOT_FOUND', null),
+    );
+    useSessionStore.getState().setSession(session('a'));
+
+    await expect(refreshQr(document.trip_id)).resolves.toEqual({ qr: null, offline: false });
+    expect(transactionDatabase.runAsync).toHaveBeenCalledWith(
+      'DELETE FROM qr_metadata WHERE account_namespace = ? AND trip_id = ?',
+      'agency-a.principal-a',
+      document.trip_id,
+    );
+
+    transactionDatabase.runAsync.mockClear();
+    const missingRoute = new ApiError('Not Found', 404, 'HTTP_404', null);
+    mockedApiRequest.mockRejectedValueOnce(missingRoute);
+    await expect(refreshQr(document.trip_id)).rejects.toBe(missingRoute);
+    expect(transactionDatabase.runAsync).not.toHaveBeenCalled();
   });
 
   it('never resolves personal documents for a client manager account', async () => {

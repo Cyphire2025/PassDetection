@@ -1,8 +1,11 @@
 import { departureCountdown, tripDayState } from '../../data/departure-countdown';
+import { parseIanaTimeZone } from '@/core/localization/time-zone';
+
+const INDIA = parseIanaTimeZone('Asia/Kolkata');
 
 test('reports calendar days and a live exact countdown independently', () => {
-  const now = new Date(2026, 7, 1, 12, 30, 15).getTime();
-  expect(departureCountdown('2026-08-03', now)).toEqual({
+  const now = Date.parse('2026-08-01T07:00:15Z');
+  expect(departureCountdown('2026-08-03', now, INDIA)).toEqual({
     calendarDays: 2,
     days: 1,
     hours: 11,
@@ -13,8 +16,8 @@ test('reports calendar days and a live exact countdown independently', () => {
 });
 
 test('settles cleanly once departure has arrived', () => {
-  const now = new Date(2026, 7, 3, 1).getTime();
-  expect(departureCountdown('2026-08-03', now)).toMatchObject({
+  const now = Date.parse('2026-08-02T19:30:00Z');
+  expect(departureCountdown('2026-08-03', now, INDIA)).toMatchObject({
     calendarDays: 0,
     days: 0,
     hours: 0,
@@ -25,19 +28,31 @@ test('settles cleanly once departure has arrived', () => {
 });
 
 test('counts the departure date as trip day one', () => {
-  expect(tripDayState('2026-08-02', '2026-08-08', new Date(2026, 7, 2, 14).getTime())).toEqual({
+  expect(tripDayState('2026-08-02', '2026-08-08', Date.parse('2026-08-02T08:30:00Z'), INDIA)).toEqual({
     dayNumber: 1,
     phase: 'underway',
   });
-  expect(tripDayState('2026-08-02', '2026-08-08', new Date(2026, 7, 5, 14).getTime())).toEqual({
+  expect(tripDayState('2026-08-02', '2026-08-08', Date.parse('2026-08-05T08:30:00Z'), INDIA)).toEqual({
     dayNumber: 4,
     phase: 'underway',
   });
 });
 
 test('marks the trip complete after its return date', () => {
-  expect(tripDayState('2026-08-02', '2026-08-08', new Date(2026, 7, 9, 9).getTime())).toEqual({
+  expect(tripDayState('2026-08-02', '2026-08-08', Date.parse('2026-08-09T03:30:00Z'), INDIA)).toEqual({
     dayNumber: 7,
     phase: 'completed',
   });
+});
+
+test('uses the trip timezone rather than the device timezone at a date boundary', () => {
+  const instant = Date.parse('2026-08-01T18:30:00Z');
+  const singapore = parseIanaTimeZone('Asia/Singapore');
+  const losAngeles = parseIanaTimeZone('America/Los_Angeles');
+
+  expect(tripDayState('2026-08-02', null, instant, singapore)).toEqual({
+    dayNumber: 1,
+    phase: 'underway',
+  });
+  expect(tripDayState('2026-08-02', null, instant, losAngeles)).toBeNull();
 });

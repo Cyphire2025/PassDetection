@@ -188,7 +188,7 @@ def test_announcement_notification_keeps_content_off_lock_screen() -> None:
     assert notification.recipient_passenger_identity_id == passenger_id
     assert notification.recipient_user_id is None
     assert notification.contains_sensitive_content is True
-    assert notification.lock_screen_title == "Group Companion update"
+    assert notification.lock_screen_title == "Global Connect Travels update"
     assert notification.lock_screen_body is None
     assert notification.public_payload == {
         "route": "updates",
@@ -269,7 +269,8 @@ async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedula
         await db_session.execute(
             select(MobileNotificationModel).where(
                 MobileNotificationModel.notification_type == "trip_countdown",
-                MobileNotificationModel.dedupe_key == "trip-countdown:2026-08-07:3",
+                MobileNotificationModel.dedupe_key
+                == "trip-countdown:2026-08-07:Asia/Kolkata:3",
             )
         )
     ).scalar_one()
@@ -279,7 +280,7 @@ async def test_trip_countdown_scheduler_is_push_only_deduplicated_and_reschedula
     assert first.inserted == 3
     assert duplicate.inserted == 0
     assert scheduled_at == datetime(2026, 8, 4, 3, 30, tzinfo=UTC)
-    assert notification.dedupe_key == "trip-countdown:2026-08-07:3"
+    assert notification.dedupe_key == "trip-countdown:2026-08-07:Asia/Kolkata:3"
     assert notification.contains_sensitive_content is False
     assert notification.lock_screen_body
     assert group.name not in notification.lock_screen_body
@@ -343,8 +344,8 @@ async def test_trip_countdown_scheduler_does_not_catch_up_a_passed_window(
         ).scalars()
     )
     assert {row.dedupe_key for row in rows} == {
-        "trip-countdown:2026-08-07:2",
-        "trip-countdown:2026-08-07:1",
+        "trip-countdown:2026-08-07:Asia/Kolkata:2",
+        "trip-countdown:2026-08-07:Asia/Kolkata:1",
     }
 
 

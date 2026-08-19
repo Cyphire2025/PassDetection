@@ -112,8 +112,7 @@ export async function queryAnnouncements(
     `SELECT id, version, title, message, priority, published_at, available_until, is_read
        FROM announcements
       WHERE account_namespace = ? AND trip_id = ?
-      ORDER BY published_at DESC
-      LIMIT 4000`,
+      ORDER BY published_at DESC`,
     namespace,
     tripId,
   );
@@ -248,6 +247,20 @@ export function saveRoomAssignment(
   );
 }
 
+export async function replaceRoomAssignmentInTransaction(
+  database: SQLite.SQLiteDatabase,
+  namespace: string,
+  tripId: string,
+  room: RoomContent,
+): Promise<void> {
+  await database.runAsync(
+    'DELETE FROM room_assignments WHERE account_namespace = ? AND trip_id = ?',
+    namespace,
+    tripId,
+  );
+  await saveRoomAssignment(database, namespace, tripId, room);
+}
+
 export async function queryRoomAssignment(
   database: SQLite.SQLiteDatabase,
   namespace: string,
@@ -282,6 +295,20 @@ export function saveMealInformation(
     meal.version,
     meal.updated_at,
   );
+}
+
+export async function replaceMealInformationInTransaction(
+  database: SQLite.SQLiteDatabase,
+  namespace: string,
+  tripId: string,
+  meal: MealContent,
+): Promise<void> {
+  await database.runAsync(
+    'DELETE FROM meal_information WHERE account_namespace = ? AND trip_id = ?',
+    namespace,
+    tripId,
+  );
+  await saveMealInformation(database, namespace, tripId, meal);
 }
 
 export async function queryMealInformation(

@@ -5,20 +5,24 @@ import { PrincipalSchema, TokenResponseSchema, type TokenResponse } from '@/core
 import { demoPrincipal, isDemoPrincipal, seedDemoAccount } from '@/core/demo/demo-data';
 import { assertDemoMode, isDemoMode } from '@/core/demo/demo-mode';
 import {
-  closeAccountDatabase,
   deleteAccountDatabase,
   openAccountDatabase,
   withAccountTransaction,
 } from '@/core/storage/database';
 import {
   clearLocalCleanupPending,
+  clearOfflineAuthorizationRecord,
   clearNamespaceAuthentication,
   clearNamespaceSecrets,
   getActiveNamespace,
+  getInstallationId,
+  getOfflineAuthorizationRecord,
   getPendingLocalCleanups,
   getRefreshToken,
+  isUnlockedOnlySecureValueAccessAvailable,
   markLocalCleanupPending,
   setActiveNamespace,
+  setOfflineAuthorizationRecord,
   setRefreshToken,
 } from '@/core/storage/secure-store';
 import { initializeFreshInstallGuard } from '@/core/storage/installation-guard';
@@ -48,6 +52,47 @@ import {
   useSessionStore,
 } from './session-store';
 import { offlineSessionFromRow, shouldPurgePreviousNamespace } from './offline-session';
+import {
+  acceptOnlineOfflineAuthorizationLease,
+  authorizeStoredOfflineLease,
+  clearOfflineAuthorizationBootAnchor,
+  OfflineAuthorizationError,
+  type OfflineAuthorizationExpectedIdentity,
+} from './offline-authorization';
+
+let offlineAuthorizationExpiryTimer: ReturnType<typeof setTimeout> | null = null;
+
+function clearOfflineAuthorizationExpiryTimer(): void {
+  if (offlineAuthorizationExpiryTimer !== null) {
+    clearTimeout(offlineAuthorizationExpiryTimer);
+    offlineAuthorizationExpiryTimer = null;
+  }
+}
+
+function armOfflineAuthorizationExpiryTimer(
+  session: MobileSession,
+  namespace: string,
+  remainingMs: number,
+): void {
+  clearOfflineAuthorizationExpiryTimer();
+  const boundedDelay = Math.max(0, Math.min(Math.floor(remainingMs), 2_147_483_647));
+  offlineAuthorizationExpiryTimer = setTimeout(() => {
+    offlineAuthorizationExpiryTimer = null;
+    const current = useSessionStore.getState().session;
+    if (
+      !current
+      || current.networkMode !== 'offline'
+      || current.sessionId !== session.sessionId
+      || namespaceForSession(current) !== namespace
+    ) return;
+
+    invalidateAuthenticationBoundary();
+    cancelRequiredPreparation(current.sessionId);
+    useSessionStore.getState().clear();
+    useSelectedTripStore.getState().clear();
+    void clearOfflineAuthorizationRecord(namespace).catch(() => undefined);
+  }, boundedDelay);
+}
 
 function mapSession(tokens: TokenResponse): MobileSession {
   return {
@@ -67,6 +112,21 @@ function mapSession(tokens: TokenResponse): MobileSession {
       phoneNumber: tokens.principal.phone_number,
       forcePasswordChange: tokens.principal.force_password_change,
     },
+  };
+}
+
+function expectedOfflineAuthorizationIdentity(
+  session: MobileSession,
+  installationId: string,
+): OfflineAuthorizationExpectedIdentity {
+  return {
+    installationId,
+    sessionId: session.sessionId,
+    principalId: session.principal.id,
+    accountId: session.principal.accountId,
+    agencyId: session.principal.agencyId,
+    principalType: session.principal.principalType,
+    passengerId: session.principal.passengerId ?? null,
   };
 }
 
@@ -213,6 +273,13 @@ async function activateBoundarySession(
   let preparationStarted = false;
 
   assertAuthenticationEpoch(authenticationEpoch);
+  const installationId = await getInstallationId();
+  assertAuthenticationEpoch(authenticationEpoch);
+  const offlineAuthorization = acceptOnlineOfflineAuthorizationLease(
+    tokens.offline_authorization_lease,
+    expectedOfflineAuthorizationIdentity(session, installationId),
+  );
+  assertAuthenticationEpoch(authenticationEpoch);
   await retryPendingCleanupForNamespace(namespace);
   assertAuthenticationEpoch(authenticationEpoch);
   const previousNamespace = await getActiveNamespace();
@@ -225,12 +292,15 @@ async function activateBoundarySession(
   try {
     await setRefreshToken(namespace, tokens.refresh_token);
     assertAuthenticationEpoch(authenticationEpoch);
+    await setOfflineAuthorizationRecord(namespace, offlineAuthorization.record);
+    assertAuthenticationEpoch(authenticationEpoch);
     await setActiveNamespace(namespace);
     assertAuthenticationEpoch(authenticationEpoch);
     await persistSessionRow(session, namespace);
     assertAuthenticationEpoch(authenticationEpoch);
     beginRequiredPreparation(session.sessionId);
     preparationStarted = true;
+    clearOfflineAuthorizationExpiryTimer();
     useSessionStore.getState().setSession(session);
     return session;
   } catch (error) {
@@ -263,10 +333,11 @@ export async function switchPassengerTripSession(groupId: string): Promise<Mobil
     throw new Error('An online passenger session is required to switch trips.');
   }
   const expectedNamespace = namespaceForSession(before);
+  const installationId = await getInstallationId();
   const tokens = await apiRequest('/mobile/auth/passenger/trip/switch', {
     method: 'POST',
     schema: TokenResponseSchema,
-    body: { group_id: groupId },
+    body: { group_id: groupId, installation_id: installationId },
   });
 
   // The API client already rejects an explicit logout/account-boundary change
@@ -294,6 +365,10 @@ export async function switchPassengerTripSession(groupId: string): Promise<Mobil
   ) {
     throw new Error('The switched passenger identity did not match this account.');
   }
+  const offlineAuthorization = acceptOnlineOfflineAuthorizationLease(
+    tokens.offline_authorization_lease,
+    expectedOfflineAuthorizationIdentity(switched, installationId),
+  );
 
   const authenticationEpoch = invalidateAuthenticationBoundary();
   try {
@@ -306,9 +381,12 @@ export async function switchPassengerTripSession(groupId: string): Promise<Mobil
     // identity. A crash can recover by refreshing this same stable account.
     await setRefreshToken(expectedNamespace, tokens.refresh_token);
     assertAuthenticationEpoch(authenticationEpoch);
+    await setOfflineAuthorizationRecord(expectedNamespace, offlineAuthorization.record);
+    assertAuthenticationEpoch(authenticationEpoch);
     await persistSessionRow(switched, expectedNamespace);
     assertAuthenticationEpoch(authenticationEpoch);
     beginRequiredPreparation(switched.sessionId);
+    clearOfflineAuthorizationExpiryTimer();
     useSessionStore.getState().setSession(switched);
     return switched;
   } catch (error) {
@@ -358,6 +436,7 @@ export async function activateDemoSession(role: MobileRole): Promise<MobileSessi
     assertAuthenticationEpoch(authenticationEpoch);
     beginRequiredPreparation(session.sessionId);
     preparationStarted = true;
+    clearOfflineAuthorizationExpiryTimer();
     useSessionStore.getState().setSession(session);
     return session;
   } catch (error) {
@@ -374,6 +453,7 @@ async function activateRefreshedSession(
   snapshot: AuthenticationSnapshot,
   expectedNamespace: string,
   expectedSession: MobileSession | null,
+  installationId: string,
 ): Promise<string | null> {
   const session = mapSession(tokens);
   if (
@@ -384,6 +464,10 @@ async function activateRefreshedSession(
   ) {
     throw new Error('The refreshed mobile identity did not match this session.');
   }
+  const offlineAuthorization = acceptOnlineOfflineAuthorizationLease(
+    tokens.offline_authorization_lease,
+    expectedOfflineAuthorizationIdentity(session, installationId),
+  );
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
   if ((await getActiveNamespace()) !== expectedNamespace) return null;
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
@@ -393,15 +477,39 @@ async function activateRefreshedSession(
   // response from reviving an account after logout or account switching.
   await setRefreshToken(expectedNamespace, tokens.refresh_token);
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
+  // A headless refresh may run while the device is locked. The rotated refresh
+  // token and SQLCipher metadata remain available to bounded background sync,
+  // but the new offline lease is deliberately not persisted until a foreground
+  // refresh can place it under the unlocked-only policy. The previous signed
+  // lease remains independently bounded by its own expiry.
+  if (isUnlockedOnlySecureValueAccessAvailable()) {
+    await setOfflineAuthorizationRecord(expectedNamespace, offlineAuthorization.record);
+    if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
+  }
   await persistSessionRow(session, expectedNamespace);
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
   if ((await getActiveNamespace()) !== expectedNamespace) return null;
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
+  clearOfflineAuthorizationExpiryTimer();
   useSessionStore.getState().setSession(session);
   return tokens.access_token;
 }
 
-async function rotateFromStoredRefresh(
+type StoredRefreshOperation = Readonly<{
+  snapshot: AuthenticationSnapshot;
+  promise: Promise<string | null>;
+}>;
+
+let storedRefreshInFlight: StoredRefreshOperation | null = null;
+
+function sameAuthenticationBoundary(
+  first: AuthenticationSnapshot,
+  second: AuthenticationSnapshot,
+): boolean {
+  return first.epoch === second.epoch && first.accessToken === second.accessToken;
+}
+
+async function performStoredRefresh(
   snapshot: AuthenticationSnapshot,
 ): Promise<string | null> {
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
@@ -413,6 +521,8 @@ async function rotateFromStoredRefresh(
   const refreshToken = await getRefreshToken(namespace);
   if (!refreshToken) return null;
   if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
+  const installationId = await getInstallationId();
+  if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
 
   try {
     const tokens = await apiRequest('/mobile/auth/refresh', {
@@ -420,10 +530,16 @@ async function rotateFromStoredRefresh(
       authenticated: false,
       retryAuthentication: false,
       schema: TokenResponseSchema,
-      body: { refresh_token: refreshToken },
+      body: { refresh_token: refreshToken, installation_id: installationId },
     });
     if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
-    return await activateRefreshedSession(tokens, snapshot, namespace, expectedSession);
+    return await activateRefreshedSession(
+      tokens,
+      snapshot,
+      namespace,
+      expectedSession,
+      installationId,
+    );
   } catch (error) {
     if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
       if (!isAuthenticationSnapshotCurrent(snapshot)) return null;
@@ -437,7 +553,44 @@ async function rotateFromStoredRefresh(
   }
 }
 
-export async function bootstrapSession(): Promise<void> {
+async function rotateFromStoredRefresh(
+  snapshot: AuthenticationSnapshot,
+): Promise<string | null> {
+  if (
+    storedRefreshInFlight
+    && sameAuthenticationBoundary(storedRefreshInFlight.snapshot, snapshot)
+  ) {
+    return storedRefreshInFlight.promise;
+  }
+
+  let operation: StoredRefreshOperation;
+  const promise = performStoredRefresh(snapshot).finally(() => {
+    if (storedRefreshInFlight === operation) storedRefreshInFlight = null;
+  });
+  operation = { snapshot, promise };
+  storedRefreshInFlight = operation;
+  return promise;
+}
+
+export type SessionBootstrapOptions = Readonly<{
+  /**
+   * Restore a still-valid encrypted local identity immediately, then validate
+   * its refresh token in the background. Native background tasks retain the
+   * default blocking mode because they cannot safely synchronize without an
+   * online access token.
+   */
+  validation?: 'wait' | 'background';
+  /**
+   * A native background task must not touch the unlocked-only offline lease.
+   * It performs a blocking online refresh and uses the background-accessible
+   * database/refresh-token tier for metadata reconciliation only.
+   */
+  execution?: 'foreground' | 'native-background';
+}>;
+
+export async function bootstrapSession(
+  options: SessionBootstrapOptions = {},
+): Promise<void> {
   try {
     await initializeFreshInstallGuard();
     const pendingCleanups = await retryPendingLocalCleanups();
@@ -457,7 +610,7 @@ export async function bootstrapSession(): Promise<void> {
       registerRefreshHandler(async () => null);
       const namespace = activeNamespace;
       if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
-      const offline = namespace ? await loadOfflineSession(namespace) : null;
+      const offline = namespace ? await loadOfflineSession(namespace, true) : null;
       if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
       if (offline && isDemoPrincipal(offline.principal)) {
         useSessionStore.getState().setSession(offline);
@@ -474,27 +627,41 @@ export async function bootstrapSession(): Promise<void> {
 
     const namespace = activeNamespace;
     if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
-    try {
-      const token = await rotateFromStoredRefresh(bootstrapSnapshot);
-      if (!token && isAuthenticationSnapshotCurrent(bootstrapSnapshot)) {
-        invalidateAuthenticationBoundary();
-        useSessionStore.getState().clear();
+    // Read and verify the encrypted local identity before touching the network.
+    // A valid prior session can render its cached shell immediately; the
+    // refresh-token exchange still owns online authorization and can revoke the
+    // local session asynchronously.
+    const mayRestoreOfflineShell = options.execution !== 'native-background'
+      && isUnlockedOnlySecureValueAccessAvailable();
+    const offline = namespace && mayRestoreOfflineShell
+      ? await loadOfflineSession(namespace)
+      : null;
+    if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
+    if (offline) useSessionStore.getState().setSession(offline);
+
+    const validateOnlineSession = async (): Promise<void> => {
+      try {
+        const token = await rotateFromStoredRefresh(bootstrapSnapshot);
+        if (!token && isAuthenticationSnapshotCurrent(bootstrapSnapshot)) {
+          invalidateAuthenticationBoundary();
+          useSessionStore.getState().clear();
+        }
+      } catch {
+        if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
+        // A network failure may retain only the already-verified encrypted
+        // offline session. If no valid offline identity exists, fail closed.
+        if (!offline) {
+          invalidateAuthenticationBoundary();
+          useSessionStore.getState().clear();
+        }
       }
-    } catch {
-      if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
-      // A network failure may use a verified encrypted offline session. If the
-      // native database itself is unavailable, propagate to the outer
-      // bootstrap boundary so the app offers an explicit retry instead of
-      // silently pretending that no account exists.
-      const offline = namespace ? await loadOfflineSession(namespace) : null;
-      if (!isAuthenticationSnapshotCurrent(bootstrapSnapshot)) return;
-      if (offline) {
-        useSessionStore.getState().setSession(offline);
-      } else {
-        invalidateAuthenticationBoundary();
-        useSessionStore.getState().clear();
-      }
+    };
+
+    if (offline && options.validation === 'background') {
+      void validateOnlineSession();
+      return;
     }
+    await validateOnlineSession();
   } catch (error) {
     // A native bootstrap failure before the offline fallback is available must
     // never strand the router in `booting`. Preserve a valid already-active
@@ -508,7 +675,10 @@ export async function bootstrapSession(): Promise<void> {
   }
 }
 
-async function loadOfflineSession(namespace: string): Promise<MobileSession | null> {
+async function loadOfflineSession(
+  namespace: string,
+  allowUnsignedDemoSession = false,
+): Promise<MobileSession | null> {
   const database = await openAccountDatabase(namespace);
   const row = await database.getFirstAsync<{
     id: string;
@@ -529,13 +699,48 @@ async function loadOfflineSession(namespace: string): Promise<MobileSession | nu
        FROM users WHERE account_namespace = ? LIMIT 1`,
     namespace,
   );
-  return offlineSessionFromRow(namespace, row, Date.now());
+  const offlineSession = offlineSessionFromRow(namespace, row);
+  if (!offlineSession) return null;
+
+  if (allowUnsignedDemoSession) {
+    const refreshExpiryMs = Date.parse(offlineSession.refreshTokenExpiresAt);
+    return Number.isFinite(refreshExpiryMs) && refreshExpiryMs > Date.now()
+      ? offlineSession
+      : null;
+  }
+
+  const [record, installationId] = await Promise.all([
+    getOfflineAuthorizationRecord(namespace),
+    getInstallationId(),
+  ]);
+  if (!record) return null;
+  try {
+    const authorization = authorizeStoredOfflineLease(
+      record,
+      expectedOfflineAuthorizationIdentity(offlineSession, installationId),
+    );
+    await setOfflineAuthorizationRecord(namespace, authorization.record);
+    armOfflineAuthorizationExpiryTimer(
+      offlineSession,
+      namespace,
+      authorization.remainingMs,
+    );
+    return offlineSession;
+  } catch (error) {
+    if (!(error instanceof OfflineAuthorizationError)) throw error;
+    await clearOfflineAuthorizationRecord(namespace).catch(() => undefined);
+    clearOfflineAuthorizationBootAnchor(
+      expectedOfflineAuthorizationIdentity(offlineSession, installationId),
+    );
+    return null;
+  }
 }
 
 export async function logoutSession(): Promise<void> {
   const activeSession = useSessionStore.getState().session;
   const derivedNamespace = activeSession ? namespaceForSession(activeSession) : null;
   invalidateAuthenticationBoundary();
+  clearOfflineAuthorizationExpiryTimer();
   if (activeSession?.sessionId) cancelRequiredPreparation(activeSession.sessionId);
   // Authentication must disappear synchronously before any SecureStore or
   // network operation that can reject or stall.
@@ -558,19 +763,38 @@ export async function logoutSession(): Promise<void> {
   if (namespace) {
     try {
       refreshToken = await getRefreshToken(namespace);
-    } catch (error) {
-      cleanupError ??= error;
+    } catch {
+      // The access-token logout still revokes the server session. Failure to
+      // read a stale refresh token must not weaken or block local data purge.
     }
   }
   try {
     if (activeSession?.accessToken && !isDemoMode()) {
+      const authorization = { Authorization: `Bearer ${activeSession.accessToken}` };
+      // Revoke every provider registration owned by this device session before
+      // ending it. The logout endpoint remains authoritative and makes the
+      // device session ineligible for delivery even if this best-effort call is
+      // interrupted or offline.
+      await getInstallationId()
+        .then((installationId) => apiRequest('/mobile/push/unregister', {
+          method: 'POST',
+          schema: z.object({
+            unregistered: z.boolean(),
+            revoked_count: z.number().int().nonnegative(),
+          }).strict(),
+          body: { installation_id: installationId },
+          authenticated: false,
+          retryAuthentication: false,
+          headers: authorization,
+        }))
+        .catch(() => undefined);
       await apiRequest('/mobile/auth/logout', {
         method: 'POST',
         schema: z.null(),
         body: refreshToken ? { refresh_token: refreshToken } : {},
         authenticated: false,
         retryAuthentication: false,
-        headers: { Authorization: `Bearer ${activeSession.accessToken}` },
+        headers: authorization,
       });
     }
   } catch {
@@ -579,7 +803,7 @@ export async function logoutSession(): Promise<void> {
   }
   if (namespace) {
     try {
-      await deactivateLocalSession(namespace);
+      await purgeLocalSession(namespace);
     } catch (error) {
       cleanupError ??= error;
     }
@@ -587,29 +811,10 @@ export async function logoutSession(): Promise<void> {
   if (cleanupError) throw cleanupError;
 }
 
-/**
- * End authentication without deleting the encrypted account database or vault.
- * The namespace remains inaccessible until the same account authenticates again;
- * temporary plaintext views are always removed immediately.
- */
-export async function deactivateLocalSession(namespace: string): Promise<void> {
-  let firstError: unknown;
-  const capture = async (operation: () => Promise<unknown>): Promise<void> => {
-    try {
-      await operation();
-    } catch (error) {
-      firstError ??= error;
-    }
-  };
-  await capture(() => clearNamespaceAuthentication(namespace));
-  await capture(() => purgeTemporaryViews());
-  await capture(() => closeAccountDatabase());
-  if (firstError) throw firstError;
-}
-
 export async function purgeLocalSession(namespace: string): Promise<void> {
   const activeSession = useSessionStore.getState().session;
   if (activeSession && namespaceForSession(activeSession) === namespace) {
+    clearOfflineAuthorizationExpiryTimer();
     useSessionStore.getState().clear();
     useSelectedTripStore.getState().clear();
   } else if (!activeSession) {
@@ -627,6 +832,11 @@ export async function purgeLocalSession(namespace: string): Promise<void> {
   let vaultDeleted = false;
   let secretsCleared = false;
   let cleanupError: unknown;
+  try {
+    await purgeTemporaryViews();
+  } catch (error) {
+    cleanupError = error;
+  }
   try {
     await beginVaultNamespacePurge(namespace);
     fenceStarted = true;

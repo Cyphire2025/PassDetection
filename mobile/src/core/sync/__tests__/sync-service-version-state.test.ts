@@ -1,6 +1,7 @@
-import { apiRequest } from '@/core/api/client';
+import { ApiError, apiRequest } from '@/core/api/client';
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileRole, MobileSession } from '@/core/auth/types';
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   loadMeal,
@@ -27,8 +28,10 @@ import {
   refreshTripsInContext,
 } from '@/features/trips/data/trip-repository';
 import type { Trip } from '@/features/trips/model/trip';
+import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import { syncAllTripsWithSummary, syncTrip } from '../sync-service';
+import { performSnapshotRebase } from '../snapshot-rebase';
 
 jest.mock('@/core/api/client', () => {
   const actual = jest.requireActual('@/core/api/client');
@@ -75,6 +78,9 @@ jest.mock('../access-cache', () => ({
   purgeTripCache: jest.fn(),
   resetTripCache: jest.fn(),
 }));
+jest.mock('../snapshot-rebase', () => ({
+  performSnapshotRebase: jest.fn(),
+}));
 
 type Versions = {
   itinerary: number;
@@ -118,6 +124,7 @@ const mockedPassengerPrefetch = jest.mocked(prefetchPassengerOfflineDocuments);
 const mockedCommonPrefetch = jest.mocked(prefetchCommonOfflineDocuments);
 const mockedLocalTrips = jest.mocked(localTripsInContext);
 const mockedRefreshTrips = jest.mocked(refreshTripsInContext);
+const mockedSnapshotRebase = jest.mocked(performSnapshotRebase);
 
 function versions(value: number): Versions {
   return {
@@ -161,6 +168,7 @@ function manifest(role: MobileRole, value = 2, tripId = TRIP_ID) {
       destination: 'Singapore',
       travel_date: '2030-01-10',
       return_date: '2030-01-15',
+      timezone: DEFAULT_TRIP_TIME_ZONE,
       role,
       access_generation: 1,
       itinerary_version: value,
@@ -227,17 +235,19 @@ function installHarness(role: MobileRole) {
     }),
     runAsync: jest.fn(async (sql: string, ...parameters: unknown[]) => {
       if (sql.includes('INSERT INTO trips')) {
-        state.accessGeneration = Number(parameters[8]);
+        // Keep this fake aligned with storeManifest's complete trip contract:
+        // timezone precedes access generation and the advertised versions.
+        state.accessGeneration = Number(parameters[9]);
         state.advertised = {
-          itinerary: Number(parameters[10]),
-          commonDocuments: Number(parameters[11]),
-          personalDocuments: Number(parameters[12]),
-          announcements: Number(parameters[13]),
-          readiness: Number(parameters[14]),
-          roster: Number(parameters[15]),
-          rooming: Number(parameters[16]),
-          meals: Number(parameters[17]),
-          qr: Number(parameters[18]),
+          itinerary: Number(parameters[11]),
+          commonDocuments: Number(parameters[12]),
+          personalDocuments: Number(parameters[13]),
+          announcements: Number(parameters[14]),
+          readiness: Number(parameters[15]),
+          roster: Number(parameters[16]),
+          rooming: Number(parameters[17]),
+          meals: Number(parameters[18]),
+          qr: Number(parameters[19]),
         };
       }
       return { changes: 1, lastInsertRowId: 1 };
@@ -326,6 +336,7 @@ function installHarness(role: MobileRole) {
 beforeEach(() => {
   jest.clearAllMocks();
   useSessionStore.getState().clear();
+  useSelectedTripStore.getState().clear();
   for (const mock of [
     mockedItinerary,
     mockedAnnouncements,
@@ -362,6 +373,7 @@ beforeEach(() => {
 
 afterEach(() => {
   useSessionStore.getState().clear();
+  useSelectedTripStore.getState().clear();
 });
 
 test('empty-journal passenger v1 to v2 refreshes every passenger resource before atomic finalization', async () => {
@@ -376,6 +388,21 @@ test('empty-journal passenger v1 to v2 refreshes every passenger resource before
   expect(mockedRoom).toHaveBeenCalledTimes(1);
   expect(mockedMeal).toHaveBeenCalledTimes(1);
   expect(mockedQr).toHaveBeenCalledTimes(1);
+  expect(mockedItinerary).toHaveBeenCalledWith(
+    TRIP_ID,
+    expect.objectContaining({ role: 'passenger' }),
+    `/mobile/trips/${TRIP_ID}/itinerary`,
+  );
+  expect(mockedCommonDocuments).toHaveBeenCalledWith(
+    TRIP_ID,
+    expect.objectContaining({ role: 'passenger' }),
+    `/mobile/trips/${TRIP_ID}/common-documents`,
+  );
+  expect(mockedPersonalDocuments).toHaveBeenCalledWith(
+    TRIP_ID,
+    expect.objectContaining({ role: 'passenger' }),
+    `/mobile/trips/${TRIP_ID}/documents`,
+  );
   expect(mockedPassengerPrefetch).toHaveBeenCalledTimes(1);
   expect(harness.state.applied).toEqual(versions(2));
   expect(harness.state.advertised).toEqual(versions(2));
@@ -387,6 +414,155 @@ test('empty-journal passenger v1 to v2 refreshes every passenger resource before
     'advertised_itinerary_version = excluded.advertised_itinerary_version',
   );
   expect(manifestSql).not.toMatch(/\n\s+itinerary_version = excluded\.itinerary_version/);
+});
+
+test('background document hydration cannot delay metadata and cursor publication', async () => {
+  const harness = installHarness('passenger');
+  const progress = {
+    total: 1,
+    completed: 1,
+    failed: 0,
+    currentDocumentName: null,
+  };
+  let finishHydration!: (value: typeof progress) => void;
+  let hydrationSettled = false;
+  const hydration = new Promise<typeof progress>((resolve) => {
+    finishHydration = resolve;
+  }).then((value) => {
+    hydrationSettled = true;
+    return value;
+  });
+  mockedPassengerPrefetch.mockReturnValueOnce(hydration);
+
+  await expect(syncTrip(TRIP_ID, { documentHydration: 'background' })).resolves.toMatchObject({
+    cursor: 2,
+    changed: true,
+    documentPrefetch: null,
+  });
+
+  expect(mockedPassengerPrefetch).toHaveBeenCalledTimes(1);
+  expect(hydrationSettled).toBe(false);
+  expect(harness.state.applied).toEqual(versions(2));
+  expect(harness.state.cursor).toBe(2);
+
+  finishHydration(progress);
+  await hydration;
+  expect(hydrationSettled).toBe(true);
+});
+
+test('snapshot checkpoint is handled before ordinary flags and acknowledges the exact promoted fence', async () => {
+  installHarness('passenger');
+  const initialManifest = manifest('passenger', 2);
+  const committed = {
+    strategy: 'full_rebase' as const,
+    trip: {
+      ...initialManifest.trip,
+      itinerary_version: 9,
+      common_document_version: 9,
+      announcement_version: 9,
+    },
+    baseline_cursor: 100_000,
+    access_generation: 1,
+    server_time: SERVER_TIME,
+    access_expires_at: initialManifest.access_expires_at,
+    versions: {
+      manifest: 9,
+      itinerary: 9,
+      common_documents: 9,
+      personal_documents: 9,
+      announcements: 9,
+      rooming: 9,
+      meals: 9,
+      qr: 9,
+      readiness: 9,
+      roster: 9,
+    },
+    resources: {
+      manifest: `/api/v1/mobile/trips/${TRIP_ID}/manifest`,
+      itinerary: `/api/v1/mobile/trips/${TRIP_ID}/itinerary`,
+      announcements: `/api/v1/mobile/trips/${TRIP_ID}/announcements`,
+      common_documents: `/api/v1/mobile/trips/${TRIP_ID}/common-documents`,
+      personal_documents: `/api/v1/mobile/trips/${TRIP_ID}/documents`,
+      room: `/api/v1/mobile/trips/${TRIP_ID}/room`,
+      meals: `/api/v1/mobile/trips/${TRIP_ID}/meals`,
+      qr: `/api/v1/mobile/trips/${TRIP_ID}/qr`,
+      readiness: null,
+      roster: null,
+      attendance_sessions: null,
+      sync_changes: `/api/v1/mobile/sync/changes?trip_id=${TRIP_ID}`,
+      acknowledge: '/api/v1/mobile/sync/ack',
+    },
+    resource_counts: {
+      announcements: 0,
+      common_documents: 0,
+      personal_documents: 0,
+      roster: null,
+      attendance_sessions: null,
+    },
+    max_incremental_changes: 10_000,
+    max_group_passengers: 10_000,
+    max_attendance_sessions_per_group: 10_000,
+  };
+  mockedSnapshotRebase.mockResolvedValue({
+    accessGenerationChanged: false,
+    descriptor: committed,
+    stagedItemCount: 10_001,
+  });
+  mockedApiRequest.mockImplementation(async (path: string, options?: { body?: unknown }) => {
+    if (path === `/mobile/trips/${TRIP_ID}/manifest`) return initialManifest as never;
+    if (path.startsWith('/mobile/sync/changes?')) {
+      return {
+        changes: [{
+          sequence: 100_000,
+          group_id: TRIP_ID,
+          entity_type: 'snapshot_rebase',
+          entity_id: null,
+          operation: 'upsert',
+          version: 9,
+          occurred_at: SERVER_TIME,
+          payload: {
+            resource_path: `/api/v1/mobile/sync/snapshot?trip_id=${TRIP_ID}`,
+          },
+        }],
+        next_cursor: 100_000,
+        has_more: false,
+      } as never;
+    }
+    if (path === '/mobile/sync/ack') {
+      expect(options?.body).toEqual({
+        trip_id: TRIP_ID,
+        cursor: 100_000,
+        access_generation: 1,
+        versions: committed.versions,
+      });
+      return {
+        trip_id: TRIP_ID,
+        cursor: 100_000,
+        access_generation: 1,
+        acknowledged_at: SERVER_TIME,
+      } as never;
+    }
+    throw new Error(`Unexpected API path: ${path}`);
+  });
+
+  await expect(syncTrip(TRIP_ID, { documentHydration: 'background' })).resolves.toMatchObject({
+    cursor: 100_000,
+    changes: 1,
+    changed: true,
+    documentPrefetch: null,
+  });
+
+  expect(mockedSnapshotRebase).toHaveBeenCalledWith(expect.objectContaining({
+    checkpoint: {
+      checkpointCursor: 100_000,
+      resourcePath: `/api/v1/mobile/sync/snapshot?trip_id=${TRIP_ID}`,
+    },
+    tripId: TRIP_ID,
+  }));
+  expect(mockedItinerary).not.toHaveBeenCalled();
+  expect(mockedAnnouncements).not.toHaveBeenCalled();
+  expect(mockedCommonDocuments).not.toHaveBeenCalled();
+  expect(mockedPersonalDocuments).not.toHaveBeenCalled();
 });
 
 test('empty-journal manager and coordinator versions refresh their role-specific resources', async () => {
@@ -402,7 +578,12 @@ test('empty-journal manager and coordinator versions refresh their role-specific
   installHarness('coordinator');
   mockedRoster.mockResolvedValue(undefined as never);
   mockedAttendance.mockResolvedValue(undefined as never);
-  jest.mocked(drainAttendanceQueue).mockResolvedValue({ settledBySession: {} });
+  jest.mocked(drainAttendanceQueue).mockResolvedValue({
+    settledBySession: {},
+    confirmedBySession: {},
+    newlyAcceptedBySession: {},
+    rejectedBySession: {},
+  });
   jest.mocked(drainIncidentQueue).mockResolvedValue(undefined);
   jest.mocked(drainNotificationReads).mockResolvedValue(undefined);
   await syncTrip(TRIP_ID);
@@ -559,12 +740,6 @@ const resourceFailureCases: ResourceFailureCase[] = [
     calls: () => mockedQr.mock.calls.length,
   },
   {
-    role: 'passenger',
-    resource: 'offline document prefetch',
-    failOnce: (error) => mockedPassengerPrefetch.mockRejectedValueOnce(error),
-    calls: () => mockedPassengerPrefetch.mock.calls.length,
-  },
-  {
     role: 'client_manager',
     resource: 'readiness',
     failOnce: (error) => mockedReadiness.mockRejectedValueOnce(error),
@@ -602,6 +777,97 @@ test.each(resourceFailureCases)(
     expect(harness.state.cursor).toBe(2);
   },
 );
+
+test.each([
+  {
+    role: 'passenger' as const,
+    resource: 'itinerary',
+    fail: (error: ApiError) => mockedItinerary.mockRejectedValueOnce(error),
+  },
+  {
+    role: 'passenger' as const,
+    resource: 'common documents',
+    fail: (error: ApiError) => mockedCommonDocuments.mockRejectedValueOnce(error),
+  },
+  {
+    role: 'passenger' as const,
+    resource: 'personal documents',
+    fail: (error: ApiError) => mockedPersonalDocuments.mockRejectedValueOnce(error),
+  },
+  {
+    role: 'coordinator' as const,
+    resource: 'roster',
+    fail: (error: ApiError) => mockedRoster.mockRejectedValueOnce(error),
+  },
+])(
+  '$role $resource route-level 404 cannot commit versions or cursor',
+  async ({ role, fail }) => {
+    const harness = installHarness(role);
+    const missingRoute = new ApiError('Not Found', 404, 'HTTP_404', null);
+    fail(missingRoute);
+
+    await expect(syncTrip(TRIP_ID)).rejects.toBe(missingRoute);
+    expect(harness.state.advertised).toEqual(versions(2));
+    expect(harness.state.applied).toEqual(versions(1));
+    expect(harness.state.cursor).toBe(1);
+  },
+);
+
+test('authoritatively empty itinerary, room, meal, and QR projections remain valid sync results', async () => {
+  const harness = installHarness('passenger');
+  mockedItinerary.mockResolvedValueOnce({ itinerary: null, offline: false });
+  mockedRoom.mockResolvedValueOnce({
+    id: '55555555-5555-4555-8555-555555555555',
+    trip_id: TRIP_ID,
+    passenger_id: PRINCIPAL_ID,
+    hotel_name: null,
+    room_number: null,
+    roommate_summary: null,
+    version: 2,
+    updated_at: SERVER_TIME,
+    offline: false,
+  });
+  mockedMeal.mockResolvedValueOnce({
+    id: '66666666-6666-4666-8666-666666666666',
+    trip_id: TRIP_ID,
+    passenger_id: PRINCIPAL_ID,
+    preference: null,
+    notes: null,
+    version: 2,
+    updated_at: SERVER_TIME,
+    offline: false,
+  });
+  mockedQr.mockResolvedValueOnce({ qr: null, offline: false });
+
+  await expect(syncTrip(TRIP_ID)).resolves.toMatchObject({ cursor: 2 });
+  expect(harness.state.applied).toEqual(versions(2));
+  expect(harness.state.cursor).toBe(2);
+});
+
+test('document hydration failure preserves committed metadata and retries only the durable job', async () => {
+  const harness = installHarness('passenger');
+  const failure = new Error('temporary offline document prefetch failure');
+  mockedPassengerPrefetch
+    .mockRejectedValueOnce(failure)
+    .mockResolvedValueOnce({
+      total: 1,
+      completed: 1,
+      failed: 0,
+      currentDocumentName: null,
+    });
+
+  await expect(syncTrip(TRIP_ID)).rejects.toThrow(failure.message);
+  expect(harness.state.advertised).toEqual(versions(2));
+  expect(harness.state.applied).toEqual(versions(2));
+  expect(harness.state.cursor).toBe(2);
+
+  await expect(syncTrip(TRIP_ID)).resolves.toMatchObject({ cursor: 2 });
+  expect(mockedPassengerPrefetch).toHaveBeenCalledTimes(2);
+  expect(mockedPersonalDocuments).toHaveBeenCalledTimes(1);
+  expect(mockedCommonDocuments).toHaveBeenCalledTimes(1);
+  expect(harness.state.applied).toEqual(versions(2));
+  expect(harness.state.cursor).toBe(2);
+});
 
 test.each(['passenger', 'client_manager', 'coordinator'] as MobileRole[])(
   '%s partial offline document outcome advances metadata cursor and retries only the job',
@@ -675,6 +941,7 @@ function assignedTrips(count: number): Trip[] {
     destination: 'Singapore',
     travelDate: '2030-01-10',
     returnDate: '2030-01-15',
+    timeZone: DEFAULT_TRIP_TIME_ZONE,
     role: 'passenger',
     accessGeneration: 1,
     accessExpiresAt: '2030-01-31T00:00:00.000Z',
@@ -728,7 +995,6 @@ test('coalesces concurrent full sync requests for the same account and session',
   const first = syncAllTripsWithSummary();
   const second = syncAllTripsWithSummary();
 
-  expect(second).toBe(first);
   await waitForCondition(() => mockedRefreshTrips.mock.calls.length === 1);
   resolveTrips({ trips: [], offline: false });
   await expect(Promise.all([first, second])).resolves.toEqual([
@@ -747,6 +1013,26 @@ test('coalesces concurrent full sync requests for the same account and session',
       removedTripIds: [],
     },
   ]);
+  expect(mockedRefreshTrips).toHaveBeenCalledTimes(1);
+});
+
+test('one cancelled full-sync consumer does not cancel work still needed by another consumer', async () => {
+  useSessionStore.getState().setSession(session('passenger'));
+  mockedLocalTrips.mockResolvedValue([]);
+  let resolveTrips!: (value: { trips: Trip[]; offline: boolean }) => void;
+  mockedRefreshTrips.mockReturnValue(new Promise((resolve) => {
+    resolveTrips = resolve;
+  }));
+  const deadline = new AbortController();
+
+  const expiringConsumer = syncAllTripsWithSummary({ signal: deadline.signal });
+  const foregroundConsumer = syncAllTripsWithSummary();
+  await waitForCondition(() => mockedRefreshTrips.mock.calls.length === 1);
+  deadline.abort(new Error('background deadline'));
+
+  await expect(expiringConsumer).rejects.toThrow('background deadline');
+  resolveTrips({ trips: [], offline: false });
+  await expect(foregroundConsumer).resolves.toMatchObject({ requestedTripCount: 0 });
   expect(mockedRefreshTrips).toHaveBeenCalledTimes(1);
 });
 
@@ -805,6 +1091,47 @@ test('full sync uses a bounded two-worker pool and preserves assigned-trip resul
   expect(result.results.map((item) => item.tripId)).toEqual(trips.map((trip) => trip.id));
   expect(result.failures).toEqual([]);
   expect(result.requestedTripCount).toBe(trips.length);
+});
+
+test('full sync prioritizes the currently selected trip without dropping the stable remainder', async () => {
+  const trips = assignedTrips(4);
+  const selected = trips[2]!;
+  installFullSyncDatabase();
+  useSessionStore.getState().setSession(session('passenger'));
+  useSelectedTripStore.getState().selectTrip(selected.id);
+  mockedLocalTrips.mockResolvedValue(trips);
+  mockedRefreshTrips.mockResolvedValue({ trips, offline: false });
+  const startedTripIds: string[] = [];
+  mockedApiRequest.mockImplementation((path: string, options?: { body?: unknown }) => {
+    const match = /^\/mobile\/trips\/([^/]+)\/manifest$/.exec(path);
+    if (match?.[1]) {
+      startedTripIds.push(match[1]);
+      return Promise.resolve(manifest('passenger', 1, match[1])) as never;
+    }
+    if (path.startsWith('/mobile/sync/changes?')) {
+      return Promise.resolve({ changes: [], next_cursor: 1, has_more: false }) as never;
+    }
+    if (path === '/mobile/sync/ack') {
+      const body = options?.body as { trip_id: string };
+      return Promise.resolve({
+        trip_id: body.trip_id,
+        cursor: 1,
+        access_generation: 1,
+        acknowledged_at: SERVER_TIME,
+      }) as never;
+    }
+    return Promise.reject(new Error(`Unexpected API path: ${path}`)) as never;
+  });
+
+  const result = await syncAllTripsWithSummary();
+
+  expect(startedTripIds[0]).toBe(selected.id);
+  expect(result.results.map((item) => item.tripId)).toEqual([
+    selected.id,
+    trips[0]!.id,
+    trips[1]!.id,
+    trips[3]!.id,
+  ]);
 });
 
 test('full sync reports ordered per-trip failures when every assigned trip fails', async () => {

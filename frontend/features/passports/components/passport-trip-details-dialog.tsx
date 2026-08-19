@@ -4,7 +4,30 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import { Button, Input } from "@/components/ui";
 import { normalizeCity, normalizeCities } from "../utils/passport-group-trip";
+import { isSupportedIanaTimeZone } from "../utils/trip-timezone";
 import { GroupOptionToggle } from "./group-option-toggle";
+import { TripTimeZoneField } from "./trip-timezone-field";
+
+export interface TripDetailsForm {
+  name: string;
+  destination: string;
+  travel_date: string;
+  return_date: string;
+  timezone: string;
+  departure_cities: string[];
+  base_city_enabled: boolean;
+  nearest_international_airport_enabled: boolean;
+  staff_code_enabled: boolean;
+  agent_employee_code_enabled: boolean;
+  meal_preference_enabled: boolean;
+  require_selfie: boolean;
+  allow_files_from_device: boolean;
+  ask_nearest_domestic_airport: boolean;
+  relation_with_qualifier_enabled: boolean;
+  designation_enabled: boolean;
+  agency_dealership_name_enabled: boolean;
+  notes: string;
+}
 
 export function TripDetailsDialog({
   form,
@@ -13,49 +36,16 @@ export function TripDetailsDialog({
   onClose,
   onSave,
 }: {
-  form: {
-    name: string;
-    destination: string;
-    travel_date: string;
-    return_date: string;
-    departure_cities: string[];
-    base_city_enabled: boolean;
-    nearest_international_airport_enabled: boolean;
-    staff_code_enabled: boolean;
-    agent_employee_code_enabled: boolean;
-    meal_preference_enabled: boolean;
-    require_selfie: boolean;
-    allow_files_from_device: boolean;
-    ask_nearest_domestic_airport: boolean;
-    relation_with_qualifier_enabled: boolean;
-    designation_enabled: boolean;
-    agency_dealership_name_enabled: boolean;
-    notes: string;
-  };
+  form: TripDetailsForm;
   isLoading: boolean;
-  onChange: (form: {
-    name: string;
-    destination: string;
-    travel_date: string;
-    return_date: string;
-    departure_cities: string[];
-    base_city_enabled: boolean;
-    nearest_international_airport_enabled: boolean;
-    staff_code_enabled: boolean;
-    agent_employee_code_enabled: boolean;
-    meal_preference_enabled: boolean;
-    require_selfie: boolean;
-    allow_files_from_device: boolean;
-    ask_nearest_domestic_airport: boolean;
-    relation_with_qualifier_enabled: boolean;
-    designation_enabled: boolean;
-    agency_dealership_name_enabled: boolean;
-    notes: string;
-  }) => void;
+  onChange: (form: TripDetailsForm) => void;
   onClose: () => void;
   onSave: () => void;
 }) {
   const [cityInput, setCityInput] = useState("");
+  const timezoneError = isSupportedIanaTimeZone(form.timezone)
+    ? undefined
+    : "Enter a valid IANA timezone, such as Asia/Kolkata";
   const updateField = (key: keyof typeof form, value: string) => {
     onChange({ ...form, [key]: value });
   };
@@ -93,6 +83,12 @@ export function TripDetailsDialog({
             <span className="text-sm font-medium text-slate-700">Return Date</span>
             <Input type="date" value={form.return_date} onChange={(event) => updateField("return_date", event.target.value)} />
           </label>
+          <TripTimeZoneField
+            value={form.timezone}
+            onChange={(event) => updateField("timezone", event.target.value)}
+            error={timezoneError}
+            required
+          />
           <GroupOptionToggle
             label="Visa Photo Upload"
             description="Require a Visa Photo against a plain white or off-white wall."
@@ -224,7 +220,11 @@ export function TripDetailsDialog({
             type="button"
             onClick={onSave}
             isLoading={isLoading}
-            disabled={isLoading || (form.nearest_international_airport_enabled && form.departure_cities.length === 0)}
+            disabled={
+              isLoading
+              || Boolean(timezoneError)
+              || (form.nearest_international_airport_enabled && form.departure_cities.length === 0)
+            }
           >
             Save Details
           </Button>

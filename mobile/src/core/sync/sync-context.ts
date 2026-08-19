@@ -36,17 +36,20 @@ function matchesActiveSession(context: ImmutableSyncContext): boolean {
   );
 }
 
-export function captureSyncContext(): SyncContextLease {
+export function captureSyncContext(externalSignal?: AbortSignal): SyncContextLease {
   const session = useSessionStore.getState().session;
   if (!session) throw new Error('Authentication is required.');
   const controller = new AbortController();
+  const signal = externalSignal
+    ? AbortSignal.any([controller.signal, externalSignal])
+    : controller.signal;
   const context: ImmutableSyncContext = Object.freeze({
     sessionId: session.sessionId,
     namespace: principalAccountNamespace(session.principal),
     agencyId: session.principal.agencyId,
     principalId: session.principal.id,
     role: session.principal.principalType,
-    signal: controller.signal,
+    signal,
   });
   const unsubscribe = useSessionStore.subscribe(() => {
     if (!matchesActiveSession(context) && !controller.signal.aborted) {

@@ -8,6 +8,7 @@
 .env.production
 .env.staging
 *.pem
+!backend/app/infrastructure/security/certificates/apple_root_ca_g3.pem
 *.key
 *.cert
 
@@ -33,6 +34,7 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 coverage.xml
+coverage/
 *.cover
 junit.xml
 
@@ -41,6 +43,7 @@ node_modules/
 .next/
 out/
 .vercel/
+.maestro-output/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -91,6 +94,9 @@ app - Shortcut.lnk
 globalconnect-logo.png
 globalconnectteam.png
 tmp/
+
+# Short-lived authenticated mobile load fixtures; generate outside Git and revoke after use.
+load-tests/k6/mobile-load-data*.json
 
 # Standalone local desktop utility; maintained outside this production repository.
 Smart COPY-PASTE/

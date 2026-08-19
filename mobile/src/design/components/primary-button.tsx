@@ -25,6 +25,8 @@ export function PrimaryButton({
   disabled,
   onPressIn,
   onPressOut,
+  accessibilityLabel,
+  accessibilityState,
   style,
   ...props
 }: Props) {
@@ -66,7 +68,8 @@ export function PrimaryButton({
     <Animated.View style={[styles.shadow, { shadowOpacity, transform: [{ scale }] }]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityState={{ ...accessibilityState, disabled: isDisabled, busy: loading }}
         disabled={isDisabled}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -118,7 +121,15 @@ const styles = StyleSheet.create({
   danger: { backgroundColor: colors.danger, borderColor: colors.danger },
   pressed: { opacity: 0.94 },
   muted: { opacity: 0.58 },
-  label: { color: colors.navy, fontSize: 16, fontWeight: '900' },
+  label: {
+    flexShrink: 1,
+    color: colors.navy,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: '900',
+    paddingVertical: spacing.sm,
+    textAlign: 'center',
+  },
   secondaryLabel: { color: colors.blueDeep },
   dangerLabel: { color: colors.white },
 });
