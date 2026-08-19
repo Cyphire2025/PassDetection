@@ -11,6 +11,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
+from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
+
 PassportImageTypeValue = Literal["visa_photo", "passport_front", "passport_back"]
 
 
@@ -573,6 +575,7 @@ class PassportGroupSummaryResponse(BaseModel):
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] = Field(default_factory=list)
     base_city_enabled: bool = False

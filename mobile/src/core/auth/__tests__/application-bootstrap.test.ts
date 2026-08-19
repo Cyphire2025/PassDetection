@@ -1,8 +1,5 @@
 import { mobileQueryClient } from '@/core/query/query-client';
-import {
-  cancelRequiredPreparation,
-  isRequiredPreparationActive,
-} from '@/core/sync/required-preparation-lease';
+import { cancelRequiredPreparation } from '@/core/sync/required-preparation-lease';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import { bootstrapApplicationSession } from '../application-bootstrap';
@@ -77,5 +74,5 @@ test('a retry can restore a session after a native bootstrap rejection', async (
     session: existingSession,
     bootstrapErrorCode: null,
   });
-  expect(isRequiredPreparationActive(existingSession.sessionId)).toBe(true);
+  expect(mockedBootstrapSession).toHaveBeenLastCalledWith({ validation: 'background' });
 });

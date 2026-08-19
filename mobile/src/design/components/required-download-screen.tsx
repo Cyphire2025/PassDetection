@@ -2,6 +2,7 @@ import DownloadCloud from 'lucide-react-native/icons/cloud-download';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useMessages } from '@/core/localization/localization-provider';
 import { colors, radii, spacing } from '@/design/theme';
 
 import { Screen } from './screen';
@@ -17,7 +18,7 @@ type RequiredDownloadScreenProps = {
 };
 
 export function RequiredDownloadScreen({
-  title = 'Downloading required documents',
+  title,
   message,
   progress,
   completedLabel,
@@ -25,21 +26,23 @@ export function RequiredDownloadScreen({
   onRetry,
   errorSecondaryAction,
 }: RequiredDownloadScreenProps) {
+  const messages = useMessages();
   const normalizedProgress = Math.max(0, Math.min(100, Math.round(progress)));
+  const resolvedTitle = title ?? messages.downloadingRequiredDocuments();
   return (
-    <Screen scroll={false} contentStyle={styles.screen}>
+    <Screen contentStyle={styles.screen}>
       <View style={styles.content}>
         <View style={styles.icon} accessibilityElementsHidden>
           <DownloadCloud color={colors.greenDeep} size={34} strokeWidth={2.2} />
         </View>
         <View style={styles.copy}>
-          <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+          <Text accessibilityRole="header" style={styles.title}>{resolvedTitle}</Text>
           <Text style={styles.message}>{error ?? message}</Text>
         </View>
         {error ? (
           <View style={styles.errorActions}>
             <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retry}>
-              <Text style={styles.retryText}>Try again</Text>
+              <Text style={styles.retryText}>{messages.tryAgain()}</Text>
             </Pressable>
             {errorSecondaryAction}
           </View>
@@ -53,20 +56,20 @@ export function RequiredDownloadScreen({
               <View style={[styles.fill, { width: `${normalizedProgress}%` }]} />
             </View>
             <View style={styles.progressLabels}>
-              <Text style={styles.progressText}>{completedLabel ?? 'Preparing offline access'}</Text>
+              <Text style={styles.progressText}>{completedLabel ?? messages.preparingOfflineAccess()}</Text>
               <Text style={styles.percent}>{normalizedProgress}%</Text>
             </View>
           </View>
         )}
         {!error ? <ActivityIndicator color={colors.greenDeep} size="small" /> : null}
-        <Text style={styles.note}>Keep the app open. Encrypted copies stay private to this account and device.</Text>
+        <Text style={styles.note}>{messages.secureDownloadPrivacyNote()}</Text>
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { justifyContent: 'center' },
+  screen: { flexGrow: 1, justifyContent: 'center' },
   content: { gap: spacing.xl, alignItems: 'center' },
   icon: {
     width: 76,

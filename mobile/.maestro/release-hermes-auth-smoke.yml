@@ -1,0 +1,24 @@
+appId: com.globalconnects.groupcompanion
+name: Release-Hermes public authentication shell
+tags:
+  - release-hermes
+  - public-smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 30000
+- assertVisible: "Client manager or coordinator"
+- tapOn: "Continue with phone number"
+- assertVisible: "Mobile number"
+- assertVisible: "Send verification code"
+- back
+- extendedWaitUntil:
+    visible: "Client manager or coordinator"
+    timeout: 10000
+- tapOn: "Client manager or coordinator"
+- assertVisible: "Email"
+- assertVisible: "Password"
+- assertVisible: "Sign in"

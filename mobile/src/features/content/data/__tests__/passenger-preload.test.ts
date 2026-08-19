@@ -1,4 +1,5 @@
 import { ApiError } from '@/core/api/client';
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 import type { Trip } from '@/features/trips/model/trip';
 
 import { preloadPassengerTrip } from '../passenger-preload';
@@ -9,6 +10,7 @@ const TRIP: Trip = {
   destination: 'Singapore',
   travelDate: '2026-09-01',
   returnDate: '2026-09-05',
+  timeZone: DEFAULT_TRIP_TIME_ZONE,
   role: 'passenger',
   accessGeneration: 1,
   accessExpiresAt: null,
@@ -18,17 +20,20 @@ const TRIP: Trip = {
   updatedAt: '2026-08-03T00:00:00.000Z',
 };
 
-const mockSyncTrip = jest.fn();
+const mockRequestSync = jest.fn();
 const mockRefreshTrips = jest.fn();
 const mockRememberPassengerTrip = jest.fn();
 const mockPassengerTripForRequiredPreload = jest.fn();
-const mockPrefetchPassengerOfflineDocuments = jest.fn();
-const mockPrefetchRequiredPassengerOfflineDocuments = jest.fn();
-const mockCountMissingRequiredOfflineDocuments = jest.fn();
+const mockScheduleTripDocumentHydration = jest.fn();
 const mockSelectTrip = jest.fn();
 
 jest.mock('@/core/sync/sync-service', () => ({
-  syncTrip: (...args: unknown[]) => mockSyncTrip(...args),
+  scheduleTripDocumentHydration: (...args: unknown[]) => (
+    mockScheduleTripDocumentHydration(...args)
+  ),
+}));
+jest.mock('@/core/sync/sync-trigger', () => ({
+  requestSync: (...args: unknown[]) => mockRequestSync(...args),
 }));
 jest.mock('@/features/trips/data/trip-repository', () => ({
   refreshTrips: (...args: unknown[]) => mockRefreshTrips(...args),
@@ -45,58 +50,15 @@ jest.mock('@/features/trips/state/selected-trip-store', () => ({
     getState: () => ({ selectTrip: mockSelectTrip }),
   },
 }));
-jest.mock('../content-repository', () => ({
-  prefetchPassengerOfflineDocuments: (...args: unknown[]) => (
-    mockPrefetchPassengerOfflineDocuments(...args)
-  ),
-  prefetchRequiredPassengerOfflineDocuments: (...args: unknown[]) => (
-    mockPrefetchRequiredPassengerOfflineDocuments(...args)
-  ),
-  countMissingRequiredOfflineDocuments: (...args: unknown[]) => (
-    mockCountMissingRequiredOfflineDocuments(...args)
-  ),
-  REQUIRED_PASSENGER_DOCUMENT_SCOPES: new Set(['personal', 'common']),
-}));
-
 beforeEach(() => {
   jest.clearAllMocks();
   mockRefreshTrips.mockResolvedValue({ trips: [TRIP], offline: false });
   mockPassengerTripForRequiredPreload.mockReturnValue(TRIP);
   mockRememberPassengerTrip.mockResolvedValue(undefined);
-  mockPrefetchRequiredPassengerOfflineDocuments.mockResolvedValue({
-    total: 0,
-    completed: 0,
-    failed: 0,
-    currentDocumentName: null,
-  });
-  mockCountMissingRequiredOfflineDocuments.mockResolvedValue(0);
 });
 
-test('uses one manifest sync and reuses its document preload outcome', async () => {
-  mockSyncTrip.mockImplementation(async (_tripId: string, options: {
-    onDocumentProgress?: (progress: {
-      total: number;
-      completed: number;
-      failed: number;
-      currentDocumentName: string | null;
-    }) => void;
-  }) => {
-    const documentPrefetch = {
-      total: 2,
-      completed: 2,
-      failed: 0,
-      currentDocumentName: null,
-    };
-    options.onDocumentProgress?.(documentPrefetch);
-    return {
-      tripId: TRIP.id,
-      cursor: 3,
-      changes: 3,
-      changed: true,
-      syncedAt: '2026-08-03T00:01:00.000Z',
-      documentPrefetch,
-    };
-  });
+test('synchronizes metadata once and leaves document bytes on the bounded background lane', async () => {
+  mockRequestSync.mockResolvedValue({ results: [], failures: [] });
   const progress = jest.fn();
 
   await expect(preloadPassengerTrip(progress)).resolves.toEqual({
@@ -106,24 +68,22 @@ test('uses one manifest sync and reuses its document preload outcome', async () 
   });
 
   expect(mockRefreshTrips).toHaveBeenCalledTimes(1);
-  expect(mockSyncTrip).toHaveBeenCalledTimes(1);
-  expect(mockPrefetchPassengerOfflineDocuments).not.toHaveBeenCalled();
-  expect(mockPrefetchRequiredPassengerOfflineDocuments).toHaveBeenCalledTimes(1);
+  expect(mockRequestSync).toHaveBeenCalledTimes(1);
+  expect(mockRequestSync).toHaveBeenCalledWith({
+    scope: 'trip',
+    tripId: TRIP.id,
+    reason: 'passenger-preload',
+  });
+  expect(mockScheduleTripDocumentHydration).not.toHaveBeenCalled();
   expect(progress).toHaveBeenLastCalledWith({
     percent: 100,
     message: 'Your trip is ready',
-    completedLabel: 'All 2 documents are ready offline',
+    completedLabel: 'Documents are being secured for offline use in the background',
   });
 });
 
-test('enters the cached workspace after a transient sync failure and schedules silent retry', async () => {
-  mockSyncTrip.mockRejectedValue(new Error('Network request failed'));
-  mockPrefetchPassengerOfflineDocuments.mockResolvedValue({
-    total: 1,
-    completed: 1,
-    failed: 0,
-    currentDocumentName: null,
-  });
+test('enters the cached workspace after a transient sync failure and schedules bounded hydration', async () => {
+  mockRequestSync.mockRejectedValue(new TypeError('Network request failed'));
   const progress = jest.fn();
 
   await expect(preloadPassengerTrip(progress)).resolves.toEqual({
@@ -132,46 +92,27 @@ test('enters the cached workspace after a transient sync failure and schedules s
     selectionRequired: false,
   });
 
-  expect(mockPrefetchPassengerOfflineDocuments).toHaveBeenCalledTimes(1);
-  expect(mockPrefetchRequiredPassengerOfflineDocuments).toHaveBeenCalledTimes(1);
+  expect(mockScheduleTripDocumentHydration).toHaveBeenCalledWith(TRIP.id);
   expect(progress).toHaveBeenLastCalledWith({
     percent: 100,
     message: 'Your trip is available',
-    completedLabel: 'All 1 documents are ready offline; latest updates will retry in the background',
+    completedLabel: 'Cached information is ready; latest updates and documents will retry in the background',
   });
 });
 
-test('blocks navigation when a newly published required document is still missing', async () => {
-  mockSyncTrip.mockResolvedValue({
+test('does not block the cached shell on a document-byte outcome', async () => {
+  mockRequestSync.mockResolvedValue({ results: [], failures: [] });
+  await expect(preloadPassengerTrip(jest.fn())).resolves.toEqual({
     tripId: TRIP.id,
-    cursor: 2,
-    changes: 1,
-    changed: true,
-    syncedAt: '2026-08-03T00:01:00.000Z',
-    documentPrefetch: {
-      total: 1,
-      completed: 0,
-      failed: 1,
-      currentDocumentName: null,
-    },
+    failedDownloads: 0,
+    selectionRequired: false,
   });
-  mockPrefetchRequiredPassengerOfflineDocuments.mockResolvedValue({
-    total: 1,
-    completed: 0,
-    failed: 1,
-    currentDocumentName: null,
-  });
-  mockCountMissingRequiredOfflineDocuments.mockResolvedValue(1);
-
-  await expect(preloadPassengerTrip(jest.fn())).rejects.toThrow(
-    'Required documents could not be saved for offline use',
-  );
 });
 
 test('fails closed when the server rejects the authenticated trip boundary', async () => {
   const denied = new ApiError('Trip access was revoked.', 403, 'AUTHORIZATION_ERROR', null);
-  mockSyncTrip.mockRejectedValue(denied);
+  mockRequestSync.mockRejectedValue(denied);
 
   await expect(preloadPassengerTrip(jest.fn())).rejects.toBe(denied);
-  expect(mockPrefetchPassengerOfflineDocuments).not.toHaveBeenCalled();
+  expect(mockScheduleTripDocumentHydration).not.toHaveBeenCalled();
 });

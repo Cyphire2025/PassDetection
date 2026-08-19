@@ -1,5 +1,4 @@
 import { mobileQueryClient } from '@/core/query/query-client';
-import { beginRequiredPreparation } from '@/core/sync/required-preparation-lease';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import { bootstrapSession } from './session-service';
@@ -27,10 +26,8 @@ export function bootstrapApplicationSession(): Promise<ApplicationBootstrapResul
   useSelectedTripStore.getState().clear();
   mobileQueryClient.clear();
 
-  const request = bootstrapSession()
+  const request = bootstrapSession({ validation: 'background' })
     .then<ApplicationBootstrapResult>(() => {
-      const restoredSession = useSessionStore.getState().session;
-      if (restoredSession) beginRequiredPreparation(restoredSession.sessionId);
       return { ok: true };
     })
     .catch<ApplicationBootstrapResult>(() => {

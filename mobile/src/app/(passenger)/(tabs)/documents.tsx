@@ -16,7 +16,9 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { englishMessages, formatInstantDate } from '@/core/localization/date-time';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { passengerDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
@@ -49,6 +51,7 @@ type PassengerDocumentUiSlot = Omit<PassengerDocumentSlot, 'documents'> & {
 
 export default function PassengerDocumentsScreen() {
   const trips = useTrips();
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
   const documents = useDocuments(trips.selectedTripId);
   const manualRefresh = useManualRefresh();
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +122,7 @@ export default function PassengerDocumentsScreen() {
   }, [refetchDocuments, staleSignature, trips.selectedTripId]);
 
   const open = useCallback((document: DocumentWithOfflineState) => {
-    if (document.metadata_state !== 'ready' || !document.offline_available) return;
+    if (!shouldPrefetchPassengerDocument(document)) return;
     setError(null);
     router.push({
       pathname: passengerDocumentViewerRoute,
@@ -150,6 +153,7 @@ export default function PassengerDocumentsScreen() {
 
   const renderSlotHeader = useCallback(({ section: slot }: { section: PassengerDocumentUiSlot }) => (
     <Pressable
+      testID={`passenger-document-slot-${slot.id}`}
       accessibilityRole="button"
       accessibilityLabel={`${slot.expanded ? 'Collapse' : 'Expand'} ${slot.title} documents`}
       accessibilityState={{ expanded: slot.expanded }}
@@ -174,6 +178,8 @@ export default function PassengerDocumentsScreen() {
 
   const renderDocument = useCallback(({
     item,
+    index,
+    section,
   }: SectionListRenderItemInfo<PassengerDocumentRow, PassengerDocumentUiSlot>) => {
     if (item.kind === 'pending') {
       return (
@@ -185,20 +191,29 @@ export default function PassengerDocumentsScreen() {
     }
 
     const { document } = item;
+    const openable = shouldPrefetchPassengerDocument(document);
     const ready = document.metadata_state === 'ready' && document.offline_available;
     const offlineCurrent = ready && document.offline && document.offlineVersion === document.version;
     return (
       <Pressable
+        testID={`passenger-document-${section.id}-${index}`}
         accessibilityRole="button"
-        accessibilityLabel={ready ? `Open ${document.display_name}` : `${document.display_name} is being prepared`}
-        disabled={!ready}
+        accessibilityLabel={openable ? `Open ${document.display_name}` : `${document.display_name} is being prepared`}
+        disabled={!openable}
         onPress={() => open(document)}
         style={styles.documentRow}>
         {ready ? <FileText color={colors.inkMuted} size={20} /> : <FileClock color={colors.inkMuted} size={20} />}
         <View style={styles.documentCopy}>
           <Text numberOfLines={2} style={styles.documentName}>{document.display_name}</Text>
           <Text style={styles.documentMeta}>
-            {ready ? `Updated ${new Date(document.updated_at).toLocaleDateString()}` : 'Being prepared by your travel team'}
+            {ready
+              ? englishMessages.updatedOn(formatInstantDate(
+                document.updated_at,
+                { timeZone: selectedTimeZone },
+              ))
+              : openable
+                ? 'Tap to securely prepare and open'
+                : 'Being prepared by your travel team'}
           </Text>
         </View>
         {offlineCurrent ? (
@@ -208,7 +223,7 @@ export default function PassengerDocumentsScreen() {
         )}
       </Pressable>
     );
-  }, [open]);
+  }, [open, selectedTimeZone]);
 
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
@@ -220,10 +235,7 @@ export default function PassengerDocumentsScreen() {
         keyExtractor={(item) => item.key}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.list}
-        initialNumToRender={8}
-        maxToRenderPerBatch={12}
-        updateCellsBatchingPeriod={35}
-        windowSize={5}
+        {...MOBILE_LIST_WINDOWING.compactInteractive}
         refreshing={manualRefresh.isRefreshing}
         onRefresh={() => void manualRefresh.refresh(refresh)}
         ListHeaderComponent={

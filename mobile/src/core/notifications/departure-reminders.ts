@@ -1,6 +1,9 @@
-import { parseISO, set, subDays } from 'date-fns';
 import * as Notifications from 'expo-notifications';
 
+import {
+  addCalendarDays,
+  calendarDateTimeEpochMs,
+} from '@/core/localization/date-time';
 import type { Trip } from '@/features/trips/model/trip';
 
 import { configureTripUpdateChannel } from './notification-service';
@@ -46,18 +49,15 @@ export type PlannedDepartureReminder = Readonly<{
 }>;
 
 function reminderIdentifier(trip: Trip, daysBefore: ReminderCopy['daysBefore']): string {
-  return `${REMINDER_PREFIX}${trip.id}.${trip.travelDate}.${daysBefore}`;
+  return `${REMINDER_PREFIX}${trip.id}.${trip.travelDate}.${trip.timeZone}.${daysBefore}`;
 }
 
-function triggerDate(travelDate: string, daysBefore: number): Date | null {
-  const departure = parseISO(travelDate);
-  if (Number.isNaN(departure.getTime())) return null;
-  return set(subDays(departure, daysBefore), {
-    hours: 9,
-    minutes: 0,
-    seconds: 0,
-    milliseconds: 0,
-  });
+function triggerDate(trip: Trip, daysBefore: number): Date | null {
+  if (!trip.travelDate) return null;
+  const calendarDate = addCalendarDays(trip.travelDate, -daysBefore);
+  if (!calendarDate) return null;
+  const epochMs = calendarDateTimeEpochMs(calendarDate, trip.timeZone, 9, 0);
+  return epochMs === null ? null : new Date(epochMs);
 }
 
 export function planDepartureReminders(
@@ -67,7 +67,7 @@ export function planDepartureReminders(
   const planned = trips
     .filter((trip) => trip.role === 'passenger' && trip.travelDate)
     .flatMap((trip) => REMINDER_COPY.flatMap((copy) => {
-      const scheduledFor = triggerDate(trip.travelDate!, copy.daysBefore);
+      const scheduledFor = triggerDate(trip, copy.daysBefore);
       if (!scheduledFor || scheduledFor.getTime() <= nowMs) return [];
       return [{
         identifier: reminderIdentifier(trip, copy.daysBefore),

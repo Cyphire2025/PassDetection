@@ -22,12 +22,9 @@ export function shouldPurgePreviousNamespace(previous: string | null, next: stri
 export function offlineSessionFromRow(
   namespace: string,
   row: OfflineSessionRow | null,
-  nowMs: number,
 ): MobileSession | null {
   if (!row || accountNamespace({ agencyId: row.agency_id, accountId: row.account_id }) !== namespace) return null;
   if (row.principal_type === 'passenger' && !row.passenger_id) return null;
-  const refreshExpiry = Date.parse(row.refresh_token_expires_at);
-  if (!Number.isFinite(refreshExpiry) || refreshExpiry <= nowMs) return null;
   return {
     accessToken: null,
     accessTokenExpiresAt: row.access_token_expires_at,

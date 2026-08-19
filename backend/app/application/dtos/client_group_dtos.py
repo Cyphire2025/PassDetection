@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 
 from app.domain.value_objects.qualifier_relations import qualifier_relation_options
+from app.domain.value_objects.trip_timezone import DEFAULT_TRIP_TIMEZONE
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,7 @@ class CreateClientGroupInputDTO:
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] | None = None
     base_city_enabled: bool = False
@@ -42,6 +44,7 @@ class UpdateClientGroupInputDTO:
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str | None = None
     package_name: str | None = None
     departure_cities: list[str] | None = None
     base_city_enabled: bool = False
@@ -73,6 +76,7 @@ class ClientGroupOutputDTO:
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] | None = None
     base_city_enabled: bool = False
@@ -108,6 +112,7 @@ def client_group_output_from_entity(link) -> ClientGroupOutputDTO:  # type: igno
         destination=link.destination,
         travel_date=link.travel_date,
         return_date=link.return_date,
+        timezone=link.timezone,
         package_name=link.package_name,
         departure_cities=link.departure_cities,
         base_city_enabled=link.base_city_enabled,

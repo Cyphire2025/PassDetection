@@ -11,6 +11,11 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.domain.value_objects.trip_timezone import (
+    DEFAULT_TRIP_TIMEZONE,
+    normalize_trip_timezone,
+)
+
 
 def _normalize_departure_cities(values: list[str] | None) -> list[str]:
     if not values:
@@ -87,6 +92,7 @@ class CreateClientGroupRequest(BaseModel):
     destination: str = Field(..., min_length=1, max_length=255)
     travel_date: date
     return_date: date
+    timezone: str = Field(default=DEFAULT_TRIP_TIMEZONE, min_length=1, max_length=64)
     package_name: str | None = Field(default=None, max_length=255)
     departure_cities: list[str] = Field(default_factory=list, max_length=50)
     base_city_enabled: bool = False
@@ -119,6 +125,11 @@ class CreateClientGroupRequest(BaseModel):
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
 
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        return normalize_trip_timezone(value)
+
     @field_validator("whatsapp_broadcast_group_ids", mode="before")
     @classmethod
     def normalize_whatsapp_broadcast_group_ids(
@@ -147,6 +158,7 @@ class UpdateClientGroupRequest(BaseModel):
     destination: str | None = Field(default=None, max_length=255)
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str | None = Field(default=None, min_length=1, max_length=64)
     package_name: str | None = Field(default=None, max_length=255)
     departure_cities: list[str] = Field(default_factory=list, max_length=50)
     base_city_enabled: bool = False
@@ -179,6 +191,11 @@ class UpdateClientGroupRequest(BaseModel):
     def normalize_departure_cities(cls, value: list[str] | None) -> list[str]:
         return _normalize_departure_cities(value)
 
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str | None) -> str | None:
+        return normalize_trip_timezone(value) if value is not None else None
+
     @field_validator("whatsapp_broadcast_group_ids", mode="before")
     @classmethod
     def normalize_whatsapp_broadcast_group_ids(
@@ -191,6 +208,8 @@ class UpdateClientGroupRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_airport_configuration(self) -> UpdateClientGroupRequest:
+        if "timezone" in self.model_fields_set and self.timezone is None:
+            raise ValueError("Trip timezone cannot be null.")
         if self.nearest_international_airport_enabled and not self.departure_cities:
             raise ValueError(
                 "Add at least one nearest international airport when the option is enabled."
@@ -231,6 +250,7 @@ class ClientGroupResponse(BaseModel):
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = DEFAULT_TRIP_TIMEZONE
     package_name: str | None = None
     departure_cities: list[str] = Field(default_factory=list)
     base_city_enabled: bool = False

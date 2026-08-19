@@ -7,6 +7,7 @@ import secrets
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import and_, func, or_, select, update
@@ -19,11 +20,15 @@ from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
 from app.core.security.mobile_jwt import (
     MobileAccessClaims,
+    MobilePrincipalType,
     create_mobile_access_token,
     create_mobile_refresh_token,
     hash_mobile_lookup,
     hash_mobile_otp_code,
     hash_mobile_refresh_token,
+)
+from app.core.security.mobile_offline_lease import (
+    create_mobile_offline_authorization_lease,
 )
 from app.core.security.password import hash_password, verify_password
 from app.domain.entities.entities import GroupStatus, UserRole
@@ -67,6 +72,7 @@ from app.presentation.api.v1.routes.mobile_auth_session_support import (
     _refresh_principal,
     _revoke_session_family,
     issue_mobile_session,
+    mobile_offline_lease_generations,
 )
 from app.presentation.api.v1.routes.mobile_auth_session_support import (
     _principal_display_name as _principal_display_name,
@@ -164,11 +170,7 @@ async def request_passenger_otp(
             .with_for_update()
         )
     ).scalar_one_or_none()
-    if (
-        existing is not None
-        and existing.expires_at > now
-        and existing.resend_available_at > now
-    ):
+    if existing is not None and existing.expires_at > now and existing.resend_available_at > now:
         await session.commit()
         await _complete_neutral_otp_timing(
             started_at,
@@ -262,11 +264,7 @@ async def request_passenger_otp(
             ),
             resend_after_seconds=max(
                 1,
-                int(
-                    (
-                        winner.resend_available_at - datetime.now(tz=UTC)
-                    ).total_seconds()
-                ),
+                int((winner.resend_available_at - datetime.now(tz=UTC)).total_seconds()),
             ),
         )
 
@@ -429,10 +427,7 @@ async def verify_passenger_claim(
         # trip claims; selecting one repeats the same proof with claim_id.
         return MobileOTPVerifyResponse(
             status="claim_selection_required",
-            claims=[
-                _claim_summary(identity, group)
-                for identity, _access, group in proven_matches
-            ],
+            claims=[_claim_summary(identity, group) for identity, _access, group in proven_matches],
         )
     selected_matches = (
         [row for row in proven_matches if row[0].id == body.claim_id]
@@ -461,9 +456,7 @@ async def verify_passenger_claim(
         identity=identity,
         access=access,
         authorized_identities=[
-            row[0]
-            for row in proven_matches
-            if row[0].agency_id == identity.agency_id
+            row[0] for row in proven_matches if row[0].agency_id == identity.agency_id
         ],
         device=body.device,
         request=request,
@@ -514,7 +507,7 @@ async def mobile_credential_login(
 
     now = datetime.now(tz=UTC)
     password_change_required = False
-    principal_type = "coordinator"
+    principal_type: MobilePrincipalType = "coordinator"
     if user.role == UserRole.CLIENT_MANAGER.value:
         profile = (
             await session.execute(
@@ -697,6 +690,17 @@ async def refresh_mobile_session(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
+    presented_device_hash = hash_mobile_lookup(
+        body.installation_id,
+        purpose="device-installation",
+    )
+    if not secrets.compare_digest(
+        device_session.device_identifier_hash,
+        presented_device_hash,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
     if stored.consumed_at is not None:
         stored.reuse_detected_at = now
         await _revoke_session_family(session, device_session, reason="refresh_token_reuse", now=now)
@@ -715,9 +719,14 @@ async def refresh_mobile_session(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
 
-    principal, display_name, password_change_required = await _refresh_principal(
+    principal, display_name, password_change_required, selected_access = await _refresh_principal(
         session, device_session
     )
+    if device_session.subject_role not in {"passenger", "client_manager", "coordinator"}:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
+    principal_type = cast(MobilePrincipalType, device_session.subject_role)
     stored.consumed_at = now
     raw_refresh, refresh_expires = create_mobile_refresh_token()
     replacement = MobileRefreshTokenModel(
@@ -740,11 +749,35 @@ async def refresh_mobile_session(
     access_token, access_expires = create_mobile_access_token(
         principal_id=principal.id,
         account_id=device_session.account_id,
-        principal_type=device_session.subject_role,
+        principal_type=principal_type,
         agency_id=device_session.agency_id,
         session_id=device_session.id,
         session_generation=device_session.session_generation,
         password_change_required=password_change_required,
+    )
+    principal_generation, access_generation = await mobile_offline_lease_generations(
+        session,
+        principal_type=principal_type,
+        principal=principal,
+        access=selected_access,
+    )
+    passenger_id = (
+        principal.passenger_submission_id
+        if principal_type == "passenger" and isinstance(principal, MobilePassengerIdentityModel)
+        else None
+    )
+    offline_authorization_lease = create_mobile_offline_authorization_lease(
+        principal_id=principal.id,
+        account_id=device_session.account_id,
+        principal_type=principal_type,
+        agency_id=device_session.agency_id,
+        passenger_id=passenger_id,
+        session_id=device_session.id,
+        session_generation=device_session.session_generation,
+        installation_id=body.installation_id,
+        principal_generation=principal_generation,
+        access_generation=access_generation,
+        now=now,
     )
     return MobileTokenResponse(
         access_token=access_token,
@@ -752,17 +785,13 @@ async def refresh_mobile_session(
         access_token_expires_at=access_expires,
         refresh_token_expires_at=refresh_expires,
         session_id=device_session.id,
+        offline_authorization_lease=offline_authorization_lease,
         principal=MobilePrincipalResponse(
             id=principal.id,
             account_id=device_session.account_id,
-            principal_type=device_session.subject_role,
+            principal_type=principal_type,
             agency_id=device_session.agency_id,
-            passenger_id=(
-                principal.passenger_submission_id
-                if device_session.subject_role == "passenger"
-                and isinstance(principal, MobilePassengerIdentityModel)
-                else None
-            ),
+            passenger_id=(passenger_id),
             display_name=display_name,
             force_password_change=password_change_required,
         ),
@@ -812,19 +841,23 @@ async def switch_passenger_trip(
     # Refresh rotation locks the current refresh row before its device session.
     # Use the same order here so a simultaneous refresh/switch cannot deadlock.
     active_refresh_token_ids = (
-        await session.execute(
-            select(MobileRefreshTokenModel.id)
-            .where(
-                MobileRefreshTokenModel.session_id == claims.session_id,
-                MobileRefreshTokenModel.agency_id == claims.agency_id,
-                MobileRefreshTokenModel.consumed_at.is_(None),
-                MobileRefreshTokenModel.revoked_at.is_(None),
-                MobileRefreshTokenModel.expires_at > now,
+        (
+            await session.execute(
+                select(MobileRefreshTokenModel.id)
+                .where(
+                    MobileRefreshTokenModel.session_id == claims.session_id,
+                    MobileRefreshTokenModel.agency_id == claims.agency_id,
+                    MobileRefreshTokenModel.consumed_at.is_(None),
+                    MobileRefreshTokenModel.revoked_at.is_(None),
+                    MobileRefreshTokenModel.expires_at > now,
+                )
+                .order_by(MobileRefreshTokenModel.token_generation)
+                .with_for_update()
             )
-            .order_by(MobileRefreshTokenModel.token_generation)
-            .with_for_update()
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     # A bearer token must never resurrect a session whose refresh family has
     # already been exhausted or explicitly revoked.
     if not active_refresh_token_ids:
@@ -849,6 +882,18 @@ async def switch_passenger_trip(
         )
     ).scalar_one_or_none()
     if device_session is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Mobile session is no longer active",
+        )
+    presented_device_hash = hash_mobile_lookup(
+        body.installation_id,
+        purpose="device-installation",
+    )
+    if not secrets.compare_digest(
+        device_session.device_identifier_hash,
+        presented_device_hash,
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Mobile session is no longer active",
@@ -878,21 +923,16 @@ async def switch_passenger_trip(
             .join(
                 GCGroupAccessModel,
                 and_(
-                    GCGroupAccessModel.id
-                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
-                    GCGroupAccessModel.agency_id
-                    == MobilePassengerSessionIdentityModel.agency_id,
-                    GCGroupAccessModel.group_id
-                    == MobilePassengerSessionIdentityModel.group_id,
+                    GCGroupAccessModel.id == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                    GCGroupAccessModel.agency_id == MobilePassengerSessionIdentityModel.agency_id,
+                    GCGroupAccessModel.group_id == MobilePassengerSessionIdentityModel.group_id,
                 ),
             )
             .join(
                 ClientGroupModel,
                 and_(
-                    ClientGroupModel.id
-                    == MobilePassengerSessionIdentityModel.group_id,
-                    ClientGroupModel.agency_id
-                    == MobilePassengerSessionIdentityModel.agency_id,
+                    ClientGroupModel.id == MobilePassengerSessionIdentityModel.group_id,
+                    ClientGroupModel.agency_id == MobilePassengerSessionIdentityModel.agency_id,
                 ),
             )
             .where(
@@ -914,9 +954,7 @@ async def switch_passenger_trip(
                     GCGroupAccessModel.access_expires_at.is_(None),
                     GCGroupAccessModel.access_expires_at > now,
                 ),
-                ClientGroupModel.status.in_(
-                    (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
-                ),
+                ClientGroupModel.status.in_((GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)),
                 ClientGroupModel.deleted_at.is_(None),
             )
             .limit(2)
@@ -932,18 +970,22 @@ async def switch_passenger_trip(
         )
     _authorization, identity, access, _group = target_rows[0]
 
-    token_generation = int(
-        (
-            await session.execute(
-                select(func.coalesce(func.max(MobileRefreshTokenModel.token_generation), 0))
-                .where(
-                    MobileRefreshTokenModel.session_id == device_session.id,
-                    MobileRefreshTokenModel.agency_id == device_session.agency_id,
-                    MobileRefreshTokenModel.family_id == device_session.refresh_family_id,
+    token_generation = (
+        int(
+            (
+                await session.execute(
+                    select(
+                        func.coalesce(func.max(MobileRefreshTokenModel.token_generation), 0)
+                    ).where(
+                        MobileRefreshTokenModel.session_id == device_session.id,
+                        MobileRefreshTokenModel.agency_id == device_session.agency_id,
+                        MobileRefreshTokenModel.family_id == device_session.refresh_family_id,
+                    )
                 )
-            )
-        ).scalar_one()
-    ) + 1
+            ).scalar_one()
+        )
+        + 1
+    )
     await session.execute(
         update(MobileRefreshTokenModel)
         .where(
@@ -1003,6 +1045,25 @@ async def switch_passenger_trip(
         session_generation=device_session.session_generation,
         password_change_required=False,
     )
+    principal_generation, access_generation = await mobile_offline_lease_generations(
+        session,
+        principal_type="passenger",
+        principal=identity,
+        access=access,
+    )
+    offline_authorization_lease = create_mobile_offline_authorization_lease(
+        principal_id=identity.id,
+        account_id=device_session.account_id,
+        principal_type="passenger",
+        agency_id=identity.agency_id,
+        passenger_id=identity.passenger_submission_id,
+        session_id=device_session.id,
+        session_generation=device_session.session_generation,
+        installation_id=body.installation_id,
+        principal_generation=principal_generation,
+        access_generation=access_generation,
+        now=now,
+    )
     await _audit_mobile_auth(
         session,
         request,
@@ -1016,6 +1077,7 @@ async def switch_passenger_trip(
         access_token_expires_at=access_expires,
         refresh_token_expires_at=refresh_expires,
         session_id=device_session.id,
+        offline_authorization_lease=offline_authorization_lease,
         principal=MobilePrincipalResponse(
             id=identity.id,
             account_id=device_session.account_id,
@@ -1148,12 +1210,9 @@ async def logout_all_mobile_sessions(
 ) -> Response:
     now = datetime.now(tz=UTC)
     if claims.principal_type == "passenger":
-        authorized_session_ids = select(
-            MobilePassengerSessionIdentityModel.session_id
-        ).where(
+        authorized_session_ids = select(MobilePassengerSessionIdentityModel.session_id).where(
             MobilePassengerSessionIdentityModel.agency_id == claims.agency_id,
-            MobilePassengerSessionIdentityModel.passenger_identity_id
-            == claims.principal_id,
+            MobilePassengerSessionIdentityModel.passenger_identity_id == claims.principal_id,
         )
         predicate = or_(
             MobileDeviceSessionModel.passenger_identity_id == claims.principal_id,
@@ -1243,7 +1302,7 @@ async def _issue_user_session(
     session: AsyncSession,
     *,
     user: UserModel,
-    principal_type: str,
+    principal_type: MobilePrincipalType,
     device: MobileDeviceInput,
     request: Request,
     password_change_required: bool,
@@ -1269,7 +1328,7 @@ async def _issue_session(
     session: AsyncSession,
     *,
     principal_id: uuid.UUID,
-    principal_type: str,
+    principal_type: MobilePrincipalType,
     agency_id: uuid.UUID,
     display_name: str,
     device: MobileDeviceInput,
@@ -1298,6 +1357,7 @@ async def _issue_session(
             revoke_same_device_session=_revoke_same_device_session,
             create_refresh_token=create_mobile_refresh_token,
             create_access_token=create_mobile_access_token,
+            create_offline_authorization_lease=(create_mobile_offline_authorization_lease),
             hash_lookup=hash_mobile_lookup,
             hash_refresh_token=hash_mobile_refresh_token,
             request_digest=_request_digest,
@@ -1321,9 +1381,7 @@ async def _revoke_same_device_session(
         authorized_ids = list(dict.fromkeys(passenger_authorized_identity_ids or []))
         if passenger_identity_id is not None and passenger_identity_id not in authorized_ids:
             authorized_ids.append(passenger_identity_id)
-        authorized_session_ids = select(
-            MobilePassengerSessionIdentityModel.session_id
-        ).where(
+        authorized_session_ids = select(MobilePassengerSessionIdentityModel.session_id).where(
             MobilePassengerSessionIdentityModel.agency_id == agency_id,
             MobilePassengerSessionIdentityModel.passenger_identity_id.in_(authorized_ids),
         )

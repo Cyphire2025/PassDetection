@@ -10,7 +10,13 @@ import {
 import { env } from '@/core/config/env';
 import { isDemoMode } from '@/core/demo/demo-mode';
 
+import { ApiError } from './api-error';
 import { ApiErrorBodySchema } from './contracts';
+import {
+  downloadNativeFileBounded,
+  NativeFileDownloadTooLargeError,
+  type NativeFileDownloadResult,
+} from './native-file-download';
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_JSON_BYTES = 2 * 1024 * 1024;
@@ -33,18 +39,6 @@ let refreshHandler: RefreshHandler | null = null;
 let accessDeniedHandler: AccessDeniedHandler | null = null;
 let refreshInFlight: RefreshOperation | null = null;
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-    readonly code: string,
-    readonly retryAfterSeconds: number | null,
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
-
 export type ApiRequestOptions<T> = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
@@ -56,12 +50,23 @@ export type ApiRequestOptions<T> = {
   headers?: Readonly<Record<string, string>>;
 };
 
+export { ApiError } from './api-error';
+
 export type ApiResponseOptions = {
   accept: string;
   timeoutMs?: number;
   signal?: AbortSignal;
   retryAuthentication?: boolean;
 };
+
+export type ApiFileDownloadOptions = Readonly<{
+  accept: string;
+  destinationPath: string;
+  maximumBytes: number;
+  retryAuthentication?: boolean;
+  signal?: AbortSignal;
+  timeoutMs?: number;
+}>;
 
 export function registerRefreshHandler(handler: RefreshHandler): () => void {
   refreshHandler = handler;
@@ -88,6 +93,64 @@ function endpointUrl(path: string): string {
     throw new Error('API paths must be root-relative.');
   }
   return `${env.apiUrl}${path}`;
+}
+
+function authorizedDocumentUrl(path: string): string {
+  const apiBase = new URL(env.apiUrl);
+  const parsedPath = new URL(path, apiBase.origin);
+  const basePath = apiBase.pathname.replace(/\/$/, '');
+  if (
+    !path.startsWith('/')
+    || path.startsWith('//')
+    || parsedPath.origin !== apiBase.origin
+    || (!parsedPath.pathname.startsWith(`${basePath}/mobile/`)
+      && !parsedPath.pathname.startsWith('/mobile/'))
+  ) {
+    throw new ApiError('The download path was invalid.', 400, 'INVALID_DOWNLOAD_PATH', null);
+  }
+  return parsedPath.pathname.startsWith(`${basePath}/mobile/`)
+    ? `${apiBase.origin}${parsedPath.pathname}${parsedPath.search}`
+    : `${env.apiUrl}${parsedPath.pathname}${parsedPath.search}`;
+}
+
+async function nativeFileRequest(options: Readonly<{
+  authentication: AuthenticationSnapshot;
+  destinationPath: string;
+  headers: Readonly<Record<string, string>>;
+  maximumBytes: number;
+  signal?: AbortSignal;
+  timeoutMs: number;
+  url: string;
+}>): Promise<NativeFileDownloadResult> {
+  const timeout = AbortSignal.timeout(options.timeoutMs);
+  const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  try {
+    const response = await downloadNativeFileBounded({
+      destinationPath: options.destinationPath,
+      headers: options.headers,
+      maximumBytes: options.maximumBytes,
+      signal,
+      timeoutMs: options.timeoutMs,
+      url: options.url,
+    });
+    if (!isAuthenticationEpochCurrent(options.authentication.epoch)) {
+      throw authenticationContextChanged();
+    }
+    return response;
+  } catch (error) {
+    if (!isAuthenticationEpochCurrent(options.authentication.epoch)) {
+      throw authenticationContextChanged();
+    }
+    if (error instanceof NativeFileDownloadTooLargeError) {
+      throw new ApiError(
+        'The server returned a file larger than the allowed limit.',
+        502,
+        'PAYLOAD_TOO_LARGE',
+        null,
+      );
+    }
+    throw error;
+  }
 }
 
 function sameRefreshBoundary(
@@ -193,8 +256,12 @@ async function apiError(response: Response): Promise<ApiError> {
         await readJsonBodyBounded(response, MAX_ERROR_JSON_BYTES),
       );
       if (result.success) {
-        if (typeof result.data.detail === 'string') message = result.data.detail;
-        else {
+        if ('error' in result.data) {
+          message = result.data.error.message;
+          code = result.data.error.code;
+        } else if (typeof result.data.detail === 'string') {
+          message = result.data.detail;
+        } else {
           message = result.data.detail.message;
           code = result.data.detail.code;
         }
@@ -355,6 +422,126 @@ export async function apiResponse(
   return response;
 }
 
+/**
+ * Fetches an authenticated file directly into one app-private native path.
+ * This preserves normal access-token rotation without allocating the complete
+ * response in Hermes.
+ */
+export async function apiDownloadToFile(
+  path: string,
+  options: ApiFileDownloadOptions,
+): Promise<NativeFileDownloadResult> {
+  if (isDemoMode()) {
+    throw new ApiError(
+      'This emulator demo uses local sample data and cannot contact the server.',
+      503,
+      'DEMO_LOCAL_ONLY',
+      null,
+    );
+  }
+  const authentication = captureAuthenticationSnapshot();
+  const token = currentAccessToken();
+  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
+  const response = await nativeFileRequest({
+    authentication,
+    destinationPath: options.destinationPath,
+    headers: {
+      Accept: options.accept,
+      Authorization: `Bearer ${token}`,
+      'Cache-Control': 'no-store',
+      'X-Request-ID': Crypto.randomUUID(),
+    },
+    maximumBytes: options.maximumBytes,
+    timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    url: endpointUrl(path),
+    ...(options.signal ? { signal: options.signal } : {}),
+  });
+  if (response.status === 401 && (options.retryAuthentication ?? true)) {
+    const latestToken = currentAccessToken();
+    if (
+      latestToken !== authentication.accessToken
+      || (await refreshAccessToken(authentication))
+    ) {
+      if (!isAuthenticationEpochCurrent(authentication.epoch)) {
+        throw authenticationContextChanged();
+      }
+      return apiDownloadToFile(path, { ...options, retryAuthentication: false });
+    }
+  }
+  if (response.status < 200 || response.status >= 300) {
+    await handleAccessDenied(path, response.status);
+    throw new ApiError(
+      'The server could not complete this file request.',
+      response.status,
+      `HTTP_${response.status}`,
+      null,
+    );
+  }
+  return response;
+}
+
+export async function authorizedDownloadToFile(
+  path: string,
+  downloadToken: string,
+  destinationPath: string,
+  maximumBytes: number,
+  signal?: AbortSignal,
+  rangeStart = 0,
+): Promise<NativeFileDownloadResult> {
+  if (isDemoMode()) {
+    throw new ApiError(
+      'Document downloads are disabled in the local emulator demo.',
+      503,
+      'DEMO_LOCAL_ONLY',
+      null,
+    );
+  }
+  const token = currentAccessToken();
+  if (!token) throw new ApiError('Authentication is required.', 401, 'AUTH_REQUIRED', null);
+  const authentication = captureAuthenticationSnapshot();
+  if (!/^[A-Za-z0-9._~-]{32,4096}$/.test(downloadToken)) {
+    throw new ApiError('The download authorization was invalid.', 400, 'INVALID_DOWNLOAD_TOKEN', null);
+  }
+  if (!Number.isSafeInteger(rangeStart) || rangeStart < 0) {
+    throw new ApiError('The download range was invalid.', 400, 'INVALID_DOWNLOAD_RANGE', null);
+  }
+  const headers: Record<string, string> = {
+    Accept: 'application/pdf,image/jpeg,image/png,image/webp',
+    Authorization: `Bearer ${token}`,
+    'Cache-Control': 'no-store',
+    'X-GC-Download-Token': downloadToken,
+    'X-Request-ID': Crypto.randomUUID(),
+  };
+  if (rangeStart > 0) headers.Range = `bytes=${rangeStart}-`;
+  const response = await nativeFileRequest({
+    authentication,
+    destinationPath,
+    headers,
+    maximumBytes,
+    timeoutMs: 60_000,
+    url: authorizedDocumentUrl(path),
+    ...(signal ? { signal } : {}),
+  });
+  if (response.status === 401) {
+    throw new ApiError(
+      'The document authorization expired and will be refreshed.',
+      401,
+      'DOWNLOAD_AUTH_EXPIRED',
+      null,
+    );
+  }
+  if (response.status < 200 || response.status >= 300) {
+    await handleAccessDenied(path, response.status);
+    throw new ApiError(
+      'The server could not complete this document download.',
+      response.status,
+      `HTTP_${response.status}`,
+      null,
+    );
+  }
+  return response;
+}
+
 export async function authorizedDownloadResponse(
   path: string,
   downloadToken: string,
@@ -379,21 +566,7 @@ export async function authorizedDownloadResponse(
     throw new ApiError('The download range was invalid.', 400, 'INVALID_DOWNLOAD_RANGE', null);
   }
 
-  const apiBase = new URL(env.apiUrl);
-  const parsedPath = new URL(path, apiBase.origin);
-  const basePath = apiBase.pathname.replace(/\/$/, '');
-  if (
-    !path.startsWith('/') ||
-    path.startsWith('//') ||
-    parsedPath.origin !== apiBase.origin ||
-    (!parsedPath.pathname.startsWith(`${basePath}/mobile/`) &&
-      !parsedPath.pathname.startsWith('/mobile/'))
-  ) {
-    throw new ApiError('The download path was invalid.', 400, 'INVALID_DOWNLOAD_PATH', null);
-  }
-  const downloadUrl = parsedPath.pathname.startsWith(`${basePath}/mobile/`)
-    ? `${apiBase.origin}${parsedPath.pathname}${parsedPath.search}`
-    : `${env.apiUrl}${parsedPath.pathname}${parsedPath.search}`;
+  const downloadUrl = authorizedDocumentUrl(path);
 
   const timeout = AbortSignal.timeout(60_000);
   const combinedSignal = signal ? AbortSignal.any([signal, timeout]) : timeout;

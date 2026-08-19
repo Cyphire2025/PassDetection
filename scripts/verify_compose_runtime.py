@@ -17,6 +17,7 @@ BASE_COMPOSE = ROOT / "docker-compose.yml"
 DEV_COMPOSE = ROOT / "docker-compose.dev.yml"
 PROD_COMPOSE = ROOT / "docker-compose.prod.yml"
 BACKEND_DOCKERFILE = ROOT / "backend" / "Dockerfile"
+GUNICORN_CONFIG = ROOT / "backend" / "gunicorn.conf.py"
 BACKEND_DOCKERIGNORE = ROOT / "backend" / ".dockerignore"
 FRONTEND_DOCKERIGNORE = ROOT / "frontend" / ".dockerignore"
 BACKEND_SERVICES = (
@@ -199,6 +200,71 @@ def main() -> int:
             str(environment.get("APP_DEBUG", "")).lower() == "false",
             f"Production {service_name} must force APP_DEBUG=false.",
         )
+        expected_pool_profile = "api" if service_name == "backend" else "worker"
+        _require(
+            environment.get("POSTGRES_POOL_PROFILE") == expected_pool_profile,
+            f"Production {service_name} must use the {expected_pool_profile} database pool.",
+        )
+        for capacity_key in (
+            "WEB_CONCURRENCY",
+            "WORKER_CONCURRENCY",
+            "EMAIL_WORKER_CONCURRENCY",
+            "EMAIL_AI_WORKER_CONCURRENCY",
+            "GEMINI_EXTRACTION_MAX_CONCURRENCY",
+            "GEMINI_VERIFICATION_MAX_CONCURRENCY",
+            "GEMINI_IMAGE_EDIT_MAX_CONCURRENCY",
+            "POSTGRES_API_POOL_SIZE",
+            "POSTGRES_API_MAX_OVERFLOW",
+            "POSTGRES_WORKER_POOL_SIZE",
+            "POSTGRES_WORKER_MAX_OVERFLOW",
+            "POSTGRES_POOL_TIMEOUT_SECONDS",
+            "POSTGRES_POOL_RECYCLE_SECONDS",
+            "POSTGRES_SERVER_MAX_CONNECTIONS",
+            "POSTGRES_RESERVED_CONNECTIONS",
+            "POSTGRES_API_CONNECTION_BUDGET",
+        ):
+            _require(
+                environment.get(capacity_key)
+                == production_backend.get("environment", {}).get(capacity_key),
+                f"Production {service_name} must share {capacity_key} with the API.",
+            )
+    declared_server_connections = production_backend.get("environment", {}).get(
+        "POSTGRES_SERVER_MAX_CONNECTIONS"
+    )
+    _require(
+        f"max_connections={declared_server_connections}"
+        in _command_text(production_services["db"]),
+        "Bundled PostgreSQL must apply the declared server connection ceiling.",
+    )
+    capacity_environment = production_backend.get("environment", {})
+    api_claim = int(capacity_environment["WEB_CONCURRENCY"]) * (
+        int(capacity_environment["POSTGRES_API_POOL_SIZE"])
+        + int(capacity_environment["POSTGRES_API_MAX_OVERFLOW"])
+    )
+    _require(
+        api_claim <= int(capacity_environment["POSTGRES_API_CONNECTION_BUDGET"]),
+        "Rendered API worker pools exceed POSTGRES_API_CONNECTION_BUDGET.",
+    )
+    background_processes = (
+        int(capacity_environment["WORKER_CONCURRENCY"])
+        + int(capacity_environment["EMAIL_WORKER_CONCURRENCY"])
+        + int(capacity_environment["EMAIL_AI_WORKER_CONCURRENCY"])
+        + int(capacity_environment["GEMINI_EXTRACTION_MAX_CONCURRENCY"])
+        + int(capacity_environment["GEMINI_VERIFICATION_MAX_CONCURRENCY"])
+        + int(capacity_environment["GEMINI_IMAGE_EDIT_MAX_CONCURRENCY"])
+        + 1
+    )
+    total_claim = api_claim + background_processes * (
+        int(capacity_environment["POSTGRES_WORKER_POOL_SIZE"])
+        + int(capacity_environment["POSTGRES_WORKER_MAX_OVERFLOW"])
+    )
+    usable_connections = int(declared_server_connections) - int(
+        capacity_environment["POSTGRES_RESERVED_CONNECTIONS"]
+    )
+    _require(
+        total_claim <= usable_connections,
+        "Rendered API and worker pools exceed the usable PostgreSQL connection budget.",
+    )
     _require(
         production_backend.get("environment", {}).get("PROCESSING_BACKEND")
         == "celery",
@@ -291,12 +357,21 @@ def main() -> int:
 
     dockerfile = BACKEND_DOCKERFILE.read_text(encoding="utf-8")
     _require(
-        '"gunicorn", "app.main:app"' in dockerfile,
-        "Backend runtime image must define the Gunicorn application CMD.",
+        '"gunicorn", "--config", "gunicorn.conf.py", "app.main:app"' in dockerfile,
+        "Backend runtime image must load the validated Gunicorn configuration.",
+    )
+    gunicorn_config = GUNICORN_CONFIG.read_text(encoding="utf-8")
+    _require(
+        'worker_class = "app.infrastructure.bounded_uvicorn_worker.BoundedUvicornWorker"'
+        in gunicorn_config,
+        (
+            "Backend runtime image must use the bounded Uvicorn worker under "
+            "Gunicorn."
+        ),
     )
     _require(
-        '"--worker-class", "uvicorn.workers.UvicornWorker"' in dockerfile,
-        "Backend runtime image must use Uvicorn workers under Gunicorn.",
+        "workers = _settings.web_concurrency" in gunicorn_config,
+        "Gunicorn workers must come from validated WEB_CONCURRENCY settings.",
     )
     frontend_dockerignore = FRONTEND_DOCKERIGNORE.read_text(encoding="utf-8")
     _require(

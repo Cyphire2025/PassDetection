@@ -1,0 +1,35 @@
+appId: com.globalconnects.groupcompanion
+name: Passenger and staff account isolation
+tags:
+  - release-hermes
+  - staging-fixture
+  - account-isolation
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../subflows/passenger-login.yml
+- tapOn: "More"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-sign-out"
+    timeout: 30000
+- tapOn:
+    id: "passenger-sign-out"
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 60000
+- runFlow: ../subflows/staff-login.yml
+- assertNotVisible: "My documents"
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible:
+      id: "staff-sign-out"
+    timeout: 30000
+- tapOn:
+    id: "staff-sign-out"
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 60000
+- runFlow: ../subflows/passenger-login.yml
+- assertVisible: "Documents"

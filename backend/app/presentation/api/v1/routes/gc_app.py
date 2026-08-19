@@ -39,6 +39,9 @@ from app.infrastructure.database.models import (
     UserModel,
 )
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.mobile_group_capacity import (
+    SqlAlchemyGroupPassengerCapacityGuard,
+)
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.schemas.gc_app_schemas import (
     ClientManagerAssignedGroupResponse,
@@ -408,6 +411,14 @@ async def configure_gc_group_access(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Archived or deleted groups cannot be enabled in GC App",
+        )
+    if body.enabled:
+        # The group row is already locked above, so the same configured quota
+        # is checked atomically before mobile access and identity fan-out begin.
+        await SqlAlchemyGroupPassengerCapacityGuard(session).assert_available(
+            agency_id=tenant_id,
+            group_id=group_id,
+            additional_passengers=0,
         )
 
     access = (

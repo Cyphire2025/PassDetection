@@ -1,4 +1,3 @@
-import { format, parseISO } from 'date-fns';
 import CalendarDays from 'lucide-react-native/icons/calendar-days';
 import Clock3 from 'lucide-react-native/icons/clock-3';
 import PlaneTakeoff from 'lucide-react-native/icons/plane-takeoff';
@@ -6,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { englishMessages, formatCalendarDate } from '@/core/localization/date-time';
+import type { IanaTimeZone } from '@/core/localization/time-zone';
 import { colors, radii, spacing } from '@/design/theme';
 import { departureCountdown, tripDayState } from '@/features/trips/data/departure-countdown';
 
@@ -30,9 +31,11 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 export function DepartureCountdownCard({
   travelDate,
   returnDate,
+  timeZone,
 }: {
   travelDate: string | null;
   returnDate: string | null;
+  timeZone: IanaTimeZone;
 }) {
   const [now, setNow] = useState(Date.now);
 
@@ -43,21 +46,24 @@ export function DepartureCountdownCard({
   }, [travelDate]);
 
   const countdown = useMemo(
-    () => travelDate ? departureCountdown(travelDate, now) : null,
-    [now, travelDate],
+    () => travelDate ? departureCountdown(travelDate, now, timeZone) : null,
+    [now, timeZone, travelDate],
   );
   const tripDay = useMemo(
-    () => travelDate ? tripDayState(travelDate, returnDate, now) : null,
-    [now, returnDate, travelDate],
+    () => travelDate ? tripDayState(travelDate, returnDate, now, timeZone) : null,
+    [now, returnDate, timeZone, travelDate],
   );
-  const parsedTravelDate = travelDate ? parseISO(travelDate) : null;
-  const validTravelDate = parsedTravelDate && !Number.isNaN(parsedTravelDate.getTime())
-    ? parsedTravelDate
-    : null;
-  const parsedReturnDate = returnDate ? parseISO(returnDate) : null;
-  const validReturnDate = parsedReturnDate && !Number.isNaN(parsedReturnDate.getTime())
-    ? parsedReturnDate
-    : null;
+  const formattedTravelDate = travelDate ? formatCalendarDate(travelDate, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }) : englishMessages.datesBeingPrepared();
+  const formattedReturnDate = returnDate ? formatCalendarDate(returnDate, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }) : null;
 
   return (
     <LinearGradient colors={['#E8F7FD', '#D8EEF8', '#E9F8F9']} end={{ x: 1, y: 1 }} style={styles.card}>
@@ -65,33 +71,40 @@ export function DepartureCountdownCard({
       <View style={styles.topRow}>
         <View style={styles.labelRow}>
           <View style={styles.icon}><PlaneTakeoff color={colors.blueDeep} size={20} /></View>
-          <Text style={styles.label}>Departure</Text>
+          <Text style={styles.label}>{englishMessages.departure()}</Text>
         </View>
         {countdown && !countdown.complete ? (
           <View style={styles.daysChip}>
             <CalendarDays color={colors.blueDeep} size={14} />
             <Text style={styles.daysText}>
               {countdown.calendarDays === 0
-                ? 'Today'
-                : `${countdown.calendarDays} ${countdown.calendarDays === 1 ? 'day' : 'days'} left`}
+                ? englishMessages.today()
+                : englishMessages.daysLeft(countdown.calendarDays)}
             </Text>
           </View>
         ) : tripDay ? (
           <View style={styles.daysChip}>
             <CalendarDays color={colors.blueDeep} size={14} />
             <Text style={styles.daysText}>
-              {tripDay.phase === 'underway' ? `Trip day ${tripDay.dayNumber}` : 'Trip completed'}
+              {tripDay.phase === 'underway'
+                ? englishMessages.tripDay(tripDay.dayNumber)
+                : englishMessages.tripCompleted()}
             </Text>
           </View>
         ) : null}
       </View>
       <Text style={styles.date}>
-        {validTravelDate ? format(validTravelDate, 'EEE, d MMM yyyy') : 'Dates being prepared'}
+        {formattedTravelDate}
       </Text>
-      {validReturnDate ? <Text style={styles.returnDate}>Returns {format(validReturnDate, 'd MMM yyyy')}</Text> : null}
+      {formattedReturnDate ? (
+        <Text style={styles.returnDate}>{englishMessages.returnsOn(formattedReturnDate)}</Text>
+      ) : null}
       <View style={styles.divider} />
       {countdown && !countdown.complete ? (
-        <View accessibilityRole="timer" accessibilityLabel={`${countdown.calendarDays} days until departure`} style={styles.countdownRow}>
+        <View
+          accessibilityRole="timer"
+          accessibilityLabel={englishMessages.countdownAccessibility(countdown.calendarDays)}
+          style={styles.countdownRow}>
           <Clock3 color={colors.aqua} size={18} />
           <CountdownUnit value={countdown.days} label="days" />
           <Text style={styles.separator}>:</Text>
@@ -106,10 +119,10 @@ export function DepartureCountdownCard({
           <Clock3 color={colors.blueDeep} size={17} />
           <Text style={styles.tripStateText}>
             {tripDay?.phase === 'underway'
-              ? `Your ${ordinal(tripDay.dayNumber)} trip day is underway`
+              ? englishMessages.tripDayUnderway(ordinal(tripDay.dayNumber))
               : tripDay?.phase === 'completed'
-                ? `Trip completed after ${tripDay.dayNumber} ${tripDay.dayNumber === 1 ? 'day' : 'days'}`
-                : 'Countdown appears when dates are confirmed'}
+                ? englishMessages.tripCompletedAfter(tripDay.dayNumber)
+                : englishMessages.countdownPending()}
           </Text>
         </View>
       )}

@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { useMessages } from '@/core/localization/localization-provider';
 import { AmbientHeroGlow } from '@/design/components/ambient-hero-glow';
 import { BrandLogo } from '@/design/components/brand-logo';
 import { GlassCard } from '@/design/components/glass-card';
@@ -24,12 +25,13 @@ export function AuthShell({
   centerContent?: boolean;
   showBrandLogo?: boolean;
 }>) {
+  const messages = useMessages();
   return (
     <Screen contentStyle={[styles.screen, centerContent ? styles.centerContent : null]}>
       {showBrandLogo ? <View style={styles.centeredLogo}><BrandLogo /></View> : null}
       {isDemoMode() ? (
         <View accessibilityRole="text" style={styles.demoBanner}>
-          <Text style={styles.demoText}>LOCAL EMULATOR DEMO · NO SERVER CONNECTION</Text>
+          <Text style={styles.demoText}>{messages.demoModeBanner()}</Text>
         </View>
       ) : null}
       <LinearGradient

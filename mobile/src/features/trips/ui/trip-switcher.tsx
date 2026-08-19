@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, type ListRenderItem } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { colors, radii, spacing } from '@/design/theme';
 
 import type { Trip } from '../model/trip';
@@ -35,9 +36,7 @@ export function TripSwitcher({
       renderItem={renderTrip}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.row}
-      initialNumToRender={6}
-      maxToRenderPerBatch={8}
-      windowSize={5}
+      {...MOBILE_LIST_WINDOWING.picker}
     />
   );
 }

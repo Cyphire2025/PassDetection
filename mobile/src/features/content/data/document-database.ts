@@ -1,5 +1,10 @@
 import type * as SQLite from 'expo-sqlite';
 
+import {
+  sqliteBindBatches,
+  sqliteValuesClause,
+  stageSqliteReplacementIds,
+} from '@/core/storage/sqlite-batching';
 import type { VaultResumeCandidate } from '@/core/storage/vault';
 
 import type { DocumentMetadata } from '../api/content-contracts';
@@ -148,13 +153,19 @@ export async function replaceDocumentsInTransaction(
 ): Promise<void> {
   const { assertActive, documents, namespace, nowIso, scope, tripId } = options;
   const incomingIds = documents.map((document) => document.id);
-  for (const document of documents) {
+  await stageSqliteReplacementIds(
+    transaction,
+    'mobile_document_replacement_ids',
+    incomingIds,
+    assertActive,
+  );
+  for (const batch of sqliteBindBatches(documents, 15)) {
     assertActive?.();
     await transaction.runAsync(
       `INSERT INTO document_metadata
         (id, account_namespace, trip_id, passenger_id, scope, category, display_name, content_type,
          size_bytes, version, checksum_sha256, offline_available, metadata_state, updated_at, revoked_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       VALUES ${sqliteValuesClause(batch.length, 15)}
        ON CONFLICT(id) DO UPDATE SET
          passenger_id = excluded.passenger_id,
          scope = excluded.scope,
@@ -168,85 +179,90 @@ export async function replaceDocumentsInTransaction(
          metadata_state = excluded.metadata_state,
          updated_at = excluded.updated_at,
          revoked_at = excluded.revoked_at`,
-      document.id,
-      namespace,
-      tripId,
-      document.passenger_id,
-      document.scope,
-      document.category,
-      document.display_name,
-      document.content_type,
-      document.size_bytes ?? 0,
-      document.version,
-      document.checksum_sha256 ?? '',
-      document.offline_available ? 1 : 0,
-      document.metadata_state,
-      document.updated_at,
-      document.revoked_at,
+      ...batch.flatMap((document) => [
+        document.id,
+        namespace,
+        tripId,
+        document.passenger_id,
+        document.scope,
+        document.category,
+        document.display_name,
+        document.content_type,
+        document.size_bytes ?? 0,
+        document.version,
+        document.checksum_sha256 ?? '',
+        document.offline_available ? 1 : 0,
+        document.metadata_state,
+        document.updated_at,
+        document.revoked_at,
+      ]),
     );
-    if (shouldPrefetchPassengerDocument(document)) {
-      await transaction.runAsync(
-        `INSERT INTO offline_document_jobs
-          (document_id, account_namespace, trip_id, version, state, attempt_count,
-           next_attempt_at, last_error_code, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 'pending', 0, NULL, NULL, ?, ?)
-         ON CONFLICT(document_id) DO UPDATE SET
-           account_namespace = excluded.account_namespace,
-           trip_id = excluded.trip_id,
-           version = excluded.version,
-           state = CASE
-             WHEN offline_document_jobs.version <> excluded.version THEN 'pending'
-             ELSE offline_document_jobs.state
-           END,
-           attempt_count = CASE
-             WHEN offline_document_jobs.version <> excluded.version THEN 0
-             ELSE offline_document_jobs.attempt_count
-           END,
-           next_attempt_at = CASE
-             WHEN offline_document_jobs.version <> excluded.version THEN NULL
-             ELSE offline_document_jobs.next_attempt_at
-           END,
-           last_error_code = CASE
-             WHEN offline_document_jobs.version <> excluded.version THEN NULL
-             ELSE offline_document_jobs.last_error_code
-           END,
-           updated_at = excluded.updated_at`,
+  }
+  const prefetchable = documents.filter(shouldPrefetchPassengerDocument);
+  for (const batch of sqliteBindBatches(prefetchable, 6)) {
+    assertActive?.();
+    await transaction.runAsync(
+      `INSERT INTO offline_document_jobs
+        (document_id, account_namespace, trip_id, version, state, attempt_count,
+         next_attempt_at, last_error_code, created_at, updated_at)
+       VALUES ${batch.map(() => "(?, ?, ?, ?, 'pending', 0, NULL, NULL, ?, ?)").join(', ')}
+       ON CONFLICT(document_id) DO UPDATE SET
+         account_namespace = excluded.account_namespace,
+         trip_id = excluded.trip_id,
+         version = excluded.version,
+         state = CASE
+           WHEN offline_document_jobs.version <> excluded.version THEN 'pending'
+           ELSE offline_document_jobs.state
+         END,
+         attempt_count = CASE
+           WHEN offline_document_jobs.version <> excluded.version THEN 0
+           ELSE offline_document_jobs.attempt_count
+         END,
+         next_attempt_at = CASE
+           WHEN offline_document_jobs.version <> excluded.version THEN NULL
+           ELSE offline_document_jobs.next_attempt_at
+         END,
+         last_error_code = CASE
+           WHEN offline_document_jobs.version <> excluded.version THEN NULL
+           ELSE offline_document_jobs.last_error_code
+         END,
+         updated_at = excluded.updated_at`,
+      ...batch.flatMap((document) => [
         document.id,
         namespace,
         tripId,
         document.version,
         nowIso,
         nowIso,
-      );
-    } else {
-      await transaction.runAsync(
-        `DELETE FROM offline_document_jobs
-          WHERE document_id = ? AND account_namespace = ? AND trip_id = ?`,
-        document.id,
-        namespace,
-        tripId,
-      );
-    }
+      ]),
+    );
+  }
+  const nonPrefetchableIds = documents
+    .filter((document) => !shouldPrefetchPassengerDocument(document))
+    .map((document) => document.id);
+  for (const batch of sqliteBindBatches(nonPrefetchableIds, 1, 3)) {
+    assertActive?.();
+    await transaction.runAsync(
+      `DELETE FROM offline_document_jobs
+        WHERE account_namespace = ? AND trip_id = ?
+          AND document_id IN (${batch.map(() => '?').join(', ')})`,
+      namespace,
+      tripId,
+      ...batch,
+    );
   }
   assertActive?.();
-  if (incomingIds.length) {
-    const placeholders = incomingIds.map(() => '?').join(',');
-    await transaction.runAsync(
-      `DELETE FROM document_metadata
-        WHERE account_namespace = ? AND trip_id = ? AND scope = ? AND id NOT IN (${placeholders})`,
-      namespace,
-      tripId,
-      scope,
-      ...incomingIds,
-    );
-  } else {
-    await transaction.runAsync(
-      'DELETE FROM document_metadata WHERE account_namespace = ? AND trip_id = ? AND scope = ?',
-      namespace,
-      tripId,
-      scope,
-    );
-  }
+  await transaction.runAsync(
+    `DELETE FROM document_metadata
+      WHERE account_namespace = ? AND trip_id = ? AND scope = ?
+        AND NOT EXISTS (
+          SELECT 1 FROM mobile_document_replacement_ids incoming
+           WHERE incoming.id = document_metadata.id
+        )`,
+    namespace,
+    tripId,
+    scope,
+  );
   await transaction.runAsync(
     `DELETE FROM offline_files
       WHERE account_namespace = ?
@@ -288,8 +304,7 @@ export async function queryLocalDocuments(
       WHERE d.account_namespace = ? AND d.trip_id = ? AND d.revoked_at IS NULL
         ${ownership.sql}
         ${scope ? 'AND d.scope = ?' : ''}
-      ORDER BY d.scope DESC, d.category, d.display_name
-      LIMIT 4000`,
+      ORDER BY d.scope DESC, d.category, d.display_name`,
     namespace,
     tripId,
     ...ownership.parameters,
@@ -335,8 +350,7 @@ export async function queryRetryableOfflineDocuments(
         AND d.scope IN (${placeholders})
         ${ownership.sql}
         AND d.revoked_at IS NULL
-      ORDER BY COALESCE(job.next_attempt_at, job.created_at), d.display_name
-      LIMIT 4000`,
+      ORDER BY COALESCE(job.next_attempt_at, job.created_at), d.display_name`,
     namespace,
     tripId,
     includeDeferred ? 1 : 0,

@@ -3,8 +3,13 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
 import { accountNamespace } from '@/core/auth/types';
+import { withAccountQueryContext } from '@/core/query/account-query-context';
 import { usePersistentQueryHydration } from '@/core/query/use-persistent-query-hydration';
-import { localTrips, refreshTrips } from '@/features/trips/data/trip-repository';
+import { requestSync } from '@/core/sync/sync-trigger';
+import {
+  localTrips,
+  localTripsInContext,
+} from '@/features/trips/data/trip-repository';
 import type { Trip } from '@/features/trips/model/trip';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
@@ -37,10 +42,21 @@ export function useCoordinatorTrips() {
   });
   const query = useQuery({
     queryKey,
-    queryFn: refreshTrips,
+    queryFn: ({ signal }) => withAccountQueryContext(
+      signal,
+      async (context) => ({
+        trips: await localTripsInContext(context),
+        offline: true as const,
+      }),
+    ),
     enabled: Boolean(accountKey && cacheHydrated),
     staleTime: 15_000,
   });
+  const localRefetch = query.refetch;
+  const coordinatedRefetch = useCallback((
+    options?: Parameters<typeof localRefetch>[0],
+  ) => requestSync({ scope: 'full', reason: 'manual-coordinator-trips' })
+    .then(() => localRefetch(options)), [localRefetch]);
   const storedSelectedTripId = storedAccountKey === accountKey ? storedTripId : null;
   const selectedTripId = query.data && storedSelectedTripId
     && !query.data.trips.some((trip) => trip.id === storedSelectedTripId)
@@ -80,6 +96,7 @@ export function useCoordinatorTrips() {
   const trips = query.data?.trips ?? EMPTY_TRIPS;
   return {
     ...query,
+    refetch: coordinatedRefetch,
     trips,
     offline: query.data?.offline ?? false,
     selectedTripId,

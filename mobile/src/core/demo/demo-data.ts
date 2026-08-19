@@ -1,9 +1,17 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import type { MobilePrincipal, MobileRole } from '@/core/auth/types';
+import {
+  calendarDateOrdinalAt,
+  calendarDateTimeEpochMs,
+} from '@/core/localization/date-time';
+import { parseIanaTimeZone, type IanaTimeZone } from '@/core/localization/time-zone';
 import { withAccountTransaction } from '@/core/storage/database';
 
 export const DEMO_AGENCY_ID = '00000000-0000-4000-8000-000000000001';
+
+const SINGAPORE_TIME_ZONE = parseIanaTimeZone('Asia/Singapore');
+const DUBAI_TIME_ZONE = parseIanaTimeZone('Asia/Dubai');
 
 const DEMO_PRINCIPAL_IDS: Record<MobileRole, string> = {
   passenger: '00000000-0000-4000-8000-000000000011',
@@ -22,6 +30,7 @@ type DemoTrip = {
   seed: number;
   name: string;
   destination: string;
+  timeZone: IanaTimeZone;
   departureOffset: number;
   returnOffset: number;
 };
@@ -39,25 +48,26 @@ function uuid(value: number): string {
   return `00000000-0000-4000-8000-${String(value).padStart(12, '0')}`;
 }
 
-function localDate(offsetDays: number): Date {
-  const value = new Date();
-  value.setHours(0, 0, 0, 0);
-  value.setDate(value.getDate() + offsetDays);
-  return value;
-}
-
-function dateOnly(offsetDays: number): string {
-  const value = localDate(offsetDays);
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, '0');
-  const day = String(value.getDate()).padStart(2, '0');
+function dateOnly(offsetDays: number, timeZone: IanaTimeZone): string {
+  const todayOrdinal = calendarDateOrdinalAt(Date.now(), timeZone);
+  if (todayOrdinal === null) throw new Error('Demo trip timezone is unavailable.');
+  const value = new Date((todayOrdinal + offsetDays) * 86_400_000);
+  const year = value.getUTCFullYear();
+  const month = String(value.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(value.getUTCDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
-function dateTime(offsetDays: number, hour = 9, minute = 0): string {
-  const value = localDate(offsetDays);
-  value.setHours(hour, minute, 0, 0);
-  return value.toISOString();
+function dateTime(
+  offsetDays: number,
+  timeZone: IanaTimeZone,
+  hour = 9,
+  minute = 0,
+): string {
+  const calendarDate = dateOnly(offsetDays, timeZone);
+  const epochMs = calendarDateTimeEpochMs(calendarDate, timeZone, hour, minute);
+  if (epochMs === null) throw new Error('Demo trip wall-clock time is unavailable.');
+  return new Date(epochMs).toISOString();
 }
 
 function addMinutes(value: string, minutes: number): string {
@@ -72,6 +82,7 @@ function demoTrips(role: MobileRole): DemoTrip[] {
         seed: 2_000,
         name: 'Singapore Discovery · Demo',
         destination: 'Singapore',
+        timeZone: SINGAPORE_TIME_ZONE,
         departureOffset: 8,
         returnOffset: 13,
       },
@@ -80,6 +91,7 @@ function demoTrips(role: MobileRole): DemoTrip[] {
         seed: 3_000,
         name: 'Dubai Leadership Retreat · Demo',
         destination: 'Dubai, UAE',
+        timeZone: DUBAI_TIME_ZONE,
         departureOffset: 24,
         returnOffset: 28,
       },
@@ -92,6 +104,7 @@ function demoTrips(role: MobileRole): DemoTrip[] {
         seed: 4_000,
         name: 'Singapore Operations Group · Demo',
         destination: 'Singapore',
+        timeZone: SINGAPORE_TIME_ZONE,
         departureOffset: 8,
         returnOffset: 13,
       },
@@ -103,6 +116,7 @@ function demoTrips(role: MobileRole): DemoTrip[] {
       seed: 1_000,
       name: 'Singapore Discovery · Demo',
       destination: 'Singapore',
+      timeZone: SINGAPORE_TIME_ZONE,
       departureOffset: 8,
       returnOffset: 13,
     },
@@ -142,7 +156,7 @@ async function seedItinerary(
       items: [
         {
           title: 'Airport reporting',
-          description: 'Meet the coordinator at the Group Companion desk. Keep your QR ready.',
+          description: 'Meet the coordinator at the Global Connect Travels desk. Keep your QR ready.',
           hour: 5,
           minute: 30,
           durationMinutes: 60,
@@ -254,12 +268,12 @@ async function seedItinerary(
       namespace,
       trip.id,
       dayIndex + 1,
-      dateOnly(schedule.offset),
+      dateOnly(schedule.offset, trip.timeZone),
       schedule.title,
       dayIndex,
     );
     for (const [itemIndex, item] of schedule.items.entries()) {
-      const startsAt = dateTime(schedule.offset, item.hour, item.minute);
+      const startsAt = dateTime(schedule.offset, trip.timeZone, item.hour, item.minute);
       await database.runAsync(
         `INSERT INTO itinerary_items
           (id, account_namespace, trip_id, day_id, version, title, description, starts_at,
@@ -290,7 +304,7 @@ async function seedSharedTripContent(
   const announcementItems = [
     {
       title: 'Meeting point confirmed',
-      message: 'Airport reporting is at Terminal 3, Door 6. Look for the green Group Companion sign.',
+      message: 'Airport reporting is at Terminal 3, Door 6. Look for the Global Connect Travels sign.',
       priority: 'important',
     },
     {
@@ -312,8 +326,8 @@ async function seedSharedTripContent(
       announcement.title,
       announcement.message,
       announcement.priority,
-      dateTime(-index, 10, 0),
-      dateTime(trip.returnOffset + 7, 23, 59),
+      dateTime(-index, trip.timeZone, 10, 0),
+      dateTime(trip.returnOffset + 7, trip.timeZone, 23, 59),
       index === 1 ? 1 : 0,
     );
   }
@@ -373,8 +387,8 @@ async function seedSharedTripContent(
       notification.title,
       notification.body,
       notification.route,
-      dateTime(-index, 11, 15),
-      dateTime(trip.returnOffset + 7, 23, 59),
+      dateTime(-index, trip.timeZone, 11, 15),
+      dateTime(trip.returnOffset + 7, trip.timeZone, 23, 59),
       now,
     );
   }
@@ -427,8 +441,8 @@ async function seedPassengerContent(
     trip.id,
     principalId,
     `GC-DEMO:${trip.id}:${principalId}:OFFLINE-PREVIEW-V3`,
-    dateTime(-1, 0, 0),
-    dateTime(trip.returnOffset + 2, 23, 59),
+    dateTime(-1, trip.timeZone, 0, 0),
+    dateTime(trip.returnOffset + 2, trip.timeZone, 23, 59),
     now,
   );
 
@@ -543,7 +557,7 @@ async function seedCoordinatorContent(
     sessionId,
     namespace,
     trip.id,
-    dateTime(0, 8, 0),
+    dateTime(0, trip.timeZone, 8, 0),
     now,
   );
   await database.runAsync(
@@ -582,7 +596,6 @@ export async function seedDemoAccount(
   const { namespace, principal } = input;
   const trips = demoTrips(principal.principalType);
   const now = new Date().toISOString();
-  const accessExpiresAt = dateTime(60, 23, 59);
 
   await withAccountTransaction(database, async (transaction) => {
     await transaction.runAsync('DELETE FROM mobile_notifications WHERE account_namespace = ?', namespace);
@@ -590,21 +603,23 @@ export async function seedDemoAccount(
     await transaction.runAsync('DELETE FROM trips WHERE account_namespace = ?', namespace);
 
     for (const [index, trip] of trips.entries()) {
+      const accessExpiresAt = dateTime(60, trip.timeZone, 23, 59);
       await transaction.runAsync(
         `INSERT INTO trips
-          (id, account_namespace, agency_id, role, name, destination, travel_date, return_date,
+          (id, account_namespace, agency_id, role, name, destination, travel_date, return_date, timezone,
            access_generation, access_expires_at, itinerary_version, common_document_version,
            personal_document_version, announcement_version, readiness_version, roster_version,
            rooming_version, meals_version, qr_version, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 3, 1, ?, 2, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 3, 1, ?, 2, ?, ?, ?, ?, ?, ?)`,
         trip.id,
         namespace,
         principal.agencyId,
         principal.principalType,
         trip.name,
         trip.destination,
-        dateOnly(trip.departureOffset),
-        dateOnly(trip.returnOffset),
+        dateOnly(trip.departureOffset, trip.timeZone),
+        dateOnly(trip.returnOffset, trip.timeZone),
+        trip.timeZone,
         accessExpiresAt,
         principal.principalType === 'passenger' ? 1 : 0,
         principal.principalType === 'client_manager' ? 5 : 0,
@@ -624,7 +639,8 @@ export async function seedDemoAccount(
            advertised_roster_version = roster_version,
            advertised_rooming_version = rooming_version,
            advertised_meals_version = meals_version,
-           advertised_qr_version = qr_version
+           advertised_qr_version = qr_version,
+           roster_projection_complete = CASE WHEN role = 'passenger' THEN 0 ELSE 1 END
          WHERE account_namespace = ? AND id = ?`,
         namespace,
         trip.id,

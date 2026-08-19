@@ -100,7 +100,7 @@ export default function PassengerMoreScreen() {
         <LogOut color={colors.danger} size={22} />
         <Text style={styles.signOutNote}>Sign out of this passenger account</Text>
       </View>
-      <SafeSignOutButton />
+      <SafeSignOutButton testID="passenger-sign-out" />
     </Screen>
   );
 }

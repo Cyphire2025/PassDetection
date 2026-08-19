@@ -18,6 +18,7 @@ export default function ManagerPassengerDetailScreen() {
       isRefreshing={manualRefresh.isRefreshing}
       onRefresh={() => void manualRefresh.refresh(detail.refetch)}
       subtitle={trips.selectedTrip?.name || 'Selected group'}
+      timeZone={trips.selectedTrip?.timeZone}
       errorMessage="These passenger details are not authorized or available."
     />
   );

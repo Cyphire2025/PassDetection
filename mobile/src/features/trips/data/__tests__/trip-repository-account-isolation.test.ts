@@ -62,6 +62,7 @@ const tripPage = {
     destination: 'Hanoi',
     travel_date: '2030-01-10',
     return_date: '2030-01-15',
+    timezone: 'Asia/Ho_Chi_Minh',
     role: 'passenger' as const,
     access_generation: 1,
     itinerary_version: 1,
@@ -169,11 +170,32 @@ describe('trip repository synchronization isolation', () => {
     expect(upsertSql).toContain('advertised_itinerary_version');
     expect(upsertSql).toContain('advertised_common_document_version');
     expect(upsertSql).toContain('advertised_announcement_version');
+    expect(upsertSql).toContain('timezone');
     expect(upsertSql).toContain('-1, -1, -1, -1, -1, -1, -1, -1, -1');
     expect(upsertSql).not.toMatch(/\n\s+itinerary_version = excluded\.itinerary_version/);
     expect(upsertSql).not.toMatch(/\n\s+common_document_version = excluded\.common_document_version/);
     expect(upsertSql).not.toMatch(/\n\s+announcement_version = excluded\.announcement_version/);
     lease.release();
+  });
+
+  it('round-trips the canonical timezone from the account cache', async () => {
+    const database = {
+      getAllAsync: jest.fn().mockResolvedValue([{
+        ...tripPage.items[0],
+        access_expires_at: null,
+        last_server_time: null,
+        advertised_itinerary_version: 1,
+        advertised_common_document_version: 1,
+        advertised_announcement_version: 1,
+        updated_at: '2030-01-01T00:00:00.000Z',
+      }]),
+    };
+    mockedOpenDatabase.mockResolvedValue(database as never);
+    useSessionStore.getState().setSession(session('a'));
+
+    await expect(localTrips()).resolves.toEqual([
+      expect.objectContaining({ timeZone: 'Asia/Ho_Chi_Minh' }),
+    ]);
   });
 
   it.each([401, 403])('fails closed instead of serving stale assignments after HTTP %s', async (status) => {

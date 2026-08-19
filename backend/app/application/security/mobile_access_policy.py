@@ -55,6 +55,7 @@ class MobileAccessPolicy:
                 ClientGroupModel.status.in_(
                     (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
                 ),
+                ClientGroupModel.deleted_at.is_(None),
                 GCGroupAccessModel.is_enabled.is_(True),
                 GCGroupAccessModel.revoked_at.is_(None),
                 (

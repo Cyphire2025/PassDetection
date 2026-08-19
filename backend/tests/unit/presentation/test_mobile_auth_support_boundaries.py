@@ -116,6 +116,7 @@ def test_issue_session_facade_wires_established_monkeypatch_bindings() -> None:
         "revoke_same_device_session": "_revoke_same_device_session",
         "create_refresh_token": "create_mobile_refresh_token",
         "create_access_token": "create_mobile_access_token",
+        "create_offline_authorization_lease": "create_mobile_offline_authorization_lease",
         "hash_lookup": "hash_mobile_lookup",
         "hash_refresh_token": "hash_mobile_refresh_token",
         "request_digest": "_request_digest",

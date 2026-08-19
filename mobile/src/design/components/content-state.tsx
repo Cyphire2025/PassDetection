@@ -1,18 +1,22 @@
 import RefreshCw from 'lucide-react-native/icons/refresh-cw';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useMessages } from '@/core/localization/localization-provider';
 import { colors, spacing } from '@/design/theme';
 
-export function ContentLoading({ label = 'Loading' }: { label?: string }) {
+export function ContentLoading({ label }: { label?: string }) {
+  const messages = useMessages();
+  const resolvedLabel = label ?? messages.loading();
   return (
-    <View accessibilityRole="progressbar" accessibilityLabel={label} style={styles.state}>
+    <View accessibilityRole="progressbar" accessibilityLabel={resolvedLabel} style={styles.state}>
       <ActivityIndicator color={colors.greenDeep} />
-      <Text style={styles.text}>{label}</Text>
+      <Text style={styles.text}>{resolvedLabel}</Text>
     </View>
   );
 }
 
 export function ContentError({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  const messages = useMessages();
   return (
     <View style={styles.state}>
       <Text accessibilityRole="alert" style={styles.error}>
@@ -21,7 +25,7 @@ export function ContentError({ message, onRetry }: { message: string; onRetry?: 
       {onRetry ? (
         <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retry}>
           <RefreshCw color={colors.greenDeep} size={17} />
-          <Text style={styles.retryText}>Try again</Text>
+          <Text style={styles.retryText}>{messages.tryAgain()}</Text>
         </Pressable>
       ) : null}
     </View>
@@ -31,7 +35,7 @@ export function ContentError({ message, onRetry }: { message: string; onRetry?: 
 export function ContentEmpty({ title, message }: { title: string; message: string }) {
   return (
     <View style={styles.state}>
-      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text accessibilityRole="header" style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.text}>{message}</Text>
     </View>
   );

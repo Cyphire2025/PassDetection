@@ -6,7 +6,7 @@ import {
   cancelRequiredPreparation,
   completeRequiredPreparation,
 } from '@/core/sync/required-preparation-lease';
-import { syncTrip } from '@/core/sync/sync-service';
+import { requestSync } from '@/core/sync/sync-trigger';
 import {
   preloadPassengerTrip,
   type PassengerPreloadProgress,
@@ -168,9 +168,13 @@ async function performPassengerTripSwitch(
       completeRequiredPreparation(switchedBoundary.sessionId);
 
       // Cache-first navigation is no longer coupled to the network refresh.
-      // syncTrip already coalesces duplicate account/session/trip jobs and its
-      // immutable context prevents a late result crossing another selection.
-      void syncTrip(input.tripId).catch(() => undefined);
+      // The central coordinator coalesces preload, lifecycle, push, and manual
+      // intent while its immutable context prevents a late account publication.
+      void requestSync({
+        scope: 'trip',
+        tripId: input.tripId,
+        reason: 'passenger-cache-open',
+      }).catch(() => undefined);
       return { tripId: input.tripId, usedPreparedCache: true, failedDownloads: 0 };
     }
 

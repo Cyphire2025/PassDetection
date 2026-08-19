@@ -2,6 +2,48 @@ import { z } from 'zod';
 
 const Uuid = z.string().uuid();
 const IsoDateTime = z.string().datetime({ offset: true });
+const MAX_ATTENDANCE_EVIDENCE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export const CoordinatorAttendanceTokenEvidenceSchema = z
+  .object({
+    token_hash: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
+    token_version: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).nullable(),
+    state: z.enum(['active', 'missing', 'inactive', 'revoked', 'expired']),
+    token_expires_at: IsoDateTime.nullable(),
+    token_updated_at: IsoDateTime.nullable(),
+    evidence_observed_at: IsoDateTime,
+    evidence_valid_until: IsoDateTime,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const observedAt = Date.parse(value.evidence_observed_at);
+    const validUntil = Date.parse(value.evidence_valid_until);
+    const expiresAt = value.token_expires_at ? Date.parse(value.token_expires_at) : null;
+    const activeShape = (
+      value.token_hash !== null
+      && value.token_version !== null
+      && expiresAt !== null
+      && value.token_updated_at !== null
+      && validUntil > observedAt
+      && validUntil <= expiresAt
+      && validUntil - observedAt <= MAX_ATTENDANCE_EVIDENCE_WINDOW_MS
+    );
+    if (
+      !Number.isFinite(observedAt)
+      || !Number.isFinite(validUntil)
+      || (value.state === 'active' && !activeShape)
+      || (value.state !== 'active' && value.token_hash !== null)
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Attendance token evidence was incomplete or exceeded its bounded validity.',
+      });
+    }
+  });
+
+export type CoordinatorAttendanceTokenEvidence = z.infer<
+  typeof CoordinatorAttendanceTokenEvidenceSchema
+>;
 
 export const CoordinatorPassengerSchema = z
   .object({
@@ -12,6 +54,7 @@ export const CoordinatorPassengerSchema = z
     room_number: z.string().max(80).nullable(),
     meal_preference: z.string().max(255).nullable(),
     has_alert: z.boolean(),
+    attendance_token: CoordinatorAttendanceTokenEvidenceSchema.nullable().optional(),
   })
   .strict();
 
@@ -20,6 +63,13 @@ export const CoordinatorRosterSchema = z
     items: z.array(CoordinatorPassengerSchema).max(200),
     next_cursor: z.string().max(256).nullable(),
     total: z.number().int().nonnegative(),
+    roster_revision: z
+      .number()
+      .int()
+      .nonnegative()
+      .max(Number.MAX_SAFE_INTEGER)
+      .nullable()
+      .optional(),
   })
   .strict();
 
@@ -84,6 +134,7 @@ export const CoordinatorPassengerDetailSchema = z
     insurance_status: CoordinatorDocumentStatusSchema,
     hotel_voucher_status: CoordinatorDocumentStatusSchema,
     other_document_status: CoordinatorDocumentStatusSchema,
+    attendance_token: CoordinatorAttendanceTokenEvidenceSchema.nullable().optional(),
     additional_details: z.array(CoordinatorOperationalDetailSchema).max(300),
     updated_at: IsoDateTime,
   })

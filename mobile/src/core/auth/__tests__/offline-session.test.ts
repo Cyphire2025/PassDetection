@@ -19,7 +19,7 @@ const row = {
 };
 
 test('creates an offline shell without requiring a second device unlock', () => {
-  const session = offlineSessionFromRow(namespace, row, Date.parse('2026-08-03T00:00:00.000Z'));
+  const session = offlineSessionFromRow(namespace, row);
   expect(session).toMatchObject({
     accessToken: null,
     networkMode: 'offline',
@@ -38,7 +38,6 @@ test('keeps the offline namespace stable after a passenger trip identity switch'
   const session = offlineSessionFromRow(
     namespace,
     { ...row, id: switchedIdentityId },
-    Date.parse('2026-08-03T00:00:00.000Z'),
   );
   expect(session?.principal).toMatchObject({
     id: switchedIdentityId,
@@ -46,13 +45,16 @@ test('keeps the offline namespace stable after a passenger trip identity switch'
   });
 });
 
-test('fails closed for namespace mismatch or expired refresh authority', () => {
-  expect(offlineSessionFromRow(`${agencyId}.44444444-4444-4444-8444-444444444444`, row, 0)).toBeNull();
-  expect(offlineSessionFromRow(namespace, row, Date.parse('2026-08-11T00:00:00.000Z'))).toBeNull();
+test('fails closed for a namespace mismatch while leaving authorization to the signed lease', () => {
+  expect(offlineSessionFromRow(`${agencyId}.44444444-4444-4444-8444-444444444444`, row)).toBeNull();
+  expect(offlineSessionFromRow(namespace, {
+    ...row,
+    refresh_token_expires_at: '2020-01-01T00:00:00.000Z',
+  })).not.toBeNull();
 });
 
 test('fails closed for a passenger snapshot without an authoritative passenger record', () => {
-  expect(offlineSessionFromRow(namespace, { ...row, passenger_id: null }, 0)).toBeNull();
+  expect(offlineSessionFromRow(namespace, { ...row, passenger_id: null })).toBeNull();
 });
 
 test('account switching purges only a different previous namespace', () => {

@@ -21,6 +21,10 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from pydantic import Field, SecretStr, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.security.mobile_offline_lease import (
+    validate_mobile_offline_lease_signing_configuration,
+)
+
 _GEMINI_MODEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _WHATSAPP_API_VERSION_PATTERN = re.compile(r"^v[1-9][0-9]*\.0$")
 _WHATSAPP_TEMPLATE_NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,512}$")
@@ -37,6 +41,50 @@ class DatabaseSettings(BaseSettings):
     db: str = "passdetection"
     user: str = "passdetection_user"
     password: str = Field(..., description="Must be set via POSTGRES_PASSWORD env var")
+    # One process owns one SQLAlchemy pool. API and background-worker profiles
+    # are intentionally separate so Celery prefork concurrency cannot multiply
+    # an API-sized pool across every child process.
+    pool_profile: Literal["api", "worker"] = "api"
+    api_pool_size: int = Field(default=8, ge=1, le=64)
+    api_max_overflow: int = Field(default=2, ge=0, le=64)
+    worker_pool_size: int = Field(default=1, ge=1, le=8)
+    worker_max_overflow: int = Field(default=0, ge=0, le=8)
+    pool_timeout_seconds: float = Field(default=5.0, ge=0.5, le=60.0)
+    pool_recycle_seconds: int = Field(default=1_800, ge=60, le=86_400)
+    server_max_connections: int = Field(default=100, ge=20, le=10_000)
+    reserved_connections: int = Field(default=10, ge=5, le=1_000)
+    api_connection_budget: int = Field(default=80, ge=5, le=10_000)
+
+    @model_validator(mode="after")
+    def validate_connection_reserve(self) -> Self:
+        if self.reserved_connections >= self.server_max_connections:
+            raise ValueError(
+                "POSTGRES_RESERVED_CONNECTIONS must be lower than "
+                "POSTGRES_SERVER_MAX_CONNECTIONS"
+            )
+        usable = self.server_max_connections - self.reserved_connections
+        if self.api_connection_budget > usable:
+            raise ValueError(
+                "POSTGRES_API_CONNECTION_BUDGET cannot exceed the server capacity "
+                "remaining after POSTGRES_RESERVED_CONNECTIONS"
+            )
+        return self
+
+    @property
+    def pool_size(self) -> int:
+        return self.api_pool_size if self.pool_profile == "api" else self.worker_pool_size
+
+    @property
+    def max_overflow(self) -> int:
+        return (
+            self.api_max_overflow
+            if self.pool_profile == "api"
+            else self.worker_max_overflow
+        )
+
+    @property
+    def maximum_process_connections(self) -> int:
+        return self.pool_size + self.max_overflow
 
     @computed_field  # type: ignore[misc]
     @property
@@ -102,6 +150,23 @@ class MobileSettings(BaseSettings):
     jwt_audience: str = Field(default="gc-mobile", min_length=3, max_length=120)
     access_token_expire_minutes: int = Field(default=15, ge=5, le=60)
     refresh_token_expire_days: int = Field(default=30, ge=1, le=90)
+    # Ed25519 is intentionally independent from the symmetric online access
+    # token profile. Public verification keys are embedded in reviewed mobile
+    # builds; the active PKCS8 private key remains backend-only.
+    offline_lease_active_kid: str | None = Field(default=None, max_length=64)
+    offline_lease_private_key_b64: SecretStr | None = None
+    offline_lease_public_keys_json: str | None = Field(default=None, max_length=8_192)
+    offline_lease_issuer: str = Field(
+        default="passdetection-mobile-offline",
+        min_length=3,
+        max_length=120,
+    )
+    offline_lease_audience: str = Field(
+        default="gc-mobile-offline",
+        min_length=3,
+        max_length=120,
+    )
+    offline_lease_ttl_minutes: int = Field(default=720, ge=5, le=1_440)
     otp_provider: Literal["disabled", "development", "whatsapp"] = "disabled"
     otp_development_code: SecretStr | None = None
     otp_ttl_seconds: int = Field(default=300, ge=60, le=900)
@@ -112,6 +177,87 @@ class MobileSettings(BaseSettings):
     otp_ip_limit_per_hour: int = Field(default=30, ge=1, le=1_000)
     otp_require_redis: bool = True
     sync_page_size: int = Field(default=200, ge=25, le=500)
+    # Shared dashboard/API/mobile capacity contracts. These are deliberately
+    # configurable, but one deployed environment must expose and enforce the
+    # same values instead of allowing clients to discover a hard ceiling late.
+    sync_max_incremental_changes: int = Field(default=10_000, ge=500, le=100_000)
+    max_group_passengers: int = Field(default=10_000, ge=100, le=100_000)
+    max_attendance_sessions_per_group: int = Field(
+        default=10_000,
+        ge=100,
+        le=100_000,
+    )
+    # Redis pub/sub carries only lossy invalidation hints. The append-only
+    # database cursor remains authoritative, so deployments may explicitly
+    # choose a visible cursor-only degradation mode while repairing Redis.
+    realtime_enabled: bool = False
+    realtime_require_redis: bool = True
+    realtime_heartbeat_seconds: int = Field(default=20, ge=5, le=60)
+    realtime_idle_timeout_seconds: int = Field(default=65, ge=15, le=180)
+    realtime_authorization_refresh_seconds: int = Field(default=60, ge=15, le=300)
+    # These two values are process-local safety rails. Deployment-wide
+    # admission is enforced by the Redis leases below.
+    realtime_max_connections: int = Field(default=5_000, ge=100, le=50_000)
+    # Keep handshake database work near the per-process SQL pool width. A much
+    # larger value only moves a reconnect storm into the pool wait queue and
+    # can starve ordinary dashboard/mobile requests.
+    realtime_max_authenticating_connections: int = Field(default=32, ge=10, le=5_000)
+    realtime_global_max_connections: int = Field(default=1_000, ge=100, le=50_000)
+    realtime_global_max_authenticating_connections: int = Field(
+        default=32,
+        ge=10,
+        le=5_000,
+    )
+    realtime_lease_ttl_seconds: int = Field(default=90, ge=30, le=300)
+    realtime_lease_renew_interval_seconds: int = Field(default=20, ge=5, le=60)
+    realtime_max_connections_per_session: int = Field(default=3, ge=1, le=10)
+    realtime_max_trips_per_connection: int = Field(default=500, ge=1, le=5_000)
+    realtime_max_pending_trips_per_connection: int = Field(default=64, ge=4, le=1_000)
+    realtime_publish_queue_size: int = Field(default=20_000, ge=100, le=200_000)
+    realtime_send_timeout_seconds: float = Field(default=5.0, ge=1.0, le=15.0)
+    # App attestation is deliberately opt-in. ``monitor`` records fixed result
+    # codes while preserving workflows; ``enforce`` denies only the explicitly
+    # protected high-risk action when a server-verified proof is unavailable.
+    app_integrity_mode: Literal["disabled", "monitor", "enforce"] = "disabled"
+    app_integrity_challenge_ttl_seconds: int = Field(default=120, ge=30, le=300)
+    app_integrity_require_redis: bool = True
+    app_integrity_proof_max_bytes: int = Field(default=32_768, ge=4_096, le=65_536)
+    play_integrity_package_name: str = Field(
+        default="com.globalconnects.groupcompanion",
+        min_length=3,
+        max_length=255,
+    )
+    play_integrity_allowed_certificate_digests_json: str | None = Field(
+        default=None,
+        max_length=4_096,
+    )
+    play_integrity_require_licensed: bool = True
+    play_integrity_required_device_verdict: Literal[
+        "MEETS_BASIC_INTEGRITY",
+        "MEETS_DEVICE_INTEGRITY",
+        "MEETS_STRONG_INTEGRITY",
+    ] = "MEETS_DEVICE_INTEGRITY"
+    play_integrity_timeout_seconds: float = Field(default=8.0, ge=2.0, le=20.0)
+    app_attest_team_id: str | None = Field(default=None, max_length=20)
+    app_attest_bundle_id: str = Field(
+        default="com.globalconnects.groupcompanion",
+        min_length=3,
+        max_length=255,
+    )
+    app_attest_environment: Literal["development", "production"] = "development"
+    # Exact iOS 27+ App Attest extension allowlists. Keep them unset until an
+    # environment has identified its real distribution lane and CFBundleVersion.
+    app_attest_allowed_validation_categories_json: str | None = Field(
+        default=None,
+        max_length=64,
+    )
+    app_attest_allowed_bundle_versions_json: str | None = Field(
+        default=None,
+        max_length=2_048,
+    )
+    # Explicit production acknowledgement: the strict extension contract is
+    # available only on iOS 27+, while this app still supports older iOS.
+    app_attest_ios27_extension_rollout_confirmed: bool = False
     admin_page_size: int = Field(default=50, ge=10, le=100)
     common_document_max_bytes: int = Field(
         default=25 * 1024 * 1024,
@@ -142,6 +288,7 @@ class MobileSettings(BaseSettings):
 
     @field_validator(
         "jwt_secret_key",
+        "offline_lease_private_key_b64",
         "otp_development_code",
         "push_access_token",
         mode="before",
@@ -151,6 +298,127 @@ class MobileSettings(BaseSettings):
         if isinstance(value, str) and not value.strip():
             return None
         return value
+
+    @field_validator(
+        "offline_lease_active_kid",
+        "offline_lease_public_keys_json",
+        "play_integrity_allowed_certificate_digests_json",
+        "app_attest_team_id",
+        "app_attest_allowed_validation_categories_json",
+        "app_attest_allowed_bundle_versions_json",
+        mode="before",
+    )
+    @classmethod
+    def normalize_optional_offline_lease_values(cls, value: object) -> object | None:
+        if isinstance(value, str):
+            normalized = value.strip()
+            return normalized or None
+        return value
+
+    @field_validator("offline_lease_issuer", "offline_lease_audience")
+    @classmethod
+    def validate_offline_lease_identity(cls, value: str) -> str:
+        normalized = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{2,119}", normalized):
+            raise ValueError(
+                "Mobile offline lease issuer and audience must use a bounded ASCII identifier"
+            )
+        return normalized
+
+    @field_validator("play_integrity_package_name", "app_attest_bundle_id")
+    @classmethod
+    def validate_mobile_app_identifier(cls, value: str) -> str:
+        normalized = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9]+(?:[.-][A-Za-z0-9_-]+)+", normalized):
+            raise ValueError("Mobile app-integrity identifiers must be bounded package IDs")
+        return normalized
+
+    @field_validator("app_attest_team_id")
+    @classmethod
+    def validate_app_attest_team_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9]{10}", normalized):
+            raise ValueError("MOBILE_APP_ATTEST_TEAM_ID must be a 10-character Apple team ID")
+        return normalized
+
+    @field_validator("app_attest_allowed_validation_categories_json")
+    @classmethod
+    def validate_app_attest_validation_categories(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES_JSON must be JSON"
+            ) from exc
+        if not isinstance(parsed, list) or not 1 <= len(parsed) <= 6:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES_JSON must contain "
+                "1-6 categories"
+            )
+        categories: set[int] = set()
+        for category in parsed:
+            if (
+                isinstance(category, bool)
+                or not isinstance(category, int)
+                or category not in {1, 2, 3, 4, 5, 6}
+            ):
+                raise ValueError(
+                    "App Attest validation categories must be explicit Apple categories 1-6"
+                )
+            categories.add(category)
+        return json.dumps(sorted(categories), separators=(",", ":"))
+
+    @field_validator("app_attest_allowed_bundle_versions_json")
+    @classmethod
+    def validate_app_attest_bundle_versions(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must be JSON"
+            ) from exc
+        if not isinstance(parsed, list) or not 1 <= len(parsed) <= 64:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON must contain "
+                "1-64 versions"
+            )
+        versions: set[str] = set()
+        for version in parsed:
+            if not isinstance(version, str) or not re.fullmatch(
+                r"[0-9]{1,8}(?:\.[0-9]{1,8}){0,2}",
+                version,
+            ):
+                raise ValueError(
+                    "App Attest bundle versions must be exact bounded CFBundleVersion values"
+                )
+            versions.add(version)
+        return json.dumps(sorted(versions), separators=(",", ":"))
+
+    @field_validator("play_integrity_allowed_certificate_digests_json")
+    @classmethod
+    def validate_play_certificate_digests(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON must be JSON"
+            ) from exc
+        if not isinstance(parsed, list) or not 1 <= len(parsed) <= 8:
+            raise ValueError(
+                "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON must contain 1-8 digests"
+            )
+        for digest in parsed:
+            if not isinstance(digest, str) or not re.fullmatch(r"[A-Za-z0-9_-]{43}=?", digest):
+                raise ValueError("Play signing-certificate digests must be SHA-256 base64url values")
+        return json.dumps(sorted(set(parsed)), separators=(",", ":"))
 
     @model_validator(mode="after")
     def validate_development_otp(self) -> Self:
@@ -162,13 +430,26 @@ class MobileSettings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_push_receipt_window(self) -> Self:
-        if (
-            self.push_receipt_initial_delay_seconds
-            >= self.push_receipt_max_age_hours * 3_600
-        ):
+        if self.push_receipt_initial_delay_seconds >= self.push_receipt_max_age_hours * 3_600:
             raise ValueError(
                 "MOBILE_PUSH_RECEIPT_INITIAL_DELAY_SECONDS must be shorter than "
                 "MOBILE_PUSH_RECEIPT_MAX_AGE_HOURS"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_realtime_heartbeat_window(self) -> Self:
+        if self.realtime_idle_timeout_seconds <= self.realtime_heartbeat_seconds * 2:
+            raise ValueError(
+                "MOBILE_REALTIME_IDLE_TIMEOUT_SECONDS must exceed two heartbeat intervals"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_realtime_capacity_leases(self) -> Self:
+        if self.realtime_lease_ttl_seconds < self.realtime_lease_renew_interval_seconds * 3:
+            raise ValueError(
+                "MOBILE_REALTIME_LEASE_TTL_SECONDS must cover at least three renewal intervals"
             )
         return self
 
@@ -229,6 +510,13 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
     backend_port: int = 8000
+    # These counts are consumed by runtime commands and by the PostgreSQL
+    # deployment-budget validator. Raising concurrency therefore cannot
+    # silently multiply the number of process-local connection pools.
+    web_concurrency: int = Field(default=4, ge=1, le=32)
+    worker_concurrency: int = Field(default=2, ge=1, le=128)
+    email_worker_concurrency: int = Field(default=2, ge=1, le=128)
+    email_ai_worker_concurrency: int = Field(default=2, ge=1, le=128)
 
     allowed_origins: list[str] = ["http://localhost:3000"]
     # Only these direct peers may supply X-Real-IP. The production backend is
@@ -636,6 +924,40 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_database_connection_budget(self) -> Self:
+        """Fail staging/production before process pools can exceed PostgreSQL."""
+
+        if self.app_env == "development":
+            return self
+        database = self.database
+        api_per_process = database.api_pool_size + database.api_max_overflow
+        api_claim = self.web_concurrency * api_per_process
+        if api_claim > database.api_connection_budget:
+            raise ValueError(
+                "WEB_CONCURRENCY multiplied by the API PostgreSQL pool exceeds "
+                "POSTGRES_API_CONNECTION_BUDGET"
+            )
+        background_processes = (
+            self.worker_concurrency
+            + self.email_worker_concurrency
+            + self.email_ai_worker_concurrency
+            + self.gemini_extraction_max_concurrency
+            + self.gemini_verification_max_concurrency
+            + self.gemini_image_edit_max_concurrency
+            + 1  # Celery Beat scheduler process.
+        )
+        worker_per_process = database.worker_pool_size + database.worker_max_overflow
+        total_claim = api_claim + (background_processes * worker_per_process)
+        usable = database.server_max_connections - database.reserved_connections
+        if total_claim > usable:
+            raise ValueError(
+                "Configured API and background process pools can claim "
+                f"{total_claim} PostgreSQL connections, exceeding the usable "
+                f"deployment budget of {usable}"
+            )
+        return self
+
+    @model_validator(mode="after")
     def validate_dashboard_signing_secret(self) -> Self:
         """Reject weak shared signing keys outside local development."""
 
@@ -654,9 +976,7 @@ class Settings(BaseSettings):
             "secret",
             "unit_test_secret",
         }:
-            raise ValueError(
-                "APP_SECRET_KEY must not use a placeholder in staging or production"
-            )
+            raise ValueError("APP_SECRET_KEY must not use a placeholder in staging or production")
         return self
 
     @model_validator(mode="after")
@@ -672,6 +992,78 @@ class Settings(BaseSettings):
             raise ValueError(
                 "MOBILE_JWT_SECRET_KEY must contain at least 32 bytes when the mobile API "
                 "is enabled in production"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_mobile_offline_lease_signing_keys(self) -> Self:
+        """Fail closed outside development when mobile offline auth cannot be verified."""
+
+        mobile = self.mobile
+        if self.app_env == "development" or not mobile.enabled:
+            return self
+        private_key_b64 = (
+            mobile.offline_lease_private_key_b64.get_secret_value().strip()
+            if mobile.offline_lease_private_key_b64 is not None
+            else None
+        )
+        validate_mobile_offline_lease_signing_configuration(
+            active_kid=mobile.offline_lease_active_kid,
+            private_key_b64=private_key_b64,
+            public_keys_json=mobile.offline_lease_public_keys_json,
+        )
+        return self
+
+    @model_validator(mode="after")
+    def validate_mobile_app_integrity_configuration(self) -> Self:
+        """Reject an enforcement rollout that lacks cross-worker/provider bindings."""
+
+        mobile = self.mobile
+        if mobile.app_integrity_mode == "disabled" or not mobile.enabled:
+            return self
+        if mobile.app_integrity_mode == "enforce" and not mobile.app_integrity_require_redis:
+            raise ValueError(
+                "MOBILE_APP_INTEGRITY_REQUIRE_REDIS must be true when integrity is enforced"
+            )
+        if not self.is_production or mobile.app_integrity_mode != "enforce":
+            return self
+        if mobile.play_integrity_allowed_certificate_digests_json is None:
+            raise ValueError(
+                "MOBILE_PLAY_INTEGRITY_ALLOWED_CERTIFICATE_DIGESTS_JSON is required "
+                "for production enforcement"
+            )
+        if mobile.app_attest_team_id is None:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_TEAM_ID is required for production enforcement"
+            )
+        if mobile.app_attest_environment != "production":
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ENVIRONMENT must be production for production enforcement"
+            )
+        if not mobile.app_attest_ios27_extension_rollout_confirmed:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_IOS27_EXTENSION_ROLLOUT_CONFIRMED must be true "
+                "only after the iOS 27 minimum-version or adoption gate is complete"
+            )
+        if mobile.app_attest_allowed_validation_categories_json is None:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_VALIDATION_CATEGORIES_JSON is required "
+                "for production enforcement"
+            )
+        allowed_categories: object = json.loads(
+            mobile.app_attest_allowed_validation_categories_json
+        )
+        if not isinstance(allowed_categories, list) or not set(allowed_categories).issubset(
+            {2, 4, 5}
+        ):
+            raise ValueError(
+                "Production iOS App Attest categories must be TestFlight, App Store, "
+                "or approved enterprise/ad-hoc distribution (2, 4, or 5)"
+            )
+        if mobile.app_attest_allowed_bundle_versions_json is None:
+            raise ValueError(
+                "MOBILE_APP_ATTEST_ALLOWED_BUNDLE_VERSIONS_JSON is required "
+                "for production enforcement"
             )
         return self
 

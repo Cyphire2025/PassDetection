@@ -1,16 +1,16 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import { deactivateLocalSession, logoutSession } from '../session-service';
+import { logoutSession, purgeLocalSession } from '../session-service';
 import { useSessionStore } from '../session-store';
 import { useSafeSignOut } from '../use-safe-sign-out';
 
 jest.mock('../session-service', () => ({
   logoutSession: jest.fn(),
-  deactivateLocalSession: jest.fn(),
+  purgeLocalSession: jest.fn(),
 }));
 
 const mockedLogout = jest.mocked(logoutSession);
-const mockedDeactivate = jest.mocked(deactivateLocalSession);
+const mockedPurge = jest.mocked(purgeLocalSession);
 const mockCancelDepartureReminders = jest.fn(async () => undefined);
 const namespace = '11111111-1111-4111-8111-111111111111.22222222-2222-4222-8222-222222222222';
 
@@ -30,9 +30,9 @@ function deferred<T>() {
 
 beforeEach(() => {
   mockedLogout.mockReset();
-  mockedDeactivate.mockReset();
+  mockedPurge.mockReset();
   mockCancelDepartureReminders.mockClear();
-  mockedDeactivate.mockResolvedValue(undefined);
+  mockedPurge.mockResolvedValue(undefined);
   useSessionStore.getState().setSession({
     accessToken: 'a'.repeat(48),
     accessTokenExpiresAt: '2026-08-03T12:00:00.000Z',
@@ -65,14 +65,14 @@ test('a rejected logout is handled and exposes a non-sensitive cleanup retry', a
 
   expect(result.current.isSigningOut).toBe(false);
   expect(result.current.errorMessage).toBe(
-    'Signed out locally, but secure session deactivation is incomplete. Try again or contact support.',
+    'Signed out locally, but secure data cleanup is incomplete. Try again or contact support.',
   );
   expect(result.current.errorMessage).not.toContain('/private/device/path');
 
   await act(async () => {
     await result.current.retryCleanup();
   });
-  expect(mockedDeactivate).toHaveBeenCalledWith(namespace);
+  expect(mockedPurge).toHaveBeenCalledWith(namespace);
   expect(result.current.errorMessage).toBeNull();
 });
 

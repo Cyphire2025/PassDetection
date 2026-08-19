@@ -2,9 +2,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import BriefcaseBusiness from 'lucide-react-native/icons/briefcase-business';
 import Plane from 'lucide-react-native/icons/plane';
 import ShieldCheck from 'lucide-react-native/icons/shield-check';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { APP_DISPLAY_NAME } from '@/core/config/branding';
+import { useAccessibilityRouteFocus } from '@/design/accessibility/use-accessibility-route-focus';
 import { AmbientHeroGlow } from '@/design/components/ambient-hero-glow';
 import { HeroParticles } from '@/design/components/hero-particles';
 import { OfflineStatusChip } from '@/design/components/offline-status-chip';
@@ -54,6 +56,8 @@ export function PageHeader({
   tone?: PageHeaderTone;
 }) {
   const config = toneConfig[tone];
+  const titleRef = useRef<Text>(null);
+  useAccessibilityRouteFocus(titleRef);
   return (
     <LinearGradient
       colors={config.colors}
@@ -66,7 +70,7 @@ export function PageHeader({
       <View style={styles.topRow}>
         <View style={styles.eyebrowPill}>
           <EyebrowIcon tone={tone} />
-          <Text style={styles.eyebrow}>{eyebrow || 'Group Companion'}</Text>
+          <Text style={styles.eyebrow}>{eyebrow || APP_DISPLAY_NAME}</Text>
         </View>
         <View style={styles.accessory}>
           <OfflineStatusChip />
@@ -74,7 +78,7 @@ export function PageHeader({
         </View>
       </View>
       <View style={styles.text}>
-        <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+        <Text ref={titleRef} accessibilityRole="header" style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
       <View style={[styles.accentLine, { backgroundColor: config.accent }]} />
@@ -114,7 +118,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.16)',
     borderWidth: 22,
   },
-  topRow: { minHeight: 30, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.sm },
+  topRow: {
+    minHeight: 30,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
   eyebrowPill: {
     minHeight: 28,
     alignSelf: 'flex-start',
@@ -127,8 +138,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.09)',
     paddingHorizontal: spacing.md,
   },
-  accessory: { flex: 1, alignItems: 'flex-end', gap: spacing.xs },
-  text: { maxWidth: '94%', gap: spacing.sm },
+  accessory: { flex: 1, minWidth: 120, alignItems: 'flex-end', gap: spacing.xs },
+  text: { maxWidth: '94%', flexShrink: 1, gap: spacing.sm },
   eyebrow: {
     color: colors.white,
     fontSize: 10,
@@ -136,7 +147,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.15,
     textTransform: 'uppercase',
   },
-  title: { color: colors.white, fontSize: 29, lineHeight: 33, fontWeight: '900', letterSpacing: -0.5 },
+  title: { flexShrink: 1, color: colors.white, fontSize: 29, lineHeight: 36, fontWeight: '900', letterSpacing: -0.5 },
   subtitle: { color: 'rgba(255,255,255,0.76)', fontSize: 13, lineHeight: 19 },
   accentLine: { width: 38, height: 4, borderRadius: radii.pill },
 });

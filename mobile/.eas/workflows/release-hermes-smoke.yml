@@ -1,0 +1,84 @@
+name: Global Connect Travels release-Hermes smoke
+
+# This workflow is intentionally manual. It consumes EAS build/test capacity
+# and must be run from the protected, linked Expo project before a release.
+jobs:
+  build_android:
+    name: Build Android emulator artifact
+    type: build
+    params:
+      platform: android
+      profile: e2e-test
+
+  build_ios:
+    name: Build iOS simulator artifact
+    type: build
+    params:
+      platform: ios
+      profile: e2e-test
+
+  test_android:
+    name: Run Android release-Hermes journeys
+    needs: [build_android]
+    type: maestro
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path:
+        - .maestro/release-hermes-auth-smoke.yml
+        - .maestro/flows/verified-activation-link.yml
+        - .maestro/flows/passenger-document-cache.yml
+        - .maestro/flows/account-switch-isolation.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js
+
+  test_ios:
+    name: Run iOS release-Hermes journeys
+    needs: [build_ios]
+    type: maestro
+    environment: preview
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      flow_path:
+        - .maestro/release-hermes-auth-smoke.yml
+        - .maestro/flows/verified-activation-link.yml
+        - .maestro/flows/passenger-document-cache.yml
+        - .maestro/flows/account-switch-isolation.yml
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js
+
+  test_android_offline:
+    name: Prove Android encrypted-cache offline restart
+    needs: [build_android, test_android]
+    type: maestro
+    environment: preview
+    runs_on: linux-large-nested-virtualization
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path: .maestro/flows/passenger-document-offline-android.yml
+      device_identifier: pixel_6
+      retries: 1
+      retry_failed_only: true
+      record_screen: false
+      output_format: junit
+      maestro_version: 2.7.0
+    hooks:
+      before_maestro_tests:
+        - name: Validate isolated synthetic staging fixtures
+          run: node scripts/validate-maestro-environment.js

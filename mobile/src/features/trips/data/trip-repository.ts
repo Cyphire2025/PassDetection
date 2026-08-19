@@ -2,6 +2,7 @@ import { TripListSchema } from '@/core/api/contracts';
 import { apiRequest, ApiError } from '@/core/api/client';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
+import { parseIanaTimeZone } from '@/core/localization/time-zone';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   purgeTripCache,
@@ -20,7 +21,6 @@ import type { Trip } from '../model/trip';
 import { collectCursorPages } from './pagination';
 
 const TRIP_PAGE_SIZE = 100;
-const MAX_TRIP_PAGES = 20;
 type TripRefreshResult = { trips: Trip[]; offline: boolean };
 
 // Trip discovery is shared by preload, runtime sync, notifications and manual
@@ -67,6 +67,7 @@ async function localTripsForAccount(syncContext?: ImmutableSyncContext): Promise
     destination: string | null;
     travel_date: string | null;
     return_date: string | null;
+    timezone: string;
     role: Trip['role'];
     access_generation: number;
     access_expires_at: string | null;
@@ -76,7 +77,7 @@ async function localTripsForAccount(syncContext?: ImmutableSyncContext): Promise
     announcement_version: number;
     updated_at: string;
   }>(
-    `SELECT id, name, destination, travel_date, return_date, role, access_generation, access_expires_at,
+    `SELECT id, name, destination, travel_date, return_date, timezone, role, access_generation, access_expires_at,
             (SELECT MAX(cursor.last_synced_at)
                FROM sync_cursors cursor
               WHERE cursor.account_namespace = trips.account_namespace
@@ -92,8 +93,7 @@ async function localTripsForAccount(syncContext?: ImmutableSyncContext): Promise
            WHERE purge.account_namespace = trips.account_namespace
              AND purge.trip_id = trips.id
         )
-      ORDER BY COALESCE(travel_date, '9999-12-31'), name
-      LIMIT 2000`,
+      ORDER BY COALESCE(travel_date, '9999-12-31'), name`,
     namespace,
   );
   const observedNow = Date.now();
@@ -108,6 +108,7 @@ async function localTripsForAccount(syncContext?: ImmutableSyncContext): Promise
     destination: row.destination,
     travelDate: row.travel_date,
     returnDate: row.return_date,
+    timeZone: parseIanaTimeZone(row.timezone),
     role: row.role,
     accessGeneration: row.access_generation,
     accessExpiresAt: row.access_expires_at,
@@ -168,14 +169,14 @@ async function storeTrips(trips: Trip[], syncContext?: ImmutableSyncContext): Pr
       if (syncContext) assertSyncContextActive(syncContext);
       await transaction.runAsync(
         `INSERT INTO trips (
-           id, account_namespace, agency_id, role, name, destination, travel_date, return_date,
+           id, account_namespace, agency_id, role, name, destination, travel_date, return_date, timezone,
            access_generation, access_expires_at,
            itinerary_version, common_document_version, personal_document_version,
            announcement_version, readiness_version, roster_version, rooming_version,
            meals_version, qr_version,
            advertised_itinerary_version, advertised_common_document_version,
            advertised_announcement_version, updated_at
-         ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, -1, -1, -1, -1, -1, -1, -1, -1, -1, ?, ?, ?, ?
+         ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, -1, -1, -1, -1, -1, -1, -1, -1, -1, ?, ?, ?, ?
             WHERE NOT EXISTS (
               SELECT 1 FROM trip_purge_tombstones purge
                WHERE purge.account_namespace = ? AND purge.trip_id = ?
@@ -188,6 +189,7 @@ async function storeTrips(trips: Trip[], syncContext?: ImmutableSyncContext): Pr
            destination = excluded.destination,
            travel_date = excluded.travel_date,
            return_date = excluded.return_date,
+           timezone = excluded.timezone,
            access_generation = excluded.access_generation,
            advertised_itinerary_version = excluded.advertised_itinerary_version,
            advertised_common_document_version = excluded.advertised_common_document_version,
@@ -201,6 +203,7 @@ async function storeTrips(trips: Trip[], syncContext?: ImmutableSyncContext): Pr
         trip.destination,
         trip.travelDate,
         trip.returnDate,
+        trip.timeZone,
         trip.accessGeneration,
         trip.accessExpiresAt,
         trip.itineraryVersion,
@@ -229,7 +232,7 @@ async function refreshTripsForAccount(
         schema: TripListSchema,
         ...(syncContext ? { signal: syncContext.signal } : {}),
       });
-    }, MAX_TRIP_PAGES);
+    }, syncContext ? () => assertSyncContextActive(syncContext) : undefined);
   } catch (networkError) {
     if (syncContext) assertSyncContextActive(syncContext);
     // Authentication, authorization, validation and lifecycle responses are
@@ -249,6 +252,7 @@ async function refreshTripsForAccount(
     destination: item.destination,
     travelDate: item.travel_date,
     returnDate: item.return_date,
+    timeZone: item.timezone,
     role: item.role,
     accessGeneration: item.access_generation,
     accessExpiresAt: null,

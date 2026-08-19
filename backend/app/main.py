@@ -25,6 +25,10 @@ except ModuleNotFoundError:  # pragma: no cover - dev safety fallback
 from app.core.config.settings import Settings, get_settings
 from app.core.logging.logger import configure_logging, get_logger
 from app.infrastructure.ai_priority.identity import gemini_runtime_identity
+from app.infrastructure.mobile_realtime import (
+    start_mobile_realtime,
+    stop_mobile_realtime,
+)
 from app.infrastructure.observability.sentry import sentry_init_options
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.infrastructure.verification.dispatcher import (
@@ -140,7 +144,12 @@ def create_application(
 
     @app.on_event("startup")
     async def on_startup() -> None:
-        await MinioStorageRepository().ensure_bucket_exists()
+        await start_mobile_realtime(settings)
+        try:
+            await MinioStorageRepository().ensure_bucket_exists()
+        except Exception:
+            await stop_mobile_realtime()
+            raise
         app.state.post_submission_verification_recovery_task = asyncio.create_task(
             post_submission_verification_recovery_loop()
         )
@@ -172,6 +181,7 @@ def create_application(
             recovery_task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await recovery_task
+        await stop_mobile_realtime()
         logger.info("application_shutdown")
 
     return app

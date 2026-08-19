@@ -16,7 +16,7 @@ export function temporaryViewCacheEvictions(
   const evictions: string[] = [];
   const candidates = entries
     .filter((entry) => entry.key !== activeKey)
-    .toSorted((left, right) => left.lastAccessedAt - right.lastAccessedAt);
+    .sort((left, right) => left.lastAccessedAt - right.lastAccessedAt);
 
   for (const candidate of candidates) {
     if (totalFiles <= TEMPORARY_VIEW_CACHE_MAX_FILES && totalBytes <= TEMPORARY_VIEW_CACHE_MAX_BYTES) break;

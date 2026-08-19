@@ -1,3 +1,5 @@
+import { ACCOUNT_DATABASE_VERSION } from '../database-schema';
+
 const mockOpenDatabaseAsync = jest.fn<Promise<unknown>, [string, { useNewConnection?: boolean }?]>();
 const mockDeleteDatabaseAsync = jest.fn<Promise<void>, [string]>(async (_name) => undefined);
 const mockDigestStringAsync = jest.fn<Promise<string>, [string, string]>(
@@ -54,10 +56,12 @@ jest.mock('expo-file-system', () => {
     readonly name: string;
     readonly uri: string;
     exists = true;
+    size: number;
 
     constructor(...parts: unknown[]) {
       this.uri = uriFor(...parts);
       this.name = this.uri.slice(this.uri.lastIndexOf('/') + 1);
+      this.size = this.name.endsWith('-wal') ? 9 * 1024 * 1024 : 0;
     }
 
     delete() {
@@ -111,6 +115,8 @@ import {
   deleteAccountDatabase,
   OfflineDatabaseIntegrityError,
   openAccountDatabase,
+  runAccountDatabaseMaintenance,
+  setAccountDatabaseApplicationState,
   withAccountTransaction,
 } from '../database';
 
@@ -141,6 +147,7 @@ type FakeDatabase = {
   closeAsync: jest.Mock<Promise<void>, []>;
   execAsync: jest.Mock<Promise<void>, [string]>;
   getFirstAsync: jest.Mock<Promise<Record<string, unknown> | null>, [string, ...unknown[]]>;
+  getAllAsync: jest.Mock<Promise<Record<string, unknown>[]>, [string, ...unknown[]]>;
   runAsync: jest.Mock<Promise<RunResult>, [string, ...unknown[]]>;
 };
 
@@ -152,7 +159,7 @@ function deferred(): Deferred {
   return { promise, resolve };
 }
 
-function fakeDatabase(userVersion = 16): FakeDatabase {
+function fakeDatabase(userVersion = ACCOUNT_DATABASE_VERSION): FakeDatabase {
   return {
     closeAsync: jest.fn(async () => undefined),
     execAsync: jest.fn(async (_sql: string) => undefined),
@@ -161,8 +168,12 @@ function fakeDatabase(userVersion = 16): FakeDatabase {
       if (sql.includes("name = 'pending_actions'")) return { table_exists: 1 };
       if (sql === 'SELECT COUNT(*) AS count FROM pending_actions') return { count: 0 };
       if (sql === 'PRAGMA user_version') return { user_version: userVersion };
+      if (sql === 'PRAGMA page_count') return { page_count: 4_000 };
+      if (sql === 'PRAGMA freelist_count') return { freelist_count: 800 };
+      if (sql === 'PRAGMA auto_vacuum') return { auto_vacuum: 0 };
       return null;
     }),
+    getAllAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => []),
     runAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => ({
       changes: 1,
       lastInsertRowId: 1,
@@ -180,6 +191,7 @@ function queueAccountConnections(
 }
 
 beforeEach(async () => {
+  setAccountDatabaseApplicationState(false);
   await closeAccountDatabase();
   mockOpenDatabaseAsync.mockReset();
   mockDeleteDatabaseAsync.mockClear();
@@ -193,6 +205,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
+  setAccountDatabaseApplicationState(false);
   await closeAccountDatabase();
 });
 
@@ -282,7 +295,7 @@ test('skips the periodic integrity walk after a verified clean close', async () 
 
   expect(mockHealthMarkers.get('agency.clean-reopen')).toMatchObject({
     state: 'clean',
-    schemaVersion: 16,
+    schemaVersion: ACCOUNT_DATABASE_VERSION,
   });
 
   const reopenedDatabase = fakeDatabase();
@@ -295,11 +308,75 @@ test('skips the periodic integrity walk after a verified clean close', async () 
   )).toHaveLength(0);
 });
 
+test('runs bounded retention, optimize, and passive WAL checkpoint after an idle window', async () => {
+  let nowMs = Date.parse('2030-06-01T00:00:00.000Z');
+  const clock = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+  const database = fakeDatabase();
+  const transactionDatabase = fakeDatabase();
+  queueAccountConnections(database, transactionDatabase);
+  try {
+    await openAccountDatabase('agency.idle-maintenance');
+    setAccountDatabaseApplicationState(true);
+    nowMs += 31_000;
+
+    await expect(runAccountDatabaseMaintenance()).resolves.toEqual({
+      status: 'completed',
+      operations: [
+        { type: 'optimize' },
+        { type: 'wal_checkpoint', mode: 'passive' },
+      ],
+    });
+
+    const executed = database.execAsync.mock.calls.map(([sql]) => sql);
+    expect(executed).toContain('BEGIN IMMEDIATE');
+    expect(executed).toContain('COMMIT');
+    expect(executed).toContain('PRAGMA optimize');
+    expect(database.getAllAsync).toHaveBeenCalledWith('PRAGMA wal_checkpoint(PASSIVE)');
+    expect(database.runAsync.mock.calls.some(([sql]) => (
+      sql.includes('INSERT INTO storage_maintenance_state')
+    ))).toBe(true);
+    expect(database.runAsync.mock.calls.some(([sql]) => (
+      sql.includes('ROW_NUMBER() OVER')
+    ))).toBe(true);
+  } finally {
+    setAccountDatabaseApplicationState(false);
+    clock.mockRestore();
+  }
+});
+
+test('does not start maintenance while a user write is queued or running', async () => {
+  let nowMs = Date.parse('2030-06-01T00:00:00.000Z');
+  const clock = jest.spyOn(Date, 'now').mockImplementation(() => nowMs);
+  const database = fakeDatabase();
+  const transactionDatabase = fakeDatabase();
+  queueAccountConnections(database, transactionDatabase);
+  const gate = deferred();
+  try {
+    const opened = await openAccountDatabase('agency.busy-maintenance');
+    setAccountDatabaseApplicationState(true);
+    const writing = withAccountTransaction(opened, async () => gate.promise);
+    nowMs += 31_000;
+
+    await expect(runAccountDatabaseMaintenance()).resolves.toMatchObject({
+      status: 'skipped',
+      operations: [],
+      skipReason: 'user_write_pending',
+    });
+    expect(database.execAsync.mock.calls.map(([sql]) => sql)).not.toContain('PRAGMA optimize');
+    gate.resolve();
+    await writing;
+  } finally {
+    gate.resolve();
+    setAccountDatabaseApplicationState(false);
+    clock.mockRestore();
+  }
+});
+
 test('validates after an unclean shutdown marker', async () => {
   mockHealthMarkers.set('agency.dirty-restart', {
     formatVersion: 1,
     state: 'dirty',
-    schemaVersion: 16,
+    schemaVersion: ACCOUNT_DATABASE_VERSION,
     lastIntegrityCheckAtMs: Date.now(),
   });
   const database = fakeDatabase();
@@ -317,13 +394,13 @@ test.each([
   ['a stale periodic marker', {
     formatVersion: 1 as const,
     state: 'clean' as const,
-    schemaVersion: 16,
+    schemaVersion: ACCOUNT_DATABASE_VERSION,
     lastIntegrityCheckAtMs: Date.now() - (8 * 24 * 60 * 60 * 1_000),
   }],
   ['a marker for an older schema', {
     formatVersion: 1 as const,
     state: 'clean' as const,
-    schemaVersion: 15,
+    schemaVersion: 17,
     lastIntegrityCheckAtMs: Date.now(),
   }],
 ])('validates when opening with %s', async (_description, marker) => {
@@ -345,17 +422,22 @@ test('rechecks integrity after migration even when a clean marker skips the init
   mockHealthMarkers.set(namespace, {
     formatVersion: 1,
     state: 'clean',
-    schemaVersion: 16,
+    schemaVersion: ACCOUNT_DATABASE_VERSION,
     lastIntegrityCheckAtMs: Date.now(),
   });
-  const database = fakeDatabase(15);
+  const database = fakeDatabase(17);
   const transactionDatabase = fakeDatabase();
   queueAccountConnections(database, transactionDatabase);
 
   await openAccountDatabase(namespace);
 
   expect(transactionDatabase.execAsync.mock.calls.flatMap(([sql]) => sql)).toEqual(
-    expect.arrayContaining([expect.stringContaining('PRAGMA user_version = 16')]),
+    expect.arrayContaining([
+      expect.stringContaining('PRAGMA user_version = 18'),
+      expect.stringContaining('PRAGMA user_version = 19'),
+      expect.stringContaining('PRAGMA user_version = 20'),
+      expect.stringContaining('PRAGMA user_version = 21'),
+    ]),
   );
   expect(database.getFirstAsync.mock.calls.filter(
     ([sql]) => sql === 'PRAGMA quick_check(1)',
@@ -386,7 +468,12 @@ test('creates the current account schema with stable account and version-state i
   expect(schemaSql).toContain("SELECT RAISE(ABORT, 'trip purge pending')");
   expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS offline_document_jobs');
   expect(schemaSql).toContain('CREATE INDEX IF NOT EXISTS idx_offline_document_jobs_due');
-  expect(schemaSql).toContain('PRAGMA user_version = 16');
+  expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS sync_rebase_staging');
+  expect(schemaSql).toContain('CREATE VIRTUAL TABLE IF NOT EXISTS coordinator_passengers_fts USING fts5');
+  expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS local_roster_cursors');
+  expect(schemaSql).toContain('CREATE TABLE IF NOT EXISTS coordinator_roster_staging');
+  expect(schemaSql).toContain('CREATE INDEX IF NOT EXISTS idx_pending_attendance_session');
+  expect(schemaSql).toContain(`PRAGMA user_version = ${ACCOUNT_DATABASE_VERSION}`);
 });
 
 test('migrates version 11 coordinator detail caches to the versioned payload contract', async () => {

@@ -12,6 +12,8 @@ import {
   type SectionListRenderItemInfo,
 } from 'react-native';
 
+import { englishMessages, formatInstantDateTime } from '@/core/localization/date-time';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -33,6 +35,7 @@ type UpdatesSection = { title: 'Updates' | 'Group announcements'; data: Row[] };
 
 export default function PassengerUpdatesScreen() {
   const trips = useTrips();
+  const selectedTimeZone = trips.selectedTrip?.timeZone;
   const notifications = useNotifications(trips.selectedTripId);
   const announcements = useAnnouncements(trips.selectedTripId);
   const notificationItems = useMemo(() => {
@@ -67,7 +70,11 @@ export default function PassengerUpdatesScreen() {
       return (
         <GlassCard style={[styles.card, announcement.priority === 'emergency' && styles.emergency]}>
           <Text style={styles.title}>{announcement.title}</Text>
-          <Text style={styles.date}>{new Date(announcement.published_at).toLocaleString()}</Text>
+          <Text style={styles.date}>
+            {selectedTimeZone
+              ? formatInstantDateTime(announcement.published_at, { timeZone: selectedTimeZone })
+              : englishMessages.dateUnavailable()}
+          </Text>
           <Text style={styles.message}>{announcement.message}</Text>
         </GlassCard>
       );
@@ -87,7 +94,11 @@ export default function PassengerUpdatesScreen() {
             </View>
             <View style={styles.headingText}>
               <Text style={styles.title}>{notification.title}</Text>
-              <Text style={styles.date}>{notification.category} - {new Date(notification.available_at).toLocaleString()}</Text>
+              <Text style={styles.date}>
+                {notification.category} - {selectedTimeZone
+                  ? formatInstantDateTime(notification.available_at, { timeZone: selectedTimeZone })
+                  : englishMessages.dateUnavailable()}
+              </Text>
             </View>
             {!notification.read_at ? <View accessibilityLabel="Unread" style={styles.unreadDot} /> : null}
           </View>
@@ -95,7 +106,7 @@ export default function PassengerUpdatesScreen() {
         </GlassCard>
       </Pressable>
     );
-  }, [notifications]);
+  }, [notifications, selectedTimeZone]);
 
   const loadMore = useCallback(() => {
     if (notifications.hasNextPage && !notifications.isFetchingNextPage) void notifications.fetchNextPage();
@@ -118,9 +129,7 @@ export default function PassengerUpdatesScreen() {
         )}
         keyExtractor={(item) => `${item.kind}:${item.value.id}`}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={14}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.feed}
         onEndReached={loadMore}
         onEndReachedThreshold={0.6}
         contentContainerStyle={styles.list}

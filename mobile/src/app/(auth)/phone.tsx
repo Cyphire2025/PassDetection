@@ -53,6 +53,7 @@ export default function PhoneScreen() {
         ? 'Enter any value. This isolated emulator build opens local sample data without checking a real passenger record.'
         : 'Use the mobile number already registered with your passenger or WhatsApp record.'}>
       <TextField
+        testID="passenger-phone-input"
         label="Mobile number"
         placeholder="+91 98765 43210"
         keyboardType="phone-pad"
@@ -66,6 +67,7 @@ export default function PhoneScreen() {
       />
       <AuthError message={error} />
       <PrimaryButton
+        testID="passenger-send-otp"
         label={demoMode ? 'Open passenger demo' : 'Send verification code'}
         loading={loading}
         onPress={() => void submit()}

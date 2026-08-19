@@ -3,6 +3,7 @@ import { Directory, File } from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 
 import { ACCOUNT_DATABASE_VERSION, migrateAccountDatabase } from './database-schema';
+import { applyAccountStorageRetention } from './database-retention';
 
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
 import {
@@ -16,6 +17,11 @@ import {
   setDatabaseHealthMarker,
   type DatabaseHealthMarker,
 } from './secure-store';
+import {
+  DEFAULT_IDLE_STORAGE_MAINTENANCE_POLICY,
+  planIdleStorageMaintenance,
+  type IdleStorageMaintenanceOperation,
+} from './storage-maintenance-policy';
 
 const DATABASE_VERSION = ACCOUNT_DATABASE_VERSION;
 const DATABASE_HEALTH_MARKER_FORMAT_VERSION = 1;
@@ -29,6 +35,10 @@ type ActiveDatabase = {
   state: 'open' | 'closing';
   transactions: TransactionCoordinator;
   lastIntegrityCheckAtMs: number;
+  lastMaintenanceRunAtMs: number | null;
+  lastUserActivityAtMs: number;
+  pendingUserWrites: number;
+  maintenanceTimer: ReturnType<typeof setTimeout> | null;
 };
 
 type TransactionCoordinator = {
@@ -58,6 +68,7 @@ export class OfflineDatabaseIntegrityError extends Error {
 
 let activeDatabase: ActiveDatabase | null = null;
 let databaseLifecycleTail: Promise<void> = Promise.resolve();
+let databaseApplicationIsActive = false;
 
 function managedDatabaseDirectory(): Directory {
   const nativeDirectory: unknown = SQLite.defaultDatabaseDirectory;
@@ -161,6 +172,172 @@ function runDatabaseLifecycle<T>(operation: () => Promise<T>): Promise<T> {
   return result;
 }
 
+function cancelMaintenanceTimer(active: ActiveDatabase): void {
+  if (active.maintenanceTimer === null) return;
+  clearTimeout(active.maintenanceTimer);
+  active.maintenanceTimer = null;
+}
+
+function scheduleMaintenance(active: ActiveDatabase, delayMs?: number): void {
+  cancelMaintenanceTimer(active);
+  if (
+    !databaseApplicationIsActive
+    || active.state !== 'open'
+    || activeDatabase !== active
+  ) return;
+  const delay = Math.max(
+    0,
+    Math.min(
+      2_147_483_647,
+      delayMs ?? DEFAULT_IDLE_STORAGE_MAINTENANCE_POLICY.minimumIdleDurationMs,
+    ),
+  );
+  active.maintenanceTimer = setTimeout(() => {
+    active.maintenanceTimer = null;
+    void runAccountDatabaseMaintenance().catch(() => {
+      if (activeDatabase === active && active.state === 'open') {
+        scheduleMaintenance(active, 5 * 60 * 1_000);
+      }
+    });
+  }, delay);
+}
+
+function noteDatabaseUserActivity(active: ActiveDatabase): void {
+  active.lastUserActivityAtMs = Date.now();
+  scheduleMaintenance(active);
+}
+
+function pragmaInteger(row: Record<string, unknown> | null, label: string): number {
+  const value = row ? Object.values(row)[0] : null;
+  if (!Number.isSafeInteger(value) || (value as number) < 0) {
+    throw new Error(`SQLite ${label} telemetry was invalid.`);
+  }
+  return value as number;
+}
+
+function databaseWalBytes(name: string): number | null {
+  const wal = new File(managedDatabaseDirectory(), `${name}-wal`);
+  if (!wal.exists) return 0;
+  const size = wal.size;
+  return Number.isSafeInteger(size) && size >= 0 ? size : null;
+}
+
+async function executeMaintenanceOperation(
+  database: SQLite.SQLiteDatabase,
+  operation: IdleStorageMaintenanceOperation,
+): Promise<void> {
+  if (operation.type === 'optimize') {
+    await database.execAsync('PRAGMA optimize');
+  } else if (operation.type === 'wal_checkpoint') {
+    await database.getAllAsync('PRAGMA wal_checkpoint(PASSIVE)');
+  } else {
+    await database.execAsync(`PRAGMA incremental_vacuum(${operation.maximumPages})`);
+  }
+}
+
+export type AccountDatabaseMaintenanceResult = Readonly<{
+  status: 'completed' | 'skipped' | 'no_active_database';
+  operations: readonly IdleStorageMaintenanceOperation[];
+  skipReason?: ReturnType<typeof planIdleStorageMaintenance>['skipReason'];
+}>;
+
+/**
+ * Runs bounded account-local retention and SQLite housekeeping only through the lifecycle lane.
+ * The lane prevents close/account-switch races; the pending-write and idle fences keep this work
+ * outside user-visible write transactions. No blocking full VACUUM is ever issued.
+ */
+export function runAccountDatabaseMaintenance(): Promise<AccountDatabaseMaintenanceResult> {
+  return runDatabaseLifecycle(async () => {
+    const active = activeDatabase;
+    if (!active || active.state !== 'open') {
+      return { status: 'no_active_database', operations: [] };
+    }
+    cancelMaintenanceTimer(active);
+    const nowMs = Date.now();
+    const pageCount = pragmaInteger(
+      await active.database.getFirstAsync<Record<string, unknown>>('PRAGMA page_count'),
+      'page-count',
+    );
+    const freelistPageCount = pragmaInteger(
+      await active.database.getFirstAsync<Record<string, unknown>>('PRAGMA freelist_count'),
+      'freelist-count',
+    );
+    const autoVacuumMode = pragmaInteger(
+      await active.database.getFirstAsync<Record<string, unknown>>('PRAGMA auto_vacuum'),
+      'auto-vacuum',
+    );
+    if (autoVacuumMode !== 0 && autoVacuumMode !== 1 && autoVacuumMode !== 2) {
+      throw new Error('SQLite auto-vacuum telemetry was invalid.');
+    }
+    const plan = planIdleStorageMaintenance({
+      nowMs,
+      lastRunAtMs: active.lastMaintenanceRunAtMs,
+      appIsActive: databaseApplicationIsActive,
+      idleDurationMs: Math.max(0, nowMs - active.lastUserActivityAtMs),
+      hasPendingUserWrite: active.pendingUserWrites > 0,
+      // Expo Battery is intentionally not a mandatory runtime dependency. Incremental vacuum
+      // remains disabled unless a future native power signal can prove the device is charging.
+      isCharging: null,
+      lowPowerModeEnabled: false,
+      walBytes: databaseWalBytes(active.name),
+      pageCount,
+      freelistPageCount,
+      autoVacuumMode,
+    });
+    if (!plan.due) {
+      const intervalRemaining = active.lastMaintenanceRunAtMs === null
+        ? 0
+        : Math.max(
+          0,
+          active.lastMaintenanceRunAtMs
+            + DEFAULT_IDLE_STORAGE_MAINTENANCE_POLICY.minimumRunIntervalMs
+            - nowMs,
+        );
+      const idleRemaining = Math.max(
+        0,
+        DEFAULT_IDLE_STORAGE_MAINTENANCE_POLICY.minimumIdleDurationMs
+          - (nowMs - active.lastUserActivityAtMs),
+      );
+      scheduleMaintenance(active, Math.max(intervalRemaining, idleRemaining, 1_000));
+      return {
+        status: 'skipped',
+        operations: [],
+        skipReason: plan.skipReason,
+      };
+    }
+
+    await applyAccountStorageRetention(active.database, active.namespace, nowMs);
+    for (const operation of plan.operations) {
+      if (activeDatabase !== active || active.state !== 'open') {
+        throw new Error('The account database changed during storage maintenance.');
+      }
+      await executeMaintenanceOperation(active.database, operation);
+    }
+    await active.database.runAsync(
+      `INSERT INTO storage_maintenance_state(singleton_id, last_run_at_epoch_ms)
+       VALUES (1, ?)
+       ON CONFLICT(singleton_id) DO UPDATE SET
+         last_run_at_epoch_ms = excluded.last_run_at_epoch_ms`,
+      nowMs,
+    );
+    active.lastMaintenanceRunAtMs = nowMs;
+    scheduleMaintenance(active, DEFAULT_IDLE_STORAGE_MAINTENANCE_POLICY.minimumRunIntervalMs);
+    return { status: 'completed', operations: plan.operations };
+  });
+}
+
+/** Lifecycle signal installed once by the app runtime; backgrounding cancels pending work. */
+export function setAccountDatabaseApplicationState(isActive: boolean): void {
+  databaseApplicationIsActive = isActive;
+  const active = activeDatabase;
+  if (!active) return;
+  if (!isActive) {
+    cancelMaintenanceTimer(active);
+    return;
+  }
+  noteDatabaseUserActivity(active);
+}
+
 async function configureDatabaseConnection(
   database: SQLite.SQLiteDatabase,
   key: string,
@@ -169,7 +346,7 @@ async function configureDatabaseConnection(
   await database.execAsync(`PRAGMA key = "x'${key}'"`);
   const journalMode = includeJournalMode ? ' PRAGMA journal_mode = WAL;' : '';
   await database.execAsync(
-    `PRAGMA foreign_keys = ON;${journalMode} PRAGMA busy_timeout = 5000;`,
+    `PRAGMA foreign_keys = ON;${journalMode} PRAGMA busy_timeout = 5000; PRAGMA journal_size_limit = 16777216;`,
   );
 }
 
@@ -437,6 +614,18 @@ export async function openAccountDatabase(namespace: string): Promise<SQLite.SQL
     const lastIntegrityCheckAtMs = prepared.integrityCheckedAtMs
       ?? previousHealth?.lastIntegrityCheckAtMs
       ?? 0;
+    const maintenanceState = await prepared.database.getFirstAsync<{
+      last_run_at_epoch_ms: number;
+    }>(
+      `SELECT last_run_at_epoch_ms
+         FROM storage_maintenance_state
+        WHERE singleton_id = 1`,
+    );
+    const lastMaintenanceRunAtMs = Number.isSafeInteger(
+      maintenanceState?.last_run_at_epoch_ms,
+    ) && (maintenanceState?.last_run_at_epoch_ms ?? -1) >= 0
+      ? maintenanceState!.last_run_at_epoch_ms
+      : null;
 
     try {
       await protectDatabaseArtifactsForName(name);
@@ -460,7 +649,12 @@ export async function openAccountDatabase(namespace: string): Promise<SQLite.SQL
       state: 'open',
       transactions: prepared.transactions,
       lastIntegrityCheckAtMs,
+      lastMaintenanceRunAtMs,
+      lastUserActivityAtMs: Date.now(),
+      pendingUserWrites: 0,
+      maintenanceTimer: null,
     };
+    scheduleMaintenance(activeDatabase);
     return prepared.database;
   });
 }
@@ -476,7 +670,12 @@ export function withAccountTransaction(
   if (active.state !== 'open') {
     return Promise.reject(new Error('The offline database is closing and cannot start another transaction.'));
   }
-  return active.transactions.run(task);
+  active.pendingUserWrites += 1;
+  noteDatabaseUserActivity(active);
+  return active.transactions.run(task).finally(() => {
+    active.pendingUserWrites = Math.max(0, active.pendingUserWrites - 1);
+    noteDatabaseUserActivity(active);
+  });
 }
 
 export async function closeAccountDatabase(): Promise<void> {
@@ -484,6 +683,7 @@ export async function closeAccountDatabase(): Promise<void> {
     const active = activeDatabase;
     if (!active) return;
     active.state = 'closing';
+    cancelMaintenanceTimer(active);
     active.transactions.stop();
     await active.transactions.wait();
     await active.transactions.close();
@@ -507,6 +707,7 @@ export async function deleteAccountDatabase(namespace: string): Promise<void> {
     if (activeDatabase?.name === name) {
       const active = activeDatabase;
       active.state = 'closing';
+      cancelMaintenanceTimer(active);
       active.transactions.stop();
       await active.transactions.wait();
       await active.transactions.close();

@@ -3,8 +3,10 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import { navigationAnimation, useReducedMotion } from '@/design/accessibility/use-reduced-motion';
 import { ApplicationErrorBoundary } from '@/core/errors/application-error-boundary';
+import { initializeMobileObservability } from '@/core/observability/mobile-observability';
 import { AppProviders } from '@/providers/app-providers';
 
+initializeMobileObservability();
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {

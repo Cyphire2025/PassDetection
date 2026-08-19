@@ -36,7 +36,7 @@ test("GC App has one top-level sidebar entry and exactly two primary section lin
 
 test("GC App reuses the visible blue Tour Ops workspace header", () => {
   assert.match(shell, /OperationsPageHeader/);
-  assert.match(shell, /eyebrow="Group Companion"/);
+  assert.match(shell, /eyebrow="Global Connect Travels"/);
   assert.doesNotMatch(shell, /from-slate-950|to-blue-950/);
 });
 

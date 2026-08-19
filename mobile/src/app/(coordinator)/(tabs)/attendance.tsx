@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -236,10 +237,7 @@ export default function CoordinatorAttendanceScreen() {
           ? `${item.kind}:${item.status}:${item.value.id}`
           : `${item.kind}:${item.value.id}`}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={16}
-        maxToRenderPerBatch={24}
-        updateCellsBatchingPeriod={35}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.denseRoster}
         contentContainerStyle={styles.list}
         refreshControl={(
           <RefreshControl

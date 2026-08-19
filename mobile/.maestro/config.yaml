@@ -1,0 +1,10 @@
+appId: com.globalconnects.groupcompanion
+flows:
+  - "release-hermes-auth-smoke.yml"
+  - "flows/*.yml"
+testOutputDir: ".maestro-output"
+platform:
+  android:
+    disableAnimations: true
+  ios:
+    disableAnimations: true

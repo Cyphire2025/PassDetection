@@ -32,8 +32,13 @@ from app.presentation.api.v1.routes.gc_app import router as gc_app_router
 from app.presentation.api.v1.routes.gc_app_content import router as gc_app_content_router
 from app.presentation.api.v1.routes.health import router as health_router
 from app.presentation.api.v1.routes.menu import router as menu_router
+from app.presentation.api.v1.routes.mobile_associations import (
+    router as mobile_associations_router,
+)
 from app.presentation.api.v1.routes.mobile_auth import router as mobile_auth_router
+from app.presentation.api.v1.routes.mobile_integrity import router as mobile_integrity_router
 from app.presentation.api.v1.routes.mobile_ops import router as mobile_ops_router
+from app.presentation.api.v1.routes.mobile_realtime import router as mobile_realtime_router
 from app.presentation.api.v1.routes.mobile_resources import router as mobile_resources_router
 from app.presentation.api.v1.routes.notifications import router as notifications_router
 from app.presentation.api.v1.routes.passport_image_library import (
@@ -61,9 +66,24 @@ api_v1_router.include_router(
     tags=["GC Mobile Authentication"],
 )
 api_v1_router.include_router(
+    mobile_associations_router,
+    prefix="/mobile",
+    tags=["GC Mobile Association"],
+)
+api_v1_router.include_router(
     mobile_resources_router,
     prefix="/mobile",
     tags=["GC Mobile Resources"],
+)
+api_v1_router.include_router(
+    mobile_integrity_router,
+    prefix="/mobile",
+    tags=["GC Mobile Integrity"],
+)
+api_v1_router.include_router(
+    mobile_realtime_router,
+    prefix="/mobile",
+    tags=["GC Mobile Realtime"],
 )
 api_v1_router.include_router(
     mobile_ops_router,

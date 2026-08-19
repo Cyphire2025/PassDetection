@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PrimaryButton } from '@/design/components/primary-button';
@@ -13,17 +14,16 @@ import { useTrips } from '@/features/trips/hooks/use-trips';
 
 export function RosterDetailScreen({ mode }: { mode: 'rooming' | 'meals' }) {
   const trips = useTrips();
-  const roster = useCoordinatorRoster(trips.selectedTripId, '');
+  const roster = useCoordinatorRoster(trips.selectedTripId, '', mode);
   const passengers = useMemo(
     () => roster.data?.pages.flatMap((page) => page.items) ?? [],
     [roster.data],
   );
-  const filtered = useMemo(
-    () =>
-      passengers.filter((passenger) =>
-        mode === 'rooming' ? passenger.room_number : passenger.meal_preference,
-      ),
-    [mode, passengers],
+  const incompleteOfflineProjection = useMemo(
+    () => roster.data?.pages.some(
+      (page) => 'projectionCompleteness' in page && !page.projectionCompleteness.isComplete,
+    ) ?? false,
+    [roster.data?.pages],
   );
   const renderItem = useCallback<ListRenderItem<CoordinatorPassenger>>(
     ({ item }) => (
@@ -47,20 +47,24 @@ export function RosterDetailScreen({ mode }: { mode: 'rooming' | 'meals' }) {
         subtitle={`${trips.selectedTrip?.name || 'Selected trip'} · synchronized roster`}
       />
       <FlatList
-        data={filtered}
+        data={passengers}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={ListSeparator}
-        initialNumToRender={12}
-        maxToRenderPerBatch={16}
-        windowSize={7}
-        removeClippedSubviews
+        {...MOBILE_LIST_WINDOWING.moderateRoster}
         onEndReached={loadNext}
         onEndReachedThreshold={0.6}
         ListHeaderComponent={
           <>
             {roster.isPending ? <ContentLoading label={`Loading ${mode}`} /> : null}
+            {incompleteOfflineProjection ? (
+              <View accessibilityRole="alert" style={styles.syncNotice}>
+                <Text style={styles.syncNoticeText}>
+                  The full roster is still synchronizing. These offline results may be incomplete.
+                </Text>
+              </View>
+            ) : null}
             {roster.isError ? (
               <ContentError
                 message={`No ${mode} copy is available offline.`}
@@ -74,7 +78,9 @@ export function RosterDetailScreen({ mode }: { mode: 'rooming' | 'meals' }) {
             <ContentEmpty
               title={`No ${mode} details loaded`}
               message={
-                roster.hasNextPage
+                incompleteOfflineProjection
+                  ? 'The full roster is still synchronizing on this device.'
+                  : roster.hasNextPage
                   ? 'Load the next roster page to continue checking assignments.'
                   : 'Assignments will appear after the roster synchronizes.'
               }
@@ -107,6 +113,15 @@ const styles = StyleSheet.create({
   list: { flexGrow: 1, paddingBottom: spacing.md },
   separator: { height: spacing.sm },
   footer: { paddingTop: spacing.md },
+  syncNotice: {
+    backgroundColor: colors.greenWash,
+    borderColor: colors.warning,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+  },
+  syncNoticeText: { color: colors.ink, fontSize: 12, fontWeight: '700' },
   card: { borderRadius: radii.md, padding: spacing.md, gap: 3 },
   name: { color: colors.ink, fontSize: 15, fontWeight: '800' },
   value: { color: colors.inkMuted, fontSize: 13 },

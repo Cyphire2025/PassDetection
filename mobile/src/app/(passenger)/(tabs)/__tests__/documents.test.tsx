@@ -48,10 +48,6 @@ jest.mock('@/features/content/data/content-repository', () => ({
   cacheDocument: (...args: unknown[]) => mockCacheDocument(...args),
   prefetchPassengerOfflineDocuments: (...args: unknown[]) => mockPrefetch(...args),
 }));
-jest.mock('@/features/content/data/passenger-document-policy', () => {
-  const actual = jest.requireActual('@/features/content/data/passenger-document-policy');
-  return { ...actual, shouldPrefetchPassengerDocument: () => true };
-});
 jest.mock('@/features/content/hooks/use-content', () => ({
   useDocuments: (...args: unknown[]) => mockUseDocuments(...args),
 }));
@@ -210,6 +206,40 @@ test('opens a personal document inside the passenger stack so back restores Pers
   const screen = await render(<PassengerDocumentsScreen />);
   expect(screen.queryByLabelText(`Open ${document.display_name}`)).toBeNull();
   await fireEvent.press(screen.getByLabelText('Expand Passport documents'));
+  await fireEvent.press(screen.getByLabelText(`Open ${document.display_name}`));
+
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/(passenger)/document/[id]',
+    params: { id: document.id, tripId: document.trip_id },
+  });
+});
+
+test('keeps an eligible pending personal document tappable so the viewer can materialize it', async () => {
+  const pendingDocument = {
+    ...document,
+    size_bytes: null,
+    checksum_sha256: null,
+    offline_available: false,
+    metadata_state: 'pending' as const,
+  };
+  mockPrefetch.mockResolvedValue({
+    total: 1,
+    completed: 0,
+    failed: 1,
+    currentDocumentName: null,
+  });
+  mockUseDocuments.mockReturnValue({
+    data: { items: [pendingDocument] },
+    isPending: false,
+    isError: false,
+    isRefetching: false,
+    refetch: jest.fn(async () => undefined),
+  });
+
+  const screen = await render(<PassengerDocumentsScreen />);
+  await fireEvent.press(screen.getByLabelText('Expand Passport documents'));
+
+  expect(screen.getByText('Tap to securely prepare and open')).toBeTruthy();
   await fireEvent.press(screen.getByLabelText(`Open ${document.display_name}`));
 
   expect(router.push).toHaveBeenCalledWith({

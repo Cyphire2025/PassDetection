@@ -3,6 +3,13 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as SecureStore from 'expo-secure-store';
 
 import { excludeAppPrivateUriFromBackup } from './ios-backup';
+import {
+  type AccountSecureValueKind,
+  assertSecureValueAccessAvailable,
+  isUnlockedOnlySecureValueAccessAvailable,
+  secureValuePolicy,
+  type SecureValueKind,
+} from './secure-store-policy';
 
 const KEY_PREFIX = 'gc.v1';
 const NAMESPACE_INDEX_KEY = `${KEY_PREFIX}.namespaces`;
@@ -12,17 +19,19 @@ const PENDING_CLEANUP_KEY = `${KEY_PREFIX}.pending-cleanup`;
 const INSTALL_MARKER = new File(Paths.document, '.gc-install-marker-v1');
 const PENDING_CLEANUP_FILE = new File(Paths.document, '.gc-pending-cleanup-v1.json');
 const secretCreationInFlight = new Map<string, Promise<string>>();
+const secureValueOperationTails = new Map<string, Promise<void>>();
 let namespaceIndexMutationTail: Promise<void> = Promise.resolve();
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-type SecretKind =
-  | 'refresh'
-  | 'database-key'
-  | 'vault-key'
-  | 'selected-trip'
-  | 'notification-response'
-  | 'database-health';
+type SecretKind = AccountSecureValueKind;
+
+export type OfflineAuthorizationRecord = Readonly<{
+  formatVersion: 1;
+  compactLease: string;
+  highWaterServerTimeMs: number;
+  anchoredWallClockMs: number;
+}>;
 
 export type DatabaseHealthMarker = {
   formatVersion: 1;
@@ -31,7 +40,39 @@ export type DatabaseHealthMarker = {
   lastIntegrityCheckAtMs: number;
 };
 
+export type PushRegistrationMarker = Readonly<{
+  formatVersion: 1;
+  sessionId: string;
+  provider: 'expo' | 'fcm' | 'apns';
+  tokenDigest: string;
+  installationId: string;
+  registeredAtMs: number;
+}>;
+
+export type AppAttestKeyRecord = Readonly<{
+  formatVersion: 1;
+  keyId: string;
+  registered: boolean;
+}>;
+
 const DATABASE_HEALTH_MARKER_FORMAT_VERSION = 1;
+
+function isOfflineAuthorizationRecord(value: unknown): value is OfflineAuthorizationRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return Object.keys(record).length === 4
+    && record.formatVersion === 1
+    && typeof record.compactLease === 'string'
+    && record.compactLease.length >= 256
+    && record.compactLease.length <= 4_096
+    && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(record.compactLease)
+    && typeof record.highWaterServerTimeMs === 'number'
+    && Number.isSafeInteger(record.highWaterServerTimeMs)
+    && record.highWaterServerTimeMs >= 0
+    && typeof record.anchoredWallClockMs === 'number'
+    && Number.isSafeInteger(record.anchoredWallClockMs)
+    && record.anchoredWallClockMs >= 0;
+}
 
 function isDatabaseHealthMarker(value: unknown): value is DatabaseHealthMarker {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -54,6 +95,23 @@ function isDatabaseHealthMarker(value: unknown): value is DatabaseHealthMarker {
     && marker.lastIntegrityCheckAtMs >= 0;
 }
 
+function isPushRegistrationMarker(value: unknown): value is PushRegistrationMarker {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const marker = value as Record<string, unknown>;
+  return Object.keys(marker).length === 6
+    && marker.formatVersion === 1
+    && typeof marker.sessionId === 'string'
+    && UUID_PATTERN.test(marker.sessionId)
+    && (marker.provider === 'expo' || marker.provider === 'fcm' || marker.provider === 'apns')
+    && typeof marker.tokenDigest === 'string'
+    && /^[0-9a-f]{64}$/i.test(marker.tokenDigest)
+    && typeof marker.installationId === 'string'
+    && UUID_PATTERN.test(marker.installationId)
+    && typeof marker.registeredAtMs === 'number'
+    && Number.isSafeInteger(marker.registeredAtMs)
+    && marker.registeredAtMs >= 0;
+}
+
 function assertNamespace(namespace: string): void {
   if (!/^[0-9a-f-]{36}\.[0-9a-f-]{36}$/i.test(namespace)) {
     throw new Error('Invalid account namespace.');
@@ -65,8 +123,81 @@ function keyFor(namespace: string, kind: SecretKind): string {
   return `${KEY_PREFIX}.${namespace}.${kind}`;
 }
 
+async function withSecureValueOperation<T>(key: string, operation: () => Promise<T>): Promise<T> {
+  const previous = secureValueOperationTails.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const tail = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  secureValueOperationTails.set(key, tail);
+  await previous;
+  try {
+    return await operation();
+  } finally {
+    release();
+    if (secureValueOperationTails.get(key) === tail) secureValueOperationTails.delete(key);
+  }
+}
+
+function readSecureValue(key: string, kind: SecureValueKind): Promise<string | null> {
+  return withSecureValueOperation(key, async () => {
+    assertSecureValueAccessAvailable(kind);
+    const { options } = secureValuePolicy(kind);
+    const current = await SecureStore.getItemAsync(key, options);
+    const legacy = await SecureStore.getItemAsync(key);
+
+    if (current !== null) {
+      // A crash between the copy and delete phases can leave a weaker legacy
+      // duplicate. Never return the hardened copy until that duplicate is gone.
+      if (legacy !== null) await SecureStore.deleteItemAsync(key);
+      return current;
+    }
+    if (legacy === null) return null;
+
+    // Copy first so process death cannot destroy the only usable value. A failed
+    // legacy delete rejects this read; the next attempt observes both copies and
+    // retries removal before exposing the value.
+    await SecureStore.setItemAsync(key, legacy, options);
+    await SecureStore.deleteItemAsync(key);
+    return legacy;
+  });
+}
+
+function writeSecureValue(
+  key: string,
+  kind: SecureValueKind,
+  value: string,
+): Promise<void> {
+  return withSecureValueOperation(key, async () => {
+    assertSecureValueAccessAvailable(kind);
+    const { options } = secureValuePolicy(kind);
+    await SecureStore.setItemAsync(key, value, options);
+    // Always retire the pre-policy service after the new value is durable. This
+    // is idempotent and also closes an interrupted migration on the next write.
+    await SecureStore.deleteItemAsync(key);
+  });
+}
+
+function deleteSecureValue(key: string, kind: SecureValueKind): Promise<void> {
+  return withSecureValueOperation(key, async () => {
+    let firstError: unknown;
+    const capture = async (operation: () => Promise<void>): Promise<void> => {
+      try {
+        await operation();
+      } catch (error) {
+        firstError ??= error;
+      }
+    };
+    // Cleanup is allowed while locked and must attempt both the policy service
+    // and the legacy service even when either native delete rejects.
+    await capture(() => SecureStore.deleteItemAsync(key, secureValuePolicy(kind).options));
+    await capture(() => SecureStore.deleteItemAsync(key));
+    if (firstError) throw firstError;
+  });
+}
+
 async function readNamespaces(): Promise<string[]> {
-  const encoded = await SecureStore.getItemAsync(NAMESPACE_INDEX_KEY);
+  const encoded = await readSecureValue(NAMESPACE_INDEX_KEY, 'namespace-index');
   if (!encoded) return [];
 
   try {
@@ -106,7 +237,7 @@ async function readPendingCleanups(): Promise<string[]> {
   let firstError: unknown;
   let secureStoreEncoded: string | null = null;
   try {
-    secureStoreEncoded = await SecureStore.getItemAsync(PENDING_CLEANUP_KEY);
+    secureStoreEncoded = await readSecureValue(PENDING_CLEANUP_KEY, 'pending-cleanup');
     secureStoreReadable = true;
   } catch (error) {
     firstError = error;
@@ -159,9 +290,7 @@ async function writePendingCleanups(
   let fileWritten = false;
   let firstError: unknown;
   try {
-    await SecureStore.setItemAsync(PENDING_CLEANUP_KEY, JSON.stringify(pending), {
-      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-    });
+    await writeSecureValue(PENDING_CLEANUP_KEY, 'pending-cleanup', JSON.stringify(pending));
     secureStoreWritten = true;
   } catch (error) {
     firstError = error;
@@ -199,9 +328,7 @@ async function trackNamespace(namespace: string): Promise<void> {
   await mutateNamespaceIndex(async () => {
     const namespaces = new Set(await readNamespaces());
     namespaces.add(namespace);
-    await SecureStore.setItemAsync(NAMESPACE_INDEX_KEY, JSON.stringify([...namespaces]), {
-      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-    });
+    await writeSecureValue(NAMESPACE_INDEX_KEY, 'namespace-index', JSON.stringify([...namespaces]));
   });
 }
 
@@ -217,7 +344,7 @@ export function isTrustedInstallationBinding(binding: InstallationBinding): bool
 }
 
 export async function readInstallationBinding(): Promise<InstallationBinding> {
-  const secureInstallationId = await SecureStore.getItemAsync(INSTALLATION_ID_KEY);
+  const secureInstallationId = await readSecureValue(INSTALLATION_ID_KEY, 'installation-id');
   const markerInstallationId = INSTALL_MARKER.exists ? await INSTALL_MARKER.text() : null;
   return { markerInstallationId, secureInstallationId };
 }
@@ -248,14 +375,17 @@ export async function clearSecureStateForInstallationReset(): Promise<void> {
     'vault-key',
     'selected-trip',
     'notification-response',
+    'push-registration',
     'database-health',
-  ] as const).map((kind) => capture(() => SecureStore.deleteItemAsync(keyFor(namespace, kind))))));
-  await Promise.all([
-    NAMESPACE_INDEX_KEY,
-    INSTALLATION_ID_KEY,
-    ACTIVE_NAMESPACE_KEY,
-    PENDING_CLEANUP_KEY,
-  ].map((key) => capture(() => SecureStore.deleteItemAsync(key))));
+    'offline-authorization',
+    'app-attest-key-id',
+  ] as const).map((kind) => capture(() => deleteSecureValue(keyFor(namespace, kind), kind)))));
+  await Promise.all(([
+    [NAMESPACE_INDEX_KEY, 'namespace-index'],
+    [INSTALLATION_ID_KEY, 'installation-id'],
+    [ACTIVE_NAMESPACE_KEY, 'active-namespace'],
+    [PENDING_CLEANUP_KEY, 'pending-cleanup'],
+  ] as const).map(([key, kind]) => capture(() => deleteSecureValue(key, kind))));
   await capture(() => {
     if (PENDING_CLEANUP_FILE.exists) PENDING_CLEANUP_FILE.delete();
   });
@@ -267,9 +397,7 @@ export async function clearSecureStateForInstallationReset(): Promise<void> {
 
 export async function writeInstallationBinding(installationId: string): Promise<void> {
   if (!UUID_PATTERN.test(installationId)) throw new Error('Invalid installation identity.');
-  await SecureStore.setItemAsync(INSTALLATION_ID_KEY, installationId, {
-    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-  });
+  await writeSecureValue(INSTALLATION_ID_KEY, 'installation-id', installationId);
   const parent = new Directory(Paths.document);
   if (!parent.exists) parent.create({ idempotent: true, intermediates: true });
   try {
@@ -282,13 +410,13 @@ export async function writeInstallationBinding(installationId: string): Promise<
     } catch {
       // A missing or unreadable marker still prevents trusting the half-write.
     }
-    await SecureStore.deleteItemAsync(INSTALLATION_ID_KEY).catch(() => undefined);
+    await deleteSecureValue(INSTALLATION_ID_KEY, 'installation-id').catch(() => undefined);
     throw error;
   }
 }
 
 export async function getInstallationId(): Promise<string> {
-  const existing = await SecureStore.getItemAsync(INSTALLATION_ID_KEY);
+  const existing = await readSecureValue(INSTALLATION_ID_KEY, 'installation-id');
   if (!existing || !UUID_PATTERN.test(existing)) {
     throw new Error('The installation identity has not been initialized.');
   }
@@ -297,21 +425,17 @@ export async function getInstallationId(): Promise<string> {
 
 export async function setRefreshToken(namespace: string, token: string): Promise<void> {
   await trackNamespace(namespace);
-  await SecureStore.setItemAsync(keyFor(namespace, 'refresh'), token, {
-    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-  });
+  await writeSecureValue(keyFor(namespace, 'refresh'), 'refresh', token);
 }
 
 export async function setActiveNamespace(namespace: string): Promise<void> {
   assertNamespace(namespace);
   await trackNamespace(namespace);
-  await SecureStore.setItemAsync(ACTIVE_NAMESPACE_KEY, namespace, {
-    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-  });
+  await writeSecureValue(ACTIVE_NAMESPACE_KEY, 'active-namespace', namespace);
 }
 
 export async function getActiveNamespace(): Promise<string | null> {
-  const namespace = await SecureStore.getItemAsync(ACTIVE_NAMESPACE_KEY);
+  const namespace = await readSecureValue(ACTIVE_NAMESPACE_KEY, 'active-namespace');
   if (!namespace || !/^[0-9a-f-]{36}\.[0-9a-f-]{36}$/i.test(namespace)) return null;
   return namespace;
 }
@@ -340,11 +464,106 @@ export async function clearLocalCleanupPending(namespace: string): Promise<void>
 }
 
 export async function getRefreshToken(namespace: string): Promise<string | null> {
-  return SecureStore.getItemAsync(keyFor(namespace, 'refresh'));
+  return readSecureValue(keyFor(namespace, 'refresh'), 'refresh');
+}
+
+export async function setOfflineAuthorizationRecord(
+  namespace: string,
+  record: OfflineAuthorizationRecord,
+): Promise<void> {
+  if (!isOfflineAuthorizationRecord(record)) {
+    throw new Error('Invalid offline authorization record.');
+  }
+  assertSecureValueAccessAvailable('offline-authorization');
+  await trackNamespace(namespace);
+  await writeSecureValue(
+    keyFor(namespace, 'offline-authorization'),
+    'offline-authorization',
+    JSON.stringify(record),
+  );
+}
+
+export async function getOfflineAuthorizationRecord(
+  namespace: string,
+): Promise<OfflineAuthorizationRecord | null> {
+  const encoded = await readSecureValue(
+    keyFor(namespace, 'offline-authorization'),
+    'offline-authorization',
+  );
+  if (!encoded || encoded.length > 8_192) return null;
+  try {
+    const parsed: unknown = JSON.parse(encoded);
+    return isOfflineAuthorizationRecord(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearOfflineAuthorizationRecord(namespace: string): Promise<void> {
+  assertNamespace(namespace);
+  await deleteSecureValue(keyFor(namespace, 'offline-authorization'), 'offline-authorization');
+}
+
+export async function getAppAttestKeyRecord(
+  namespace: string,
+): Promise<AppAttestKeyRecord | null> {
+  assertNamespace(namespace);
+  const encoded = await readSecureValue(
+    keyFor(namespace, 'app-attest-key-id'),
+    'app-attest-key-id',
+  );
+  if (!encoded || encoded.length > 1_024) return null;
+  try {
+    const record: unknown = JSON.parse(encoded);
+    if (!record || typeof record !== 'object' || Array.isArray(record)) return null;
+    const value = record as Record<string, unknown>;
+    if (
+      Object.keys(value).length !== 3
+      || value.formatVersion !== 1
+      || typeof value.keyId !== 'string'
+      || !/^[A-Za-z0-9_+/=-]{32,512}$/.test(value.keyId)
+      || typeof value.registered !== 'boolean'
+    ) {
+      return null;
+    }
+    return {
+      formatVersion: 1,
+      keyId: value.keyId,
+      registered: value.registered,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function setAppAttestKeyRecord(
+  namespace: string,
+  record: AppAttestKeyRecord,
+): Promise<void> {
+  assertNamespace(namespace);
+  if (
+    record.formatVersion !== 1
+    || !/^[A-Za-z0-9_+/=-]{32,512}$/.test(record.keyId)
+    || typeof record.registered !== 'boolean'
+  ) {
+    throw new Error('Invalid App Attest key identifier.');
+  }
+  assertSecureValueAccessAvailable('app-attest-key-id');
+  await trackNamespace(namespace);
+  await writeSecureValue(
+    keyFor(namespace, 'app-attest-key-id'),
+    'app-attest-key-id',
+    JSON.stringify(record),
+  );
+}
+
+export async function clearAppAttestKeyRecord(namespace: string): Promise<void> {
+  assertNamespace(namespace);
+  await deleteSecureValue(keyFor(namespace, 'app-attest-key-id'), 'app-attest-key-id');
 }
 
 export async function getRememberedTripId(namespace: string): Promise<string | null> {
-  const value = await SecureStore.getItemAsync(keyFor(namespace, 'selected-trip'));
+  const value = await readSecureValue(keyFor(namespace, 'selected-trip'), 'selected-trip');
   return value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
     ? value
     : null;
@@ -355,13 +574,11 @@ export async function setRememberedTripId(namespace: string, tripId: string): Pr
     throw new Error('Invalid trip identity.');
   }
   await trackNamespace(namespace);
-  await SecureStore.setItemAsync(keyFor(namespace, 'selected-trip'), tripId, {
-    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-  });
+  await writeSecureValue(keyFor(namespace, 'selected-trip'), 'selected-trip', tripId);
 }
 
 export async function getHandledNotificationResponse(namespace: string): Promise<string | null> {
-  return SecureStore.getItemAsync(keyFor(namespace, 'notification-response'));
+  return readSecureValue(keyFor(namespace, 'notification-response'), 'notification-response');
 }
 
 export async function setHandledNotificationResponse(
@@ -372,15 +589,52 @@ export async function setHandledNotificationResponse(
     throw new Error('Invalid notification response identity.');
   }
   await trackNamespace(namespace);
-  await SecureStore.setItemAsync(keyFor(namespace, 'notification-response'), responseKey, {
-    keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-  });
+  await writeSecureValue(
+    keyFor(namespace, 'notification-response'),
+    'notification-response',
+    responseKey,
+  );
+}
+
+export async function getPushRegistrationMarker(
+  namespace: string,
+): Promise<PushRegistrationMarker | null> {
+  assertNamespace(namespace);
+  const encoded = await readSecureValue(keyFor(namespace, 'push-registration'), 'push-registration');
+  if (!encoded) return null;
+  try {
+    const parsed: unknown = JSON.parse(encoded);
+    return isPushRegistrationMarker(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setPushRegistrationMarker(
+  namespace: string,
+  marker: PushRegistrationMarker,
+): Promise<void> {
+  assertNamespace(namespace);
+  if (!isPushRegistrationMarker(marker)) {
+    throw new Error('Invalid push registration marker.');
+  }
+  await trackNamespace(namespace);
+  await writeSecureValue(
+    keyFor(namespace, 'push-registration'),
+    'push-registration',
+    JSON.stringify(marker),
+  );
+}
+
+export async function clearPushRegistrationMarker(namespace: string): Promise<void> {
+  assertNamespace(namespace);
+  await deleteSecureValue(keyFor(namespace, 'push-registration'), 'push-registration');
 }
 
 export async function getDatabaseHealthMarker(
   namespace: string,
 ): Promise<DatabaseHealthMarker | null> {
-  const encoded = await SecureStore.getItemAsync(keyFor(namespace, 'database-health'));
+  const encoded = await readSecureValue(keyFor(namespace, 'database-health'), 'database-health');
   if (!encoded) return null;
   try {
     const parsed: unknown = JSON.parse(encoded);
@@ -399,15 +653,15 @@ export async function setDatabaseHealthMarker(
     throw new Error('Invalid database health marker.');
   }
   await trackNamespace(namespace);
-  await SecureStore.setItemAsync(
+  await writeSecureValue(
     keyFor(namespace, 'database-health'),
+    'database-health',
     JSON.stringify(marker),
-    { keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY },
   );
 }
 
 export async function clearDatabaseHealthMarker(namespace: string): Promise<void> {
-  await SecureStore.deleteItemAsync(keyFor(namespace, 'database-health'));
+  await deleteSecureValue(keyFor(namespace, 'database-health'), 'database-health');
 }
 
 export function getOrCreateSecret(
@@ -419,15 +673,13 @@ export function getOrCreateSecret(
   if (existingOperation) return existingOperation;
 
   const operation = (async () => {
-    const existing = await SecureStore.getItemAsync(storageKey);
+    const existing = await readSecureValue(storageKey, kind);
     if (existing && /^[0-9a-f]{64}$/i.test(existing)) return existing;
 
     const bytes = await Crypto.getRandomBytesAsync(32);
     const created = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
     await trackNamespace(namespace);
-    await SecureStore.setItemAsync(storageKey, created, {
-      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-    });
+    await writeSecureValue(storageKey, kind, created);
     return created;
   })();
   secretCreationInFlight.set(storageKey, operation);
@@ -458,16 +710,17 @@ export async function clearNamespaceSecrets(namespace: string): Promise<void> {
       'vault-key',
       'selected-trip',
       'notification-response',
+      'push-registration',
       'database-health',
+      'offline-authorization',
+      'app-attest-key-id',
     ] as const)
-      .map((kind) => capture(() => SecureStore.deleteItemAsync(keyFor(namespace, kind)))),
+      .map((kind) => capture(() => deleteSecureValue(keyFor(namespace, kind), kind))),
   );
 
   await capture(() => mutateNamespaceIndex(async () => {
     const remaining = (await readNamespaces()).filter((value) => value !== namespace);
-    await SecureStore.setItemAsync(NAMESPACE_INDEX_KEY, JSON.stringify(remaining), {
-      keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
-    });
+    await writeSecureValue(NAMESPACE_INDEX_KEY, 'namespace-index', JSON.stringify(remaining));
   }));
 
   let activeNamespace: string | null = null;
@@ -479,7 +732,7 @@ export async function clearNamespaceSecrets(namespace: string): Promise<void> {
     activeNamespaceReadFailed = true;
   }
   if (activeNamespaceReadFailed || activeNamespace === namespace) {
-    await capture(() => SecureStore.deleteItemAsync(ACTIVE_NAMESPACE_KEY));
+    await capture(() => deleteSecureValue(ACTIVE_NAMESPACE_KEY, 'active-namespace'));
   }
 
   if (firstError) throw firstError;
@@ -501,8 +754,14 @@ export async function clearNamespaceAuthentication(namespace: string): Promise<v
   };
 
   await Promise.all(
-    (['refresh', 'selected-trip', 'notification-response'] as const).map((kind) => (
-      capture(() => SecureStore.deleteItemAsync(keyFor(namespace, kind)))
+    ([
+      'refresh',
+      'selected-trip',
+      'notification-response',
+      'push-registration',
+      'offline-authorization',
+    ] as const).map((kind) => (
+       capture(() => deleteSecureValue(keyFor(namespace, kind), kind))
     )),
   );
 
@@ -515,7 +774,9 @@ export async function clearNamespaceAuthentication(namespace: string): Promise<v
     activeNamespaceReadFailed = true;
   }
   if (activeNamespaceReadFailed || activeNamespace === namespace) {
-    await capture(() => SecureStore.deleteItemAsync(ACTIVE_NAMESPACE_KEY));
+    await capture(() => deleteSecureValue(ACTIVE_NAMESPACE_KEY, 'active-namespace'));
   }
   if (firstError) throw firstError;
 }
+
+export { isUnlockedOnlySecureValueAccessAvailable };

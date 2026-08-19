@@ -158,6 +158,7 @@ async function stageTripPurge(
            itinerary_version = -1, common_document_version = -1,
            personal_document_version = -1, announcement_version = -1,
            readiness_version = -1, roster_version = -1,
+           roster_projection_complete = 0,
            rooming_version = -1, meals_version = -1, qr_version = -1,
            updated_at = ?
          WHERE account_namespace = ? AND id = ?`,
@@ -281,11 +282,10 @@ export async function retryPendingTripPurges(
   if (syncContext) assertSyncContextActive(syncContext);
   const tombstones = await database.getAllAsync<TripPurgeTombstone>(
     `SELECT account_namespace, trip_id, purge_epoch, blocked_access_generation, reason
-       FROM trip_purge_tombstones
+      FROM trip_purge_tombstones
       WHERE account_namespace = ?
       ORDER BY CASE WHEN last_attempt_at IS NULL THEN 0 ELSE 1 END,
-               last_attempt_at, created_at
-      LIMIT 2000`,
+               last_attempt_at, created_at`,
     account,
   );
   const completedTripIds: string[] = [];

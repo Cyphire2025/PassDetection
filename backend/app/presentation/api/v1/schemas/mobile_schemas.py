@@ -15,12 +15,103 @@ from pydantic import (
     model_validator,
 )
 
+from app.domain.value_objects.trip_timezone import (
+    DEFAULT_TRIP_TIMEZONE,
+    normalize_trip_timezone,
+)
+
 
 class MobileDeviceInput(BaseModel):
     installation_id: str = Field(min_length=16, max_length=128)
     platform: Literal["android", "ios"]
     app_version: str = Field(min_length=1, max_length=40)
     device_name: str | None = Field(default=None, max_length=120)
+
+
+class MobileIntegrityChallengeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["play_integrity", "app_attest"]
+    action: Literal["document_download_authorize", "app_attest_key_register"]
+    request_hash: str = Field(pattern=r"^[A-Za-z0-9_-]{43}$")
+    installation_id: str = Field(min_length=16, max_length=128)
+    key_id: str | None = Field(
+        default=None,
+        min_length=32,
+        max_length=512,
+        pattern=r"^[A-Za-z0-9_+/=-]+$",
+    )
+
+    @model_validator(mode="after")
+    def validate_provider_shape(self) -> MobileIntegrityChallengeRequest:
+        if self.provider == "play_integrity" and self.key_id is not None:
+            raise ValueError("Play Integrity challenges do not use an App Attest key")
+        if self.provider == "app_attest" and self.key_id is None:
+            raise ValueError("App Attest challenges require a key identifier")
+        if self.action == "app_attest_key_register" and self.provider != "app_attest":
+            raise ValueError("Only App Attest can register an Apple key")
+        return self
+
+
+class MobileIntegrityChallengeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["disabled", "issued"]
+    mode: Literal["disabled", "monitor", "enforce"]
+    required: bool
+    provider: Literal["play_integrity", "app_attest"]
+    challenge_id: uuid.UUID | None = None
+    provider_request_hash: str | None = Field(
+        default=None,
+        pattern=r"^[A-Za-z0-9_-]{43}$",
+    )
+    expires_at: datetime | None = None
+
+
+class MobileIntegrityProofRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: uuid.UUID
+    provider: Literal["play_integrity", "app_attest"]
+    proof: str = Field(min_length=16, max_length=65_536)
+    installation_id: str = Field(min_length=16, max_length=128)
+    key_id: str | None = Field(
+        default=None,
+        min_length=32,
+        max_length=512,
+        pattern=r"^[A-Za-z0-9_+/=-]+$",
+    )
+
+    @model_validator(mode="after")
+    def validate_provider_shape(self) -> MobileIntegrityProofRequest:
+        if self.provider == "play_integrity" and self.key_id is not None:
+            raise ValueError("Play Integrity proofs do not use an App Attest key")
+        if self.provider == "app_attest" and self.key_id is None:
+            raise ValueError("App Attest proofs require a key identifier")
+        return self
+
+
+class MobileDocumentAuthorizationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    integrity: MobileIntegrityProofRequest | None = None
+
+
+class MobileAppAttestRegistrationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: uuid.UUID
+    installation_id: str = Field(min_length=16, max_length=128)
+    key_id: str = Field(
+        min_length=32,
+        max_length=512,
+        pattern=r"^[A-Za-z0-9_+/=-]+$",
+    )
+    attestation_object: str = Field(min_length=32, max_length=65_536)
+
+
+class MobileAppAttestRegistrationResponse(BaseModel):
+    registered: bool = True
 
 
 class MobileOTPRequest(BaseModel):
@@ -49,7 +140,13 @@ class MobileTripClaimSummary(BaseModel):
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = Field(default=DEFAULT_TRIP_TIMEZONE, min_length=1, max_length=64)
     requires_secondary_verification: bool = False
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        return normalize_trip_timezone(value)
 
 
 class MobileClaimVerifyRequest(BaseModel):
@@ -63,6 +160,7 @@ class MobilePassengerTripSwitchRequest(BaseModel):
     """Select one group from the identities proven for the live session."""
 
     group_id: uuid.UUID
+    installation_id: str = Field(min_length=16, max_length=128)
 
 
 class MobileCredentialLoginRequest(BaseModel):
@@ -79,6 +177,7 @@ class MobileActivationRequest(BaseModel):
 
 class MobileRefreshRequest(BaseModel):
     refresh_token: str = Field(min_length=32, max_length=512)
+    installation_id: str = Field(min_length=16, max_length=128)
 
 
 class MobileLogoutRequest(BaseModel):
@@ -114,6 +213,11 @@ class MobileTokenResponse(BaseModel):
     access_token_expires_at: datetime
     refresh_token_expires_at: datetime
     session_id: uuid.UUID
+    offline_authorization_lease: str = Field(
+        min_length=256,
+        max_length=4_096,
+        pattern=r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$",
+    )
     principal: MobilePrincipalResponse
 
 
@@ -133,11 +237,17 @@ class MobileTripSummaryResponse(BaseModel):
     destination: str | None = None
     travel_date: date | None = None
     return_date: date | None = None
+    timezone: str = Field(default=DEFAULT_TRIP_TIMEZONE, min_length=1, max_length=64)
     role: Literal["passenger", "client_manager", "coordinator"]
     access_generation: int
     itinerary_version: int
     common_document_version: int
     announcement_version: int
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_timezone(cls, value: str) -> str:
+        return normalize_trip_timezone(value)
 
 
 class MobileTripsResponse(BaseModel):
@@ -207,6 +317,51 @@ class MobileSyncPageResponse(BaseModel):
     changes: list[MobileSyncChangeResponse]
     next_cursor: int
     has_more: bool
+
+
+class MobileSyncSnapshotResources(BaseModel):
+    """Metadata-only resource map used to build a replacement local projection."""
+
+    manifest: str
+    itinerary: str
+    announcements: str
+    common_documents: str
+    personal_documents: str | None = None
+    room: str | None = None
+    meals: str | None = None
+    qr: str | None = None
+    readiness: str | None = None
+    roster: str | None = None
+    attendance_sessions: str | None = None
+    sync_changes: str
+    acknowledge: str
+
+
+class MobileSyncSnapshotResourceCounts(BaseModel):
+    """Exact item counts for every paginated resource in one snapshot fence."""
+
+    announcements: int = Field(ge=0)
+    common_documents: int = Field(ge=0)
+    personal_documents: int | None = Field(default=None, ge=0)
+    roster: int | None = Field(default=None, ge=0)
+    attendance_sessions: int | None = Field(default=None, ge=0)
+
+
+class MobileSyncSnapshotResponse(BaseModel):
+    """Stable rebase fence; resource bodies remain in their paginated APIs."""
+
+    strategy: Literal["full_rebase"] = "full_rebase"
+    trip: MobileTripSummaryResponse
+    baseline_cursor: int = Field(ge=0)
+    access_generation: int = Field(ge=0)
+    server_time: datetime
+    access_expires_at: datetime | None = None
+    versions: MobileManifestVersions
+    resources: MobileSyncSnapshotResources
+    resource_counts: MobileSyncSnapshotResourceCounts
+    max_incremental_changes: int = Field(gt=0)
+    max_group_passengers: int = Field(gt=0)
+    max_attendance_sessions_per_group: int = Field(gt=0)
 
 
 class MobileItineraryItemResponse(BaseModel):
@@ -367,6 +522,34 @@ class MobileManagerReadinessResponse(BaseModel):
     updated_at: datetime
 
 
+class MobileCoordinatorAttendanceTokenEvidence(BaseModel):
+    """Non-bearer proof used only to reject unsafe offline attendance scans."""
+
+    token_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    token_version: int | None = Field(default=None, ge=1)
+    state: Literal["active", "missing", "inactive", "revoked", "expired"]
+    token_expires_at: datetime | None = None
+    token_updated_at: datetime | None = None
+    evidence_observed_at: datetime
+    evidence_valid_until: datetime
+
+    @model_validator(mode="after")
+    def validate_active_evidence(self) -> "MobileCoordinatorAttendanceTokenEvidence":
+        active_fields_present = (
+            self.token_hash is not None
+            and self.token_version is not None
+            and self.token_expires_at is not None
+            and self.token_updated_at is not None
+            and self.evidence_valid_until > self.evidence_observed_at
+            and self.evidence_valid_until <= self.token_expires_at
+        )
+        if self.state == "active" and not active_fields_present:
+            raise ValueError("Active attendance evidence was incomplete")
+        if self.state != "active" and self.token_hash is not None:
+            raise ValueError("Inactive attendance evidence cannot expose a token hash")
+        return self
+
+
 class MobileCoordinatorPassengerResponse(BaseModel):
     id: uuid.UUID
     display_name: str
@@ -375,6 +558,7 @@ class MobileCoordinatorPassengerResponse(BaseModel):
     room_number: str | None = None
     meal_preference: str | None = None
     has_alert: bool = False
+    attendance_token: MobileCoordinatorAttendanceTokenEvidence
 
 
 class MobileCoordinatorOperationalDetail(BaseModel):
@@ -440,6 +624,7 @@ class MobileCoordinatorPassengerDetailResponse(BaseModel):
     insurance_status: Literal["available", "not_available"]
     hotel_voucher_status: Literal["available", "not_available"]
     other_document_status: Literal["available", "not_available"]
+    attendance_token: MobileCoordinatorAttendanceTokenEvidence | None = None
     additional_details: list[MobileCoordinatorOperationalDetail] = Field(
         default_factory=list,
         max_length=300,
@@ -451,6 +636,7 @@ class MobileCoordinatorRosterResponse(BaseModel):
     items: list[MobileCoordinatorPassengerResponse] = Field(max_length=200)
     next_cursor: str | None = None
     total: int = Field(ge=0)
+    roster_revision: int = Field(ge=0, le=(2**53) - 1)
 
 
 class MobileManagerPassengerResponse(BaseModel):

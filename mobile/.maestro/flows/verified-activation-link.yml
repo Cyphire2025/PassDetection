@@ -1,0 +1,18 @@
+appId: com.globalconnects.groupcompanion
+name: Verified HTTPS activation link contract
+tags:
+  - release-hermes
+  - public-smoke
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- openLink:
+    link: "https://tech.gctravels.com/gc/activate?token=maestro-synthetic-activation-token-0001"
+    autoVerify: true
+- tapOn:
+    text: "Open"
+    optional: true
+- extendedWaitUntil:
+    visible: "Activate your account."
+    timeout: 30000

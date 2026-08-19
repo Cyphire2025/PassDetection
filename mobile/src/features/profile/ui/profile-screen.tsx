@@ -50,7 +50,7 @@ export function ProfileScreen({
             </Text>
           </View>
         </View>
-        <SafeSignOutButton label="Sign out" />
+        <SafeSignOutButton label="Sign out" testID="staff-sign-out" />
       </GlassCard>
     </Screen>
   );

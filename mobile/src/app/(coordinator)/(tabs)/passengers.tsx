@@ -1,10 +1,12 @@
 import { useRouter } from 'expo-router';
 import AlertTriangle from 'lucide-react-native/icons/triangle-alert';
 import ChevronRight from 'lucide-react-native/icons/chevron-right';
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { useDebouncedValue } from '@/core/query/use-debounced-value';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -20,8 +22,8 @@ export default function CoordinatorPassengersScreen() {
   const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
   const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search.trim());
-  const roster = useCoordinatorRoster(trips.selectedTripId, deferredSearch);
+  const debouncedSearch = useDebouncedValue(search.trim());
+  const roster = useCoordinatorRoster(trips.selectedTripId, debouncedSearch);
   const pages = roster.data?.pages;
   const passengers = useMemo(() => {
     const byId = new Map<string, CoordinatorPassenger>();
@@ -55,11 +57,7 @@ export default function CoordinatorPassengersScreen() {
         data={passengers}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        initialNumToRender={16}
-        maxToRenderPerBatch={24}
-        updateCellsBatchingPeriod={35}
-        windowSize={7}
-        removeClippedSubviews
+        {...MOBILE_LIST_WINDOWING.denseRoster}
         contentContainerStyle={styles.list}
         refreshControl={(
           <RefreshControl
@@ -72,7 +70,7 @@ export default function CoordinatorPassengersScreen() {
           if (roster.hasNextPage && !roster.isFetchingNextPage) void roster.fetchNextPage();
         }}
         ListEmptyComponent={!roster.isPending && !roster.isError ? (
-          <ContentEmpty title="No passengers found" message={deferredSearch ? 'Try a different search.' : 'The roster is currently empty.'} />
+          <ContentEmpty title="No passengers found" message={debouncedSearch ? 'Try a different search.' : 'The roster is currently empty.'} />
         ) : null}
         ListFooterComponent={roster.isFetchingNextPage ? <ContentLoading label="Loading more passengers" /> : null}
         renderItem={({ item }) => (

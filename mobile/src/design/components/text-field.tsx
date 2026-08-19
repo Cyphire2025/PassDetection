@@ -3,6 +3,7 @@ import EyeOff from 'lucide-react-native/icons/eye-off';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { useMessages } from '@/core/localization/localization-provider';
 import { colors, radii, spacing } from '@/design/theme';
 
 type Props = TextInputProps & {
@@ -11,15 +12,28 @@ type Props = TextInputProps & {
   showPasswordToggle?: boolean;
 };
 
-export function TextField({ label, error, showPasswordToggle = false, secureTextEntry, style, ...props }: Props) {
+export function TextField({
+  label,
+  error,
+  showPasswordToggle = false,
+  secureTextEntry,
+  style,
+  accessibilityHint,
+  ...props
+}: Props) {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const messages = useMessages();
   const canTogglePassword = showPasswordToggle && secureTextEntry;
+  const resolvedAccessibilityHint = error
+    ? [accessibilityHint, error].filter(Boolean).join('. ')
+    : accessibilityHint;
   return (
     <View style={styles.group}>
       <Text style={styles.label}>{label}</Text>
       <View style={[styles.inputFrame, error ? styles.errorInput : null]}>
         <TextInput
           accessibilityLabel={label}
+          accessibilityHint={resolvedAccessibilityHint}
           placeholderTextColor={colors.inkMuted}
           secureTextEntry={Boolean(secureTextEntry && !passwordVisible)}
           style={[styles.input, style]}
@@ -28,7 +42,7 @@ export function TextField({ label, error, showPasswordToggle = false, secureText
         {canTogglePassword ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={passwordVisible ? 'Hide password' : 'Show password'}
+            accessibilityLabel={passwordVisible ? messages.hidePassword() : messages.showPassword()}
             hitSlop={8}
             onPress={() => setPasswordVisible((visible) => !visible)}
             style={({ pressed }) => [styles.eyeButton, pressed && styles.eyePressed]}>
@@ -39,7 +53,7 @@ export function TextField({ label, error, showPasswordToggle = false, secureText
         ) : null}
       </View>
       {error ? (
-        <Text accessibilityRole="alert" style={styles.error}>
+        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
           {error}
         </Text>
       ) : null}

@@ -1,11 +1,19 @@
 import { ApiError, apiRequest } from '@/core/api/client';
 import {
   ManifestSchema,
+  type MobileResourceVersions,
   SyncAckResponseSchema,
   SyncPageSchema,
   type SyncChangeSchema,
 } from '@/core/api/contracts';
 import type { MobileRole } from '@/core/auth/types';
+import { AbortableSharedTaskRegistry } from '@/core/async/abortable-shared-task';
+import {
+  recordMobileMetric,
+  type MobileMetricAttributes,
+} from '@/core/observability/mobile-observability';
+import { recordTripDurableQueueDepths } from '@/core/observability/queue-depth-observability';
+import { mobileQueryClient } from '@/core/query/query-client';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   loadMeal,
@@ -33,6 +41,7 @@ import {
   refreshTripsInContext,
 } from '@/features/trips/data/trip-repository';
 import type { Trip } from '@/features/trips/model/trip';
+import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 import type { z } from 'zod';
 
 import { ensureTripPurgeCompleted, purgeTripCache, resetTripCache } from './access-cache';
@@ -45,21 +54,74 @@ import {
   safeSyncFailureCode,
   type SyncFailureCategory,
 } from './sync-policy';
-import { tripCollectionsDiffer } from './sync-runtime-policy';
+import { queryKeyMatchesChangedProjection, tripCollectionsDiffer } from './sync-runtime-policy';
 import {
   assertSyncContextActive,
   captureSyncContext,
   isSyncContextChanged,
+  SyncContextChangedError,
   type ImmutableSyncContext,
 } from './sync-context';
+import {
+  mobileApiPath,
+  snapshotCheckpointFromPage,
+} from './snapshot-rebase-contract';
+import { performSnapshotRebase } from './snapshot-rebase';
 
 const MAX_SYNC_PAGES = 20;
 const SYNC_PAGE_SIZE = 500;
 const FULL_SYNC_CONCURRENCY = 2;
-const syncInFlight = new Map<string, Promise<SyncResult>>();
-const fullSyncInFlight = new Map<string, Promise<SyncAllTripsSummary>>();
+const tripSyncTasks = new AbortableSharedTaskRegistry<string, SyncResult>();
+const fullSyncTasks = new AbortableSharedTaskRegistry<string, SyncAllTripsSummary>();
+const documentHydrationInFlight = new Map<string, Promise<OfflinePrefetchProgress>>();
 
 type SyncChange = z.infer<typeof SyncChangeSchema>;
+
+async function acknowledgeCommittedSync(options: Readonly<{
+  accessGeneration: number;
+  cursor: number;
+  path: string;
+  syncContext: ImmutableSyncContext;
+  tripId: string;
+  versions: MobileResourceVersions;
+}>): Promise<void> {
+  const acknowledgement = await apiRequest(options.path, {
+    method: 'POST',
+    body: {
+      trip_id: options.tripId,
+      cursor: options.cursor,
+      access_generation: options.accessGeneration,
+      versions: options.versions,
+    },
+    schema: SyncAckResponseSchema,
+    signal: options.syncContext.signal,
+  });
+  assertSyncContextActive(options.syncContext);
+  if (
+    acknowledgement.trip_id !== options.tripId
+    || acknowledgement.cursor !== options.cursor
+    || acknowledgement.access_generation !== options.accessGeneration
+  ) {
+    throw new Error('The synchronization acknowledgement was out of scope.');
+  }
+}
+
+async function drainDurableSyncQueues(
+  tripId: string,
+  role: MobileRole,
+  syncContext: ImmutableSyncContext,
+): Promise<void> {
+  const durableQueues: Promise<unknown>[] = [drainNotificationReads(tripId, syncContext)];
+  if (role === 'coordinator') {
+    durableQueues.push(drainAttendanceQueue(tripId), drainIncidentQueue(tripId));
+  }
+  await Promise.all(durableQueues.map((request) => request.catch(() => undefined)));
+  assertSyncContextActive(syncContext);
+  const database = await openAccountDatabase(syncContext.namespace);
+  assertSyncContextActive(syncContext);
+  await recordTripDurableQueueDepths(database, syncContext.namespace, tripId);
+  assertSyncContextActive(syncContext);
+}
 export type SyncResult = {
   tripId: string;
   cursor: number;
@@ -70,7 +132,9 @@ export type SyncResult = {
 };
 
 export type SyncTripOptions = {
+  documentHydration?: 'wait' | 'background';
   onDocumentProgress?: (progress: OfflinePrefetchProgress) => void;
+  signal?: AbortSignal;
 };
 
 export type SyncAllTripsSummary = {
@@ -80,6 +144,10 @@ export type SyncAllTripsSummary = {
   tripsChanged: boolean;
   removedTripIds: string[];
 };
+
+export type SyncAllTripsOptions = Readonly<{
+  signal?: AbortSignal;
+}>;
 
 export type SyncTripFailure = Readonly<{
   tripId: string;
@@ -91,6 +159,109 @@ export type SyncTripFailure = Readonly<{
 export function syncTripFailure(tripId: string, error: unknown): SyncTripFailure {
   const failure = classifySyncFailure(error);
   return { tripId, ...failure };
+}
+
+function sameSyncIdentity(
+  left: ImmutableSyncContext,
+  right: ImmutableSyncContext,
+): boolean {
+  return (
+    left.sessionId === right.sessionId &&
+    left.namespace === right.namespace &&
+    left.agencyId === right.agencyId &&
+    left.principalId === right.principalId &&
+    left.role === right.role
+  );
+}
+
+function hydrateDocuments(
+  tripId: string,
+  syncContext: ImmutableSyncContext,
+  onProgress?: (progress: OfflinePrefetchProgress) => void,
+): Promise<OfflinePrefetchProgress> {
+  return syncContext.role === 'passenger'
+    ? prefetchPassengerOfflineDocuments(tripId, onProgress, syncContext)
+    : prefetchCommonOfflineDocuments(tripId, onProgress, syncContext);
+}
+
+function scheduleDocumentHydration(
+  tripId: string,
+  parentContext: ImmutableSyncContext,
+): Promise<OfflinePrefetchProgress> {
+  assertSyncContextActive(parentContext);
+  const lease = captureSyncContext();
+  if (!sameSyncIdentity(parentContext, lease.context)) {
+    lease.release();
+    assertSyncContextActive(parentContext);
+    throw new Error('The document hydration account context changed unexpectedly.');
+  }
+
+  const key = [
+    lease.context.namespace,
+    lease.context.sessionId,
+    lease.context.principalId,
+    tripId,
+  ].join(':');
+  const active = documentHydrationInFlight.get(key);
+  if (active) {
+    lease.release();
+    return active;
+  }
+
+  const request = hydrateDocuments(tripId, lease.context).finally(() => {
+    if (documentHydrationInFlight.get(key) === request) {
+      documentHydrationInFlight.delete(key);
+    }
+    lease.release();
+  });
+  documentHydrationInFlight.set(key, request);
+  return request;
+}
+
+function runBackgroundDocumentHydration(
+  tripId: string,
+  syncContext: ImmutableSyncContext,
+): void {
+  let request: Promise<OfflinePrefetchProgress>;
+  try {
+    request = scheduleDocumentHydration(tripId, syncContext);
+  } catch {
+    return;
+  }
+  void request
+    .catch(() => undefined)
+    .finally(() => {
+      try {
+        assertSyncContextActive(syncContext);
+        void mobileQueryClient.invalidateQueries({
+          predicate: (query) => query.queryKey.includes(syncContext.namespace)
+            && queryKeyMatchesChangedProjection(query.queryKey, [tripId]),
+          refetchType: 'active',
+        });
+      } catch {
+        // Publication is best effort. The durable document job remains the
+        // source of truth and the next reconciliation will publish it again.
+      }
+    });
+}
+
+/**
+ * Starts the existing account-scoped, deduplicated document hydration lane
+ * without keeping a cached workspace behind the preparation screen. The
+ * captured lease is retained by scheduleDocumentHydration and is cancelled by
+ * the normal authentication boundary if the active account changes.
+ */
+export function scheduleTripDocumentHydration(tripId: string): void {
+  let lease: ReturnType<typeof captureSyncContext> | null = null;
+  try {
+    lease = captureSyncContext();
+    runBackgroundDocumentHydration(tripId, lease.context);
+  } catch {
+    // A durable offline-document job remains authoritative. The sync runtime
+    // will retry it after the next active/online trigger.
+  } finally {
+    lease?.release();
+  }
 }
 
 function resourcePath(value: string): string {
@@ -141,7 +312,7 @@ async function storeManifest(
   assertSyncContextActive(syncContext);
   await database.runAsync(
     `INSERT INTO trips
-      (id, account_namespace, agency_id, role, name, destination, travel_date, return_date,
+      (id, account_namespace, agency_id, role, name, destination, travel_date, return_date, timezone,
        access_generation, access_expires_at,
        itinerary_version, common_document_version, personal_document_version,
        announcement_version, readiness_version, roster_version, rooming_version,
@@ -151,11 +322,12 @@ async function storeManifest(
        advertised_readiness_version, advertised_roster_version,
        advertised_rooming_version, advertised_meals_version, advertised_qr_version,
        updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, -1, -1, -1, -1, -1, -1, -1, -1, -1,
        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
      ON CONFLICT(id) DO UPDATE SET
        role = excluded.role, name = excluded.name, destination = excluded.destination,
        travel_date = excluded.travel_date, return_date = excluded.return_date,
+       timezone = excluded.timezone,
        access_generation = excluded.access_generation, access_expires_at = excluded.access_expires_at,
        advertised_itinerary_version = excluded.advertised_itinerary_version,
        advertised_common_document_version = excluded.advertised_common_document_version,
@@ -175,6 +347,7 @@ async function storeManifest(
     manifest.trip.destination,
     manifest.trip.travel_date,
     manifest.trip.return_date,
+    manifest.trip.timezone,
     manifest.trip.access_generation,
     manifest.access_expires_at,
     manifest.versions.itinerary,
@@ -343,30 +516,58 @@ async function refreshChangedResources(
   flags: ReturnType<typeof changeFlags>,
   baseline: boolean,
   versions: z.infer<typeof ManifestSchema>['versions'],
+  resources: z.infer<typeof ManifestSchema>['resources'],
   syncContext: ImmutableSyncContext,
 ): Promise<void> {
   assertSyncContextActive(syncContext);
   const requests: Promise<unknown>[] = [];
-  const optional = (request: Promise<unknown>) => request.catch((error: unknown) => {
-    if (error instanceof ApiError && error.status === 404) return null;
-    throw error;
-  });
-  if ((baseline && versions.itinerary > 0) || flags.itinerary) requests.push(optional(refreshItinerary(tripId, syncContext)));
-  if ((baseline && versions.announcements > 0) || flags.announcements) requests.push(optional(refreshAnnouncements(tripId, syncContext)));
-  if ((baseline && versions.common_documents > 0) || flags.documents) requests.push(optional(refreshCommonDocuments(tripId, syncContext)));
+  // Every scheduled projection is required to finish authoritatively before
+  // versions and cursor advance. Resource handlers may normalize only explicit
+  // domain absence after clearing stale local rows (for example unpublished
+  // itinerary or unavailable personal QR). Route-level HTTP_404 and cached
+  // offline fallbacks are failures at this synchronization boundary.
+  if ((baseline && versions.itinerary > 0) || flags.itinerary) {
+    requests.push(refreshItinerary(tripId, syncContext, resourcePath(resources.itinerary)));
+  }
+  if ((baseline && versions.announcements > 0) || flags.announcements) {
+    requests.push(refreshAnnouncements(tripId, syncContext, resourcePath(resources.announcements)));
+  }
+  if ((baseline && versions.common_documents > 0) || flags.documents) {
+    requests.push(refreshCommonDocuments(
+      tripId,
+      syncContext,
+      resourcePath(resources.common_documents),
+    ));
+  }
   if (role === 'passenger') {
-    if (baseline || flags.documents) requests.push(optional(refreshDocuments(tripId, syncContext)));
-    if ((baseline && versions.rooming > 0) || flags.room) requests.push(optional(loadRoom(tripId, syncContext)));
-    if ((baseline && versions.meals > 0) || flags.meals) requests.push(optional(loadMeal(tripId, syncContext)));
-    if ((baseline && versions.qr > 0) || flags.qr) requests.push(optional(refreshQr(tripId, syncContext)));
+    if (baseline || flags.documents) {
+      requests.push(refreshDocuments(
+        tripId,
+        syncContext,
+        resourcePath(resources.personal_documents),
+      ));
+    }
+    if ((baseline && versions.rooming > 0) || flags.room) {
+      requests.push(loadRoom(tripId, syncContext, resourcePath(resources.room)));
+    }
+    if ((baseline && versions.meals > 0) || flags.meals) {
+      requests.push(loadMeal(tripId, syncContext, resourcePath(resources.meals)));
+    }
+    if ((baseline && versions.qr > 0) || flags.qr) {
+      requests.push(refreshQr(tripId, syncContext, resourcePath(resources.qr)));
+    }
   } else if (role === 'client_manager') {
-    if (baseline || flags.readiness) requests.push(optional(loadReadiness(tripId, syncContext)));
+    if (baseline || flags.readiness) requests.push(loadReadiness(tripId, syncContext));
   } else {
-    if (baseline || flags.roster || flags.room || flags.meals) requests.push(optional(syncFullRoster(tripId, syncContext)));
+    if (baseline || flags.roster || flags.room || flags.meals) {
+      requests.push(syncFullRoster(tripId, syncContext, versions.roster));
+    }
     else if (flags.passengerChanges.length) {
       requests.push(applyCoordinatorPassengerChanges(tripId, flags.passengerChanges, syncContext));
     }
-    if (baseline || flags.roster || flags.attendance) requests.push(optional(loadAttendanceSummary(tripId, syncContext)));
+    if (baseline || flags.roster || flags.attendance) {
+      requests.push(loadAttendanceSummary(tripId, syncContext));
+    }
   }
   await Promise.all(requests);
   assertSyncContextActive(syncContext);
@@ -375,7 +576,6 @@ async function refreshChangedResources(
 async function performTripSync(
   tripId: string,
   syncContext: ImmutableSyncContext,
-  options: SyncTripOptions = {},
 ): Promise<SyncResult> {
   assertSyncContextActive(syncContext);
   const { role } = syncContext;
@@ -422,13 +622,13 @@ async function performTripSync(
       cursorAheadOfServer,
     });
     const aggregate: SyncChange[] = [];
-    resourcePath(manifest.resources.sync_changes);
-    const syncPath = '/mobile/sync/changes';
+    const syncPath = resourcePath(manifest.resources.sync_changes);
     while (true) {
       assertSyncContextActive(syncContext);
       if (pages >= MAX_SYNC_PAGES) throw new Error('Synchronization exceeded its bounded page limit.');
       const query = new URLSearchParams({ trip_id: tripId, cursor: String(cursor), limit: String(SYNC_PAGE_SIZE) });
-      const page = await apiRequest(`${syncPath}?${query.toString()}`, {
+      const separator = syncPath.includes('?') ? '&' : '?';
+      const page = await apiRequest(`${syncPath}${separator}${query.toString()}`, {
         schema: SyncPageSchema,
         signal: syncContext.signal,
       });
@@ -438,8 +638,45 @@ async function performTripSync(
       for (const change of page.changes) {
         if (change.group_id !== tripId || change.sequence <= sequence) throw new Error('Synchronization changes were out of scope or order.');
         sequence = change.sequence;
-        aggregate.push(change);
       }
+      const checkpoint = snapshotCheckpointFromPage(page, tripId);
+      if (checkpoint) {
+        // A checkpoint is a control fence, never an ordinary resource flag.
+        // Stage every authorized metadata projection and publish it in one
+        // SQLite transaction before any document bytes are considered.
+        const rebased = await performSnapshotRebase({
+          checkpoint,
+          committedCursor: previous.cursor,
+          currentAccessGeneration: manifest.trip.access_generation,
+          syncContext,
+          tripId,
+        });
+        const committed = rebased.descriptor;
+        try {
+          await acknowledgeCommittedSync({
+            accessGeneration: committed.access_generation,
+            cursor: committed.baseline_cursor,
+            path: mobileApiPath(committed.resources.acknowledge),
+            syncContext,
+            tripId,
+            versions: committed.versions,
+          });
+        } catch (error) {
+          if (isSyncContextChanged(error)) assertSyncContextActive(syncContext);
+          // The local generation is already durable. A 409/version race is
+          // reconciled by the immediate next delta pass from this exact cursor.
+        }
+        await drainDurableSyncQueues(tripId, role, syncContext);
+        return {
+          tripId,
+          cursor: committed.baseline_cursor,
+          changes: changeCount + 1,
+          changed: true,
+          syncedAt: committed.server_time,
+          documentPrefetch: null,
+        };
+      }
+      aggregate.push(...page.changes);
       const flags = changeFlags(page.changes);
       if (flags.revoke) {
         await purgeTripCache(tripId, syncContext);
@@ -501,35 +738,13 @@ async function performTripSync(
       effectiveFlags,
       baseline,
       manifest.versions,
+      manifest.resources,
       syncContext,
     );
-    let documentPrefetch: OfflinePrefetchProgress | null = null;
-    if (role === 'passenger') {
-      // Metadata synchronization stays compact; only new or replaced passenger/common files
-      // are encrypted into this account's private vault. Individual file
-      // failures are already converted into the bounded outcome by the
-      // prefetcher; a structural database/context failure must propagate and
-      // fail closed instead of advancing the durable cursor.
-      documentPrefetch = await prefetchPassengerOfflineDocuments(
-        tripId,
-        options.onDocumentProgress,
-        syncContext,
-      );
-    } else {
-      // Common documents are part of the offline contract for managers and
-      // coordinators too. Run the same version-aware vault reconciliation after
-      // every successful metadata pass: unchanged files are a local no-op,
-      // while an earlier interrupted download receives another bounded retry.
-      documentPrefetch = await prefetchCommonOfflineDocuments(
-        tripId,
-        options.onDocumentProgress,
-        syncContext,
-      );
-    }
-    // Metadata and its durable per-document retry jobs are committed before
-    // this point. A blob failure remains visible in documentPrefetch but must
-    // not replay the already-applied change page or prevent cursor/version
-    // finalization; the next due cycle retries only that document job.
+    // Resource metadata writes create durable per-document retry jobs. Commit
+    // the metadata versions and cursor before any encrypted blob hydration so
+    // an announcement or itinerary update can publish immediately even while a
+    // large document is downloading, retrying, or unavailable.
     const syncedAt = manifest.server_time;
     await finalizeSyncState(
       tripId,
@@ -540,36 +755,20 @@ async function performTripSync(
       syncContext,
     );
     try {
-      const acknowledgement = await apiRequest('/mobile/sync/ack', {
-        method: 'POST',
-        body: {
-          trip_id: tripId,
-          cursor,
-          access_generation: manifest.trip.access_generation,
-          versions: manifest.versions,
-        },
-        schema: SyncAckResponseSchema,
-        signal: syncContext.signal,
+      await acknowledgeCommittedSync({
+        accessGeneration: manifest.trip.access_generation,
+        cursor,
+        path: '/mobile/sync/ack',
+        syncContext,
+        tripId,
+        versions: manifest.versions,
       });
-      assertSyncContextActive(syncContext);
-      if (
-        acknowledgement.trip_id !== tripId ||
-        acknowledgement.cursor !== cursor ||
-        acknowledgement.access_generation !== manifest.trip.access_generation
-      ) {
-        throw new Error('The synchronization acknowledgement was out of scope.');
-      }
     } catch (error) {
       if (isSyncContextChanged(error)) assertSyncContextActive(syncContext);
       // Acknowledgements are telemetry only; the durable local cursor remains authoritative.
     }
     assertSyncContextActive(syncContext);
-    const durableQueues: Promise<unknown>[] = [drainNotificationReads(tripId)];
-    if (role === 'coordinator') {
-      durableQueues.push(drainAttendanceQueue(tripId), drainIncidentQueue(tripId));
-    }
-    await Promise.all(durableQueues.map((request) => request.catch(() => undefined)));
-    assertSyncContextActive(syncContext);
+    await drainDurableSyncQueues(tripId, role, syncContext);
     return {
       tripId,
       cursor,
@@ -580,7 +779,7 @@ async function performTripSync(
         resourceChanges: versionChanged,
       }),
       syncedAt,
-      documentPrefetch,
+      documentPrefetch: null,
     };
   } catch (error) {
     if (isSyncContextChanged(error) || syncContext.signal.aborted) {
@@ -602,22 +801,56 @@ async function performTripSync(
 function syncTripWithContext(
   tripId: string,
   syncContext: ImmutableSyncContext,
-  options: SyncTripOptions = {},
 ): Promise<SyncResult> {
   assertSyncContextActive(syncContext);
   const key = `${syncContext.namespace}:${syncContext.sessionId}:${syncContext.principalId}:${tripId}`;
-  const active = syncInFlight.get(key);
-  if (active) return active;
-  const request = performTripSync(tripId, syncContext, options).finally(() => {
-    if (syncInFlight.get(key) === request) syncInFlight.delete(key);
+  return tripSyncTasks.run(key, async (sharedSignal) => {
+    const workerLease = captureSyncContext(sharedSignal);
+    try {
+      if (!sameSyncIdentity(syncContext, workerLease.context)) {
+        throw new SyncContextChangedError();
+      }
+      return await performTripSync(tripId, workerLease.context);
+    } finally {
+      workerLease.release();
+    }
+  }, syncContext.signal);
+}
+
+/**
+ * Synchronizes one trip inside an already captured authentication boundary.
+ *
+ * Long-lived background lanes must retain the account context that selected
+ * their trip identifiers. Capturing a fresh context for every queued item
+ * could otherwise let an old account's trip identifier cross a concurrent
+ * account switch before the next worker starts.
+ */
+export function syncTripInContext(
+  tripId: string,
+  syncContext: ImmutableSyncContext,
+  options: SyncTripOptions = {},
+): Promise<SyncResult> {
+  assertSyncContextActive(syncContext);
+  return syncTripWithContext(tripId, syncContext).then(async (result) => {
+    assertSyncContextActive(syncContext);
+    if (options.documentHydration === 'background') {
+      runBackgroundDocumentHydration(tripId, syncContext);
+      return result;
+    }
+    const documentPrefetch = await hydrateDocuments(
+      tripId,
+      syncContext,
+      options.onDocumentProgress,
+    );
+    assertSyncContextActive(syncContext);
+    return { ...result, documentPrefetch };
   });
-  syncInFlight.set(key, request);
-  return request;
 }
 
 export function syncTrip(tripId: string, options: SyncTripOptions = {}): Promise<SyncResult> {
-  const lease = captureSyncContext();
-  return syncTripWithContext(tripId, lease.context, options).finally(lease.release);
+  const lease = captureSyncContext(options.signal);
+  return syncTripInContext(tripId, lease.context, options)
+    .finally(lease.release);
 }
 
 async function syncTripsBounded(
@@ -638,6 +871,7 @@ async function syncTripsBounded(
       if (!trip) continue;
       try {
         results[index] = await syncTripWithContext(trip.id, syncContext);
+        runBackgroundDocumentHydration(trip.id, syncContext);
       } catch (error) {
         if (isSyncContextChanged(error) || syncContext.signal.aborted) {
           assertSyncContextActive(syncContext);
@@ -658,6 +892,16 @@ async function syncTripsBounded(
   };
 }
 
+export function prioritizeTripsForSync(
+  trips: readonly Trip[],
+  selectedTripId: string | null,
+): Trip[] {
+  if (!selectedTripId) return [...trips];
+  const selected = trips.find((trip) => trip.id === selectedTripId);
+  if (!selected) return [...trips];
+  return [selected, ...trips.filter((trip) => trip.id !== selectedTripId)];
+}
+
 async function performFullSync(syncContext: ImmutableSyncContext): Promise<SyncAllTripsSummary> {
   let previousTrips: Trip[];
   try {
@@ -669,7 +913,14 @@ async function performFullSync(syncContext: ImmutableSyncContext): Promise<SyncA
     previousTrips = [];
   }
   const refreshed = await refreshTripsInContext(syncContext);
-  const outcome = await syncTripsBounded(refreshed.trips, syncContext);
+  const trips = prioritizeTripsForSync(
+    refreshed.trips,
+    useSelectedTripStore.getState().tripId,
+  );
+  recordMobileMetric('queue_depth', trips.length, { queue: 'sync' });
+  const outcome = await syncTripsBounded(trips, syncContext).finally(() => {
+    recordMobileMetric('queue_depth', 0, { queue: 'sync' });
+  });
   assertSyncContextActive(syncContext);
   return {
     results: outcome.results,
@@ -682,23 +933,36 @@ async function performFullSync(syncContext: ImmutableSyncContext): Promise<SyncA
   };
 }
 
-export function syncAllTripsWithSummary(): Promise<SyncAllTripsSummary> {
-  const lease = captureSyncContext();
+export function syncAllTripsWithSummary(
+  options: SyncAllTripsOptions = {},
+): Promise<SyncAllTripsSummary> {
+  const lease = captureSyncContext(options.signal);
   const { context: syncContext } = lease;
   const key = `${syncContext.namespace}:${syncContext.sessionId}:${syncContext.principalId}`;
-  const active = fullSyncInFlight.get(key);
-  if (active) {
-    lease.release();
-    return active;
-  }
-  const request = performFullSync(syncContext).finally(() => {
-    if (fullSyncInFlight.get(key) === request) fullSyncInFlight.delete(key);
-    lease.release();
-  });
-  fullSyncInFlight.set(key, request);
-  return request;
+  return fullSyncTasks.run(key, async (sharedSignal) => {
+    const workerLease = captureSyncContext(sharedSignal);
+    const startedAtMs = performance.now();
+    let outcome: MobileMetricAttributes['outcome'] = 'failure';
+    try {
+      if (!sameSyncIdentity(syncContext, workerLease.context)) {
+        throw new SyncContextChangedError();
+      }
+      const summary = await performFullSync(workerLease.context);
+      outcome = summary.failures.length > 0 ? 'partial' : 'success';
+      return summary;
+    } catch (error) {
+      outcome = workerLease.context.signal.aborted ? 'cancelled' : 'failure';
+      throw error;
+    } finally {
+      recordMobileMetric('sync_duration', performance.now() - startedAtMs, { outcome });
+      recordMobileMetric('sync_run', 1, { outcome });
+      workerLease.release();
+    }
+  }, syncContext.signal).finally(lease.release);
 }
 
-export async function syncAllTrips(): Promise<SyncAllTripsSummary> {
-  return syncAllTripsWithSummary();
+export async function syncAllTrips(
+  options: SyncAllTripsOptions = {},
+): Promise<SyncAllTripsSummary> {
+  return syncAllTripsWithSummary(options);
 }

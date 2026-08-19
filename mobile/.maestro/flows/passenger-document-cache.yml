@@ -1,0 +1,23 @@
+appId: com.globalconnects.groupcompanion
+name: Passenger document first materialization and process-death cache
+tags:
+  - release-hermes
+  - staging-fixture
+  - secure-document
+---
+- launchApp:
+    clearState: true
+    stopApp: true
+- runFlow: ../subflows/passenger-login.yml
+- runFlow: ../subflows/open-first-passport.yml
+- tapOn:
+    id: "secure-document-close"
+- killApp
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "Documents"
+    timeout: 60000
+- runFlow: ../subflows/open-first-passport.yml
+- assertVisible:
+    id: "secure-document-rendered"

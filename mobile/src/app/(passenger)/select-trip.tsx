@@ -1,4 +1,3 @@
-import { format, parseISO } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
 import MapPin from 'lucide-react-native/icons/map-pin';
 import Search from 'lucide-react-native/icons/search';
@@ -14,6 +13,8 @@ import {
   type ListRenderItem,
 } from 'react-native';
 
+import { formatCalendarDate } from '@/core/localization/date-time';
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
@@ -138,7 +139,7 @@ export default function PassengerTripSelectionScreen(): ReactElement {
             <Text style={styles.tripMeta}>
               {[
                 item.destination,
-                item.travelDate ? format(parseISO(item.travelDate), 'd MMM yyyy') : null,
+        item.travelDate ? formatCalendarDate(item.travelDate) : null,
               ].filter(Boolean).join(' - ') || 'Trip details are being prepared'}
             </Text>
           </View>
@@ -171,9 +172,7 @@ export default function PassengerTripSelectionScreen(): ReactElement {
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={ListSeparator}
         keyboardShouldPersistTaps="handled"
-        initialNumToRender={10}
-        maxToRenderPerBatch={12}
-        windowSize={7}
+        {...MOBILE_LIST_WINDOWING.standard}
         refreshControl={(
           <RefreshControl
             refreshing={manualRefresh.isRefreshing}

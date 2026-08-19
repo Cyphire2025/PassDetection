@@ -72,6 +72,7 @@ export default function StaffLoginScreen() {
         </View>
       ) : null}
       <TextField
+        testID="staff-email-input"
         label="Email"
         keyboardType="email-address"
         textContentType="username"
@@ -82,6 +83,7 @@ export default function StaffLoginScreen() {
         maxLength={254}
       />
       <TextField
+        testID="staff-password-input"
         label="Password"
         secureTextEntry
         showPasswordToggle
@@ -95,6 +97,7 @@ export default function StaffLoginScreen() {
       />
       <AuthError message={error} />
       <PrimaryButton
+        testID="staff-sign-in"
         label={demoMode ? `Open ${demoRole === 'client_manager' ? 'manager' : 'coordinator'} demo` : 'Sign in'}
         loading={loading}
         onPress={() => void submit()}

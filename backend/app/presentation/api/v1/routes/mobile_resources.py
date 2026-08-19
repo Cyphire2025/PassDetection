@@ -18,16 +18,32 @@ from datetime import UTC, date, datetime
 from pathlib import PurePosixPath
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    status,
+)
 from fastapi.responses import StreamingResponse
 from sqlalchemy import and_, case, exists, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.mobile.app_integrity import (
+    MobileIntegrityRejected,
+    MobileIntegrityUnavailable,
+    mobile_document_authorization_request_hash,
+)
 from app.application.mobile.coordinator_roster_revision import (
     coordinator_roster_revision,
 )
+from app.application.mobile.integrity_service import MobileIntegrityService
 from app.application.security.mobile_access_policy import (
     AuthorizedMobileTrip,
     MobileAccessPolicy,
@@ -71,6 +87,7 @@ from app.infrastructure.database.gc_mobile_models import (
     MobileSyncChangeModel,
 )
 from app.infrastructure.database.models import (
+    AttendanceSessionModel,
     ClientGroupModel,
     CoordinatorGroupAssignmentModel,
     DistributedDocumentModel,
@@ -86,11 +103,13 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.qr.approved_passenger_qr_issuer import ensure_mobile_passenger_qr
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
+from app.presentation.api.v1.routes.mobile_integrity import get_mobile_integrity_service
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileAnnouncementPageResponse,
     MobileAnnouncementResponse,
     MobileCommonDocumentPageResponse,
     MobileCommonDocumentResponse,
+    MobileDocumentAuthorizationRequest,
     MobileDocumentAuthorizationResponse,
     MobileItineraryDayResponse,
     MobileItineraryItemResponse,
@@ -109,6 +128,9 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileSyncAcknowledgementResponse,
     MobileSyncChangeResponse,
     MobileSyncPageResponse,
+    MobileSyncSnapshotResourceCounts,
+    MobileSyncSnapshotResources,
+    MobileSyncSnapshotResponse,
     MobileTripsResponse,
     MobileTripSummaryResponse,
 )
@@ -405,6 +427,64 @@ async def get_mobile_manifest(
     )
 
 
+@router.get("/sync/snapshot", response_model=MobileSyncSnapshotResponse)
+async def get_mobile_sync_snapshot(
+    trip_id: uuid.UUID = Query(...),
+    claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
+    session: AsyncSession = Depends(get_db_session),
+) -> MobileSyncSnapshotResponse:
+    """Return a metadata-only fence for an atomic client-side full rebase.
+
+    The journal watermark is intentionally captured before the resource
+    revisions. If a dashboard transaction commits between those reads, the
+    returned cursor can lag the returned versions, but it can never skip that
+    transaction: its journal entry remains available on the next delta pass.
+    Clients stage the paginated resources, atomically promote them with this
+    baseline cursor, and use ``/sync/ack`` as the final revision check.
+    """
+
+    trip = await MobileAccessPolicy(session).require_trip_access(claims, trip_id)
+    baseline_cursor = int(
+        (
+            await session.execute(
+                select(func.coalesce(func.max(MobileSyncChangeModel.sequence), 0)).where(
+                    MobileSyncChangeModel.agency_id == claims.agency_id,
+                    MobileSyncChangeModel.gc_group_access_id == trip.access.id,
+                    MobileSyncChangeModel.group_id == trip_id,
+                    MobileSyncChangeModel.access_generation
+                    == trip.access.access_generation,
+                )
+            )
+        ).scalar_one()
+    )
+    versions = await _mobile_manifest_versions(
+        session,
+        claims=claims,
+        trip=trip,
+    )
+    resource_counts = await _mobile_sync_snapshot_resource_counts(
+        session,
+        claims=claims,
+        trip=trip,
+    )
+    mobile_settings = get_settings().mobile
+    return MobileSyncSnapshotResponse(
+        trip=_trip_summary(trip.group, trip.access, claims.principal_type),
+        baseline_cursor=baseline_cursor,
+        access_generation=trip.access.access_generation,
+        server_time=datetime.now(tz=UTC),
+        access_expires_at=trip.access.access_expires_at,
+        versions=versions,
+        resources=_mobile_sync_snapshot_resources(trip_id, claims.principal_type),
+        resource_counts=resource_counts,
+        max_incremental_changes=mobile_settings.sync_max_incremental_changes,
+        max_group_passengers=mobile_settings.max_group_passengers,
+        max_attendance_sessions_per_group=(
+            mobile_settings.max_attendance_sessions_per_group
+        ),
+    )
+
+
 @router.get("/sync/changes", response_model=MobileSyncPageResponse)
 async def list_mobile_sync_changes(
     trip_id: uuid.UUID = Query(...),
@@ -434,26 +514,75 @@ async def list_mobile_sync_changes(
             )
         ).scalar_one()
     )
-    statement = select(MobileSyncChangeModel).where(
-        *scope_filters,
-        MobileSyncChangeModel.sequence > cursor,
-        MobileSyncChangeModel.sequence <= high_water,
+    visibility_filters: list[ColumnElement[bool]] = [
         or_(
             MobileSyncChangeModel.expires_at.is_(None),
             MobileSyncChangeModel.expires_at > now,
         ),
         MobileSyncChangeModel.audience.in_(("all", claims.principal_type)),
-    )
+    ]
     if claims.principal_type == "passenger":
         identity = _passenger_identity(trip)
-        statement = statement.where(
+        visibility_filters.append(
             or_(
                 MobileSyncChangeModel.passenger_identity_id.is_(None),
                 MobileSyncChangeModel.passenger_identity_id == identity.id,
             )
         )
     else:
-        statement = statement.where(MobileSyncChangeModel.passenger_identity_id.is_(None))
+        visibility_filters.append(MobileSyncChangeModel.passenger_identity_id.is_(None))
+
+    # The current released clients cap one atomic delta pass at 20 pages of
+    # 500 changes. Returning the same first 10,000 rows would leave their
+    # durable cursor unchanged forever. A schema-compatible checkpoint event
+    # makes that condition recoverable without changing or weakening any scope
+    # filter. New clients recognize the event and build the explicit snapshot;
+    # older clients still perform their authoritative manifest-version refresh
+    # and advance to the same safe watermark.
+    max_incremental_changes = get_settings().mobile.sync_max_incremental_changes
+    if high_water - cursor > max_incremental_changes:
+        overflow_sequence = (
+            await session.execute(
+                select(MobileSyncChangeModel.sequence)
+                .where(
+                    *scope_filters,
+                    *visibility_filters,
+                    MobileSyncChangeModel.sequence > cursor,
+                    MobileSyncChangeModel.sequence <= high_water,
+                )
+                .order_by(MobileSyncChangeModel.sequence)
+                .offset(max_incremental_changes)
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if overflow_sequence is not None:
+            return MobileSyncPageResponse(
+                changes=[
+                    MobileSyncChangeResponse(
+                        sequence=high_water,
+                        group_id=trip_id,
+                        entity_type="snapshot_rebase",
+                        entity_id=None,
+                        operation="upsert",
+                        version=max(1, int(trip.access.manifest_version)),
+                        occurred_at=now,
+                        payload={
+                            "resource_path": (
+                                f"/api/v1/mobile/sync/snapshot?trip_id={trip_id}"
+                            ),
+                        },
+                    )
+                ],
+                next_cursor=high_water,
+                has_more=False,
+            )
+
+    statement = select(MobileSyncChangeModel).where(
+        *scope_filters,
+        *visibility_filters,
+        MobileSyncChangeModel.sequence > cursor,
+        MobileSyncChangeModel.sequence <= high_water,
+    )
 
     result = await session.execute(
         statement.order_by(MobileSyncChangeModel.sequence).limit(limit + 1)
@@ -693,21 +822,8 @@ async def list_mobile_announcements(
 ) -> MobileAnnouncementPageResponse:
     trip = await MobileAccessPolicy(session).require_trip_access(claims, group_id)
     now = datetime.now(tz=UTC)
-    visibility = getattr(GCAnnouncementModel, f"{claims.principal_type}_visible")
     statement = select(GCAnnouncementModel).where(
-        GCAnnouncementModel.agency_id == claims.agency_id,
-        GCAnnouncementModel.group_id == group_id,
-        GCAnnouncementModel.gc_group_access_id == trip.access.id,
-        GCAnnouncementModel.status == "published",
-        visibility.is_(True),
-        or_(
-            GCAnnouncementModel.availability_starts_at.is_(None),
-            GCAnnouncementModel.availability_starts_at <= now,
-        ),
-        or_(
-            GCAnnouncementModel.availability_expires_at.is_(None),
-            GCAnnouncementModel.availability_expires_at > now,
-        ),
+        *_mobile_announcement_filters(claims=claims, trip=trip, now=now)
     )
     if cursor is not None:
         statement = statement.where(GCAnnouncementModel.id < cursor)
@@ -752,21 +868,8 @@ async def list_mobile_common_documents(
 ) -> MobileCommonDocumentPageResponse:
     trip = await MobileAccessPolicy(session).require_trip_access(claims, group_id)
     now = datetime.now(tz=UTC)
-    visibility = getattr(GCCommonDocumentModel, f"{claims.principal_type}_visible")
     statement = select(GCCommonDocumentModel).where(
-        GCCommonDocumentModel.agency_id == claims.agency_id,
-        GCCommonDocumentModel.group_id == group_id,
-        GCCommonDocumentModel.gc_group_access_id == trip.access.id,
-        GCCommonDocumentModel.status == "published",
-        visibility.is_(True),
-        or_(
-            GCCommonDocumentModel.availability_starts_at.is_(None),
-            GCCommonDocumentModel.availability_starts_at <= now,
-        ),
-        or_(
-            GCCommonDocumentModel.availability_expires_at.is_(None),
-            GCCommonDocumentModel.availability_expires_at > now,
-        ),
+        *_mobile_common_document_filters(claims=claims, trip=trip, now=now)
     )
     if cursor is not None:
         statement = statement.where(GCCommonDocumentModel.id > cursor)
@@ -873,10 +976,34 @@ async def authorize_mobile_document_download(
     document_id: uuid.UUID,
     request: Request,
     version: int = Query(..., ge=1),
+    body: MobileDocumentAuthorizationRequest | None = Body(default=None),
     claims: MobileAccessClaims = Depends(require_unrestricted_mobile_claims),
     session: AsyncSession = Depends(get_db_session),
+    integrity_service: MobileIntegrityService = Depends(get_mobile_integrity_service),
 ) -> MobileDocumentAuthorizationResponse:
     trip = await MobileAccessPolicy(session).require_trip_access(claims, group_id)
+    try:
+        await integrity_service.enforce_action(
+            claims=claims,
+            action="document_download_authorize",
+            request_hash=mobile_document_authorization_request_hash(
+                group_id=group_id,
+                document_id=document_id,
+                version=version,
+            ),
+            proof=body.integrity if body is not None else None,
+        )
+    except MobileIntegrityRejected as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The mobile app integrity proof was rejected",
+        ) from exc
+    except MobileIntegrityUnavailable as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Mobile app integrity verification is temporarily unavailable",
+            headers={"Retry-After": "30"},
+        ) from exc
     source, resolved_version = await _resolve_mobile_document(
         session,
         claims=claims,
@@ -1708,12 +1835,11 @@ async def _personal_document_sources(
     ]
 
     statement = select(DistributedDocumentModel).where(
-        DistributedDocumentModel.agency_id == claims.agency_id,
-        DistributedDocumentModel.group_id == trip.group.id,
-        DistributedDocumentModel.passenger_id == submission.id,
-        DistributedDocumentModel.match_status == "matched",
-        DistributedDocumentModel.content_type.in_(_ALLOWED_DOCUMENT_TYPES),
-        _distributed_document_is_released_to_passenger(),
+        *_mobile_personal_distributed_document_filters(
+            claims=claims,
+            trip=trip,
+            submission_id=submission.id,
+        )
     )
     if cursor is not None:
         statement = statement.where(DistributedDocumentModel.id > cursor)
@@ -2318,6 +2444,211 @@ def _document_display_name(category: str, safe_filename: str) -> str:
     return labels.get(category, PurePosixPath(safe_filename).stem.replace("_", " ")[:255])
 
 
+def _mobile_announcement_filters(
+    *,
+    claims: MobileAccessClaims,
+    trip: AuthorizedMobileTrip,
+    now: datetime,
+) -> tuple[ColumnElement[bool], ...]:
+    visibility = getattr(GCAnnouncementModel, f"{claims.principal_type}_visible")
+    return (
+        GCAnnouncementModel.agency_id == claims.agency_id,
+        GCAnnouncementModel.group_id == trip.group.id,
+        GCAnnouncementModel.gc_group_access_id == trip.access.id,
+        GCAnnouncementModel.status == "published",
+        visibility.is_(True),
+        or_(
+            GCAnnouncementModel.availability_starts_at.is_(None),
+            GCAnnouncementModel.availability_starts_at <= now,
+        ),
+        or_(
+            GCAnnouncementModel.availability_expires_at.is_(None),
+            GCAnnouncementModel.availability_expires_at > now,
+        ),
+    )
+
+
+def _mobile_common_document_filters(
+    *,
+    claims: MobileAccessClaims,
+    trip: AuthorizedMobileTrip,
+    now: datetime,
+) -> tuple[ColumnElement[bool], ...]:
+    visibility = getattr(GCCommonDocumentModel, f"{claims.principal_type}_visible")
+    return (
+        GCCommonDocumentModel.agency_id == claims.agency_id,
+        GCCommonDocumentModel.group_id == trip.group.id,
+        GCCommonDocumentModel.gc_group_access_id == trip.access.id,
+        GCCommonDocumentModel.status == "published",
+        visibility.is_(True),
+        or_(
+            GCCommonDocumentModel.availability_starts_at.is_(None),
+            GCCommonDocumentModel.availability_starts_at <= now,
+        ),
+        or_(
+            GCCommonDocumentModel.availability_expires_at.is_(None),
+            GCCommonDocumentModel.availability_expires_at > now,
+        ),
+    )
+
+
+def _mobile_personal_distributed_document_filters(
+    *,
+    claims: MobileAccessClaims,
+    trip: AuthorizedMobileTrip,
+    submission_id: uuid.UUID,
+) -> tuple[ColumnElement[bool], ...]:
+    return (
+        DistributedDocumentModel.agency_id == claims.agency_id,
+        DistributedDocumentModel.group_id == trip.group.id,
+        DistributedDocumentModel.passenger_id == submission_id,
+        DistributedDocumentModel.match_status == "matched",
+        DistributedDocumentModel.content_type.in_(_ALLOWED_DOCUMENT_TYPES),
+        _distributed_document_is_released_to_passenger(),
+    )
+
+
+async def _mobile_sync_snapshot_resource_counts(
+    session: AsyncSession,
+    *,
+    claims: MobileAccessClaims,
+    trip: AuthorizedMobileTrip,
+) -> MobileSyncSnapshotResourceCounts:
+    """Count the exact role-scoped pages represented by one snapshot fence.
+
+    Counts and normal page handlers share their visibility predicates. The
+    client stages exactly these counts and re-reads the descriptor before
+    promotion, so a concurrent publish/expiry cannot silently produce a
+    partial replacement projection.
+    """
+
+    now = datetime.now(tz=UTC)
+    count_columns = [
+        select(func.count(GCAnnouncementModel.id))
+        .where(*_mobile_announcement_filters(claims=claims, trip=trip, now=now))
+        .scalar_subquery()
+        .label("announcements"),
+        select(func.count(GCCommonDocumentModel.id))
+        .where(*_mobile_common_document_filters(claims=claims, trip=trip, now=now))
+        .scalar_subquery()
+        .label("common_documents"),
+    ]
+
+    personal_documents: int | None = None
+    roster: int | None = None
+    attendance_sessions: int | None = None
+    if claims.principal_type == "passenger":
+        submission = await _passenger_document_submission(session, claims, trip)
+        passport_count = len(
+            _passport_document_sources(submission, _passenger_identity(trip).id)
+        )
+        count_columns.append(
+            (
+                select(func.count(DistributedDocumentModel.id))
+                .where(
+                    *_mobile_personal_distributed_document_filters(
+                        claims=claims,
+                        trip=trip,
+                        submission_id=submission.id,
+                    )
+                )
+                .scalar_subquery()
+                + passport_count
+            ).label("personal_documents")
+        )
+    else:
+        roster_filters: list[ColumnElement[bool]] = [
+            PassportSubmissionModel.agency_id == claims.agency_id,
+            PassportSubmissionModel.group_id == trip.group.id,
+        ]
+        if claims.principal_type == "coordinator":
+            roster_filters.append(
+                PassportSubmissionModel.status.in_(
+                    OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES
+                )
+            )
+        count_columns.extend(
+            (
+                select(func.count(PassportSubmissionModel.id))
+                .where(*roster_filters)
+                .scalar_subquery()
+                .label("roster"),
+                select(func.count(AttendanceSessionModel.id))
+                .where(
+                    AttendanceSessionModel.agency_id == claims.agency_id,
+                    AttendanceSessionModel.group_id == trip.group.id,
+                    AttendanceSessionModel.id
+                    == AttendanceSessionModel.canonical_session_id,
+                )
+                .scalar_subquery()
+                .label("attendance_sessions"),
+            )
+        )
+
+    row = (await session.execute(select(*count_columns))).one()
+    values = row._mapping
+    if claims.principal_type == "passenger":
+        personal_documents = int(values["personal_documents"] or 0)
+    else:
+        roster = int(values["roster"] or 0)
+        attendance_sessions = int(values["attendance_sessions"] or 0)
+    return MobileSyncSnapshotResourceCounts(
+        announcements=int(values["announcements"] or 0),
+        common_documents=int(values["common_documents"] or 0),
+        personal_documents=personal_documents,
+        roster=roster,
+        attendance_sessions=attendance_sessions,
+    )
+
+
+def _mobile_sync_snapshot_resources(
+    group_id: uuid.UUID,
+    principal_type: str,
+) -> MobileSyncSnapshotResources:
+    """Publish only the role-authorized metadata projections needed for rebase."""
+
+    trip_prefix = f"/api/v1/mobile/trips/{group_id}"
+    coordinator_prefix = f"/api/v1/mobile/coordinator/groups/{group_id}"
+    manager_prefix = f"/api/v1/mobile/manager/groups/{group_id}"
+    return MobileSyncSnapshotResources(
+        manifest=f"{trip_prefix}/manifest",
+        itinerary=f"{trip_prefix}/itinerary",
+        announcements=f"{trip_prefix}/announcements",
+        common_documents=f"{trip_prefix}/common-documents",
+        personal_documents=(
+            f"{trip_prefix}/documents" if principal_type == "passenger" else None
+        ),
+        room=f"{trip_prefix}/room" if principal_type == "passenger" else None,
+        meals=f"{trip_prefix}/meals" if principal_type == "passenger" else None,
+        qr=f"{trip_prefix}/qr" if principal_type == "passenger" else None,
+        readiness=(
+            f"{manager_prefix}/readiness"
+            if principal_type == "client_manager"
+            else None
+        ),
+        roster=(
+            f"{coordinator_prefix}/passengers"
+            if principal_type == "coordinator"
+            else (
+                f"{manager_prefix}/passengers"
+                if principal_type == "client_manager"
+                else None
+            )
+        ),
+        attendance_sessions=(
+            f"{coordinator_prefix}/attendance/sessions"
+            if principal_type == "coordinator"
+            else (
+                f"{manager_prefix}/attendance/sessions"
+                if principal_type == "client_manager"
+                else None
+            )
+        ),
+        sync_changes=f"/api/v1/mobile/sync/changes?trip_id={group_id}",
+        acknowledge="/api/v1/mobile/sync/ack",
+    )
+
+
 def _trip_summary(
     group: ClientGroupModel,
     access: GCGroupAccessModel,
@@ -2331,6 +2662,7 @@ def _trip_summary(
         destination=group.destination,
         travel_date=group.travel_date,
         return_date=group.return_date,
+        timezone=group.timezone,
         role=role,
         access_generation=access.access_generation,
         itinerary_version=access.itinerary_version,

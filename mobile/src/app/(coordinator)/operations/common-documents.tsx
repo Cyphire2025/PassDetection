@@ -4,6 +4,7 @@ import FileText from 'lucide-react-native/icons/file-text';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
+import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { coordinatorDocumentViewerRoute } from '@/core/navigation/document-viewer-routes';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
@@ -79,9 +80,7 @@ export default function CoordinatorCommonDocumentsScreen() {
         sections={sections}
         keyExtractor={(document) => document.id}
         stickySectionHeadersEnabled={false}
-        initialNumToRender={8}
-        maxToRenderPerBatch={12}
-        windowSize={5}
+        {...MOBILE_LIST_WINDOWING.compact}
         contentContainerStyle={styles.list}
         refreshControl={(
           <RefreshControl

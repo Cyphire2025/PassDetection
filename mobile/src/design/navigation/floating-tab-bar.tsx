@@ -14,9 +14,18 @@ import { BlurView } from 'expo-blur';
 import * as Device from 'expo-device';
 import { Tabs } from 'expo-router';
 import { useEffect, useState, type ComponentProps } from 'react';
-import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { responsiveNavigationLayout } from '@/design/accessibility/layout-policy';
 import { colors, radii, spacing } from '@/design/theme';
 
 type BottomTabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
@@ -38,6 +47,8 @@ const iconByRoute: Record<string, LucideIcon> = {
 
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { width, fontScale } = useWindowDimensions();
+  const layout = responsiveNavigationLayout(width, fontScale);
   const [reduceTransparency, setReduceTransparency] = useState(false);
 
   useEffect(() => {
@@ -51,7 +62,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
   const allowBlur = !reduceTransparency && (Platform.OS === 'ios' || (Device.deviceYearClass ?? 0) >= 2020);
   const content = (
-    <View style={styles.items}>
+    <View style={[styles.items, { minHeight: layout.barMinimumHeight }]}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
         const options = descriptors[route.key]?.options;
@@ -68,9 +79,17 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
             }}
-            style={({ pressed }) => [styles.item, focused && styles.itemFocused, pressed && styles.pressed]}>
+            style={({ pressed }) => [
+              styles.item,
+              { minHeight: layout.itemMinimumHeight },
+              focused && styles.itemFocused,
+              pressed && styles.pressed,
+            ]}>
             <Icon color={focused ? colors.navy : 'rgba(255,255,255,0.7)'} size={21} strokeWidth={focused ? 2.7 : 2} />
-            <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.label, focused && styles.labelFocused]}>
+            <Text
+              maxFontSizeMultiplier={layout.labelMaximumFontScale}
+              numberOfLines={2}
+              style={[styles.label, focused && styles.labelFocused]}>
               {label}
             </Text>
           </Pressable>
@@ -82,18 +101,22 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   return (
     <View pointerEvents="box-none" style={[styles.position, { bottom: Math.max(insets.bottom, spacing.sm) }]}>
       {allowBlur ? (
-        <BlurView intensity={52} tint="dark" blurMethod="dimezisBlurViewSdk31Plus" style={styles.bar}>
+        <BlurView
+          intensity={52}
+          tint="dark"
+          blurMethod="dimezisBlurViewSdk31Plus"
+          style={[styles.bar, { width: layout.barWidth }]}>
           {content}
         </BlurView>
       ) : (
-        <View style={[styles.bar, styles.fallback]}>{content}</View>
+        <View style={[styles.bar, styles.fallback, { width: layout.barWidth }]}>{content}</View>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  position: { position: 'absolute', left: spacing.md, right: spacing.md },
+  position: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
   bar: {
     overflow: 'hidden',
     borderRadius: radii.lg,
@@ -107,10 +130,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   fallback: { backgroundColor: colors.navy },
-  items: { minHeight: 68, padding: spacing.xs, flexDirection: 'row', alignItems: 'center' },
+  items: { padding: spacing.xs, flexDirection: 'row', alignItems: 'center' },
   item: {
     flex: 1,
-    minHeight: 58,
     minWidth: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -119,6 +141,14 @@ const styles = StyleSheet.create({
   },
   itemFocused: { backgroundColor: colors.green },
   pressed: { opacity: 0.65 },
-  label: { color: 'rgba(255,255,255,0.68)', fontSize: 10, fontWeight: '700', maxWidth: 70 },
+  label: {
+    flexShrink: 1,
+    color: 'rgba(255,255,255,0.68)',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '700',
+    maxWidth: 70,
+    textAlign: 'center',
+  },
   labelFocused: { color: colors.navy, fontWeight: '900' },
 });

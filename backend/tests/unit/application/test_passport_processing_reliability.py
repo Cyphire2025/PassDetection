@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 from app.application.interfaces.passport_extraction import PassportExtractionResult
 from app.application.interfaces.passport_verification import PassportVerificationResult
+from app.application.mobile.group_capacity import GroupPassengerCapacityGuard
 from app.application.use_cases.passports.process_passport_submission_job_use_case import (
     PUBLIC_DOCUMENT_VERIFICATION_UNAVAILABLE,
     PUBLIC_EXTRACTION_FAILURE,
@@ -18,7 +19,7 @@ from app.application.use_cases.passports.process_passport_submission_job_use_cas
 )
 from app.application.use_cases.passports.submit_passport_use_case import SubmitPassportUseCase
 from app.domain.entities.entities import PassportSubmission
-from app.domain.exceptions.exceptions import StorageError
+from app.domain.exceptions.exceptions import StorageError, ValidationError
 from app.infrastructure.processing.job_state import ProcessingJobStatus
 
 
@@ -581,6 +582,7 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
             lambda *, file_content, file_name, content_type: file_name
         )
         self.job_repo = AsyncMock()
+        self.capacity_guard = AsyncMock(spec=GroupPassengerCapacityGuard)
 
     def _use_case(self) -> SubmitPassportUseCase:
         return SubmitPassportUseCase(
@@ -588,6 +590,7 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
             passport_repo=self.passport_repo,
             storage_repo=self.storage_repo,
             processing_job_repo=self.job_repo,
+            group_capacity_guard=self.capacity_guard,
         )
 
     async def test_known_idempotency_key_returns_without_reuploading(self) -> None:
@@ -632,6 +635,60 @@ class PassportUploadIdempotencyTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(self.existing.image_s3_key, losing_keys)
         self.assertNotIn(self.existing.passport_back_s3_key, losing_keys)
         self.job_repo.create.assert_not_awaited()
+
+    async def test_group_capacity_is_checked_under_lock_before_persistence(self) -> None:
+        self.passport_repo.get_by_upload_idempotency_key.return_value = None
+        self.capacity_guard.assert_available.side_effect = ValidationError(
+            "This group supports at most 10,000 passenger records.",
+            field="group_capacity",
+        )
+
+        with self.assertRaises(ValidationError):
+            await self._use_case().execute(
+                token="public-token",
+                file_content=b"new-front",
+                content_type="image/jpeg",
+                filename="front.jpg",
+                client_name="New Traveller",
+                passport_back=(b"new-back", "image/jpeg", "back.jpg"),
+                acquisition_mode="camera",
+                upload_idempotency_key="capacity-safe-upload-key-123456789",
+            )
+
+        self.capacity_guard.lock_group.assert_awaited_once_with(
+            agency_id=self.agency_id,
+            group_id=self.group_id,
+        )
+        self.capacity_guard.assert_available.assert_awaited_once_with(
+            agency_id=self.agency_id,
+            group_id=self.group_id,
+            additional_passengers=1,
+        )
+        self.passport_repo.save_idempotent.assert_not_awaited()
+        self.storage_repo.delete_files.assert_awaited_once()
+
+    async def test_locked_idempotent_replay_does_not_consume_group_capacity(self) -> None:
+        self.passport_repo.get_by_upload_idempotency_key.side_effect = [
+            None,
+            self.existing,
+        ]
+
+        result = await self._use_case().execute(
+            token="public-token",
+            file_content=b"new-front",
+            content_type="image/jpeg",
+            filename="front.jpg",
+            client_name="Existing Traveller",
+            passport_back=(b"new-back", "image/jpeg", "back.jpg"),
+            acquisition_mode="camera",
+            upload_idempotency_key=self.idempotency_key,
+        )
+
+        self.assertEqual(result.id, self.existing.id)
+        self.capacity_guard.lock_group.assert_awaited_once()
+        self.capacity_guard.assert_available.assert_not_awaited()
+        self.passport_repo.save_idempotent.assert_not_awaited()
+        self.storage_repo.delete_files.assert_awaited_once()
 
     async def test_failed_upload_compensates_every_intended_attempt_key(self) -> None:
         self.passport_repo.get_by_upload_idempotency_key.return_value = None

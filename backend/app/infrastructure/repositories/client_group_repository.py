@@ -41,6 +41,7 @@ class ClientGroupRepository(IClientGroupRepository):
             destination=model.destination,
             travel_date=model.travel_date,
             return_date=model.return_date,
+            timezone=model.timezone,
             package_name=model.package_name,
             departure_cities=list(model.departure_cities or []),
             base_city_enabled=model.base_city_enabled,
@@ -76,6 +77,7 @@ class ClientGroupRepository(IClientGroupRepository):
             destination=entity.destination,
             travel_date=entity.travel_date,
             return_date=entity.return_date,
+            timezone=entity.timezone,
             package_name=entity.package_name,
             departure_cities=entity.departure_cities,
             base_city_enabled=entity.base_city_enabled,
@@ -153,6 +155,7 @@ class ClientGroupRepository(IClientGroupRepository):
         model.destination = link.destination
         model.travel_date = link.travel_date
         model.return_date = link.return_date
+        model.timezone = link.timezone
         model.package_name = link.package_name
         model.departure_cities = link.departure_cities
         model.base_city_enabled = link.base_city_enabled

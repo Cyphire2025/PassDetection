@@ -3,7 +3,12 @@ import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 
-import { drainNotificationReads, loadNotifications } from '../notification-repository';
+import type { MobileNotification } from '../../api/notification-contracts';
+import {
+  drainNotificationReads,
+  loadNotifications,
+  replaceNotificationsInTransaction,
+} from '../notification-repository';
 
 jest.mock('@/core/api/client', () => {
   const actual = jest.requireActual('@/core/api/client');
@@ -159,6 +164,7 @@ class FakeNotificationDatabase {
 }
 
 class SnapshotNotificationDatabase {
+  readonly replacementIds = new Set<string>();
   readonly notifications = new Map<string, { tripId: string; readAt: string | null }>([
     ['55555555-5555-4555-8555-555555555555', { tripId: TRIP_ID, readAt: null }],
     [NOTIFICATION_ID, { tripId: TRIP_ID, readAt: '2029-01-02T00:00:00.000Z' }],
@@ -170,23 +176,34 @@ class SnapshotNotificationDatabase {
 
   async runAsync(sql: string, ...parameters: unknown[]): Promise<{ changes: number }> {
     const normalized = compactSql(sql);
+    if (normalized.startsWith('CREATE TEMP TABLE')) return { changes: 0 };
+    if (normalized.startsWith('DELETE FROM mobile_notification_replacement_ids')) {
+      const changes = this.replacementIds.size;
+      this.replacementIds.clear();
+      return { changes };
+    }
+    if (normalized.startsWith('INSERT INTO mobile_notification_replacement_ids')) {
+      for (const id of parameters as string[]) this.replacementIds.add(id);
+      return { changes: parameters.length };
+    }
     if (normalized.startsWith('INSERT INTO mobile_notifications')) {
-      const id = parameters[0] as string;
-      const tripId = parameters[2] as string;
-      const incomingReadAt = parameters[11] as string | null;
-      const existing = this.notifications.get(id);
-      this.notifications.set(id, {
-        tripId,
-        readAt: existing?.readAt ?? incomingReadAt,
-      });
-      return { changes: 1 };
+      for (let offset = 0; offset < parameters.length; offset += 13) {
+        const id = parameters[offset] as string;
+        const tripId = parameters[offset + 2] as string;
+        const incomingReadAt = parameters[offset + 11] as string | null;
+        const existing = this.notifications.get(id);
+        this.notifications.set(id, {
+          tripId,
+          readAt: existing?.readAt ?? incomingReadAt,
+        });
+      }
+      return { changes: parameters.length / 13 };
     }
     if (normalized.startsWith('DELETE FROM mobile_notifications')) {
       const tripId = parameters[1] as string;
-      const retainedIds = new Set(parameters.slice(2) as string[]);
       let changes = 0;
       for (const [id, notification] of this.notifications) {
-        if (notification.tripId === tripId && !retainedIds.has(id)) {
+        if (notification.tripId === tripId && !this.replacementIds.has(id)) {
           this.notifications.delete(id);
           changes += 1;
         }
@@ -265,6 +282,39 @@ test('replaces a complete online trip snapshot and removes revoked cached update
     '2029-01-02T00:00:00.000Z',
   );
   expect(database.notifications.has('66666666-6666-4666-8666-666666666666')).toBe(true);
+});
+
+test('writes a 10k notification snapshot with bounded statements and one final sweep', async () => {
+  const transaction = {
+    runAsync: jest.fn(async (_sql: string, ..._parameters: unknown[]) => ({ changes: 1 })),
+  };
+  const items = Array.from({ length: 10_000 }, (_, index): MobileNotification => ({
+    id: `notification-${index}`,
+    trip_id: TRIP_ID,
+    notification_type: 'announcement',
+    category: 'operations',
+    priority: 'normal',
+    title: `Update ${index}`,
+    body: 'Current update',
+    deep_link_path: null,
+    payload: {},
+    available_at: '2030-01-01T00:00:00.000Z',
+    expires_at: null,
+    read_at: null,
+  }));
+
+  await replaceNotificationsInTransaction(transaction as never, {
+    account: 'agency.account',
+    items,
+    replaceTripId: TRIP_ID,
+    updatedAt: '2030-01-01T00:00:00.000Z',
+  });
+
+  expect(transaction.runAsync).toHaveBeenCalledTimes(
+    2 + Math.ceil(10_000 / 900) + Math.ceil(10_000 / 69) + 1,
+  );
+  expect(transaction.runAsync.mock.calls.every((call) => call.slice(1).length <= 900)).toBe(true);
+  expect(transaction.runAsync.mock.calls.at(-1)?.[0]).toContain('NOT EXISTS');
 });
 
 test('backs off a transient failure and does not immediately claim it again', async () => {

@@ -1,5 +1,6 @@
 import { useSessionStore } from '@/core/auth/session-store';
 import type { MobileSession } from '@/core/auth/types';
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
 import type { Trip } from '../../model/trip';
@@ -15,6 +16,7 @@ const TRIP_A: Trip = {
   destination: 'Singapore',
   travelDate: '2026-09-01',
   returnDate: '2026-09-05',
+  timeZone: DEFAULT_TRIP_TIME_ZONE,
   role: 'passenger',
   accessGeneration: 1,
   accessExpiresAt: null,
@@ -65,7 +67,7 @@ const mockGetFirstAsync = jest.fn();
 const mockOpenAccountDatabase = jest.fn(async (_namespace: string) => ({
   getFirstAsync: mockGetFirstAsync,
 }));
-const mockSyncTrip = jest.fn();
+const mockRequestSync = jest.fn();
 const mockPreloadPassengerTrip = jest.fn();
 const mockRememberPassengerTrip = jest.fn();
 const mockCompleteRequiredPreparation = jest.fn();
@@ -79,8 +81,8 @@ jest.mock('@/core/storage/database', () => ({
   openAccountDatabase: (namespace: string) => mockOpenAccountDatabase(namespace),
 }));
 
-jest.mock('@/core/sync/sync-service', () => ({
-  syncTrip: (...args: unknown[]) => mockSyncTrip(...args),
+jest.mock('@/core/sync/sync-trigger', () => ({
+  requestSync: (...args: unknown[]) => mockRequestSync(...args),
 }));
 
 jest.mock('@/core/sync/required-preparation-lease', () => ({
@@ -128,7 +130,7 @@ beforeEach(() => {
   });
   mockGetFirstAsync.mockResolvedValue({ prepared: 1 });
   mockRememberPassengerTrip.mockResolvedValue(TRIP_A);
-  mockSyncTrip.mockResolvedValue({ tripId: TRIP_A.id });
+  mockRequestSync.mockResolvedValue({ results: [], failures: [] });
   mockPreloadPassengerTrip.mockResolvedValue({
     tripId: TRIP_A.id,
     failedDownloads: 0,
@@ -156,7 +158,11 @@ test('opens an identity-bound prepared cache immediately and refreshes silently'
   expect(mockRememberPassengerTrip).toHaveBeenCalledWith(input.trips, TRIP_A.id);
   expect(useSelectedTripStore.getState().tripId).toBe(TRIP_A.id);
   expect(mockCompleteRequiredPreparation).toHaveBeenCalledWith(SWITCHED_SESSION.sessionId);
-  expect(mockSyncTrip).toHaveBeenCalledWith(TRIP_A.id);
+  expect(mockRequestSync).toHaveBeenCalledWith({
+    scope: 'trip',
+    tripId: TRIP_A.id,
+    reason: 'passenger-cache-open',
+  });
 });
 
 test('uses the blocking required preload only for an unprepared trip', async () => {
@@ -171,7 +177,7 @@ test('uses the blocking required preload only for an unprepared trip', async () 
 
   expect(input.onBlockingPreparation).toHaveBeenCalledTimes(1);
   expect(mockPreloadPassengerTrip).toHaveBeenCalledWith(input.onProgress, TRIP_A.id);
-  expect(mockSyncTrip).not.toHaveBeenCalled();
+  expect(mockRequestSync).not.toHaveBeenCalled();
   expect(mockCompleteRequiredPreparation).toHaveBeenCalledWith(SWITCHED_SESSION.sessionId);
 });
 
@@ -215,7 +221,7 @@ test('fails closed when the authenticated context changes during the cache check
   expect(mockRememberPassengerTrip).not.toHaveBeenCalled();
   expect(useSelectedTripStore.getState().tripId).toBeNull();
   expect(mockPreloadPassengerTrip).not.toHaveBeenCalled();
-  expect(mockSyncTrip).not.toHaveBeenCalled();
+  expect(mockRequestSync).not.toHaveBeenCalled();
   expect(mockCompleteRequiredPreparation).not.toHaveBeenCalled();
 });
 

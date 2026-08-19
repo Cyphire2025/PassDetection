@@ -8,6 +8,7 @@ from typing import Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.mobile.realtime_hints import stage_mobile_realtime_change
 from app.infrastructure.database.gc_mobile_models import (
     GCGroupAccessModel,
     MobileSyncChangeModel,
@@ -55,6 +56,7 @@ async def append_mobile_sync_change(
         occurred_at=datetime.now(tz=UTC),
     )
     session.add(change)
+    stage_mobile_realtime_change(session, change)
     if flush:
         await session.flush()
     return change

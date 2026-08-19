@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+import {
+  DEFAULT_TRIP_TIME_ZONE,
+  IanaTimeZoneSchema,
+} from '@/core/localization/time-zone';
+
 const Uuid = z.string().uuid();
 const IsoDateTime = z.string().datetime({ offset: true });
 
@@ -13,6 +18,38 @@ export const MobileDeviceSchema = z
   .strict();
 
 export type MobileDeviceInput = z.infer<typeof MobileDeviceSchema>;
+
+export const MobileIntegrityChallengeResponseSchema = z
+  .object({
+    status: z.enum(['disabled', 'issued']),
+    mode: z.enum(['disabled', 'monitor', 'enforce']),
+    required: z.boolean(),
+    provider: z.enum(['play_integrity', 'app_attest']),
+    challenge_id: Uuid.nullable(),
+    provider_request_hash: z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{43}$/)
+      .nullable(),
+    expires_at: IsoDateTime.nullable(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const issued = value.status === 'issued';
+    if (
+      issued !== (value.challenge_id !== null)
+      || issued !== (value.provider_request_hash !== null)
+      || issued !== (value.expires_at !== null)
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Integrity challenge fields did not match the server policy state.',
+      });
+    }
+  });
+
+export const MobileAppAttestRegistrationResponseSchema = z
+  .object({ registered: z.literal(true) })
+  .strict();
 
 export const PrincipalSchema = z
   .object({
@@ -38,6 +75,11 @@ export const TokenResponseSchema = z
     access_token_expires_at: IsoDateTime,
     refresh_token_expires_at: IsoDateTime,
     session_id: Uuid,
+    offline_authorization_lease: z
+      .string()
+      .min(256)
+      .max(4_096)
+      .regex(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/),
     principal: PrincipalSchema,
   })
   .strict();
@@ -61,6 +103,9 @@ export const TripClaimSchema = z
     destination: z.string().max(255).nullable(),
     travel_date: z.string().date().nullable(),
     return_date: z.string().date().nullable(),
+    // Missing is accepted only for a rolling deployment against the previous
+    // backend contract. An explicitly invalid timezone always rejects.
+    timezone: IanaTimeZoneSchema.optional().default(DEFAULT_TRIP_TIME_ZONE),
     requires_secondary_verification: z.boolean(),
   })
   .strict();
@@ -84,6 +129,7 @@ export const TripSummarySchema = z
     destination: z.string().max(255).nullable(),
     travel_date: z.string().date().nullable(),
     return_date: z.string().date().nullable(),
+    timezone: IanaTimeZoneSchema.optional().default(DEFAULT_TRIP_TIME_ZONE),
     role: z.enum(['passenger', 'client_manager', 'coordinator']),
     access_generation: z.number().int().nonnegative(),
     itinerary_version: z.number().int().nonnegative(),
@@ -129,24 +175,28 @@ export const SyncAckResponseSchema = z
   })
   .strict();
 
+export const MobileResourceVersionsSchema = z
+  .object({
+    manifest: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    itinerary: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    common_documents: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    personal_documents: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    announcements: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    rooming: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    meals: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    qr: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    readiness: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    roster: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  })
+  .strict();
+
 export const ManifestSchema = z
   .object({
     trip: TripSummarySchema,
     sync_cursor: z.number().int().nonnegative(),
     server_time: IsoDateTime,
     access_expires_at: IsoDateTime.nullable(),
-    versions: z.object({
-      manifest: z.number().int().nonnegative(),
-      itinerary: z.number().int().nonnegative(),
-      common_documents: z.number().int().nonnegative(),
-      personal_documents: z.number().int().nonnegative(),
-      announcements: z.number().int().nonnegative(),
-      rooming: z.number().int().nonnegative(),
-      meals: z.number().int().nonnegative(),
-      qr: z.number().int().nonnegative(),
-      readiness: z.number().int().nonnegative(),
-      roster: z.number().int().nonnegative(),
-    }).strict(),
+    versions: MobileResourceVersionsSchema,
     resources: z.object({
       itinerary: z.string().startsWith('/api/v1/mobile/').max(500),
       announcements: z.string().startsWith('/api/v1/mobile/').max(500),
@@ -160,14 +210,85 @@ export const ManifestSchema = z
   })
   .strict();
 
-export const ApiErrorBodySchema = z
+const SnapshotResourcePathSchema = z
+  .string()
+  .startsWith('/api/v1/mobile/')
+  .max(500);
+
+export const SyncSnapshotSchema = z
   .object({
-    detail: z.union([
-      z.string().max(500),
-      z.object({ code: z.string().max(100), message: z.string().max(500) }).passthrough(),
-    ]),
+    strategy: z.literal('full_rebase'),
+    trip: TripSummarySchema,
+    baseline_cursor: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    access_generation: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    server_time: IsoDateTime,
+    access_expires_at: IsoDateTime.nullable(),
+    versions: MobileResourceVersionsSchema,
+    resources: z
+      .object({
+        manifest: SnapshotResourcePathSchema,
+        itinerary: SnapshotResourcePathSchema,
+        announcements: SnapshotResourcePathSchema,
+        common_documents: SnapshotResourcePathSchema,
+        personal_documents: SnapshotResourcePathSchema.nullable(),
+        room: SnapshotResourcePathSchema.nullable(),
+        meals: SnapshotResourcePathSchema.nullable(),
+        qr: SnapshotResourcePathSchema.nullable(),
+        readiness: SnapshotResourcePathSchema.nullable(),
+        roster: SnapshotResourcePathSchema.nullable(),
+        attendance_sessions: SnapshotResourcePathSchema.nullable(),
+        sync_changes: SnapshotResourcePathSchema,
+        acknowledge: SnapshotResourcePathSchema,
+      })
+      .strict(),
+    resource_counts: z
+      .object({
+        announcements: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+        common_documents: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+        personal_documents: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).nullable(),
+        roster: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).nullable(),
+        attendance_sessions: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).nullable(),
+      })
+      .strict(),
+    max_incremental_changes: z
+      .number()
+      .int()
+      .positive()
+      .max(Number.MAX_SAFE_INTEGER),
+    max_group_passengers: z
+      .number()
+      .int()
+      .positive()
+      .max(Number.MAX_SAFE_INTEGER),
+    max_attendance_sessions_per_group: z
+      .number()
+      .int()
+      .positive()
+      .max(Number.MAX_SAFE_INTEGER),
   })
-  .passthrough();
+  .strict();
+
+export type MobileResourceVersions = z.infer<typeof MobileResourceVersionsSchema>;
+export type SyncSnapshot = z.infer<typeof SyncSnapshotSchema>;
+
+const ApiErrorDescriptorSchema = z
+  .object({
+    code: z.string().min(1).max(100),
+    message: z.string().min(1).max(500),
+  })
+  .strict();
+
+/**
+ * The backend domain-error envelope and FastAPI's detail envelope are separate,
+ * explicit wire contracts. Keeping each descriptor strict prevents an error
+ * response from becoming an unbounded carrier for provider or debug metadata.
+ */
+export const ApiErrorBodySchema = z.union([
+  z.object({ error: ApiErrorDescriptorSchema }).strict(),
+  z.object({
+    detail: z.union([z.string().min(1).max(500), ApiErrorDescriptorSchema]),
+  }).strict(),
+]);
 
 export const DocumentDownloadAuthorizationSchema = z
   .object({

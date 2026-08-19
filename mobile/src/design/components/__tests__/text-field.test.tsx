@@ -34,3 +34,18 @@ test('lets staff reveal and hide a typed password without changing its value', a
   expect(screen.getByLabelText('Password').props.secureTextEntry).toBe(true);
   expect(onChangeText).not.toHaveBeenCalled();
 });
+
+test('associates a validation error with the field and announces it politely', async () => {
+  const screen = await render(
+    <TextField
+      label="Email"
+      accessibilityHint="Use your work account"
+      error="Enter a valid email address"
+    />,
+  );
+
+  expect(screen.getByLabelText('Email').props.accessibilityHint).toBe(
+    'Use your work account. Enter a valid email address',
+  );
+  expect(screen.getByRole('alert').props.accessibilityLiveRegion).toBe('polite');
+});

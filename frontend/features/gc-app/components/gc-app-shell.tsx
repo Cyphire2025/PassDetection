@@ -46,7 +46,7 @@ export function GcAppShell({ children }: { children: ReactNode }) {
   return (
     <div className="space-y-5">
       <OperationsPageHeader
-        eyebrow="Group Companion"
+        eyebrow="Global Connect Travels"
         title="GC App operations"
         description="Manage client access and mobile publishing from one controlled agency workspace."
         icon={Smartphone}

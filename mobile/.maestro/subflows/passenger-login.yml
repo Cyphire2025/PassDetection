@@ -1,0 +1,28 @@
+appId: com.globalconnects.groupcompanion
+---
+- extendedWaitUntil:
+    visible: "Continue with phone number"
+    timeout: 30000
+- tapOn: "Continue with phone number"
+- extendedWaitUntil:
+    visible:
+      id: "passenger-phone-input"
+    timeout: 10000
+- tapOn:
+    id: "passenger-phone-input"
+- inputText: ${MAESTRO_PASSENGER_PHONE}
+- hideKeyboard
+- tapOn:
+    id: "passenger-send-otp"
+- extendedWaitUntil:
+    visible: "Check WhatsApp."
+    timeout: 30000
+- tapOn:
+    id: "passenger-otp-digit-1"
+- inputText: ${MAESTRO_PASSENGER_OTP}
+- hideKeyboard
+- tapOn:
+    id: "passenger-verify-otp"
+- extendedWaitUntil:
+    visible: "Documents"
+    timeout: 120000

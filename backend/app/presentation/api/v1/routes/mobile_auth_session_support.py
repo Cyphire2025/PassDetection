@@ -8,11 +8,11 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from fastapi import HTTPException, Request, status
-from sqlalchemy import select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security.mobile_jwt import MobileAccessClaims
-from app.domain.entities.entities import UserRole
+from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
+from app.domain.entities.entities import GroupStatus, UserRole
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerProfileModel,
     GCGroupAccessModel,
@@ -21,7 +21,11 @@ from app.infrastructure.database.gc_mobile_models import (
     MobilePassengerSessionIdentityModel,
     MobileRefreshTokenModel,
 )
-from app.infrastructure.database.models import PassportSubmissionModel, UserModel
+from app.infrastructure.database.models import (
+    ClientGroupModel,
+    PassportSubmissionModel,
+    UserModel,
+)
 from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileDeviceInput,
     MobilePrincipalResponse,
@@ -40,9 +44,46 @@ class MobileSessionIssueDependencies:
     revoke_same_device_session: Callable[..., Awaitable[None]]
     create_refresh_token: Callable[[], tuple[str, datetime]]
     create_access_token: Callable[..., tuple[str, datetime]]
+    create_offline_authorization_lease: Callable[..., str]
     hash_lookup: Callable[..., str]
     hash_refresh_token: Callable[[str], str]
     request_digest: Callable[[Request, str], str | None]
+
+
+async def mobile_offline_lease_generations(
+    session: AsyncSession,
+    *,
+    principal_type: MobilePrincipalType,
+    principal: UserModel | MobilePassengerIdentityModel,
+    access: GCGroupAccessModel | None,
+) -> tuple[int | None, int | None]:
+    """Return revocation-relevant generations that exist for this principal scope."""
+
+    principal_generation: int | None = None
+    if principal_type == "passenger":
+        candidate_generation = getattr(principal, "claim_generation", None)
+        if isinstance(candidate_generation, int) and candidate_generation >= 0:
+            principal_generation = candidate_generation
+    elif principal_type == "client_manager" and isinstance(principal, UserModel):
+        principal_generation = (
+            await session.execute(
+                select(ClientManagerProfileModel.access_generation).where(
+                    ClientManagerProfileModel.user_id == principal.id,
+                    ClientManagerProfileModel.agency_id == principal.agency_id,
+                    ClientManagerProfileModel.deleted_at.is_(None),
+                )
+            )
+        ).scalar_one_or_none()
+
+    candidate_access_generation = (
+        getattr(access, "access_generation", None) if access is not None else None
+    )
+    access_generation = (
+        candidate_access_generation
+        if isinstance(candidate_access_generation, int) and candidate_access_generation >= 0
+        else None
+    )
+    return principal_generation, access_generation
 
 
 def _normalize_direct_password_client_manager(
@@ -73,7 +114,7 @@ async def issue_mobile_session(
     session: AsyncSession,
     *,
     principal_id: uuid.UUID,
-    principal_type: str,
+    principal_type: MobilePrincipalType,
     agency_id: uuid.UUID,
     display_name: str,
     device: MobileDeviceInput,
@@ -86,9 +127,7 @@ async def issue_mobile_session(
     access: GCGroupAccessModel | None = None,
 ) -> MobileTokenResponse:
     now = datetime.now(tz=UTC)
-    device_hash = dependencies.hash_lookup(
-        device.installation_id, purpose="device-installation"
-    )
+    device_hash = dependencies.hash_lookup(device.installation_id, purpose="device-installation")
     authorized_identities = passenger_authorized_identities or (
         [passenger_identity] if passenger_identity is not None else []
     )
@@ -172,12 +211,41 @@ async def issue_mobile_session(
         session_generation=device_session.session_generation,
         password_change_required=password_change_required,
     )
+    lease_principal: UserModel | MobilePassengerIdentityModel
+    if passenger_identity is not None:
+        lease_principal = passenger_identity
+    elif user is not None:
+        lease_principal = user
+    else:
+        raise ValueError("Mobile session issuance is missing its principal")
+    principal_generation, access_generation = await mobile_offline_lease_generations(
+        session,
+        principal_type=principal_type,
+        principal=lease_principal,
+        access=access,
+    )
+    offline_authorization_lease = dependencies.create_offline_authorization_lease(
+        principal_id=principal_id,
+        account_id=device_session.account_id,
+        principal_type=principal_type,
+        agency_id=agency_id,
+        passenger_id=(
+            passenger_identity.passenger_submission_id if passenger_identity is not None else None
+        ),
+        session_id=device_session.id,
+        session_generation=device_session.session_generation,
+        installation_id=device.installation_id,
+        principal_generation=principal_generation,
+        access_generation=access_generation,
+        now=now,
+    )
     return MobileTokenResponse(
         access_token=access_token,
         refresh_token=raw_refresh,
         access_token_expires_at=access_expires,
         refresh_token_expires_at=refresh_expires,
         session_id=device_session.id,
+        offline_authorization_lease=offline_authorization_lease,
         principal=MobilePrincipalResponse(
             id=principal_id,
             account_id=device_session.account_id,
@@ -220,53 +288,100 @@ async def _revoke_session_family(
 async def _refresh_principal(
     session: AsyncSession,
     device_session: MobileDeviceSessionModel,
-) -> tuple[UserModel | MobilePassengerIdentityModel, str, bool]:
+) -> tuple[
+    UserModel | MobilePassengerIdentityModel,
+    str,
+    bool,
+    GCGroupAccessModel | None,
+]:
     if device_session.subject_role == "passenger":
-        identity = (
-            await session.execute(
-                select(MobilePassengerIdentityModel)
-                .join(
-                    MobilePassengerSessionIdentityModel,
-                    MobilePassengerSessionIdentityModel.passenger_identity_id
-                    == MobilePassengerIdentityModel.id,
+        now = datetime.now(tz=UTC)
+        rows = list(
+            (
+                await session.execute(
+                    select(MobilePassengerIdentityModel, GCGroupAccessModel)
+                    .join(
+                        MobilePassengerSessionIdentityModel,
+                        MobilePassengerSessionIdentityModel.passenger_identity_id
+                        == MobilePassengerIdentityModel.id,
+                    )
+                    .join(
+                        GCGroupAccessModel,
+                        and_(
+                            GCGroupAccessModel.id
+                            == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                            GCGroupAccessModel.agency_id
+                            == MobilePassengerSessionIdentityModel.agency_id,
+                            GCGroupAccessModel.group_id
+                            == MobilePassengerSessionIdentityModel.group_id,
+                        ),
+                    )
+                    .join(
+                        ClientGroupModel,
+                        and_(
+                            ClientGroupModel.id == MobilePassengerSessionIdentityModel.group_id,
+                            ClientGroupModel.agency_id
+                            == MobilePassengerSessionIdentityModel.agency_id,
+                        ),
+                    )
+                    .where(
+                        MobilePassengerSessionIdentityModel.session_id == device_session.id,
+                        MobilePassengerSessionIdentityModel.agency_id == device_session.agency_id,
+                        MobilePassengerSessionIdentityModel.passenger_identity_id
+                        == device_session.passenger_identity_id,
+                        MobilePassengerSessionIdentityModel.gc_group_access_id
+                        == device_session.selected_gc_group_access_id,
+                        MobilePassengerSessionIdentityModel.group_id
+                        == device_session.selected_group_id,
+                        MobilePassengerIdentityModel.id == device_session.passenger_identity_id,
+                        MobilePassengerIdentityModel.agency_id == device_session.agency_id,
+                        MobilePassengerIdentityModel.gc_group_access_id
+                        == MobilePassengerSessionIdentityModel.gc_group_access_id,
+                        MobilePassengerIdentityModel.group_id
+                        == MobilePassengerSessionIdentityModel.group_id,
+                        MobilePassengerIdentityModel.claim_generation
+                        == MobilePassengerSessionIdentityModel.identity_claim_generation,
+                        MobilePassengerIdentityModel.status == "claimed",
+                        MobilePassengerIdentityModel.revoked_at.is_(None),
+                        GCGroupAccessModel.id == device_session.selected_gc_group_access_id,
+                        GCGroupAccessModel.agency_id == device_session.agency_id,
+                        GCGroupAccessModel.group_id == device_session.selected_group_id,
+                        GCGroupAccessModel.is_enabled.is_(True),
+                        GCGroupAccessModel.passenger_access_enabled.is_(True),
+                        GCGroupAccessModel.revoked_at.is_(None),
+                        or_(
+                            GCGroupAccessModel.access_starts_at.is_(None),
+                            GCGroupAccessModel.access_starts_at <= now,
+                        ),
+                        or_(
+                            GCGroupAccessModel.access_expires_at.is_(None),
+                            GCGroupAccessModel.access_expires_at > now,
+                        ),
+                        ClientGroupModel.status.in_(
+                            (GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value)
+                        ),
+                        ClientGroupModel.deleted_at.is_(None),
+                    )
+                    .limit(2)
+                    .with_for_update()
                 )
-                .where(
-                    MobilePassengerSessionIdentityModel.session_id == device_session.id,
-                    MobilePassengerSessionIdentityModel.agency_id
-                    == device_session.agency_id,
-                    MobilePassengerSessionIdentityModel.passenger_identity_id
-                    == device_session.passenger_identity_id,
-                    MobilePassengerSessionIdentityModel.gc_group_access_id
-                    == device_session.selected_gc_group_access_id,
-                    MobilePassengerSessionIdentityModel.group_id
-                    == device_session.selected_group_id,
-                    MobilePassengerIdentityModel.id
-                    == device_session.passenger_identity_id,
-                    MobilePassengerIdentityModel.agency_id == device_session.agency_id,
-                    MobilePassengerIdentityModel.gc_group_access_id
-                    == MobilePassengerSessionIdentityModel.gc_group_access_id,
-                    MobilePassengerIdentityModel.group_id
-                    == MobilePassengerSessionIdentityModel.group_id,
-                    MobilePassengerIdentityModel.claim_generation
-                    == MobilePassengerSessionIdentityModel.identity_claim_generation,
-                    MobilePassengerIdentityModel.status == "claimed",
-                    MobilePassengerIdentityModel.revoked_at.is_(None),
-                )
-            )
-        ).scalar_one_or_none()
-        if identity is None:
+            ).all()
+        )
+        if len(rows) != 1:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Mobile identity is inactive"
             )
+        identity, access = rows[0]
         name = (
             await session.execute(
                 select(PassportSubmissionModel.client_name).where(
                     PassportSubmissionModel.id == identity.passenger_submission_id,
                     PassportSubmissionModel.agency_id == identity.agency_id,
+                    PassportSubmissionModel.group_id == identity.group_id,
                 )
             )
         ).scalar_one()
-        return identity, name, False
+        return identity, name, False, access
 
     expected_role = (
         UserRole.CLIENT_MANAGER.value
@@ -307,7 +422,7 @@ async def _refresh_principal(
             profile,
             now=datetime.now(tz=UTC),
         )
-    return user, user.full_name, False
+    return user, user.full_name, False, None
 
 
 async def _principal_display_name(session: AsyncSession, claims: MobileAccessClaims) -> str:

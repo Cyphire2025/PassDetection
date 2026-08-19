@@ -1,4 +1,5 @@
 import type { Trip } from '../../model/trip';
+import { DEFAULT_TRIP_TIME_ZONE } from '@/core/localization/time-zone';
 import {
   eligiblePassengerTrip,
   passengerTripDestination,
@@ -11,6 +12,7 @@ const PASSENGER_TRIP: Trip = {
   destination: 'Vietnam',
   travelDate: '2026-08-12',
   returnDate: '2026-08-15',
+  timeZone: DEFAULT_TRIP_TIME_ZONE,
   role: 'passenger',
   accessGeneration: 1,
   accessExpiresAt: null,

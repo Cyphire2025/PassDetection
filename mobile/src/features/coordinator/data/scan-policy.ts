@@ -73,9 +73,11 @@ export function settleOptimisticAttendanceScans(
   sessionId: string,
   serverCount: number,
   settledCount: number,
+  newlyAcceptedCount = 0,
 ): OptimisticAttendanceCount {
   const boundedServerCount = Math.max(0, serverCount);
   const boundedSettledCount = Math.max(0, Math.floor(settledCount));
+  const boundedAcceptedCount = Math.max(0, Math.floor(newlyAcceptedCount));
   if (current.sessionId !== sessionId) {
     return {
       sessionId,
@@ -85,9 +87,34 @@ export function settleOptimisticAttendanceScans(
   }
   return {
     sessionId,
-    confirmedCount: Math.max(current.confirmedCount, boundedServerCount),
+    confirmedCount: Math.max(
+      current.confirmedCount,
+      boundedServerCount,
+      current.confirmedCount + Math.min(boundedSettledCount, boundedAcceptedCount),
+    ),
     pendingCount: Math.max(0, current.pendingCount - boundedSettledCount),
   };
+}
+
+export function restorePendingAttendanceScans(
+  current: OptimisticAttendanceCount,
+  sessionId: string,
+  serverCount: number,
+  pendingCount: number,
+): OptimisticAttendanceCount {
+  const reconciled = reconcileAttendanceCount(current, sessionId, serverCount);
+  return {
+    ...reconciled,
+    pendingCount: Math.max(0, Math.floor(pendingCount)),
+  };
+}
+
+export function confirmedAttendanceCount(
+  current: OptimisticAttendanceCount,
+  sessionId: string,
+  serverCount: number,
+): number {
+  return reconcileAttendanceCount(current, sessionId, serverCount).confirmedCount;
 }
 
 export function visibleAttendanceCount(

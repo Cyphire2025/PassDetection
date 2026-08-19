@@ -15,7 +15,7 @@ import { getInstallationId } from '@/core/storage/secure-store';
 
 export async function mobileDevice(): Promise<MobileDeviceInput> {
   if (Platform.OS !== 'android' && Platform.OS !== 'ios') {
-    throw new Error('Group Companion authentication requires Android or iOS.');
+    throw new Error('Global Connect Travels authentication requires Android or iOS.');
   }
 
   return MobileDeviceSchema.parse({
@@ -89,13 +89,16 @@ export async function activateInvitation(activationToken: string, newPassword: s
   });
 }
 
-export function refreshSession(refreshToken: string) {
+export async function refreshSession(refreshToken: string) {
   return apiRequest('/mobile/auth/refresh', {
     method: 'POST',
     authenticated: false,
     retryAuthentication: false,
     schema: TokenResponseSchema,
-    body: { refresh_token: refreshToken },
+    body: {
+      refresh_token: refreshToken,
+      installation_id: await getInstallationId(),
+    },
   });
 }
 

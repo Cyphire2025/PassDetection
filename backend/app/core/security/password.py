@@ -1,7 +1,7 @@
 """
 Password Hashing Utilities
 ==========================
-Wraps passlib bcrypt for consistent password hashing across the platform.
+Wraps bcrypt directly for consistent password hashing across the platform.
 
 Rules:
   - Never store or log plaintext passwords.

@@ -21,6 +21,8 @@ from app.presentation.api.v1.routes.mobile_resources import (
     _mobile_document_range_start,
     _mobile_manifest_versions,
     _mobile_meal_preference,
+    _mobile_sync_snapshot_resource_counts,
+    _mobile_sync_snapshot_resources,
     _MobileDocumentSource,
     _passenger_identity,
     _pending_personal_document_response,
@@ -32,6 +34,7 @@ from app.presentation.api.v1.routes.mobile_resources import (
     acknowledge_mobile_sync,
     authorize_mobile_document_download,
     download_mobile_document_content,
+    get_mobile_sync_snapshot,
     list_mobile_personal_documents,
     list_mobile_sync_changes,
     list_mobile_trips,
@@ -42,6 +45,7 @@ from app.presentation.api.v1.schemas.mobile_schemas import (
     MobileItineraryItemResponse,
     MobileManifestVersions,
     MobileSyncAcknowledgementRequest,
+    MobileSyncSnapshotResourceCounts,
 )
 
 
@@ -88,6 +92,7 @@ def test_mobile_resource_routes_are_compact_and_bounded() -> None:
         "/me",
         "/trips",
         "/trips/{group_id}/manifest",
+        "/sync/snapshot",
         "/sync/changes",
         "/sync/ack",
         "/trips/{group_id}/itinerary",
@@ -104,6 +109,140 @@ def test_mobile_resource_routes_are_compact_and_bounded() -> None:
         "/trips/{group_id}/qr",
         "/manager/groups/{group_id}/readiness",
     }
+
+
+@pytest.mark.parametrize(
+    ("role", "present", "absent"),
+    [
+        (
+            "passenger",
+            ("personal_documents", "room", "meals", "qr"),
+            ("readiness", "roster"),
+        ),
+        (
+            "client_manager",
+            ("readiness", "roster", "attendance_sessions"),
+            ("personal_documents", "room", "qr"),
+        ),
+        (
+            "coordinator",
+            ("roster", "attendance_sessions"),
+            ("personal_documents", "room", "readiness"),
+        ),
+    ],
+)
+def test_sync_snapshot_resource_map_is_role_minimized(
+    role: str,
+    present: tuple[str, ...],
+    absent: tuple[str, ...],
+) -> None:
+    resources = _mobile_sync_snapshot_resources(uuid.uuid4(), role)
+
+    for field in present:
+        assert getattr(resources, field) is not None
+    for field in absent:
+        assert getattr(resources, field) is None
+    assert resources.acknowledge == "/api/v1/mobile/sync/ack"
+
+
+@pytest.mark.asyncio
+async def test_snapshot_counts_share_role_and_visibility_boundaries() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(id=group_id),
+        access=SimpleNamespace(id=uuid.uuid4()),
+    )
+    result = MagicMock()
+    result.one.return_value = SimpleNamespace(
+        _mapping={
+            "announcements": 12,
+            "common_documents": 18,
+            "roster": 8_500,
+            "attendance_sessions": 240,
+        }
+    )
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=result)
+
+    counts = await _mobile_sync_snapshot_resource_counts(
+        session,
+        claims=claims,
+        trip=trip,
+    )
+
+    assert counts == MobileSyncSnapshotResourceCounts(
+        announcements=12,
+        common_documents=18,
+        personal_documents=None,
+        roster=8_500,
+        attendance_sessions=240,
+    )
+    sql = str(
+        session.execute.await_args.args[0].compile(
+            compile_kwargs={"literal_binds": True}
+        )
+    )
+    assert "gc_announcements.coordinator_visible IS true" in sql
+    assert "gc_common_documents.coordinator_visible IS true" in sql
+    assert "passport_submissions.agency_id" in sql
+    assert "passport_submissions.group_id" in sql
+    assert "passport_submissions.status IN" in sql
+    assert "attendance_sessions.id = attendance_sessions.canonical_session_id" in sql
+
+
+@pytest.mark.asyncio
+async def test_passenger_snapshot_count_is_owned_and_includes_legacy_passport_sources() -> None:
+    claims = _claims("passenger")
+    group_id = uuid.uuid4()
+    identity_id = uuid.uuid4()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(id=group_id),
+        access=SimpleNamespace(id=uuid.uuid4()),
+        principal_type="passenger",
+        passenger_identity=SimpleNamespace(id=identity_id),
+    )
+    submission = SimpleNamespace(id=uuid.uuid4())
+    result = MagicMock()
+    result.one.return_value = SimpleNamespace(
+        _mapping={
+            "announcements": 1,
+            "common_documents": 2,
+            "personal_documents": 7,
+        }
+    )
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=result)
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._passenger_document_submission",
+            new=AsyncMock(return_value=submission),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._passport_document_sources",
+            return_value=[SimpleNamespace(), SimpleNamespace()],
+        ),
+    ):
+        counts = await _mobile_sync_snapshot_resource_counts(
+            session,
+            claims=claims,
+            trip=trip,
+        )
+
+    assert counts.personal_documents == 7
+    assert counts.roster is None
+    assert counts.attendance_sessions is None
+    sql = str(
+        session.execute.await_args.args[0].compile(
+            compile_kwargs={"literal_binds": True}
+        )
+    )
+    assert "distributed_documents.agency_id" in sql
+    assert "distributed_documents.group_id" in sql
+    assert "distributed_documents.passenger_id" in sql
+    assert "document_whatsapp_deliveries" in sql
+    assert "+ 2" in sql
 
 
 def test_mobile_document_filename_cannot_escape_or_spoof_type() -> None:
@@ -163,6 +302,7 @@ async def test_document_authorization_returns_materialized_integrity_contract() 
     )
     expires_at = now + timedelta(minutes=2)
     request = MagicMock(client=None)
+    integrity_service = SimpleNamespace(enforce_action=AsyncMock())
 
     with (
         patch(
@@ -191,8 +331,10 @@ async def test_document_authorization_returns_materialized_integrity_contract() 
             document_id=document_id,
             request=request,
             version=7,
+            body=None,
             claims=claims,
             session=MagicMock(),
+            integrity_service=integrity_service,
         )
 
     assert response.size_bytes == 4096
@@ -201,6 +343,7 @@ async def test_document_authorization_returns_materialized_integrity_contract() 
     assert response.content_path.startswith("/api/v1/mobile/")
     assert "private/passport.jpg" not in response.model_dump_json()
     integrity.assert_awaited_once()
+    integrity_service.enforce_action.assert_awaited_once()
 
 
 class _FakeDocumentStreamStorage:
@@ -598,11 +741,9 @@ async def test_coordinator_roster_revision_does_not_track_distributed_documents(
 
     session = MagicMock()
     session.execute = AsyncMock(
-        side_effect=[
-            one_result((1500, now)),
-            one_result((1400, now, now, now)),
-            one_result((1200, now)),
-        ]
+        return_value=one_result(
+            (1500, now, 1400, now, now, now, 1200, now, 1500, 2, now)
+        )
     )
     revision = await _coordinator_roster_revision(session, claims, trip)
 
@@ -615,7 +756,9 @@ async def test_coordinator_roster_revision_does_not_track_distributed_documents(
     assert "passport_submissions" in sql
     assert "rooming_assignments" in sql
     assert "attendance_records" in sql
+    assert "passenger_qr_tokens" in sql
     assert "distributed_documents" not in sql
+    assert session.execute.await_count == 1
 
 
 @pytest.mark.asyncio
@@ -1133,6 +1276,203 @@ async def test_personal_document_exact_lookup_is_owned_and_not_page_limited() ->
 
 
 @pytest.mark.asyncio
+async def test_sync_snapshot_is_metadata_only_and_captures_cursor_before_versions() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(
+            id=group_id,
+            name="Enterprise group",
+            destination="Singapore",
+            travel_date=date(2026, 9, 1),
+            return_date=date(2026, 9, 8),
+            timezone="Asia/Singapore",
+        ),
+        access=SimpleNamespace(
+            id=uuid.uuid4(),
+            access_generation=7,
+            access_expires_at=datetime.now(tz=UTC) + timedelta(days=1),
+            itinerary_version=3,
+            common_document_version=4,
+            announcement_version=5,
+        ),
+        principal_type="coordinator",
+        passenger_identity=None,
+    )
+    high_water_result = MagicMock()
+    high_water_result.scalar_one.return_value = 12_345
+    session = MagicMock()
+    session.execute = AsyncMock(return_value=high_water_result)
+    versions = MobileManifestVersions(
+        manifest=7,
+        itinerary=3,
+        common_documents=4,
+        personal_documents=0,
+        announcements=5,
+        rooming=0,
+        meals=0,
+        qr=0,
+        readiness=0,
+        roster=9,
+    )
+    versions_mock = AsyncMock(return_value=versions)
+    counts = MobileSyncSnapshotResourceCounts(
+        announcements=12,
+        common_documents=18,
+        personal_documents=None,
+        roster=8_500,
+        attendance_sessions=240,
+    )
+    counts_mock = AsyncMock(return_value=counts)
+
+    with (
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+            new=AsyncMock(return_value=trip),
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._mobile_manifest_versions",
+            new=versions_mock,
+        ),
+        patch(
+            "app.presentation.api.v1.routes.mobile_resources._mobile_sync_snapshot_resource_counts",
+            new=counts_mock,
+        ),
+    ):
+        response = await get_mobile_sync_snapshot(
+            trip_id=group_id,
+            claims=claims,
+            session=session,
+        )
+
+    assert response.strategy == "full_rebase"
+    assert response.baseline_cursor == 12_345
+    assert response.access_generation == 7
+    assert response.trip.timezone == "Asia/Singapore"
+    assert response.versions == versions
+    assert response.max_incremental_changes == 10_000
+    assert response.max_group_passengers == 10_000
+    assert response.max_attendance_sessions_per_group == 10_000
+    assert response.resource_counts == counts
+    assert response.resources.roster is not None
+    assert response.resources.personal_documents is None
+    assert not hasattr(response.resources, "document_content")
+    assert session.execute.await_count == 1
+    versions_mock.assert_awaited_once_with(session, claims=claims, trip=trip)
+    counts_mock.assert_awaited_once_with(session, claims=claims, trip=trip)
+
+    watermark_statement = session.execute.await_args.args[0]
+    watermark_sql = str(
+        watermark_statement.compile(compile_kwargs={"literal_binds": True})
+    )
+    assert "mobile_sync_changes.agency_id" in watermark_sql
+    assert "mobile_sync_changes.gc_group_access_id" in watermark_sql
+    assert "mobile_sync_changes.group_id" in watermark_sql
+    assert "mobile_sync_changes.access_generation = 7" in watermark_sql
+
+
+@pytest.mark.asyncio
+async def test_large_sync_backlog_returns_scoped_snapshot_rebase_checkpoint() -> None:
+    claims = _claims()
+    group_id = uuid.uuid4()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(id=group_id),
+        access=SimpleNamespace(
+            id=uuid.uuid4(),
+            access_generation=3,
+            manifest_version=11,
+        ),
+        principal_type="passenger",
+        passenger_identity=SimpleNamespace(id=claims.principal_id),
+    )
+    high_water_result = MagicMock()
+    high_water_result.scalar_one.return_value = 20_001
+    overflow_result = MagicMock()
+    overflow_result.scalar_one_or_none.return_value = 19_999
+    session = MagicMock()
+    session.execute = AsyncMock(side_effect=[high_water_result, overflow_result])
+
+    with patch(
+        "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+        new=AsyncMock(return_value=trip),
+    ):
+        response = await list_mobile_sync_changes(
+            trip_id=group_id,
+            cursor=0,
+            limit=500,
+            claims=claims,
+            session=session,
+        )
+
+    assert response.has_more is False
+    assert response.next_cursor == 20_001
+    assert len(response.changes) == 1
+    checkpoint = response.changes[0]
+    assert checkpoint.sequence == 20_001
+    assert checkpoint.group_id == group_id
+    assert checkpoint.entity_type == "snapshot_rebase"
+    assert checkpoint.payload == {
+        "resource_path": f"/api/v1/mobile/sync/snapshot?trip_id={group_id}"
+    }
+    assert session.execute.await_count == 2
+
+    overflow_statement = session.execute.await_args_list[1].args[0]
+    overflow_sql = str(
+        overflow_statement.compile(compile_kwargs={"literal_binds": True})
+    )
+    assert "mobile_sync_changes.agency_id" in overflow_sql
+    assert "mobile_sync_changes.gc_group_access_id" in overflow_sql
+    assert "mobile_sync_changes.group_id" in overflow_sql
+    assert "mobile_sync_changes.access_generation = 3" in overflow_sql
+    assert "mobile_sync_changes.audience IN ('all', 'passenger')" in overflow_sql
+    assert claims.principal_id.hex in overflow_sql
+    assert "OFFSET 10000" in overflow_sql
+
+
+@pytest.mark.asyncio
+async def test_large_scoped_sequence_gap_does_not_force_snapshot_rebase() -> None:
+    claims = _claims("coordinator")
+    group_id = uuid.uuid4()
+    trip = SimpleNamespace(
+        group=SimpleNamespace(id=group_id),
+        access=SimpleNamespace(
+            id=uuid.uuid4(),
+            access_generation=3,
+            manifest_version=11,
+        ),
+        principal_type="coordinator",
+        passenger_identity=None,
+    )
+    high_water_result = MagicMock()
+    high_water_result.scalar_one.return_value = 20_001
+    overflow_result = MagicMock()
+    overflow_result.scalar_one_or_none.return_value = None
+    page_result = MagicMock()
+    page_result.scalars.return_value.all.return_value = []
+    session = MagicMock()
+    session.execute = AsyncMock(
+        side_effect=[high_water_result, overflow_result, page_result]
+    )
+
+    with patch(
+        "app.presentation.api.v1.routes.mobile_resources.MobileAccessPolicy.require_trip_access",
+        new=AsyncMock(return_value=trip),
+    ):
+        response = await list_mobile_sync_changes(
+            trip_id=group_id,
+            cursor=0,
+            limit=500,
+            claims=claims,
+            session=session,
+        )
+
+    assert response.changes == []
+    assert response.has_more is False
+    assert response.next_cursor == 20_001
+    assert session.execute.await_count == 3
+
+
+@pytest.mark.asyncio
 async def test_sync_cursor_advances_across_expired_or_invisible_journal_gaps() -> None:
     claims = _claims()
     group_id = uuid.uuid4()
@@ -1232,6 +1572,7 @@ async def test_passenger_trip_list_returns_every_live_identity_authorized_for_se
         destination="Vietnam",
         travel_date=date(2026, 8, 10),
         return_date=date(2026, 8, 15),
+        timezone="Asia/Ho_Chi_Minh",
     )
     second_group = SimpleNamespace(
         id=uuid.uuid4(),
@@ -1239,6 +1580,7 @@ async def test_passenger_trip_list_returns_every_live_identity_authorized_for_se
         destination="Thailand",
         travel_date=date(2026, 9, 10),
         return_date=date(2026, 9, 15),
+        timezone="Asia/Bangkok",
     )
     result = MagicMock()
     result.all.return_value = [
@@ -1256,4 +1598,8 @@ async def test_passenger_trip_list_returns_every_live_identity_authorized_for_se
     )
 
     assert [item.id for item in response.items] == [first_group.id, second_group.id]
+    assert [item.timezone for item in response.items] == [
+        "Asia/Ho_Chi_Minh",
+        "Asia/Bangkok",
+    ]
     assert all(item.role == "passenger" for item in response.items)
