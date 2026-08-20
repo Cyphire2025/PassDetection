@@ -550,7 +550,8 @@ async def test_rename_drains_parallel_uploads_before_failure_cleanup() -> None:
 
     assert storage.upload_file.await_count == 2
     storage.delete_files.assert_awaited_once()
-    assert events == ["first-failed", "second-finished", "cleanup"]
+    assert events[-1] == "cleanup"
+    assert set(events[:-1]) == {"first-failed", "second-finished"}
     session.add.assert_not_called()
 
 

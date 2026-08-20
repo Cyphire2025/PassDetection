@@ -94,6 +94,9 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'"gemini_api_credentials":"configured_or_non_production"', response.body)
+        self.assertIn(b'"mobile_realtime":', response.body)
+        self.assertIn(b'"mobile_offline_authorization":"disabled"', response.body)
+        self.assertIn(b'"revision":"unknown"', response.body)
 
     async def test_background_scheduler_failure_makes_readiness_503(
         self,

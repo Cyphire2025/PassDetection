@@ -35,9 +35,14 @@ RUN python -m pip install --no-cache-dir "pip==${PIP_VERSION}" && \
 # ── Stage 2: Production Runtime ──────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
+ARG APP_REVISION=unknown
+
 LABEL maintainer="Global Connects Dashboard Team"
 LABEL version="1.0.0"
 LABEL description="Global Connects Dashboard - Backend API"
+LABEL org.opencontainers.image.revision="${APP_REVISION}"
+
+ENV APP_REVISION="${APP_REVISION}"
 
 # Runtime system libraries only
 RUN apt-get update && apt-get install -y --no-install-recommends \

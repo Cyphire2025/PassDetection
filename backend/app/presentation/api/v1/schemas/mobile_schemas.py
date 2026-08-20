@@ -230,6 +230,26 @@ class MobileOTPVerifyResponse(BaseModel):
     claims: list[MobileTripClaimSummary] = Field(default_factory=list, max_length=50)
     tokens: MobileTokenResponse | None = None
 
+    @model_validator(mode="after")
+    def validate_status_payload(self) -> MobileOTPVerifyResponse:
+        """Keep OTP state transitions unambiguous at the API boundary."""
+
+        if self.status == "authenticated":
+            if self.tokens is None or self.claims:
+                raise ValueError(
+                    "Authenticated OTP responses require tokens and no pending claims"
+                )
+            return self
+        if self.tokens is not None:
+            raise ValueError("Unauthenticated OTP responses must not contain tokens")
+        if self.status == "claim_selection_required" and not self.claims:
+            raise ValueError("Claim selection responses require at least one claim")
+        if self.status == "secondary_verification_required" and self.claims:
+            raise ValueError(
+                "Secondary verification responses must not disclose claims"
+            )
+        return self
+
 
 class MobileTripSummaryResponse(BaseModel):
     id: uuid.UUID

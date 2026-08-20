@@ -98,6 +98,7 @@ jobs:
   backend-test:
     name: Backend — Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: backend-static-checks
     permissions:
       contents: read

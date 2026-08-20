@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import hashlib
 import uuid
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,51 +18,26 @@ _SUPPORT_PATHS = (
     _BACKEND_ROOT / "app/presentation/api/v1/routes/mobile_auth_otp_support.py",
     _BACKEND_ROOT / "app/presentation/api/v1/routes/mobile_auth_session_support.py",
 )
-_ROUTE_CONTRACT_SHA256 = "ea22e5f33f7566b1514cd8dd485413493dcbfa07be27f5216dd361925a8165d8"
-
-
-def _route_contract_digest() -> str:
-    tree = ast.parse(_ROUTE_PATH.read_text(encoding="utf-8"))
-    contract: list[tuple[object, ...]] = []
-    for node in tree.body:
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        decorators = [
-            ast.dump(decorator, include_attributes=False)
-            for decorator in node.decorator_list
-            if isinstance(decorator, ast.Call)
-            and isinstance(decorator.func, ast.Attribute)
-            and isinstance(decorator.func.value, ast.Name)
-            and decorator.func.value.id == "router"
-        ]
-        if not decorators:
-            continue
-        contract.append(
-            (
-                node.name,
-                decorators,
-                ast.dump(node.args, include_attributes=False),
-                ast.dump(node.returns, include_attributes=False) if node.returns else None,
-            )
-        )
-    return hashlib.sha256(repr(contract).encode()).hexdigest()
-
-
 def test_mobile_auth_route_order_and_decorators_are_frozen() -> None:
-    assert [route.path for route in mobile_auth.router.routes] == [
-        "/otp/request",
-        "/otp/verify",
-        "/claim/verify",
-        "/login",
-        "/activate",
-        "/refresh",
-        "/me",
-        "/passenger/trip/switch",
-        "/password/change",
-        "/logout",
-        "/logout-all",
+    # Assert the runtime contract directly. Hashing ``ast.dump`` output made
+    # this safety check depend on the interpreter's private AST representation
+    # and produced different results on Python 3.11 and 3.13.
+    assert [
+        (route.path, tuple(sorted(route.methods or ())), route.response_model)
+        for route in mobile_auth.router.routes
+    ] == [
+        ("/otp/request", ("POST",), mobile_auth.MobileOTPRequestResponse),
+        ("/otp/verify", ("POST",), mobile_auth.MobileOTPVerifyResponse),
+        ("/claim/verify", ("POST",), mobile_auth.MobileOTPVerifyResponse),
+        ("/login", ("POST",), mobile_auth.MobileTokenResponse),
+        ("/activate", ("POST",), mobile_auth.MobileTokenResponse),
+        ("/refresh", ("POST",), mobile_auth.MobileTokenResponse),
+        ("/me", ("GET",), mobile_auth.MobilePrincipalResponse),
+        ("/passenger/trip/switch", ("POST",), mobile_auth.MobileTokenResponse),
+        ("/password/change", ("POST",), mobile_auth.MobileTokenResponse),
+        ("/logout", ("POST",), None),
+        ("/logout-all", ("POST",), None),
     ]
-    assert _route_contract_digest() == _ROUTE_CONTRACT_SHA256
 
 
 def test_mobile_auth_facade_preserves_direct_helper_imports() -> None:

@@ -16,6 +16,7 @@ async def test_liveness(client: AsyncClient) -> None:
     data = response.json()
     assert data["status"] == "alive"
     assert "version" in data
+    assert "revision" in data
     assert "environment" in data
 
 
@@ -28,3 +29,6 @@ async def test_readiness(client: AsyncClient) -> None:
     data = response.json()
     assert "status" in data
     assert "checks" in data
+    assert "mobile_realtime" in data["checks"]
+    assert "mobile_offline_authorization" in data["checks"]
+    assert "revision" in data

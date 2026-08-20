@@ -152,10 +152,14 @@ async def _write_hints(
             except MobileRealtimeConnectionClosed as exc:
                 raise _SocketClose(connection.close_code or 1013) from exc
         try:
-            await asyncio.wait_for(
-                websocket.send_json(payload),
-                timeout=send_timeout_seconds,
-            )
+            # ``asyncio.wait_for`` has a cancellation race on the supported
+            # CPython 3.11 runtime when the wrapped send completes at the same
+            # instant the writer task is cancelled. A websocket teardown can
+            # then wait forever and retain its hub/session capacity lease.
+            # The 3.11 timeout context keeps the timeout local to this task and
+            # preserves external cancellation deterministically.
+            async with asyncio.timeout(send_timeout_seconds):
+                await websocket.send_json(payload)
         except TimeoutError as exc:
             raise _SocketClose(1013) from exc
 

@@ -79,6 +79,11 @@ jobs:
     name: Mobile - Android release compile verification
     needs: quality
     runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      # Compilation verification has no publishing credentials by design.
+      # Source maps are uploaded only by credentialed distribution builds.
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
     defaults:
       run:
         working-directory: mobile
@@ -110,6 +115,9 @@ jobs:
     # Expo SDK 57's expo-modules-jsi package requires Swift tools 6.2.
     # The macOS 26 image supplies Xcode 26; macOS 15 stops at Xcode 16.4/Swift 6.1.
     runs-on: macos-26
+    timeout-minutes: 35
+    env:
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
     defaults:
       run:
         working-directory: mobile

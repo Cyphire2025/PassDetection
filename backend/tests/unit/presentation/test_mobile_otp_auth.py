@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import json
 import uuid
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -54,6 +56,15 @@ def _request(path: str) -> Request:
             "headers": [(b"user-agent", b"mobile-auth-test")],
             "client": ("127.0.0.1", 12345),
         }
+    )
+
+
+def _offline_lease_claims(compact_lease: str) -> dict[str, object]:
+    segments = compact_lease.split(".")
+    assert len(segments) == 3
+    encoded_payload = segments[1]
+    return json.loads(
+        base64.urlsafe_b64decode(encoded_payload + ("=" * (-len(encoded_payload) % 4)))
     )
 
 
@@ -743,6 +754,14 @@ async def test_session_issuance_revokes_same_device_before_creating_new_family()
     revoke_same_device.assert_awaited_once()
     assert response.access_token == "access-token"
     assert response.refresh_token == "r" * 48
+    lease_claims = _offline_lease_claims(response.offline_authorization_lease)
+    assert lease_claims["sub"] == str(identity.id)
+    assert lease_claims["account_id"] == str(identity.id)
+    assert lease_claims["agency_id"] == str(agency_id)
+    assert lease_claims["principal_type"] == "passenger"
+    assert lease_claims["passenger_id"] == str(identity.passenger_submission_id)
+    assert lease_claims["session_id"] == str(response.session_id)
+    assert lease_claims["installation_id"] == _device().installation_id
     persisted = session.add_all.call_args.args[0]
     assert len(persisted) == 3
     assert persisted[2].passenger_identity_id == identity.id
@@ -1291,6 +1310,16 @@ async def test_passenger_trip_switch_rotates_subject_and_both_token_types() -> N
     assert response.principal.id == target_identity.id
     assert response.principal.account_id == old_identity_id
     assert response.access_token == "new-access"
+    switch_lease_claims = _offline_lease_claims(response.offline_authorization_lease)
+    assert switch_lease_claims["sub"] == str(target_identity.id)
+    assert switch_lease_claims["account_id"] == str(old_identity_id)
+    assert switch_lease_claims["agency_id"] == str(agency_id)
+    assert switch_lease_claims["principal_type"] == "passenger"
+    assert switch_lease_claims["passenger_id"] == str(
+        target_identity.passenger_submission_id
+    )
+    assert switch_lease_claims["session_id"] == str(session_id)
+    assert switch_lease_claims["installation_id"] == _device().installation_id
     assert device_session.passenger_identity_id == target_identity.id
     assert device_session.selected_group_id == target_group_id
     assert device_session.last_sync_acknowledged_at is None
@@ -1566,6 +1595,13 @@ async def test_refresh_rotation_locks_token_before_its_device_session() -> None:
 
     assert response.access_token == "access"
     assert response.principal.account_id == account_id
+    refresh_lease_claims = _offline_lease_claims(response.offline_authorization_lease)
+    assert refresh_lease_claims["sub"] == str(principal.id)
+    assert refresh_lease_claims["account_id"] == str(account_id)
+    assert refresh_lease_claims["agency_id"] == str(agency_id)
+    assert refresh_lease_claims["principal_type"] == "passenger"
+    assert refresh_lease_claims["session_id"] == str(session_id)
+    assert refresh_lease_claims["installation_id"] == _device().installation_id
     assert stored.consumed_at is not None
     replacement = session.add.call_args.args[0]
     assert replacement.parent_token_id == stored.id

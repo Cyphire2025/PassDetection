@@ -120,7 +120,36 @@ export const OtpVerifyResponseSchema = z
     claims: z.array(TripClaimSchema).max(50),
     tokens: TokenResponseSchema.nullable(),
   })
-  .strict();
+  .strict()
+  .superRefine((response, context) => {
+    if (response.status === 'authenticated') {
+      if (!response.tokens || response.claims.length > 0) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Authenticated OTP responses require tokens and no pending claims.',
+        });
+      }
+      return;
+    }
+    if (response.tokens) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Unauthenticated OTP responses must not contain tokens.',
+      });
+    }
+    if (response.status === 'claim_selection_required' && response.claims.length === 0) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Claim selection responses require at least one claim.',
+      });
+    }
+    if (response.status === 'secondary_verification_required' && response.claims.length > 0) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Secondary verification responses must not disclose claims.',
+      });
+    }
+  });
 
 export const TripSummarySchema = z
   .object({

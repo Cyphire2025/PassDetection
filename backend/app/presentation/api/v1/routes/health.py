@@ -50,6 +50,7 @@ async def liveness(settings: Settings = Depends(get_settings)) -> dict:
     return {
         "status": "alive",
         "version": settings.app_version,
+        "revision": settings.app_revision,
         "environment": settings.app_env,
     }
 
@@ -100,6 +101,11 @@ async def readiness(
     realtime_status, realtime_ready = get_mobile_realtime_hub().readiness()
     checks["mobile_realtime"] = realtime_status
     overall_healthy = overall_healthy and realtime_ready
+    # Production/staging settings validation has already cryptographically
+    # checked the Ed25519 private/public key match before the app can start.
+    checks["mobile_offline_authorization"] = (
+        "configured" if settings.mobile.enabled else "disabled"
+    )
 
     gemini_checks, gemini_ready = gemini_configuration_readiness(settings)
     checks.update(gemini_checks)
@@ -127,6 +133,7 @@ async def readiness(
             "status": "ready" if overall_healthy else "degraded",
             "checks": checks,
             "version": settings.app_version,
+            "revision": settings.app_revision,
         },
     )
 
@@ -168,6 +175,7 @@ async def diagnostics(
         content={
             "status": "ok" if http_status == status.HTTP_200_OK else "degraded",
             "version": settings.app_version,
+            "revision": settings.app_revision,
             "environment": settings.app_env,
             "processing_backend": settings.processing_backend,
             "metrics": operational_metrics,

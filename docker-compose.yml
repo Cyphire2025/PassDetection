@@ -120,6 +120,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       target: runtime
+      args:
+        APP_REVISION: ${APP_REVISION:-unknown}
     container_name: passdetection-backend
     restart: unless-stopped
     ulimits:

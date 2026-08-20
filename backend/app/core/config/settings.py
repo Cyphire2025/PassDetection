@@ -506,6 +506,15 @@ class Settings(BaseSettings):
     app_secret_key: str = Field(..., description="Must be set via APP_SECRET_KEY")
     app_debug: bool = False
     app_version: str = "1.0.0"
+    # Baked into release images from the source commit. Keeping this separate
+    # from the marketing/API version makes mixed client/server deployments
+    # immediately diagnosable without exposing configuration or secrets.
+    app_revision: str = Field(
+        default="unknown",
+        min_length=7,
+        max_length=64,
+        pattern=r"^(?:unknown|[0-9a-f]{7,64})$",
+    )
     app_name: str = "Global Connects Dashboard"
 
     api_v1_prefix: str = "/api/v1"
