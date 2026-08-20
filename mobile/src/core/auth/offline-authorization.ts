@@ -1,5 +1,11 @@
 import { ed25519 } from '@noble/curves/ed25519.js';
 import { base64urlnopad } from '@scure/base';
+
+import {
+  DEFAULT_OFFLINE_AUTHORIZATION_AUDIENCE,
+  DEFAULT_OFFLINE_AUTHORIZATION_ISSUER,
+  DEFAULT_OFFLINE_AUTHORIZATION_PUBLIC_KEYS_JSON,
+} from '../config/offline-authorization-public';
 import { z } from 'zod';
 
 import type { OfflineAuthorizationRecord } from '@/core/storage/secure-store';
@@ -305,9 +311,15 @@ export function parseOfflineAuthorizationVerificationConfiguration(input: Readon
 
 export function getOfflineAuthorizationVerificationConfiguration(): OfflineAuthorizationVerificationConfiguration {
   runtimeConfiguration ??= parseOfflineAuthorizationVerificationConfiguration({
-    issuer: process.env.EXPO_PUBLIC_OFFLINE_LEASE_ISSUER,
-    audience: process.env.EXPO_PUBLIC_OFFLINE_LEASE_AUDIENCE,
-    publicKeysJson: process.env.EXPO_PUBLIC_OFFLINE_LEASE_PUBLIC_KEYS_JSON,
+    issuer:
+      process.env.EXPO_PUBLIC_OFFLINE_LEASE_ISSUER
+      ?? DEFAULT_OFFLINE_AUTHORIZATION_ISSUER,
+    audience:
+      process.env.EXPO_PUBLIC_OFFLINE_LEASE_AUDIENCE
+      ?? DEFAULT_OFFLINE_AUTHORIZATION_AUDIENCE,
+    publicKeysJson:
+      process.env.EXPO_PUBLIC_OFFLINE_LEASE_PUBLIC_KEYS_JSON
+      ?? DEFAULT_OFFLINE_AUTHORIZATION_PUBLIC_KEYS_JSON,
   });
   return runtimeConfiguration;
 }
