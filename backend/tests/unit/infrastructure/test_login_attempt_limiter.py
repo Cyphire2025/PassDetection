@@ -22,8 +22,14 @@ def _settings(*, require_redis: bool, max_attempts: int = 2) -> SimpleNamespace:
 
 
 class _UnavailableRedis:
+    def __init__(self) -> None:
+        self.closed = False
+
     async def exists(self, _key: str) -> bool:
         raise ConnectionError("redis unavailable")
+
+    async def aclose(self) -> None:
+        self.closed = True
 
 
 class _AtomicCounterRedis:
@@ -33,6 +39,7 @@ class _AtomicCounterRedis:
         self.locks: dict[str, tuple[int, str]] = {}
         self.eval_calls: list[tuple[str, int]] = []
         self.fail_eval = fail_eval
+        self.closed = False
 
     async def eval(
         self,
@@ -55,6 +62,9 @@ class _AtomicCounterRedis:
 
     async def setex(self, key: str, ttl_seconds: int, value: str) -> None:
         self.locks[key] = (ttl_seconds, value)
+
+    async def aclose(self) -> None:
+        self.closed = True
 
 
 @pytest.mark.asyncio
@@ -111,11 +121,12 @@ def test_required_redis_configuration_failure_is_fail_closed(
 async def test_required_redis_runtime_failure_is_fail_closed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    redis = _UnavailableRedis()
     monkeypatch.setattr(limiter_module, "get_settings", lambda: _settings(require_redis=True))
     monkeypatch.setattr(
         limiter_module.Redis,
         "from_url",
-        lambda *_args, **_kwargs: _UnavailableRedis(),
+        lambda *_args, **_kwargs: redis,
     )
     limiter = limiter_module.LoginAttemptLimiter()
 
@@ -123,6 +134,7 @@ async def test_required_redis_runtime_failure_is_fail_closed(
         DependencyUnavailableError, match="Authentication is temporarily unavailable"
     ):
         await limiter.check_allowed(email="person@example.com", ip_address="203.0.113.7")
+    assert redis.closed is True
 
 
 @pytest.mark.asyncio
@@ -138,6 +150,23 @@ async def test_required_redis_eval_failure_is_fail_closed(
         DependencyUnavailableError, match="Authentication is temporarily unavailable"
     ):
         await limiter.record_failure(email="person@example.com", ip_address="203.0.113.7")
+    assert redis.closed is True
+
+
+@pytest.mark.asyncio
+async def test_explicit_close_releases_the_request_scoped_redis_pool(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    redis = _AtomicCounterRedis()
+    monkeypatch.setattr(limiter_module, "get_settings", lambda: _settings(require_redis=True))
+    monkeypatch.setattr(limiter_module.Redis, "from_url", lambda *_args, **_kwargs: redis)
+    limiter = limiter_module.LoginAttemptLimiter()
+
+    await limiter.aclose()
+    await limiter.aclose()
+
+    assert redis.closed is True
+    assert limiter._redis is None
 
 
 @pytest.mark.asyncio

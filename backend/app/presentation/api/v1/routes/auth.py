@@ -12,6 +12,8 @@ All business logic lives in use cases — routes only:
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -58,13 +60,17 @@ router.include_router(identity_router)
 
 # ── Dependency Factories ──────────────────────────────────────────────────────
 
-def _get_login_use_case(
+async def _get_login_use_case(
     session: AsyncSession = Depends(get_db_session),
-) -> LoginUseCase:
-    return LoginUseCase(
+) -> AsyncIterator[LoginUseCase]:
+    use_case = LoginUseCase(
         user_repository=UserRepository(session),
         refresh_token_repository=RefreshTokenRepository(session),
     )
+    try:
+        yield use_case
+    finally:
+        await use_case.aclose()
 
 
 def _get_refresh_use_case(

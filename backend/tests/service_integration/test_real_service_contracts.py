@@ -165,24 +165,27 @@ async def test_real_postgresql_and_redis_authentication_session_contract() -> No
                 UserRepository(session),
                 RefreshTokenRepository(session),
             )
-            with pytest.raises(AuthenticationError):
-                await use_case.execute(
-                    LoginInputDTO(email=email, password="wrong-password"),
+            try:
+                with pytest.raises(AuthenticationError):
+                    await use_case.execute(
+                        LoginInputDTO(email=email, password="wrong-password"),
+                        client_ip="127.0.0.1",
+                    )
+                result = await use_case.execute(
+                    LoginInputDTO(email=email, password=password),
                     client_ip="127.0.0.1",
                 )
-            result = await use_case.execute(
-                LoginInputDTO(email=email, password=password),
-                client_ip="127.0.0.1",
-            )
-            await session.commit()
-            assert result.user.id == user_id
-            assert result.user.agency_id == agency_id
-            assert result.access_token
-            stored_refresh = await session.scalar(
-                select(RefreshTokenModel).where(RefreshTokenModel.user_id == user_id)
-            )
-            assert stored_refresh is not None
-            assert stored_refresh.token != result.refresh_token
+                await session.commit()
+                assert result.user.id == user_id
+                assert result.user.agency_id == agency_id
+                assert result.access_token
+                stored_refresh = await session.scalar(
+                    select(RefreshTokenModel).where(RefreshTokenModel.user_id == user_id)
+                )
+                assert stored_refresh is not None
+                assert stored_refresh.token != result.refresh_token
+            finally:
+                await use_case.aclose()
     finally:
         async with session_factory() as session:
             await session.execute(delete(UserModel).where(UserModel.id == user_id))
@@ -395,7 +398,8 @@ def test_celery_redis_broker_publish_consume_round_trip() -> None:
     queue_name = f"enterprise-ci-{uuid.uuid4()}"
     payload = {"probe_id": str(uuid.uuid4())}
     with Connection(broker_url) as connection:
-        queue = connection.SimpleQueue(queue_name)
+        channel = connection.channel()
+        queue = connection.SimpleQueue(queue_name, channel=channel)
         try:
             queue.put(payload)
             message = queue.get(block=True, timeout=5)
@@ -403,6 +407,7 @@ def test_celery_redis_broker_publish_consume_round_trip() -> None:
             message.ack()
         finally:
             queue.close()
+            channel.close()
 
 
 def test_real_celery_worker_executes_idempotent_database_task() -> None:

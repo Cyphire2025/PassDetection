@@ -16,6 +16,7 @@ BACKEND_ROOT = REPOSITORY_ROOT / "backend"
 DEFAULT_OUTPUT = REPOSITORY_ROOT / "mobile" / "contracts" / "mobile-api.openapi.json"
 MOBILE_PATH_PREFIX = "/api/v1/mobile"
 SCHEMA_REF_PREFIX = "#/components/schemas/"
+CANONICAL_PYTHON_VERSION = (3, 11)
 
 
 def _schema_references(value: Any) -> Iterator[str]:
@@ -83,6 +84,13 @@ def _backend_working_directory() -> Iterator[None]:
 
 
 def application_contract() -> dict[str, Any]:
+    if sys.version_info[:2] != CANONICAL_PYTHON_VERSION:
+        expected = ".".join(str(part) for part in CANONICAL_PYTHON_VERSION)
+        actual = f"{sys.version_info.major}.{sys.version_info.minor}"
+        raise RuntimeError(
+            "Mobile OpenAPI generation must use the repository's canonical "
+            f"Python {expected} runtime; received Python {actual}."
+        )
     # Import lazily so pure contract-selection tests never construct runtime
     # settings, middleware clients, or an application object.
     if str(BACKEND_ROOT) not in sys.path:
@@ -108,7 +116,11 @@ def main() -> None:
     if args.write:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(rendered, encoding="utf-8", newline="\n")
-        print(f"Wrote mobile OpenAPI contract: {output.relative_to(REPOSITORY_ROOT)}")
+        try:
+            display_path = output.relative_to(REPOSITORY_ROOT)
+        except ValueError:
+            display_path = output
+        print(f"Wrote mobile OpenAPI contract: {display_path}")
         return
 
     if not output.is_file():

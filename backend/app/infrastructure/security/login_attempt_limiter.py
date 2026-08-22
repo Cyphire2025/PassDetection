@@ -33,6 +33,14 @@ class LoginAttemptLimiter:
         except Exception as exc:
             self._handle_redis_failure("configure", exc)
 
+    async def aclose(self) -> None:
+        """Release the request-scoped Redis pool deterministically."""
+
+        client = self._redis
+        self._redis = None
+        if client is not None:
+            await client.aclose()
+
     async def check_allowed(self, *, email: str, ip_address: str | None) -> None:
         key = self._key(email, ip_address)
         if self._redis is not None:
@@ -43,7 +51,7 @@ class LoginAttemptLimiter:
             except AuthenticationError:
                 raise
             except Exception as exc:
-                self._handle_redis_failure("check", exc)
+                await self._handle_redis_runtime_failure("check", exc)
 
         if self._local_locks.get(key, 0) > time.time():
             raise AuthenticationError("Too many failed login attempts. Try again later.")
@@ -61,7 +69,7 @@ class LoginAttemptLimiter:
                     await self._redis.setex(f"{key}:locked", self._jwt.login_lockout_seconds, "1")
                 return
             except Exception as exc:
-                self._handle_redis_failure("record_failure", exc)
+                await self._handle_redis_runtime_failure("record_failure", exc)
 
         now = time.time()
         count, expires_at = self._local_counts[key]
@@ -80,7 +88,7 @@ class LoginAttemptLimiter:
                 await self._redis.delete(f"{key}:count", f"{key}:locked")
                 return
             except Exception as exc:
-                self._handle_redis_failure("record_success", exc)
+                await self._handle_redis_runtime_failure("record_success", exc)
         self._local_counts.pop(key, None)
         self._local_locks.pop(key, None)
 
@@ -95,6 +103,20 @@ class LoginAttemptLimiter:
             raise DependencyUnavailableError(
                 "Authentication is temporarily unavailable. Please try again shortly."
             ) from exc
+
+    async def _handle_redis_runtime_failure(self, operation: str, exc: Exception) -> None:
+        client = self._redis
+        self._redis = None
+        if client is not None:
+            try:
+                await client.aclose()
+            except Exception as close_exc:
+                logger.warning(
+                    "login_lockout_redis_close_failed",
+                    operation=operation,
+                    error_type=type(close_exc).__name__,
+                )
+        self._handle_redis_failure(operation, exc)
 
     def _key(self, email: str, ip_address: str | None) -> str:
         normalized_email = email.lower().strip()

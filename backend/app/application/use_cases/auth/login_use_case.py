@@ -52,7 +52,22 @@ class LoginUseCase:
     ) -> None:
         self._user_repo  = user_repository
         self._token_repo = refresh_token_repository
-        self._limiter = login_attempt_limiter or LoginAttemptLimiter()
+        self._limiter = login_attempt_limiter
+        self._owns_limiter = login_attempt_limiter is None
+
+    def _attempt_limiter(self) -> LoginAttemptLimiter:
+        """Construct the Redis-backed limiter only for password verification."""
+
+        if self._limiter is None:
+            self._limiter = LoginAttemptLimiter()
+        return self._limiter
+
+    async def aclose(self) -> None:
+        """Release resources created by this use-case instance."""
+
+        if self._owns_limiter and self._limiter is not None:
+            await self._limiter.aclose()
+            self._limiter = None
 
     async def execute(
         self,
@@ -76,41 +91,42 @@ class LoginUseCase:
     ) -> User:
         """Verify the password boundary without minting a bearer session."""
 
-        await self._limiter.check_allowed(email=dto.email, ip_address=client_ip)
+        limiter = self._attempt_limiter()
+        await limiter.check_allowed(email=dto.email, ip_address=client_ip)
 
         # 1. Fetch user
         user = await self._user_repo.get_by_email(dto.email)
         if not user:
             # Match the expensive verification work performed for known users.
             verify_password(dto.password, _DUMMY_PASSWORD_HASH)
-            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         # 2. Verify password
         if not verify_password(dto.password, user.hashed_password):
             logger.warning("login_failed_bad_password", user_id=str(user.id))
-            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         # 3. Check active
         if not user.is_active:
             logger.warning("login_failed_inactive", user_id=str(user.id))
-            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Your account has been deactivated")
 
         # Client Managers are external mobile-only principals. Never mint a
         # dashboard token even when their mobile password is valid.
         if user.role == UserRole.CLIENT_MANAGER:
             logger.warning("dashboard_login_denied_mobile_role", user_id=str(user.id))
-            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
         if user.credential_state != "active":
             logger.warning("dashboard_login_denied_pending_credential", user_id=str(user.id))
-            await self._limiter.record_failure(email=dto.email, ip_address=client_ip)
+            await limiter.record_failure(email=dto.email, ip_address=client_ip)
             raise AuthenticationError("Invalid email or password")
 
-        await self._limiter.record_success(email=dto.email, ip_address=client_ip)
+        await limiter.record_success(email=dto.email, ip_address=client_ip)
 
         return user
 
