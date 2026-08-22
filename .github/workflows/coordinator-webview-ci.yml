@@ -38,7 +38,7 @@ jobs:
           cache: gradle
 
       - name: Resolve the reviewed production dependency graph
-        run: ./gradlew --no-daemon dependencies --configuration productionDebugRuntimeClasspath
+        run: ./gradlew --no-daemon :app:dependencies --configuration productionDebugRuntimeClasspath
 
       - name: Run unit tests and Android lint
         run: ./gradlew --no-daemon testProductionDebugUnitTest lintProductionDebug
